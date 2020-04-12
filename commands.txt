@@ -1,0 +1,24 @@
+>commands                Gives this useless pile of garbage.
+>say [word]              Replies something.
+>isprime [num]           Checks if a number is prime or not.
+>factor [num]            Returns the factor of a number.
+>multipilcation [num]    Returns multipilcation list of a number.
+>id [tag]                Returns a user/channel/role ID.
+>rock                    Plays rock paper scissors as rock.
+>paper                   Plays rock paper scissors as paper.
+>scissors                Plays rock paper scissors as scissors.
+>dice                    Flips a dice.
+>coin                    Flips a coin.
+>rng [num] [num]         Returns a random number between those two numbers.
+>math [num] [sym] [num]  Returns a simple equation result.
+>randomcolor             Returns a random color, with some useless info.
+>gddaily                 Returns the current Geometry Dash Daily level.
+>gdweekly                Returns the current Geometry Dash Weekly level.
+>gdprofile [name]        Returns the user information of a GD player.
+>help                    Pretty explanatory.
+>time                    Shows the current time in UTC.
+>joke                    Generates a random joke and it's punchline.
+>qr [text]               Generates a QR code with a text.
+>median [array]          Returns the median of an array.
+>mean [array]            Returns the mean of an array.
+>sqrt [num]              Returns the square root of a number.
