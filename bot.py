@@ -5,7 +5,6 @@ with open('brain.json', 'r') as note:
     prefix = components["prefix"]
     token = components["token"]
 from discord.utils import get
-import os
 import discord
 import urllib.request
 import random
