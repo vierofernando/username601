@@ -1,1 +1,0 @@
-cls&&bot&&pause
