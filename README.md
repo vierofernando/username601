@@ -3,13 +3,9 @@ hello, fellow programmer! my name is Viero Fernando. This project is **Open Sour
 
 About the source code files:
 
- - ```bot.py``` **Main source code of the bot.**
- - ```commands.txt``` **Bot's commands. For ```>commands```**
- - ```brain.json``` **Without this, the bot won't even be online!**
- - ```run.bat``` **Making it easier to run the bot from the command line.**
+ - ```bot.py``` **The bot file, Main source code.**
  - ```username601.html``` **Website source code. (HTML/CSS/JS)**
- - ```username601.png``` **Profile picture.**
- - ```version.json``` **Bot's version information.**
+ - ```username601.png``` **Username601's profile pic.**
 
 **Links**
 [Main bot website.](http://vierofernando.github.io/programs/username601) | 
