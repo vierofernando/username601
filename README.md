@@ -4,7 +4,6 @@ hello, fellow programmer! my name is Viero Fernando. This project is **Open Sour
 About the source code files:
 
  - ```bot.py``` **The bot file, Main source code.**
- - ```username601.html``` **Website source code. (HTML/CSS/JS)**
  - ```username601.png``` **Username601's profile pic.**
 
 **Links**
