@@ -1,26 +1,29 @@
 print('Please wait...')
 import json
-with open('brain.json', 'r') as note:
-    components = json.load(note)
-    prefix = components["prefix"]
-    token = components["token"]
-from discord.utils import get
+import os
+prefix = '>'
 import discord
+import wikipediaapi
 import urllib.request
 import random
+import imdb
 import math
 import requests
+from googletrans import Translator, LANGUAGES
+gtr = Translator()
 client = discord.Client()
+ia = imdb.IMDb()
 
-bothelp = 'commands, help, token, connections, whomakeme, createbot, ping'
+bothelp = 'commands, about, token, connections, whomakeme, createbot, ping'
 math = 'math [num] [sym] [num], factor [num], multiplication [num], sqrt [num], isprime [num], rng [num], median [array], mean [array]'
 encoding = 'binary [text], supreme [text], reverse [text], length [text], qr [text], leet [text], emojify [text]'
 games = 'coin, dice, rock, paper, scissors, gddaily, gdweekly, gdprofile [name]'
 fun = 'joke, memes, hack, slap [tag], hbd [tag], shipwho, gaylevel [tag], secret, inspirobot, meme, 8ball, deathnote, choose [array]'
-images = 'ph help, ship [tag1] [tag2], trash [tag], jpeg [tag], giphy [query], ph help, cat, dog, magik [tag], facts [text], invert [tag], pixelate [tag], b&w [tag], drake help, salty [tag], wooosh [tag], captcha [text], achieve [text], scroll [text], call [text], challenge [text], didyoumean help'
-utilities = 'catfact, funfact, googledoodle, ytsearch [query], bored, search [query], randomcolor, randomword, religion, country [name], time, pokesprite [name], ghiblifilms, randombot, ytthumbnail [link]'
+images = 'ph help, ship [tag1] [tag2], coffee, wallpaper, trash [tag], jpeg [tag], giphy [query], cat, sadcat, dog, fox, bird, magik [tag], facts [text], invert [tag], pixelate [tag], b&w [tag], drake help, salty [tag], wooosh [tag], captcha [text], achieve [text], scroll [text], call [text], challenge [text], didyoumean help'
+utilities = 'catfact, dogfact, funfact, steam [profile], googledoodle, ytsearch [query], bored, search [query], randomcolor, randomword, religion, country [name], time, newemote, ghiblifilms, randombot, ytthumbnail [link]'
 discordAPI = 'id [tag], getinvite, botmembers, serverinfo, servericon, avatar [tag], userinfo [tag], roles, channels, serveremojis, reactmsg [text], reactnum [num1] [num2]'
-commandLength = [len(bothelp.split(',')), len(math.split(',')), len(encoding.split(',')), len(games.split(',')), len(fun.split(',')), len(utilities.split(',')), len(discordAPI.split(',')), len(images.split(','))]
+apps = 'imdb, translate, wikipedia'
+commandLength = [len(bothelp.split(',')), len(math.split(',')), len(encoding.split(',')), len(games.split(',')), len(fun.split(',')), len(utilities.split(',')), len(discordAPI.split(',')), len(images.split(',')), len(apps.split(','))]
 
 @client.event
 async def on_ready():
@@ -45,10 +48,8 @@ async def on_message(message):
     splitted = message.content.split()
     #MAIN COMMANDS
     if '<@!696973408000409626>' in msg and msg.startswith(prefix):
-        print('[BOT sugg. by: '+str(msgAuthor)+'] Doing commands... PINGED ('+str(splitted[0][1:])+')')
         await message.channel.send(random.choice(sayTag))
     elif msg.startswith(prefix):
-        print('[BOT sugg. by: '+str(msgAuthor)+'] Doing commands... ('+str(splitted[0][1:])+')')
         if msg.startswith(prefix+'say'):
             await message.channel.send(msg[5:])
         if msg.startswith(prefix+'emojiimg'):
@@ -62,7 +63,144 @@ async def on_message(message):
                 embed.set_image(url=link)
                 await message.channel.send(embed=embed)
             else:
-                await message.channel.send('Invalid parameters.') # 
+                await message.channel.send('Invalid parameters.')
+        if msg.startswith(prefix+'imdb'):
+            wait = await message.channel.send('Please wait...')
+            if len(splitted)==1 or splitted[1]=='help' or splitted[1]=='--help':
+                embed = discord.Embed(title='IMDb command help', description='Searches through the IMDb Movie database.\n{} are Parameters that is **REQUIRED** to get the info.\n\n', colour=discord.Colour.red())
+                embed.add_field(name='Commands', value=prefix+'imdb --top {NUMBER}\n'+prefix+'imdb --search {TYPE} {QUERY}\n'+prefix+'imdb help\n'+prefix+'imdb --movie {MOVIE_ID or MOVIE_NAME}', inline='False')
+                embed.add_field(name='Help', value='*{TYPE} could be "movie", "person", or "company".\n{QUERY} is the movie/person/company name.\n{MOVIE_ID} can be got from the search. Example: `'+prefix+'imdb --search movie Inception`.', inline='False')
+                await wait.edit(content='', embed=embed)
+            if splitted[1]=='--top':
+                if len(splitted)==2:
+                    await wait.edit(content='Please type the number!\nex: --top 5, --top 10, etc.')
+                else:
+                    num = splitted[2]
+                    try:
+                        if int(num)>30:
+                            await wait.edit(content='That\'s too many movies to be listed!')
+                        else:
+                            arr = ia.get_top250_movies()
+                            total = ''
+                            for i in range(0, int(num)):
+                                total = total + str(int(i)+1) + '. '+str(arr[i]['title'])+' (`'+str(arr[i].movieID)+'`)\n'
+                            embed = discord.Embed(title='IMDb Top '+str(num)+':', description=str(total), colour=discord.Colour.red())
+                            await wait.edit(content='', embed=embed)
+                    except ValueError:
+                        await wait.edit(content='Is the top thing you inputted REALLY a number?\nlike, Not top TEN, but top 10.\nGET IT?')
+            if splitted[1]=='--movie':
+                if splitted[1]=='--movie' and len(splitted)==2:
+                    await wait.edit(content='Where\'s the ID?!?!?!')
+                else:
+                    if splitted[2].isnumeric()==True:
+                        movieId = splitted[2]
+                        theID = str(movieId)
+                    else:
+                        movieId = ia.search_movie(msg[int(len(splitted[0])+len(splitted[1])+2):])[0].movieID
+                        theID = str(movieId)
+                    data = ia.get_movie(str(movieId))
+                try:
+                    embed = discord.Embed(title=data['title'], colour=discord.Colour.red())
+                    await wait.edit(content='Please wait... Retrieving data...')
+                    emoteStar = ''
+                    for i in range(0, round(int(ia.get_movie_main(theID)['data']['rating']))):
+                        emoteStar = emoteStar + ' :star:'
+                    upload_date = ia.get_movie_release_info(str(theID))['data']['raw release dates'][0]['date']
+                    imdb_url = ia.get_imdbURL(data)
+                    await wait.edit(content='Please wait... Creating result...')
+                    embed.add_field(name='General Information', value=f'**IMDb URL: **{imdb_url}\n**Upload date: **{upload_date}\n**Written by: **'+ia.get_movie_main(str(theID))['data']['writer'][0]['name']+'\n**Directed by: **'+ia.get_movie_main(str(theID))['data']['director'][0]['name'])
+                    embed.add_field(name='Ratings', value=emoteStar+'\n**Overall rating: **'+str(ia.get_movie_main(str(theID))['data']['rating'])+'\n**Rated by '+str(ia.get_movie_main(str(theID))['data']['votes'])+' people**')
+                    embed.set_image(url=ia.get_movie_main(str(theID))['data']['cover url'])
+                    await wait.edit(content='', embed=embed)
+                except KeyError:
+                    await wait.edit(content='An error occured!\n**Good news, we *may* fix it.**')
+                    errorQuick = discord.Embed(title=data['title'], colour=discord.Colour.red())
+                    errorQuick.add_field(name='General Information', value=f'**IMDb URL: **{imdb_url}\n**Upload date: **{upload_date}')
+                    errorQuick.add_field(name='Ratings', value=emoteStar+'\n**Overall rating: **'+str(ia.get_movie_main(str(theID))['data']['rating'])+'\n**Rated by '+str(ia.get_movie_main(str(theID))['data']['votes'])+' people**')
+                    errorQuick.set_footer(text='Information given is limited due to Errors and... stuff.')
+                    await wait.edit(content='', embed=errorQuick)
+            if splitted[1]=='--search':
+                query = len(splitted[0])+len(splitted[1])+len(splitted[2])+3
+                query = msg[query:]
+                lists = ''
+                if splitted[2].startswith('movie') or splitted[2].startswith('film'):
+                    main_name = 'MOVIE'
+                    movies = ia.search_movie(query)
+                    for i in range(0, int(len(movies))):
+                        if len(lists)>1950:
+                            break
+                        lists = lists + str(int(i)+1) +'. '+ str(movies[i]['title'])+ ' (`'+str(movies[i].movieID)+'`)\n'
+                elif splitted[2].startswith('company'):
+                    main_name = 'COMPANY'
+                    companies = ia.search_company(query)
+                    for i in range(0, int(len(companies))):
+                        if len(lists)>1950:
+                            break
+                        lists = lists + str(int(i)+1) + '. '+str(companies[i]['name']) + ' (`'+str(companies[i].companyID)+'`)\n'
+                elif splitted[2].startswith('person'):
+                    main_name = 'PERSON'
+                    persons = ia.search_person(query)
+                    for i in range(0, int(len(persons))):
+                        if len(lists)>1950:
+                            break
+                        lists = lists + str(int(i)+1) + '. '+str(persons[i]['name']) + ' (`'+str(persons[i].personID)+'`)\n'
+                embed = discord.Embed(title=main_name.lower()+' search for "'+str(query)+'":', description=str(lists), colour=discord.Colour.red())
+                if main_name=='MOVIE':
+                    embed.set_footer(text='Type '+prefix+'imdb --'+str(main_name.lower())+' {'+main_name+'_ID} to show each info.')
+                await wait.edit(content='', embed=embed)
+        if msg.startswith(prefix+'dogfact'):
+            fact = json.loads((urllib.request.urlopen('https://dog-api.kinduff.com/api/facts')).read())
+            if fact['success']!=True:
+                desc = 'Error getting the fact.'
+            else:
+                desc = fact['facts'][0]
+            embed = discord.Embed(title='Did you know?',description=str(desc))
+            await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'wallpaper'):  
+            width = ['100', '200', '300', '400', '500', '600', '700', '800', '900', '1000']
+            embed = discord.Embed(colour=discord.Colour.blue())
+            embed.set_image(url='https://picsum.photos/'+str(random.choice(width)))
+            await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'coffee'):
+            embed = discord.Embed(colour=discord.Colour.blue())
+            embed.set_image(url='https://coffee.alexflipnote.dev/random')
+            await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'fox'):
+            img = requests.get('https://randomfox.ca/floof/?ref=apilist.fun').text.split('"image":"')[1].split('"')[0].replace('\/', '/')
+            embed = discord.Embed(colour=discord.Colour.red())
+            embed.set_image(url=img)
+            await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'newemote'):
+            data = requests.get('https://discordemoji.com/')
+            byEmote = data.text.split('<div class="float-right"><a href="')
+            del byEmote[0]
+            all = []
+            for i in range(0, len(byEmote)):
+                if byEmote[i].startswith('http'):
+                    all.append(byEmote[i].split('"')[0])
+            embed = discord.Embed(colour=discord.Colour.blue())
+            embed.set_image(url=random.choice(all))
+            await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'steam'):
+            getprof = msg[7:].replace(' ', '%20')
+            data = requests.get('https://api.alexflipnote.dev/steam/user/'+str(getprof))
+            if '<title>404 Not Found</title>' in data.text:
+                await message.channel.send('Error **404**! `not found...`')
+            else:
+                steam_id = data.text.split('"steamid64":')[1].split(',')[0][1:]
+                custom_url = data.text.split('"customurl":')[1].split('},')[0][1:]
+                avatar = data.text.split('"avatarfull": "')[1].split('"')[0]
+                username = data.text.split('"username": "')[1].split('"')[0]
+                url = data.text.split('"url": "')[1].split('"')[0]
+                state = data.text.split('"state": "')[1].split('"')[0]
+                privacy = data.text.split('"privacy": "')[1].split('"')[0]
+                if state=='Offline':
+                    embedColor = discord.Colour.dark_blue()
+                else:
+                    embedColor = discord.Colour.red()
+                embed = discord.Embed(title=username, description='**Profile Link: **'+str(url)+'\n**Current state: **'+str(state)+'\n**Privacy: **'+str(privacy)+'\n**Profile pic: **'+str(avatar), colour = embedColor)
+                embed.set_thumbnail(url=avatar)
+                await message.channel.send(embed=embed)
         if msg.startswith(prefix+'salty'):
             if len(splitted)!=2:
                 await message.channel.send('Error! Invalid args.')
@@ -209,28 +347,67 @@ async def on_message(message):
                 embed.set_image(url='https://api.alexflipnote.dev/drake?top='+str(txt1)+'&bottom='+str(txt2))
                 print('https://api.alexflipnote.dev/drake?top='+str(txt1)+'&bottom='+str(txt2))
                 await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'coffee'):
-            img = json.loads((urllib.request.urlopen('https://coffee.alexflipnote.dev/random.json')).read)
-            embed = discord.Embed(colour=discord.Colour.green())
-            embed.set_image(url=img)
-            await message.channel.send(embed=embed)
         if msg.startswith(prefix+'userinfo'):
             if len(splitted)==1:
                 await message.channel.send('Error: Please mention someone!')
             elif len(splitted)==2:
+                userrole = ""
                 for user in message.mentions:
+                    percentage = round(int(len(user.roles))/int(len(message.guild.roles))*100)
+                    for i in range(0, int(len(user.roles))):
+                        if len(userrole)>899:
+                            break
+                        userrole = userrole + '<@&'+str(user.roles[i].id)+'> '
                     if user.bot==True:
                         thing = 'Bot'
                     else:
                         thing = 'User'
                     embed = discord.Embed(
                         title=user.name,
-                        colour = discord.Colour.dark_blue()
+                        colour = user.colour
                     )
+                    joinServer = message.guild.get_member(user.id).joined_at
                     embed.add_field(name='General info.', value='**'+thing+' name: **'+str(user.name)+'\n**'+thing+' ID: **'+str(user.id)+'\n**Discriminator: **'+str(user.discriminator)+'\n**'+thing+' creation: **'+str(user.created_at)[:-7], inline='True')
+                    embed.add_field(name='Server specific', value='**'+thing+' nickname: **'+str(user.display_name)+'\n**'+thing+' roles: **'+str(userrole)+'\nThis user owns '+str(percentage)+'% of all roles in this server.\n**Joined this server at: **'+str(joinServer)[:-7])
                     embed.set_thumbnail(url=user.avatar_url)
                     break
                 await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'wikipedia'):
+            wait = await message.channel.send('Please wait...')
+            if len(splitted)<2:
+                await wait.edit(content='Please input a page name!')
+            else:
+                wikipedia = wikipediaapi.Wikipedia('en')
+                page = wikipedia.page(msg[11:])
+                if page.exists()==False:
+                    await wait.edit(content='That page does not exist!\n40404040404040404040404')
+                else:
+                    if ' may refer to:' in page.text:
+                        byCategory = page.text.split('\n\n')
+                        del byCategory[0]
+                        temp = ''
+                        totalCount = 0
+                        for b in byCategory:
+                            if b.startswith('See also') or len(temp)>950:
+                                break
+                            totalCount = int(totalCount)+1
+                            temp = temp + str(totalCount)+'. ' + str(b) + '\n\n'
+                        explain = temp
+                        pageTitle = 'The page you may be refering to may be;'
+                    else:
+                        pageTitle = page.title
+                        explain = ''
+                        count = 0
+                        limit = random.choice(list(range(2, 4)))
+                        for i in range(0, len(page.summary)):
+                            if count==limit or len(explain)>900:
+                                break
+                            explain = explain + str(list(page.summary)[i])
+                            if list(page.summary)[i]=='.':
+                                count = int(count) + 1
+                    embed = discord.Embed(title=pageTitle, description=str(explain), colour=discord.Colour.blue())
+                    embed.set_footer(text='Get more info at '+str(page.fullurl))
+                    await wait.edit(content='', embed=embed)
         if msg.startswith(prefix+'getinvite'):
             serverinvite = await message.channel.create_invite(reason='Requested by '+str(msgAuthor))
             await message.channel.send('New invite created! Link: **'+str(serverinvite)+'**')
@@ -254,6 +431,29 @@ async def on_message(message):
                 embed = discord.Embed(colour=discord.Colour.red())
                 embed.set_image(url='https://api.alexflipnote.dev/pornhub?text='+str(txt1)+'&text2='+str(txt2))
                 await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'translate'):
+            wait = await message.channel.send('Please wait...')
+            if len(splitted)>1:
+                if splitted[1]=='--list':
+                    lang = ''
+                    for bahasa in LANGUAGES:
+                        lang = lang+str(bahasa)+' ('+str(LANGUAGES[bahasa])+')\n'
+                    embed = discord.Embed(title='List of supported languages', description=str(lang), colour=discord.Colour.blue())
+                    await wait.edit(content='', embed=embed)
+                elif len(splitted)>2:
+                    destination = splitted[1]
+                    toTrans = msg[int(len(splitted[1])+len(splitted[0])+2):]
+                    try:
+                        trans = gtr.translate(toTrans, dest=splitted[1])
+                        embed = discord.Embed(title=f'Translation for "{toTrans}":', description=f'**{trans.text}**', colour=discord.Colour.blue())
+                        embed.set_footer(text=f'Translating {LANGUAGES[trans.src]} to {LANGUAGES[trans.dest]}...')
+                        await wait.edit(content='', embed=embed)
+                    except:
+                        await wait.edit(content='An error occured!')
+                else:
+                    await wait.edit(content=f'Please add a language! To have the list and their id, type\n`{prefix}translate --list`.')
+            else:
+                await wait.edit(content=f'Please add translations or\nType `{prefix}translate --list` for supported languages.')
         if msg.startswith(prefix+'catfact'):
             catWait = await message.channel.send('Please wait...')
             response = urllib.request.urlopen("https://catfact.ninja/fact")
@@ -278,6 +478,15 @@ async def on_message(message):
                 embed = discord.Embed(colour=discord.Colour.magenta())
                 embed.set_image(url='https://api.alexflipnote.dev/trash?face='+str(av).replace('webp', 'png')+'&trash='+str(toTrash).replace('webp', 'png'))
                 await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'bird') or msg.startswith(prefix+'sadcat'):
+            if msg.startswith(prefix+'bird'):
+                getreq = 'birb'
+            else:
+                getreq = 'sadcat'
+            image_url = requests.get('https://api.alexflipnote.dev/'+str(getreq)).text.split('"file": "')[1].split('"')[0]
+            embed = discord.Embed(colour=discord.Colour.magenta())
+            embed.set_image(url=image_url)
+            await message.channel.send(embed=embed)
         if msg.startswith(prefix+'ytthumbnail'):
             if splitted[1].startswith('https://youtu.be/'):
                 videoid = splitted[1][17:]
@@ -377,7 +586,9 @@ async def on_message(message):
             embed.add_field(name='General Info', value='**Region:** '+str(message.guild.region)+'\n**Server ID: **'+str(message.guild.id)+'\n**Server Icon ID: **'+str(message.guild.icon)+'\n**Verification Level: **'+str(message.guild.verification_level)+'\n**Notification level:  **'+str(message.guild.default_notifications)[18:].replace("_", " ")+'\n**Explicit Content Filter:**'+str(message.guild.explicit_content_filter)+'\n**AFK timeout: **'+str(message.guild.afk_timeout)+' seconds\n**Description: **"'+str(message.guild.description)+'"', inline='True')
             embed.add_field(name='Channel Info', value='**Text Channels: **'+str(len(message.guild.text_channels))+'\n**Voice channels: **'+str(len(message.guild.voice_channels))+'\n**Channel categories: **'+str(len(message.guild.categories))+'\n**AFK Channel: **'+str(message.guild.afk_channel), inline='True')
             embed.add_field(name='Members Info', value='**Server owner: **'+str(message.guild.owner)[:-5]+'\n**Members count: **'+str(len(message.guild.members))+'\n**Server Boosters: **'+str(len(message.guild.premium_subscribers))+'\n**Role Count: **'+str(len(message.guild.roles))+'\n**Bot accounts: **'+str(botcount)+'\n**Human accounts: **'+str(humans), inline='True')
-            embed.add_field(name='URL stuff', value='**Server URL: **'+str('https://discordapp.com/channels/'+str(message.guild.id))+'\n**Server Icon URL (static): **'+str('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=128'))
+            serverurl = 'https://discordapp.com/channels/'+str(message.guild.id)
+            servericonurl = str('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=128')
+            embed.add_field(name='URL stuff', value=f'[Server URL]({serverurl}) | [Server Icon URL (static)]({servericonurl})')
             embed.set_thumbnail(url=str('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=128'))
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'factor'):
@@ -443,7 +654,6 @@ async def on_message(message):
                 var = var[2:]
             elif (splitted[1].startswith('<@!')):
                 var = var[3:]
-            var = var[:-1]
             await message.channel.send(str(var))
         if msg.startswith(prefix+"math"):
             if int(len(splitted))>4:
@@ -510,7 +720,7 @@ async def on_message(message):
             embed = discord.Embed()
             embed.set_image(url='https://api.alexflipnote.dev/ship?user='+str(avs[0]).replace('webp', 'png')+'&user2='+str(avs[1]).replace('webp', 'png'))
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+"dog"):
+        if msg==prefix+"dog":
             link = "https://random.dog/woof.json"
             response = urllib.request.urlopen(link)
             data = json.loads(response.read())
@@ -726,13 +936,13 @@ async def on_message(message):
             )
             embed.set_author(name=c[0]['name'])
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'commands'):
+        if msg.startswith(prefix+'commands') or msg.startswith(prefix+'help'):
             totalLength = 0
             for i in range(0, len(commandLength)):
                 totalLength = int(totalLength) + int(commandLength[i])
-            commands = open("commands.txt", "r")
             embed = discord.Embed(
                 title='Username601\'s commands ('+str(totalLength)+')',
+                description='Adding suggestion? love the bot? or has a question? [Join the support server here!](https://discord.gg/HhAPkD8)',
                 colour=discord.Colour.dark_blue()
             )
             embed.add_field(name='Bot help ('+str(commandLength[0])+')', value='```'+str(bothelp)+'```',inline='False')
@@ -743,10 +953,11 @@ async def on_message(message):
             embed.add_field(name='Games ('+str(commandLength[3])+')', value='```'+str(games)+'```',inline='False')
             embed.add_field(name='Encoding ('+str(commandLength[2])+')', value='```'+str(encoding)+'```',inline='False')
             embed.add_field(name='Images ('+str(commandLength[7])+')', value='```'+str(images)+'```',inline='False')
-            await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'help'):
-            with open('version.json', 'r') as f:
-                verInfo = json.load(f)
+            embed.add_field(name='Apps ('+str(commandLength[8])+')*', value='```'+str(apps)+'```',inline='False')
+            embed.set_footer(text='*DISCLAIMER: i do NOT own these apps, each belong to their companies respectively.')
+            await message.author.send(embed=embed)
+            await message.channel.send('<@'+str(authorTag)+'>, Check your DMs!')
+        if msg.startswith(prefix+'about'):
             messageRandom = ['Traceback (most recent call last)','I liek memes','601 in my name means BOT in leetspeak.\n*THE MORE YOU KNOW*', 'Hello, discordians! It\'s-a-me. Bot. Which may look stupid the fact that\nthere are THOUSANS of discord bots out there, so *let\'s get straight into it.* (no meme intended)', 'Wha? ME? okay then, here ya go.', 'Here are some silly lil information.', 'Beep boop, beep beep?', 'JavaScript is bad.', 'MEE6 vs Dyno, which is better?', 'MEEx6=MEEMEEMEEMEEMEEMEE', 'my token is = \*Slams head on keyboard*', 'HELP? HELP MEE!!!', 'Don\'t be a broom. Use discord.', 'Discard the discord right away!', 'Garbage bot giving some information here.', 'look, i have challenge for you. Can you read this without blinking?', 'Don\'t laugh at me.', 'Python is for nerds.', 'Everybody gangsta until username601 become self-aware', 'Coding is not fun, but it will pay off.']
             embed = discord.Embed(
                 title = 'About this seemingly normal bot.',
@@ -755,11 +966,8 @@ async def on_message(message):
             )
             embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Programmed in: **Discord.py (Python)\n**Created in: **6 April 2020.\n**Successor of: **somebot56.\n**Default prefix: **>\n**Commands: **Just type >commands.', inline='True')
             embed.add_field(name='Programmer info', value='**Programmed by: **Viero Fernando.\n**Server: **discord.gg/HhAPkD8.\n**Is programming hard? **I dunno', inline='True')
-            embed.add_field(name='Version Information', value='**Current Version: **'+verInfo["ver"]+'\n**Update time: **'+verInfo["time"]+'\n**Changelog: **'+verInfo["changelog"], inline='True')
             embed.add_field(name='Special Thanks', value='Stackoverflow\nDiscord.py and/or Python itself\nCool dudes who made those APIs\nMy family/friends\nDiscord friends and/or programmer friends, and\n**You** for adding this bot.', inline='True')
-            embed.add_field(name='Join this useless bot to your server!', value='http://vierofernando.github.io/programs/username601', inline='False')
-            embed.add_field(name='Open Source Project! Source code here.', value='http://github.com/vierofernando/username601', inline='False')
-            embed.add_field(name='Join our support server!', value='http://discord.gg/HhAPkD8', inline='False')
+            embed.add_field(name='Links', value='[Join this bot to your server!](http://vierofernando.github.io/programs/username601) | [Source code](http://github.com/vierofernando/username601) | [The support server!](http://discord.gg/HhAPkD8)', inline='False')
             embed.set_footer(text='© Viero Fernando Programming, 2018-2020. All rights reserved.')
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'time') or msg.startswith(prefix+'utc'):
@@ -879,7 +1087,7 @@ async def on_message(message):
                 color = 0x000000
             )
             embed.add_field(name='About the programmar:', value='**Born date: ** 22 April 200X\n**Hobby: **Programming and gaming (and *Discording* probably)\n**Developed:** Individual/Indie-developed.\n**Best Languages: **Python, JavaScript', inline='True')
-            embed.add_field(name='Social media:', value='**Discord Server:** discord.gg/HhAPkD8\n**Discord Username:** vierofernando#8620\n**Brainly (ID): **bit.ly/vierofernandobrainly\n**Geometry Dash: **gdbrowser.com/profile/knowncreator56\nThat\'s *ALL* i got, nerd.', inline='True')
+            embed.add_field(name='Social media:', value='[Discord Server](https://discord.gg/HhAPkD8)\n[Brainly Indonesia](http://bit.ly/vierofernandobrainly)\n[Geometry Dash](http://gdbrowser.com/profile/knowncreator56)\n[SoloLearn](https://www.sololearn.com/Profile/17267145)\n[GitHub](https://github.com/vierofernando)\n', inline='True')
             embed.add_field(name='Special Thanks', value='**StackOverFlow**\nDiscord\nDiscord.py and-or Python itself\nYOU for using this bot :)', inline='False')
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'search'):
@@ -1219,4 +1427,4 @@ async def on_message(message):
             embed.add_field(name='All', value='I am connected with '+str(len(client.guilds))+' discord servers.\nWith '+str(len(client.emojis))+' custom emojis.\nPlayin\' with '+str(len(client.users))+' members.', inline='True')
             await message.channel.send(embed=embed)
 print('Logging in to discord...')
-client.run(token)
+client.run(os.environ['DISCORD_TOKEN'])
