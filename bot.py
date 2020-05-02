@@ -7,27 +7,28 @@ import wikipediaapi
 import urllib.request
 import random
 import imdb
+import asyncio
 import math
 import requests
 from googletrans import Translator, LANGUAGES
-gtr = Translator()
+gtr = Translator
 client = discord.Client()
 ia = imdb.IMDb()
 
-bothelp = 'commands, about, token, connections, whomakeme, createbot, ping'
+bothelp = 'commands, about, connections, inviteme, whomakeme, createbot, ping'
 math = 'math [num] [sym] [num], factor [num], multiplication [num], sqrt [num], isprime [num], rng [num], median [array], mean [array]'
 encoding = 'binary [text], supreme [text], reverse [text], length [text], qr [text], leet [text], emojify [text]'
-games = 'coin, dice, rock, paper, scissors, gddaily, gdweekly, gdprofile [name]'
-fun = 'joke, memes, hack, slap [tag], hbd [tag], shipwho, gaylevel [tag], secret, inspirobot, meme, 8ball, deathnote, choose [array]'
-images = 'ph help, ship [tag1] [tag2], coffee, wallpaper, trash [tag], jpeg [tag], giphy [query], cat, sadcat, dog, fox, bird, magik [tag], facts [text], invert [tag], pixelate [tag], b&w [tag], drake help, salty [tag], wooosh [tag], captcha [text], achieve [text], scroll [text], call [text], challenge [text], didyoumean help'
+games = 'mathquiz, coin, dice, rock, paper, scissors, gddaily, gdweekly, gdprofile [name], gdsearch [level name], gdlevel [level id]'
+fun = 'joke, memes, slap [tag], hbd [tag], shipwho, gaylevel [tag], secret, inspirobot, meme, 8ball, deathnote, choose [array]'
+images = 'ph help, ship [tag1] [tag2], coffee, wallpaper, trash [tag], jpeg [tag], cat, sadcat, dog, fox, bird, magik [tag], facts [text], invert [tag], pixelate [tag], b&w [tag], drake help, salty [tag], wooosh [tag], captcha [text], achieve [text], scroll [text], call [text], challenge [text], didyoumean help'
 utilities = 'catfact, dogfact, funfact, steam [profile], googledoodle, ytsearch [query], bored, search [query], randomcolor, randomword, religion, country [name], time, newemote, ghiblifilms, randombot, ytthumbnail [link]'
-discordAPI = 'id [tag], getinvite, botmembers, serverinfo, servericon, avatar [tag], userinfo [tag], roles, channels, serveremojis, reactmsg [text], reactnum [num1] [num2]'
+discordAPI = 'ar [tag] [role], rr [tag] [role], clear [count], kick [tag] [reason], ban [tag] [reason], nick [tag] [new nick], makechannel [type] [name], emojiinfo [emoji], permissions [user_tag], roleinfo [tag], id [tag], getinvite, botmembers, serverinfo, servericon, avatar [tag], userinfo [tag], roles, channels, serveremojis, reactmsg [text], reactnum [num1] [num2]'
 apps = 'imdb, translate, wikipedia'
 commandLength = [len(bothelp.split(',')), len(math.split(',')), len(encoding.split(',')), len(games.split(',')), len(fun.split(',')), len(utilities.split(',')), len(discordAPI.split(',')), len(images.split(',')), len(apps.split(','))]
 
 @client.event
 async def on_ready():
-    game = discord.Game("with YOU")
+    game = discord.Game("with "+len(client.users)+' random strangers | '+prefix+'help')
     await client.change_presence(status=discord.Status.online, activity=game)
     print('Bot is online.\n=== USERNAME601 CONSOLE ===\nBuilt using Python by Viero Fernando (c) 2020.\n\n'.format(client))
 
@@ -35,7 +36,7 @@ async def on_ready():
 async def on_message(message):
     if '<@!696973408000409626>' in message.content or '<@696973408000409626>' in message.content:
         await message.delete()
-        await message.channel.send('The prefix is '+str(prefix))
+        await message.channel.send('The prefix is `'+str(prefix)+'`.\n**Commands: `**'+prefix+'help`')
     if message.content==prefix+"ping":
         await message.channel.send('**Pong!**\n'+str(round(client.latency*1000))+' ms.')
     sayTag = ["ya liek tagz?", "we don't accept services with tags, sorry.", "tag me? lol NO.", 'why command me with a tag? that is so unnecessary!', 'NO TAG, ~~NO~~ YES SERVICE.', 'MORE TAG, LESS SERVICE.', 'Everybody gangsta until somebody tagged username601', 'Taggy taggy tag tag!', 'Playin\' with tagz, bro?', 'So uhh i heard u liek tagz', 'What kind of word is that?']
@@ -47,23 +48,358 @@ async def on_message(message):
     null = " "
     splitted = message.content.split()
     #MAIN COMMANDS
+    i_dont_know_what_this_means_but_i_am_declaring_it_anyway = 0
     if '<@!696973408000409626>' in msg and msg.startswith(prefix):
+        i_dont_know_what_this_means_but_i_am_declaring_it_anyway = 1
         await message.channel.send(random.choice(sayTag))
-    elif msg.startswith(prefix):
+    elif msg.startswith(prefix) and i_dont_know_what_this_means_but_i_am_declaring_it_anyway==0:
         if msg.startswith(prefix+'say'):
             await message.channel.send(msg[5:])
+        if message.content.startswith(prefix+'mathquiz'):
+            num1 = random.randint(1, 100)
+            num2 = random.randint(1, 100)
+            symArray = ['+', '-', 'x', ':', '^']
+            ansArray = [num1+num2, num1-num2, num1*num2, num1/num2, num1**num2]
+            arrayId = random.randint(0, 4)
+            sym = symArray[arrayId]
+            await message.channel.send('**MATH QUIZ**\n'+str(num1)+' '+str(sym)+' '+str(num2)+' = ???')
+            def is_correct(m):
+                return m.author == message.author and m.content.isdigit()
+            answer = int(ansArray[arrayId])
+            try:
+                trying = await client.wait_for('message', check=is_correct, timeout=15.0)
+            except asyncio.TimeoutError:
+                return await message.channel.send(':pensive: No one? Okay then, the answer is: {}.'.format(answer))
+            if int(trying.content)==answer:
+                await message.channel.send('<@'+str(authorTag)+'>, You are correct! :tada:')
+            elif trying.content.isnumeric()==True and int(trying.content)!=answer:
+                await message.channel.send('<@'+str(authorTag)+'>, Incorrect. The answer is {}.'.format(answer))
         if msg.startswith(prefix+'emojiimg'):
             if len(splitted)==1:
                 await message.channel.send('Please send a custom emoji!')
             elif len(splitted)==2:
                 emoji = splitted[1].split(':')
-                emoji_id = emoji[2][:-1]
-                link = 'https://cdn.discordapp.com/emojis/'+str(emoji_id)+'.png?v=1'
-                embed = discord.Embed(title='Emoji pic for ID of '+str(emoji_id), colour=discord.Colour.red())
-                embed.set_image(url=link)
-                await message.channel.send(embed=embed)
+                try:
+                    emoji_id = emoji[2][:-1]
+                except IndexError:
+                    accept = False
+                    await message.channel.send(':x: For some reason, we cannot proccess default emojis. Sorry!')
+                try:
+                    if client.get_emoji(int(emoji_id)).animated==False:
+                        link = 'https://cdn.discordapp.com/emojis/'+str(emoji_id)+'.png?v=1'
+                        accept = True
+                    else:
+                        await message.channel.send(':x: Error processing it.')
+                        accept = False
+                except:
+                    await message.channel.send(':x: Oops! There are an error *for some reason.*')
+                if accept==True:
+                    embed = discord.Embed(title='Emoji pic for ID of '+str(emoji_id), colour=discord.Colour.red())
+                    embed.set_image(url=link)
+                    await message.channel.send(embed=embed)
             else:
                 await message.channel.send('Invalid parameters.')
+        if msg.startswith(prefix+'ban'):
+            begin = True
+            if len(splitted)<2:
+                await message.channel.send(':rage: Please mention someone!')
+                begin = False
+            else:
+                perms = message.guild.get_member(int(authorTag)).guild_permissions.ban_members
+                if perms==False:
+                    begin = False
+                    await message.channel.send(f'<@{str(authorTag)}>, you don\'t have the `Ban Members` permission! :rage:')
+                else:
+                    try:
+                        if splitted[1].startswith('<@!'):
+                            criminal = message.guild.get_member(int(splitted[1][3:][:-1]))
+                        else:
+                            criminal = message.guild.get_member(int(splitted[1][2:][:-1]))
+                        if criminal.id==authorTag:
+                            await message.channel.send(':rage: What a weirdo. Banning yourself.')
+                            begin = False
+                    except:
+                        await message.channel.send(':rage: Invalid mention.')
+                    if criminal.guild_permissions.administrator==True or criminal.guild_permissions.manage_guild==True or criminal.guild_permissions.manage_channels==True or criminal.guild_permissions.manage_permissions==True:
+                        await message.channel.send(':rage: You want me to ban a **MODERATOR/ADMIN?!**')
+                        begin = False
+                    if begin==True:
+                        if len(splitted)<3:
+                            reas = 'Unspecified'
+                        else:
+                            reas = msg[int(len(splitted[1])+len(splitted[0])+2):]
+                        try:
+                            await message.guild.ban(criminal, reason=reas)
+                            msgs = [
+                                "It is time. "+criminal.name+".",
+                                criminal.name+", Get. OUT.",
+                                "[BOT] Successfully executed kill"+criminal.name+"().",
+                                'It was fun, now is time for '+criminal.name+' to leave.',
+                                'We don\'t even need '+criminal.name+' anymore.',
+                                'Bye bye, '+criminal.name+'.'
+                            ]
+                            await message.channel.send(random.choice(msgs))
+                        except:
+                            await message.channel.send(':thinking: There was an error on banning '+criminal.name+'.')
+        if msg.startswith(prefix+'gdlevel'):
+            toEdit = await message.channel.send('Please edit...')
+            if len(splitted)<2:
+                await toEdit.edit(content=':x: Please enter a level ID!')
+            else:
+                if splitted[1].isnumeric()==False:
+                    await toEdit(content=':x: That is not a level ID!')
+                else:
+                    try:
+                        levelid = str(splitted[1])
+                        toEdit = await message.channel.send("Retrieving Data...")
+                        response = urllib.request.urlopen("https://gdbrowser.com/api/level/"+str(levelid))
+                        data = json.loads(response.read())
+                        responseLeaderboard = urllib.request.urlopen("https://gdbrowser.com/api/leaderboardLevel/"+str(data["id"]))
+                        leader = json.loads(responseLeaderboard.read())
+                        image = 'https://gdbrowser.com/icon/'+data["author"]
+                        embed = discord.Embed(
+                            title = data["name"]+' ('+data["id"]+')',
+                            description = data["description"],
+                            colour = discord.Colour.blue()
+                        )
+                        embed.set_author(name=data["author"], icon_url=image)
+                        embed.add_field(name='Difficulty', value=data["difficulty"])
+                        gesture = ':+1:'
+                        if data['disliked']==True:
+                            gesture = ':-1:'
+                        embed.add_field(name='Level Stats', value=str(data["likes"])+' '+gesture+'\n'+str(data["downloads"])+" :arrow_down:", inline='False')
+                        embed.add_field(name='Level Rewards', value=str(data["stars"])+" :star:\n"+str(data["orbs"])+" orbs\n"+str(data["diamonds"])+" :gem:")
+                        embed.add_field(name='Leaderboard', value="**Rank #1: "+str(leader[1]["username"])+"** "+str(leader[1]["percent"])+"% | "+str(leader[1]["date"])+"\n**Rank #2: "+str(leader[2]["username"])+"** "+str(leader[2]["percent"])+"% | "+str(leader[2]["date"])+"\n**Rank #3: "+str(leader[3]["username"])+"** "+str(leader[3]["percent"])+"% | "+str(leader[3]["date"]))
+                        await toEdit.edit(content='', embed=embed)
+                    except:
+                        await toEdit.edit(content=':x: An error occured!')
+        if msg.startswith(prefix+'gdsearch'):
+            if len(splitted)<2:
+                await message.channel.send(':x: Please input a query!')
+            else:
+                try:
+                    query = msg[int(len(splitted[0])+1):].replace(' ', '%20')
+                    data = json.loads((urllib.request.urlopen('https://gdbrowser.com/api/search/'+str(query))).read())
+                    levels = ''
+                    count = 0
+                    for i in range(0, len(data)):
+                        if data[count]['disliked']==True:
+                            like = ':-1:'
+                        else:
+                            like = ':+1:'
+                        levels = levels + str(count+1)+'. **'+data[count]['name']+'** by '+data[count]['author']+' (`'+data[count]['id']+'`)\n:arrow_down: '+data[count]['downloads']+' | '+like+' '+data[count]['likes']+'\n'
+                        count = int(count) + 1
+                    embedy = discord.Embed(title='Geometry Dash Level searches for "'+str(query).replace('%20', ' ')+'":', description=levels, colour=discord.Colour.blue())
+                    await message.channel.send(embed=embedy)
+                except:
+                    await message.channel.send(':x: Error: Not Found. :four::zero::four:')
+        if msg.startswith(prefix+'emojiinfo'):
+            if message.guild.get_member(int(authorTag)).guild_permissions.manage_emojis==False:
+                await message.channel.send(':x: You need the `Manage Emojis` permission to do this command.')
+            else:
+                try:
+                    erry = False
+                    emojiid = int(splitted[1].split(':')[2][:-1])
+                    data = client.get_emoji(emojiid)
+                except:
+                    erry = True
+                    await message.channel.send(':x: For some reason, we cannot process your emoji ;(')
+                if erry==False:
+                    if data.animated==True:
+                        anim = 'This emoji is an animated emoji. **Only nitro users can use it.**'
+                    else:
+                        anim = 'This emoji is a static emoji. **Everyone can use it (except if limited by role)**'
+                    embedy = discord.Embed(title='Emoji info for :'+str(data.name)+':', description='**Emoji name:** '+str(data.name)+'\n**Emoji ID: **'+str(data.id)+'\n'+anim+'\n**Emoji\'s server ID: **'+str(data.guild_id)+'\n**Emoji creation time: **'+str(data.created_at)[:-7]+' UTC.', colour=discord.Colour.magenta())
+                    embedy.set_thumbnail(url='https://cdn.discordapp.com/emojis/'+str(data.id)+'.png?v=1')
+                    await message.channel.send(embed=embedy)
+        if msg.startswith(prefix+'clear') or msg.startswith(prefix+'purge'):
+            checky = message.guild.get_member(int(authorTag)).guild_permissions.manage_messages
+            if checky==False:
+                await message.channel.send(':x: You don\'t have the permission `Manage Messages` to do this command \>:(')
+            else:
+                contin = True
+                try:
+                    count = int(splitted[1])+1
+                    if count>500:
+                        await message.channel.send('That\'s **TOO MANY** messages to be deleted!\nJust clone the channel and delete the old one.\neasy peasy.')
+                        contin = False
+                except:
+                    await message.channel.send('That is NOT a number!')
+                    contin = False
+                if contin==True:
+                    try:
+                        await message.channel.purge(limit=count)
+                    except:
+                        await message.channel.send(':x: An error occured during purging.')
+        if splitted[0]==prefix+'s':
+            await message.delete()
+            member = message.guild.get_member(int(authorTag))
+            if member.guild_permissions.administrator==False or member.id!=661200758510977084:
+                await message.channel.send(':x: <@'+str(authorTag)+'>, To do this command, you need to have `Administrator` permission,\nOr be the bot owner.')
+                accept = False
+            else:
+                accept = True
+            if accept==True:
+                await message.channel.send(msg[3:])
+        if msg.startswith(prefix+'addrole') or splitted[0]==prefix+'ar':
+            if message.guild.get_member(int(authorTag)).guild_permissions.manage_roles==False:
+                await message.channel.send(f'<@{str(authorTag)}>, you don\'t have the `Manage Roles` permission!')
+            else:
+                try:
+                    if splitted[1].startswith('<@!'):
+                        permId = int(splitted[1][3:][:-1])
+                    else:
+                        permId = int(splitted[1][2:][:-1])
+                except ValueError:
+                    await message.channel.send('Error: Invalid tag!')
+                aruser = message.guild.get_member(int(permId))
+                try:
+                    toadd = message.guild.get_role(int(splitted[2][3:][:-1]))
+                    await aruser.add_roles(toadd)
+                    await message.channel.send('Congratulations, '+aruser.name+', you now have the '+toadd.name+' role! :tada:')
+                except:
+                    await message.channel.send('An error occured. :x:')
+        if msg.startswith(prefix+'removerole') or splitted[0]==prefix+'rr':
+            if message.guild.get_member(int(authorTag)).guild_permissions.manage_roles==False:
+                await message.channel.send(f'<@{str(authorTag)}>, you don\'t have the `Manage Roles` permission!')
+            else:
+                try:
+                    if splitted[1].startswith('<@!'):
+                        permId = int(splitted[1][3:][:-1])
+                    else:
+                        permId = int(splitted[1][2:][:-1])
+                except ValueError:
+                    await message.channel.send('Error: Invalid tag!')
+                aruser = message.guild.get_member(int(permId))
+                try:
+                    toadd = message.guild.get_role(int(splitted[2][3:][:-1]))
+                    await aruser.remove_roles(toadd)
+                    await message.channel.send(aruser.name+', you lost the '+toadd.name+' role. :pensive:')
+                except:
+                    await message.channel.send('An error occured. :x:')
+        if msg.startswith(prefix+'permissions'):
+            if len(splitted)!=2:
+                await message.channel.send('Please mention someone!\nExample:\n'+prefix+'permissions <@'+str(authorTag)+'>')
+            else:
+                try:
+                    if splitted[1].startswith('<@!'):
+                        permId = int(splitted[1][3:][:-1])
+                    else:
+                        permId = int(splitted[1][2:][:-1])
+                except ValueError:
+                    await message.channel.send('Error: Invalid tag!')
+                auth = message.guild.get_member(int(authorTag))
+                if auth.guild_permissions.manage_permissions==False:
+                    acceptId = 1
+                    await message.channel.send(':x: <@'+str(authorTag)+'>, You need to have the `Manage Permissions` to use this command!')
+                else:
+                    acceptId = 0
+                member = message.guild.get_member(int(permId))
+                perm = ''
+                permCheck = [member.guild_permissions.manage_guild, member.guild_permissions.kick_members, member.guild_permissions.ban_members, member.guild_permissions.administrator, member.guild_permissions.change_nickname, member.guild_permissions.manage_nicknames, member.guild_permissions.manage_channels, member.guild_permissions.view_audit_log, member.guild_permissions.manage_messages]
+                permString = ['Manage Server', 'Kick Members', 'Ban Members', 'Admin', 'Change their Nickname', 'Manage member\'s nicknames', 'Manage Channels', 'View Audit Log', 'Manage Messages']
+                for i in range(0, int(len(permString))):
+                    if permCheck[i]==True:
+                        perm = perm + ':white_check_mark: '+str(permString[i])+'\n'
+                    else:
+                        perm = perm + ':x: '+str(permString[i])+'\n'
+                try:
+                    embedo = discord.Embed(title='User permissions for '+str(client.get_user(permId).name)+';', description=str(perm), colour=discord.Colour.blue())
+                except:
+                    print(':grinning:')
+                finally:
+                    await message.channel.send(embed=embedo)
+        if msg.startswith(prefix+'makechannel'):
+            if message.guild.get_member(int(authorTag)).guild_permissions.manage_channels==False:
+                await message.channel.send('You don\'t have the permission `Manage Channel`. Which is required.')
+                acceptId = 1
+            else:
+                acceptId = 0
+            if acceptId==0:
+                trashCrap = ['text', 'voice']
+                if len(splitted)<3:
+                    await message.channel.send('Invalid arguments.')
+                elif splitted[1] not in trashCrap:
+                    await message.channel.send('Invalid type. Please add `text` or `voice`.')
+                elif splitted[1]=='text':
+                    try:
+                        await message.guild.create_text_channel(msg[int(len(splitted[0])+len(splitted[1])+2):].replace(' ', '-'))
+                        await message.channel.send(':white_check_mark: Done! Created a text channel: '+str(msg[int(len(splitted[0])+len(splitted[1])+2):]))
+                    except:
+                        await message.channel.send(':x: Oops! It seemed that we have a problem creating a text channel. :(')
+                elif splitted[1]=='voice':
+                    await message.guild.create_voice_channel(msg[int(len(splitted[0])+len(splitted[1])+2):])
+                    await message.channel.send(':white_check_mark: Done! Created a voice channel: '+str(msg[int(len(splitted[0])+len(splitted[1])+2):]))
+                else:
+                    await message.channel.send('error. (not 404)')
+        if msg.startswith(prefix+'kick'):
+            if len(splitted)<2:
+                await message.channel.send('Please mention someone!!1!11')
+            else:
+                if splitted[1].startswith('<@!'):
+                    idiot = message.guild.get_member(int(splitted[1][3:][:-1]))
+                else:
+                    idiot = message.guild.get_member(int(splitted[1][2:][:-1]))
+                misterKicker = message.guild.get_member(int(authorTag))
+                if misterKicker.guild_permissions.kick_members==False:
+                    await message.channel.send('You cannot kick '+str(idiot.name)+', because you don\'t even have the `Kick Members` permission!')
+                    acceptId = 1
+                elif idiot.guild_permissions.administrator==True or idiot.guild_permissions.manage_guild==True:
+                    await message.channel.send('**You want me to kick an mod/admin?!**\nCome on, you gotta be kidding me.')
+                    acceptId = 1
+                elif idiot.id==authorTag:
+                    await message.channel.send('Don\'t be a weirdo, kicking urself. If you want, just leave the server! That\'s easy! :grinning:')
+                    acceptId = 1
+                else:
+                    acceptId = 0
+                if acceptId==0:
+                    msgs = [
+                        'Sayonara, '+idiot.name,
+                        'Mr.Kicker kicked '+idiot.name+'!',
+                        'F\'s in the chat for '+idiot.name+', because he got kicked.',
+                        'Heh, bye-bye '+idiot.name+'! lul',
+                        'Game over, '+idiot.name+'.',
+                        'It\'s time to stop, '+idiot.name+'.'
+                    ]
+                    if len(splitted)==2:
+                        reas = 'Unspecified by kicker.'
+                    else:
+                        reas = msg[int(len(splitted[1])+len(splitted[0])+2):]
+                    await message.guild.kick(idiot, reason=str(reas)) #BYE BYE IDIOT!!!
+                    await message.channel.send(random.choice(msgs))
+                else:
+                    await message.channel.send(':x: Kick declined by Username601.')
+        if msg.startswith(prefix+'nick'):
+            acceptId = 0
+            if len(splitted)<2:
+                await message.channel.send('Where\'s da paramaters!?!')
+                acceptId = 1
+            else:
+                if splitted[1].startswith('<@') and splitted[1].endswith('>'):
+                    try:
+                        if splitted[1].startswith('<@!'):
+                            changethem = message.guild.get_member(int(splitted[1][3:][:-1]))
+                        else:
+                            changethem = message.guild.get_member(int(splitted[1][2:][:-1]))
+                    except ValueError:
+                        await message.channel.send('Error with the tag. :x: :(')
+                        acceptId = 1
+                    finally:
+                        if message.guild.get_member(int(authorTag)).guild_permissions.manage_nicknames==False:
+                            await message.channel.send('You need the `Manage Nicknames` permissions to do this command.')
+                            acceptId = 1
+                else:
+                    changethem = message.guild.get_member(int(authorTag))
+                    if changethem.guild_permissions.change_nickname==False:
+                        acceptId = 1
+                        await message.channel.send('You need the `Change Nickname` permission to change your, nickname, DUH')
+                if acceptId==0:
+                    newnick = msg[int(len(splitted[1])+len(splitted[0])+2):]
+                    try:
+                        await changethem.edit(nick=newnick)
+                        await message.channel.send('Change the '+changethem.name+'\'s nickname to `'+str(newnick)+'`. Nice name!')
+                    except:
+                        await message.channel.send('So umm, i wanted to change their nickname and...\nDiscord says: `Missing Permissions`\nMe and '+str(msgAuthor)+': :neutral_face:')
         if msg.startswith(prefix+'imdb'):
             wait = await message.channel.send('Please wait...')
             if len(splitted)==1 or splitted[1]=='help' or splitted[1]=='--help':
@@ -156,6 +492,26 @@ async def on_message(message):
                 desc = fact['facts'][0]
             embed = discord.Embed(title='Did you know?',description=str(desc))
             await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'roleinfo'):
+            member = message.guild.get_member(int(authorTag))
+            if member.guild_permissions.manage_roles==False:
+                await message.channel.send('<@'+str(authorTag)+'>, you don\'t have the `Manage Roles` permission required to execute this command!')
+                acceptId = 1
+            else:
+                acceptId = 0
+            if acceptId==0:
+                await message.delete()
+                data = message.guild.get_role(int(splitted[1][3:][:-1]))
+                if data.permissions.administrator==True:
+                    perm = ':white_check_mark: Server Administrator'
+                else:
+                    perm = ':x: Server Administrator'
+                if data.mentionable==True:
+                    men = ':warning: You can mention this role and they can get pinged.'
+                else:
+                    men = ':v: You can mention this role and they will not get pinged! ;)'
+                embedrole = discord.Embed(title='Role info for role: '+str(data.name), description='**Role ID: **'+str(data.id)+'\n**Role created at: **'+str(data.created_at)[:-7]+' UTC\n**Role position: **'+str(data.position)+'\n**Members having this role: **'+str(len(data.members))+'\n'+str(men)+'\nPermissions Value: '+str(data.permissions.value)+'\n'+str(perm), colour=data.colour)
+                await message.channel.send(embed=embedrole)
         if msg.startswith(prefix+'wallpaper'):  
             width = ['100', '200', '300', '400', '500', '600', '700', '800', '900', '1000']
             embed = discord.Embed(colour=discord.Colour.blue())
@@ -163,7 +519,8 @@ async def on_message(message):
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'coffee'):
             embed = discord.Embed(colour=discord.Colour.blue())
-            embed.set_image(url='https://coffee.alexflipnote.dev/random')
+            link = 'https://coffee.alexflipnote.dev/random'
+            embed.set_image(url=link)
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'fox'):
             img = requests.get('https://randomfox.ca/floof/?ref=apilist.fun').text.split('"image":"')[1].split('"')[0].replace('\/', '/')
@@ -348,29 +705,42 @@ async def on_message(message):
                 print('https://api.alexflipnote.dev/drake?top='+str(txt1)+'&bottom='+str(txt2))
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'userinfo'):
-            if len(splitted)==1:
-                await message.channel.send('Error: Please mention someone!')
-            elif len(splitted)==2:
-                userrole = ""
-                for user in message.mentions:
-                    percentage = round(int(len(user.roles))/int(len(message.guild.roles))*100)
-                    for i in range(0, int(len(user.roles))):
-                        if len(userrole)>899:
-                            break
-                        userrole = userrole + '<@&'+str(user.roles[i].id)+'> '
-                    if user.bot==True:
-                        thing = 'Bot'
+            member = message.guild.get_member(int(authorTag))
+            if member.guild_permissions.manage_channels==False:
+                await message.channel.send('<@'+str(authorTag)+'>, you need to have the `Manage Channels` permission to do this command!')
+                acceptId = 1
+            else:
+                acceptId = 0
+            if acceptId==0:
+                if len(splitted)==1:
+                    userid = int(authorTag)
+                    user = client.get_user(int(authorTag))
+                elif len(splitted)==2:
+                    if splitted[1].startswith('<@!'):
+                        userid = int(splitted[1][3:][:-1])
+                        user = client.get_user(int(splitted[1][3:][:-1]))
                     else:
-                        thing = 'User'
-                    embed = discord.Embed(
-                        title=user.name,
-                        colour = user.colour
-                    )
-                    joinServer = message.guild.get_member(user.id).joined_at
-                    embed.add_field(name='General info.', value='**'+thing+' name: **'+str(user.name)+'\n**'+thing+' ID: **'+str(user.id)+'\n**Discriminator: **'+str(user.discriminator)+'\n**'+thing+' creation: **'+str(user.created_at)[:-7], inline='True')
-                    embed.add_field(name='Server specific', value='**'+thing+' nickname: **'+str(user.display_name)+'\n**'+thing+' roles: **'+str(userrole)+'\nThis user owns '+str(percentage)+'% of all roles in this server.\n**Joined this server at: **'+str(joinServer)[:-7])
-                    embed.set_thumbnail(url=user.avatar_url)
-                    break
+                        userid = int(splitted[1][2:][:-1])
+                        user = client.get_user(int(splitted[1][2:][:-1]))
+                guy = message.guild.get_member(int(userid))
+                percentage = round(int(len(guy.roles))/int(len(message.guild.roles))*100)
+                userrole = ''
+                for i in range(0, int(len(guy.roles))):
+                    if len(userrole)>899:
+                        break
+                    userrole = userrole + '<@&'+str(guy.roles[i].id)+'> '
+                if user.bot==True:
+                    thing = 'Bot'
+                else:
+                    thing = 'User'
+                embed = discord.Embed(
+                    title=user.name,
+                    colour = guy.colour
+                )
+                joinServer = guy.joined_at
+                embed.add_field(name='General info.', value='**'+thing+' name: **'+str(user.name)+'\n**'+thing+' ID: **'+str(user.id)+'\n**Discriminator: **'+str(user.discriminator)+'\n**'+thing+' creation: **'+str(user.created_at)[:-7], inline='True')
+                embed.add_field(name='Server specific', value='**'+thing+' nickname: **'+str(guy.display_name)+'\n**'+thing+' roles: **'+str(userrole)+'\nThis user owns '+str(percentage)+'% of all roles in this server.\n**Joined this server at: **'+str(joinServer)[:-7])
+                embed.set_thumbnail(url=user.avatar_url)
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'wikipedia'):
             wait = await message.channel.send('Please wait...')
@@ -409,17 +779,22 @@ async def on_message(message):
                     embed.set_footer(text='Get more info at '+str(page.fullurl))
                     await wait.edit(content='', embed=embed)
         if msg.startswith(prefix+'getinvite'):
-            serverinvite = await message.channel.create_invite(reason='Requested by '+str(msgAuthor))
-            await message.channel.send('New invite created! Link: **'+str(serverinvite)+'**')
+            if message.guild.get_member(int(authorTag)).guild_permissions.create_invite==False:
+                await message.channel.send(':x: You need to have the permission `Create Invite` to continue!')
+            else:
+                serverinvite = await message.channel.create_invite(reason='Requested by '+str(msgAuthor))
+                await message.channel.send('New invite created! Link: **'+str(serverinvite)+'**')
         if msg.startswith(prefix+'avatar'):
             if len(splitted)==1:
-                await message.channel.send('Error: Please mention someone!')
+                user = client.get_user(int(authorTag))
             elif len(splitted)==2:
-                for user in message.mentions:
-                    embed = discord.Embed(title=message.mentions[0].name+'\'s avatar', colour = discord.Colour.dark_blue())
-                    embed.set_image(url=user.avatar_url)
-                    break
-                await message.channel.send(embed=embed)
+                if splitted[1].startswith('<@!'):
+                    user = client.get_user(int(splitted[1][3:][:-1]))
+                else:
+                    user = client.get_user(int(splitted[1][2:][:-1]))
+            embed = discord.Embed(title=user.name+'\'s avatar', colour = discord.Colour.dark_blue())
+            embed.set_image(url=user.avatar_url)
+            await message.channel.send(embed=embed)
         if msg.startswith(prefix+'ph'):
             if splitted[1]=='help':
                 embed = discord.Embed(title='ph command help', description='Type the following:\n'+prefix+'ph [txt1] [txt2]\n\nFor example:\n'+prefix+'ph [Git] [Hub]', colour=discord.Colour.red())
@@ -519,29 +894,6 @@ async def on_message(message):
                     member.append(message.guild.members[i].name)
             ship = random.choice(member)
             await message.channel.send(msgAuthor+', i ship you with **'+str(ship)+'**!')
-        if msg.startswith(prefix+'hack'):
-            wait = await message.channel.send('Hacking...  Please wait...')
-            response = urllib.request.urlopen('https://randomuser.me/api')
-            data = json.loads(response.read())
-            if data['results'][0]['gender']=='male':
-                colorhex = discord.Colour.blue()
-            else:
-                colorhex = discord.Colour.magenta()
-            phone = str(data['results'][0]['phone'][:-4])+'\*\*\*\*'
-            username = data['results'][0]['login']['username']
-            email = data['results'][0]['email'].replace('example', 'hacked')
-            password = ''
-            for i in range(0, int(len(data['results'][0]['login']['password']))):
-                password = password+str('\*')
-            embed = discord.Embed (
-                title = str(data['results'][0]['name']['title'])+'. '+str(str(data['results'][0]['name']['first']))+' '+str(data['results'][0]['name']['last']),
-                color = colorhex
-            )
-            embed.add_field(name='Location', value='**'+str(data['results'][0]['location']['street']['number'])+' '+str(data['results'][0]['location']['street']['name'])+'**\n**'+str(data['results'][0]['location']['postcode'])+' '+str(data['results'][0]['location']['city'])+', '+str(data['results'][0]['location']['state'])+', '+str(data['results'][0]['location']['country'])+'**\n**'+str(data['results'][0]['location']['coordinates']['latitude'])+', '+str(data['results'][0]['location']['coordinates']['longitude'])+'**', inline='True')
-            embed.add_field(name='Login Information', value='**E-mail address: **'+str(email)+'\n**Username: **'+str(username)+'\n**Password: **'+str(password), inline='True')
-            embed.add_field(name='Personal Information', value='**Date of Birth: **'+str(data['results'][0]['dob']['date'][:-14])+'\n**Phone Number: **'+str(phone), inline='True')
-            embed.set_thumbnail(url=data['results'][0]['picture']['thumbnail'])
-            await wait.edit(content='', embed=embed)
         if msg.startswith(prefix+'ghiblifilms'):
             wait = await message.channel.send('Please wait... Getting data...')
             response = urllib.request.urlopen('https://ghibliapi.herokuapp.com/films')
@@ -568,29 +920,48 @@ async def on_message(message):
                 embed.add_field(name='Produced by', value=data[num]['producer'], inline='True')
                 await wait.edit(content='', embed=embed)
         if msg.startswith(prefix+'servericon'):
-            if message.guild.is_icon_animated()==True:
-                await message.channel.send('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.gif?size=128')
+            member = message.guild.get_member(int(authorTag))
+            if member.guild_permissions.manage_guild==False:
+                acceptId = 1
+                await message.channel.send('<@'+str(authorTag)+'>, You need to have the `Manage Server` permissions to see the server\'s icon!')
             else:
-                await message.channel.send('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=128')
+                acceptId = 0
+            if acceptId==0:
+                if message.guild.is_icon_animated()==True:
+                    link = 'https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.gif?size=128'
+                else:
+                    link = 'https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=128'
+                theEm = discord.Embed(title=message.guild.name+'\'s Icon', colour=discord.Colour.blue())
+                theEm.set_image(url=link)
+            await message.channel.send(embed=theEm)
+        if msg.startswith(prefix+'inviteme'):
+            await message.channel.send('**Sure thing! Invite this bot to your server using the link below.**\n https://top.gg/bot/696973408000409626/vote \nOr join the support server: **discord.gg/HhAPkD8**')
         if msg.startswith(prefix+'serverinfo'):
-            botcount = 0
-            for i in range(0, int(len(message.guild.members))):
-                if message.guild.members[i].bot==True:
-                    botcount = int(botcount)+1
-            humans = int(len(message.guild.members))-int(botcount)
-            embed = discord.Embed(
-                title=str(message.guild.name),
-                description='Shows the information about '+str(message.guild.name),
-                color=0x000000
-            )
-            embed.add_field(name='General Info', value='**Region:** '+str(message.guild.region)+'\n**Server ID: **'+str(message.guild.id)+'\n**Server Icon ID: **'+str(message.guild.icon)+'\n**Verification Level: **'+str(message.guild.verification_level)+'\n**Notification level:  **'+str(message.guild.default_notifications)[18:].replace("_", " ")+'\n**Explicit Content Filter:**'+str(message.guild.explicit_content_filter)+'\n**AFK timeout: **'+str(message.guild.afk_timeout)+' seconds\n**Description: **"'+str(message.guild.description)+'"', inline='True')
-            embed.add_field(name='Channel Info', value='**Text Channels: **'+str(len(message.guild.text_channels))+'\n**Voice channels: **'+str(len(message.guild.voice_channels))+'\n**Channel categories: **'+str(len(message.guild.categories))+'\n**AFK Channel: **'+str(message.guild.afk_channel), inline='True')
-            embed.add_field(name='Members Info', value='**Server owner: **'+str(message.guild.owner)[:-5]+'\n**Members count: **'+str(len(message.guild.members))+'\n**Server Boosters: **'+str(len(message.guild.premium_subscribers))+'\n**Role Count: **'+str(len(message.guild.roles))+'\n**Bot accounts: **'+str(botcount)+'\n**Human accounts: **'+str(humans), inline='True')
-            serverurl = 'https://discordapp.com/channels/'+str(message.guild.id)
-            servericonurl = str('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=128')
-            embed.add_field(name='URL stuff', value=f'[Server URL]({serverurl}) | [Server Icon URL (static)]({servericonurl})')
-            embed.set_thumbnail(url=str('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=128'))
-            await message.channel.send(embed=embed)
+            member = message.guild.get_member(int(authorTag))
+            if member.guild_permissions.manage_guild==False:
+                acceptId = 1
+                await message.channel.send('<@'+str(authorTag)+'>, You need to have the `Manage Server` permission to do this command!')
+            else:
+                acceptId = 0
+            if acceptId==0:
+                botcount = 0
+                for i in range(0, int(len(message.guild.members))):
+                    if message.guild.members[i].bot==True:
+                        botcount = int(botcount)+1
+                humans = int(len(message.guild.members))-int(botcount)
+                embed = discord.Embed(
+                    title=str(message.guild.name),
+                    description='Shows the information about '+str(message.guild.name),
+                    color=0x000000
+                )
+                embed.add_field(name='General Info', value='**Region:** '+str(message.guild.region)+'\n**Server ID: **'+str(message.guild.id)+'\n**Server Icon ID: **'+str(message.guild.icon)+'\n**Verification Level: **'+str(message.guild.verification_level)+'\n**Notification level:  **'+str(message.guild.default_notifications)[18:].replace("_", " ")+'\n**Explicit Content Filter:**'+str(message.guild.explicit_content_filter)+'\n**AFK timeout: **'+str(message.guild.afk_timeout)+' seconds\n**Description: **"'+str(message.guild.description)+'"', inline='True')
+                embed.add_field(name='Channel Info', value='**Text Channels: **'+str(len(message.guild.text_channels))+'\n**Voice channels: **'+str(len(message.guild.voice_channels))+'\n**Channel categories: **'+str(len(message.guild.categories))+'\n**AFK Channel: **'+str(message.guild.afk_channel), inline='True')
+                embed.add_field(name='Members Info', value='**Server owner: **'+str(message.guild.owner)[:-5]+'\n**Members count: **'+str(len(message.guild.members))+'\n**Server Boosters: **'+str(len(message.guild.premium_subscribers))+'\n**Role Count: **'+str(len(message.guild.roles))+'\n**Bot accounts: **'+str(botcount)+'\n**Human accounts: **'+str(humans), inline='True')
+                serverurl = 'https://discordapp.com/channels/'+str(message.guild.id)
+                servericonurl = str('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=128')
+                embed.add_field(name='URL stuff', value=f'[Server URL]({serverurl}) | [Server Icon URL (static)]({servericonurl})')
+                embed.set_thumbnail(url=str('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=128'))
+                await message.channel.send(embed=embed)
         if msg.startswith(prefix+'factor'):
             if int(splitted[1])<999999:
                 numList = range(1, int(splitted[1]))
@@ -608,46 +979,53 @@ async def on_message(message):
                 arr.append(int(splitted[1])*i)
             await message.channel.send(str(arr))
         if msg.startswith(prefix+'serveremojis'):
-            if len(splitted)==2 and splitted[1]=='--short':
-                all = ''
-                for i in range(0, len(message.guild.emojis)):
-                    if len(all)>1960:
-                        break
-                    if message.guild.emojis[i].animated==True:
-                        all = all + ' <a:'+str(message.guild.emojis[i].name)+':'+str(message.guild.emojis[i].id)+'> '
-                    else:
-                        all = all + ' <:'+str(message.guild.emojis[i].name)+':'+str(message.guild.emojis[i].id)+'> '
-                await message.channel.send(str(all))
+            member = message.guild.get_member(int(authorTag))
+            if member.guild_permissions.manage_emojis==False:
+                await message.channel.send('<@'+str(authorTag)+'>, you need to have the `Manage Emoji` permission!')
+                acceptId = 1
             else:
-                staticemo = ""
-                animateemo = ""
-                staticcount = 0
-                animatecount = 0
-                warning = 'No errors found.'
-                for i in range(0, int(len(message.guild.emojis))):
-                    if message.guild.emojis[i].animated==True:
-                        animatecount = int(animatecount) + 1
-                    else:
-                        staticcount = int(staticcount) + 1
-                    if len(staticemo)>950 or len(animateemo)>950:
-                        warning = 'Error: Too many emojis, some emojis may remain unlisted above.\nInstead type '+str(prefix+'serveremojis --short')
-                        break
-                    if message.guild.emojis[i].animated==True:
-                        animateemo = animateemo + '<a:'+str(message.guild.emojis[i].name)+':'+str(message.guild.emojis[i].id)+'> ('+str(message.guild.emojis[i].name)+') \n'
-                    else:
-                        staticemo = staticemo + '<:'+str(message.guild.emojis[i].name)+':'+str(message.guild.emojis[i].id)+'> ('+str(message.guild.emojis[i].name)+') \n'
-                embed = discord.Embed(
-                    title = message.guild.name+'\'s emojis',
-                    colour = discord.Colour.red()
-                )
-                if staticemo=="":
-                    staticemo = 'No emojis found :('
-                if animateemo=="":
-                    animateemo = 'No emojis found :('
-                embed.add_field(name='Static Emojis ('+str(staticcount)+')', value=str(staticemo), inline='False')
-                embed.add_field(name='Animated Emojis ('+str(animatecount)+')', value=str(animateemo), inline='False')
-                embed.set_footer(text=str(warning))
-                await message.channel.send(embed=embed)
+                acceptId = 0
+            if acceptId==0:
+                if len(splitted)==2 and splitted[1]=='--short':
+                    all = ''
+                    for i in range(0, len(message.guild.emojis)):
+                        if len(all)>1960:
+                            break
+                        if message.guild.emojis[i].animated==True:
+                            all = all + ' <a:'+str(message.guild.emojis[i].name)+':'+str(message.guild.emojis[i].id)+'> '
+                        else:
+                            all = all + ' <:'+str(message.guild.emojis[i].name)+':'+str(message.guild.emojis[i].id)+'> '
+                    await message.channel.send(str(all))
+                else:
+                    staticemo = ""
+                    animateemo = ""
+                    staticcount = 0
+                    animatecount = 0
+                    warning = 'No errors found.'
+                    for i in range(0, int(len(message.guild.emojis))):
+                        if message.guild.emojis[i].animated==True:
+                            animatecount = int(animatecount) + 1
+                        else:
+                            staticcount = int(staticcount) + 1
+                        if len(staticemo)>950 or len(animateemo)>950:
+                            warning = 'Error: Too many emojis, some emojis may remain unlisted above.\nInstead type '+str(prefix+'serveremojis --short')
+                            break
+                        if message.guild.emojis[i].animated==True:
+                            animateemo = animateemo + '<a:'+str(message.guild.emojis[i].name)+':'+str(message.guild.emojis[i].id)+'> ('+str(message.guild.emojis[i].name)+') \n'
+                        else:
+                            staticemo = staticemo + '<:'+str(message.guild.emojis[i].name)+':'+str(message.guild.emojis[i].id)+'> ('+str(message.guild.emojis[i].name)+') \n'
+                    embed = discord.Embed(
+                        title = message.guild.name+'\'s emojis',
+                        colour = discord.Colour.red()
+                    )
+                    if staticemo=="":
+                        staticemo = 'No emojis found :('
+                    if animateemo=="":
+                        animateemo = 'No emojis found :('
+                    embed.add_field(name='Static Emojis ('+str(staticcount)+')', value=str(staticemo), inline='False')
+                    embed.add_field(name='Animated Emojis ('+str(animatecount)+')', value=str(animateemo), inline='False')
+                    embed.set_footer(text=str(warning))
+                    await message.channel.send(embed=embed)
         if msg.startswith(prefix+'id'):
             var = splitted[1][:-1]
             if (splitted[1].startswith('<#')):
@@ -659,41 +1037,45 @@ async def on_message(message):
             if int(len(splitted))>4:
                 await message.channel.send("OverloadEquationError: So far this bot only accept one equation.")
             else:
-                num1 = int(splitted[1])
-                num2 = int(splitted[3])
-                inputtedSym = str(splitted[2])
-                if inputtedSym=="+":
-                    sym = "+"
-                elif inputtedSym=="-":
-                    sym = "-"
-                elif inputtedSym=="*" or inputtedSym=="x" or inputtedSym=="×":
-                    sym = "*"
-                elif inputtedSym=="/" or inputtedSym==":" or inputtedSym=="÷":
-                    sym = "/"
-                elif inputtedSym=="^" or inputtedSym=="**":
-                    sym = "**"
-                else:
-                    await message.channel.send("InvalidSymbolError: Invalid symbol for equation.\nSupported symbol: `+ - * x × / : ÷ ^ **`")
-                if sym=="+":
-                    result = int(num1)+int(num2)
-                    symId = 0
-                elif sym=="-":
-                    result = int(num1)-int(num2)
-                    symId = 0
-                elif sym=="*":
-                    symId = 0
-                    result = int(num1)*int(num2)
-                elif sym=="/":
-                    symId = 1
-                    result = int(num1)/int(num2)
-                    rounded = round(int(result))
-                elif sym=="**":
-                    symId = 0
-                    result = int(num1)**int(num2)
-                if symId==0:
-                    await message.channel.send(str(num1)+" "+str(sym)+" "+str(num2)+" = "+str(result))
-                elif symId==1:
-                    await message.channel.send(str(num1)+" "+str(sym)+" "+str(num2)+" = "+str(result)+"\nRound number: "+str(rounded))
+                try:
+                    num1 = int(splitted[1])
+                    num2 = int(splitted[3])
+                    inputtedSym = str(splitted[2])
+                except IndexError:
+                    print('meh.')
+                finally:
+                    if inputtedSym=="+":
+                        sym = "+"
+                    elif inputtedSym=="-":
+                        sym = "-"
+                    elif inputtedSym=="*" or inputtedSym=="x" or inputtedSym=="×":
+                        sym = "*"
+                    elif inputtedSym=="/" or inputtedSym==":" or inputtedSym=="÷":
+                        sym = "/"
+                    elif inputtedSym=="^" or inputtedSym=="**":
+                        sym = "**"
+                    else:
+                        await message.channel.send("InvalidSymbolError: Invalid symbol for equation.\nSupported symbol: `+ - * x × / : ÷ ^ **`")
+                    if sym=="+":
+                        result = int(num1)+int(num2)
+                        symId = 0
+                    elif sym=="-":
+                        result = int(num1)-int(num2)
+                        symId = 0
+                    elif sym=="*":
+                        symId = 0
+                        result = int(num1)*int(num2)
+                    elif sym=="/":
+                        symId = 1
+                        result = int(num1)/int(num2)
+                        rounded = round(int(result))
+                    elif sym=="**":
+                        symId = 0
+                        result = int(num1)**int(num2)
+                    if symId==0:
+                        await message.channel.send(str(num1)+" "+str(sym)+" "+str(num2)+" = "+str(result))
+                    elif symId==1:
+                        await message.channel.send(str(num1)+" "+str(sym)+" "+str(num2)+" = "+str(result)+"\nRound number: "+str(rounded))
         if msg.startswith(prefix+"rng") or msg.startswith(prefix+"randomnumber") or msg.startswith(prefix+"randint"):
             beginning = int(splitted[1])
             ending = int(splitted[2])
@@ -735,21 +1117,28 @@ async def on_message(message):
             embed.set_image(url=data['file'])
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'roles'):
-            serverroles = ""
-            warning = "No warnings available."
-            for i in range(1, int(len(message.guild.roles))):
-                num = int(len(message.guild.roles))-int(i)
-                if len(serverroles)>2048:
-                    warning = 'Roles pass the limit of discord Description. This means that some roles are not listed above.'
-                    break
-                serverroles = serverroles + str(message.guild.roles[num].name)+'\n'
-            embed = discord.Embed(
-                title = 'Server roles of '+message.guild.name+' (From top to bottom.)',
-                description = str(serverroles),
-                color = discord.Colour.dark_blue()
-            )
-            embed.set_footer(text=str(warning))
-            await message.channel.send(embed=embed)
+            member = message.guild.get_member(int(authorTag))
+            if member.guild_permissions.manage_roles==False:
+                await message.channel.send('<@'+str(authorTag)+'>, you need to have the `Manage Roles` permission!')
+                acceptId = 1
+            else:
+                acceptId = 0
+            if acceptId==0:
+                serverroles = ""
+                warning = "No warnings available."
+                for i in range(1, int(len(message.guild.roles))):
+                    num = int(len(message.guild.roles))-int(i)
+                    if len(serverroles)>2048:
+                        warning = 'Roles pass the limit of discord Description. This means that some roles are not listed above.'
+                        break
+                    serverroles = serverroles + str(message.guild.roles[num].name)+'\n'
+                embed = discord.Embed(
+                    title = 'Server roles of '+message.guild.name+' (From top to bottom.)',
+                    description = str(serverroles),
+                    color = discord.Colour.dark_blue()
+                )
+                embed.set_footer(text=str(warning))
+                await message.channel.send(embed=embed)
         if msg.startswith(prefix+"gddaily"):
             toEdit = await message.channel.send("Retrieving Data...")
             response = urllib.request.urlopen("https://gdbrowser.com/api/level/daily")
@@ -766,8 +1155,11 @@ async def on_message(message):
             embed.add_field(name='Uploaded at', value=data["uploaded"], inline='True')
             embed.add_field(name='Updated at', value=data["updated"]+" (Version "+data["version"]+")", inline='True')
             embed.add_field(name='Difficulty', value=data["difficulty"])
-            embed.add_field(name='Level Stats', value=str(data["likes"])+' likes\n'+str(data["downloads"])+" downloads", inline='False')
-            embed.add_field(name='Level Rewards', value=str(data["stars"])+" stars\n"+str(data["orbs"])+" orbs\n"+str(data["diamonds"])+" diamonds")
+            gesture = ':+1:'
+            if data['disliked']==True:
+                gesture = ':-1:'
+            embed.add_field(name='Level Stats', value=str(data["likes"])+' '+gesture+'\n'+str(data["downloads"])+" :arrow_down:", inline='False')
+            embed.add_field(name='Level Rewards', value=str(data["stars"])+" :star:\n"+str(data["orbs"])+" orbs\n"+str(data["diamonds"])+" :gem:")
             embed.add_field(name='Leaderboard', value="**Rank #1: "+str(leader[1]["username"])+"** "+str(leader[1]["percent"])+"% | "+str(leader[1]["date"])+"\n**Rank #2: "+str(leader[2]["username"])+"** "+str(leader[2]["percent"])+"% | "+str(leader[2]["date"])+"\n**Rank #3: "+str(leader[3]["username"])+"** "+str(leader[3]["percent"])+"% | "+str(leader[3]["date"]))
             await toEdit.edit(content='', embed=embed)
         if msg.startswith(prefix+'botmembers'):
@@ -801,8 +1193,11 @@ async def on_message(message):
             embed.add_field(name='Uploaded at', value=data["uploaded"], inline='True')
             embed.add_field(name='Updated at', value=data["updated"]+" (Version "+data["version"]+")", inline='True')
             embed.add_field(name='Difficulty', value=data["difficulty"])
-            embed.add_field(name='Level Stats', value=str(data["likes"])+' likes\n'+str(data["downloads"])+" downloads", inline='False')
-            embed.add_field(name='Level Rewards', value=str(data["stars"])+" stars\n"+str(data["orbs"])+" orbs\n"+str(data["diamonds"])+" diamonds")
+            gesture = ':+1:'
+            if data['disliked']==True:
+                gesture = ':-1:'
+            embed.add_field(name='Level Stats', value=str(data["likes"])+' '+gesture+'\n'+str(data["downloads"])+" :arrow_down:", inline='False')
+            embed.add_field(name='Level Rewards', value=str(data["stars"])+" :star:\n"+str(data["orbs"])+" orbs\n"+str(data["diamonds"])+" :gem:")
             embed.add_field(name='Leaderboard', value="**Rank #1: "+str(leader[1]["username"])+"** "+str(leader[1]["percent"])+"% | "+str(leader[1]["date"])+"\n**Rank #2: "+str(leader[2]["username"])+"** "+str(leader[2]["percent"])+"% | "+str(leader[2]["date"])+"\n**Rank #3: "+str(leader[3]["username"])+"** "+str(leader[3]["percent"])+"% | "+str(leader[3]["date"]))
             await toEdit.edit(content='', embed=embed)
         if msg.startswith(prefix+'facts'):
@@ -946,7 +1341,7 @@ async def on_message(message):
                 colour=discord.Colour.dark_blue()
             )
             embed.add_field(name='Bot help ('+str(commandLength[0])+')', value='```'+str(bothelp)+'```',inline='False')
-            embed.add_field(name='DiscordAPI ('+str(commandLength[6])+')', value='```'+str(discordAPI)+'```',inline='False')
+            embed.add_field(name='Moderation ('+str(commandLength[6])+')', value='```'+str(discordAPI)+'```',inline='False')
             embed.add_field(name='Utilities ('+str(commandLength[5])+')', value='```'+str(utilities)+'```',inline='False')
             embed.add_field(name='Math ('+str(commandLength[1])+')', value='```'+str(math)+'```',inline='False')
             embed.add_field(name='Fun ('+str(commandLength[4])+')', value='```'+str(fun)+'```',inline='False')
@@ -967,8 +1362,11 @@ async def on_message(message):
             embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Programmed in: **Discord.py (Python)\n**Created in: **6 April 2020.\n**Successor of: **somebot56.\n**Default prefix: **>\n**Commands: **Just type >commands.', inline='True')
             embed.add_field(name='Programmer info', value='**Programmed by: **Viero Fernando.\n**Server: **discord.gg/HhAPkD8.\n**Is programming hard? **I dunno', inline='True')
             embed.add_field(name='Special Thanks', value='Stackoverflow\nDiscord.py and/or Python itself\nCool dudes who made those APIs\nMy family/friends\nDiscord friends and/or programmer friends, and\n**You** for adding this bot.', inline='True')
-            embed.add_field(name='Links', value='[Join this bot to your server!](http://vierofernando.github.io/programs/username601) | [Source code](http://github.com/vierofernando/username601) | [The support server!](http://discord.gg/HhAPkD8)', inline='False')
+            embed.add_field(name='Links', value='[Join this bot to your server!](http://vierofernando.github.io/programs/username601) | [Source code](http://github.com/vierofernando/username601) | [The support server!](http://discord.gg/HhAPkD8) | [Vote us on top.gg](https://top.gg/bot/696973408000409626/vote)', inline='False')
             embed.set_footer(text='© Viero Fernando Programming, 2018-2020. All rights reserved.')
+            await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'vote'):
+            embed = discord.Embed(title='Support by Voting us at top.gg!', description='Umm, ya like this bot? err... sure thing dude! [Vote us at top.gg by clicking me!](https://top.gg/bot/696973408000409626/vote)', colour=discord.Colour.blue())
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'time') or msg.startswith(prefix+'utc'):
             response = urllib.request.urlopen("http://worldtimeapi.org/api/timezone/africa/accra")
@@ -1164,17 +1562,7 @@ async def on_message(message):
                 else:
                     withSpaces = int(withSpaces)+1
                     withoutSpaces = int(withoutSpaces)+1
-            await message.channel.send("**With Spaces:** "+str(withSpaces)+"\n**Without Spaces:** "+str(withoutSpaces))
-        if msg.startswith(prefix+'token'):
-            randoms = list("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.")
-            ranNum = list(range(35, 45))
-            fakeToken = []
-            for i in range(0, int(random.choice(ranNum))):
-                fakeToken.append(random.choice(randoms))
-            if str(''.join(fakeToken))!=token:
-                await message.channel.send('Hey, '+str(msgAuthor)+'! my bot token is: \n**'+str("".join(fakeToken))+'**')
-            else:
-                await message.channel.send('LOL!')
+            await message.channel.send("**With Spaces:** "+str(withSpaces)+"\n**Without Spaces:**"+str(withoutSpaces))
         if msg.startswith(prefix+'randomword'):
             toEdit = await message.channel.send('Please wait...')
             response = urllib.request.urlopen("https://random-word-api.herokuapp.com/word?number=1")
@@ -1212,31 +1600,6 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
             else:
                 await message.channel.send('Error: Something error-ry happened!')
-        if msg.startswith(prefix+'giphy'):
-            toedit = await message.channel.send('Please wait...')
-            if len(splitted)==1:
-                await toedit.edit(content='Error: Please add a search query!')
-            else:
-                query = msg[7:].replace(' ', '%20')
-                url = 'https://giphy.com/search/'+str(query)
-                data = requests.get(url)
-                splitHeader = data.text.split('gifs: [')
-                splitElements = ''.join(splitHeader)[1:].split('"url":')
-                del splitElements[0]
-                del splitElements[1]
-                del splitElements[2]
-                end = int(len(splitElements))-1
-                listNum = list(range(1, int(end)))
-                num = random.choice(listNum)
-                if not splitElements[num].startswith(' "https://media2.giphy.com/'):
-                    while splitElements[num].startswith(' "https://media2.giphy.com/')==False:
-                        num = random.choice(listNum)
-                        if splitElements[num].startswith(' "https://media2.giphy.com/')==True:
-                            break
-                partialLink = ''.join(splitElements[num]).split('?')[0][2:]
-                embed = discord.Embed(title=query.replace('%20', ' '), colour=discord.Colour.magenta())
-                embed.set_image(url=str(partialLink))
-                await toedit.edit(content='', embed=embed)
         if msg.startswith(prefix+'ytsearch'):
             if len(splitted)==1:
                 await message.channel.send('Please add a query!')
