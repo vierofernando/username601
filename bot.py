@@ -28,7 +28,7 @@ commandLength = [len(bothelp.split(',')), len(math.split(',')), len(encoding.spl
 
 @client.event
 async def on_ready():
-    game = discord.Game("with "+len(client.users)+' random strangers | '+prefix+'help')
+    game = discord.Game("with "+str(len(client.users))+' random strangers | '+prefix+'help')
     await client.change_presence(status=discord.Status.online, activity=game)
     print('Bot is online.\n=== USERNAME601 CONSOLE ===\nBuilt using Python by Viero Fernando (c) 2020.\n\n'.format(client))
 
