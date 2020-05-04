@@ -7,6 +7,6 @@ About the source code files:
  - ```username601.png``` **Username601's profile pic.**
 
 **Links**
-[Main bot website.](http://vierofernando.github.io/programs/username601) | 
+[Vote us on top.gg.](https://top.gg/bot/696973408000409626/vote) | 
 [Add the bot to your server.](https://discordapp.com/api/oauth2/authorize?client_id=696973408000409626&permissions=8&scope=bot) | 
 [Join our discord server!](http://discord.gg/HhAPkD8)
