@@ -5,6 +5,7 @@ About the source code files:
 
  - ```bot.py``` **The bot file, Main source code.**
  - ```username601.png``` **Username601's profile pic.**
+ - ```banner.png``` **The iconic banner at top.gg**
 
 **Links**
 [Vote us on top.gg.](https://top.gg/bot/696973408000409626/vote) | 
