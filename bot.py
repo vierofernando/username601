@@ -16,17 +16,17 @@ gtr = Translator()
 client = discord.Client()
 ia = imdb.IMDb()
 
-bot_ver = '1.9'
-bot_date = 'May 4, 2020, 00.48 UTC'
-bot_changelog = 'Changed presence title, added quiz features, uploaded to top.gg, added moderation, versions are back, removed disturbing/NSFW commands.'
+bot_ver = '1.9.1'
+bot_date = 'May 7, 2020, 06.20 UTC'
+bot_changelog = 'Changed presence title, removed controversial commands, added more commands'
 
 bothelp = 'vote, feedback [text], help, about, connections, inviteme, whomakeme, createbot, ping'
 math = 'math [num] [sym] [num], factor [num], multiplication [num], sqrt [num], isprime [num], rng [num], median [array], mean [array]'
 encoding = 'binary [text], supreme [text], reverse [text], length [text], qr [text], leet [text], emojify [text]'
-games = 'mathquiz, geoquiz, guessavatar, coin, dice, rock, paper, scissors, gddaily, gdweekly, gdprofile [name], gdsearch [level name], gdlevel [level id]'
+games = 'mathquiz, geoquiz, guessavatar, pokequiz, coin, dice, rock, paper, scissors, gddaily, gdweekly, gdprofile [name], gdsearch [level name], gdlevel [level id]'
 fun = 'joke, memes, slap [tag], hbd [tag], shipwho, gaylevel [tag], secret, inspirobot, meme, 8ball, deathnote, choose [array]'
 images = 'ph help, ship [tag1] [tag2], coffee, wallpaper, trash [tag], jpeg [tag], cat, sadcat, dog, fox, bird, magik [tag], facts [text], invert [tag], pixelate [tag], b&w [tag], drake help, salty [tag], wooosh [tag], captcha [text], achieve [text], scroll [text], call [text], challenge [text], didyoumean help'
-utilities = 'catfact, dogfact, funfact, steam [profile], googledoodle, ytsearch [query], bored, search [query], randomcolor, randomword, religion, country [name], time, newemote, ghiblifilms, randombot, ytthumbnail [link]'
+utilities = 'embed, ss --help, catfact, dogfact, funfact, steam [profile], googledoodle, ytsearch [query], bored, search [query], randomcolor, randomword, country [name], time, newemote, ghiblifilms, randombot, ytthumbnail [link]'
 discordAPI = 'ar [tag] [role], rr [tag] [role], clear [count], kick [tag] [reason], ban [tag] [reason], nick [tag] [new nick], makechannel [type] [name], emojiinfo [emoji], permissions [user_tag], roleinfo [tag], id [tag], getinvite, botmembers, serverinfo, servericon, avatar [tag], userinfo [tag], roles, channels, serveremojis, reactmsg [text], reactnum [num1] [num2]'
 apps = 'imdb, translate, wikipedia'
 commandLength = [len(bothelp.split(',')), len(math.split(',')), len(encoding.split(',')), len(games.split(',')), len(fun.split(',')), len(utilities.split(',')), len(discordAPI.split(',')), len(images.split(',')), len(apps.split(','))]
@@ -36,14 +36,14 @@ for i in range(0, len(commandLength)):
 
 @client.event
 async def on_ready():
-    game = discord.Game(str(totalLength)+' commands | '+prefix+'help')
-    await client.change_presence(status=discord.Status.online, activity=game)
+    await asyncio.sleep(6)
+    myAct = discord.Activity(name=str(len(client.users))+' strangers | '+str(len(client.guilds))+' cults', type=discord.ActivityType.watching)
+    await client.change_presence(activity=myAct)
     print('Bot is online.\n=== USERNAME601 CONSOLE ===\nBuilt using Python by Viero Fernando (c) 2020.\n\n'.format(client))
 
 @client.event
 async def on_message(message):
     if '<@!696973408000409626>' in message.content or '<@696973408000409626>' in message.content:
-        await message.delete()
         await message.channel.send('The prefix is `'+str(prefix)+'`.\n**Commands: **`'+prefix+'help`')
     if message.content==prefix+"ping":
         await message.channel.send('**Pong!**\n'+str(round(client.latency*1000))+' ms.')
@@ -63,7 +63,53 @@ async def on_message(message):
     elif msg.startswith(prefix) and i_dont_know_what_this_means_but_i_am_declaring_it_anyway==0:
         if msg.startswith(prefix+'say'):
             await message.channel.send(msg[5:])
-        if message.content.startswith(prefix+'mathquiz'):
+        if msg.startswith(prefix+'embed'):
+            if '(title:' not in msg or '(desc:' not in msg:
+                await message.channel.send('An embed requires title and description.\nFor example: `'+prefix+'embed (title:this is a title) (desc:this is a description)`\n\nOptional; `footer, auth`')
+            else:
+                try:
+                    title_e = msg.split('(title:')[1].split(')')[0]
+                    desc_e = msg.split('(desc:')[1].split(')')[0]
+                    embed = discord.Embed(title=title_e, description=desc_e, colour=discord.Colour.from_rgb(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
+                    if '(footer:' in msg:
+                        foot = msg.split('(footer:')[1].split(')')[0]
+                        embed.set_footer(text=foot)
+                    if '(auth:' in msg:
+                        auth = msg.split('(auth:')[1].split(')')[0]
+                        embed.set_author(name=auth)
+                    await message.channel.send(embed=embed)
+                except:
+                    await message.channel.send('An error occurd.')
+        if msg.startswith(prefix+'ss'):
+            if len(splitted)>1:
+                if splitted[1]=='--help':
+                    embed = discord.Embed(title='Special say command help', description='**REQUIRES `MANAGE CHANNELS` PERMISSION**\nThis is a special say command that has the following:\n1. @someone | Tags random people in the server. [On April fools 2018, Discord made this feature, but removed the day after.](https://www.youtube.com/watch?v=BeG5FqTpl9U) (Please use wisely.)\n2. @owner | Tags the server owner. Please don\'t spam this feature.\n3. --ch #{channelname} | Sends a message on a specific channel.', colour=discord.Colour.green())
+                    await message.channel.send(embed=embed)
+                else:
+                    if message.guild.get_member(int(authorTag)).guild_permissions.manage_channels==False:
+                        await message.channel.send('You need to have the `Manage channels` permission. :x:')
+                    else:
+                        randomppl = random.choice(message.guild.members).id
+                        if splitted[1]=='--ch':
+                            # ummm
+                            try:
+                                ch = client.get_channel(int(splitted[2][2:][:-1]))
+                                await ch.send(msg[int(len(splitted[0])+len(splitted[1])+len(splitted[2])+3):].replace('@someone', '<@'+str(randomppl)+'>').replace('@owner', '<@'+str(message.guild.owner.id)+'>'))
+                            except:
+                                await message.channel.send('An error occured! :x:')
+                        else:
+                            await message.channel.send(msg[int(len(splitted[0])+1):].replace('@someone', f'<@{str(randomppl)}>').replace('@owner', '<@'+str(message.guild.owner.id)+'>'))
+        if msg.startswith(prefix+'inspectservers'):
+            if int(authorTag)==661200758510977084:
+                ee = ''
+                for i in range(0, len(client.guilds)):
+                    ee = ee + '**' + client.guilds[i].name + '** ('+str(len(client.guilds[i].members))+' Members)\n'
+                embed = discord.Embed(title='Heya, here are all the servers i am in.', description=ee, colour=discord.Colour.blue())
+                await message.author.send(embed=embed)
+                await message.channel.send('...k')
+            else:
+                await message.channe.send('...')
+        if msg.startswith(prefix+'mathquiz'):
             num1 = random.randint(1, 100)
             num2 = random.randint(1, 100)
             symArray = ['+', '-', 'x', ':', '^']
@@ -754,20 +800,35 @@ async def on_message(message):
             embed.set_image(url=doodle_img)
             await wait.edit(content='', embed=embed)
         if msg.startswith(prefix+'createbot'):
-            embed = discord.Embed(
-                title='How to create a discord BOT with Discord.py',
-                description='This is how you make a BOT using Discord.py\nAccording to the dev! ;)',
-                colour = discord.Colour.dark_blue()
-            )
-            code = 'import discord\ntoken = \'YOUR TOKEN\'\nclient = discord.Client()\n@client.event\nasync def on_ready():\n\tprint(\'Bot is ready!\')\n@client.event\nasync def on_message(message):\n\tmsg = message.content.lower()\n\tprefix = \'your prefix\'\n\tif msg.startswith(prefix+\'command thing\'):\n\t\tawait message.channel.send(\'Message your bot responds with\')\nclient.run(token)'
-            embed.add_field(name='A. Preparing stuff', value='1. Install python through http://python.org/downloads \n2. Learn Python programming language first\n3. Open your console, and type \'pip install discord.py\'\n4.Have some text editor (notepad++/VScode/Sublime Text)', inline='False')
-            embed.add_field(name='B. Bot Setup', value='1. Go to http://discordapp.com/developers \n2. Click on \'New Application.\'\n3. Type your bot name and click \'Create\'.\n4. Click on \'bot\' tab, and Click \'Add bot.\'\n5. Click \'Yes, do it!\'\n6. If your name is not approved, please change the bot name in the \'General Information Tab.\' Else, congrats!', inline='False')
-            embed.add_field(name='C. Invite the bot to your server', value='1. On the \'Oauth2\' Tab, scroll down and on the scopes list, check \'Bot\'.\n2. Check the bot permissions first.\n3. Click on COPY.\n4. Open that link on your browser.\n5. Authorize the bot to your server.\n6. Boom! Your bot joined your server!', inline='False')
-            embed.add_field(name='D. Coding time!', value='1. Create a folder.\n2. Open that folder and create a file named \'bot.py\' in .py extension.\n3. Open that file with a text editor.\n4. Code the following above.\n', inline='False')
-            embed.add_field(name='E. How to get the Token?', value='1. Open the http://discordapp.com/developers, and click on your bot.\n2. Open the \'Bot\' tab.\n3. On token, click \'Copy\'.\n4. Change the \'YOUR TOKEN\' above by pasting your token.\n5. DON\'T SHARE YOUR TOKEN WITH ANYBODY.', inline='False')
-            embed.add_field(name='F. Discord API?', value='https://discordpy.readthedocs.io/en/latest/api.html', inline='False')
-            embed.set_footer(text='Enjoy your BOT! ;)')
-            await message.channel.send(embed=embed, content='```py\n'+str(code)+'```')
+            if len(splitted)<2:
+                tutorials = f'{prefix}createbot --started `Getting started, preparing stuff.`\n{prefix}createbot --say `Say command help.`\n{prefix}createbot --ping `Ping command help. (Client latency).`\n{prefix}createbot --coin `Flip coin game`\n{prefix}createbot --embed `Creating embeds`\n{prefix}createbot --avatar `Avatar commands help.`'
+                embed = discord.Embed(title='Createbot; the discord.py bot tutorial', description=f'This is a tutorial on how to create a discord bot.\nEvery thing other than `--started` needs to have the same module or string.\nEach are splitted on different categories.\n\n{tutorials}', colour=discord.Colour.red())
+                await message.channel.send(embed=embed)
+            elif splitted[1]=='--avatar':
+                await message.channel.send('```py\nif msg.startswith(\f\'{prefix}avatar\'):\n\tembed = discord.Embed(colour=discord.Colour.magenta())\n\tembed.set_image(url=message.guild.get_member(int(msg.split()[1][2:][:-1])).avatar_url)\n\tawait message.channel.send(embed=embed)```')
+            elif splitted[1]=='--embed':
+                await message.channel.send('Embed example: ```py\nif message.channel.send(f\'{prefix}embedthing\'):\n\tembed = discord.Embed(\n\t\ttitle = \'My embed title\',\n\t\tdescription = \'The embed description and stuff. Lorem ipsum asdf\',\n\t\tcolour = discord.Colour.blue()\n\tembed.add_field(name=\'Field name\', value=\'embed field value is here\', inline=\'True\')\n\tembed.set_footer(text=\'this is a footer\')\n\tawait message.channel.send(embed=embed)```')
+            elif splitted[1]=='--coin':
+                await message.channel.send('Requires: `Random module`\nType the following at the first line of your code;```py\nimport random```Then type the if statement:```py\nif msg.startswith(f\'{prefix}coinflip\'):\n\tawait message.channel.send(random.choice([\'HEADS!\', \'TAILS!\']))```')
+            elif splitted[1]=='--ping':
+                await message.channel.send('```py\nif msg.startswith(f\'{prefix}ping\'):\n\tawait message.channel.send(\'**Pong!**\\n\'+str(round(client.latency*1000))+\' ms.\')```')
+            elif splitted[1]=='--say':
+                await message.channel.send('```py\nif msg.startswith(f\'{prefix}say\'):\n\tawait message.channel.send(msg[int(len(msg.split()[0])+1):])```')
+            elif splitted[1]=='--started':
+                embed = discord.Embed(
+                    title='How to create a discord BOT with Discord.py',
+                    description='This is how you make a BOT using Discord.py\nAccording to the dev! ;)',
+                    colour = discord.Colour.dark_blue()
+                )
+                code = 'import discord\ntoken = \'YOUR TOKEN\'\nclient = discord.Client()\n@client.event\nasync def on_ready():\n\tprint(\'Bot is ready!\')\n@client.event\nasync def on_message(message):\n\tmsg = message.content.lower()\n\tprefix = \'your prefix\'\n\tif msg.startswith(prefix+\'command thing\'):\n\t\tawait message.channel.send(\'Message your bot responds with\')\nclient.run(token)'
+                embed.add_field(name='A. Preparing stuff', value='1. Install python through http://python.org/downloads \n2. Learn Python programming language first\n3. Open your console, and type \'pip install discord.py\'\n4.Have some text editor (notepad++/VScode/Sublime Text)', inline='False')
+                embed.add_field(name='B. Bot Setup', value='1. Go to http://discordapp.com/developers \n2. Click on \'New Application.\'\n3. Type your bot name and click \'Create\'.\n4. Click on \'bot\' tab, and Click \'Add bot.\'\n5. Click \'Yes, do it!\'\n6. If your name is not approved, please change the bot name in the \'General Information Tab.\' Else, congrats!', inline='False')
+                embed.add_field(name='C. Invite the bot to your server', value='1. On the \'Oauth2\' Tab, scroll down and on the scopes list, check \'Bot\'.\n2. Check the bot permissions first.\n3. Click on COPY.\n4. Open that link on your browser.\n5. Authorize the bot to your server.\n6. Boom! Your bot joined your server!', inline='False')
+                embed.add_field(name='D. Coding time!', value='1. Create a folder.\n2. Open that folder and create a file named \'bot.py\' in .py extension.\n3. Open that file with a text editor.\n4. Code the following above.\n', inline='False')
+                embed.add_field(name='E. How to get the Token?', value='1. Open the http://discordapp.com/developers, and click on your bot.\n2. Open the \'Bot\' tab.\n3. On token, click \'Copy\'.\n4. Change the \'YOUR TOKEN\' above by pasting your token.\n5. DON\'T SHARE YOUR TOKEN WITH ANYBODY.', inline='False')
+                embed.add_field(name='F. Discord API?', value='https://discordpy.readthedocs.io/en/latest/api.html', inline='False')
+                embed.set_footer(text='Enjoy your BOT! ;)')
+                await message.channel.send(embed=embed, content='```py\n'+str(code)+'```')
         if msg.startswith(prefix+'channels'):
             channels = ''
             warning = 'No errors found.'
@@ -1170,7 +1231,7 @@ async def on_message(message):
             elif (splitted[1].startswith('<@!')):
                 var = var[3:]
             await message.channel.send(str(var))
-        if msg.startswith(prefix+"math"):
+        if splitted[0]==prefix+"math":
             if int(len(splitted))>4:
                 await message.channel.send("OverloadEquationError: So far this bot only accept one equation.")
             else:
@@ -1504,9 +1565,8 @@ async def on_message(message):
                 colour = 0xff0000
             )
             embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Programmed in: **Discord.py (Python)\n**Created in: **6 April 2020.\n**Successor of: **somebot56.\n**Default prefix: **>\n**Commands: **Just type >commands.', inline='True')
-            embed.add_field(name='Programmer info', value='**Programmed by: **Viero Fernando.\n**Server: **discord.gg/HhAPkD8.\n**Is programming hard? **I dunno', inline='True')
+            embed.add_field(name='Programmer info', value='**Programmed by: **Viero Fernando.\n**Server: **discord.gg/HhAPkD8., inline='True')
             embed.add_field(name='Version Info', value='**Bot version: ** '+bot_ver+'\n**Update time: **'+bot_date+'\n**Changelog: **'+bot_changelog+'\n\n**Discord.py version: **'+str(discord.__version__)+'\n**Python version: **'+str(sys.version))
-            embed.add_field(name='Special Thanks', value='Stackoverflow\nDiscord.py and/or Python itself\nCool dudes who made those APIs\nMy family/friends\nDiscord friends and/or programmer friends, and\n**You** for adding this bot.', inline='True')
             embed.add_field(name='Links', value='[Join this bot to your server!](http://vierofernando.github.io/programs/username601) | [Source code](http://github.com/vierofernando/username601) | [The support server!](http://discord.gg/HhAPkD8) | [Vote us on top.gg](https://top.gg/bot/696973408000409626/vote)', inline='False')
             embed.set_footer(text='© Viero Fernando Programming, 2018-2020. All rights reserved.')
             await message.channel.send(embed=embed)
@@ -1713,38 +1773,6 @@ async def on_message(message):
             response = urllib.request.urlopen("https://random-word-api.herokuapp.com/word?number=1")
             data = json.loads(response.read())
             await toEdit.edit(content=str(data[0]))
-        if msg.startswith(prefix+'religion'):
-            url = 'https://www.worldometers.info/world-population/'
-            data = requests.get(url)
-            splitting1 = data.text.split('Percentage of the global population\'], ')
-            splitArray = splitting1[1].split(', [')
-            total = ""
-            for i in range(0, int(len(splitArray))):
-                if splitArray[i].endswith(']')==True:
-                    total = total + str(splitArray[i])+ '\n'
-                else:
-                    break
-            subtotal = ''.join(total).split("'")
-            first = []
-            second = []
-            for i in range(1, len(subtotal)):
-                if i%2==0:
-                    second.append(subtotal[i][:-3][2:])
-                else:
-                    first.append(subtotal[i])
-            if len(first)==len(second):
-                for i in range(0, int(len(first))):
-                    print('THE RELIGION OF '+str(first[i])+' HAS '+str(second[i]))
-            embed = discord.Embed(title='World Religious Population', colour=discord.Colour.green())
-            relig_info = ""
-            if len(first)==len(second):
-                for i in range(0, len(first)):
-                    relig_info = relig_info + str(int(i)+1)+'. **'+str(first[i])+'** has **'+str(second[i])+'.**\n'
-                embed.add_field(name='Religion Population', value=str(relig_info))
-                embed.set_footer(text='WARNING: the following info. is not meant to hurt anyone; or to be controversial.')
-                await message.channel.send(embed=embed)
-            else:
-                await message.channel.send('Error: Something error-ry happened!')
         if msg.startswith(prefix+'ytsearch'):
             if len(splitted)==1:
                 await message.channel.send('Please add a query!')
