@@ -1557,7 +1557,7 @@ async def on_message(message):
                 description = random.choice(messageRandom),
                 colour = 0xff0000
             )
-            response = urllib.request.urlopen("http://worldtimeapi.org/api/timezone/africa/accra")
+            response = urllib.request.urlopen("https://top.gg/api/bots/696973408000409626")
             votes = str(json.loads(response.read())['points'])
             embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Programmed in: **Discord.py (Python)\n**Created in: **6 April 2020.\n**Successor of: **somebot56.\n**Default prefix: **'+prefix+'\n**Last tweaks/update: **'+str(latest_update)+' (UTC)\n**Top.gg Votes: **'+str(votes), inline='True')
             embed.add_field(name='Programmer info', value='**Programmed by: **Viero Fernando.\n**Best languages: **~~HTML, CSS,~~ VB .NET, JavaScript, Python\n**Social links:**\n[Discord Server](http://discord.gg/HhAPkD8)\n[GitHub](http://github.com/vierofernando)\n[Top.gg](https://top.gg/user/661200758510977084)\n[SoloLearn](https://www.sololearn.com/Profile/17267145)\n[Brainly (Indonesia)](http://bit.ly/vierofernandobrainly)\n[Geometry Dash](https://gdbrowser.com/profile/knowncreator56)', inline='True')
