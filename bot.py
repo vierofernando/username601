@@ -29,7 +29,15 @@ async def on_message(message):
     if '<@!696973408000409626>' in message.content or '<@696973408000409626>' in message.content:
         await message.channel.send('The prefix is `'+str(prefix)+'`.\n**Commands: **`'+prefix+'help`')
     if message.content==prefix+"ping":
-        await message.channel.send('**Pong!**\n'+str(round(client.latency*1000))+' ms.')
+        wait = await message.channel.send('Pinging... :thinking:')
+        ping = str(round(client.latency*1000))
+        if int(ping)<75:
+            embed = discord.Embed(title=f'Pong! {ping} ms.', colour=discord.Colour.red())
+        else:
+            embed = discord.Embed(title=f'Pong! {ping} ms.', description='Ping time may be slower due to;\n1. People kept spamming me\n2. My hosting system is slow\n3. I am in too many servers\n4. Discord\'s servers are currectly down\n5. I am snail :snail:', colour=discord.Colour.red())
+        embed.set_thumbnail(url='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif')
+        embed.set_footer(text='Ping and embed sent time may differ.')
+        await wait.edit(content='', embed=embed)
     sayTag = ["ya liek tagz?", "we don't accept services with tags, sorry.", "tag me? lol NO.", 'why command me with a tag? that is so unnecessary!', 'NO TAG, ~~NO~~ YES SERVICE.', 'MORE TAG, LESS SERVICE.', 'Everybody gangsta until somebody tagged username601', 'Taggy taggy tag tag!', 'Playin\' with tagz, bro?', 'So uhh i heard u liek tagz', 'What kind of word is that?']
     #GENERAL
     msgAuthor = message.author
@@ -43,7 +51,7 @@ async def on_message(message):
     if '<@!696973408000409626>' in msg and msg.startswith(prefix):
         i_dont_know_what_this_means_but_i_am_declaring_it_anyway = 1
         await message.channel.send(random.choice(sayTag))
-    elif msg.startswith(prefix) and i_dont_know_what_this_means_but_i_am_declaring_it_anyway==0:
+    elif msg.startswith(prefix) and i_dont_know_what_this_means_but_i_am_declaring_it_anyway==0 and client.get_user(int(authorTag)).bot==False:
         if msg.startswith(prefix+'say'):
             await message.channel.send(msg[5:])
         if msg.startswith(prefix+'embed'):
@@ -1093,9 +1101,9 @@ async def on_message(message):
                 await wait.edit(content='', embed=embed)
         if msg.startswith(prefix+'servericon'):
             if message.guild.is_icon_animated()==True:
-                link = 'https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.gif?size=128'
+                link = 'https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.gif?size=1024'
             else:
-                link = 'https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=128'
+                link = 'https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=1024'
             theEm = discord.Embed(title=message.guild.name+'\'s Icon', colour=discord.Colour.blue())
             theEm.set_image(url=link)
             await message.channel.send(embed=theEm)
@@ -1139,9 +1147,9 @@ async def on_message(message):
                 embed.add_field(name='Members Info', value='**Server owner: **'+str(message.guild.owner)[:-5]+'\n**Members count: **'+str(len(message.guild.members))+'\n**Server Boosters: **'+str(len(message.guild.premium_subscribers))+'\n**Role Count: **'+str(len(message.guild.roles))+'\n**Bot accounts: **'+str(botcount)+'\n**Human accounts: **'+str(humans), inline='True')
                 embed.add_field(name='Member Status', value=':green_circle: **Online** ('+str(online)+')\n:orange_circle: **Idle** ('+str(idle)+')\n:red_circle: **Do not disturb **('+str(dnd)+')\n:black_circle: **Offline **('+str(offline)+')\n\n:grinning: **All online members:** '+str(total_on)+' ('+str(onperc)+'%)\n:sleeping: **All offline members:** '+str(offline)+' ('+str(100-int(onperc))+'%)')
                 serverurl = 'https://discordapp.com/channels/'+str(message.guild.id)
-                servericonurl = str('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=128')
+                servericonurl = str('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=1024')
                 embed.add_field(name='URL stuff', value=f'[Server URL]({serverurl}) | [Server Icon URL (static)]({servericonurl})')
-                embed.set_thumbnail(url=str('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=128'))
+                embed.set_thumbnail(url=str('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=1024'))
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'factor'):
             if int(splitted[1])<999999:
@@ -1548,8 +1556,8 @@ async def on_message(message):
                 colour = 0xff0000
             )
             embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Programmed in: **Discord.py (Python)\n**Created in: **6 April 2020.\n**Successor of: **somebot56.\n**Default prefix: **>\n**Commands: **Just type >commands.', inline='True')
-            embed.add_field(name='Programmer info', value='**Programmed by: **Viero Fernando.\n**Server: **discord.gg/HhAPkD8., inline='True')
-            embed.add_field(name='Version Info', value='**Bot version: ** '+bot_ver+'\n**Update time: **'+bot_date+'\n**Changelog: **'+bot_changelog+'\n\n**Discord.py version: **'+str(discord.__version__)+'\n**Python version: **'+str(sys.version))
+            embed.add_field(name='Programmer info', value='**Programmed by: **Viero Fernando.\n**Server: **discord.gg/HhAPkD8.', inline='True')
+            embed.add_field(name='Version Info', value='**Bot version: ** '+bot_ver+'\n**Update time: **'+bot_date+'\n**Changelog: **'+bot_changelog+'\n\n**Discord.py version: **'+str(discord.__version__)+'\n**Python version: **'+str(sys.version).split(' (default')[0]+'\n**C Compiler Version:** '+str(sys.version).split('[GCC ')[1][:-1])
             embed.add_field(name='Links', value='[Join this bot to your server!](http://vierofernando.github.io/programs/username601) | [Source code](http://github.com/vierofernando/username601) | [The support server!](http://discord.gg/HhAPkD8) | [Vote us on top.gg](https://top.gg/bot/696973408000409626/vote)', inline='False')
             embed.set_footer(text='© Viero Fernando Programming, 2018-2020. All rights reserved.')
             await message.channel.send(embed=embed)
