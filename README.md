@@ -5,7 +5,6 @@ About the source code files:
 
  - ```bot.py``` **The bot file, Main source code.**
  - ```username601.png``` **Username601's profile pic.**
- - ```banner.png``` **The iconic banner at top.gg**
  - ```username601.py``` **Username601's brain. For discord.js programmers, it's config.json.**
  - ```discordgames.py``` **The code for managing the games.**
  - ```splashes.py``` **The code for libraries of words (to select randomly).**
