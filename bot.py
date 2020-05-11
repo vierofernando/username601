@@ -1,13 +1,16 @@
 from username601 import *
+import discordgames
+import splashes
 
 print('Please wait...')
 import json
 import datetime
-latest_update = str(datetime.datetime.now())[:-7]
+latest_update = str(datetime.datetime.now())[:-7]+' UTC'
 import os
 import discord
 import wikipediaapi
-import urllib.request
+import urllib
+import sqlite3
 import random
 import sys
 import imdb
@@ -40,7 +43,7 @@ async def on_message(message):
         embed.set_thumbnail(url='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif')
         embed.set_footer(text='Ping and embed sent time may differ.')
         await wait.edit(content='', embed=embed)
-    sayTag = ["ya liek tagz?", "we don't accept services with tags, sorry.", "tag me? lol NO.", 'why command me with a tag? that is so unnecessary!', 'NO TAG, ~~NO~~ YES SERVICE.', 'MORE TAG, LESS SERVICE.', 'Everybody gangsta until somebody tagged username601', 'Taggy taggy tag tag!', 'Playin\' with tagz, bro?', 'So uhh i heard u liek tagz', 'What kind of word is that?']
+    sayTag = splashes.getTag()
     #GENERAL
     msgAuthor = message.author
     msgAuthor = str(msgAuthor)[:-5]
@@ -48,7 +51,7 @@ async def on_message(message):
     msg = message.content.lower()
     null = " "
     splitted = message.content.split()
-    #MAIN COMMANDS
+    #MAIN COMMANDS3
     i_dont_know_what_this_means_but_i_am_declaring_it_anyway = 0
     if '<@!696973408000409626>' in msg and msg.startswith(prefix):
         i_dont_know_what_this_means_but_i_am_declaring_it_anyway = 1
@@ -102,6 +105,143 @@ async def on_message(message):
                 await message.channel.send('...k')
             else:
                 await message.channe.send('...')
+        if msg.startswith(prefix+'hangman'):
+            wait = await message.channel.send('Please wait... generating... :flushed:')
+            response = urllib.request.urlopen("https://random-word-api.herokuapp.com/word?number=1")
+            the_word = json.loads(response.read())[0]
+            main_guess_cor = list(the_word)
+            main_guess_hid = []
+            server_id = message.guild.id
+            wrong_guesses = ''
+            for i in range(0, len(main_guess_cor)):
+                main_guess_hid.append('\_ ')
+            gameplay = True
+            guessed = []
+            level = 0
+            playing_with = message.author
+            playing_with_id = int(authorTag)
+            while gameplay==True:
+                if message.content==prefix+'hangman' and message.author.id!=int(playing_with_id) and message.guild.id==server_id:
+                    await message.channel.send('<@'+str(authorTag)+'>, cannot play hangman when a game is currently playing!')
+                newembed = discord.Embed(title=''.join(main_guess_hid), description='Wrong guesses: '+str(wrong_guesses), colour=discord.Colour.red())
+                newembed.set_image(url=f'https://raw.githubusercontent.com/vierofernando/username601/master/assets/hangman_{str(level)}.png')
+                newembed.set_footer(text='Type "showanswer" to show the answer and end the game.')
+                await message.channel.send(embed=newembed)
+                if '\_ ' not in ''.join(main_guess_hid):
+                    await message.channel.send(f'Congratulations! <@{str(playing_with_id)}> win! :tada:\nThe answer is "'+str(''.join(main_guess_cor))+'".')
+                    gameplay = False
+                    break
+                if level>7:
+                    await message.channel.send(f'<@{str(playing_with_id)}> lost! :(\nThe answer is actually "'+str(''.join(main_guess_cor))+'".')
+                    gameplay = False
+                    break
+                def is_not_stranger(m):
+                    return m.author == playing_with
+                try:
+                    trying = await client.wait_for('message', check=is_not_stranger, timeout=20.0)
+                except asyncio.TimeoutError:
+                    await message.channel.send(f'<@{str(playing_with_id)}> did not response in 20 seconds so i ended the game. Keep un-AFK!\nOh and btw, the answer is '+str(''.join(main_guess_cor))+'. :smirk:')
+                    gameplay = False
+                    break
+                if str(trying.content).lower()=='showanswer':
+                    await message.channel.send('The answer is actually '+str(''.join(main_guess_cor)+'.'))
+                    gameplay = False
+                    break
+                elif len(str(trying.content))>1:
+                    await message.channel.send('One word at a time. Game ended :rage:')
+                    gameplay = False
+                    break
+                elif str(trying.content).lower() in guessed:
+                    await message.channel.send(f'<@{str(playing_with_id)}>, You have guessed that letter!')
+                    level = int(level)+1
+                elif str(trying.content).lower() in ''.join(main_guess_cor).lower():
+                    guessed.append(str(trying.content).lower())
+                    for i in range(0, len(main_guess_cor)):
+                        if main_guess_cor[i].lower()==str(trying.content).lower():
+                            main_guess_hid[i] = str(trying.content).lower()
+                else:
+                    level = int(level) + 1
+                    wrong_guesses = wrong_guesses + str(trying.content).lower() + ', '
+        if msg.startswith(prefix+'tictactoe'):
+            box_nums = list('123456789')
+            can_used = list('123456789')
+            box = f' {box_nums[0]} | {box_nums[1]} | {box_nums[2]}\n===========\n {box_nums[3]} | {box_nums[4]} | {box_nums[5]}\n===========\n {box_nums[6]} | {box_nums[7]} | {box_nums[8]}\n'
+            if len(splitted)==1:
+                embed = discord.Embed(title='TicTacToe™ wtih '+str(splashes.getTicTacToeHeader()), description=f'Plays tic-tac-toe with the BOT. Very simple.\n\n**To start playing, type;**\n`{prefix}tictactoe X` (To play tictactoe as X)\n`{prefix}tictactoe O` (To play tictactoe as O)', colour=discord.Colour.red())
+                embed.set_image(url='https://raw.githubusercontent.com/vierofernando/username601/master/assets/tictactoe.png')
+                await message.channel.send(embed=embed)
+            else:
+                if splitted[1].lower() not in list('xo'):
+                    await message.channel.send('Must be X or O!')
+                else:
+                    if splitted[1].lower()=='x':
+                        user_sym = 'X'
+                        bot_sym = 'O'
+                    else:
+                        user_sym = 'O'
+                        bot_sym = 'X'
+                    playing_with = message.author
+                    user_id = int(authorTag)
+                    user_name = message.guild.get_member(user_id).display_name
+                    gameplay = True
+                    usedByUser = []
+                    usedByBot = []
+                    embed = discord.Embed(title='Playing Tictactoe with '+str(user_name), description=f'Viero Fernando ({user_sym}) | Username601 ({bot_sym})\nType the numbers to fill out the boxes.```{box}```', colour=discord.Colour.green())
+                    embed.set_footer(text='Type "endgame" to well, end the game. Or wait for 20 seconds and the game will kill itself! ;)')
+                    gameview = await message.channel.send(embed=embed)
+                    while gameplay==True:
+                        if discordgames.checkWinner(box_nums, user_sym, bot_sym, 'checkwin')=='userwin':
+                            await message.channel.send(f'Congrats <@{user_id}>! You won against me! :tada:')
+                            gameplay = False
+                            break
+                        elif discordgames.checkWinner(box_nums, user_sym, bot_sym, 'checkwin')=='botwin':
+                            await message.channel.send(f'LOL, i win the tic tac toe! :tada:\nYou lose! :pensive:')
+                            gameplay = False
+                            break
+                        elif discordgames.checkEndGame(can_used)==True:
+                            await message.channel.send('Nobody wins? OK... :neutral_face:')
+                            gameplay = False
+                            break
+                        def is_not_stranger(m):
+                            return m.author == playing_with
+                        try:
+                            trying = await client.wait_for('message', check=is_not_stranger, timeout=20.0)
+                        except asyncio.TimeoutError:
+                            await message.channel.send(f'<@{user_id}> did not response in 20 seconds so i ended the game. Keep un-AFK!')
+                            gameplay = False
+                            break
+                        if str(trying.content) in can_used:
+                            for i in range(0, len(box_nums)):
+                                if box_nums[i]==trying.content:
+                                    usedByUser.append(box_nums[i])
+                                    box_nums[i] = user_sym
+                                    for j in range(0, len(can_used)):
+                                        if j==box_nums[i]:
+                                            del can_used[j]
+                                            break
+                                    break
+                            # BOT ACTION
+                            bot_select = ''
+                            while bot_select=='' and len(can_used)>1:
+                                bot_select = random.choice(can_used)
+                            print('I SELECT: '+bot_select)
+                            for i in range(0, len(can_used)):
+                                if can_used[i]==bot_select:
+                                    for j in range(0, len(box_nums)):
+                                        if box_nums[j]==can_used[i]:
+                                            box_nums[j] = bot_sym
+                                            break
+                                    usedByBot.append(can_used[i])
+                                    del can_used[i]
+                                    break
+                            box = f' {box_nums[0]} | {box_nums[1]} | {box_nums[2]}\n===========\n {box_nums[3]} | {box_nums[4]} | {box_nums[5]}\n===========\n {box_nums[6]} | {box_nums[7]} | {box_nums[8]}\n'
+                            newembed = discord.Embed(title='Playing Tictactoe with '+str(user_name), description=f'Viero Fernando ({user_sym}) | Username601 ({bot_sym})\nType the numbers to fill out the boxes.```{box}```', colour=discord.Colour.green())
+                            newembed.set_footer(text='Type "endgame" to well, end the game. Or wait for 20 seconds and the game will kill itself! ;)')
+                            await message.channel.send(embed=newembed)
+                        elif str(trying.content).lower()=='endgame':
+                            await message.channel.send('Game ended.')
+                            gameplay = False
+                            break
         if msg.startswith(prefix+'mathquiz'):
             num1 = random.randint(1, 100)
             num2 = random.randint(1, 100)
@@ -176,7 +316,7 @@ async def on_message(message):
             wait = await message.channel.send('Please wait... generating question...')
             response = urllib.request.urlopen("https://restcountries.eu/rest/v2/")
             data = json.loads(response.read())
-            topic = random.choice(['capital', 'region', 'subregion', 'population', 'demonym', 'nativeName'])
+            topic = random.choice(splashes.getGeoQuiz())
             chosen_nation_num = random.randint(0, len(data))
             chosen_nation = data[chosen_nation_num]
             data.remove(data[chosen_nation_num])
@@ -967,16 +1107,19 @@ async def on_message(message):
                 serverinvite = await message.channel.create_invite(reason='Requested by '+str(msgAuthor))
                 await message.channel.send('New invite created! Link: **'+str(serverinvite)+'**')
         if msg.startswith(prefix+'avatar'):
-            if len(splitted)==1:
-                user = client.get_user(int(authorTag))
-            elif len(splitted)==2:
-                if splitted[1].startswith('<@!'):
-                    user = client.get_user(int(splitted[1][3:][:-1]))
-                else:
-                    user = client.get_user(int(splitted[1][2:][:-1]))
-            embed = discord.Embed(title=user.name+'\'s avatar', colour = discord.Colour.dark_blue())
-            embed.set_image(url=user.avatar_url)
-            await message.channel.send(embed=embed)
+            try:
+                if len(splitted)==1:
+                    user = client.get_user(int(authorTag))
+                elif len(splitted)==2:
+                    if splitted[1].startswith('<@!'):
+                        user = client.get_user(int(splitted[1][3:][:-1]))
+                    else:
+                        user = client.get_user(int(splitted[1][2:][:-1]))
+                embed = discord.Embed(title=user.name+'\'s avatar', colour = discord.Colour.dark_blue())
+                embed.set_image(url=user.avatar_url)
+                await message.channel.send(embed=embed)
+            except:
+                await message.channel.send('Invalid avatar. :rage:')
         if msg.startswith(prefix+'ph'):
             if splitted[1]=='help':
                 embed = discord.Embed(title='ph command help', description='Type the following:\n'+prefix+'ph [txt1] [txt2]\n\nFor example:\n'+prefix+'ph [Git] [Hub]', colour=discord.Colour.red())
@@ -1149,8 +1292,11 @@ async def on_message(message):
                 embed.add_field(name='Members Info', value='**Server owner: **'+str(message.guild.owner)[:-5]+'\n**Members count: **'+str(len(message.guild.members))+'\n**Server Boosters: **'+str(len(message.guild.premium_subscribers))+'\n**Role Count: **'+str(len(message.guild.roles))+'\n**Bot accounts: **'+str(botcount)+'\n**Human accounts: **'+str(humans), inline='True')
                 embed.add_field(name='Member Status', value=':green_circle: **Online** ('+str(online)+')\n:orange_circle: **Idle** ('+str(idle)+')\n:red_circle: **Do not disturb **('+str(dnd)+')\n:black_circle: **Offline **('+str(offline)+')\n\n:grinning: **All online members:** '+str(total_on)+' ('+str(onperc)+'%)\n:sleeping: **All offline members:** '+str(offline)+' ('+str(100-int(onperc))+'%)')
                 serverurl = 'https://discordapp.com/channels/'+str(message.guild.id)
-                servericonurl = str('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=1024')
-                embed.add_field(name='URL stuff', value=f'[Server URL]({serverurl}) | [Server Icon URL (static)]({servericonurl})')
+                if message.guild.is_icon_animated()==False:
+                    servericonurl = str('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=1024')
+                else:
+                    servericonurl = str('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.gif?size=1024')
+                embed.add_field(name='URL stuff', value=f'[Server URL]({serverurl}) | [Server Icon URL]({servericonurl})')
                 embed.set_thumbnail(url=str('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=1024'))
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'factor'):
@@ -1294,12 +1440,6 @@ async def on_message(message):
                     av2 = message.guild.get_member(splitted[2][3:][:-1]).avatar_url.replace('webp', 'png')
                 else:
                     av2 = message.guild.get_member(splitted[2][2:][:-1]).avatar_url.replace('webp', 'png')
-                count = 0
-                for user in message.mentions:
-                    count = int(count)+1
-                    if count==3:
-                        break
-                    avs.append(user.avatar_url)
                 embed = discord.Embed()
                 embed.set_image(url='https://api.alexflipnote.dev/ship?user='+str(av1)+'&user2='+str(av2))
                 await message.channel.send(embed=embed)
@@ -1329,7 +1469,7 @@ async def on_message(message):
                 warning = "No warnings available."
                 for i in range(1, int(len(message.guild.roles))):
                     num = int(len(message.guild.roles))-int(i)
-                    if len(serverroles)>2048:
+                    if len(serverroles)>1990:
                         warning = 'Roles pass the limit of discord Description. This means that some roles are not listed above.'
                         break
                     serverroles = serverroles + str(message.guild.roles[num].name)+'\n'
@@ -1533,35 +1673,46 @@ async def on_message(message):
             embed.set_author(name=c[0]['name'])
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'commands') or msg.startswith(prefix+'help'):
-            embed = discord.Embed(
-                title='Username601\'s commands ('+str(totalLength)+')',
-                description='[Join the support server](https://discord.gg/HhAPkD8) | [Vote us on top.gg](https://top.gg/bot/696973408000409626/vote)',
-                colour=discord.Colour.dark_blue()
-            )
-            embed.add_field(name='Bot help ('+str(commandLength[0])+')', value='```'+str(bothelp)+'```',inline='False')
-            embed.add_field(name='Moderation ('+str(commandLength[6])+')', value='```'+str(discordAPI)+'```',inline='False')
-            embed.add_field(name='Utilities ('+str(commandLength[5])+')', value='```'+str(utilities)+'```',inline='False')
-            embed.add_field(name='Math ('+str(commandLength[1])+')', value='```'+str(math)+'```',inline='False')
-            embed.add_field(name='Fun ('+str(commandLength[4])+')', value='```'+str(fun)+'```',inline='False')
-            embed.add_field(name='Games ('+str(commandLength[3])+')', value='```'+str(games)+'```',inline='False')
-            embed.add_field(name='Encoding ('+str(commandLength[2])+')', value='```'+str(encoding)+'```',inline='False')
-            embed.add_field(name='Images ('+str(commandLength[7])+')', value='```'+str(images)+'```',inline='False')
-            embed.add_field(name='Apps ('+str(commandLength[8])+')*', value='```'+str(apps)+'```',inline='False')
-            embed.set_footer(text='*DISCLAIMER: i do NOT own these apps, each belong to their companies respectively.')
-            await message.author.send(embed=embed)
-            await message.channel.send('<@'+str(authorTag)+'>, Check your DMs!')
+            #commands sucks.
+            if len(splitted)==1:
+                commandos = ''
+                for i in range(0, len(cmdtypes)):
+                    commandos = commandos + f'{str(i+1)}. `{prefix}help {cmdtypes[i]}`\n'
+                commandos = commandos + f'\n\nFor a much detailed description about **the bot itself**, type `{prefix}about`\nTo see the bot\'s connection status (how many servers are in... etc) type `{prefix}connections`.\nTo see the bot\'s latency, type `{prefix}ping`.'
+                embed = discord.Embed(
+                    title='Username601\'s commands ('+str(totalLength)+')',
+                    description='[Join the support server](https://discord.gg/HhAPkD8) | [Vote us on top.gg](https://top.gg/bot/696973408000409626/vote)\n\nOur bot has a variety of commands. Please type the following for each category;\n'+commandos,
+                    colour=discord.Colour.dark_blue()
+                )
+                await message.channel.send(embed=embed)
+            else:
+                ordertypes = [
+                    '**Bot help ('+str(commandLength[0])+')**\n```'+str(bothelp)+'```',
+                    '**Moderation ('+str(commandLength[6])+')**\n```'+str(discordAPI)+'```',
+                    '**Utilities ('+str(commandLength[5])+')**\n```'+str(utilities)+'```',
+                    '**Math ('+str(commandLength[1])+')**\n```'+str(maths)+'```',
+                    '**Fun ('+str(commandLength[4])+')**\n```'+str(fun)+'```',
+                    '**Games ('+str(commandLength[3])+')**\n```'+str(games)+'```',
+                    '**Encoding ('+str(commandLength[2])+')**\n```'+str(encoding)+'```',
+                    '**Images ('+str(commandLength[7])+')**\n```'+str(images)+'```',
+                    '**Apps ('+str(commandLength[8])+')**\n```'+str(apps)+'```'
+                ]
+                listnums = list(range(0, len(ordertypes)-1))
+                for i in range(0, len(cmdtypes)):
+                    if cmdtypes[i].lower()==msg[int(len(splitted[0])+1):].lower():
+                        embedo = discord.Embed(title='Bot commands for category: '+ordertypes[i].split(' (')[0][2:], description=ordertypes[i], colour=discord.Colour.blue())
+                        await message.channel.send(embed=embedo)
+                        break
         if msg.startswith(prefix+'about'):
-            messageRandom = ['Traceback (most recent call last)','I liek memes','601 in my name means BOT in leetspeak.\n*THE MORE YOU KNOW*', 'Hello, discordians! It\'s-a-me. Bot. Which may look stupid the fact that\nthere are THOUSANS of discord bots out there, so *let\'s get straight into it.* (no meme intended)', 'Wha? ME? okay then, here ya go.', 'Here are some silly lil information.', 'Beep boop, beep beep?', 'JavaScript is bad.', 'MEE6 vs Dyno, which is better?', 'MEEx6=MEEMEEMEEMEEMEEMEE', 'my token is = \*Slams head on keyboard*', 'HELP? HELP MEE!!!', 'Don\'t be a broom. Use discord.', 'Discard the discord right away!', 'Garbage bot giving some information here.', 'look, i have challenge for you. Can you read this without blinking?', 'Don\'t laugh at me.', 'Python is for nerds.', 'Everybody gangsta until username601 become self-aware', 'Coding is not fun, but it will pay off.']
+            messageRandom = splashes.getAbout()
             embed = discord.Embed(
                 title = 'About this seemingly normal bot.',
                 description = random.choice(messageRandom),
                 colour = 0xff0000
             )
-            response = urllib.request.urlopen("https://top.gg/api/bots/696973408000409626")
-            votes = str(json.loads(response.read())['points'])
-            embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Programmed in: **Discord.py (Python)\n**Created in: **6 April 2020.\n**Successor of: **somebot56.\n**Default prefix: **'+prefix+'\n**Last tweaks/update: **'+str(latest_update)+' (UTC)\n**Top.gg Votes: **'+str(votes), inline='True')
+            embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Programmed in: **Discord.py (Python)\n**Created in: **6 April 2020.\n**Successor of: **somebot56.\n**Default prefix: **'+prefix, inline='True')
             embed.add_field(name='Programmer info', value='**Programmed by: **Viero Fernando.\n**Best languages: **~~HTML, CSS,~~ VB .NET, JavaScript, Python\n**Social links:**\n[Discord Server](http://discord.gg/HhAPkD8)\n[GitHub](http://github.com/vierofernando)\n[Top.gg](https://top.gg/user/661200758510977084)\n[SoloLearn](https://www.sololearn.com/Profile/17267145)\n[Brainly (Indonesia)](http://bit.ly/vierofernandobrainly)\n[Geometry Dash](https://gdbrowser.com/profile/knowncreator56)', inline='True')
-            embed.add_field(name='Version Info', value='**Bot version: ** '+bot_ver+'\n**Update time: **'+bot_date+'\n**Changelog: **'+bot_changelog+'\n\n**Discord.py version: **'+str(discord.__version__)+'\n**Python version: **'+str(sys.version).split(' (default')[0]+'\n**C Compiler Version:** '+str(sys.version).split('[GCC ')[1][:-1])
+            embed.add_field(name='Version Info', value='**Bot version: ** '+bot_ver+'\n**Update time: **'+latest_update+'\n**Changelog: **'+bot_changelog+'\n\n**Discord.py version: **'+str(discord.__version__)+'\n**Python version: **'+str(sys.version).split(' (default')[0]+'\n**C Compiler Version:** '+str(sys.version).split('[GCC ')[1][:-1])
             embed.add_field(name='Links', value='[Invite this bot to your server!](http://vierofernando.github.io/programs/username601) | [Source code](http://github.com/vierofernando/username601) | [The support server!](http://discord.gg/HhAPkD8) | [Vote us on top.gg](https://top.gg/bot/696973408000409626/vote)', inline='False')
             embed.set_thumbnail(url='https://raw.githubusercontent.com/vierofernando/username601/master/username601.png')
             embed.set_footer(text='© Viero Fernando Programming, 2018-2020. All rights reserved.')
@@ -1679,16 +1830,6 @@ async def on_message(message):
             except IndexError:
                 print("Reached the limit.")
             await message.channel.send(random.choice(array))
-        if msg.startswith(prefix+'programmer') or msg.startswith(prefix+'whomakeme'):
-            embed = discord.Embed(
-                title = 'Viero Fernando',
-                description = 'Viero Fernando is the author/programmer of this lil\'bot.\n**No, i don\'t team with anyone else, except for StackOverFlow \:)**',
-                color = 0x000000
-            )
-            embed.add_field(name='About the programmar:', value='**Born date: ** 22 April 200X\n**Hobby: **Programming and gaming (and *Discording* probably)\n**Developed:** Individual/Indie-developed.\n**Best Languages: **Python, JavaScript', inline='True')
-            embed.add_field(name='Social media:', value='[Discord Server](https://discord.gg/HhAPkD8)\n[Brainly Indonesia](http://bit.ly/vierofernandobrainly)\n[Geometry Dash](http://gdbrowser.com/profile/knowncreator56)\n[SoloLearn](https://www.sololearn.com/Profile/17267145)\n[GitHub](https://github.com/vierofernando)\n', inline='True')
-            embed.add_field(name='Special Thanks', value='**StackOverFlow**\nDiscord\nDiscord.py and-or Python itself\nYOU for using this bot :)', inline='False')
-            await message.channel.send(embed=embed)
         if msg.startswith(prefix+'search'):
             query = msg[8:].replace(" ", "%20")
             embed = discord.Embed(
@@ -1845,19 +1986,15 @@ async def on_message(message):
             data = json.loads(response.read())
             await message.channel.send('**Feeling bored?**\nWhy don\'t you '+str(data['activity'])+'? :wink::ok_hand:')
         if msg.startswith(prefix+'8ball'):
-            arr = [':(', 'Not so good.', 'Damn, the future is... ||???||', 'Something is wrong.', 'I doubt it.', 'Why trust me? Trust yourself!', 'oh boy.', 'Great.. so far.', 'It will be the same, yet.', 'Do something.', 'Act something, NOW!', 'I saw a huge ||...something.||']
-            if len(splitted)==1:
-                await message.channel.send(':8ball: | '+str(random.choice(arr)))
+            response = urllib.request.urlopen("https://yesno.wtf/api")
+            data = json.loads(response.read())
+            if data['answer']=='no':
+                colorhex = discord.Colour.red()
             else:
-                response = urllib.request.urlopen("https://yesno.wtf/api")
-                data = json.loads(response.read())
-                if data['answer']=='no':
-                    colorhex = discord.Colour.red()
-                else:
-                    colorhex = discord.Colour.blue()
-                embed = discord.Embed(title=data['answer'], colour=colorhex)
-                embed.set_image(url=data['image'])
-                await message.channel.send(embed=embed)
+                colorhex = discord.Colour.blue()
+            embed = discord.Embed(title=data['answer'], colour=colorhex)
+            embed.set_image(url=data['image'])
+            await message.channel.send(embed=embed)
         if msg.startswith(prefix+'deathnote'):
             member = []
             in_the_note = ""
@@ -1898,7 +2035,7 @@ async def on_message(message):
             for i in range(0, int(len(message.guild.members))):
                 if message.guild.members[i].name!=msgAuthor and message.guild.members[i].name!=msgAuthor:
                     member.append(message.guild.members[i].name)
-            secretlist = [' is sleeping.', ' is breathing.', ' is about to ||do something.||', ' likes you.', ' hates you.', ' wanted to confess something.', ' is the guy behind HowToBasic.', ' is the person secretly running the USA government.', ' is jeff the killer.', ' is the guy behind the development of Username601.', ' is hacking the server.', ' is hacking discord.', ' likes sh||oo||ting people.', ' likes p||hoto||graphy.', ' likes going to ||git||hub.com to have some fun.', ' is cool.', ' is smart af.', ' is the guy behind you.']
+            secretlist = splashes.getSecrets()
             await message.author.send('Did you know?\n'+random.choice(member)+str(random.choice(secretlist))+'\nDon\'t tell this to anybody else.')
             await message.channel.send('I shared the secret through DM. don\'t show anyone else! :wink::ok_hand:')
         if msg.startswith(prefix+'reactmsg'):
@@ -1956,7 +2093,10 @@ async def on_message(message):
                 title='Connections of Username601',
                 colour=0x000000
             )
-            embed.add_field(name='All', value='I am connected with '+str(len(client.guilds))+' discord servers.\nWith '+str(len(client.emojis))+' custom emojis.\nPlayin\' with '+str(len(client.users))+' members.', inline='True')
+            channels = 0
+            for i in range(0, len(client.guilds)):
+                channels = channels + len(client.guilds[i].channels)
+            embed.add_field(name='All', value='I am connected with '+str(len(client.guilds))+' discord servers.\nEach with '+str(channels)+' channels and with '+str(len(client.emojis))+' custom emojis.\nPlayin\' with '+str(len(client.users))+' members.', inline='True')
             await message.channel.send(embed=embed)
 print('Logging in to discord...')
 client.run(os.environ['DISCORD_TOKEN'])
