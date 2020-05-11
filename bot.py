@@ -190,11 +190,11 @@ async def on_message(message):
                     embed.set_footer(text='Type "endgame" to well, end the game. Or wait for 20 seconds and the game will kill itself! ;)')
                     gameview = await message.channel.send(embed=embed)
                     while gameplay==True:
-                        if discordgames.checkWinner(box_nums, user_sym, bot_sym, 'checkwin')=='userwin':
+                        if discordgames.checkWinner(box_nums, user_sym, bot_sym)=='userwin':
                             await message.channel.send(f'Congrats <@{user_id}>! You won against me! :tada:')
                             gameplay = False
                             break
-                        elif discordgames.checkWinner(box_nums, user_sym, bot_sym, 'checkwin')=='botwin':
+                        elif discordgames.checkWinner(box_nums, user_sym, bot_sym)=='botwin':
                             await message.channel.send(f'LOL, i win the tic tac toe! :tada:\nYou lose! :pensive:')
                             gameplay = False
                             break
