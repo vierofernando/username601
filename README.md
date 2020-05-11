@@ -1,5 +1,5 @@
 # username601
-hello, fellow programmer! my name is Viero Fernando. This project is **Open Source for Everyone!** Written in **Python and JSON** language.
+hello, fellow programmer! my name is Viero Fernando. This project is **Open Source for Everyone!** Written entirely in **Python** language.
 
 About the source code files:
 
