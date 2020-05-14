@@ -1,3 +1,5 @@
+import random
+
 def checkEndGame(arr):
     if len(arr)<1:
         return True
@@ -17,7 +19,7 @@ def checkWinner(arr, usersym, botsym): #CHECKS WINNER IN TIC TAC TOE GAME. I KNO
     threeWinsUser = str(usersym)*3
     threeWinsBot = str(botsym)*3
     for i in range(0, len(winConditions)):
-        missing = ''
+        temp = ''
         for each in winConditions[i]:
             if arr[int(each)]==botsym:
                 temp = str(temp) + botsym

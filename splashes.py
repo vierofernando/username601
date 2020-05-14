@@ -1,5 +1,12 @@
+import requests
 def getGeoQuiz():
     return ['capital', 'region', 'subregion', 'population', 'demonym', 'nativeName']
+def getBinary(a):
+    if a==2:
+        arr = ["10000", "10001", "10010", "10011", "10100", "10101", "10110", "10111", "11000", "11001"]
+    else:
+        arr = ["00001", "00010", "00011", "00100", "00101", "000110", "00111", "01000", "01001", "01010", "01011", "01100", "01101", "01110", "01111", "10000", "10001", "10010", "10011", "10100", "10101", "10110", "10111", "11000", "11001", "11010"]
+    return arr
 def getSecrets():
     arr = [
         ' is sleeping.',
@@ -30,8 +37,13 @@ def getSecrets():
         ' is breathing.',
         ' umm... maybe i shouldn\'t tell his secrets.',
         ' is secretly a bot. yes, selfbot.',
-        ' is... umm.. :flushed:'
+        ' is... umm.. :flushed:',
+        ' is the hacker that will RULE the world.'
     ]
+    return arr
+def getAsciiFonts():
+    arr_raw = requests.get("http://artii.herokuapp.com/fonts_list").text
+    arr = arr_raw.split('\n')
     return arr
 def getTag():
     arr = [
@@ -99,7 +111,8 @@ def getAbout():
         'Hello can i code minecraft using HTML pls thx',
         'only epic programmers use HTML',
         'print(\'Hella, World!\')',
-        'PyScript or Javathon? :flushed:'
+        'PyScript or Javathon? :flushed:',
+        'You can get to google if you know Machine code language LUL'
     ]
     return arr
 def getTicTacToeHeader():
