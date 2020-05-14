@@ -8,6 +8,7 @@ About the source code files:
  - ```username601.py``` **Username601's brain. For discord.js programmers, it's config.json.**
  - ```discordgames.py``` **The code for managing the games.**
  - ```splashes.py``` **The code for libraries of words (to select randomly).**
+ - ```database.py``` **Python file for managing databases and stuff**
  - ```./assets``` **assets folder, Like pictures to be shown on some commands.**
 
 **Links**
