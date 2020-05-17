@@ -4,6 +4,7 @@ import splashes
 
 print('Please wait...')
 import json
+from discord.ext import commands
 import datetime
 from time import time as clock
 latest_update = str(datetime.datetime.now())[:-7]+' UTC'
@@ -22,6 +23,7 @@ from googletrans import Translator, LANGUAGES
 gtr = Translator()
 client = discord.Client()
 ia = imdb.IMDb()
+username601 = Bot(command_prefix=prefix)
 
 @client.event
 async def on_ready():
@@ -2135,5 +2137,11 @@ async def on_message(message):
                 channels = channels + len(client.guilds[i].channels)
             embed.add_field(name='All', value='I am connected with '+str(len(client.guilds))+' discord servers.\nEach with '+str(channels)+' channels and with '+str(len(client.emojis))+' custom emojis.\nPlayin\' with '+str(len(client.users))+' members.', inline='True')
             await message.channel.send(embed=embed)
+
+@username601.command(pass_context=True)
+async def yomamalmfao(ctx, *args):
+    print(dir(ctx))
+    await ctx.send('YO AKJDIASJSIDIASJDASJDIJDS')
+
 print('Logging in to discord...')
 client.run(os.environ['DISCORD_TOKEN'])
