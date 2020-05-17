@@ -1,3 +1,4 @@
+import random
 import requests
 def getGeoQuiz():
     return ['capital', 'region', 'subregion', 'population', 'demonym', 'nativeName']
@@ -7,6 +8,41 @@ def getBinary(a):
     else:
         arr = ["00001", "00010", "00011", "00100", "00101", "000110", "00111", "01000", "01001", "01010", "01011", "01100", "01101", "01110", "01111", "10000", "10001", "10010", "10011", "10100", "10101", "10110", "10111", "11000", "11001", "11010"]
     return arr
+def getGitMsg():
+    arr = [
+        'My githoob',
+        'Repository for Username601',
+        'Repo601',
+        '601Hub',
+        'GitHype',
+        'GiiiiiiitHub!',
+        'GetCodeHub',
+        'Copy and paste my bot\'s code!',
+        'See how much i copied from stackoverflow!',
+        'GitRepo601',
+        'Repository601',
+        'Commit #601: Removed repository',
+        'See my token on GitHub!'
+    ]
+    return random.choice(arr)
+def epicness():
+    arr = [
+        'epicness',
+        'badassness',
+        'sadness',
+        'dramatization',
+        'genericness',
+        'coolness',
+        'eBicness',
+        'kewlness'
+    ]
+    chose = random.choice(arr)
+    total = ''
+    for i in range(0, len(chose)):
+        alph = list(chose)[i].upper()
+        total = total + ' ' + alph
+    return total
+
 def getSecrets():
     arr = [
         ' is sleeping.',

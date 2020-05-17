@@ -4,14 +4,17 @@ import splashes
 
 print('Please wait...')
 import json
+import wheel
+import dbl
 from discord.ext import commands
+from discord.ext.commands import Bot
 import datetime
 from time import time as clock
 latest_update = str(datetime.datetime.now())[:-7]+' UTC'
 import os
 import discord
 import wikipediaapi
-from discord.ext import commands
+from discord.ext import commands, tasks
 import urllib
 import random
 import sys
@@ -23,7 +26,7 @@ from googletrans import Translator, LANGUAGES
 gtr = Translator()
 client = discord.Client()
 ia = imdb.IMDb()
-username601 = Bot(command_prefix=prefix)
+rewriteclient = commands.Bot(command_prefix='>')
 
 @client.event
 async def on_ready():
@@ -47,14 +50,11 @@ async def on_message(message):
         embed.set_footer(text='Ping and embed sent time may differ.')
         await wait.edit(content='', embed=embed)
     sayTag = splashes.getTag()
-    #GENERAL
-    msgAuthor = message.author
-    msgAuthor = str(msgAuthor)[:-5]
+    msgAuthor = str(message.author)[:-5]
     authorTag = message.author.id
     msg = message.content.lower()
     null = " "
     splitted = message.content.split()
-    #MAIN COMMANDS3
     i_dont_know_what_this_means_but_i_am_declaring_it_anyway = 0
     if '<@!696973408000409626>' in msg and msg.startswith(prefix):
         i_dont_know_what_this_means_but_i_am_declaring_it_anyway = 1
@@ -1279,6 +1279,7 @@ async def on_message(message):
                     await message.channel.send(':x: <@'+str(authorTag)+'> you need the `Manage channels` permission.')
                 else:
                     try:
+                        global delay
                         delay = int(splitted[1])
                     except ValueError:
                         await message.channel.send('Invalid number!')
@@ -1303,14 +1304,6 @@ async def on_message(message):
             member = message.guild.get_member(int(authorTag))
             acceptId = 0
             if acceptId==0:
-                o_web = 0
-                o_desk = 0
-                o_pho = 0
-                botcount = 0
-                online = 0
-                idle = 0
-                dnd = 0
-                offline = 0
                 for i in range(0, int(len(message.guild.members))):
                     if message.guild.get_member(int(message.guild.members[i].id)).desktop_status.name!='offline':
                         o_desk = int(o_desk)+1
@@ -1365,13 +1358,42 @@ async def on_message(message):
             for i in range(1, 15):
                 arr.append(int(splitted[1])*i)
             await message.channel.send(str(arr))
-        if msg.startswith(prefix+'serveremojis'):
-            member = message.guild.get_member(int(authorTag))
-            if member.guild_permissions.manage_emojis==False:
-                await message.channel.send('<@'+str(authorTag)+'>, you need to have the `Manage Emoji` permission!')
-                acceptId = 1
+        if msg.startswith(prefix+'gdcomment'):
+            try:
+                # >gdcomment yoo i suck | vierofernando | 999
+                byI = msg[int(len(splitted[0])+1):].split(' | ')
+                text = byI[0].replace(' ', '%20')
+                num = int(byI[2])
+                if num>9999:
+                    num = 601
+                gdprof = byI[1]
+                embed = discord.Embed(colour=discord.Colour.green())
+                if message.guild.get_member(int(authorTag)).guild_permissions.manage_guild==True:
+                    embed.set_image(url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&mod=mod&days=1-second')
+                else:
+                    embed.set_image(url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&days=1-second')
+                await message.channel.send(embed=embed)
+            except:
+                await message.channel.send(f'Invalid!\nThe flow is this: `{prefix}gdcomment text | name | like count`\nExample: `{prefix}gdcomment I am cool | RobTop | 601`')
+        if msg.startswith(prefix+'gdbox'):
+            if len(splitted)==1:
+                await message.channel.send('Please input a text!')
             else:
-                acceptId = 0
+                wait = await message.channel.send('Please wait...')
+                text = msg[int(len(splitted[0])+1):].replace(' ', '%20')
+                av = message.guild.get_member(int(authorTag)).avatar_url
+                if len(text)>100:
+                    await message.channel.send('the text is too long!')
+                else:
+                    if message.guild.get_member(int(authorTag)).guild_permissions.manage_guild==False:
+                        color = 'brown'
+                    else:
+                        color = 'blue'
+                    embed = discord.Embed(colour=discord.Colour.green())
+                    embed.set_image(url='https://gdcolon.com/tools/gdtextbox/img/'+str(text)+'?color='+color+'&name='+str(msgAuthor)+'&url='+str(av).replace('webp', 'png')+'&resize=1')
+                    await wait.edit(content='', embed=embed)
+        if msg.startswith(prefix+'serveremojis'):
+            acceptId = 0
             if acceptId==0:
                 if len(splitted)==2 and splitted[1]=='--short':
                     all = ''
@@ -1420,6 +1442,44 @@ async def on_message(message):
             elif (splitted[1].startswith('<@!')):
                 var = var[3:]
             await message.channel.send(str(var))
+        if msg.startswith(prefix+'robohash'):
+            if len(splitted)<2:
+                gib = ''
+                for i in range(0, random.randint(5, 10)):
+                    gib = gib + random.choice(list('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'))
+            else:
+                gib = msg[int(len(splitted[0])+1):]
+            embed = discord.Embed(title='Here is some robohash for you.', colour=discord.Colour.magenta())
+            embed.set_image(url='https://robohash.org/'+str(gib))
+            await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'gdlogo'):
+            if len(splitted)==1:
+                await message.channel.send('Please input a text!')
+            else:
+                text = msg[int(len(splitted[0])+1):].replace(' ', '%20')
+                embed = discord.Embed(colour=discord.Colour.green())
+                embed.set_image(url='https://gdcolon.com/tools/gdlogo/img/'+str(text))
+                await message.channel.send(embed=embed)
+        # gdbox is supposed to be here :c
+        if msg.startswith(prefix+'lockdown'):
+            if len(splitted)!=2:
+                await message.channel.send(f'Invalid parameters. Correct Example: `{prefix}lockdown [seconds]`\nMinimum: 10, Maximum: 900')
+            else:
+                if splitted[1].isnumeric()==False:
+                    await message.channel.send('Invalid time.')
+                elif int(splitted[1])<10 or int(splitted[1])>900:
+                    await message.channel.send('Invalid: off-limits.')
+                elif message.guild.get_member(int(authorTag)).guild_permissions.administrator==False:
+                    await message.channel.send(':x: You need the administrator permission to do this!')
+                else:
+                    try:
+                        await message.channel.send('Everyone, <#'+str(message.channel.id)+'> is on lockdown for '+str(splitted[1])+' seconds! No one except administrators can chat! :x:')
+                        await message.channel.set_permissions(message.guild.default_role, send_messages=False)
+                        await asyncio.sleep(int(splitted[1]))
+                        await message.channel.set_permissions(message.guild.default_role, send_messages=True)
+                        await message.channel.send('Lockdown ended.')
+                    except:
+                        await message.channel.send('For some reason, i cannot lock this channel :(')
         if splitted[0]==prefix+"math":
             if int(len(splitted))>4:
                 await message.channel.send("OverloadEquationError: So far this bot only accept one equation.")
@@ -1508,12 +1568,7 @@ async def on_message(message):
             embed.set_image(url=data['file'])
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'roles'):
-            member = message.guild.get_member(int(authorTag))
-            if member.guild_permissions.manage_roles==False:
-                await message.channel.send('<@'+str(authorTag)+'>, you need to have the `Manage Roles` permission!')
-                acceptId = 1
-            else:
-                acceptId = 0
+            acceptId = 0
             if acceptId==0:
                 serverroles = ""
                 warning = "No warnings available."
@@ -1673,32 +1728,46 @@ async def on_message(message):
                 elif ran==1:
                     result.append(letterArr[i].lower())
             await message.channel.send("".join(result))
-        if msg.startswith(prefix+"randomcolor"):
-            listHex = ["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]
-            hexCode = []
-            for i in range(0, 6):
-                ran = random.choice(listHex)
-                hexCode.append(ran)
-            hexCode = "".join(hexCode)
-            #CONVERT TO DECIMAL
-            uselessArray = list(hexCode)
-            part1 = str(uselessArray[0])+str(uselessArray[1])
-            part2 = str(uselessArray[2])+str(uselessArray[3])
-            part3 = str(uselessArray[4])+str(uselessArray[5])
-            partsArray = [part1, part2, part3]
-            rgb = []
-            percentageRgb = []
-            for i in range(0, 3):
-                toConvert = partsArray[i]
-                stackOverFlow = int(toConvert, 16)
-                rgb.append(stackOverFlow)
-                percentageRgbAdd = int(rgb[i])/255*100
-                percentageRgb.append(round(percentageRgbAdd))
-            colorInt = int(hexCode, 16)
-            embed = discord.Embed(title='#'+str(hexCode), description="**Integer: **`"+str(colorInt)+"`\n**Red:** "+str(rgb[0])+" ("+str(percentageRgb[0])+"%)\n**Green:** "+str(rgb[1])+" ("+str(percentageRgb[1])+"%)\n**Blue:** "+str(rgb[2])+" ("+str(percentageRgb[2])+"%)\n\nPreview is shown on thumbnail. Other similar gradients are shown below.", colour=discord.Colour.from_rgb(int(rgb[0]), int(rgb[1]), int(rgb[2])))
-            embed.set_thumbnail(url='https://api.alexflipnote.dev/colour/image/'+str(hexCode))
-            embed.set_image(url='https://api.alexflipnote.dev/colour/image/gradient/'+str(hexCode))
-            await message.channel.send(embed=embed)
+        if msg.startswith(prefix+"randomcolor") or msg.startswith(prefix+'colorinfo') or msg.startswith(prefix+'colourinfo'):
+            continuing = False
+            if msg.startswith(prefix+'randomcolor'):
+                listHex = list('0123456789ABCDEF')
+                hexCode = []
+                for i in range(0, 6):
+                    ran = random.choice(listHex)
+                    hexCode.append(ran)
+                    hexCode = "".join(hexCode)
+                continuing = True
+            else:
+                if len(splitted)!=2:
+                    await message.channel.send('Invalid arguments.')
+                elif splitted[1].startswith('#'):
+                    await message.channel.send('For hex, please input one WITHOUT `#`!')
+                elif len(splitted[1])!=6:
+                    await message.channel.send('We only accept `HEX CODES` as inputs!')
+                else:
+                    hexCode = splitted[1]
+                    continuing = True
+            if continuing==True:
+                #CONVERT TO DECIMAL
+                uselessArray = list(hexCode)
+                part1 = str(uselessArray[0])+str(uselessArray[1])
+                part2 = str(uselessArray[2])+str(uselessArray[3])
+                part3 = str(uselessArray[4])+str(uselessArray[5])
+                partsArray = [part1, part2, part3]
+                rgb = []
+                percentageRgb = []
+                for i in range(0, 3):
+                    toConvert = partsArray[i]
+                    stackOverFlow = int(toConvert, 16)
+                    rgb.append(stackOverFlow)
+                    percentageRgbAdd = int(rgb[i])/255*100
+                    percentageRgb.append(round(percentageRgbAdd))
+                colorInt = int(hexCode, 16)
+                embed = discord.Embed(title='#'+str(hexCode), description="**Integer: **`"+str(colorInt)+"`\n**Red:** "+str(rgb[0])+" ("+str(percentageRgb[0])+"%)\n**Green:** "+str(rgb[1])+" ("+str(percentageRgb[1])+"%)\n**Blue:** "+str(rgb[2])+" ("+str(percentageRgb[2])+"%)\n\nPreview is shown on thumbnail. Other similar gradients are shown below.", colour=discord.Colour.from_rgb(int(rgb[0]), int(rgb[1]), int(rgb[2])))
+                embed.set_thumbnail(url='https://api.alexflipnote.dev/colour/image/'+str(hexCode))
+                embed.set_image(url='https://api.alexflipnote.dev/colour/image/gradient/'+str(hexCode))
+                await message.channel.send(embed=embed)
         if msg.startswith(prefix+'call'):
             call = msg[6:].replace(' ', '%20')
             embed = discord.Embed(colour=discord.Colour.blue())
@@ -1949,23 +2018,6 @@ async def on_message(message):
             response = urllib.request.urlopen("https://random-word-api.herokuapp.com/word?number=1")
             data = json.loads(response.read())
             await toEdit.edit(content=str(data[0]))
-        if msg.startswith(prefix+'ytsearch'):
-            if len(splitted)==1:
-                await message.channel.send('Please add a query!')
-            else:
-                query = msg[10:].replace(' ', '+')
-                data = requests.get('https://www.youtube.com/results?search_query='+str(query))
-                dataArr = data.text.split('"yt-lockup-title ">')
-                del dataArr[0] #UNTIL 29
-                vids = ""
-                for i in range(0, int(len(dataArr))):
-                    if len(vids)>1970:
-                        break
-                    else:
-                        vids = vids + str(int(i)+1)+'. ('+str(dataArr[i].split('"')[7].replace("&#39;", "'"))+')[https://youtube.com'+str(dataArr[i].split('"')[1])+']\n'
-                embed = discord.Embed(title='YouTube search result for '+str(query).replace('+', ' ')+':', description=str(vids), colour=discord.Colour.red())
-                embed.set_footer(text='Go straight to the page here: https://www.youtube.com/results?search_query='+str(query))
-                await message.channel.send(embed=embed)
         if msg.startswith(prefix+'inspirobot'):
             url = 'https://inspirobot.me/api?generate=true'
             img = requests.get(url)
@@ -2137,11 +2189,27 @@ async def on_message(message):
                 channels = channels + len(client.guilds[i].channels)
             embed.add_field(name='All', value='I am connected with '+str(len(client.guilds))+' discord servers.\nEach with '+str(channels)+' channels and with '+str(len(client.emojis))+' custom emojis.\nPlayin\' with '+str(len(client.users))+' members.', inline='True')
             await message.channel.send(embed=embed)
-
-@username601.command(pass_context=True)
-async def yomamalmfao(ctx, *args):
-    print(dir(ctx))
-    await ctx.send('YO AKJDIASJSIDIASJDASJDIJDS')
+        if msg.startswith(prefix+'weather'):
+            # site: wttr.in/Jakarta.png?m
+            if len(splitted)==1:
+                await message.channel.send(f'Please send a **City name!**\nExample: `{prefix}weather New York`')
+            else:
+                embed = discord.Embed(
+                    title='Weather Report in '+str(msg[int(len(splitted[0])+1):]),
+                    colour=discord.Colour.blue()
+                )
+                embed.set_image(url='https://wttr.in/'+str(msg[int(len(splitted[0])+1):]).replace(' ', '%20')+'.png?m')
+                await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'github'):
+            git = ''
+            for i in range(0, len(github_object['files'])):
+                git = git + '**'+github_object['files'][i]['name']+'** = '+github_object['files'][i]['type']+'\n'
+            embed = discord.Embed(
+                title=splashes.getGitMsg(),
+                description='To visit my github, [Click this link.](http://github.com/vierofernando/username601).\nYou as a dev can see *how bad i am at programming, detect codes that i copied from stackoverflow, and probably copy-paste my bot\'s code to your bot :wink:*\n\n'+str(git),
+                colour=discord.Colour.red()
+            )
+            await message.channel.send(embed=embed)
 
 print('Logging in to discord...')
 client.run(os.environ['DISCORD_TOKEN'])
