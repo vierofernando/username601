@@ -8,6 +8,96 @@ def getBinary(a):
     else:
         arr = ["00001", "00010", "00011", "00100", "00101", "000110", "00111", "01000", "01001", "01010", "01011", "01100", "01101", "01110", "01111", "10000", "10001", "10010", "10011", "10100", "10101", "10110", "10111", "11000", "11001", "11010"]
     return arr
+def lastmsg(a):
+    arr = [
+        'join plspls discord.gg/'+a,
+        'I love my life',
+        'bruh',
+        'mama mia',
+        'Username601 sucks',
+        'OwO',
+        'What is obama\'s last name pls',
+        'Hey i am gay',
+        'yee',
+        'can you send me that nsfw clip thx',
+        'eewww :o',
+        'subscribe to pewdiepie'
+    ]
+    return random.choice(arr)
+def email(a):
+    arr = [
+        a+'iscool',
+        a+'playsminecraft',
+        'theoneandonly'+a,
+        'nonhackablegmailaccount',
+        'epicgmaillink',
+        a+'isthebest',
+        a+'OwO',
+        'mister'+a,
+        a+'playsfortnite',
+        a+'votedusername601',
+        a+'601'
+    ]
+    return random.choice(arr)
+def password(a):
+    arr = [
+        a+'iscool',
+        a+'123456',
+        'Xx_'+a+'_xX',
+        'fornitegamer123',
+        'thereal'+a,
+        'theultimate'+a,
+        'ultimate'+a,
+        'mega'+a,
+        '123'+a+'123',
+        'PASSWORD',
+        'QWERTY',
+        '000000',
+        '111111',
+        'uwuyoucanthackme',
+        'Edmund1978',
+        '12345',
+        'PASS123',
+        'LETMEIN',
+        'XXXcoolpasswordXXX',
+        'XXX'+a+'XXX',
+        'DankMemerFan42069',
+        'Swag69',
+        'UWU69',
+        '601SUCKS',
+        'epicgamer123'
+    ]
+    return random.choice(arr)
+def history(a):
+    arr = [
+        'How to create a bot like Username601 no coding free',
+        'How to bypass a block by the government',
+        'How to delete browsing history from my parents',
+        'How to get more people on my server',
+        'how to make my server get 1000 members in 1 minute',
+        'How to get animated server icon FOR FREE NO NITRO',
+        'VPN FREE NO HACK VIRUS',
+        'www.'+a+'.com',
+        'How to bypass a ban in discord',
+        'Why do people ban me i am just a 12 year old',
+        'How to access discord when you are under 13',
+        'discord.gg/'+a,
+        'MINECRAFT LATEST VERSION DOWNLOAD FREE CRACK NO HACK NO ROOT',
+        'How to hack discord',
+        'Xxx_EpicGamer_xxX let\'s plays',
+        'How to breathe',
+        'What is the meaning of life',
+        'What is the result of 1/0'
+        'OwO bot cheat tutorial',
+        'How to cheat in Pokecord. FREE CREDITS NO HACK',
+        'FREE NITRO NO HACK LEGIT 2020',
+        'How to boost my server for free no hack legit crack',
+        'HOW TO GET MORE MEMBERS ON MY SERVER PLSS I AM DESPERATE',
+        'Why do people keep leaving my discord server',
+        'How to become a bot in discord',
+        'Free vbucks no hacks'
+    ]
+    return random.choice(arr)
 def getGitMsg():
     arr = [
         'My githoob',
