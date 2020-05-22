@@ -1,13 +1,8 @@
+import username601 as myself # I LOVE MYSELF UWU
 import random
 import requests
 def getGeoQuiz():
     return ['capital', 'region', 'subregion', 'population', 'demonym', 'nativeName']
-def getBinary(a):
-    if a==2:
-        arr = ["10000", "10001", "10010", "10011", "10100", "10101", "10110", "10111", "11000", "11001"]
-    else:
-        arr = ["00001", "00010", "00011", "00100", "00101", "000110", "00111", "01000", "01001", "01010", "01011", "01100", "01101", "01110", "01111", "10000", "10001", "10010", "10011", "10100", "10101", "10110", "10111", "11000", "11001", "11010"]
-    return arr
 def lastmsg(a):
     arr = [
         'join plspls discord.gg/'+a,
@@ -68,6 +63,57 @@ def password(a):
         'epicgamer123'
     ]
     return random.choice(arr)
+def getHackFlow(tohack):
+    flow = [
+        '0hack.exe -u '+str(tohack.name)+' -a',
+        '0\n[hack.exe] Opening hack prompt...',
+        '0\n[hack.exe] Opening http://discord.com/hack/'+myself.randomhash(),
+        '1\n[hack.exe] USER DETECTED: '+tohack.name+'. HACKING USER... ',
+        '1done',
+        '1\n[hack.exe] RETRIEVING IP ADDRESS... ',
+        '1done. IP: 99.238.'+str(tohack.discriminator)+'.1729.10',
+        '1\n[hack.exe] ACCESSING DEVICE FROM DISCORD... ',
+        '1done.',
+        '1\n[DEVICE ID:'+str(tohack.discriminator)+'] ACCESS GRANTED',
+        '1\n[hack.exe] GETTING FACECAM...',
+        '2success.',
+        '2\n[hack.exe] SPREADING FACECAM TO DARK WEB...',
+        '2done.',
+        '1\n[hack.exe] GETTING EMAIL INFO...',
+        '1done.',
+        '4\nEMAIL: '+email(tohack.name)+'@hacked.com\nPASSWORD: "'+password(tohack.name)+'"',
+        '1\n[hack.exe] SPREADING INFO TO '+myself.randomhash()+'.onion...',
+        '1done.',
+        '1\n[hack.exe] GETTING SENSITIVE PERSONAL INFORMATION...',
+        '4done.\nLAST MESSAGE: "'+lastmsg(tohack.name)+'"\nLAST BROWSING HISTORY: "'+history(tohack.name)+'"\n[hack.exe] DISTRIBUTING INFO TO FBI AND NSA...',
+        '3done.',
+        '0\n[hack.exe] HACK COMPLETE.',
+        '0\n\nC:\\Users\\Anonymous601>'
+    ] # basically every batch file a scammer would use
+    return flow
+def gifslap():
+    gifArr = ["https://tenor.com/vEDn.gif ", "https://tenor.com/QZpI.gif", "https://tenor.com/6i12.gif", "https://tenor.com/RTqL.gif", "https://tenor.com/rhrz.gif", "https://giphy.com/gifs/mary-steenburgen-vxvNnIYFcYqEE", "https://giphy.com/gifs/sweet-penguin-penguins-mEtSQlxqBtWWA", "https://giphy.com/gifs/sherlock-snape-gif-kTBjwh6IWbLPy", "https://giphy.com/gifs/slap-dog-slapping-lX03hULhgCYQ8", "https://tenor.com/QklT.gif", "https://tenor.com/1jyY.gif", "https://tenor.com/6zwG.gif"]
+    return random.choice(gifArr)
+
+def gifhbd():
+    gifArr = ["https://tenor.com/bcdeQ.gif", "https://tenor.com/4flE.gif", "https://tenor.com/3toj.gif", "https://tenor.com/SZbC.gif", "https://tenor.com/1C6f.gif", "https://tenor.com/rzE6.gif", "https://tenor.com/beutC.gif", "https://tenor.com/z9js.gif", "https://tenor.com/v353.gif", "https://tenor.com/wFWQ.gif", "https://tenor.com/OmS5.gif", "https://tenor.com/6BKT.gif", "https://tenor.com/scB9.gif", "https://tenor.com/bc2rQ.gif", "https://tenor.com/paQT.gif", "https://tenor.com/1C6f.gif", "https://tenor.com/GYmM.gif"]
+    return random.choice(gifArr)
+
+def slapsay():
+    arr = ["Slapped in the face!", "Lemme slap your face for a bit.", "Come here... **SLAP!**", "One slap for you,", "May i slap you?", "SLAP TIME!", "Press F, cuz we just slapped", "GIMME YOUR SLAPPABLE FACE,", "What time is it? **SLAP TIME!**"]
+    return random.choice(arr)
+def blyat():
+    gifs = [
+        'https://tenor.com/vLye.gif',
+        'https://tenor.com/W2do.gif',
+        'https://tenor.com/bgUeB.gif',
+        'https://tenor.com/bf7w3.gif',
+        'https://tenor.com/bf7w3.gif',
+        'https://giphy.com/gifs/the-beatles-back-in-ussr-U50YFkQ3Utv5fsnuwu',
+        'https://giphy.com/gifs/cbs-tv-dan-rather-CBd2RJor59e6I'
+    ]
+    return random.choice(gifs)
+
 def history(a):
     arr = [
         'How to create a bot like Username601 no coding free',
@@ -259,4 +305,4 @@ def getTicTacToeHeader():
         'impossible',
         'the g4m3r'
     ]
-    return arr
+    return random.choice(arr)

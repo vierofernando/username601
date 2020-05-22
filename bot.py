@@ -109,9 +109,25 @@ async def on_message(message):
                         await main.edit(content='', embed=newembed)
                         await asyncio.sleep(random.randint(2, 4))
                 else:
-                    console = console + 'hack.exe -u '+str(msgAuthor)+'\nERROR: INVALID TAG.\nACCESS DENIED.\n\nHash encoded base64 cipher code:\n'+myself.getBinary('main')+ '\n' + console
+                    console = console + 'hack.exe -u '+str(msgAuthor)+'\nERROR: INVALID TAG.\nACCESS DENIED.\n\nHash encoded base64 cipher code:\n'+myself.bin(msgAuthor)+ '\n' + console
                     embed = discord.Embed(title='Anonymous601 Hacking Console', description=f'```{console}```',colour=discord.Colour.green())
                     await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'base64'):
+            if len(splitted)==1:
+                await message.channel.send(f'Please input something to encode! Like `{prefix}base64 discord.py is better than discord.js`')
+            else:
+                toencode = message.content[int(len(splitted[0])+1):]
+                await message.channel.send(f'```{myself.encodeb64(toencode)}```')
+        if msg.startswith(prefix+'ufo'):
+            num = str(random.randint(50, 100))
+            data = json.loads(urllib.request.urlopen('http://ufo-api.herokuapp.com/api/sightings/search?limit='+num).read())
+            if data['status']!='OK':
+                await message.channel.send('There was a problem on retrieving the info.\nThe server said: "'+str(data['status'])+'" :eyes:')
+            else:
+                ufo = random.choice(data['sightings'])
+                embed = discord.Embed(title='UFO Sighting in '+str(ufo['city'])+', '+str(ufo['state']), description='**Summary:** '+str(ufo['summary'])+'\n\n**Shape:** '+str(ufo['shape'])+'\n**Sighting Date: **'+str(ufo['date'])[:-8].replace('T', ' ')+'\n**Duration: **'+str(ufo['duration'])+'\n\n[Article Source]('+str(ufo['url'])+')', colour=discord.Colour.green())
+                embed.set_footer(text='Username601 raided Area 51 and found this!')
+                await message.channel.send(embed=embed)
         if msg.startswith(prefix+'embed'):
             if '(title:' not in msg or '(desc:' not in msg:
                 await message.channel.send('An embed requires title and description.\nFor example: `'+prefix+'embed (title:this is a title) (desc:this is a description)`\n\nOptional; `footer, auth, hex`')
@@ -758,11 +774,10 @@ async def on_message(message):
                     else:
                         perm = perm + ':x: '+str(permString[i])+'\n'
                 try:
-                    embedo = discord.Embed(title='User permissions for '+str(client.get_user(permId).name)+';', description=str(perm), colour=discord.Colour.blue())
-                except:
-                    print(':grinning:')
-                finally:
-                    await message.channel.send(embed=embedo)
+                    permissionsEmbed = discord.Embed(title='User permissions for '+str(client.get_user(permId).name)+';', description=str(perm), colour=discord.Colour.blue())
+                    await message.channel.send(embed=permissionsEmbed)
+                except Exception as e:
+                    await message.channel.send('elol. we have an elol here:```'+e+'```')
         if msg.startswith(prefix+'makechannel'):
             if message.guild.get_member(int(authorTag)).guild_permissions.manage_channels==False:
                 await message.channel.send('You don\'t have the permission `Manage Channel`. Which is required.')
@@ -2204,42 +2219,14 @@ async def on_message(message):
             embed.set_image(url=data["url"])
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'binary'):
-            allowed = list("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ")
-            alph = list("abcdefghijklmnopqrstuvwxyz")
-            messageRaw = str(message.content)[8:]
-            binary = []
-            haveBeen = 0
-            arr2 = splashes.getBinary(2)
-            arr = splashes.getBinary(1)
-            for i in range(0, int(len(messageRaw))):
-                if list(messageRaw)[i].lower() in alph:
-                    for j in range(0, int(len(alph))):
-                        if list(messageRaw)[i].lower()==alph[j]:
-                            if list(messageRaw)[i].islower()==True:
-                                binary.append('011'+str(arr[j]))
-                            elif list(messageRaw)[i].isupper()==True:
-                                binary.append('010'+str(arr[j]))
-                            break
-                elif list(messageRaw)[i].isnumeric()==True:
-                    binary.append('001'+str(arr2[int(list(messageRaw)[i])]))
-                elif list(messageRaw)[i]==" ":
-                    binary.append('00100000')
-                elif list(messageRaw)[i]=="!":
-                    binary.append('00100001')
-                elif list(messageRaw)[i]=="?":
-                    binary.append('00111111')
-                elif list(messageRaw)[i]=="'":
-                    binary.append('00100111')
-                elif list(messageRaw)[i]=='.':
-                    binary.append('00101110')
-                elif list(messageRaw)[i]==',':
-                    binary.append('00101100')
-                elif list(messageRaw)[i]==':':
-                    binary.append('00111010')
-                elif haveBeen!=1:
-                    await message.channel.send(':warning: Your message contain symbols that didn\'t get encoded to binary.\nAccepted letters are: Alphabet, Numbers, Space, ? ! \' , . :')
-                    haveBeen = 1
-            await message.channel.send('```'+str(''.join(binary))+'```')
+            if len(splitted)==1:
+                await message.channel.send(f'Please send something to encode to binary!\nExample: `{prefix}binary {msgAuthor}`')
+            else:
+                text = message.content[int(len(splitted[0])+1):]
+                if len(myself.bin(text))>4096:
+                    await message.channel.send('The binary result is too long... '+myself.bin('lol uwu'))
+                else:
+                    await message.channel.send(f'```{myself.bin(text)}```')
         if msg.startswith(prefix+'bored'):
             response = urllib.request.urlopen("https://www.boredapi.com/api/activity?participants=1")
             data = json.loads(response.read())
