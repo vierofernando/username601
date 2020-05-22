@@ -2379,6 +2379,56 @@ async def on_message(message):
                 colour=discord.Colour.red()
             )
             await message.channel.send(embed=embed)
-
+        if msg.startswith(prefix+'quote'):
+            data = requests.get('https://quotes.herokuapp.com/libraries/math/random').text
+            text = data.split(' -- ')[0]
+            quoter = data.split(' -- ')[1]
+            embed = discord.Embed(title='Quotes', description=text+'\n\n - '+quoter+' - ', colour=discord.Colour.blue())
+            await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'trivia'):
+            try:
+                wait = await message.channel.send('Please wait... generating quiz...')
+                auth = message.author
+                data = json.loads(urllib.request.urlopen('https://wiki-quiz.herokuapp.com/v1/quiz?topics=Science').read())
+                q = random.choice(data['quiz'])
+                choices = ''
+                for i in range(0, len(q['options'])):
+                    al = list('ABCD')
+                    if q['answer']==q['options'][i]:
+                        corr = al[i]
+                    choices = choices +'**'+ al[i] +'.** '+ q['options'][i]+'\n'
+                embed = discord.Embed(title='Trivia!', description='**'+q['question']+'**\n'+choices, colour=discord.Colour.green())
+                embed.set_footer(text='Answer in the letter corresponding to the choices. You have 60 seconds.')
+                await wait.edit(content='', embed=embed)
+            except Exception as e:
+                await wait.edit(content=f'An error occured!\nReport this using {prefix}feedback.\n```{e}```')
+            def check(m):
+                return m.author == auth and len(m.content)==1
+            try:
+                trying = await client.wait_for('message', check=check, timeout=60.0)
+            except:
+                await message.channel.send('You are too late. Trivia ended. The answer is **'+corr+'**.')
+            if str(trying.content).lower()==corr:
+                await message.channel.send('You are correct! :nerd:')
+            else:
+                await message.channel.send('Wrong... The answer is **'+corr+'** :x:')
+        if msg.startswith(prefix+'rhyme'):
+            if len(splitted)==1:
+                await message.channel.send('Please input a word! And we will try to find the word that best rhymes with it.')
+            else:
+                wait = await message.channel.send('Please wait... Searching...')
+                data = json.loads(urllib.request.urlopen('https://rhymebrain.com/talk?function=getRhymes&word='+str(msg[int(len(splitted[0])+1):]).replace(' ', '%20')).read())
+                words = ''
+                if len(data)<1:
+                    await wait.edit(content='We did not find any rhyming words corresponding to that letter.')
+                else:
+                    for i in range(0, len(data)):
+                        if data[i]['flags']=='bc':
+                            words = words + data[i]['word']+ ', '
+                    if len(words)>1950:
+                        await wait.edit(content='There seemed to be *so many* words to be listed. Sorry.')
+                    else:
+                        embed = discord.Embed(title='Words that rhymes with '+msg[int(len(splitted[0])+1):]+':', description=words, colour=discord.Colour.blue())
+                        await wait.edit(content='', embed=embed)
 print('Logging in to discord...')
 client.run(os.environ['DISCORD_TOKEN'])
