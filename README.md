@@ -4,7 +4,7 @@ hello, fellow programmer! Welcome to my githoob page. This project is **Open Sou
 About the source code files:
 
  - ```bot.py``` **The bot file, Main source code.**
- - ```username601.png``` **Username601's profile pic.**
+ - ```pfp.png``` **Username601's profile pic.**
  - ```username601.py``` **Username601's brain. For discord.js programmers, it's config.json.**
  - ```discordgames.py``` **The code for managing the games.**
  - ```splashes.py``` **The code for libraries of words (to select randomly).**
