@@ -1,5 +1,5 @@
 # username601
-hello, fellow programmer! my name is Viero Fernando. This project is **Open Source for Everyone!** Written entirely in **Python** language.
+hello, fellow programmer! Welcome to my githoob page. This project is **Open Source for Everyone! (Good luck copy pasting lol)** Written entirely in **Python** language.
 
 About the source code files:
 
