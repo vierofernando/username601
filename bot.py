@@ -2,12 +2,12 @@ import username601 as myself
 from username601 import *
 import discordgames
 import splashes
+import inspect
 
 print('Please wait...')
 import json
 import pokebase as pb
-from discord.ext import commands
-from discord.ext.commands import Bot
+import youtube_dl
 import datetime
 latest_update = datetime.datetime.now()
 import os
@@ -66,33 +66,8 @@ async def on_message(message):
                 tohack = message.mentions[0]
                 console = 'C:\\Users\\Anonymous601>'
                 if splitted[1].startswith('<@'):
-                    flow = [
-                        '0hack.exe -u '+str(tohack.name)+' -a',
-                        '0\n[hack.exe] Opening hack prompt...',
-                        '0\n[hack.exe] Opening http://discord.com/hack/'+myself.randomhash(),
-                        '1\n[hack.exe] USER DETECTED: '+tohack.name+'. HACKING USER... ',
-                        '1done',
-                        '1\n[hack.exe] RETRIEVING IP ADDRESS... ',
-                        '1done. IP: 99.238.'+str(tohack.discriminator)+'.1729.10',
-                        '1\n[hack.exe] ACCESSING DEVICE FROM DISCORD... ',
-                        '1done.',
-                        '1\n[DEVICE ID:'+str(tohack.discriminator)+'] ACCESS GRANTED',
-                        '1\n[hack.exe] GETTING FACECAM...',
-                        '2success.',
-                        '2\n[hack.exe] SPREADING FACECAM TO DARK WEB...',
-                        '2done.',
-                        '1\n[hack.exe] GETTING EMAIL INFO...',
-                        '1done.',
-                        '4\nEMAIL: '+splashes.email(tohack.name)+'@hacked.com\nPASSWORD: "'+splashes.password(tohack.name)+'"',
-                        '1\n[hack.exe] SPREADING INFO TO '+myself.randomhash()+'.onion...',
-                        '1done.',
-                        '1\n[hack.exe] GETTING SENSITIVE PERSONAL INFORMATION...',
-                        '4done.\nLAST MESSAGE: "'+splashes.lastmsg(tohack.name)+'"\nLAST BROWSING HISTORY: "'+splashes.history(tohack.name)+'"\n[hack.exe] DISTRIBUTING INFO TO FBI AND NSA...',
-                        '3done.',
-                        '0\n[hack.exe] HACK COMPLETE.',
-                        '0\n\nC:\\Users\\Anonymous601>'
-                    ]
                     main = await message.channel.send('Opening Console...')
+                    flow = splashes.hackflow(tohack)
                     for i in range(0, len(flow)):
                         console = console + flow[i][1:]
                         newembed = discord.Embed(title='Anonymous601 Hacking Console', description=f'```{console}```',colour=discord.Colour.green())
@@ -584,11 +559,9 @@ async def on_message(message):
                         toEdit = await message.channel.send("Retrieving Data...")
                         response = urllib.request.urlopen("https://gdbrowser.com/api/level/"+str(levelid))
                         data = json.loads(response.read())
-                        responseLeaderboard = urllib.request.urlopen("https://gdbrowser.com/api/leaderboardLevel/"+str(data["id"]))
-                        leader = json.loads(responseLeaderboard.read())
                         image = 'https://gdbrowser.com/icon/'+data["author"]
                         embed = discord.Embed(
-                            title = data["name"]+' ('+data["id"]+')',
+                            title = data["name"]+' ('+str(data["id"])+')',
                             description = data["description"],
                             colour = discord.Colour.blue()
                         )
@@ -599,23 +572,9 @@ async def on_message(message):
                             gesture = ':-1:'
                         embed.add_field(name='Level Stats', value=str(data["likes"])+' '+gesture+'\n'+str(data["downloads"])+" :arrow_down:", inline='False')
                         embed.add_field(name='Level Rewards', value=str(data["stars"])+" :star:\n"+str(data["orbs"])+" orbs\n"+str(data["diamonds"])+" :gem:")
-                        embed.add_field(name='Leaderboard', value="**Rank #1: "+str(leader[1]["username"])+"** "+str(leader[1]["percent"])+"% | "+str(leader[1]["date"])+"\n**Rank #2: "+str(leader[2]["username"])+"** "+str(leader[2]["percent"])+"% | "+str(leader[2]["date"])+"\n**Rank #3: "+str(leader[3]["username"])+"** "+str(leader[3]["percent"])+"% | "+str(leader[3]["date"]))
                         await toEdit.edit(content='', embed=embed)
-                    except:
-                        embedTemp = discord.Embed(
-                            title = data["name"]+' ('+data["id"]+')',
-                            description = data["description"],
-                            colour = discord.Colour.blue()
-                        )
-                        embedTemp.set_author(name=data["author"], icon_url=image)
-                        embedTemp.add_field(name='Difficulty', value=data["difficulty"])
-                        gesture = ':+1:'
-                        if data['disliked']==True:
-                            gesture = ':-1:'
-                        embedTemp.add_field(name='Level Stats', value=str(data["likes"])+' '+gesture+'\n'+str(data["downloads"])+" :arrow_down:", inline='False')
-                        embedTemp.add_field(name='Level Rewards', value=str(data["stars"])+" :star:\n"+str(data["orbs"])+" orbs\n"+str(data["diamonds"])+" :gem:")
-                        embedTemp.set_footer(text='Info given is less because the level has less.. info.')
-                        await toEdit.edit(content='', embed=embedTemp)
+                    except Exception as e:
+                        await toEdit.edit(content=f'```{e}```')
         if msg.startswith(prefix+'gdsearch'):
             if len(splitted)<2:
                 await message.channel.send(':x: Please input a query!')
@@ -654,32 +613,77 @@ async def on_message(message):
                     embedy = discord.Embed(title='Emoji info for :'+str(data.name)+':', description='**Emoji name:** '+str(data.name)+'\n**Emoji ID: **'+str(data.id)+'\n'+anim+'\n**Emoji\'s server ID: **'+str(data.guild_id)+'\n**Emoji creation time: **'+str(data.created_at)[:-7]+' UTC.', colour=discord.Colour.magenta())
                     embedy.set_thumbnail(url='https://cdn.discordapp.com/emojis/'+str(data.id)+'.png?v=1')
                     await message.channel.send(embed=embedy)
+        if splitted[0]==prefix+'threats' or splitted[0]==prefix+'deepfry' or splitted[0]==prefix+'blurpify':
+            if len(splitted)==1:
+                await message.channel.send('Please tag someone!')
+            else:
+                if splitted[0].startswith(prefix+'threat'):
+                    inputtype = 'url'
+                else:
+                    inputtype = 'image'
+                av = message.mentions[0].avatar_url
+                embed = discord.Embed(colour=discord.Colour.red())
+                embed.set_image(url='https://nekobot.xyz/api/imagegen?type='+str(splitted[0])[1:]+'&'+inputtype+'='+str(av)[:-15]+'.png&raw=1')
+                await message.channel.send(embed=embed)
+        if splitted[0]==prefix+'clyde' or splitted[0]==prefix+'trumptweet' or splitted[0]==prefix+'kannagen':
+            if len(splitted)==1:
+                await message.channel.send('Please input a text...')
+            else:
+                embed = discord.Embed(colour=discord.Colour.blue())
+                embed.set_image(url='https://nekobot.xyz/api/imagegen?type='+str(splitted[0][1:])+'&text='+str(message.content[int(len(splitted[0])+1):]).replace(' ', '%20')+'&raw=1')
+                await message.channel.send(embed=embed)
         if msg.startswith(prefix+'clear') or msg.startswith(prefix+'purge'):
             checky = message.guild.get_member(int(authorTag)).guild_permissions.manage_messages
+            req = message.author.name
             if checky==False:
                 await message.channel.send(':x: You don\'t have the permission `Manage Messages` to do this command \>:(')
             else:
                 contin = True
-                try:
-                    count = int(splitted[1])+1
-                    if count>500:
-                        await message.channel.send('That\'s **TOO MANY** messages to be deleted!\nJust clone the channel and delete the old one.\neasy peasy.')
-                        contin = False
-                except:
-                    await message.channel.send('That is NOT a number!')
-                    contin = False
-                if contin==True:
+                if splitted[1].isnumeric()==True:
                     try:
-                        await message.channel.purge(limit=count)
+                        count = int(splitted[1])+1
+                        if count>500:
+                            await message.channel.send('That\'s **TOO MANY** messages to be deleted!\nJust clone the channel and delete the old one.\neasy peasy.')
+                            contin = False
                     except:
-                        await message.channel.send(':x: An error occured during purging.')
+                        await message.channel.send('That is NOT a number!')
+                        contin = False
+                if contin==True:
+                    if splitted[1].isnumeric()==True:
+                        try:
+                            deleted_messages = await message.channel.purge(limit=count)
+                            await message.channel.send('**Requested by '+req+':** Deleted '+str(len(deleted_messages)-1)+' messages in <#'+str(message.channel.id)+'>.', delete_after=10)
+                        except Exception as e:
+                            await message.channel.send(':x: An error occured during purging. ```'+str(e)+'```')
+                    elif splitted[1].startswith('<@'):
+                        check_guy = message.mentions[0]
+                        try:
+                            def forperson(m):
+                                return m.author == check_guy
+                            deleted_messages = await message.channel.purge(check=forperson, limit=500)
+                            await message.channel.send('**Requested by '+req+':** Deleted '+str(len(deleted_messages))+' messages in <#'+str(message.channel.id)+'>.\nSpecifically for messages by <@'+str(check_guy.id)+'>.', delete_after=10)
+                        except Exception as e:
+                            await message.channel.send(':x: An error occured during purging. ```'+str(e)+'```')
+        if splitted[0]==prefix+'ex' or splitted[0]==prefix+'eval':
+            if int(authorTag)==661200758510977084:
+                command = message.content[int(len(splitted[0])+1):]
+                try:
+                    res = eval(command)
+                    if inspect.isawaitable(res):
+                        await message.channel.send('```py\n'+await res+'```')
+                    else:
+                        await message.channel.send('```py\n'+str(res)+'```')
+                except Exception as e:
+                    await message.channel.send(f'Oops! We got an error here, nerd!\n```{e}```')
+            else:
+                await message.channel.send('This command somehow doesn\'t work in discord.py.\nTry discord.js instead.')
         if splitted[0]==prefix+'s':
             await message.delete()
             member = message.guild.get_member(int(authorTag))
-            if member.guild_permissions.administrator==True or int(authorTag)==661200758510977084:
+            if int(authorTag)==661200758510977084:
                 accept = True
             else:
-                await message.channel.send(':x: <@'+str(authorTag)+'>, To do this command, you need to have `Administrator` permission,\nOr be the bot owner.')
+                await message.channel.send(':x: <@'+str(authorTag)+'>, You need to be the bot owner to do this command.\nTo be the bot owner, try creating a bot :v')
                 accept = False
             if accept==True:
                 await message.channel.send(msg[3:])
@@ -688,19 +692,12 @@ async def on_message(message):
                 await message.channel.send(f'<@{str(authorTag)}>, you don\'t have the `Manage Roles` permission!')
             else:
                 try:
-                    if splitted[1].startswith('<@!'):
-                        permId = int(splitted[1][3:][:-1])
-                    else:
-                        permId = int(splitted[1][2:][:-1])
-                except ValueError:
-                    await message.channel.send('Error: Invalid tag!')
-                aruser = message.guild.get_member(int(permId))
-                try:
+                    aruser = message.mentions[0]
                     toadd = message.guild.get_role(int(splitted[2][3:][:-1]))
                     await aruser.add_roles(toadd)
                     await message.channel.send('Congratulations, '+aruser.name+', you now have the '+toadd.name+' role! :tada:')
                 except Exception as e:
-                    await message.channel.send(f'An error occured. :x:```{e}```')
+                    await message.channel.send(f'An error occured. :x:```{str(e)}```')
         if msg.startswith(prefix+'xpbox'):
             results = []
             buttons = []
@@ -746,14 +743,7 @@ async def on_message(message):
             if message.guild.get_member(int(authorTag)).guild_permissions.manage_roles==False:
                 await message.channel.send(f'<@{str(authorTag)}>, you don\'t have the `Manage Roles` permission!')
             else:
-                try:
-                    if splitted[1].startswith('<@!'):
-                        permId = int(splitted[1][3:][:-1])
-                    else:
-                        permId = int(splitted[1][2:][:-1])
-                except ValueError:
-                    await message.channel.send('Error: Invalid tag!')
-                aruser = message.guild.get_member(int(permId))
+                aruser = message.mentions[0]
                 try:
                     toadd = message.guild.get_role(int(splitted[2][3:][:-1]))
                     await aruser.remove_roles(toadd)
@@ -770,14 +760,14 @@ async def on_message(message):
                 permString = ['Manage Server', 'Kick Members', 'Ban Members', 'Admin', 'Change their Nickname', 'Manage member\'s nicknames', 'Manage Channels', 'View Audit Log', 'Manage Messages']
                 for i in range(0, int(len(permString))):
                     if permCheck[i]==True:
-                        perm = perm + ':white_check_mark: '+str(permString[i])+'\n'
+                        perm += ':white_check_mark: '+str(permString[i])+'\n'
                     else:
-                        perm = perm + ':x: '+str(permString[i])+'\n'
+                        perm += ':x: '+str(permString[i])+'\n'
                 try:
-                    permissionsEmbed = discord.Embed(title='User permissions for '+str(client.get_user(permId).name)+';', description=str(perm), colour=discord.Colour.blue())
+                    permissionsEmbed = discord.Embed(title='User permissions for '+str(message.mentions[0].name)+';', description=str(perm), colour=discord.Colour.blue())
                     await message.channel.send(embed=permissionsEmbed)
                 except Exception as e:
-                    await message.channel.send('elol. we have an elol here:```'+e+'```')
+                    await message.channel.send('elol. we have an elol here:```'+str(e)+'```')
         if msg.startswith(prefix+'makechannel'):
             if message.guild.get_member(int(authorTag)).guild_permissions.manage_channels==False:
                 await message.channel.send('You don\'t have the permission `Manage Channel`. Which is required.')
@@ -981,10 +971,17 @@ async def on_message(message):
             embed = discord.Embed(colour=discord.Colour.blue())
             embed.set_image(url='https://picsum.photos/'+str(random.choice(width)))
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'coffee'):
-            embed = discord.Embed(colour=discord.Colour.blue())
-            link = 'https://coffee.alexflipnote.dev/random'
-            embed.set_image(url=link)
+        if splitted[0]==prefix+'food' or splitted[0]==prefix+'coffee':
+            data = requests.get('https://nekobot.xyz/api/image?type='+str(splitted[0][1:])).text
+            link = data.split('"message":"')[1].split('"')[0]
+            if splitted[0].endswith('food'):
+                col = int(data.split('"color":')[1].split(',')[0])
+                msgtitle = 'hungry?'
+            elif splitted[0].endswith('coffee'):
+                col = int(data.split('"color":')[1][:-1])
+                msgtitle = 'get caffeinated!'
+            embed = discord.Embed(title=msgtitle, colour=discord.Color(col))
+            embed.set_image(url=link.replace('\/', '/'))
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'fox'):
             img = requests.get('https://randomfox.ca/floof/?ref=apilist.fun').text.split('"image":"')[1].split('"')[0].replace('\/', '/')
@@ -1026,9 +1023,7 @@ async def on_message(message):
             if len(splitted)!=2:
                 await message.channel.send('Error! Invalid args.')
             else:
-                for user in message.mentions:
-                    av = user.avatar_url
-                    break
+                av = message.mentions[0].avatar_url
                 embed = discord.Embed(colour=discord.Colour.magenta())
                 embed.set_image(url='https://api.alexflipnote.dev/salty?image='+str(av))
                 await message.channel.send(embed=embed)
@@ -1036,9 +1031,7 @@ async def on_message(message):
             if len(splitted)!=2:
                 await message.channel.send('Error! Invalid args.')
             else:
-                for user in message.mentions:
-                    av = user.avatar_url
-                    break
+                av = message.mentions[0].avatar_url
                 embed = discord.Embed(colour=discord.Colour.magenta())
                 embed.set_image(url='https://api.alexflipnote.dev/jokeoverhead?image='+str(av))
                 await message.channel.send(embed=embed)
@@ -1142,9 +1135,7 @@ async def on_message(message):
             if len(splitted)!=2:
                 await message.channel.send('Please tag someone!')
             else:
-                for user in message.mentions:
-                    av = user.avatar_url
-                    break
+                av = message.mentions[0].avatar_url
                 embed = discord.Embed(colour=discord.Colour.magenta())
                 embed.set_image(url='https://api.alexflipnote.dev/filter/'+str(com)+'?image='+str(av).replace('webp', 'png'))
                 await message.channel.send(embed=embed)
@@ -1277,7 +1268,20 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
             except:
                 await message.channel.send('Invalid avatar. :rage:')
-        if msg.startswith(prefix+'ph'):
+        if splitted[0]==prefix+'phcomment':
+            if len(splitted)==1:
+                await message.channel.send(f'Invalid type.\nTry:\n`{prefix}phcomment [text]` or;\n`{prefix}phcomment [tag] [text]`')
+            else:
+                if len(message.mentions)==0:
+                    text = message.content[int(len(splitted[0])+1):]
+                    embed = discord.Embed(colour=discord.Colour.green())
+                    embed.set_image(url='https://nekobot.xyz/api/imagegen?type=phcomment&username='+str(message.author.name).replace(' ', '%20')+'&text='+str(text).replace(' ', '%20')+'&image='+str(message.author.avatar_url).replace('.webp?size=1024', '.png')+'&raw=1')
+                else:
+                    text = message.content[int(len(splitted[0])+len(splitted[1])+2):]
+                    embed = discord.Embed(colour=discord.Colour.green())
+                    embed.set_image(url='https://nekobot.xyz/api/imagegen?type=phcomment&username='+str(message.mentions[0].name).replace(' ', '%20')+'&text='+str(text).replace(' ', '%20')+'&image='+str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')+'&raw=1')
+                await message.channel.send(embed=embed)
+        if splitted[0]==prefix+'ph':
             if splitted[1]=='help':
                 embed = discord.Embed(title='ph command help', description='Type the following:\n'+prefix+'ph [txt1] [txt2]\n\nFor example:\n'+prefix+'ph [Git] [Hub]', colour=discord.Colour.red())
                 embed.set_image(url='https://api.alexflipnote.dev/pornhub?text=Git&text2=Hub')
@@ -1325,13 +1329,8 @@ async def on_message(message):
             if len(splitted)!=2:
                 await message.channel.send('Please mention someone!\nExample: `'+prefix+'trash <@'+authorTag+'>`')
             else:
-                for user in message.guild.members:
-                    if user.id==authorTag:
-                        av = user.avatar_url
-                        break
-                for user in message.mentions:
-                    toTrash = user.avatar_url
-                    break
+                av = message.author.avatar_url
+                toTrash = message.mentions[0].avatar_url
                 embed = discord.Embed(colour=discord.Colour.magenta())
                 embed.set_image(url='https://api.alexflipnote.dev/trash?face='+str(av).replace('webp', 'png')+'&trash='+str(toTrash).replace('webp', 'png'))
                 await message.channel.send(embed=embed)
@@ -1727,6 +1726,30 @@ async def on_message(message):
             embed = discord.Embed(colour=discord.Colour.magenta())
             embed.set_image(url=data['file'])
             await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'imgcaptcha'):
+            if len(message.mentions)==0:
+                av = str(message.author.avatar_url).replace('.webp?size=1024', '.png')
+                nm = str(message.author.name).replace(' ', '%20')
+            else:
+                av = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')
+                nm = str(message.mentions[0].name).replace(' ', '%20')
+            embed = discord.Embed(colour=discord.Colour.green())
+            embed.set_image(url='http://nekobot.xyz/api/imagegen?type=captcha&username='+nm+'&url='+av+'&raw=1')
+            await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'whowouldwin'):
+            if len(message.mentions)!=2:
+                await message.channel.send('Please tag TWO people!')
+            else:
+                embed = discord.Embed(colour=discord.Colour.red())
+                embed.set_image(url='http://nekobot.xyz/api/imagegen?type=whowouldwin&raw=1&user1='+str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')+'&user2='+str(message.mentions[1].avatar_url).replace('.webp?size=1024', '.png'))
+                await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'trap'):
+            if len(splitted)==1 or len(message.mentions)==0:
+                await message.channel.send(f'Wrong.\nPlease try the correct like following:\n`{prefix}trap [tag]`')
+            else:
+                embed = discord.Embed(colour=discord.Colour.magenta())
+                embed.set_image(url='http://nekobot.xyz/api/imagegen?type=trap&name='+str(message.mentions[0].name).replace(' ', '%20')+'&author='+str(message.author.name).replace(' ', '%20')+'&image='+str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')+'&raw=1')
+                await message.channel.send(embed=embed)
         if msg.startswith(prefix+'roles'):
             acceptId = 0
             if acceptId==0:
@@ -1749,11 +1772,9 @@ async def on_message(message):
             toEdit = await message.channel.send("Retrieving Data...")
             response = urllib.request.urlopen("https://gdbrowser.com/api/level/daily")
             data = json.loads(response.read())
-            responseLeaderboard = urllib.request.urlopen("https://gdbrowser.com/api/leaderboardLevel/"+str(data["id"]))
-            leader = json.loads(responseLeaderboard.read())
             image = 'https://gdbrowser.com/icon/'+data["author"]
             embed = discord.Embed(
-                title = data["name"]+' ('+data["id"]+')',
+                title = data["name"]+' ('+str(data["id"])+')',
                 description = data["description"],
                 colour = discord.Colour.blue()
             )
@@ -1766,7 +1787,6 @@ async def on_message(message):
                 gesture = ':-1:'
             embed.add_field(name='Level Stats', value=str(data["likes"])+' '+gesture+'\n'+str(data["downloads"])+" :arrow_down:", inline='False')
             embed.add_field(name='Level Rewards', value=str(data["stars"])+" :star:\n"+str(data["orbs"])+" orbs\n"+str(data["diamonds"])+" :gem:")
-            embed.add_field(name='Leaderboard', value="**Rank #1: "+str(leader[1]["username"])+"** "+str(leader[1]["percent"])+"% | "+str(leader[1]["date"])+"\n**Rank #2: "+str(leader[2]["username"])+"** "+str(leader[2]["percent"])+"% | "+str(leader[2]["date"])+"\n**Rank #3: "+str(leader[3]["username"])+"** "+str(leader[3]["percent"])+"% | "+str(leader[3]["date"]))
             await toEdit.edit(content='', embed=embed)
         if msg.startswith(prefix+'botmembers'):
             botmembers = ""
@@ -1787,11 +1807,9 @@ async def on_message(message):
             toEdit = await message.channel.send("Retrieving Data...")
             response = urllib.request.urlopen("https://gdbrowser.com/api/level/weekly")
             data = json.loads(response.read())
-            responseLeaderboard = urllib.request.urlopen("https://gdbrowser.com/api/leaderboardLevel/"+str(data["id"]))
-            leader = json.loads(responseLeaderboard.read())
             image = 'https://gdbrowser.com/icon/'+data["author"]
             embed = discord.Embed(
-                title = data["name"]+' ('+data["id"]+')',
+                title = data["name"]+' ('+str(data["id"])+')',
                 description = data["description"],
                 colour = discord.Colour.red()
             )
@@ -1804,7 +1822,6 @@ async def on_message(message):
                 gesture = ':-1:'
             embed.add_field(name='Level Stats', value=str(data["likes"])+' '+gesture+'\n'+str(data["downloads"])+" :arrow_down:", inline='False')
             embed.add_field(name='Level Rewards', value=str(data["stars"])+" :star:\n"+str(data["orbs"])+" orbs\n"+str(data["diamonds"])+" :gem:")
-            embed.add_field(name='Leaderboard', value="**Rank #1: "+str(leader[1]["username"])+"** "+str(leader[1]["percent"])+"% | "+str(leader[1]["date"])+"\n**Rank #2: "+str(leader[2]["username"])+"** "+str(leader[2]["percent"])+"% | "+str(leader[2]["date"])+"\n**Rank #3: "+str(leader[3]["username"])+"** "+str(leader[3]["percent"])+"% | "+str(leader[3]["date"]))
             await toEdit.edit(content='', embed=embed)
         if msg.startswith(prefix+'facts'):
             embed = discord.Embed(colour=discord.Colour.magenta())
@@ -2005,7 +2022,7 @@ async def on_message(message):
             embed.add_field(name='Programmer info', value='**Programmed by: **Viero Fernando.\n**Best languages: **~~HTML, CSS,~~ VB .NET, JavaScript, Python\n**Social links:**\n[Discord Server](http://discord.gg/HhAPkD8)\n[GitHub](http://github.com/vierofernando)\n[Top.gg](https://top.gg/user/661200758510977084)\n[SoloLearn](https://www.sololearn.com/Profile/17267145)\n[Brainly (Indonesia)](http://bit.ly/vierofernandobrainly)\n[Geometry Dash](https://gdbrowser.com/profile/knowncreator56)', inline='True')
             embed.add_field(name='Version Info', value='**Bot version: ** '+bot_ver+'\n**Update time: **'+str(latest_update)[:-7]+' UTC\n**Changelog: **'+bot_changelog+'\n**Uptime: **'+str(datetime.datetime.now()-latest_update)[:-7]+'\n\n**Discord.py version: **'+str(discord.__version__)+'\n**Python version: **'+str(sys.version).split(' (default')[0]+'\n**C Compiler Version:** '+str(sys.version).split('[GCC ')[1][:-1])
             embed.add_field(name='Links', value='[Invite this bot to your server!](http://vierofernando.github.io/programs/username601) | [Source code](http://github.com/vierofernando/username601) | [The support server!](http://discord.gg/HhAPkD8) | [Vote us on top.gg](https://top.gg/bot/696973408000409626/vote)', inline='False')
-            embed.set_thumbnail(url='https://raw.githubusercontent.com/vierofernando/username601/master/username601.png')
+            embed.set_thumbnail(url='https://raw.githubusercontent.com/vierofernando/username601/master/pfp.png')
             embed.set_footer(text='© Viero Fernando Programming, 2018-2020. All rights reserved.')
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'vote'):
@@ -2218,6 +2235,22 @@ async def on_message(message):
             embed.set_author(name=data["title"], url=data["postLink"])
             embed.set_image(url=data["url"])
             await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'atbash'):
+            if len(splitted)<2:
+                await message.channel.send('Invalid. Please wait...')
+            else:
+                await message.channel.send(myself.atbash(message.content[int(len(splitted[0])+1):]))
+        if msg.startswith(prefix+'caesar'):
+            if len(splitted)<3:
+                await message.channel.send(f'Invalid.\nPlease input:\n`{prefix}caesar [offset] [text]`\nExample: `{prefix}caesar 3 Hello world!`')
+            else:
+                if splitted[1].isnumeric()==False:
+                    await message.channel.send('That offset is NOT a number!')
+                else:
+                    try:
+                        await message.channel.send(myself.caesar(message.content[int(len(splitted[0])+len(splitted[1])+2):], int(splitted[1])))
+                    except Exception as e:
+                        await message.channel.send(f'```{e}```Look at dat error tho :flushed:')
         if msg.startswith(prefix+'binary'):
             if len(splitted)==1:
                 await message.channel.send(f'Please send something to encode to binary!\nExample: `{prefix}binary {msgAuthor}`')

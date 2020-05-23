@@ -1,9 +1,9 @@
 import random
 import base64
 prefix = '>'
-cmdtypes = ['Bot help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Images', 'Apps']
-bot_ver = '1.9.5'
-bot_changelog = 'MEME update! and added barcode encoder uwu'
+cmdtypes = ['Bot help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps']
+bot_ver = '1.9.6b'
+bot_changelog = 'Memes and images category are now seperated.'
 
 def randomhash():
     hashh = ''
@@ -13,6 +13,44 @@ def randomhash():
 
 def getPrefix():
     return prefix
+
+def atbash(text):
+    temp = list(text.lower())
+    alph = list('abcdefghijklmnopqrstuvwxyz')
+    hpla = alph[::-1]
+    total = ''
+    for i in range(0, len(temp)):
+        if temp[i] in alph:
+            for j in range(0, len(alph)):
+                if temp[i]==alph[j]:
+                    total += hpla[j]
+        else:
+            total += temp[i]
+    return total
+
+def caesar(text, num):
+    temp = text.lower()
+    if num>26:
+        while num>26:
+            num -= 26
+    elif num<0:
+        while num<0:
+            num += 26
+    alph = list('abcdefghijklmnopqrstuvwxyz')
+    result = ''
+    for i in range(0, len(temp)):
+        if temp[i] in alph:
+            for j in range(0, len(alph)):
+                if alph[j]==temp[i]:
+                    tempnum = j+num
+                    if tempnum>len(alph)-1:
+                        while tempnum>len(alph)-1:
+                            tempnum -= 26
+                    result += alph[tempnum]
+                    break
+        else:
+            result += temp[i]
+    return result
 
 def hintify(word):
     arr = list(word)
@@ -89,17 +127,18 @@ github_object = {
 
 bothelp = 'vote, feedback [text], help, about, github, connections, inviteme, createbot, ping'
 maths = 'math [num] [sym] [num], factor [num], multiplication [num], sqrt [num], isprime [num], rng [num], median [array], mean [array]'
-encoding = 'base64 [word], barcode [word], ascii [word], binary [text], supreme [text], reverse [text], length [text], qr [text], leet [text], emojify [text]'
+encoding = 'atbash [word], caesar [offset] [word], base64 [word], barcode [word], ascii [word], binary [text], supreme [text], reverse [text], length [text], qr [text], leet [text], emojify [text]'
 games = 'trivia, pokequiz, guessnum, tictactoe [symbol], hangman, mathquiz, geoquiz, guessavatar, coin, dice, rock, paper, scissors, gddaily, gdweekly, gdcomment, gdbox [text], gdlogo [text], gdprofile [name], gdsearch [level name], gdlevel [level id]'
-fun = 'hack [tag], tts [text], joke, memes, slap [tag], hbd [tag], xpbox, gaylevel [tag], randomavatar, secret, inspirobot, meme, 8ball, deathnote, choose [array]'
-images = 'avmeme [tag] [top text] [bottom text], wonka [top text] [bottom text], buzz [top txt] [bottom txt], doge [top txt] [bottom txt], fry [top txt] [bottom txt], philosoraptor [top txt] [bottom txt], money [top txt] [bottom txt], ph help, ship, coffee, wallpaper, trash [tag], jpeg [tag], cat, sadcat, dog, fox, bird, magik [tag], facts [text], invert [tag], pixelate [tag], b&w [tag], drake help, salty [tag], wooosh [tag], captcha [text], achieve [text], scroll [text], call [text], challenge [text], didyoumean help'
+fun = 'hack [tag], tts [text], joke, slap [tag], hbd [tag], xpbox, gaylevel [tag], lovelevel [tag], randomavatar, secret, inspirobot, meme, 8ball, deathnote, choose [array]'
+memes = 'meme, imgcaptcha, trap [tag], whowouldwin [tag1] [tag2], threat [tag], phcomment, drake help, scroll [text], call [text], challenge [text], didyoumean help, trumptweet [text], clyde [text], trash [tag], avmeme [tag] [top text] [bottom text], kannagen [text], facts [text], wonka [top text] [bottom text], buzz [top txt] [bottom txt], doge [top txt] [bottom txt], fry [top txt] [bottom txt], philosoraptor [top txt] [bottom txt], money [top txt] [bottom txt], ph help, salty [tag], wooosh [tag], captcha [text], achieve [text]'
+images = 'ship, food, coffee, wallpaper, deepfry [tag], blurpify [tag], jpeg [tag], cat, sadcat, dog, fox, bird, magik [tag], invert [tag], pixelate [tag], b&w [tag]'
 utilities = 'quote, robohash, weather [city], ufo, colorinfo [hex], rhyme [word], embed help, ss --help, catfact, dogfact, funfact, steam [profile], googledoodle, bored, search [query], randomcolor, randomword, country [name], time, newemote, ghiblifilms, ytthumbnail [link]'
-discordAPI = 'lockdown [seconds], slowmode [seconds], ar [tag] [role], rr [tag] [role], clear [count], kick [tag] [reason], ban [tag] [reason], nick [tag] [new nick], makechannel [type] [name], emojiinfo [emoji], permissions [user_tag], roleinfo [tag], id [tag], getinvite, botmembers, serverinfo, servericon, avatar [tag], userinfo [tag], roles, channels, serveremojis, reactmsg [text], reactnum [num1] [num2]'
+discordAPI = 'lockdown [seconds], slowmode [seconds], ar [tag] [role], rr [tag] [role], clear [count/tag], kick [tag] [reason], ban [tag] [reason], nick [tag] [new nick], makechannel [type] [name], emojiinfo [emoji], permissions [user_tag], roleinfo [tag], id [tag], getinvite, botmembers, serverinfo, servericon, avatar [tag], userinfo [tag], roles, channels, serveremojis, reactmsg [text], reactnum [num1] [num2]'
 apps = 'imdb, translate, wikipedia'
-commandLength = [len(bothelp.split(',')), len(maths.split(',')), len(encoding.split(',')), len(games.split(',')), len(fun.split(',')), len(utilities.split(',')), len(discordAPI.split(',')), len(images.split(',')), len(apps.split(','))]
+commandLength = [len(bothelp.split(',')), len(maths.split(',')), len(encoding.split(',')), len(games.split(',')), len(fun.split(',')), len(utilities.split(',')), len(discordAPI.split(',')), len(memes.split(',')), len(images.split(',')), len(apps.split(','))]
 totalLength = 0
 for i in range(0, len(commandLength)):
-    totalLength = int(totalLength) + int(commandLength[i])
+    totalLength += int(commandLength[i])
 
 def bin(text):
     result = " ".join(f"{ord(i):08b}" for i in text) # THANKS STACK OVERFLOW! UWU
@@ -119,6 +158,7 @@ ordertypes = [
     '**Fun ('+str(commandLength[4])+')**\n```'+str(fun)+'```',
     '**Games ('+str(commandLength[3])+')**\n```'+str(games)+'```',
     '**Encoding ('+str(commandLength[2])+')**\n```'+str(encoding)+'```',
-    '**Images ('+str(commandLength[7])+')**\n```'+str(images)+'```',
-    '**Apps ('+str(commandLength[8])+')**\n```'+str(apps)+'```'
+    '**Memes ('+str(commandLength[7])+')**\n```'+str(memes)+'```',
+    '**Images ('+str(commandLength[8])+')**\n```'+str(images)+'```',
+    '**Apps ('+str(commandLength[9])+')**\n```'+str(apps)+'```'
 ]

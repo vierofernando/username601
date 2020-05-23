@@ -144,6 +144,34 @@ def history(a):
         'Free vbucks no hacks'
     ]
     return random.choice(arr)
+def hackflow(tohack):
+    flow = [
+        '0hack.exe -u '+str(tohack.name)+' -a',
+        '0\n[hack.exe] Opening hack prompt...',
+        '0\n[hack.exe] Opening http://discord.com/hack/'+myself.randomhash(),
+        '1\n[hack.exe] USER DETECTED: '+tohack.name+'. HACKING USER... ',
+        '1done',
+        '1\n[hack.exe] RETRIEVING IP ADDRESS... ',
+        '1done. IP: 99.238.'+str(tohack.discriminator)+'.1729.10',
+        '1\n[hack.exe] ACCESSING DEVICE FROM DISCORD... ',
+        '1done.',
+        '1\n[DEVICE ID:'+str(tohack.discriminator)+'] ACCESS GRANTED',
+        '1\n[hack.exe] GETTING FACECAM...',
+        '2success.',
+        '2\n[hack.exe] SPREADING FACECAM TO DARK WEB...',
+        '2done.',
+        '1\n[hack.exe] GETTING EMAIL INFO...',
+        '1done.',
+        '4\nEMAIL: '+email(tohack.name)+'@hacked.com\nPASSWORD: "'+password(tohack.name)+'"',
+        '1\n[hack.exe] SPREADING INFO TO '+myself.randomhash()+'.onion...',
+        '1done.',
+        '1\n[hack.exe] GETTING SENSITIVE PERSONAL INFORMATION...',
+        '4done.\nLAST MESSAGE: "'+lastmsg(tohack.name)+'"\nLAST BROWSING HISTORY: "'+history(tohack.name)+'"\n[hack.exe] DISTRIBUTING INFO TO FBI AND NSA...',
+        '3done.',
+        '0\n[hack.exe] HACK COMPLETE.',
+        '0\n\nC:\\Users\\Anonymous601>'
+    ]
+    return flow
 def getGitMsg():
     arr = [
         'My githoob',
@@ -246,7 +274,6 @@ def getAbout():
     arr = [
         'Traceback (most recent call last)',
         'I liek memes',
-        '601 in my name means BOT in leetspeak.\n*THE MORE YOU KNOW*',
         'Hello, discordians! It\'s-a-me. Bot. Which may look stupid the fact that\nthere are THOUSANS of discord bots out there, so *let\'s get straight into it.* (no meme intended)',
         'Wha? ME? okay then, here ya go.',
         'Here are some silly lil information.',
