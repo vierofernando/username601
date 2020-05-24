@@ -9,7 +9,7 @@ import pokebase as pb
 import youtube_dl
 import datetime
 latest_update = datetime.datetime.now()
-import os
+from os import environ as fetchdata
 import discord
 import wikipediaapi
 import random
@@ -569,7 +569,7 @@ async def on_message(message):
             else:
                 try:
                     query = msg[int(len(splitted[0])+1):].replace(' ', '%20')
-                    data = myself.api('https://gdbrowser.com/api/search/'+str(query)))
+                    data = myself.api('https://gdbrowser.com/api/search/'+str(query))
                     levels = ''
                     count = 0
                     for i in range(0, len(data)):
@@ -967,7 +967,7 @@ async def on_message(message):
                 msgtitle = 'hungry?'
             elif splitted[0].endswith('coffee'):
                 col = int(data.split('"color":')[1][:-1])
-                msgtitle = 'get caffeinated!'
+                msgtitle = 'get caffeinated uwu'
             embed = discord.Embed(title=msgtitle, colour=discord.Color(col))
             embed.set_image(url=link.replace('\/', '/'))
             await message.channel.send(embed=embed)
@@ -2371,7 +2371,7 @@ async def on_message(message):
             try:
                 wait = await message.channel.send('Please wait... generating quiz...')
                 auth = message.author
-                data = myself.api('https://wiki-quiz.herokuapp.com/v1/quiz?topics=Science').read())
+                data = myself.api('https://wiki-quiz.herokuapp.com/v1/quiz?topics=Science')
                 q = random.choice(data['quiz'])
                 choices = ''
                 for i in range(0, len(q['options'])):
@@ -2413,4 +2413,4 @@ async def on_message(message):
                         embed = discord.Embed(title='Words that rhymes with '+msg[int(len(splitted[0])+1):]+':', description=words, colour=discord.Colour.blue())
                         await wait.edit(content='', embed=embed)
 print('Logging in to discord...')
-client.run(os.environ['DISCORD_TOKEN'])
+client.run(fetchdata['DISCORD_TOKEN'])

@@ -1,6 +1,6 @@
 import random
 import base64
-from urllib import requests.urlopen as getapi
+from urllib.request import urlopen as getapi
 from json import loads as jsonify
 from requests import get as decodeurl
 prefix = '>'
