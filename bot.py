@@ -5,7 +5,6 @@ import splashes
 import inspect
 
 print('Please wait...')
-import json
 import pokebase as pb
 import youtube_dl
 import datetime
@@ -13,13 +12,11 @@ latest_update = datetime.datetime.now()
 import os
 import discord
 import wikipediaapi
-import urllib
 import random
 import sys
 import imdb
 import asyncio
 import math
-import requests
 from googletrans import Translator, LANGUAGES
 gtr = Translator()
 client = discord.Client()
@@ -95,7 +92,7 @@ async def on_message(message):
                 await message.channel.send(f'```{myself.encodeb64(toencode)}```')
         if msg.startswith(prefix+'ufo'):
             num = str(random.randint(50, 100))
-            data = json.loads(urllib.request.urlopen('http://ufo-api.herokuapp.com/api/sightings/search?limit='+num).read())
+            data = myself.api('http://ufo-api.herokuapp.com/api/sightings/search?limit='+num)
             if data['status']!='OK':
                 await message.channel.send('There was a problem on retrieving the info.\nThe server said: "'+str(data['status'])+'" :eyes:')
             else:
@@ -195,7 +192,6 @@ async def on_message(message):
                     else:
                         randomppl = random.choice(message.guild.members).id
                         if splitted[1]=='--ch':
-                            # ummm
                             try:
                                 ch = client.get_channel(int(splitted[2][2:][:-1]))
                                 await ch.send(msg[int(len(splitted[0])+len(splitted[1])+len(splitted[2])+3):].replace('@someone', '<@'+str(randomppl)+'>').replace('@owner', '<@'+str(message.guild.owner.id)+'>'))
@@ -215,8 +211,7 @@ async def on_message(message):
                 await message.channe.send('...')
         if msg.startswith(prefix+'hangman'):
             wait = await message.channel.send('Please wait... generating... :flushed:')
-            response = urllib.request.urlopen("https://random-word-api.herokuapp.com/word?number=1")
-            the_word = json.loads(response.read())[0]
+            the_word = myself.api("https://random-word-api.herokuapp.com/word?number=1")
             main_guess_cor = list(the_word)
             main_guess_hid = []
             server_id = message.guild.id
@@ -328,7 +323,6 @@ async def on_message(message):
                                             del can_used[j]
                                             break
                                     break
-                            # BOT ACTION
                             bot_select = ''
                             while bot_select=='' and len(can_used)>1:
                                 bot_select = random.choice(can_used)
@@ -379,7 +373,6 @@ async def on_message(message):
         if msg.startswith(prefix+'guessavatar'):
             if len(message.guild.members)>500:
                 await message.channel.send('Sorry, to protect some people\'s privacy, this command is not available for Large servers. (over 500 members)')
-            else: #getting data from guild
                 wait = await message.channel.send('Please wait... generating question...\nThis process may take longer if your server has more members.')
                 avatarAll = []
                 nameAll = []
@@ -390,20 +383,18 @@ async def on_message(message):
                 if len(avatarAll)<=4:
                     await message.channel.send('Too less online members! :x:')
                 else:
-                    # randomization time!
                     numCorrect = random.randint(0, len(avatarAll)-1)
-                    corr_avatar = avatarAll[numCorrect] # avatar to be shown on question
-                    corr_name = nameAll[numCorrect] # correct answer
-                    nameAll.remove(corr_name) # remove correct answer from array
+                    corr_avatar = avatarAll[numCorrect]
+                    corr_name = nameAll[numCorrect]
+                    nameAll.remove(corr_name)
                     wrongArr = []
-                    for i in range(0, 3): # randomly select random name as wrong answers
+                    for i in range(0, 3):
                         wrongArr.append(random.choice(nameAll))
-                    # sub-question/before creating the embed
                     abcs = list('ABCD')
                     randomInt = random.randint(0, 3)
                     corr_order = random.choice(abcs[randomInt])
                     abcs[randomInt] = '0'
-                    question = '' # the actual choose
+                    question = ''
                     chooseCount = 0
                     for assign in abcs:
                         if assign!='0':
@@ -415,7 +406,6 @@ async def on_message(message):
                     embed.set_footer(text='For privacy reasons, the people displayed above are online users.')
                     embed.set_image(url=corr_avatar)
                     await wait.edit(content='', embed=embed)
-                    # begin ticking
                     def is_correct(m):
                         return m.author == message.author
                     try:
@@ -429,8 +419,7 @@ async def on_message(message):
                         await message.channel.send('<@'+str(authorTag)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
         if msg.startswith(prefix+'geoquiz'):
             wait = await message.channel.send('Please wait... generating question...')
-            response = urllib.request.urlopen("https://restcountries.eu/rest/v2/")
-            data = json.loads(response.read())
+            data = myself.insp("https://restcountries.eu/rest/v2/")
             topic = random.choice(splashes.getGeoQuiz())
             chosen_nation_num = random.randint(0, len(data))
             chosen_nation = data[chosen_nation_num]
@@ -557,8 +546,7 @@ async def on_message(message):
                     try:
                         levelid = str(splitted[1])
                         toEdit = await message.channel.send("Retrieving Data...")
-                        response = urllib.request.urlopen("https://gdbrowser.com/api/level/"+str(levelid))
-                        data = json.loads(response.read())
+                        data = myself.api("https://gdbrowser.com/api/level/"+str(levelid))
                         image = 'https://gdbrowser.com/icon/'+data["author"]
                         embed = discord.Embed(
                             title = data["name"]+' ('+str(data["id"])+')',
@@ -581,7 +569,7 @@ async def on_message(message):
             else:
                 try:
                     query = msg[int(len(splitted[0])+1):].replace(' ', '%20')
-                    data = json.loads((urllib.request.urlopen('https://gdbrowser.com/api/search/'+str(query))).read())
+                    data = myself.api('https://gdbrowser.com/api/search/'+str(query)))
                     levels = ''
                     count = 0
                     for i in range(0, len(data)):
@@ -824,7 +812,7 @@ async def on_message(message):
                         reas = 'Unspecified by kicker.'
                     else:
                         reas = msg[int(len(splitted[1])+len(splitted[0])+2):]
-                    await message.guild.kick(idiot, reason=str(reas)) #BYE BYE IDIOT!!!
+                    await message.guild.kick(idiot, reason=str(reas))
                     await message.channel.send(random.choice(msgs))
                 else:
                     await message.channel.send(':x: Kick declined by Username601.')
@@ -944,7 +932,7 @@ async def on_message(message):
                     embed.set_footer(text='Type '+prefix+'imdb --'+str(main_name.lower())+' {'+main_name+'_ID} to show each info.')
                 await wait.edit(content='', embed=embed)
         if msg.startswith(prefix+'dogfact'):
-            fact = json.loads((urllib.request.urlopen('https://dog-api.kinduff.com/api/facts')).read())
+            fact = myself.api('https://dog-api.kinduff.com/api/facts')
             if fact['success']!=True:
                 desc = 'Error getting the fact.'
             else:
@@ -972,7 +960,7 @@ async def on_message(message):
             embed.set_image(url='https://picsum.photos/'+str(random.choice(width)))
             await message.channel.send(embed=embed)
         if splitted[0]==prefix+'food' or splitted[0]==prefix+'coffee':
-            data = requests.get('https://nekobot.xyz/api/image?type='+str(splitted[0][1:])).text
+            data = myself.insp('https://nekobot.xyz/api/image?type='+str(splitted[0][1:]))
             link = data.split('"message":"')[1].split('"')[0]
             if splitted[0].endswith('food'):
                 col = int(data.split('"color":')[1].split(',')[0])
@@ -984,13 +972,13 @@ async def on_message(message):
             embed.set_image(url=link.replace('\/', '/'))
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'fox'):
-            img = requests.get('https://randomfox.ca/floof/?ref=apilist.fun').text.split('"image":"')[1].split('"')[0].replace('\/', '/')
+            img = myself.insp('https://randomfox.ca/floof/?ref=apilist.fun').split('"image":"')[1].split('"')[0].replace('\/', '/')
             embed = discord.Embed(colour=discord.Colour.red())
             embed.set_image(url=img)
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'newemote'):
-            data = requests.get('https://discordemoji.com/')
-            byEmote = data.text.split('<div class="float-right"><a href="')
+            data = myself.api('https://discordemoji.com/')
+            byEmote = data.split('<div class="float-right"><a href="')
             del byEmote[0]
             alls = []
             for i in range(0, len(byEmote)):
@@ -1001,7 +989,7 @@ async def on_message(message):
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'steam'):
             getprof = msg[7:].replace(' ', '%20')
-            data = requests.get('https://api.alexflipnote.dev/steam/user/'+str(getprof))
+            data = myself.insp('https://api.alexflipnote.dev/steam/user/'+str(getprof))
             if '<title>404 Not Found</title>' in data.text:
                 await message.channel.send('Error **404**! `not found...`')
             else:
@@ -1037,8 +1025,8 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'funfact'):
             wait = await message.channel.send('Please wait...')
-            data = requests.get('https://bestlifeonline.com/random-fun-facts/')
-            byFact = data.text.split('<div class="title ">')
+            data = myself.insp('https://bestlifeonline.com/random-fun-facts/')
+            byFact = data.split('<div class="title ">')
             accepted = False
             facts = []
             for a in byFact:
@@ -1056,8 +1044,8 @@ async def on_message(message):
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'googledoodle'):
             wait = await message.channel.send('Please wait... This may take a few moments...')
-            data = requests.get('https://google.com/doodles')
-            byLatest = data.text.split('<li class="latest-doodle ">')
+            data = myself.insp('https://google.com/doodles')
+            byLatest = data.split('<li class="latest-doodle ">')
             del byLatest[0]
             byTag = ''.join(byLatest).split('<')
             doodle_link = 'https://google.com'+str(byTag[3][8:].split('"\n')[0])
@@ -1120,7 +1108,7 @@ async def on_message(message):
                 else:
                     await message.channel.send("NO. "+str(splitted[1])+" can be divided by "+str(canBeDividedBy)+".")
             else:
-                await message.channel.send('OverloadInputError: Beyond the limit of 999999') #https://api.alexflipnote.dev/drake?top=text&bottom=text
+                await message.channel.send('OverloadInputError: Beyond the limit of 999999')
         if msg.startswith(prefix+'jpeg') or msg.startswith(prefix+'invert') or msg.startswith(prefix+'magik')or msg.startswith(prefix+'pixelate')or msg.startswith(prefix+'b&w'):
             if splitted[0][1:]=='jpeg':
                 com = 'jpegify'
@@ -1160,12 +1148,12 @@ async def on_message(message):
             else:
                 if '--randomfont' not in msg:
                     query = str(msg[int(len(splitted[0])+1):]).replace(' ', '%20')
-                    word = requests.get("http://artii.herokuapp.com/make?text="+query.replace('--randomfont', '')).text
+                    word = myself.insp("http://artii.herokuapp.com/make?text="+query.replace('--randomfont', ''))
                 else:
                     fonts = splashes.getAsciiFonts()
                     query = str(msg[int(len(splitted[0])+1):]).replace(' ', '%20')
                     query = query.replace('--randomfont ', '')
-                    word = requests.get("http://artii.herokuapp.com/make?text="+query.replace('--randomfont', '')+'&font='+random.choice(fonts)).text
+                    word = myself.insp("http://artii.herokuapp.com/make?text="+query.replace('--randomfont', '')+'&font='+random.choice(fonts))
                 if len(word)>1900:
                     await message.channel.send('The word is too long to be displayed!')
                 else:
@@ -1317,8 +1305,7 @@ async def on_message(message):
                 await wait.edit(content=f'Please add translations or\nType `{prefix}translate --list` for supported languages.')
         if msg.startswith(prefix+'catfact'):
             catWait = await message.channel.send('Please wait...')
-            response = urllib.request.urlopen("https://catfact.ninja/fact")
-            data = json.loads(response.read())
+            data = myself.api("https://catfact.ninja/fact")
             embed = discord.Embed(
                 title = 'Did you know;',
                 description = data["fact"],
@@ -1339,7 +1326,7 @@ async def on_message(message):
                 getreq = 'birb'
             else:
                 getreq = 'sadcat'
-            image_url = requests.get('https://api.alexflipnote.dev/'+str(getreq)).text.split('"file": "')[1].split('"')[0]
+            image_url = myself.insp('https://api.alexflipnote.dev/'+str(getreq)).split('"file": "')[1].split('"')[0]
             embed = discord.Embed(colour=discord.Colour.magenta())
             embed.set_image(url=image_url)
             await message.channel.send(embed=embed)
@@ -1389,8 +1376,7 @@ async def on_message(message):
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'ghiblifilms'):
             wait = await message.channel.send('Please wait... Getting data...')
-            response = urllib.request.urlopen('https://ghibliapi.herokuapp.com/films')
-            data = json.loads(response.read())
+            data = myself.api('https://ghibliapi.herokuapp.com/films')
             if len(splitted)==1:
                 films = ""
                 for i in range(0, int(len(data))):
@@ -1516,7 +1502,6 @@ async def on_message(message):
             await message.channel.send(str(arr))
         if msg.startswith(prefix+'gdcomment'):
             try:
-                # >gdcomment yoo i suck | vierofernando | 999
                 byI = message.content[int(len(splitted[0])+1):].split(' | ')
                 text = byI[0].replace('/', '').replace(' ', '%20')
                 num = int(byI[2])
@@ -1619,7 +1604,6 @@ async def on_message(message):
                 embed = discord.Embed(colour=discord.Colour.green())
                 embed.set_image(url='https://gdcolon.com/tools/gdlogo/img/'+str(text))
                 await message.channel.send(embed=embed)
-        # gdbox is supposed to be here :c
         if msg.startswith(prefix+'lockdown'):
             if len(splitted)!=2:
                 await message.channel.send(f'Invalid parameters. Correct Example: `{prefix}lockdown [seconds]`\nMinimum: 10, Maximum: 900')
@@ -1713,16 +1697,13 @@ async def on_message(message):
                 embed.set_image(url='https://api.alexflipnote.dev/ship?user='+str(av1).replace('webp', 'png')+'&user2='+str(av2).replace('webp', 'png'))
                 await message.channel.send(embed=embed)
         if msg==prefix+"dog":
-            link = "https://random.dog/woof.json"
-            response = urllib.request.urlopen(link)
-            data = json.loads(response.read())
+            data = myself.api("https://random.dog/woof.json")
             img = data['url']
             embed = discord.Embed(colour=discord.Colour.magenta())
             embed.set_image(url=img)
             await message.channel.send(embed=embed)
         if msg==prefix+"cat" or msg.startswith(prefix+"cats"):
-            response = urllib.request.urlopen("https://aws.random.cat/meow")
-            data = json.loads(response.read())
+            data = myself.api("https://aws.random.cat/meow")
             embed = discord.Embed(colour=discord.Colour.magenta())
             embed.set_image(url=data['file'])
             await message.channel.send(embed=embed)
@@ -1770,8 +1751,7 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+"gddaily"):
             toEdit = await message.channel.send("Retrieving Data...")
-            response = urllib.request.urlopen("https://gdbrowser.com/api/level/daily")
-            data = json.loads(response.read())
+            data = myself.api("https://gdbrowser.com/api/level/daily")
             image = 'https://gdbrowser.com/icon/'+data["author"]
             embed = discord.Embed(
                 title = data["name"]+' ('+str(data["id"])+')',
@@ -1805,8 +1785,7 @@ async def on_message(message):
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+"gdweekly"):
             toEdit = await message.channel.send("Retrieving Data...")
-            response = urllib.request.urlopen("https://gdbrowser.com/api/level/weekly")
-            data = json.loads(response.read())
+            data = myself.api("https://gdbrowser.com/api/level/weekly")
             image = 'https://gdbrowser.com/icon/'+data["author"]
             embed = discord.Embed(
                 title = data["name"]+' ('+str(data["id"])+')',
@@ -1829,8 +1808,7 @@ async def on_message(message):
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+"gdprofile"):
             url = msg[11:].replace(" ", "%20")
-            response = urllib.request.urlopen("https://gdbrowser.com/api/profile/"+url)
-            data = json.loads(response.read())
+            data = myself.api("https://gdbrowser.com/api/profile/"+url)
             embed = discord.Embed(
                 title = data["username"],
                 description = 'Displays user data for '+data["username"]+'.',
@@ -1960,7 +1938,6 @@ async def on_message(message):
                     hexCode = splitted[1]
                     continuing = True
             if continuing==True:
-                #CONVERT TO DECIMAL
                 rgb = myself.convertrgb(hexCode, '0')
                 percentageRgb = myself.convertrgb(hexCode, '1')
                 colorInt = int(hexCode, 16)
@@ -1980,10 +1957,7 @@ async def on_message(message):
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+"country"):
             country = msg[9:].replace(" ", "%20")
-            link = "https://restcountries.eu/rest/v2/name/"+str(country.lower())
-            print(link)
-            response = urllib.request.urlopen(link)
-            c = json.loads(response.read())
+            c = myself.api("https://restcountries.eu/rest/v2/name/"+str(country.lower()))
             embed = discord.Embed(
                 title = c[0]['nativeName'],
                 description = '**Capital:** '+str(c[0]['capital'])+'\n**Region: **'+str(c[0]['region'])+'\n**Sub Region: **'+str(c[0]['subregion'])+"\n**Population: **"+str(c[0]['population'])+"\n**Area: **"+str(c[0]['area'])+' km²\n**Time Zones:** '+str(c[0]['timezones'])+'\n**Borders: **'+str(c[0]['borders']),
@@ -1992,7 +1966,6 @@ async def on_message(message):
             embed.set_author(name=c[0]['name'])
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'commands') or msg.startswith(prefix+'help'):
-            #commands sucks.
             if len(splitted)==1:
                 commandos = ''
                 for i in range(0, len(cmdtypes)):
@@ -2029,8 +2002,7 @@ async def on_message(message):
             embed = discord.Embed(title='Support by Voting us at top.gg!', description='Umm, ya like this bot? err... sure thing dude! [Vote us at top.gg by clicking me!](https://top.gg/bot/696973408000409626/vote)', colour=discord.Colour.blue())
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'time') or msg.startswith(prefix+'utc'):
-            response = urllib.request.urlopen("http://worldtimeapi.org/api/timezone/africa/accra")
-            data = json.loads(response.read())
+            data = myself.api("http://worldtimeapi.org/api/timezone/africa/accra")
             year = str(data["utc_datetime"])[:-28]
             time = str(data["utc_datetime"])[:-22]
             date = str(data["utc_datetime"])[:-13]
@@ -2050,8 +2022,7 @@ async def on_message(message):
             )
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'joke') or msg.startswith(prefix+'jokes'):
-            response = urllib.request.urlopen("https://official-joke-api.appspot.com/jokes/general/random")
-            data = json.loads(response.read())
+            data = myself.api("https://official-joke-api.appspot.com/jokes/general/random")
             embed = discord.Embed(
                 title = str(data[0]["setup"]),
                 description = '||'+str(data[0]["punchline"])+'||',
@@ -2094,7 +2065,7 @@ async def on_message(message):
             if msg.startswith(prefix+'median'):
                 if len(numArray)%2==0:
                     first = int(len(numArray))/2
-                    second = int(first) # 1 2 3 4
+                    second = int(first)
                     first = int(first)-1
                     result = int(int(numArray[first])+int(numArray[second]))/2
                 else:
@@ -2140,10 +2111,7 @@ async def on_message(message):
             await message.channel.send(random.choice(array))
         if msg.startswith(prefix+'search'):
             query = msg[8:].replace(" ", "%20")
-            embed = discord.Embed(
-                title = 'Internet Searches for '+str(msg[8:]),
-                color = 0xff0000
-            ) # https://en.wikipedia.org/w/index.php?cirrusUserTesting=control&search=adasdssdasasd&title=Special%3ASearch&go=Go&ns0=1
+            embed = discord.Embed(title = 'Internet Searches for '+str(msg[8:]), color = 0xff0000)
             embed.add_field(name='Google Search', value='http://google.com/search?q='+str(query))
             embed.add_field(name='YouTube results', value='http://youtube.com/results?q='+str(query))
             embed.add_field(name='Wikipedia search', value='https://en.wikipedia.org/w/index.php?cirrusUserTesting=control&search='+str(query)+'&title=Special%3ASearch&go=Go&ns0=1')
@@ -2215,20 +2183,17 @@ async def on_message(message):
             await message.channel.send("**With Spaces:** "+str(withSpaces)+"\n**Without Spaces:**"+str(withoutSpaces))
         if msg.startswith(prefix+'randomword'):
             toEdit = await message.channel.send('Please wait...')
-            response = urllib.request.urlopen("https://random-word-api.herokuapp.com/word?number=1")
-            data = json.loads(response.read())
+            data = myself.api("https://random-word-api.herokuapp.com/word?number=1")
             await toEdit.edit(content=str(data[0]))
         if msg.startswith(prefix+'inspirobot'):
-            url = 'https://inspirobot.me/api?generate=true'
-            img = requests.get(url)
+            img = myself.insp('https://inspirobot.me/api?generate=true')
             embed = discord.Embed(
                 colour = 0xff0000
             )
-            embed.set_image(url=str(img.text))
+            embed.set_image(url=str(img))
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'meme'):
-            response = urllib.request.urlopen("https://meme-api.herokuapp.com/gimme")
-            data = json.loads(response.read())
+            data = myself.api("https://meme-api.herokuapp.com/gimme")
             embed = discord.Embed(
                 colour = 0x00ff00
             )
@@ -2261,12 +2226,10 @@ async def on_message(message):
                 else:
                     await message.channel.send(f'```{myself.bin(text)}```')
         if msg.startswith(prefix+'bored'):
-            response = urllib.request.urlopen("https://www.boredapi.com/api/activity?participants=1")
-            data = json.loads(response.read())
+            data = myself.api("https://www.boredapi.com/api/activity?participants=1")
             await message.channel.send('**Feeling bored?**\nWhy don\'t you '+str(data['activity'])+'? :wink::ok_hand:')
         if msg.startswith(prefix+'8ball'):
-            response = urllib.request.urlopen("https://yesno.wtf/api")
-            data = json.loads(response.read())
+            data = myself.api("https://yesno.wtf/api")
             if data['answer']=='no':
                 colorhex = discord.Colour.red()
             else:
@@ -2379,7 +2342,6 @@ async def on_message(message):
                     embed.set_image(url='http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data='+str(msg[int(len(splitted[0])+1):]).replace(' ', '%20'))
                     await message.channel.send(embed=embed)
         if msg.startswith(prefix+'weather'):
-            # site: wttr.in/Jakarta.png?m
             if len(splitted)==1:
                 await message.channel.send(f'Please send a **City name!**\nExample: `{prefix}weather New York`')
             else:
@@ -2400,7 +2362,7 @@ async def on_message(message):
             )
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'quote'):
-            data = requests.get('https://quotes.herokuapp.com/libraries/math/random').text
+            data = myself.insp('https://quotes.herokuapp.com/libraries/math/random')
             text = data.split(' -- ')[0]
             quoter = data.split(' -- ')[1]
             embed = discord.Embed(title='Quotes', description=text+'\n\n - '+quoter+' - ', colour=discord.Colour.blue())
@@ -2409,7 +2371,7 @@ async def on_message(message):
             try:
                 wait = await message.channel.send('Please wait... generating quiz...')
                 auth = message.author
-                data = json.loads(urllib.request.urlopen('https://wiki-quiz.herokuapp.com/v1/quiz?topics=Science').read())
+                data = myself.api('https://wiki-quiz.herokuapp.com/v1/quiz?topics=Science').read())
                 q = random.choice(data['quiz'])
                 choices = ''
                 for i in range(0, len(q['options'])):
@@ -2437,7 +2399,7 @@ async def on_message(message):
                 await message.channel.send('Please input a word! And we will try to find the word that best rhymes with it.')
             else:
                 wait = await message.channel.send('Please wait... Searching...')
-                data = json.loads(urllib.request.urlopen('https://rhymebrain.com/talk?function=getRhymes&word='+str(msg[int(len(splitted[0])+1):]).replace(' ', '%20')).read())
+                data = myself.api('https://rhymebrain.com/talk?function=getRhymes&word='+str(msg[int(len(splitted[0])+1):]).replace(' ', '%20'))
                 words = ''
                 if len(data)<1:
                     await wait.edit(content='We did not find any rhyming words corresponding to that letter.')

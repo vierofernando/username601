@@ -1,9 +1,18 @@
 import random
 import base64
+from urllib import requests.urlopen as getapi
+from json import loads as jsonify
+from requests import get as decodeurl
 prefix = '>'
 cmdtypes = ['Bot help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps']
 bot_ver = '1.9.6b'
 bot_changelog = 'Memes and images category are now seperated.'
+
+def api(url):
+    return jsonify(getapi(url).read())
+
+def insp(url):
+    return decodeurl(url).text
 
 def randomhash():
     hashh = ''
