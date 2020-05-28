@@ -11,6 +11,7 @@ About the source code files:
  - ```index.html``` **Main website homepage source code**
  - ```commands.html``` **Main website commands page source code**
  - ```commands.json``` **ALL of the commands in a single json file.**
+ - ```favicon.ico``` **Website favicon icon**
  - ```./assets``` **assets folder, Like pictures to be shown on some commands.**
 
 **Links**
