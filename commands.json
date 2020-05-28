@@ -98,14 +98,6 @@
             "a":[]
         },
         {
-            "n":"rr",
-            "f":"Removes a role from a specific user.",
-            "p":[
-                "REQUIRED: rr [user tag] [role name]"
-            ],
-            "a":[]
-        },
-        {
             "n":"clear",
             "f":"Clears the channel message.",
             "p":[
@@ -787,12 +779,6 @@
             "f":"Says the length of a text (with spaces, and without)!",
             "p":["REQUIRED: length [text]"],
             "a":[]
-        },
-        {
-            "n":"qr",
-            "f":"Encodes a text in QR code!",
-            "p":["REQUIRED: qr [text]"],
-            "a":["https://api.qrserver.com/"]
         },
         {
             "n":"qr",
