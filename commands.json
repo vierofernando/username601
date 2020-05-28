@@ -3,9 +3,7 @@
         {
             "n":"help",
             "f":"Shows bot commands.",
-            "p":[
-                "OPTIONAL: help [category]"
-            ],
+            "p":[],
             "a":[]
         },
         {
@@ -86,14 +84,6 @@
             "f":"Adds a role to a specific user.",
             "p":[
                 "REQUIRED: ar [user tag] [role name]"
-            ],
-            "a":[]
-        },
-        {
-            "n":"rr",
-            "f":"Removes a role from a specific user.",
-            "p":[
-                "REQUIRED: rr [user tag] [role name]"
             ],
             "a":[]
         },
@@ -787,12 +777,6 @@
             "f":"Says the length of a text (with spaces, and without)!",
             "p":["REQUIRED: length [text]"],
             "a":[]
-        },
-        {
-            "n":"qr",
-            "f":"Encodes a text in QR code!",
-            "p":["REQUIRED: qr [text]"],
-            "a":["https://api.qrserver.com/"]
         },
         {
             "n":"qr",

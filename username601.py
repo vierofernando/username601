@@ -1,12 +1,28 @@
 import random
 import base64
+# import platform as systema
 from urllib.request import urlopen as getapi
 from json import loads as jsonify
 from requests import get as decodeurl
-prefix = '>'
+prefix = '1'
 cmdtypes = ['Bot help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps']
-bot_ver = '1.9.6b'
-bot_changelog = 'Memes and images category are now seperated.'
+bot_ver = '1.9.7b'
+bot_changelog = 'Prefix update'
+
+def findNum(word, arr):
+    for i in range(0, len(arr)):
+        if arr[i]==word:
+            return i
+            break
+
+def arrspace(arr):
+    res = ''
+    for i in range(0, len(arr)):
+        if i==len(arr)-1:
+            res += arr[i]
+        else:
+            res += arr[i] + ' '
+    return res
 
 def api(url):
     return jsonify(getapi(url).read())
@@ -36,6 +52,9 @@ def atbash(text):
         else:
             total += temp[i]
     return total
+
+#def platform():
+#    return f'**Operating System:** {systema.system()} {systema.version()}\n**Processor: **{systema.processor()}\n**Python Compiler: **{systema.python_compiler()}'
 
 def caesar(text, num):
     temp = text.lower()
@@ -81,6 +100,21 @@ def hintify(word):
     result = ''.join(temp)
     return result
 
+def dearray(arr):
+    res = ''
+    for i in range(0, len(arr)):
+        if i!=len(arr)-1:
+            res += str(arr[i]) + ', '
+        else:
+            res += str(arr[i]) + '.'
+    return res
+
+def tohex(integer):
+    return str(hex(integer)).upper()[2:]
+
+def toint(hex):
+    return int(hex, 16)
+
 def convertrgb(hexCode, typ):
     uselessArray = list(hexCode)
     part1 = str(uselessArray[0])+str(uselessArray[1])
@@ -123,6 +157,18 @@ github_object = {
             "name":"splashes.py",
             "type":"a big array code for splashes. like random messages (splashes) on your minecraft main menu."
         },
+	    {
+	        "name":"index.html",
+            "type":"main website file. (homepage)"
+        },
+	    {
+	        "name":"commands.html",
+            "type":"main website file (commands page)"
+	    },
+	    {
+	        "name":"commands.json",
+            "type":"all of the commands as a json file."
+	    },
         {
             "name":".gitignore",
             "type":"the code that ignores my git commits."            
@@ -137,12 +183,12 @@ github_object = {
 bothelp = 'vote, feedback [text], help, about, github, connections, inviteme, createbot, ping'
 maths = 'math [num] [sym] [num], factor [num], multiplication [num], sqrt [num], isprime [num], rng [num], median [array], mean [array]'
 encoding = 'atbash [word], caesar [offset] [word], base64 [word], barcode [word], ascii [word], binary [text], supreme [text], reverse [text], length [text], qr [text], leet [text], emojify [text]'
-games = 'trivia, pokequiz, guessnum, tictactoe [symbol], hangman, mathquiz, geoquiz, guessavatar, coin, dice, rock, paper, scissors, gddaily, gdweekly, gdcomment, gdbox [text], gdlogo [text], gdprofile [name], gdsearch [level name], gdlevel [level id]'
-fun = 'hack [tag], tts [text], joke, slap [tag], hbd [tag], xpbox, gaylevel [tag], lovelevel [tag], randomavatar, secret, inspirobot, meme, 8ball, deathnote, choose [array]'
+games = 'trivia, pokequiz, guessnum, bomb, tictactoe [symbol], slot, hangman, mathquiz, geoquiz, guessavatar, coin, dice, rps, gddaily, gdweekly, gdcomment, gdbox [text], gdlogo [text], gdprofile [name], gdsearch [level name], gdlevel [level id]'
+fun = 'hack [tag], tts [text], joke, slap [tag], hbd [tag], xpbox, gaylevel [tag], lovelevel [tag], randomavatar, secret, inspirobot, 8ball, deathnote, choose [array]'
 memes = 'meme, imgcaptcha, trap [tag], whowouldwin [tag1] [tag2], threat [tag], phcomment, drake help, scroll [text], call [text], challenge [text], didyoumean help, trumptweet [text], clyde [text], trash [tag], avmeme [tag] [top text] [bottom text], kannagen [text], facts [text], wonka [top text] [bottom text], buzz [top txt] [bottom txt], doge [top txt] [bottom txt], fry [top txt] [bottom txt], philosoraptor [top txt] [bottom txt], money [top txt] [bottom txt], ph help, salty [tag], wooosh [tag], captcha [text], achieve [text]'
 images = 'ship, food, coffee, wallpaper, deepfry [tag], blurpify [tag], jpeg [tag], cat, sadcat, dog, fox, bird, magik [tag], invert [tag], pixelate [tag], b&w [tag]'
-utilities = 'quote, robohash, weather [city], ufo, colorinfo [hex], rhyme [word], embed help, ss --help, catfact, dogfact, funfact, steam [profile], googledoodle, bored, search [query], randomcolor, randomword, country [name], time, newemote, ghiblifilms, ytthumbnail [link]'
-discordAPI = 'lockdown [seconds], slowmode [seconds], ar [tag] [role], rr [tag] [role], clear [count/tag], kick [tag] [reason], ban [tag] [reason], nick [tag] [new nick], makechannel [type] [name], emojiinfo [emoji], permissions [user_tag], roleinfo [tag], id [tag], getinvite, botmembers, serverinfo, servericon, avatar [tag], userinfo [tag], roles, channels, serveremojis, reactmsg [text], reactnum [num1] [num2]'
+utilities = 'quote, typingtest, robohash, weather [city], ufo, colorinfo [hex or int], rhyme [word], embed help, ss --help, catfact, dogfact, funfact, steam [profile], googledoodle, bored, search [query], randomcolor, randomword, country [name], time, newemote, ghiblifilms, ytthumbnail [link]'
+discordAPI = 'rolecolor, lockdown [seconds], slowmode [seconds], ar [tag] [role], rr [tag] [role], clear [count/tag], kick [tag] [reason], ban [tag] [reason], nick [tag] [new nick], makechannel [type] [name], emojiinfo [emoji], permissions [user_tag], roleinfo [tag], id [tag], getinvite, botmembers, serverinfo, servericon, avatar [tag], userinfo [tag], roles, channels, serveremojis, reactmsg [text], reactnum [num1] [num2]'
 apps = 'imdb, translate, wikipedia'
 commandLength = [len(bothelp.split(',')), len(maths.split(',')), len(encoding.split(',')), len(games.split(',')), len(fun.split(',')), len(utilities.split(',')), len(discordAPI.split(',')), len(memes.split(',')), len(images.split(',')), len(apps.split(','))]
 totalLength = 0
