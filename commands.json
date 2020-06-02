@@ -259,6 +259,16 @@
                 "https://quotes.herokuapp.com/libraries/math/random"
             ]
         },
+		{
+            "n":"stackoverflow / sof",
+            "f":"For desperate developers only.",
+            "p":[
+				"REQUIRED: sof [query]"
+			],
+            "a":[
+                "https://www.stackoverflow.com"
+            ]
+        },
         {
             "n":"typingtest",
             "f":"Plays a little typing test. Test how fast you can type! (don't copy and paste)",
@@ -356,12 +366,20 @@
             "a":["https://bestlifeonline.com/random-fun-facts/"]
         },
         {
-            "n":"steam",
+            "n":"steamprofile",
             "f":"Sends a steam profile information.",
             "p":[
-                "REQUIRED: steam [username]"
+                "REQUIRED: steamprofile [username]"
             ],
             "a":["https://api.alexflipnote.dev/"]
+        },
+		{
+            "n":"steamapp",
+            "f":"Sends a steam app information.",
+            "p":[
+                "REQUIRED: steamgame [app name]"
+            ],
+            "a":["https://store.steampowered.com/"]
         },
         {
             "n":"googledoodle",
@@ -985,12 +1003,6 @@
             "f":"Random caffeinated anime pics (sfw tho, don't worry)",
             "p":[],
             "a":["https://nekobot.xyz/"]
-        },
-        {
-            "n":"wallpaper",
-            "f":"Random 'wallpaper', idk what this means.",
-            "p":[],
-            "a":["https://picsum.photos/"]
         },
         {
             "n":"deepfry",

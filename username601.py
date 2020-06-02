@@ -5,7 +5,7 @@ from urllib.request import urlopen as getapi
 from json import loads as jsonify
 from requests import get as decodeurl
 prefix = '1'
-cmdtypes = ['Bot help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps']
+cmdtypes = ['Bot Help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps']
 bot_ver = '1.9.7b'
 bot_changelog = 'Prefix update'
 
@@ -24,6 +24,8 @@ def arrspace(arr):
             res += arr[i] + ' '
     return res
 
+def jsonisp(url):
+    return decodeurl(url).json()
 def api(url):
     return jsonify(getapi(url).read())
 
@@ -180,21 +182,6 @@ github_object = {
     ]
 }
 
-bothelp = 'vote, feedback [text], help, about, github, connections, inviteme, createbot, ping'
-maths = 'math [num] [sym] [num], factor [num], multiplication [num], sqrt [num], isprime [num], rng [num], median [array], mean [array]'
-encoding = 'atbash [word], caesar [offset] [word], base64 [word], barcode [word], ascii [word], binary [text], supreme [text], reverse [text], length [text], qr [text], leet [text], emojify [text]'
-games = 'trivia, pokequiz, guessnum, bomb, tictactoe [symbol], slot, hangman, mathquiz, geoquiz, guessavatar, coin, dice, rps, gddaily, gdweekly, gdcomment, gdbox [text], gdlogo [text], gdprofile [name], gdsearch [level name], gdlevel [level id]'
-fun = 'hack [tag], tts [text], joke, slap [tag], hbd [tag], xpbox, gaylevel [tag], lovelevel [tag], randomavatar, secret, inspirobot, 8ball, deathnote, choose [array]'
-memes = 'meme, imgcaptcha, trap [tag], whowouldwin [tag1] [tag2], threat [tag], phcomment, drake help, scroll [text], call [text], challenge [text], didyoumean help, trumptweet [text], clyde [text], trash [tag], avmeme [tag] [top text] [bottom text], kannagen [text], facts [text], wonka [top text] [bottom text], buzz [top txt] [bottom txt], doge [top txt] [bottom txt], fry [top txt] [bottom txt], philosoraptor [top txt] [bottom txt], money [top txt] [bottom txt], ph help, salty [tag], wooosh [tag], captcha [text], achieve [text]'
-images = 'ship, food, coffee, wallpaper, deepfry [tag], blurpify [tag], jpeg [tag], cat, sadcat, dog, fox, bird, magik [tag], invert [tag], pixelate [tag], b&w [tag]'
-utilities = 'quote, typingtest, robohash, weather [city], ufo, colorinfo [hex or int], rhyme [word], embed help, ss --help, catfact, dogfact, funfact, steam [profile], googledoodle, bored, search [query], randomcolor, randomword, country [name], time, newemote, ghiblifilms, ytthumbnail [link]'
-discordAPI = 'rolecolor, lockdown [seconds], slowmode [seconds], ar [tag] [role], rr [tag] [role], clear [count/tag], kick [tag] [reason], ban [tag] [reason], nick [tag] [new nick], makechannel [type] [name], emojiinfo [emoji], permissions [user_tag], roleinfo [tag], id [tag], getinvite, botmembers, serverinfo, servericon, avatar [tag], userinfo [tag], roles, channels, serveremojis, reactmsg [text], reactnum [num1] [num2]'
-apps = 'imdb, translate, wikipedia'
-commandLength = [len(bothelp.split(',')), len(maths.split(',')), len(encoding.split(',')), len(games.split(',')), len(fun.split(',')), len(utilities.split(',')), len(discordAPI.split(',')), len(memes.split(',')), len(images.split(',')), len(apps.split(','))]
-totalLength = 0
-for i in range(0, len(commandLength)):
-    totalLength += int(commandLength[i])
-
 def bin(text):
     result = " ".join(f"{ord(i):08b}" for i in text) # THANKS STACK OVERFLOW! UWU
     return result.replace(' ', '')
@@ -204,16 +191,3 @@ def encodeb64(text):
     base64_bytes = base64.b64encode(message_bytes)
     base64_message = base64_bytes.decode('ascii')
     return base64_message # yes. copy-pasted i know. #EPICDEVELOPER2020
-
-ordertypes = [
-    '**Bot help ('+str(commandLength[0])+')**\n```'+str(bothelp)+'```',
-    '**Moderation ('+str(commandLength[6])+')**\n```'+str(discordAPI)+'```',
-    '**Utilities ('+str(commandLength[5])+')**\n```'+str(utilities)+'```',
-    '**Math ('+str(commandLength[1])+')**\n```'+str(maths)+'```',
-    '**Fun ('+str(commandLength[4])+')**\n```'+str(fun)+'```',
-    '**Games ('+str(commandLength[3])+')**\n```'+str(games)+'```',
-    '**Encoding ('+str(commandLength[2])+')**\n```'+str(encoding)+'```',
-    '**Memes ('+str(commandLength[7])+')**\n```'+str(memes)+'```',
-    '**Images ('+str(commandLength[8])+')**\n```'+str(images)+'```',
-    '**Apps ('+str(commandLength[9])+')**\n```'+str(apps)+'```'
-]

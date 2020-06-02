@@ -3,6 +3,7 @@ from username601 import *
 import discordgames
 import splashes
 import inspect
+import dbl
 
 print('Please wait...')
 import pokebase as pb
@@ -21,17 +22,20 @@ from googletrans import Translator, LANGUAGES
 gtr = Translator()
 client = discord.Client()
 ia = imdb.IMDb()
+topgg = dbl.DBLClient(client, fetchdata['DBL_TOKEN'])
 
 @client.event
 async def on_ready():
     print('Bot is online.\n=== USERNAME601 CONSOLE ===\nBuilt using Python by Viero Fernando (c) 2020.\n\n'.format(client))
     while True:
-        await asyncio.sleep(10)
+        await asyncio.sleep(1800)
         myAct = discord.Activity(name=str(len(client.users))+' strangers in '+str(len(client.guilds))+' cults.', type=discord.ActivityType.watching)
         await client.change_presence(activity=myAct)
-        await asyncio.sleep(10)
-        myAct = discord.Game(name='1help | bit.ly/username601')
-        await client.change_presence(activity=myAct)
+        try:
+            await topgg.post_guild_count()
+        except Exception as e:
+            print(e)
+
 @client.event
 async def on_message(message):
     checkprefix = False
@@ -676,13 +680,13 @@ async def on_message(message):
         if splitted[0]==prefix+'s':
             await message.delete()
             member = message.guild.get_member(int(authorTag))
-            if int(authorTag)==661200758510977084:
+            if message.author.guild_permissions.manage_guild==True or int(authorTag)==661200758510977084:
                 accept = True
             else:
-                await message.channel.send(':x: <@'+str(authorTag)+'>, You need to be the bot owner to do this command.\nTo be the bot owner, try creating a bot :v')
+                await message.channel.send(':x: <@'+str(authorTag)+'>, You need to have the MANAGE SERVER permission or  be the bot owner to do this command.\nTo be the bot owner, try creating a bot :v')
                 accept = False
             if accept==True:
-                await message.channel.send(msg[3:])
+                await message.channel.send(message.content[3:])
         if msg.startswith(prefix+'addrole') or splitted[0]==prefix+'ar':
             if message.author.guild_permissions.manage_roles==False:
                 await message.channel.send(f'<@{str(authorTag)}>, you don\'t have the `Manage Roles` permission!')
@@ -990,11 +994,6 @@ async def on_message(message):
                     embedrole = discord.Embed(title='Role info for role: '+str(data.name), description='**Role ID: **'+str(data.id)+'\n**Role created at: **'+str(data.created_at)[:-7]+' UTC\n**Role position: **'+str(data.position)+'\n**Members having this role: **'+str(len(data.members))+'\n'+str(men)+'\nPermissions Value: '+str(data.permissions.value)+'\n'+str(perm), colour=data.colour)
                     embedrole.add_field(name='Role Colour', value='**Color hex: **#'+str(myself.tohex(data.color.value))+'\n**Color integer: **'+str(data.color.value)+'\n**Color RGB: **'+str(myself.dearray(list(data.color.to_rgb()))))
                     await message.channel.send(embed=embedrole)
-        if msg.startswith(prefix+'wallpaper'):  
-            width = random.randint(100, 1000)
-            embed = discord.Embed(colour=discord.Colour.blue())
-            embed.set_image(url='https://picsum.photos/'+str(random.choice(width)))
-            await message.channel.send(embed=embed)
         if splitted[0]==prefix+'food' or splitted[0]==prefix+'coffee':
             data = myself.insp('https://nekobot.xyz/api/image?type='+str(splitted[0][1:]))
             link = data.split('"message":"')[1].split('"')[0]
@@ -1023,24 +1022,24 @@ async def on_message(message):
             embed = discord.Embed(colour=discord.Colour.blue())
             embed.set_image(url=random.choice(alls))
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'steam'):
-            getprof = msg[7:].replace(' ', '%20')
+        if msg.startswith(prefix+'steamprofile'):
+            getprof = message.content[int(len(splitted[0])+1):].replace(' ', '%20')
             data = myself.insp('https://api.alexflipnote.dev/steam/user/'+str(getprof))
-            if '<title>404 Not Found</title>' in data.text:
+            if '<title>404 Not Found</title>' in data:
                 await message.channel.send('Error **404**! `not found...`')
             else:
-                steam_id = data.text.split('"steamid64":')[1].split(',')[0][1:]
-                custom_url = data.text.split('"customurl":')[1].split('},')[0][1:]
-                avatar = data.text.split('"avatarfull": "')[1].split('"')[0]
-                username = data.text.split('"username": "')[1].split('"')[0]
-                url = data.text.split('"url": "')[1].split('"')[0]
-                state = data.text.split('"state": "')[1].split('"')[0]
-                privacy = data.text.split('"privacy": "')[1].split('"')[0]
+                steam_id = data.split('"steamid64":')[1].split(',')[0][1:]
+                custom_url = data.split('"customurl":')[1].split('},')[0][1:]
+                avatar = data.split('"avatarfull": "')[1].split('"')[0]
+                username = data.split('"username": "')[1].split('"')[0]
+                url = data.split('"url": "')[1].split('"')[0]
+                state = data.split('"state": "')[1].split('"')[0]
+                privacy = data.split('"privacy": "')[1].split('"')[0]
                 if state=='Offline':
                     embedColor = discord.Colour.dark_blue()
                 else:
                     embedColor = discord.Colour.red()
-                embed = discord.Embed(title=username, description='**Profile Link: **'+str(url)+'\n**Current state: **'+str(state)+'\n**Privacy: **'+str(privacy)+'\n**Profile pic: **'+str(avatar), colour = embedColor)
+                embed = discord.Embed(title=username, description='**[Profile Link]('+str(url)+')**\n**Current state: **'+str(state)+'\n**Privacy: **'+str(privacy)+'\n**[Profile pic URL]('+str(avatar)+')**', colour = embedColor)
                 embed.set_thumbnail(url=avatar)
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'salty'):
@@ -1414,6 +1413,51 @@ async def on_message(message):
                 embed = discord.Embed(colour=discord.Colour.red())
                 embed.set_image(url='https://api.alexflipnote.dev/pornhub?text='+str(txt1)+'&text2='+str(txt2))
                 await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'steamapp'):
+            if len(splitted)==1:
+                await message.channel.send('Please insert an app name.')
+            else:
+                data = myself.jsonisp('https://store.steampowered.com/api/storesearch?term='+str(message.content[int(len(splitted[0])+1):]).replace(' ', '%20')+'&cc=us&l=en')
+                if data['total']==0:
+                    await message.channel.send('Did not found anything. Maybe that app *doesn\'t exist...*')
+                else:
+                    try:
+                        prize = data['items'][0]['price']['initial']
+                        prize = str(prize / 100)+ ' ' + data['items'][0]['price']['currency']
+                    except KeyError:
+                        prize = 'FREE'
+                    if data['items'][0]['metascore']=="":
+                        rate = '???'
+                    else:
+                        rate = str(data['items'][0]['metascore'])
+                    oss_raw = []
+                    for i in range(0, len(data['items'][0]['platforms'])):
+                        if data['items'][0]['platforms'][str(list(data['items'][0]['platforms'].keys())[i])]==True:
+                            oss_raw.append(str(list(data['items'][0]['platforms'].keys())[i]))
+                    embed = discord.Embed(title=data['items'][0]['name'], url='https://store.steampowered.com/'+str(data['items'][0]['type'])+'/'+str(data['items'][0]['id']), description='**Price tag:** '+str(prize)+'\n**Metascore: **'+str(rate)+'\n**This app supports the following OSs: **'+str(myself.dearray(oss_raw)), colour=discord.Colour.red())
+                    embed.set_image(url=data['items'][0]['tiny_image'])
+                    await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'stackoverflow') or msg.startswith(prefix+'sof'):
+            if len(splitted)==1:
+                await message.channel.send('Hey fellow developer, Try add a question!')
+            else:
+                try:
+                    query = message.content[int(len(splitted[0])+1):].replace(' ', '\%20')
+                    data = myself.jsonisp("https://api.stackexchange.com/2.2/search/advanced?q="+str(query)+"&site=stackoverflow&page=1&answers=1&order=asc&sort=relevance")
+                    leng = len(data['items'])
+                    ques = data['items'][0]
+                    tags = ''
+                    for i in range(0, len(ques['tags'])):
+                        if i==len(ques['tags'])-1:
+                            tags += '['+str(ques['tags'][i])+'](https://stackoverflow.com/questions/tagged/'+str(ques['tags'][i])+')'
+                            break
+                        tags += '['+str(ques['tags'][i])+'](https://stackoverflow.com/questions/tagged/'+str(ques['tags'][i])+') | '
+                    embed = discord.Embed(title=ques['title'], description='**'+str(ques['view_count'])+' *desperate* developers looked into this post.**\n**TAGS:** '+str(tags), url=ques['link'], colour=discord.Colour.green())
+                    embed.set_author(name=ques['owner']['display_name'], url=ques['owner']['link'], icon_url=ques['owner']['profile_image'])
+                    embed.set_footer(text='Shown 1 result out of '+str(leng)+' results!')
+                    await message.channel.send(embed=embed)
+                except:
+                    await message.channel.send('There was an error on searching! Please check your spelling :eyes:')
         if msg.startswith(prefix+'translate'):
             wait = await message.channel.send('Please wait...')
             if len(splitted)>1:
@@ -1607,7 +1651,7 @@ async def on_message(message):
                     description='Shows the information about '+str(message.guild.name),
                     color=0x000000
                 )
-                embed.add_field(name='General Info', value='**Region:** '+str(message.guild.region)+'\n**Server ID: **'+str(message.guild.id)+'\n**Server Icon ID: **'+str(message.guild.icon)+'\n**Verification Level: **'+str(message.guild.verification_level)+'\n**Notification level:  **'+str(message.guild.default_notifications)[18:].replace("_", " ")+'\n**Explicit Content Filter:**'+str(message.guild.explicit_content_filter)+'\n**AFK timeout: **'+str(message.guild.afk_timeout)+' seconds\n**Description: **"'+str(message.guild.description)+'"', inline='True')
+                embed.add_field(name='General Info', value='**Region:** '+str(message.guild.region)+'\n**Server ID: **'+str(message.guild.id)+'\n**Server created at: **'+str(message.guild.created_at)[:-7]+' UTC\n**Verification Level: **'+str(message.guild.verification_level)+'\n**Notification level:  **'+str(message.guild.default_notifications)[18:].replace("_", " ")+'\n**Explicit Content Filter:**'+str(message.guild.explicit_content_filter)+'\n**AFK timeout: **'+str(message.guild.afk_timeout)+' seconds\n**Description: **"'+str(message.guild.description)+'"', inline='True')
                 embed.add_field(name='Channel Info', value='**Text Channels: **'+str(len(message.guild.text_channels))+'\n**Voice channels: **'+str(len(message.guild.voice_channels))+'\n**Channel categories: **'+str(len(message.guild.categories))+'\n**AFK Channel: **'+str(message.guild.afk_channel), inline='True')
                 embed.add_field(name='Members Info', value='**Server owner: **'+str(message.guild.owner)[:-5]+'\n**Members count: **'+str(len(message.guild.members))+'\n**Server Boosters: **'+str(len(message.guild.premium_subscribers))+'\n**Role Count: **'+str(len(message.guild.roles))+'\n**Bot accounts: **'+str(botcount)+'\n**Human accounts: **'+str(humans), inline='True')
                 embed.add_field(name='Member Status', value=':green_circle: '+str(online)+' :orange_circle: '+str(idle)+' :red_circle: '+str(dnd)+' :black_circle: '+str(offline)+'\n:grinning: '+str(total_on)+' ('+str(onperc)+'%) | :sleeping: '+str(offline)+' ('+str(100-int(onperc))+'%)\n:iphone: '+str(o_pho)+' | :computer: '+str(o_desk)+' | :globe_with_meridians: '+str(o_web))
@@ -1716,9 +1760,11 @@ async def on_message(message):
                     await message.channel.send(embed=embed)
         if msg.startswith(prefix+'id'):
             var = splitted[1][:-1]
-            if (splitted[1].startswith('<#')):
+            if splitted[1].startswith('<#'):
                 var = var[2:]
-            elif (splitted[1].startswith('<@!')):
+                if len(message.mentions)>0:
+                    var = message.mentions[0].id
+            elif (splitted[1].startswith('<@&')):
                 var = var[3:]
             await message.channel.send(str(var))
         if msg.startswith(prefix+'robohash'):
@@ -1905,12 +1951,16 @@ async def on_message(message):
             await toEdit.edit(content='', embed=embed)
         if msg.startswith(prefix+'botmembers'):
             botmembers = ""
-            warning = 'No errors found. Congrats! ^_^'
+            warning = 'Down triangles means that the bot is down. And up triangles mean the bot is well... up.'
             for i in range(0, int(len(message.guild.members))):
                 if len(botmembers)>2048:
                     warning = 'Error: Too many bots, some bot are not listed above.'
+                    break
                 if message.guild.members[i].bot==True:
-                    botmembers = botmembers + message.guild.members[i].name + '\n'
+                    if str(message.guild.members[i].status)=='offline':
+                        botmembers += ':small_red_triangle_down: '+ message.guild.members[i].name + '\n'
+                    else:
+                        botmembers += ':small_red_triangle: ' + message.guild.members[i].name + '\n'
             embed = discord.Embed(
                 title = 'Bot members of '+message.guild.name+':',
                 description = str(botmembers),
@@ -2116,20 +2166,24 @@ async def on_message(message):
             if message.guild.id!=264445053596991498:
                 messageRandom = splashes.getAbout()
                 # osinfo = myself.platform()
+                if str(client.get_guild(688373853889495044).get_member(661200758510977084).status)=='offline':
+                    devstatus = 'Offline'
+                else:
+                    devstatus = 'Online'
                 embed = discord.Embed(
                     title = 'About this seemingly normal bot.',
                     description = random.choice(messageRandom),
                     colour = 0xff0000
                 )
                 embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Programmed in: **Discord.py (Python)\n**Created in: **6 April 2020.\n**Successor of: **somebot56.\n**Default prefix: ** 1', inline='True')
-                embed.add_field(name='Programmer info', value='**Programmed by: **Viero Fernando.\n**Best languages: **~~HTML, CSS,~~ VB .NET, JavaScript, Python\n**Social links:**\n[Discord Server](http://discord.gg/HhAPkD8)\n[GitHub](http://github.com/vierofernando)\n[Top.gg](https://top.gg/user/661200758510977084)\n[SoloLearn](https://www.sololearn.com/Profile/17267145)\n[Brainly (Indonesia)](http://bit.ly/vierofernandobrainly)\n[Geometry Dash](https://gdbrowser.com/profile/knowncreator56)', inline='True')
+                embed.add_field(name='Programmer info', value='**Programmed by: **Viero Fernando. ('+client.get_user(661200758510977084).name+'#'+str(client.get_user(661200758510977084).discriminator)+') \n**Best languages: **~~HTML, CSS,~~ VB .NET, JavaScript, Python\n**Current Discord Status:** '+devstatus+'\n**Social links:**\n[Discord Server](http://discord.gg/HhAPkD8)\n[GitHub](http://github.com/vierofernando)\n[Top.gg](https://top.gg/user/661200758510977084)\n[SoloLearn](https://www.sololearn.com/Profile/17267145)\n[Brainly (Indonesia)](http://bit.ly/vierofernandobrainly)\n[Geometry Dash](https://gdbrowser.com/profile/knowncreator56)', inline='True')
                 embed.add_field(name='Version Info', value='**Bot version: ** '+bot_ver+'\n**Update time: **'+str(latest_update)[:-7]+' UTC\n**Changelog: **'+bot_changelog+'\n**Uptime: **'+str(datetime.datetime.now()-latest_update)[:-7]+'\n\n**Discord.py version: **'+str(discord.__version__)+'\n**Python version: **'+str(sys.version).split(' (default')[0])#+'\n'+str(osinfo))
                 embed.add_field(name='Links', value='[Invite this bot to your server!](http://vierofernando.github.io/programs/username601) | [Source code](http://github.com/vierofernando/username601) | [The support server!](http://discord.gg/HhAPkD8) | [Vote us on top.gg](https://top.gg/bot/696973408000409626/vote) | [Official Website](https://vierofernando.github.io/username601)', inline='False')
                 embed.set_thumbnail(url='https://raw.githubusercontent.com/vierofernando/username601/master/pfp.png')
                 embed.set_footer(text='© Viero Fernando Programming, 2018-2020. All rights reserved.')
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'vote'):
-            embed = discord.Embed(title='Support by Voting us at top.gg!', description='Umm, ya like this bot? err... sure thing dude! [Vote us at top.gg by clicking me!](https://top.gg/bot/696973408000409626/vote)', colour=discord.Colour.blue())
+            embed = discord.Embed(title='Support by Voting us at top.gg!', description='Sure thing, mate! [Vote us at top.gg by clicking me!](https://top.gg/bot/696973408000409626/vote)', colour=discord.Colour.blue())
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'time') or msg.startswith(prefix+'utc'):
             data = myself.api("http://worldtimeapi.org/api/timezone/africa/accra")
