@@ -1000,11 +1000,11 @@
         },
         {
             "n":"coffee",
-            "f":"Random caffeinated anime pics (sfw tho, don't worry)",
+            "f":"Random caffeinated picz",
             "p":[],
-            "a":["https://nekobot.xyz/"]
+            "a":["https://nekobot.xyz/", "https://www.alexflipnote.dev"]
         },
-        {
+		{
             "n":"deepfry",
             "f":"Generates the avatar deep fried!",
             "p":["REQUIRED: blurpify [user tag]"],

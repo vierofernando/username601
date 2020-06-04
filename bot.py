@@ -1,5 +1,6 @@
 import username601 as myself
 from username601 import *
+import os
 import discordgames
 import splashes
 import inspect
@@ -188,6 +189,10 @@ async def on_message(message):
                         await message.channel.send('You lose! The pokemon is **'+str(corr)+'**!')
                         gameplay = False
                         break
+        if msg.startswith(prefix+'goose'):
+            embed = discord.Embed(title='honk!', colour=discord.Colour.blue())
+            embed.set_image(url='https://source.unsplash.com/500x500/?goose')
+            await message.channel.send(embed=embed)
         if msg.startswith(prefix+'ss'):
             if len(splitted)>1:
                 if splitted[1]=='--help':
@@ -1003,6 +1008,9 @@ async def on_message(message):
             elif splitted[0].endswith('coffee'):
                 col = int(data.split('"color":')[1][:-1])
                 msgtitle = 'get caffeinated uwu'
+                num = random.randint(0, 1)
+                if num==0:
+                    link = myself.jsonisp('https://coffee.alexflipnote.dev/random.json')['file']
             embed = discord.Embed(title=msgtitle, colour=discord.Color(col))
             embed.set_image(url=link.replace('\/', '/'))
             await message.channel.send(embed=embed)
@@ -2153,15 +2161,59 @@ async def on_message(message):
             embed.set_author(name=c[0]['name'])
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'commands') or msg.startswith(prefix+'help'):
-            if message.guild.id!=264445053596991498:
-                embed = discord.Embed(
-                    title='Username601\'s commands',
-                    description='[Join the support server](https://discord.gg/HhAPkD8) | [Vote us on top.gg](https://top.gg/bot/696973408000409626/vote)\n\n**[>>> Click here for the list of ALL commands. <<<](https://vierofernando.github.io/username601/commands)**',
-                    colour=discord.Colour.dark_blue()
-                )
-                await message.channel.send(embed=embed)
+            data = myself.jsonisp("https://raw.githubusercontent.com/vierofernando/username601/master/commands.json")
+            types = ['Bot Help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps']
+            if len(splitted)==1:
+                if message.guild.id!=264445053596991498:
+                    cate = ''
+                    for i in range(0, len(types)):
+                        cate += f'**{str(i+1)}. **{prefix}help {str(types[i])}\n'
+                    embed = discord.Embed(
+                        title='Username601\'s commands',
+                        description='[Join the support server](https://discord.gg/HhAPkD8) | [Vote us on top.gg](https://top.gg/bot/696973408000409626/vote)\n\n**[More information on our website here.](https://vierofernando.github.io/username601/commands)**\n**Command Categories:** \n'+str(cate),
+                        colour=discord.Colour.dark_blue()
+                    )
+                    embed.set_footer(text=f'Type {prefix}help <command/category> for more details.')
+                    await message.channel.send(embed=embed)
+                else:
+                    await message.channel.send(embed=discord.Embed(title='Bot commands', description='[All commands are here.](https://vierofernando.github.io/username601/commands)'), colour=discord.Colour.blue())
             else:
-                await message.channel.send(embed=discord.Embed(title='Bot commands', description='[All commands are here.](https://vierofernando.github.io/username601/commands)'), colour=discord.Colour.blue())
+                source = None
+                typ = ''
+                category_name = None
+                query = msg[int(len(splitted[0])+1):]
+                for i in range(0, len(types)):
+                    if query==types[i].lower():
+                        source = data[i][types[i]]
+                        typ = 'Category'
+                        category_name = types[i]
+                        break
+                if source==None:
+                    for i in range(0, len(data)):
+                        for j in range(0, len(data[i][types[i]])):
+                            if query==data[i][types[i]][j]['n'].lower():
+                                source = data[i][types[i]][j]
+                                typ = 'Command'
+                                break
+                        if not typ=='':
+                            break
+                if source==None:
+                    await message.channel.send('Oops... Your command doesn\'t seem to exist.')
+                else:
+                    if typ=='Category':
+                        cmds = []
+                        for i in range(0, len(source)):
+                            cmds.append(source[i]['n'])
+                        cmds = myself.dearray(cmds)
+                        embed = discord.Embed(title='Category help for '+str(category_name)+':', description='**Commands:** \n```'+str(cmds)+'```', colour=discord.Colour.red())
+                    if typ=='Command':
+                        parameters = 'No parameters required.'
+                        if len(source['p'])>0:
+                            parameters = ''
+                            for i in range(0, len(source['p'])):
+                                parameters += '**'+source['p'][i]+'**\n'
+                        embed = discord.Embed(title='Command help for '+str(source['n'])+':', description='**Function: **'+str(source['f'])+'\n**Parameters:** \n'+str(parameters), colour=discord.Colour.red())
+                    await message.channel.send(embed=embed)
         if msg.startswith(prefix+'about'):
             if message.guild.id!=264445053596991498:
                 messageRandom = splashes.getAbout()
@@ -2184,6 +2236,10 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'vote'):
             embed = discord.Embed(title='Support by Voting us at top.gg!', description='Sure thing, mate! [Vote us at top.gg by clicking me!](https://top.gg/bot/696973408000409626/vote)', colour=discord.Colour.blue())
+            await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'space'):
+            embed = discord.Embed(colour=discord.Colour.dark_blue())
+            embed.set_image(url='https://source.unsplash.com/500x500/?space')
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'time') or msg.startswith(prefix+'utc'):
             data = myself.api("http://worldtimeapi.org/api/timezone/africa/accra")
