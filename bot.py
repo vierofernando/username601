@@ -13,6 +13,7 @@ import datetime
 latest_update = datetime.datetime.now()
 from os import environ as fetchdata
 import discord
+from discord.ext import commands
 import wikipediaapi
 import random
 import sys
@@ -21,7 +22,7 @@ import asyncio
 import math
 from googletrans import Translator, LANGUAGES
 gtr = Translator()
-client = discord.Client()
+client = commands.Bot(command_prefix='1')
 ia = imdb.IMDb()
 topgg = dbl.DBLClient(client, fetchdata['DBL_TOKEN'])
 
@@ -36,6 +37,10 @@ async def on_ready():
             await topgg.post_guild_count()
         except Exception as e:
             print(e)
+
+@client.command()
+async def hello(ctx):
+    await ctx.send('Hellow!')
 
 @client.event
 async def on_message(message):
