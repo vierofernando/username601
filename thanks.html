@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Thank you!</title>
+        <style>
+            body {
+                margin:0;
+                background-color: #7289da;
+            }
+            p {
+                color:white;
+                text-align:center;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            }
+            #discordbutton {
+                background: none;
+                color:white;
+                padding:5px 20px;
+                border-radius: 10px;
+                font-size:25px;
+                border: 1px solid white;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            }
+            #discordbutton:hover {
+                transition: 0.5s;
+                transform: scale(1.05);
+                background-color: white;
+                color:#7289da;
+                cursor:pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <br><br><br><br><br>
+        <p style="font-size:55px; font-weight:bold; margin:0;">Thank you for inviting Username!</p><p style="font-size:25px;" id='thanksmessage'></p>
+        <br>
+        <div style="text-align: center;">
+            <button onclick="window.open('https://vierofernando.github.io/username601/commands');" id="discordbutton">Commands</button>
+            <button onclick="window.open('https://top.gg/bot/696973408000409626/vote');" id="discordbutton">Vote us</button>
+            <button onclick="window.open('https://discord.gg/HhAPkD8');" id="discordbutton">Support Server</button>
+        </div>
+        <script>
+            var arr = [
+                "Thank you for inviting!",
+                "Joined the bot train! choo-choo!",
+                "Order coming right up!",
+                "Thank you for joining us!",
+                "The bot is being delivered to your server.",
+                "Thanks for helping us building this epic community!",
+                "You are the one!",
+                "You have chosen the right bot.",
+                "The bot you chosen is a precious one. Take care of it.",
+                "Epic bot coming right up!",
+                "The bot has been delivered to your server!",
+                "Thanks. We appreciate it.",
+                "Thank you so much. Have fun!",
+                "Have fun! :)",
+                "Your taste on discord bots is perfect."
+            ];
+            document.getElementById('thanksmessage').innerHTML = arr[Math.floor(Math.random()*arr.length)];
+        </script>
+    </body>
+</html>
