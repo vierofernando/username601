@@ -3,7 +3,10 @@
         {
             "n":"help",
             "f":"Shows bot commands.",
-            "p":[],
+            "p":[
+                "OPTIONAL: help [command name]",
+                "OPTIONAL: help [category name]"
+            ],
             "a":[]
         },
         {

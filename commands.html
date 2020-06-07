@@ -10,7 +10,7 @@
                 font-family:'Oxygen Mono', monospace;
             }
             body {margin:0;}
-            #all , #title {
+            #all , #title , #links {
                 font-family:'Open Sans', sans-serif;
             }
             .navbar {
@@ -36,12 +36,17 @@
             .main {
                 margin-left:10px;
             }
-            #cmd {
-                background-color:red;
+            #linkz {
+                border-radius:5px;
+                padding:5px;
+                background-color:#ccc;
+                cursor:pointer
             }
+            #linkz:hover {transition:0.5s; background-color:red; color:white;}
         </style>
+        <script src='main.js'></script>
     </head>
-    <body>
+    <body onload='loadCommands();'>
         <div class='navbar'>
             <button onclick='window.location.href="https://vierofernando.github.io/username601"' id='home'>home</button>
             <button onclick='window.open("http://github.com/vierofernando/username601")' id='github'>github</button>
@@ -50,8 +55,11 @@
         </div>
         <div class='main'>
             <h1 id='title'>Username601 Commands</h1>
+            <p id='links'>Loading...</p>
             <p id='all'>Loading...</p>
-            <script src='jsonparse.js'></script>
         </div>
+        <script>
+            function fastScroll(num) { document.getElementById('category'+num.toString()).scrollIntoView(); }
+        </script>
     </body>
 </html>
