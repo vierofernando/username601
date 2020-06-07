@@ -1010,7 +1010,7 @@
 		{
             "n":"deepfry",
             "f":"Generates the avatar deep fried!",
-            "p":["REQUIRED: blurpify [user tag]"],
+            "p":["REQUIRED: deepfry [user tag]"],
             "a":["https://nekobot.xyz/"]
         },
         {
