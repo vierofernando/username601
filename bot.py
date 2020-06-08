@@ -38,9 +38,9 @@ async def on_ready():
         except Exception as e:
             print(e)
 
-@client.command()
+@client.command(pass_context=True)
 async def hello(ctx):
-    await ctx.send('Hellow!')
+    await ctx.send("hello world")
 
 @client.event
 async def on_message(message):

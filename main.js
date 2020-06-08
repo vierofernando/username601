@@ -5,7 +5,7 @@ function loadCommands() {
         var links = "";
         var cmds = out;
         var total = ''
-        var libs = ['Bot Help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps'];
+        var libs = ['Bot Help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps', 'Owner'];
         var totalcount = 0;
         var elementCounter = 0;
         for (i = 0; i < cmds.length; i++) {

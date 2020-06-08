@@ -5,7 +5,7 @@ from urllib.request import urlopen as getapi
 from json import loads as jsonify
 from requests import get as decodeurl
 prefix = '1'
-cmdtypes = ['Bot Help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps']
+cmdtypes = ['Bot Help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps', 'Owner']
 bot_ver = '1.9.7c'
 bot_changelog = 'Optimized help command, Meme command is now filtered.'
 
