@@ -108,26 +108,28 @@ async def on_message(message):
                 await message.channel.send('Please send a subreddit!')
             else:
                 wait = await message.channel.send('Please wait... Searching...')
-                data = myself.api('https://www.reddit.com/r/'+str(message.content[int(len(splitted[0])+1):]).replace(' ', '%20')+'.json')
-                if len(data['data']['children'])==0:
-                    await wait.edit(content='Sorry... Your subreddit doesn\'t seem to exist!')
-                else:
-                    post = random.choice(data['data']['children'])['data']
-                    if not post['over_18']:
-                        if post['archived']==True: thecol, title = discord.Colour.magenta(), '[archived] '+post[title]
-                        else: thecol, title = discord.Colour.green(), post['title']
-                        embed = discord.Embed(title=title, timestamp=datetime.datetime.fromtimestamp(post['created']), description=post['selftext'], url='https://reddit.com'+post['permalink'], color=thecol)
-                        embed.set_author(name=post['author_fullname']+' | '+post['subreddit_name_prefixed'], url='https://reddit.com/u/'+post['author_fullname'])
-                        embed.add_field(name='Post information', value=':arrow_up: '+str(post['ups'])+' ('+str(post['upvote_ratio']*100)+'%)\n**Post type: **'+post['post_hint'].replace(':', ' '))
-                        embed.set_thumbnail(url=post['thumbnail'])
-                        embed.set_footer(text=str(post['num_comments'])+' users commented on this post.')
-                        if post["is_video"]: embed.add_field(name='Video attachment', value='[Video link here]('+post['media']['reddit_video']['scrubber_media_url'])
-                        elif post["post_hint"]=='image': embed.set_image(url=post['url'])
-                        elif post["post_hint"]=='link': embed.add_field(name='Post URL', value='[Link attachment here.]('+post['url']+')')
+                try:
+                    data = myself.api('https://www.reddit.com/r/'+str(message.content[int(len(splitted[0])+1):]).replace(' ', '%20')+'.json')
+                    if len(data['data']['children'])==0:
+                        await wait.edit(content='Sorry... Your subreddit doesn\'t seem to exist!')
                     else:
-                        embed = discord.Embed(title=post[title], description=':warning: Post is NSFW.', color=discord.Colour.red())
-                        embed.set_author(name=post['author_fullname']+' | '+post['subreddit_name_prefixed'], url='https://reddit.com/u/'+post['author_fullname'])
-                    await wait.edit(content='', embed=embed)
+                        post = random.choice(data['data']['children'])['data']
+                        if not post['over_18']:
+                            if post['archived']==True: thecol, title = discord.Colour.magenta(), '[archived] '+post[title]
+                            else: thecol, title = discord.Colour.green(), post['title']
+                            embed = discord.Embed(title=title, timestamp=datetime.datetime.fromtimestamp(post['created_utc']), description=post['selftext'], url='https://reddit.com'+post['permalink'], color=thecol)
+                            embed.set_author(name=post['author_fullname']+' | '+post['subreddit_name_prefixed'], url='https://reddit.com/u/'+post['author_fullname'])
+                            embed.add_field(name='Post information', value=':arrow_up: '+str(post['ups'])+' ('+str(post['upvote_ratio']*100)+'%) | :speech_balloon: '+str(post['num_comments'])+'\n**Post created on: **'+str(datetime.datetime.fromtimestamp(post['created_utc']))[:-7]))
+                            embed.set_thumbnail(url=post['thumbnail'])
+                            if post["is_video"]: embed.add_field(name='Video attachment', value='[Video link here]('+post['media']['reddit_video']['scrubber_media_url'])
+                            elif post["post_hint"]=='image': embed.set_image(url=post['url'])
+                            elif post["post_hint"]=='link': embed.add_field(name='Post URL', value='[Link attachment here.]('+post['url']+')')
+                        else:
+                            embed = discord.Embed(title=post[title], description=':warning: Post is NSFW.', color=discord.Colour.red())
+                            embed.set_author(name=post['author_fullname']+' | '+post['subreddit_name_prefixed'], url='https://reddit.com/u/'+post['author_fullname'])
+                        await wait.edit(content='', embed=embed)
+                except Exception as e:
+                    await wait.edit(content=f'An error occured!\n`{e}`')
         if msg.startswith(prefix+'ufo'):
             num = str(random.randint(50, 100))
             data = myself.api('http://ufo-api.herokuapp.com/api/sightings/search?limit='+num)
