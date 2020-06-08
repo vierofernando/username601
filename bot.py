@@ -548,7 +548,7 @@ async def on_message(message):
             if message.author.id==661200758510977084:
                 try:
                     user_to_send = client.get_user(int(splitted[1]))
-                    em = discord.Embed(title="Hi, "+user_to_send.name+", the bot owner sent a response for your feedback.", description=str(message.content[int(len(splitted[0])+len(splitted[1])+2):]), colour=discord.Colour.green())
+                    em = discord.Embed(title="Hi, "+user_to_send.name+"! the bot owner sent a response for your feedback.", description=str(message.content[int(len(splitted[0])+len(splitted[1])+2):]), colour=discord.Colour.green())
                     em.set_footer(text="Feeling unsatisfied? Then join our support server! (discord.gg/HhAPkD8)")
                     await user_to_send.send(embed=em)
                     await message.add_reaction('✅')
@@ -566,7 +566,7 @@ async def on_message(message):
                     fb = message.content[int(len(splitted[0])+1):]
                     feedbackCh = client.get_channel(706459051034279956)
                     await feedbackCh.send('<@661200758510977084>, User with ID: '+str(message.author.id)+' sent a feedback: **"'+str(fb)+'"**')
-                    embed = discord.Embed(title='Feedback Successful', description='Thanks for the feedback!\nIf issue still continue, [Please join our support server](https://discord.gg/HhAPkD8) and give us more details.',colour=discord.Colour.green())
+                    embed = discord.Embed(title='Feedback Successful', description='Thanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.](https://discord.gg/HhAPkD8)',colour=discord.Colour.green())
                     await message.channel.send(embed=embed)
                 except:
                     await message.channel.send('Error: There was an error while sending your feedback. Sorry! :(')
@@ -1402,15 +1402,10 @@ async def on_message(message):
                 await message.channel.send('New invite created! Link: **'+str(serverinvite)+'**')
         if msg.startswith(prefix+'avatar'):
             try:
-                if len(splitted)==1:
-                    user = client.get_user(int(authorTag))
-                elif len(splitted)==2:
-                    if splitted[1].startswith('<@!'):
-                        user = client.get_user(int(splitted[1][3:][:-1]))
-                    else:
-                        user = client.get_user(int(splitted[1][2:][:-1]))
+                if len(message.mentions)==0: user = message.author
+                else: user = message.mentions[0]
                 embed = discord.Embed(title=user.name+'\'s avatar', colour = discord.Colour.dark_blue())
-                embed.set_image(url=user.avatar_url)
+                embed.set_image(url=str(user.avatar_url).replace('.webp', '.png'))
                 await message.channel.send(embed=embed)
             except:
                 await message.channel.send('Invalid avatar. :rage:')
