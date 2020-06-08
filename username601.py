@@ -6,8 +6,8 @@ from json import loads as jsonify
 from requests import get as decodeurl
 prefix = '1'
 cmdtypes = ['Bot Help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps']
-bot_ver = '1.9.7b'
-bot_changelog = 'Prefix update'
+bot_ver = '1.9.7c'
+bot_changelog = 'Optimized help command, Meme command is now filtered.'
 
 def findNum(word, arr):
     for i in range(0, len(arr)):

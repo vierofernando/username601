@@ -544,6 +544,18 @@ async def on_message(message):
                             await message.channel.send(random.choice(msgs))
                         except:
                             await message.channel.send(':thinking: There was an error on banning '+criminal.name+'.')
+        if msg.startswith(prefix+'rp'):
+            if message.author.id==661200758510977084:
+                try:
+                    user_to_send = client.get_user(int(splitted[1]))
+                    em = discord.Embed(title="Hi, "+user_to_send.name+", the bot owner sent a response for your feedback.", description=str(message.content[int(len(splitted[0])+len(splitted[1])+2):]), colour=discord.Colour.green())
+                    em.set_footer(text="Feeling unsatisfied? Then join our support server! (discord.gg/HhAPkD8)")
+                    await user_to_send.send(embed=em)
+                    await message.add_reaction('✅')
+                except Exception as e:
+                    await message.channel.send(f'Error: `{e}`')
+            else:
+                await message.channel.send('You are not the bot owner.')
         if msg.startswith(prefix+'feedback'):
             if len(splitted)<2:
                 await message.channel.send('Where\'s the feedback? :(')
@@ -551,9 +563,9 @@ async def on_message(message):
                 await message.channel.send('That\'s too long! Please provide a simpler description.')
             else:
                 try:
-                    fb = msg[int(len(splitted[0])+1):]
+                    fb = message.content[int(len(splitted[0])+1):]
                     feedbackCh = client.get_channel(706459051034279956)
-                    await feedbackCh.send(str(message.author)+' (ID: '+str(message.author.id)+') sent a feedback: **"'+str(fb)+'"**')
+                    await feedbackCh.send('<@661200758510977084>, User with ID: '+str(message.author.id)+' sent a feedback: **"'+str(fb)+'"**')
                     embed = discord.Embed(title='Feedback Successful', description='Thanks for the feedback!\nIf issue still continue, [Please join our support server](https://discord.gg/HhAPkD8) and give us more details.',colour=discord.Colour.green())
                     await message.channel.send(embed=embed)
                 except:
@@ -2443,7 +2455,10 @@ async def on_message(message):
                 colour = 0x00ff00
             )
             embed.set_author(name=data["title"], url=data["postLink"])
-            embed.set_image(url=data["url"])
+            if data["nsfw"]:
+                embed.set_footer(text='WARNING: IMAGE IS NSFW.')
+            else:
+                embed.set_image(url=data["url"])
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'atbash'):
             if len(splitted)<2:
