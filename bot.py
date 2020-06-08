@@ -104,39 +104,40 @@ async def on_message(message):
                 toencode = message.content[int(len(splitted[0])+1):]
                 await message.channel.send(f'```{myself.encodeb64(toencode)}```')
         if msg.startswith(prefix+'reddit'):
-            if len(splitted)==1:
-                await message.channel.send('You seemed lost. Please try `'+prefix+'help reddit`.')
-            else:
-                wait = await message.channel.send('Please wait... Searching...')
-                try:
-                    if splitted[1]=='--top':
-                        data = myself.api('https://www.reddit.com/r/'+str(message.content[int(len(splitted[0])+len(splitted[1])+2):]).replace(' ', '%20')+'/top.json')
-                    elif splitted[1]=='--rising':
-                        data = myself.api('https://www.reddit.com/r/'+str(message.content[int(len(splitted[0])+len(splitted[1])+2):]).replace(' ', '%20')+'/rising.json')
-                    elif splitted[1]=='--hot':
-                        data = myself.api('https://www.reddit.com/r/'+str(message.content[int(len(splitted[0])+len(splitted[1])+2):]).replace(' ', '%20')+'/hot.json')
-                    else:
-                        data = myself.api('https://www.reddit.com/r/'+str(message.content[int(len(splitted[0])+1):]).replace(' ', '%20')+'.json')
-                    if len(data['data']['children'])==0:
-                        await wait.edit(content='Sorry... Your subreddit doesn\'t seem to exist!')
-                    else:
-                        post = random.choice(data['data']['children'])['data']
-                        if not post['over_18']:
-                            if post['archived']==True: thecol, title = discord.Colour.magenta(), '[archived] '+post[title]
-                            else: thecol, title = discord.Colour.green(), post['title']
-                            embed = discord.Embed(title=title, timestamp=datetime.datetime.fromtimestamp(post['created_utc']), description=post['selftext'], url='https://reddit.com'+post['permalink'], color=thecol)
-                            embed.set_author(post['subreddit_name_prefixed'], url='https://reddit.com'+post['subreddit_name_prefixed'])
-                            embed.add_field(name='Post information', value=':arrow_up: '+str(post['ups'])+' ('+str(round(post['upvote_ratio']*100))+'%) | :speech_balloon: '+str(post['num_comments'])+'\n**Post created on: **'+str(datetime.datetime.fromtimestamp(post['created_utc'])))
-                            embed.set_thumbnail(url=post['thumbnail'])
-                            if post["is_video"]: embed.add_field(name='Video attachment', value='[Video link here]('+post['media']['reddit_video']['scrubber_media_url']+')')
-                            elif post["post_hint"]=='image': embed.set_image(url=post['url'])
-                            elif post["post_hint"]=='link': embed.add_field(name='Post URL', value='[Link attachment here.]('+post['url']+')')
-                        else:
-                            embed = discord.Embed(title=post[title], description=':warning: Post is NSFW.', color=discord.Colour.red())
-                            embed.set_author(post['subreddit_name_prefixed'])
-                        await wait.edit(content='', embed=embed)
-                except Exception as e:
-                    await wait.edit(content=f'An error occured!\n`{e}`')
+            await message.channel.send('This command is on maintenance. Sorry!\nIf you are looking for memes, then type `1meme` instead.')
+            #if len(splitted)==1:
+            #    await message.channel.send('You seemed lost. Please try `'+prefix+'help reddit`.')
+            #else:
+            #    wait = await message.channel.send('Please wait... Searching...')
+            #    try:
+            #        if splitted[1]=='--top':
+            #            data = myself.api('https://www.reddit.com/r/'+str(message.content[int(len(splitted[0])+len(splitted[1])+2):]).replace(' ', '%20')+'/top.json')
+            #        elif splitted[1]=='--rising':
+            #            data = myself.api('https://www.reddit.com/r/'+str(message.content[int(len(splitted[0])+len(splitted[1])+2):]).replace(' ', '%20')+'/rising.json')
+            #        elif splitted[1]=='--hot':
+            #            data = myself.api('https://www.reddit.com/r/'+str(message.content[int(len(splitted[0])+len(splitted[1])+2):]).replace(' ', '%20')+'/hot.json')
+            #        else:
+            #            data = myself.api('https://www.reddit.com/r/'+str(message.content[int(len(splitted[0])+1):]).replace(' ', '%20')+'.json')
+            #        if len(data['data']['children'])==0:
+            #            await wait.edit(content='Sorry... Your subreddit doesn\'t seem to exist!')
+            #        else:
+            #            post = random.choice(data['data']['children'])['data']
+            #            if not post['over_18']:
+            #                if post['archived']==True: thecol, title = discord.Colour.magenta(), '[archived] '+post[title]
+            #                else: thecol, title = discord.Colour.green(), post['title']
+            #                embed = discord.Embed(title=title, timestamp=datetime.datetime.fromtimestamp(post['created_utc']), description=post['selftext'], url='https://reddit.com'+post['permalink'], color=thecol)
+            #                embed.set_author(post['subreddit_name_prefixed'], url='https://reddit.com'+post['subreddit_name_prefixed'])
+            #                embed.add_field(name='Post information', value=':arrow_up: '+str(post['ups'])+' ('+str(round(post['upvote_ratio']*100))+'%) | :speech_balloon: '+str(post['num_comments'])+'\n**Post created on: **'+str(datetime.datetime.fromtimestamp(post['created_utc'])))
+            #                embed.set_thumbnail(url=post['thumbnail'])
+            #                if post["is_video"]: embed.add_field(name='Video attachment', value='[Video link here]('+post['media']['reddit_video']['scrubber_media_url']+')')
+            #                elif post["post_hint"]=='image': embed.set_image(url=post['url'])
+            #                elif post["post_hint"]=='link': embed.add_field(name='Post URL', value='[Link attachment here.]('+post['url']+')')
+            #            else:
+            #                embed = discord.Embed(title=post[title], description=':warning: Post is NSFW.', color=discord.Colour.red())
+            #                embed.set_author(post['subreddit_name_prefixed'])
+            #            await wait.edit(content='', embed=embed)
+            #    except Exception as e:
+            #        await wait.edit(content=f'An error occured!\n`{e}`')
         if msg.startswith(prefix+'ufo'):
             num = str(random.randint(50, 100))
             data = myself.api('http://ufo-api.herokuapp.com/api/sightings/search?limit='+num)
@@ -596,14 +597,30 @@ async def on_message(message):
             elif len(list(splitted))>1000:
                 await message.channel.send('That\'s too long! Please provide a simpler description.')
             else:
-                try:
-                    fb = message.content[int(len(splitted[0])+1):]
-                    feedbackCh = client.get_channel(706459051034279956)
-                    await feedbackCh.send('<@661200758510977084>, User with ID: '+str(message.author.id)+' sent a feedback: **"'+str(fb)+'"**')
-                    embed = discord.Embed(title='Feedback Successful', description='Thanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.](https://discord.gg/HhAPkD8)',colour=discord.Colour.green())
-                    await message.channel.send(embed=embed)
-                except:
-                    await message.channel.send('Error: There was an error while sending your feedback. Sorry! :(')
+                wait = await message.channel.send('Please wait... Transmitting data to owner...')
+                bans = []
+                async for messages in client.get_channel(706459051034279956).history(limit=999):
+                    if messages.content.startswith('Banned user with ID of: ['): bans.append(messages.content)
+                banned = False
+                if len(bans)>0:
+                    for i in bans:
+                        if int(authorTag)==int(bans.split('[')[1].split(']')):
+                            await wait.edit(embed=discord.Embed(title='You are banned', description='Sorry! you are banned for using the '+prefix+'feedback command. Reason:```'+bans.split('REASON:"')[1].split('"')[0]+'```'), color=discord.Colour.red())
+                            break
+                if not banned:
+                    try:
+                        fb = message.content[int(len(splitted[0])+1):]
+                        feedbackCh = client.get_channel(706459051034279956)
+                        await feedbackCh.send('<@661200758510977084>, User with ID: '+str(message.author.id)+' sent a feedback: **"'+str(fb)+'"**')
+                        embed = discord.Embed(title='Feedback Successful', description='Thanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.](https://discord.gg/HhAPkD8)',colour=discord.Colour.green())
+                        await wait.edit(content='', embed=embed)
+                    except:
+                        await wait.edit(content='Error: There was an error while sending your feedback. Sorry! :(')
+        if msg.startswith(prefix+'fbban'):
+            if message.channel.id==706459051034279956 and int(authorTag)==661200758510977084:
+                await message.channel.send('Banned user with ID of: ['+str(splitted[1])+'] REASON:"'+str(message.content[int(len(splitted[0])+len(splitted[1])+2)])+'"')
+            else:
+                await message.channel.send('Invalid channel/user.')
         if msg.startswith(prefix+'gdlevel'):
             if len(splitted)<2:
                 await message.channel.send(':x: Please enter a level ID!')
