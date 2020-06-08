@@ -1,6 +1,10 @@
 # username601
 hello, fellow programmer! Welcome to my githoob page. This project is **Open Source for Everyone! (Good luck copy pasting lol)** Written entirely in **Python** language.
 
+.. image:: https://discord.com/api/guilds/688373853889495044/embed.png
+   :target: https://discord.gg/HhAPkD8
+   :alt: Support server link
+
 About the source code files:
 
  - ```bot.py``` **The bot file, Main source code.**
