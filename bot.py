@@ -105,14 +105,18 @@ async def on_message(message):
                 await message.channel.send(f'```{myself.encodeb64(toencode)}```')
         if msg.startswith(prefix+'reddit'):
             if len(splitted)==1:
-                await message.channel.send('Please send a subreddit!')
+                await message.channel.send('You seemed lost. Please try `'+prefix+'help reddit`.')
             else:
                 wait = await message.channel.send('Please wait... Searching...')
                 try:
-                    if splitted[1]!='--top':
-                        data = myself.api('https://www.reddit.com/r/'+str(message.content[int(len(splitted[0])+1):]).replace(' ', '%20')+'.json')
-                    else:
+                    if splitted[1]=='--top':
                         data = myself.api('https://www.reddit.com/r/'+str(message.content[int(len(splitted[0])+len(splitted[1])+2):]).replace(' ', '%20')+'/top.json')
+                    elif splitted[1]=='--rising':
+                        data = myself.api('https://www.reddit.com/r/'+str(message.content[int(len(splitted[0])+len(splitted[1])+2):]).replace(' ', '%20')+'/rising.json')
+                    elif splitted[1]=='--hot':
+                        data = myself.api('https://www.reddit.com/r/'+str(message.content[int(len(splitted[0])+len(splitted[1])+2):]).replace(' ', '%20')+'/hot.json')
+                    else:
+                        data = myself.api('https://www.reddit.com/r/'+str(message.content[int(len(splitted[0])+1):]).replace(' ', '%20')+'.json')
                     if len(data['data']['children'])==0:
                         await wait.edit(content='Sorry... Your subreddit doesn\'t seem to exist!')
                     else:
@@ -121,16 +125,15 @@ async def on_message(message):
                             if post['archived']==True: thecol, title = discord.Colour.magenta(), '[archived] '+post[title]
                             else: thecol, title = discord.Colour.green(), post['title']
                             embed = discord.Embed(title=title, timestamp=datetime.datetime.fromtimestamp(post['created_utc']), description=post['selftext'], url='https://reddit.com'+post['permalink'], color=thecol)
-                            embed.set_author(name=post['author_fullname']+' | '+post['subreddit_name_prefixed'], url='https://reddit.com/u/'+post['author_fullname'])
+                            embed.set_author(post['subreddit_name_prefixed'], url='https://reddit.com'+post['subreddit_name_prefixed'])
                             embed.add_field(name='Post information', value=':arrow_up: '+str(post['ups'])+' ('+str(round(post['upvote_ratio']*100))+'%) | :speech_balloon: '+str(post['num_comments'])+'\n**Post created on: **'+str(datetime.datetime.fromtimestamp(post['created_utc'])))
                             embed.set_thumbnail(url=post['thumbnail'])
                             if post["is_video"]: embed.add_field(name='Video attachment', value='[Video link here]('+post['media']['reddit_video']['scrubber_media_url']+')')
                             elif post["post_hint"]=='image': embed.set_image(url=post['url'])
                             elif post["post_hint"]=='link': embed.add_field(name='Post URL', value='[Link attachment here.]('+post['url']+')')
-                            if splitted[1]!='--top': embed.set_footer(text=f'Hint: Type "{prefix}reddit --top [subreddit]" to get better, more upvoted results!')
                         else:
                             embed = discord.Embed(title=post[title], description=':warning: Post is NSFW.', color=discord.Colour.red())
-                            embed.set_author(name=post['author_fullname']+' | '+post['subreddit_name_prefixed'], url='https://reddit.com/u/'+post['author_fullname'])
+                            embed.set_author(post['subreddit_name_prefixed'])
                         await wait.edit(content='', embed=embed)
                 except Exception as e:
                     await wait.edit(content=f'An error occured!\n`{e}`')
