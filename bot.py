@@ -410,7 +410,6 @@ async def on_message(message):
                     embed = discord.Embed(title='What does the avatar below belongs to?', description=':eyes: Click the reactions! **You have 20 seconds.**\n\n'+str(question), colour=discord.Colour.green())
                     embed.set_footer(text='For privacy reasons, the people displayed above are online users.')
                     embed.set_image(url=corr_avatar)
-                    await wait.delete()
                     main = await message.channel.send(embed=embed)
                     for i in emots: await main.add_reaction(i)
                     def is_correct(reaction, user):
@@ -1687,6 +1686,7 @@ async def on_message(message):
                     servericonurl = str('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.gif?size=1024')
                 embed.add_field(name='URL stuff', value=f'[Server URL]({serverurl}) | [Server Icon URL]({servericonurl})')
                 embed.set_thumbnail(url=str('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=1024'))
+                embed.set_image(url='https://discord.com/api/guilds/'+str(message.guild.id)+'/embed.png?style=banner1')
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'factor'):
             if int(args[1])<999999:
