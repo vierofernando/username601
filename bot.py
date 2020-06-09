@@ -57,7 +57,7 @@ async def on_message(message):
             await wait.edit(content='', embed=embed)
     sayTag = splashes.getTag()
     msg = message.content.lower()
-    args = message.content.split()
+    args = message.content.split(' ')
     unprefixed = message.content[int(len(args[0])+1):]
     if len(args)==1: no_args = True
     i_dont_know_what_this_means_but_i_am_declaring_it_anyway = 0
@@ -2229,6 +2229,10 @@ async def on_message(message):
                                 parameters += '**'+source['p'][i]+'**\n'
                         embed = discord.Embed(title='Command help for '+str(source['n'])+':', description='**Function: **'+str(source['f'])+'\n**Parameters:** \n'+str(parameters), colour=discord.Colour.red())
                     await message.channel.send(embed=embed)
+        if msg.startswith(prefix+'uptime'):
+            embed = discord.Embed(title=str(datetime.datetime.now()-latest_update)[:-7], description='Last time down: '+str(last_update)[:-7], color=discord.Colour.red())
+            embed.set_footer(text='Don\'t worry! 99% Uptime guaranteed.\nUnless there is an big error/on development.')
+            await message.channel.send(embed=embed)
         if msg.startswith(prefix+'about'):
             if message.guild.id!=264445053596991498:
                 messageRandom = splashes.getAbout()
@@ -2244,7 +2248,7 @@ async def on_message(message):
                 )
                 embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Programmed in: **Discord.py (Python)\n**Created in: **6 April 2020.\n**Successor of: **somebot56.\n**Default prefix: ** 1', inline='True')
                 embed.add_field(name='Programmer info', value='**Programmed by: **Viero Fernando. ('+client.get_user(661200758510977084).name+'#'+str(client.get_user(661200758510977084).discriminator)+') \n**Best languages: **~~HTML, CSS,~~ VB .NET, JavaScript, Python\n**Current Discord Status:** '+devstatus+'\n**Social links:**\n[Discord Server](http://discord.gg/HhAPkD8)\n[GitHub](http://github.com/vierofernando)\n[Top.gg](https://top.gg/user/661200758510977084)\n[SoloLearn](https://www.sololearn.com/Profile/17267145)\n[Brainly (Indonesia)](http://bit.ly/vierofernandobrainly)\n[Geometry Dash](https://gdbrowser.com/profile/knowncreator56)', inline='True')
-                embed.add_field(name='Version Info', value='**Bot version: ** '+bot_ver+'\n**Update time: **'+str(latest_update)[:-7]+' UTC\n**Changelog: **'+bot_changelog+'\n**Uptime: **'+str(datetime.datetime.now()-latest_update)[:-7]+'\n\n**Discord.py version: **'+str(discord.__version__)+'\n**Python version: **'+str(sys.version).split(' (default')[0])#+'\n'+str(osinfo))
+                embed.add_field(name='Version Info', value='**Bot version: ** '+bot_ver+'\n**Changelog: **'+bot_changelog+'\n\n**Discord.py version: **'+str(discord.__version__)+'\n**Python version: **'+str(sys.version).split(' (default')[0])#+'\n'+str(osinfo))
                 embed.add_field(name='Links', value='[Invite this bot to your server!](http://vierofernando.github.io/programs/username601) | [Source code](http://github.com/vierofernando/username601) | [The support server!](http://discord.gg/HhAPkD8) | [Vote us on top.gg](https://top.gg/bot/696973408000409626/vote) | [Official Website](https://vierofernando.github.io/username601)', inline='False')
                 embed.set_thumbnail(url='https://raw.githubusercontent.com/vierofernando/username601/master/pfp.png')
                 embed.set_footer(text='© Viero Fernando Programming, 2018-2020. All rights reserved.')
