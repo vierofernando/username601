@@ -2375,13 +2375,19 @@ async def on_message(message):
             await message.channel.send(random.choice(array))
         if msg.startswith(prefix+'search'):
             query = myself.urlify(unprefixed)
-            embed = discord.Embed(title = 'Internet Searches for '+str(msg[8:]), color = 0xff0000)
-            embed.add_field(name='Google Search', value='http://google.com/search?q='+str(query))
-            embed.add_field(name='YouTube results', value='http://youtube.com/results?q='+str(query))
-            embed.add_field(name='Wikipedia search', value='https://en.wikipedia.org/w/index.php?cirrusUserTesting=control&search='+str(query)+'&title=Special%3ASearch&go=Go&ns0=1')
-            embed.add_field(name='\nInstagram Tag Search', value='https://www.instagram.com/explore/tags/'+str(query)+'/', inline="True")
-            embed.add_field(name='Creative Commons Search', value='https://search.creativecommons.org/search?q='+str(query), inline="True")
-            embed.add_field(name='WikiHow Search', value='https://www.wikihow.com/wikiHowTo?search='+str(query), inline="True")
+            searches = [
+                "[Google Search](http://google.com/search?q="+str(query)
+                "[Google Image Search](https://www.google.com/search?tbm=isch&q="+str(query)
+                "[YouTube Search](http://youtube.com/results?q="+str(query)
+                "[Wikipedia Search](https://en.wikipedia.org/w/index.php?cirrusUserTesting=control&search="+str(query)+"&title=Special%3ASearch&go=Go&ns0=1"
+                "[Instagram Tag Search](https://www.instagram.com/explore/tags/"+str(query)
+                "[Creative Commons Search](https://search.creativecommons.org/search?q="+str(query)
+                "[WikiHow Search](https://www.wikihow.com/wikiHowTo?search="+str(query)
+                "[Stackoverflow Search](https://stackoverflow.com/search?q="+str(query)
+            ]
+            total = ''
+            for i in range(0, len(searches)): total += str(i+1) + '. **' + searches[i] + ')**\n'
+            embed = discord.Embed(title = 'Internet Searches for '+str(unprefixed), description=total, color = 0xff0000)
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'emojify'):
             emojified = []
@@ -2606,7 +2612,7 @@ async def on_message(message):
                     await message.channel.send('Please input one without `/` or `?`!')
                 else:
                     embed = discord.Embed(title='Barcode for '+str(msg[int(len(args[0])+1):]), colour=discord.Colour.blue())
-                    embed.set_image(url='http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data='+str(myself.urlify(unprefixed))
+                    embed.set_image(url='http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data='+str(myself.urlify(unprefixed)))
                     await message.channel.send(embed=embed)
         if msg.startswith(prefix+'weather'):
             if no_args:
