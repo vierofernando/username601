@@ -38,13 +38,9 @@ async def on_ready():
         except Exception as e:
             print(e)
 
-@client.command(pass_context=True)
-async def hello(ctx):
-    await ctx.send("hello world")
-
 @client.event
 async def on_message(message):
-    checkprefix = False
+    checkprefix, no_args = False, False
     if message.author.bot==False and '<@!696973408000409626>' in message.content or '<@696973408000409626>' in message.content:
         await message.channel.send('The prefix is `'+prefix+'`.\n**Commands: **`'+prefix+'help`')
         checkprefix = True
@@ -60,18 +56,17 @@ async def on_message(message):
             embed.set_footer(text='Ping and embed sent time may differ.')
             await wait.edit(content='', embed=embed)
     sayTag = splashes.getTag()
-    msgAuthor = str(message.author)[:-5]
-    authorTag = message.author.id
     msg = message.content.lower()
-    unprefixed = unprefixed
     args = message.content.split()
+    unprefixed = str(message.content)[int(len(args)+1):]
+    if len(args)==1: no_args = True
     i_dont_know_what_this_means_but_i_am_declaring_it_anyway = 0
     if msg.startswith(prefix) and message.author.bot==False and len(args[0])!=1:
         if msg.startswith(prefix+'say'):
             await message.channel.send(unprefixed)
         if msg.startswith(prefix+'hack'):
-            if len(args)==1:
-                await message.channel.send(f'Please tag someone!\nExample: {prefix}hack <@'+str(authorTag)+'>')
+            if no_args:
+                await message.channel.send(f'Please tag someone!\nExample: {prefix}hack <@'+str(message.author.id)+'>')
             else:
                 tohack = message.mentions[0]
                 console = 'C:\\Users\\Anonymous601>'
@@ -94,49 +89,14 @@ async def on_message(message):
                         await main.edit(content='', embed=newembed)
                         await asyncio.sleep(random.randint(2, 4))
                 else:
-                    console = console + 'hack.exe -u '+str(msgAuthor)+'\nERROR: INVALID TAG.\nACCESS DENIED.\n\nHash encoded base64 cipher code:\n'+myself.bin(msgAuthor)+ '\n' + console
+                    console = console + 'hack.exe -u '+str(message.author.name)+'\nERROR: INVALID TAG.\nACCESS DENIED.\n\nHash encoded base64 cipher code:\n'+myself.bin(message.author.name)+ '\n' + console
                     embed = discord.Embed(title='Anonymous601 Hacking Console', description=f'```{console}```',colour=discord.Colour.green())
                     await message.channel.send(embed=embed)
         if msg.startswith(prefix+'base64'):
-            if len(args)==1:
+            if no_args:
                 await message.channel.send(f'Please input something to encode! Like `{prefix}base64 discord.py is better than discord.js`')
             else:
                 await message.channel.send(f'```{myself.encodeb64(unprefixed)}```')
-        if msg.startswith(prefix+'reddit'):
-            await message.channel.send('This command is on maintenance. Sorry!\nIf you are looking for memes, then type `1meme` instead.')
-            #if len(args)==1:
-            #    await message.channel.send('You seemed lost. Please try `'+prefix+'help reddit`.')
-            #else:
-            #    wait = await message.channel.send('Please wait... Searching...')
-            #    try:
-            #        if args[1]=='--top':
-            #            data = myself.api('https://www.reddit.com/r/'+str(message.content[int(len(args[0])+len(args[1])+2):]).replace(' ', '%20')+'/top.json')
-            #        elif args[1]=='--rising':
-            #            data = myself.api('https://www.reddit.com/r/'+str(message.content[int(len(args[0])+len(args[1])+2):]).replace(' ', '%20')+'/rising.json')
-            #        elif args[1]=='--hot':
-            #            data = myself.api('https://www.reddit.com/r/'+str(message.content[int(len(args[0])+len(args[1])+2):]).replace(' ', '%20')+'/hot.json')
-            #        else:
-            #            data = myself.api('https://www.reddit.com/r/'+str(unprefixed).replace(' ', '%20')+'.json')
-            #        if len(data['data']['children'])==0:
-            #            await wait.edit(content='Sorry... Your subreddit doesn\'t seem to exist!')
-            #        else:
-            #            post = random.choice(data['data']['children'])['data']
-            #            if not post['over_18']:
-            #                if post['archived']==True: thecol, title = discord.Colour.magenta(), '[archived] '+post[title]
-            #                else: thecol, title = discord.Colour.green(), post['title']
-            #                embed = discord.Embed(title=title, timestamp=datetime.datetime.fromtimestamp(post['created_utc']), description=post['selftext'], url='https://reddit.com'+post['permalink'], color=thecol)
-            #                embed.set_author(post['subreddit_name_prefixed'], url='https://reddit.com'+post['subreddit_name_prefixed'])
-            #                embed.add_field(name='Post information', value=':arrow_up: '+str(post['ups'])+' ('+str(round(post['upvote_ratio']*100))+'%) | :speech_balloon: '+str(post['num_comments'])+'\n**Post created on: **'+str(datetime.datetime.fromtimestamp(post['created_utc'])))
-            #                embed.set_thumbnail(url=post['thumbnail'])
-            #                if post["is_video"]: embed.add_field(name='Video attachment', value='[Video link here]('+post['media']['reddit_video']['scrubber_media_url']+')')
-            #                elif post["post_hint"]=='image': embed.set_image(url=post['url'])
-            #                elif post["post_hint"]=='link': embed.add_field(name='Post URL', value='[Link attachment here.]('+post['url']+')')
-            #            else:
-            #                embed = discord.Embed(title=post[title], description=':warning: Post is NSFW.', color=discord.Colour.red())
-            #                embed.set_author(post['subreddit_name_prefixed'])
-            #            await wait.edit(content='', embed=embed)
-            #    except Exception as e:
-            #        await wait.edit(content=f'An error occured!\n`{e}`')
         if msg.startswith(prefix+'ufo'):
             num = str(random.randint(50, 100))
             data = myself.api('http://ufo-api.herokuapp.com/api/sightings/search?limit='+num)
@@ -251,7 +211,7 @@ async def on_message(message):
                         else:
                             await message.channel.send(msg[int(len(args[0])+1):].replace('@someone', f'<@{str(randomppl)}>').replace('@owner', '<@'+str(message.guild.owner.id)+'>'))
         if msg.startswith(prefix+'inspectservers'):
-            if int(authorTag)==661200758510977084:
+            if int(message.author.id)==661200758510977084:
                 ee = ''
                 for i in range(0, len(client.guilds)):
                     ee = ee + '**' + client.guilds[i].name + '** ('+str(len(client.guilds[i].members))+' Members)\n'
@@ -273,12 +233,12 @@ async def on_message(message):
             guessed = []
             level = 0
             playing_with = message.author
-            playing_with_id = int(authorTag)
+            playing_with_id = int(message.author.id)
             while gameplay==True:
                 print(''.join(main_guess_cor))
                 print(''.join(main_guess_hid))
                 if message.content==prefix+'hangman' and message.author.id!=int(playing_with_id) and message.guild.id==server_id:
-                    await message.channel.send('<@'+str(authorTag)+'>, cannot play hangman when a game is currently playing!')
+                    await message.channel.send('<@'+str(message.author.id)+'>, cannot play hangman when a game is currently playing!')
                 newembed = discord.Embed(title=''.join(main_guess_hid), description='Wrong guesses: '+str(wrong_guesses), colour=discord.Colour.red())
                 newembed.set_image(url=f'https://raw.githubusercontent.com/vierofernando/username601/master/assets/hangman_{str(level)}.png')
                 newembed.set_footer(text='Type "showanswer" to show the answer and end the game.')
@@ -322,7 +282,7 @@ async def on_message(message):
             box_nums = list('123456789')
             can_used = list('123456789')
             box = f' {box_nums[0]} | {box_nums[1]} | {box_nums[2]}\n===========\n {box_nums[3]} | {box_nums[4]} | {box_nums[5]}\n===========\n {box_nums[6]} | {box_nums[7]} | {box_nums[8]}\n'
-            if len(args)==1:
+            if no_args:
                 embed = discord.Embed(title='TicTacToe™ wtih '+str(splashes.getTicTacToeHeader()), description=f'Plays tic-tac-toe with the BOT. Very simple.\n\n**To start playing, type;**\n`{prefix}tictactoe X` (To play tictactoe as X)\n`{prefix}tictactoe O` (To play tictactoe as O)', colour=discord.Colour.red())
                 embed.set_image(url='https://raw.githubusercontent.com/vierofernando/username601/master/assets/tictactoe.png')
                 await message.channel.send(embed=embed)
@@ -337,7 +297,7 @@ async def on_message(message):
                         user_sym = 'O'
                         bot_sym = 'X'
                     playing_with = message.author
-                    user_id = int(authorTag)
+                    user_id = int(message.author.id)
                     user_name = message.guild.get_member(user_id).display_name
                     gameplay = True
                     usedByUser = []
@@ -420,9 +380,9 @@ async def on_message(message):
             except asyncio.TimeoutError:
                 return await message.channel.send(':pensive: No one? Okay then, the answer is: {}.'.format(answer))
             if str(trying.content)==str(answer):
-                await message.channel.send('<@'+str(authorTag)+'>, You are correct! :tada:')
+                await message.channel.send('<@'+str(message.author.id)+'>, You are correct! :tada:')
             else:
-                await message.channel.send('<@'+str(authorTag)+'>, Incorrect. The answer is {}.'.format(answer))
+                await message.channel.send('<@'+str(message.author.id)+'>, Incorrect. The answer is {}.'.format(answer))
         if msg.startswith(prefix+'guessavatar'):
             if len(message.guild.members)>500:
                 await message.channel.send('Sorry, to protect some people\'s privacy, this command is not available for Large servers. (over 500 members)')
@@ -467,9 +427,9 @@ async def on_message(message):
                     except asyncio.TimeoutError:
                         return await message.channel.send(':pensive: No one? Okay then, the answer is: '+str(corr_order)+'. '+str(corr_name))
                     if trying==str(corr_order).lower():
-                        await message.channel.send('<@'+str(authorTag)+'>, You are correct! :tada:')
+                        await message.channel.send('<@'+str(message.author.id)+'>, You are correct! :tada:')
                     else:
-                        await message.channel.send('<@'+str(authorTag)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
+                        await message.channel.send('<@'+str(message.author.id)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
         if msg.startswith(prefix+'geoquiz'):
             wait = await message.channel.send('Please wait... generating question...')
             data = myself.api("https://restcountries.eu/rest/v2/")
@@ -512,7 +472,7 @@ async def on_message(message):
             else:
                 await message.channel.send('<@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr_order)+'.')
         if msg.startswith(prefix+'emojiimg'):
-            if len(args)==1:
+            if no_args:
                 await message.channel.send('Please send a custom emoji!')
             elif len(args)==2:
                 emoji = args[1].split(':')
@@ -538,21 +498,21 @@ async def on_message(message):
                 await message.channel.send('Invalid parameters.')
         if msg.startswith(prefix+'ban'):
             begin = True
-            if len(args)<2:
+            if no_args:
                 await message.channel.send(':rage: Please mention someone!')
                 begin = False
             else:
                 perms = message.author.guild_permissions.ban_members
                 if perms==False:
                     begin = False
-                    await message.channel.send(f'<@{str(authorTag)}>, you don\'t have the `Ban Members` permission! :rage:')
+                    await message.channel.send(f'<@{str(message.author.id)}>, you don\'t have the `Ban Members` permission! :rage:')
                 else:
                     try:
                         if args[1].startswith('<@!'):
                             criminal = message.guild.get_member(int(args[1][3:][:-1]))
                         else:
                             criminal = message.guild.get_member(int(args[1][2:][:-1]))
-                        if criminal.id==authorTag:
+                        if criminal.id==message.author.id:
                             await message.channel.send(':rage: What a weirdo. Banning yourself.')
                             begin = False
                     except:
@@ -591,7 +551,7 @@ async def on_message(message):
             else:
                 await message.channel.send('You are not the bot owner.')
         if msg.startswith(prefix+'feedback'):
-            if len(args)<2:
+            if no_args:
                 await message.channel.send('Where\'s the feedback? :(')
             elif len(list(args))>1000:
                 await message.channel.send('That\'s too long! Please provide a simpler description.')
@@ -604,7 +564,7 @@ async def on_message(message):
                 banned = False
                 if len(bans)>0:
                     for i in bans:
-                        if int(authorTag)==int(i.split('[')[1].split(']')[0]):
+                        if int(message.author.id)==int(i.split('[')[1].split(']')[0]):
                             await wait.edit(content='', embed=discord.Embed(title='You are banned', description='Sorry! you are banned from using the `'+prefix+'feedback` command. Reason:```'+i.split('REASON:"')[1].split('"')[0]+'```', colour=discord.Colour.red()))
                             banned = True
                             break
@@ -618,12 +578,12 @@ async def on_message(message):
                     except:
                         await wait.edit(content='Error: There was an error while sending your feedback. Sorry! :(')
         if msg.startswith(prefix+'fbban'):
-            if message.channel.id==706459051034279956 and int(authorTag)==661200758510977084:
+            if message.channel.id==706459051034279956 and int(message.author.id)==661200758510977084:
                 await message.channel.send('Banned user with ID of: ['+str(args[1])+'] REASON:"'+str(message.content[int(len(args[0])+len(args[1])+2):])+'"')
             else:
                 await message.channel.send('Invalid channel/user.')
         if msg.startswith(prefix+'gdlevel'):
-            if len(args)<2:
+            if no_args:
                 await message.channel.send(':x: Please enter a level ID!')
             else:
                 if args[1].isnumeric()==False:
@@ -650,7 +610,7 @@ async def on_message(message):
                     except Exception as e:
                         await toEdit.edit(content=f'```{e}```')
         if msg.startswith(prefix+'gdsearch'):
-            if len(args)<2:
+            if no_args:
                 await message.channel.send(':x: Please input a query!')
             else:
                 try:
@@ -688,7 +648,7 @@ async def on_message(message):
                     embedy.set_thumbnail(url='https://cdn.discordapp.com/emojis/'+str(data.id)+'.png?v=1')
                     await message.channel.send(embed=embedy)
         if args[0]==prefix+'threats' or args[0]==prefix+'deepfry' or args[0]==prefix+'blurpify':
-            if len(args)==1:
+            if no_args:
                 await message.channel.send('Please tag someone!')
             else:
                 if args[0].startswith(prefix+'threat'):
@@ -700,7 +660,7 @@ async def on_message(message):
                 embed.set_image(url='https://nekobot.xyz/api/imagegen?type='+str(args[0])[1:]+'&'+inputtype+'='+str(av)[:-15]+'.png&raw=1')
                 await message.channel.send(embed=embed)
         if args[0]==prefix+'clyde' or args[0]==prefix+'trumptweet' or args[0]==prefix+'kannagen':
-            if len(args)==1:
+            if no_args:
                 await message.channel.send('Please input a text...')
             else:
                 embed = discord.Embed(colour=discord.Colour.blue())
@@ -739,7 +699,7 @@ async def on_message(message):
                         except Exception as e:
                             await message.channel.send(':x: An error occured during purging. ```'+str(e)+'```')
         if args[0]==prefix+'ex' or args[0]==prefix+'eval':
-            if int(authorTag)==661200758510977084:
+            if int(message.author.id)==661200758510977084:
                 command = unprefixed
                 try:
                     res = eval(command)
@@ -753,17 +713,17 @@ async def on_message(message):
                 await message.channel.send('This command somehow doesn\'t work in discord.py.\nTry discord.js instead.')
         if args[0]==prefix+'s':
             await message.delete()
-            member = message.guild.get_member(int(authorTag))
-            if message.author.guild_permissions.manage_guild==True or int(authorTag)==661200758510977084:
+            member = message.guild.get_member(int(message.author.id))
+            if message.author.guild_permissions.manage_guild==True or int(message.author.id)==661200758510977084:
                 accept = True
             else:
-                await message.channel.send(':x: <@'+str(authorTag)+'>, You need to have the MANAGE SERVER permission or  be the bot owner to do this command.\nTo be the bot owner, try creating a bot :v')
+                await message.channel.send(':x: <@'+str(message.author.id)+'>, You need to have the MANAGE SERVER permission or  be the bot owner to do this command.\nTo be the bot owner, try creating a bot :v')
                 accept = False
             if accept==True:
                 await message.channel.send(message.content[3:])
         if msg.startswith(prefix+'addrole') or args[0]==prefix+'ar':
             if message.author.guild_permissions.manage_roles==False:
-                await message.channel.send(f'<@{str(authorTag)}>, you don\'t have the `Manage Roles` permission!')
+                await message.channel.send(f'<@{str(message.author.id)}>, you don\'t have the `Manage Roles` permission!')
             else:
                 toadd = None
                 if args[2].startswith('<@&'):
@@ -824,7 +784,7 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'removerole') or args[0]==prefix+'rr':
             if message.author.guild_permissions.manage_roles==False:
-                await message.channel.send(f'<@{str(authorTag)}>, you don\'t have the `Manage Roles` permission!')
+                await message.channel.send(f'<@{str(message.author.id)}>, you don\'t have the `Manage Roles` permission!')
             else:
                 aruser = message.mentions[0]
                 toadd = None
@@ -844,7 +804,7 @@ async def on_message(message):
                     await message.channel.send(f'An error occured. :x: ```{e}```')
         if msg.startswith(prefix+'permission') or msg.startswith('perms'):
             if len(args)!=2:
-                await message.channel.send('Please mention someone!\nExample:\n'+prefix+'permissions <@'+str(authorTag)+'>')
+                await message.channel.send('Please mention someone!\nExample:\n'+prefix+'permissions <@'+str(message.author.id)+'>')
             else:
                 member = message.mentions[0]
                 perm = ''
@@ -884,21 +844,21 @@ async def on_message(message):
                 else:
                     await message.channel.send('error. (not 404)')
         if msg.startswith(prefix+'kick'):
-            if len(args)<2:
+            if no_args:
                 await message.channel.send('Please mention someone!!1!11')
             else:
                 if args[1].startswith('<@!'):
                     idiot = message.guild.get_member(int(args[1][3:][:-1]))
                 else:
                     idiot = message.guild.get_member(int(args[1][2:][:-1]))
-                misterKicker = message.guild.get_member(int(authorTag))
+                misterKicker = message.guild.get_member(int(message.author.id))
                 if misterKicker.guild_permissions.kick_members==False:
                     await message.channel.send('You cannot kick '+str(idiot.name)+', because you don\'t even have the `Kick Members` permission!')
                     acceptId = 1
                 elif idiot.guild_permissions.administrator==True or idiot.guild_permissions.manage_guild==True:
                     await message.channel.send('**You want me to kick an mod/admin?!**\nCome on, you gotta be kidding me.')
                     acceptId = 1
-                elif idiot.id==authorTag:
+                elif idiot.id==message.author.id:
                     await message.channel.send('Don\'t be a weirdo, kicking urself. If you want, just leave the server! That\'s easy! :grinning:')
                     acceptId = 1
                 else:
@@ -922,7 +882,7 @@ async def on_message(message):
                     await message.channel.send(':x: Kick declined by myself.')
         if msg.startswith(prefix+'nick'):
             acceptId = 0
-            if len(args)<2:
+            if no_args:
                 await message.channel.send('Where\'s da paramaters!?!')
                 acceptId = 1
             else:
@@ -940,7 +900,7 @@ async def on_message(message):
                             await message.channel.send('You need the `Manage Nicknames` permissions to do this command.')
                             acceptId = 1
                 else:
-                    changethem = message.guild.get_member(int(authorTag))
+                    changethem = message.guild.get_member(int(message.author.id))
                     if changethem.guild_permissions.change_nickname==False:
                         acceptId = 1
                         await message.channel.send('You need the `Change Nickname` permission to change your, nickname, DUH')
@@ -950,10 +910,10 @@ async def on_message(message):
                         await changethem.edit(nick=newnick)
                         await message.channel.send('Change the '+changethem.name+'\'s nickname to `'+str(newnick)+'`. Nice name!')
                     except:
-                        await message.channel.send('So umm, i wanted to change their nickname and...\nDiscord says: `Missing Permissions`\nMe and '+str(msgAuthor)+': :neutral_face:')
+                        await message.channel.send('So umm, i wanted to change their nickname and...\nDiscord says: `Missing Permissions`\nMe and '+str(message.author.name)+': :neutral_face:')
         if msg.startswith(prefix+'imdb'):
             wait = await message.channel.send('Please wait...')
-            if len(args)==1 or args[1]=='help' or args[1]=='--help':
+            if no_args or args[1]=='help' or args[1]=='--help':
                 embed = discord.Embed(title='IMDb command help', description='Searches through the IMDb Movie database.\n{} are Parameters that is **REQUIRED** to get the info.\n\n', colour=discord.Colour.red())
                 embed.add_field(name='Commands', value=prefix+'imdb --top {NUMBER}\n'+prefix+'imdb --search {TYPE} {QUERY}\n'+prefix+'imdb help\n'+prefix+'imdb --movie {MOVIE_ID or MOVIE_NAME}', inline='False')
                 embed.add_field(name='Help', value='*{TYPE} could be "movie", "person", or "company".\n{QUERY} is the movie/person/company name.\n{MOVIE_ID} can be got from the search. Example: `'+prefix+'imdb --search movie Inception`.', inline='False')
@@ -1167,7 +1127,7 @@ async def on_message(message):
             embed.set_image(url=doodle_img)
             await wait.edit(content='', embed=embed)
         if msg.startswith(prefix+'createbot'):
-            if len(args)<2:
+            if no_args:
                 tutorials = f'{prefix}createbot --started `Getting started, preparing stuff.`\n{prefix}createbot --say `Say command help.`\n{prefix}createbot --ping `Ping command help. (Client latency).`\n{prefix}createbot --coin `Flip coin game`\n{prefix}createbot --embed `Creating embeds`\n{prefix}createbot --avatar `Avatar commands help.`'
                 embed = discord.Embed(title='Createbot; the discord.py bot tutorial', description=f'This is a tutorial on how to create a discord bot.\nEvery thing other than `--started` needs to have the same module or string.\nEach are args on different categories.\n\n{tutorials}', colour=discord.Colour.red())
                 await message.channel.send(embed=embed)
@@ -1229,7 +1189,7 @@ async def on_message(message):
             embed = discord.Embed(title=msgslot, description=slots[0]+'\n\n'+slots[1]+'\n\n'+slots[2], colour=col)
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'rolecolor'):
-            if len(args)==1:
+            if no_args:
                 res = ''
                 exc = 0
                 for i in range(0, len(message.guild.roles)):
@@ -1312,7 +1272,7 @@ async def on_message(message):
                 print('https://api.alexflipnote.dev/drake?top='+str(txt1)+'&bottom='+str(txt2))
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'ascii'):
-            if len(args)<2:
+            if no_args:
                 await message.channel.send('Invalid. Please send a word or something.')
             else:
                 if '--randomfont' not in msg:
@@ -1376,9 +1336,9 @@ async def on_message(message):
         if msg.startswith(prefix+'userinfo'):
             acceptId = 0
             if acceptId==0:
-                if len(args)==1:
-                    userid = int(authorTag)
-                    user = client.get_user(int(authorTag))
+                if no_args:
+                    userid = int(message.author.id)
+                    user = client.get_user(int(message.author.id))
                 elif len(args)==2:
                     if len(message.mentions)>0:
                         userid = message.mentions[0].id
@@ -1412,7 +1372,7 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'wikipedia'):
             wait = await message.channel.send('Please wait...')
-            if len(args)<2:
+            if no_args:
                 await wait.edit(content='Please input a page name!')
             else:
                 wikipedia = wikipediaapi.Wikipedia('en')
@@ -1450,7 +1410,7 @@ async def on_message(message):
             if message.author.guild_permissions.create_invite==False:
                 await message.channel.send(':x: You need to have the permission `Create Invite` to continue!')
             else:
-                serverinvite = await message.channel.create_invite(reason='Requested by '+str(msgAuthor))
+                serverinvite = await message.channel.create_invite(reason='Requested by '+str(message.author.name))
                 await message.channel.send('New invite created! Link: **'+str(serverinvite)+'**')
         if msg.startswith(prefix+'avatar'):
             try:
@@ -1462,7 +1422,7 @@ async def on_message(message):
             except:
                 await message.channel.send('Invalid avatar. :rage:')
         if args[0]==prefix+'phcomment':
-            if len(args)==1:
+            if no_args:
                 await message.channel.send(f'Invalid type.\nTry:\n`{prefix}phcomment [text]` or;\n`{prefix}phcomment [tag] [text]`')
             else:
                 if len(message.mentions)==0:
@@ -1486,7 +1446,7 @@ async def on_message(message):
                 embed.set_image(url='https://api.alexflipnote.dev/pornhub?text='+str(txt1)+'&text2='+str(txt2))
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'steamapp'):
-            if len(args)==1:
+            if no_args:
                 await message.channel.send('Please insert an app name.')
             else:
                 data = myself.jsonisp('https://store.steampowered.com/api/storesearch?term='+myself.urlify(str(unprefixed))+'&cc=us&l=en')
@@ -1510,7 +1470,7 @@ async def on_message(message):
                     embed.set_image(url=data['items'][0]['tiny_image'])
                     await message.channel.send(embed=embed)
         if msg.startswith(prefix+'stackoverflow') or msg.startswith(prefix+'sof'):
-            if len(args)==1:
+            if no_args:
                 await message.channel.send('Hey fellow developer, Try add a question!')
             else:
                 try:
@@ -1564,7 +1524,7 @@ async def on_message(message):
             await catWait.edit(content='', embed=embed)
         if msg.startswith(prefix+'trash'):
             if len(args)!=2:
-                await message.channel.send('Please mention someone!\nExample: `'+prefix+'trash <@'+authorTag+'>`')
+                await message.channel.send('Please mention someone!\nExample: `'+prefix+'trash <@'+message.author.id+'>`')
             else:
                 av = message.author.avatar_url
                 toTrash = message.mentions[0].avatar_url
@@ -1601,7 +1561,7 @@ async def on_message(message):
             embed.set_image(url='https://api.alexflipnote.dev/captcha?text='+str(capt))
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'tts'):
-            if len(args)==1:
+            if no_args:
                 await message.channel.send('Invalid :flushed:.')
             else:
                 await message.channel.send(content=msg[int(args[0]+1):], tts=True)
@@ -1610,24 +1570,24 @@ async def on_message(message):
             embed = discord.Embed(colour=discord.Colour.red())
             embed.set_image(url='https://api.alexflipnote.dev/scroll?text='+str(scrolltxt))
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'ship') and len(args)==1:
+        if msg.startswith(prefix+'ship') and no_args:
             member = []
             av = []
             for i in range(0, int(len(message.guild.members))):
-                if message.guild.members[i].name!=msgAuthor:
+                if message.guild.members[i].name!=message.author.name:
                     member.append(message.guild.members[i].name)
                     av.append(message.guild.members[i].avatar_url)
             num = random.randint(0, len(av))
             ship = member[num]
             avd = av[num]
-            embed = discord.Embed(title=msgAuthor+', i ship you with **'+str(ship)+'**!', colour=discord.Colour.magenta())
+            embed = discord.Embed(title=message.author.name+', i ship you with **'+str(ship)+'**!', colour=discord.Colour.magenta())
             embed.set_image(url='https://api.alexflipnote.dev/ship?user='+str(message.author.avatar_url).replace('webp', 'png')+'&user2='+str(avd).replace('webp', 'png'))
             embed.set_footer(text=f'Type {prefix}ship [tag1] [tag2] for cooler ones instead of just random!')
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'ghiblifilms'):
             wait = await message.channel.send('Please wait... Getting data...')
             data = myself.api('https://ghibliapi.herokuapp.com/films')
-            if len(args)==1:
+            if no_args:
                 films = ""
                 for i in range(0, int(len(data))):
                     films = films+'('+str(int(i)+1)+') '+str(data[i]['title']+' ('+str(data[i]['release_date'])+')\n')
@@ -1661,7 +1621,7 @@ async def on_message(message):
                 await message.channel.send('Invalid setup.')
             else:
                 if message.author.guild_permissions.manage_channels==False:
-                    await message.channel.send(':x: <@'+str(authorTag)+'> you need the `Manage channels` permission.')
+                    await message.channel.send(':x: <@'+str(message.author.id)+'> you need the `Manage channels` permission.')
                 else:
                     try:
                         global delay
@@ -1771,7 +1731,7 @@ async def on_message(message):
                 print('https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&days=1-second')
                 await message.channel.send(f'Invalid!\nThe flow is this: `{prefix}gdcomment text | name | like count`\nExample: `{prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
         if msg.startswith(prefix+'gdbox'):
-            if len(args)==1:
+            if no_args:
                 await message.channel.send('Please input a text!')
             else:
                 wait = await message.channel.send('Please wait...')
@@ -1785,7 +1745,7 @@ async def on_message(message):
                     else:
                         color = 'blue'
                     embed = discord.Embed(colour=discord.Colour.green())
-                    embed.set_image(url='https://gdcolon.com/tools/gdtextbox/img/'+str(text)+'?color='+color+'&name='+str(msgAuthor)+'&url='+str(av).replace('webp', 'png')+'&resize=1')
+                    embed.set_image(url='https://gdcolon.com/tools/gdtextbox/img/'+str(text)+'?color='+color+'&name='+str(message.author.name)+'&url='+str(av).replace('webp', 'png')+'&resize=1')
                     await wait.edit(content='', embed=embed)
         if msg.startswith(prefix+'serveremojis'):
             acceptId = 0
@@ -1840,7 +1800,7 @@ async def on_message(message):
                 var = var[3:]
             await message.channel.send(str(var))
         if msg.startswith(prefix+'robohash'):
-            if len(args)<2:
+            if no_args:
                 gib = ''
                 for i in range(0, random.randint(5, 10)):
                     gib = gib + random.choice(list('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'))
@@ -1850,7 +1810,7 @@ async def on_message(message):
             embed.set_image(url='https://robohash.org/'+str(gib))
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'gdlogo'):
-            if len(args)==1:
+            if no_args:
                 await message.channel.send('Please input a text!')
             else:
                 text = myself.urlify(unprefixed)
@@ -1978,7 +1938,7 @@ async def on_message(message):
                 embed.set_image(url='http://nekobot.xyz/api/imagegen?type=whowouldwin&raw=1&user1='+str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')+'&user2='+str(message.mentions[1].avatar_url).replace('.webp?size=1024', '.png'))
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'trap'):
-            if len(args)==1 or len(message.mentions)==0:
+            if no_args or len(message.mentions)==0:
                 await message.channel.send(f'Wrong.\nPlease try the correct like following:\n`{prefix}trap [tag]`')
             else:
                 embed = discord.Embed(colour=discord.Colour.magenta())
@@ -2109,16 +2069,16 @@ async def on_message(message):
                 msgId = res[0]
                 emojiArray = emotes
                 ran = res[1]
-            messages = ["Congratulations! "+str(msgAuthor)+" WINS!", "It's a draw.", "Oops, "+str(msgAuthor)+" lost!"]
+            messages = ["Congratulations! "+str(message.author.name)+" WINS!", "It's a draw.", "Oops, "+str(message.author.name)+" lost!"]
             colors = [discord.Colour.green(), discord.Colour.orange(), discord.Colour.red()]
             if beginGame:
                 embed = discord.Embed(
                     title = messages[msgId],
                     colour = colors[msgId]
                 )
-                embed.set_footer(text='Playin\' rock paper scissors w/ '+str(msgAuthor))
-                embed.set_author(name="Playing Rock Paper Scissors with "+str(msgAuthor))
-                embed.add_field(name=str(msgAuthor), value=':'+given+':', inline="True")
+                embed.set_footer(text='Playin\' rock paper scissors w/ '+str(message.author.name))
+                embed.set_author(name="Playing Rock Paper Scissors with "+str(message.author.name))
+                embed.add_field(name=str(message.author.name), value=':'+given+':', inline="True")
                 embed.add_field(name='Username601', value=':'+str(emojiArray[ran])+':', inline="True")
                 await main.edit(embed=embed)
         if msg.startswith(prefix+"randomcase"):
@@ -2227,7 +2187,7 @@ async def on_message(message):
         if msg.startswith(prefix+'commands') or msg.startswith(prefix+'help'):
             data = myself.jsonisp("https://raw.githubusercontent.com/vierofernando/username601/master/commands.json")
             types = ['Bot Help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps']
-            if len(args)==1:
+            if no_args:
                 if message.guild.id!=264445053596991498:
                     cate = ''
                     for i in range(0, len(types)):
@@ -2508,7 +2468,7 @@ async def on_message(message):
                 embed.set_image(url=data["url"])
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'atbash'):
-            if len(args)<2:
+            if no_args:
                 await message.channel.send('Invalid. Please wait...')
             else:
                 await message.channel.send(myself.atbash(unprefixed))
@@ -2524,8 +2484,8 @@ async def on_message(message):
                     except Exception as e:
                         await message.channel.send(f'```{e}```Look at dat error tho :flushed:')
         if msg.startswith(prefix+'binary'):
-            if len(args)==1:
-                await message.channel.send(f'Please send something to encode to binary!\nExample: `{prefix}binary {msgAuthor}`')
+            if no_args:
+                await message.channel.send(f'Please send something to encode to binary!\nExample: `{prefix}binary {message.author.name}`')
             else:
                 text = unprefixed
                 if len(myself.bin(text))>4096:
@@ -2550,7 +2510,7 @@ async def on_message(message):
             notecount = 0
             membercount = 0
             for i in range(0, int(len(message.guild.members))):
-                if message.guild.members[i].name!=msgAuthor:
+                if message.guild.members[i].name!=message.author.name:
                     member.append(message.guild.members[i].name)
                     membercount = int(membercount) + 1
             chances = ['ab', 'abc', 'abcd']
@@ -2569,12 +2529,12 @@ async def on_message(message):
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'lovelevel'):
             nums = list(range(0, 100))
-            if len(args)==1:
+            if no_args:
                 await message.channel.send('Error: Please mention someone you love (lenny)')
             elif len(args)==2:
-                await message.channel.send('Love level of '+msgAuthor+' with <@!'+str(args[1][3:][:-1])+'> is **'+str(random.choice(nums))+'%.**')
+                await message.channel.send('Love level of '+message.author.name+' with <@!'+str(args[1][3:][:-1])+'> is **'+str(random.choice(nums))+'%.**')
         if msg.startswith(prefix+'gaylevel'):
-            if len(args)==1:
+            if no_args:
                 await message.channel.send('SomeoneError: Say/mention someone!')
             else:
                 nums = list(range(0, 101))
@@ -2582,7 +2542,7 @@ async def on_message(message):
         if msg.startswith(prefix+'secret'):
             member = []
             for i in range(0, int(len(message.guild.members))):
-                if message.guild.members[i].name!=msgAuthor and message.guild.members[i].name!=msgAuthor:
+                if message.guild.members[i].name!=message.author.name and message.guild.members[i].name!=message.author.name:
                     member.append(message.guild.members[i].name)
             secretlist = splashes.getSecrets()
             await message.author.send('Did you know?\n'+random.choice(member)+str(random.choice(secretlist))+'\nDon\'t tell this to anybody else.')
@@ -2639,7 +2599,7 @@ async def on_message(message):
                 except Exception as e:
                     await message.channel.send(f'```{e}```Invalid parameters.')
         if msg.startswith(prefix+'barcode'):
-            if len(args)==1:
+            if no_args:
                 await message.channel.send('Please provide a text!')
             else:
                 if '/' in msg or '?' in msg:
@@ -2649,7 +2609,7 @@ async def on_message(message):
                     embed.set_image(url='http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data='+str(myself.urlify(unprefixed))
                     await message.channel.send(embed=embed)
         if msg.startswith(prefix+'weather'):
-            if len(args)==1:
+            if no_args:
                 await message.channel.send(f'Please send a **City name!**\nExample: `{prefix}weather New York`')
             else:
                 embed = discord.Embed(
@@ -2706,7 +2666,7 @@ async def on_message(message):
             else:
                 await message.channel.send('<@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr)+'.')
         if msg.startswith(prefix+'rhyme'):
-            if len(args)==1:
+            if no_args:
                 await message.channel.send('Please input a word! And we will try to find the word that best rhymes with it.')
             else:
                 wait = await message.channel.send('Please wait... Searching...')

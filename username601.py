@@ -8,7 +8,7 @@ from requests import get as decodeurl
 prefix = '1'
 cmdtypes = ['Bot Help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps', 'Owner']
 bot_ver = '1.9.7c'
-bot_changelog = 'Optimized help command, Meme command is now filtered.'
+bot_changelog = 'Optimized help command, Meme command is now filtered, Bot code formatted.'
 
 def urlify(word):
     return urlencode(word)
