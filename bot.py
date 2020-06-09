@@ -416,10 +416,10 @@ async def on_message(message):
                     def is_correct(reaction, user):
                         return user == message.author
                     try:
-                        tryin = await client.wait_for('reaction_add', check=is_correct, timeout=20.0)
+                        reaction, user = await client.wait_for('reaction_add', check=is_correct, timeout=20.0)
                     except asyncio.TimeoutError:
                         return await message.channel.send(':pensive: No one? Okay then, the answer is: '+str(corr_order)+'. '+str(corr_name))
-                    if str(tryin.emoji)==str(corr_order):
+                    if str(reaction.emoji)==str(corr_order):
                         await message.channel.send('<@'+str(message.author.id)+'>, You are correct! :tada:')
                     else:
                         await message.channel.send('<@'+str(message.author.id)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
