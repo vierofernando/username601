@@ -395,7 +395,7 @@ async def on_message(message):
                     wrongArr = []
                     for i in range(0, 3):
                         wrongArr.append(random.choice(nameAll))
-                    abcs = list('ABCD')
+                    abcs = list('🇦🇧🇨🇩')
                     randomInt = random.randint(0, 3)
                     corr_order = random.choice(abcs[randomInt])
                     abcs[randomInt] = '0'
@@ -407,18 +407,18 @@ async def on_message(message):
                             chooseCount = int(chooseCount) + 1
                         else:
                             question = question + '**'+ str(corr_order) + '.** '+str(corr_name)+ '\n'
-                    embed = discord.Embed(title='What does the avatar below belongs to?', description=':eyes: Reply with `a`, `b`, `c`, or `d`! **You have 20 seconds.**\n\n'+str(question), colour=discord.Colour.green())
+                    embed = discord.Embed(title='What does the avatar below belongs to?', description=':eyes: Click the reactions! **You have 20 seconds.**\n\n'+str(question), colour=discord.Colour.green())
                     embed.set_footer(text='For privacy reasons, the people displayed above are online users.')
                     embed.set_image(url=corr_avatar)
-                    await wait.edit(content='', embed=embed)
-                    def is_correct(m):
-                        return m.author == message.author
+                    main = await wait.edit(content='', embed=embed)
+                    for i in abcs: await main.add_reaction(i)
+                    def is_correct(reaction, user):
+                        return user == message.author
                     try:
-                        tryin = await client.wait_for('message', check=is_correct, timeout=20.0)
-                        trying = str(tryin.content).lower()
+                        tryin = await client.wait_for('add_reaction', check=is_correct, timeout=20.0)
                     except asyncio.TimeoutError:
                         return await message.channel.send(':pensive: No one? Okay then, the answer is: '+str(corr_order)+'. '+str(corr_name))
-                    if trying==str(corr_order).lower():
+                    if str(tryin.emoji)==str(corr_order):
                         await message.channel.send('<@'+str(message.author.id)+'>, You are correct! :tada:')
                     else:
                         await message.channel.send('<@'+str(message.author.id)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
