@@ -377,6 +377,7 @@ async def on_message(message):
         if msg.startswith(prefix+'guessavatar'):
             if len(message.guild.members)>500:
                 await message.channel.send('Sorry, to protect some people\'s privacy, this command is not available for Large servers. (over 500 members)')
+            else:
                 wait = await message.channel.send('Please wait... generating question...\nThis process may take longer if your server has more members.')
                 avatarAll = []
                 nameAll = []
@@ -2230,7 +2231,7 @@ async def on_message(message):
                         embed = discord.Embed(title='Command help for '+str(source['n'])+':', description='**Function: **'+str(source['f'])+'\n**Parameters:** \n'+str(parameters), colour=discord.Colour.red())
                     await message.channel.send(embed=embed)
         if msg.startswith(prefix+'uptime'):
-            embed = discord.Embed(title=str(datetime.datetime.now()-latest_update)[:-7], description='Last time down: '+str(last_update)[:-7], color=discord.Colour.red())
+            embed = discord.Embed(title=str(datetime.datetime.now()-latest_update)[:-7], description='Last time down: '+str(latest_update)[:-7], color=discord.Colour.red())
             embed.set_footer(text='Don\'t worry! 99% Uptime guaranteed.\nUnless there is an big error/on development.')
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'about'):
