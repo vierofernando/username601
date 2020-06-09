@@ -2376,13 +2376,13 @@ async def on_message(message):
         if msg.startswith(prefix+'search'):
             query = myself.urlify(unprefixed)
             searches = [
-                "[Google Search](http://google.com/search?q="+str(query)
-                "[Google Image Search](https://www.google.com/search?tbm=isch&q="+str(query)
-                "[YouTube Search](http://youtube.com/results?q="+str(query)
-                "[Wikipedia Search](https://en.wikipedia.org/w/index.php?cirrusUserTesting=control&search="+str(query)+"&title=Special%3ASearch&go=Go&ns0=1"
-                "[Instagram Tag Search](https://www.instagram.com/explore/tags/"+str(query)
-                "[Creative Commons Search](https://search.creativecommons.org/search?q="+str(query)
-                "[WikiHow Search](https://www.wikihow.com/wikiHowTo?search="+str(query)
+                "[Google Search](http://google.com/search?q="+str(query),
+                "[Google Image Search](https://www.google.com/search?tbm=isch&q="+str(query),
+                "[YouTube Search](http://youtube.com/results?q="+str(query),
+                "[Wikipedia Search](https://en.wikipedia.org/w/index.php?cirrusUserTesting=control&search="+str(query)+"&title=Special%3ASearch&go=Go&ns0=1",
+                "[Instagram Tag Search](https://www.instagram.com/explore/tags/"+str(query),
+                "[Creative Commons Search](https://search.creativecommons.org/search?q="+str(query),
+                "[WikiHow Search](https://www.wikihow.com/wikiHowTo?search="+str(query),
                 "[Stackoverflow Search](https://stackoverflow.com/search?q="+str(query)
             ]
             total = ''
