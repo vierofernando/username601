@@ -2,12 +2,16 @@ import random
 import base64
 # import platform as systema
 from urllib.request import urlopen as getapi
+from urllib.parse import quote_plus as urlencode
 from json import loads as jsonify
 from requests import get as decodeurl
 prefix = '1'
 cmdtypes = ['Bot Help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps', 'Owner']
 bot_ver = '1.9.7c'
 bot_changelog = 'Optimized help command, Meme command is now filtered.'
+
+def urlify(word):
+    return urlencode(word)
 
 def findNum(word, arr):
     for i in range(0, len(arr)):
