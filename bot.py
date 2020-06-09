@@ -386,7 +386,7 @@ async def on_message(message):
                         avatarAll.append(str(ppl.avatar_url).replace('webp', 'png'))
                         nameAll.append(ppl.display_name)
                 if len(avatarAll)<=4:
-                    await message.channel.send('Too less online members! :x:')
+                    await message.channel.send('Need more online members! :x:')
                 else:
                     numCorrect = random.randint(0, len(avatarAll)-1)
                     corr_avatar = avatarAll[numCorrect]
@@ -410,7 +410,8 @@ async def on_message(message):
                     embed = discord.Embed(title='What does the avatar below belongs to?', description=':eyes: Click the reactions! **You have 20 seconds.**\n\n'+str(question), colour=discord.Colour.green())
                     embed.set_footer(text='For privacy reasons, the people displayed above are online users.')
                     embed.set_image(url=corr_avatar)
-                    main = await wait.edit(content='', embed=embed)
+                    await wait.delete()
+                    main = await message.channel.send(embed=embed)
                     for i in abcs: await main.add_reaction(i)
                     def is_correct(reaction, user):
                         return user == message.author
