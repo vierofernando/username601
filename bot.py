@@ -395,7 +395,7 @@ async def on_message(message):
                     wrongArr = []
                     for i in range(0, 3):
                         wrongArr.append(random.choice(nameAll))
-                    abcs = list('🇦🇧🇨🇩')
+                    abcs, emots = list('🇦🇧🇨🇩'), list('🇦🇧🇨🇩')
                     randomInt = random.randint(0, 3)
                     corr_order = random.choice(abcs[randomInt])
                     abcs[randomInt] = '0'
@@ -412,11 +412,11 @@ async def on_message(message):
                     embed.set_image(url=corr_avatar)
                     await wait.delete()
                     main = await message.channel.send(embed=embed)
-                    for i in abcs: await main.add_reaction(i)
+                    for i in emots: await main.add_reaction(i)
                     def is_correct(reaction, user):
                         return user == message.author
                     try:
-                        tryin = await client.wait_for('add_reaction', check=is_correct, timeout=20.0)
+                        tryin = await client.wait_for('reaction_add', check=is_correct, timeout=20.0)
                     except asyncio.TimeoutError:
                         return await message.channel.send(':pensive: No one? Okay then, the answer is: '+str(corr_order)+'. '+str(corr_name))
                     if str(tryin.emoji)==str(corr_order):
