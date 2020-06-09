@@ -58,7 +58,7 @@ async def on_message(message):
     sayTag = splashes.getTag()
     msg = message.content.lower()
     args = message.content.split()
-    unprefixed = str(message.content)[int(len(args)+1):]
+    unprefixed = message.content[int(len(args[0])+1):]
     if len(args)==1: no_args = True
     i_dont_know_what_this_means_but_i_am_declaring_it_anyway = 0
     if msg.startswith(prefix) and message.author.bot==False and len(args[0])!=1:
@@ -76,16 +76,7 @@ async def on_message(message):
                     for i in range(0, len(flow)):
                         console = console + flow[i][1:]
                         newembed = discord.Embed(title='Anonymous601 Hacking Console', description=f'```{console}```',colour=discord.Colour.green())
-                        if flow[i].startswith('1'):
-                            newembed.set_thumbnail(url='https://i.imgur.com/msmvE09.gif')
-                        elif flow[i].startswith('2'):
-                            newembed.set_thumbnail(url=tohack.avatar_url)
-                        elif flow[i].startswith('3'):
-                            newembed.set_thumbnail(url='https://seeklogo.com/images/F/FBI_SHIELD-logo-2D02BDDAC8-seeklogo.com.png')
-                        elif flow[i].startswith('4'):
-                            newembed.set_thumbnail(url='https://images-ext-1.discordapp.net/external/ByHvJcnlhVe42B9bjwf9umFHeEA5pk1oebLdxeWYY0g/%3Fv%3D1/https/cdn.discordapp.com/emojis/704242063725559868.png')
-                        else:
-                            newembed.set_thumbnail(url='https://upload.wikimedia.org/wikipedia/commons/5/50/Black_colour.jpg')
+                        newembed.set_thumbnail(url=myself.hackfind(flow[i], tohack.avatar_url))
                         await main.edit(content='', embed=newembed)
                         await asyncio.sleep(random.randint(2, 4))
                 else:

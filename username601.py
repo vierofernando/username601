@@ -19,6 +19,18 @@ def findNum(word, arr):
             return i
             break
 
+def hackfind(data, avatar):
+    if data.startswith('1'):
+        return 'https://i.imgur.com/msmvE09.gif'
+    elif data.startswith('2'):
+        return avatar
+    elif data.startswith('3'):
+        return 'https://seeklogo.com/images/F/FBI_SHIELD-logo-2D02BDDAC8-seeklogo.com.png'
+    elif data.startswith('4'):
+        return 'https://images-ext-1.discordapp.net/external/ByHvJcnlhVe42B9bjwf9umFHeEA5pk1oebLdxeWYY0g/%3Fv%3D1/https/cdn.discordapp.com/emojis/704242063725559868.png'
+    else:
+        return 'https://upload.wikimedia.org/wikipedia/commons/5/50/Black_colour.jpg'
+
 def arrspace(arr):
     res = ''
     for i in range(0, len(arr)):
@@ -171,6 +183,10 @@ github_object = {
 	        "name":"commands.html",
             "type":"main website file (commands page)"
 	    },
+        {
+            "name":"thanks.html",
+            "name":"website for thanking strangers"
+        },
 	    {
 	        "name":"commands.json",
             "type":"all of the commands as a json file."
