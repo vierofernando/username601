@@ -211,6 +211,23 @@ async def on_message(message):
                 await message.channel.send('...k')
             else:
                 await message.channe.send('...')
+        if msg.startswith(prefix+'pika') or msg.startswith(prefix+'panda'):
+            if 'pika' in args: link, col, msg = "https://some-random-api.ml/pikachuimg", discord.Colour.from_rgb((255, 255, 0)), 'pika pika!'
+            else: link, col, msg = "https://some-random-api.ml/img/panda", discord.Colour.green(), 'Here is some cute pics of pandas.'
+            data = myself.jsonisp(link)['link']
+            embed = discord.Embed(title=msg, color=col)
+            embed.set_image(url=data)
+            await message.channel.send(embed=embed)
+        if args[0]==prefix+'chat':
+            if no_args:
+                await message.channel.send('Please send me a chat! And i will respond to it.')
+            else:
+                wait = await message.channel.send('Please wait... Responding...')
+                try:
+                    data = myself.jsonisp('https://some-random-api.ml/chatbot?message='+str(myself.urlify(unprefixed)))['response']
+                    await wait.edit(content=data)
+                except:
+                    await wait.edit(content='I am sorry. I do not understand your message.')
         if msg.startswith(prefix+'hangman'):
             wait = await message.channel.send('Please wait... generating... :flushed:')
             the_word = myself.api("https://random-word-api.herokuapp.com/word?number=1")

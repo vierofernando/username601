@@ -10,8 +10,15 @@ cmdtypes = ['Bot Help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Enco
 bot_ver = '1.9.7c'
 bot_changelog = 'Optimized help command, Meme command is now filtered, Bot code formatted.'
 
+def limit(word):
+    total = ''
+    for i in range(0, len(word)):
+        if i>1990:
+            break
+        total += list(word)[i]
+    return total
 def urlify(word):
-    return urlencode(word)
+    return urlencode(word).replace('+', '%20')
 
 def findNum(word, arr):
     for i in range(0, len(arr)):
