@@ -212,7 +212,7 @@ async def on_message(message):
             else:
                 await message.channe.send('...')
         if msg.startswith(prefix+'pika') or msg.startswith(prefix+'panda'):
-            if 'pika' in args: link, col, msg = "https://some-random-api.ml/pikachuimg", discord.Colour.from_rgb((255, 255, 0)), 'pika pika!'
+            if msg.startswith(prefix+'pika'): link, col, msg = "https://some-random-api.ml/pikachuimg", discord.Colour.from_rgb((255, 255, 0)), 'pika pika!'
             else: link, col, msg = "https://some-random-api.ml/img/panda", discord.Colour.green(), 'Here is some cute pics of pandas.'
             data = myself.jsonisp(link)['link']
             embed = discord.Embed(title=msg, color=col)
