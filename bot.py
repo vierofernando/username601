@@ -212,7 +212,7 @@ async def on_message(message):
             else:
                 await message.channe.send('...')
         if msg.startswith(prefix+'qotd'):
-            data = myself.jsonisp('https://quotes.rest/qod')['data']['quotes'][0]
+            data = myself.jsonisp('https://quotes.rest/qod')['contents']['quotes'][0]
             embed = discord.Embed(title=data['quote'], description=data['author'], color=discord.Colour.blue())
             embed.set_image(url=data['background'])
             embed.set_footer(text='New quote will be generated in the next day.')
