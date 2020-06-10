@@ -211,6 +211,40 @@ async def on_message(message):
                 await message.channel.send('...k')
             else:
                 await message.channe.send('...')
+        if msg.startswith(prefix+'dex'):
+            if no_args: await message.channel.send('Please send a pokemon!')
+            else:
+                wait = await message.channel.send('Please wait...')
+                try:
+                    data = myself.jsonisp('https://some-random-api.ml/pokedex?pokemon=')
+                    evos = 'No evolutions'
+                    if len(data['family']['evolutionLine'])!=0:
+                        evos = ''
+                        for i in range(0, len(data['family']['evolutionLine'])):
+                            if i==len(data['family']['evolutionLine'])-1: evos += data['family']['evolutionLine'][i]
+                            else: evos += data['family']['evolutionLine'][i] + ' > '
+                    embed = discord.Embed(title=data['id']+'. '+data['name'], description='**Description:** *'+data['description']+'*', colour=discord.Colour.from_rgb(255, 255, 0))
+                    embed.add_field(name='Physical Appearance', value='**Height: **'+data['height']+'\n**Weight: **'+data['weight'])
+                    types, genders, abilities, stats = [], [], [], ''
+                    for i in range(0, len(list(data['stats'].keys()))):
+                        stats += i + '. **' + list(data['stats'].keys())[i].replace('_', ' ')+ ':** ' + data['stats'][list(data['stats'].keys())[i]] + '\n'
+                    for i in range(0, len(data['type'])): types.append(data['type'][i])
+                    for i in range(0, len(data['genders'])): genders.append(data['genders'][i])
+                    for i in range(0, len(data['abilities'])): abilities.append(data['abilities'][i])
+                    embed.add_field(name='Pokemon Type', value='**Pokemon type: **'+myself.dearray(types)+'\n**Gender: **'+myself.dearray(genders)+'\n**Abilities: **'+myself.dearray(abilities))
+                    embed.add_field(name='Pokemon stats', value=stats)
+                    embed.set_thumbnail(url=data['sprites']['animated'])
+                    await wait.edit(content='', embed=embed)
+                except:
+                    await wait.edit(content='Oops! There was an error on retrieving. Please try again later.')
+        if msg.startswith(prefix+'iss'):
+            iss = myself.jsonisp('https://open-notify-api.herokuapp.com/iss-now.json')
+            ppl = myself.jsonisp('https://open-notify-api.herokuapp.com/astros.json')
+            total = ''
+            for i in range(0, len(ppl['people'])):
+                total += i + '. ' + ppl['people']['name'] + ((15-(len(ppl['people']['name'])))*' ') + ppl['people']['craft'] + '\n'
+            embed = discord.Embed(title='Position: '+iss['iss_position']['latitude']+' '+iss['iss_position']['longitude'], description='**People at craft:**\n\n'+str(total), colour=discord.Colour.red())
+            await message.channel.send(embed=embed)
         if msg.startswith(prefix+'qotd'):
             data = myself.jsonisp('https://quotes.rest/qod')['contents']['quotes'][0]
             embed = discord.Embed(title=data['quote'], description=data['author'], color=discord.Colour.blue())
