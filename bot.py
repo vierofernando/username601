@@ -211,6 +211,12 @@ async def on_message(message):
                 await message.channel.send('...k')
             else:
                 await message.channe.send('...')
+        if msg.startswith(prefix+'qotd'):
+            data = myself.jsonisp('https://quotes.rest/qod')['data']['quotes'][0]
+            embed = discord.Embed(title=data['quote'], description=data['author'], color=discord.Colour.blue())
+            embed.set_image(url=data['background'])
+            embed.set_footer(text='New quote will be generated in the next day.')
+            await message.channel.send(embed=embed)
         if msg.startswith(prefix+'pika') or msg.startswith(prefix+'panda'):
             if msg.startswith(prefix+'pika'): link, col, msg = "https://some-random-api.ml/pikachuimg", discord.Colour.from_rgb(255, 255, 0), 'pika pika!'
             else: link, col, msg = "https://some-random-api.ml/img/panda", discord.Colour.green(), 'Here is some cute pics of pandas.'
