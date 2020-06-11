@@ -20,6 +20,7 @@ import sys
 import imdb
 import asyncio
 import math
+from json import decoder
 from googletrans import Translator, LANGUAGES
 gtr = Translator()
 client = commands.Bot(command_prefix='1')
@@ -28,7 +29,7 @@ topgg = dbl.DBLClient(client, fetchdata['DBL_TOKEN'])
 
 @client.event
 async def on_ready():
-    print('Bot is online.\n=== USERNAME601 CONSOLE ===\nBuilt using Python by Viero Fernando (c) 2020.\n\n'.format(client))
+    print('Bot is online.')
     while True:
         await asyncio.sleep(1800)
         myAct = discord.Activity(name=str(len(client.users))+' strangers in '+str(len(client.guilds))+' cults.', type=discord.ActivityType.watching)
@@ -179,10 +180,6 @@ async def on_message(message):
                         await message.channel.send('You lose! The pokemon is **'+str(corr)+'**!')
                         gameplay = False
                         break
-        if msg.startswith(prefix+'goose'):
-            embed = discord.Embed(title='honk!', colour=discord.Colour.blue())
-            embed.set_image(url='https://source.unsplash.com/500x500/?goose')
-            await message.channel.send(embed=embed)
         if msg.startswith(prefix+'ss'):
             if len(args)>1:
                 if args[1]=='--help':
@@ -211,12 +208,14 @@ async def on_message(message):
                 await message.channel.send('...k')
             else:
                 await message.channe.send('...')
+<<<<<<< HEAD
+=======
         if msg.startswith(prefix+'dex'):
             if no_args: await message.channel.send('Please send a pokemon!')
             else:
                 wait = await message.channel.send('Please wait...')
                 try:
-                    data = myself.jsonisp('https://some-random-api.ml/pokedex?pokemon=')
+                    data = myself.jsonisp('https://some-random-api.ml/pokedex?pokemon='+str(myself.urlify(unprefixed)))
                     evos = 'No evolutions'
                     if len(data['family']['evolutionLine'])!=0:
                         evos = ''
@@ -235,15 +234,16 @@ async def on_message(message):
                     embed.add_field(name='Pokemon stats', value=stats)
                     embed.set_thumbnail(url=data['sprites']['animated'])
                     await wait.edit(content='', embed=embed)
-                except:
-                    await wait.edit(content='Oops! There was an error on retrieving. Please try again later.')
+                except decoder.JSONDecodeError:
+                    await wait.edit(content='Oops! There was an error on retrieving data. Source may be down for a while. Please try again later.')
+>>>>>>> 12bca69b51db8c238d41b8560e455acc6a023904
         if msg.startswith(prefix+'iss'):
             iss = myself.jsonisp('https://open-notify-api.herokuapp.com/iss-now.json')
             ppl = myself.jsonisp('https://open-notify-api.herokuapp.com/astros.json')
-            total = ''
+            total = '```'
             for i in range(0, len(ppl['people'])):
-                total += i + '. ' + ppl['people']['name'] + ((15-(len(ppl['people']['name'])))*' ') + ppl['people']['craft'] + '\n'
-            embed = discord.Embed(title='Position: '+iss['iss_position']['latitude']+' '+iss['iss_position']['longitude'], description='**People at craft:**\n\n'+str(total), colour=discord.Colour.red())
+                total += str(i+1) + '. ' + ppl['people'][i]['name'] + ((20-(len(ppl['people'][i]['name'])))*' ') + ppl['people'][i]['craft'] + '\n'
+            embed = discord.Embed(title='Position: '+str(iss['iss_position']['latitude'])+' '+str(iss['iss_position']['longitude']), description='**People at craft:**\n\n'+str(total)+'```', colour=discord.Colour.red())
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'qotd'):
             data = myself.jsonisp('https://quotes.rest/qod')['contents']['quotes'][0]
