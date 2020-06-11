@@ -208,6 +208,11 @@ async def on_message(message):
                 await message.channel.send('...k')
             else:
                 await message.channel.send('...')
+        if msg.startswith(prefix+'pandafact') or msg.startswith(prefix+'birdfact') or msg.startswith(prefix+'birbfact'):
+            if msg.startswith(prefix+'pandafact'): link = 'https://some-random-api.ml/facts/panda'
+            else: link = 'https://some-random-api.ml/facts/bird'
+            data = myself.jsonisp(link)['fact']
+            await message.channel.send(embed=discord.Embed(title='Did you know?', description=data, colour=discord.Colour.red()))
         if msg.startswith(prefix+'iss'):
             iss = myself.jsonisp('https://open-notify-api.herokuapp.com/iss-now.json')
             ppl = myself.jsonisp('https://open-notify-api.herokuapp.com/astros.json')
@@ -222,8 +227,9 @@ async def on_message(message):
             embed.set_image(url=data['background'])
             embed.set_footer(text='New quote will be generated in the next day.')
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'pika') or msg.startswith(prefix+'panda'):
+        if msg.startswith(prefix+'pika') or msg.startswith(prefix+'panda') or msg.startswith(prefix+'redpanda'):
             if msg.startswith(prefix+'pika'): link, col, msg = "https://some-random-api.ml/pikachuimg", discord.Colour.from_rgb(255, 255, 0), 'pika pika!'
+            elif msg.startswith(prefix+'redpanda'): link, col, msg = "https://some-random-api.ml/img/red_panda", discord.Colour.red(), 'Ok, here are some pics of red pandas.'
             else: link, col, msg = "https://some-random-api.ml/img/panda", discord.Colour.green(), 'Here is some cute pics of pandas.'
             data = myself.jsonisp(link)['link']
             embed = discord.Embed(title=msg, color=col)
