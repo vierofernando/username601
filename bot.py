@@ -1867,46 +1867,10 @@ async def on_message(message):
             if int(len(args))>4:
                 await message.channel.send("OverloadEquationError: So far this bot only accept one equation.")
             else:
-                try:
-                    num1 = int(args[1])
-                    num2 = int(args[3])
-                    inputtedSym = str(args[2])
-                except IndexError:
-                    print('meh.')
-                finally:
-                    if inputtedSym=="+":
-                        sym = "+"
-                    elif inputtedSym=="-":
-                        sym = "-"
-                    elif inputtedSym=="*" or inputtedSym=="x" or inputtedSym=="×":
-                        sym = "*"
-                    elif inputtedSym=="/" or inputtedSym==":" or inputtedSym=="÷":
-                        sym = "/"
-                    elif inputtedSym=="^" or inputtedSym=="**":
-                        sym = "**"
-                    else:
-                        await message.channel.send("InvalidSymbolError: Invalid symbol for equation.\nSupported symbol: `+ - * x × / : ÷ ^ **`")
-                    if sym=="+":
-                        result = int(num1)+int(num2)
-                        symId = 0
-                    elif sym=="-":
-                        result = int(num1)-int(num2)
-                        symId = 0
-                    elif sym=="*":
-                        symId = 0
-                        result = int(num1)*int(num2)
-                    elif sym=="/":
-                        symId = 1
-                        result = int(num1)/int(num2)
-                        rounded = round(int(result))
-                    elif sym=="**":
-                        symId = 0
-                        result = int(num1)**int(num2)
-                    if symId==0:
-                        await message.channel.send(str(num1)+" "+str(sym)+" "+str(num2)+" = "+str(result))
-                    elif symId==1:
-                        await message.channel.send(str(num1)+" "+str(sym)+" "+str(num2)+" = "+str(result)+"\nRound number: "+str(rounded))
-        if msg.startswith(prefix+"rng") or msg.startswith(prefix+"randomnumber") or msg.startswith(prefix+"randint"):
+                if unprefixed.lower() in list("ABCDEFGHIJKLMNOPQRSTUVWXYZ."):
+                    await message.channel.send('Your equation contain invalid characters!')
+                else:
+                    await message.channel.send(discord.Embed(title="Equation result", description=f'**Equation:** ```{unprefixed}```\n\n**Result:**\n```{eval(unprefixed)}```'))
             beginning = int(args[1])
             ending = int(args[2])
             ran = random.randint(int(beginning), int(ending))
@@ -2206,7 +2170,9 @@ async def on_message(message):
             c = myself.api("https://restcountries.eu/rest/v2/name/"+str(country.lower()))
             embed = discord.Embed(
                 title = c[0]['nativeName'],
-                description = '**Capital:** '+str(c[0]['capital'])+'\n**Region: **'+str(c[0]['region'])+'\n**Sub Region: **'+str(c[0]['subregion'])+"\n**Population: **"+str(c[0]['population'])+"\n**Area: **"+str(c[0]['area'])+' km²\n**Time Zones:** '+str(c[0]['timezones'])+'\n**Borders: **'+str(c[0]['borders']),
+                if len(c[0]['borders'])==0: borderz = 'No borders.'
+                else; borderz = myself.dearray(c[0]['borders'])
+                description = '**Capital:** '+str(c[0]['capital'])+'\n**Region: **'+str(c[0]['region'])+'\n**Sub Region: **'+str(c[0]['subregion'])+"\n**Population: **"+str(c[0]['population'])+"\n**Area: **"+str(c[0]['area'])+' km²\n**Time Zones:** '+str(myself.dearray(c[0]['timezones']))+'\n**Borders: **'+str(borderz),
                 colour = 0xffffff
             )
             embed.set_author(name=c[0]['name'])
