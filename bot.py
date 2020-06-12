@@ -227,7 +227,7 @@ async def on_message(message):
             embed.set_image(url=data['background'])
             embed.set_footer(text='New quote will be generated in the next day.')
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'pika') or msg.startswith(prefix+'panda') or msg.startswith(prefix+'redpanda'):
+        if msg.startswith(prefix+'pika') or args[0]==prefix+'panda' or msg.startswith(prefix+'redpanda'):
             if msg.startswith(prefix+'pika'): link, col, msg = "https://some-random-api.ml/pikachuimg", discord.Colour.from_rgb(255, 255, 0), 'pika pika!'
             elif msg.startswith(prefix+'redpanda'): link, col, msg = "https://some-random-api.ml/img/red_panda", discord.Colour.red(), 'Ok, here are some pics of red pandas.'
             else: link, col, msg = "https://some-random-api.ml/img/panda", discord.Colour.green(), 'Here is some cute pics of pandas.'
@@ -1557,7 +1557,7 @@ async def on_message(message):
                 embed = discord.Embed(colour=discord.Colour.magenta())
                 embed.set_image(url='https://api.alexflipnote.dev/trash?face='+str(av).replace('webp', 'png')+'&trash='+str(toTrash).replace('webp', 'png'))
                 await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'bird') or msg.startswith(prefix+'sadcat'):
+        if args[0]==prefix+'bird' or msg.startswith(prefix+'sadcat'):
             if msg.startswith(prefix+'bird'):
                 getreq = 'birb'
             else:
@@ -1863,22 +1863,22 @@ async def on_message(message):
                         await message.channel.send('Lockdown ended.')
                     except:
                         await message.channel.send('For some reason, i cannot lock this channel :(')
-        if args[0]==prefix+"math":
-            if int(len(args))>4:
-                await message.channel.send("OverloadEquationError: So far this bot only accept one equation.")
+        if args[0]==prefix+"math" or args[0]==prefix+'calc':
+            if no_args:
+                await message.channel.send("No math problem? Ok no fix.")
             else:
                 ban = False
                 for i in range(0, len(unprefixed.lower())):
-                    if unprefixed.lower()[i] in list("ABCDEFGHIJKLMNOPQRSTUVWXYZ."):
+                    if unprefixed.lower()[i] in "ABCDEFGHIJKLMNOPQRSTUVWXYZ.":
                         ban = True
                         break
                 if ban:
                     await message.channel.send('Your equation contain invalid characters!')
                 else:
                     try:
-                        await message.channel.send(embed=discord.Embed(title="Equation result", description=f'**Equation:** ```{unprefixed}```\n\n**Result:**\n```{eval(unprefixed)}```', colour=discord.Colour.red()))
+                        await message.channel.send(embed=discord.Embed(title="Equation result", description=f'**Equation:** ```{unprefixed}```\n**Result:**\n```{eval(unprefixed)}```', colour=discord.Colour.red()))
                     except ZeroDivisionError:
-                        await message.channel.send(embed=discord.Embed(title="Equation result", description=f'**Equation:** ```{unprefixed}```\n\n**Result:**\n```yo mama```', colour=discord.Colour.red()))
+                        await message.channel.send(embed=discord.Embed(title="Equation result", description=f'**Equation:** ```{unprefixed}```\n**Result:**\n```yo mama```', colour=discord.Colour.red()))
             beginning = int(args[1])
             ending = int(args[2])
             ran = random.randint(int(beginning), int(ending))

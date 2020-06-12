@@ -260,7 +260,7 @@ def getTag():
         'What kind of word is that?',
         'tag me? why not tag everyone lul',
         'you liek tagging me huh uwu',
-        'pinging me? why not >ping instead lol',
+        'pinging me? why not 1ping instead lol',
         'discord pings are not cool!',
         'i am busy, please don\'t ping me. thanks.',
         'bruh, pings? again?',
