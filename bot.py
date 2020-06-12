@@ -39,6 +39,22 @@ async def on_ready():
         except Exception as e:
             print(e)
 
+# ONLY IN SUPPORT SERVER
+@client.event
+async def on_member_join(member):
+    if member.guild.id==688373853889495044:
+        await member.guild.get_channel(694521383908016188).send(':heart: | '+splashes.welcome('<@'+str(member.id)+'>', client.get_user(661200758510977084).name))
+
+# ONLY IN SUPPORT SERVER ALSO
+@client.event
+async def on_member_remove(member):
+    if member.guild.id==688373853889495044:
+        await member.guild.get_channel(694521383908016188).send(':broken_heart: | 'splashes.exit(member.name))
+
+@client.command(pass_context=True, name='hell')
+async def hell(ctx):
+    await ctx.send("HELLLLLLLLLLLLLLLLLLLLLLL")
+
 @client.event
 async def on_message(message):
     checkprefix, no_args = False, False
@@ -585,7 +601,6 @@ async def on_message(message):
                 wait = await message.channel.send('Please wait... Transmitting data to owner...')
                 bans = []
                 async for messages in client.get_channel(706459051034279956).history():
-                    print(messages.content)
                     if messages.content.startswith('Banned user with ID of: ['): bans.append(messages.content)
                 banned = False
                 if len(bans)>0:

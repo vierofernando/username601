@@ -270,6 +270,49 @@ def getTag():
         'Me: Noo you can\'t ping me!! ;(\nYou: hehe discord go ping ping'
     ]
     return arr
+
+def welcome(guysname, ownername):
+    arr = [
+        f"Hello {guysname}, thanks for clicking the join button!",
+        f"The VIP person is here, he is {guysname}!",
+        f"**The one and only {guysname}** joined the server!",
+        f"Well hello {guysname}! you will be my new friend!",
+        f"At last, FINALLY. {guysname} came.",
+        f"Welcome, {guysname}! {ownername} have been waiting for you.",
+        f"Welcome back{guysname}, the **original** server hero!",
+        f"Well well well... {guysname}? The {ownername} is talking about...",
+        f"{guysname}, welcome to the crappiest server on discord.",
+        f"HE DID IT! {guysname} FINALLY ENTER THE SERVER!",
+        f"Welcome to the server, {guysname}! We hope you enjoy how silent it is.",
+        f"{guysname} is the most epic man in discord, today! He came!",
+        f"{guysname}, Welcome to the top of the mountain.",
+        f"{guysname}, I'm glad you came.",
+        f"Welcome, {guysname}. {ownername} has been waiting for you.",
+        f"Out of all people who joined this server, {guysname} is the epic one.",
+        f"Hello, {guysname}! Don't forget to read the server rules or {ownername} is gonna be mad at you.",
+        f"YOO! {guysname} ENTERED THE SERVER!",
+        f"Welcome {guysname}, you are the first person who entered the server since "+str(random.randint(1930, 2010))+"."
+    ]
+    return random.choice(arr)
+
+def exit(guysname):
+    arr = [
+        f"Oops! {guysname} accidentally clicked on the 'Leave Server' button!",
+        f"{guysname}.chr deleted successfully.",
+        f"Let's take a moment to pay respects for {guysname}. F...",
+        f"{guysname} be like: 'WHERE IS THE NSFW CHANNEL?! I WANT THOSE P||H||O||T ||OGRAPHY!!!'"
+        f"{guysname} left the chat.",
+        f"{guysname} left, he is probably looking for an edgy-anime-weebish server.",
+        f"Subject: {guysname} is terminated.",
+        f"{guysname} left the server, well the owner will be more depressed...",
+        f"{guysname} woke up from his dream.",
+        f"{guysname} got rick-rolled.",
+        f"ANTIVIRUS: {guysname}.exe deleted for infecting server.exe.",
+        f"{guysname} is gone :crab: :crab: :crab:",
+        f"This is {guysname}'s coffin: :coffin: :pensive:"
+    ]
+    return random.choice(arr)
+
 def getAbout():
     arr = [
         'Traceback (most recent call last)',
