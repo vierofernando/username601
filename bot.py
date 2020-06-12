@@ -1868,14 +1868,17 @@ async def on_message(message):
                 await message.channel.send("OverloadEquationError: So far this bot only accept one equation.")
             else:
                 ban = False
-                for i in len(unprefixed.lower()):
+                for i in range(0, len(unprefixed.lower())):
                     if unprefixed.lower()[i] in list("ABCDEFGHIJKLMNOPQRSTUVWXYZ."):
                         ban = True
                         break
                 if ban:
                     await message.channel.send('Your equation contain invalid characters!')
                 else:
-                    await message.channel.send(embed=discord.Embed(title="Equation result", description=f'**Equation:** ```{unprefixed}```\n\n**Result:**\n```{eval(unprefixed)}```', colour=discord.Colour.red()))
+                    try:
+                        await message.channel.send(embed=discord.Embed(title="Equation result", description=f'**Equation:** ```{unprefixed}```\n\n**Result:**\n```{eval(unprefixed)}```', colour=discord.Colour.red()))
+                    except ZeroDivisionError:
+                        await message.channel.send(embed=discord.Embed(title="Equation result", description=f'**Equation:** ```{unprefixed}```\n\n**Result:**\n```yo mama```', colour=discord.Colour.red()))
             beginning = int(args[1])
             ending = int(args[2])
             ran = random.randint(int(beginning), int(ending))
