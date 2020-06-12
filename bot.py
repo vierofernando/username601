@@ -1867,10 +1867,15 @@ async def on_message(message):
             if int(len(args))>4:
                 await message.channel.send("OverloadEquationError: So far this bot only accept one equation.")
             else:
-                if unprefixed.lower() in list("ABCDEFGHIJKLMNOPQRSTUVWXYZ."):
+                ban = False
+                for i in len(unprefixed.lower()):
+                    if unprefixed.lower()[i] in list("ABCDEFGHIJKLMNOPQRSTUVWXYZ."):
+                        ban = True
+                        break
+                if ban:
                     await message.channel.send('Your equation contain invalid characters!')
                 else:
-                    await message.channel.send(discord.Embed(title="Equation result", description=f'**Equation:** ```{unprefixed}```\n\n**Result:**\n```{eval(unprefixed)}```'))
+                    await message.channel.send(embed=discord.Embed(title="Equation result", description=f'**Equation:** ```{unprefixed}```\n\n**Result:**\n```{eval(unprefixed)}```', colour=discord.Colour.red()))
             beginning = int(args[1])
             ending = int(args[2])
             ran = random.randint(int(beginning), int(ending))
