@@ -2168,12 +2168,10 @@ async def on_message(message):
         if msg.startswith(prefix+"country"):
             country = myself.urlify(unprefixed)
             c = myself.api("https://restcountries.eu/rest/v2/name/"+str(country.lower()))
+            if len(c[0]['borders'])==0: borderz = 'No borders.'
+            else: borderz = myself.dearray(c[0]['borders'])
             embed = discord.Embed(
                 title = c[0]['nativeName'],
-                if len(c[0]['borders'])==0:
-                    borderz = 'No borders.'
-                else:
-                    borderz = myself.dearray(c[0]['borders'])
                 description = '**Capital:** '+str(c[0]['capital'])+'\n**Region: **'+str(c[0]['region'])+'\n**Sub Region: **'+str(c[0]['subregion'])+"\n**Population: **"+str(c[0]['population'])+"\n**Area: **"+str(c[0]['area'])+' km²\n**Time Zones:** '+str(myself.dearray(c[0]['timezones']))+'\n**Borders: **'+str(borderz),
                 colour = 0xffffff
             )
