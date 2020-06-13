@@ -60,12 +60,6 @@ def api(url):
 def insp(url):
     return decodeurl(url).text
 
-def randomhash():
-    hashh = ''
-    for i in range(0, random.randint(13, 21)):
-        hashh = hashh + random.choice(list('ABCDEFHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'))
-    return hashh
-
 def getPrefix():
     return prefix
 
