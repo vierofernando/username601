@@ -139,14 +139,14 @@ async def on_message(message):
                         embed = discord.Embed(title=title_e, description=desc_e, colour=discord.Colour.from_rgb(arr[0], arr[1], arr[2]))
                     await message.channel.send(embed=embed)
                 except Exception as e:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) + f' | An error occurd. For programmers: ```{e}```')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) + f' | An error occurd. For programmers: ```{e}```')
         if msg.startswith(prefix+'pokequiz'):
-            wait = await message.channel.send(client.get_emoji(BotEmotes.loading) + ' | Please wait... Generating quiz...')
+            wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... Generating quiz...')
             num = random.randint(1, 800)
             try:
                 corr = pb.pokemon(str(num)).name
             except Exception as e:
-                await wait.edit(content=client.get_emoji(BotEmotes.error) + f' | An error occured! ```{e}```')
+                await wait.edit(content=str(client.get_emoji(BotEmotes.error)) + f' | An error occured! ```{e}```')
             hint = 2
             attempt = 10
             gameplay = True
@@ -173,7 +173,7 @@ async def on_message(message):
                 if str(guessing.content).lower()==corr:
                     currentmsg = guessing
                     await currentmsg.add_reaction('✅')
-                    await message.channel.send(client.get_emoji(BotEmotes.success) +' | You are correct! The pokemon is **'+str(corr)+'**')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.success)) +' | You are correct! The pokemon is **'+str(corr)+'**')
                     gameplay = False
                     break
                 elif str(guessing.content).lower()=='hint':
@@ -203,7 +203,7 @@ async def on_message(message):
                     await message.channel.send(embed=embed)
                 else:
                     if message.author.guild_permissions.manage_channels==False:
-                        await message.channel.send(client.get_emoji(BotEmotes.error) +' | You need to have the `Manage channels` permission.')
+                        await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | You need to have the `Manage channels` permission.')
                     else:
                         randomppl = random.choice(message.guild.members).id
                         if args[1]=='--ch':
@@ -211,7 +211,7 @@ async def on_message(message):
                                 ch = client.get_channel(int(args[2][2:][:-1]))
                                 await ch.send(msg[int(len(args[0])+len(args[1])+len(args[2])+3):].replace('@someone', '<@'+str(randomppl)+'>').replace('@owner', '<@'+str(message.guild.owner.id)+'>'))
                             except:
-                                await message.channel.send(client.get_emoji(BotEmotes.error) + ' | An error occured! :x:')
+                                await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | An error occured! :x:')
                         else:
                             await message.channel.send(msg[int(len(args[0])+1):].replace('@someone', f'<@{str(randomppl)}>').replace('@owner', '<@'+str(message.guild.owner.id)+'>'))
         if msg.startswith(prefix+'inspectservers'):
@@ -255,14 +255,14 @@ async def on_message(message):
             if no_args:
                 await message.channel.send('Please send me a chat! And i will respond to it.')
             else:
-                wait = await message.channel.send(client.get_emoji(BotEmotes.loading) + ' | Please wait... Responding...')
+                wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... Responding...')
                 try:
                     data = myself.jsonisp('https://some-random-api.ml/chatbot?message='+str(myself.urlify(unprefixed)))['response']
                     await wait.edit(content=data)
                 except:
                     await wait.edit(content='I am sorry. I do not understand your message.')
         if msg.startswith(prefix+'hangman'):
-            wait = await message.channel.send(client.get_emoji(BotEmotes.loading) + ' | Please wait... generating...')
+            wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... generating...')
             the_word = myself.api("https://random-word-api.herokuapp.com/word?number=1")
             main_guess_cor = list(the_word[0])
             main_guess_hid = []
@@ -421,14 +421,14 @@ async def on_message(message):
             except asyncio.TimeoutError:
                 return await message.channel.send(':pensive: No one? Okay then, the answer is: {}.'.format(answer))
             if str(trying.content)==str(answer):
-                await message.channel.send(client.get_emoji(BotEmotes.success) +' | <@'+str(message.author.id)+'>, You are correct! :tada:')
+                await message.channel.send(str(client.get_emoji(BotEmotes.success)) +' | <@'+str(message.author.id)+'>, You are correct! :tada:')
             else:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +' | <@'+str(message.author.id)+'>, Incorrect. The answer is {}.'.format(answer))
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | <@'+str(message.author.id)+'>, Incorrect. The answer is {}.'.format(answer))
         if msg.startswith(prefix+'guessavatar'):
             if len(message.guild.members)>500:
                 await message.channel.send('Sorry, to protect some people\'s privacy, this command is not available for Large servers. (over 500 members)')
             else:
-                wait = await message.channel.send(client.get_emoji(BotEmotes.loading) + ' | Please wait... generating question...\nThis process may take longer if your server has more members.')
+                wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... generating question...\nThis process may take longer if your server has more members.')
                 avatarAll = []
                 nameAll = []
                 for ppl in message.guild.members:
@@ -436,7 +436,7 @@ async def on_message(message):
                         avatarAll.append(str(ppl.avatar_url).replace('webp', 'png'))
                         nameAll.append(ppl.display_name)
                 if len(avatarAll)<=4:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) +' | Need more online members! :x:')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Need more online members! :x:')
                 else:
                     numCorrect = random.randint(0, len(avatarAll)-1)
                     corr_avatar = avatarAll[numCorrect]
@@ -469,11 +469,11 @@ async def on_message(message):
                     except asyncio.TimeoutError:
                         return await message.channel.send(':pensive: No one? Okay then, the answer is: '+str(corr_order)+'. '+str(corr_name))
                     if str(reaction.emoji)==str(corr_order):
-                        await message.channel.send(client.get_emoji(BotEmotes.error) +' | <@'+str(message.author.id)+'>, You are correct! :tada:')
+                        await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | <@'+str(message.author.id)+'>, You are correct! :tada:')
                     else:
-                        await message.channel.send(client.get_emoji(BotEmotes.success) +' | <@'+str(message.author.id)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
+                        await message.channel.send(str(client.get_emoji(BotEmotes.success)) +' | <@'+str(message.author.id)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
         if msg.startswith(prefix+'geoquiz'):
-            wait = await message.channel.send(client.get_emoji(BotEmotes.loading) + ' | Please wait... generating question...')
+            wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... generating question...')
             data = myself.api("https://restcountries.eu/rest/v2/")
             topic = random.choice(splashes.getGeoQuiz())
             chosen_nation_num = random.randint(0, len(data))
@@ -510,9 +510,9 @@ async def on_message(message):
             except asyncio.TimeoutError:
                 await main.add_reaction('😔')
             if str(reaction.emoji)==str(corr_order):
-                await message.channel.send(client.get_emoji(BotEmotes.success) +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
+                await message.channel.send(str(client.get_emoji(BotEmotes.success)) +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
             else:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +' | <@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr_order)+'.')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | <@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr_order)+'.')
         if msg.startswith(prefix+'emojiimg'):
             if no_args:
                 await message.channel.send('Please send a custom emoji!')
@@ -522,32 +522,32 @@ async def on_message(message):
                     emoji_id = emoji[2][:-1]
                 except IndexError:
                     accept = False
-                    await message.channel.send(client.get_emoji(BotEmotes.error) +' | For some reason, we cannot proccess default emojis. Sorry!')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | For some reason, we cannot proccess default emojis. Sorry!')
                 try:
                     if client.get_emoji(int(emoji_id)).animated==False:
                         link = 'https://cdn.discordapp.com/emojis/'+str(emoji_id)+'.png?v=1'
                         accept = True
                     else:
-                        await message.channel.send(client.get_emoji(BotEmotes.error) + ' | Error processing it.')
+                        await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Error processing it.')
                         accept = False
                 except:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) + ' | Oops! There are an error *for some reason.*')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Oops! There are an error *for some reason.*')
                 if accept==True:
                     embed = discord.Embed(title='Emoji pic for ID of '+str(emoji_id), colour=discord.Colour.red())
                     embed.set_image(url=link)
                     await message.channel.send(embed=embed)
             else:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +' | Invalid parameters.')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid parameters.')
         if msg.startswith(prefix+'ban'):
             begin = True
             if no_args:
-                await message.channel.send(client.get_emoji(BotEmotes.error) + ' | Please mention someone!')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Please mention someone!')
                 begin = False
             else:
                 perms = message.author.guild_permissions.ban_members
                 if perms==False:
                     begin = False
-                    await message.channel.send(client.get_emoji(BotEmotes.error) + f' | <@{str(message.author.id)}>, you don\'t have the `Ban Members` permission! :rage:')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) + f' | <@{str(message.author.id)}>, you don\'t have the `Ban Members` permission! :rage:')
                 else:
                     try:
                         if args[1].startswith('<@!'):
@@ -555,12 +555,12 @@ async def on_message(message):
                         else:
                             criminal = message.guild.get_member(int(args[1][2:][:-1]))
                         if criminal.id==message.author.id:
-                            await message.channel.send(client.get_emoji(BotEmotes.error) +' | What a weirdo. Banning yourself.')
+                            await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | What a weirdo. Banning yourself.')
                             begin = False
                     except:
-                        await message.channel.send(client.get_emoji(BotEmotes.error) +' | Invalid mention.')
+                        await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid mention.')
                     if criminal.guild_permissions.administrator==True or criminal.guild_permissions.manage_guild==True or criminal.guild_permissions.manage_permissions==True:
-                        await message.channel.send(client.get_emoji(BotEmotes.error) +' | You cannot ban a moderator.')
+                        await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | You cannot ban a moderator.')
                         begin = False
                     if begin==True:
                         if len(args)<3:
@@ -577,9 +577,9 @@ async def on_message(message):
                                 'We don\'t even need '+criminal.name+' anymore.',
                                 'Bye bye, '+criminal.name+'.'
                             ]
-                            await message.channel.send(client.get_emoji(BotEmotes.success) + ' | '+random.choice(msgs))
+                            await message.channel.send(str(client.get_emoji(BotEmotes.success)) + ' | '+random.choice(msgs))
                         except:
-                            await message.channel.send(client.get_emoji(BotEmotes.error) + ' | There was an error on banning '+criminal.name+'.')
+                            await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | There was an error on banning '+criminal.name+'.')
         if msg.startswith(prefix+'rp'):
             if message.author.id==661200758510977084:
                 try:
@@ -589,7 +589,7 @@ async def on_message(message):
                     await user_to_send.send(embed=em)
                     await message.add_reaction('✅')
                 except Exception as e:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) + f' | Error: `{e}`')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) + f' | Error: `{e}`')
             else:
                 await message.channel.send('You are not the bot owner.')
         if msg.startswith(prefix+'feedback'):
@@ -598,7 +598,7 @@ async def on_message(message):
             elif len(list(args))>1000:
                 await message.channel.send('That\'s too long! Please provide a simpler description.')
             else:
-                wait = await message.channel.send(client.get_emoji(BotEmotes.loading) + ' | Please wait... Transmitting data to owner...')
+                wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... Transmitting data to owner...')
                 bans = []
                 async for messages in client.get_channel(706459051034279956).history():
                     if messages.content.startswith('Banned user with ID of: ['): bans.append(messages.content)
@@ -614,15 +614,15 @@ async def on_message(message):
                         fb = unprefixed
                         feedbackCh = client.get_channel(706459051034279956)
                         await feedbackCh.send('<@661200758510977084>, User with ID: '+str(message.author.id)+' sent a feedback: **"'+str(fb)+'"**')
-                        embed = discord.Embed(title='Feedback Successful', description=client.get_emoji(BotEmotes.success) + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.](https://discord.gg/HhAPkD8)',colour=discord.Colour.green())
+                        embed = discord.Embed(title='Feedback Successful', description=str(client.get_emoji(BotEmotes.success)) + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.](https://discord.gg/HhAPkD8)',colour=discord.Colour.green())
                         await wait.edit(content='', embed=embed)
                     except:
-                        await wait.edit(content=client.get_emoji(BotEmotes.error) + ' | Error: There was an error while sending your feedback. Sorry! :(')
+                        await wait.edit(content=str(client.get_emoji(BotEmotes.error)) + ' | Error: There was an error while sending your feedback. Sorry! :(')
         if msg.startswith(prefix+'fbban'):
             if message.channel.id==706459051034279956 and int(message.author.id)==661200758510977084:
                 await message.channel.send('Banned user with ID of: ['+str(args[1])+'] REASON:"'+str(message.content[int(len(args[0])+len(args[1])+2):])+'"')
             else:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +' | Invalid channel/user.')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid channel/user.')
         if msg.startswith(prefix+'gdlevel'):
             if no_args:
                 await message.channel.send(':x: Please enter a level ID!')
@@ -669,7 +669,7 @@ async def on_message(message):
                     embedy = discord.Embed(title='Geometry Dash Level searches for "'+str(unprefixed)+'":', description=levels, colour=discord.Colour.blue())
                     await message.channel.send(embed=embedy)
                 except:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) + ' | Error: Not Found. :four::zero::four:')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Error: Not Found. :four::zero::four:')
         if msg.startswith(prefix+'emojiinfo'):
             test = 0
             if test==0:
@@ -711,7 +711,7 @@ async def on_message(message):
             checky = message.author.guild_permissions.manage_messages
             req = message.author.name
             if checky==False:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +' | You don\'t have the permission `Manage Messages` to do this command \>:(')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | You don\'t have the permission `Manage Messages` to do this command \>:(')
             else:
                 contin = True
                 if args[1].isnumeric()==True:
@@ -729,7 +729,7 @@ async def on_message(message):
                             deleted_messages = await message.channel.purge(limit=count)
                             await message.channel.send('**Requested by '+req+':** Deleted '+str(len(deleted_messages)-1)+' messages in <#'+str(message.channel.id)+'>.', delete_after=3)
                         except Exception as e:
-                            await message.channel.send(client.get_emoji(BotEmotes.error) + ' | An error occured during purging. ```'+str(e)+'```')
+                            await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | An error occured during purging. ```'+str(e)+'```')
                     elif args[1].startswith('<@'):
                         check_guy = message.mentions[0]
                         try:
@@ -738,7 +738,7 @@ async def on_message(message):
                             deleted_messages = await message.channel.purge(check=forperson, limit=500)
                             await message.channel.send('**Requested by '+req+':** Deleted '+str(len(deleted_messages))+' messages in <#'+str(message.channel.id)+'>.\nSpecifically for messages by <@'+str(check_guy.id)+'>.', delete_after=10)
                         except Exception as e:
-                            await message.channel.send(client.get_emoji(BotEmotes.error) + ' | An error occured during purging. ```'+str(e)+'```')
+                            await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | An error occured during purging. ```'+str(e)+'```')
         if args[0]==prefix+'ex' or args[0]==prefix+'eval':
             if int(message.author.id)==661200758510977084:
                 command = unprefixed
@@ -758,13 +758,13 @@ async def on_message(message):
             if message.author.guild_permissions.manage_guild==True or int(message.author.id)==661200758510977084:
                 accept = True
             else:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +' | <@'+str(message.author.id)+'>, You need to have the MANAGE SERVER permission or  be the bot owner to do this command.\nTo be the bot owner, try creating a bot :v')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | <@'+str(message.author.id)+'>, You need to have the MANAGE SERVER permission or  be the bot owner to do this command.\nTo be the bot owner, try creating a bot :v')
                 accept = False
             if accept==True:
                 await message.channel.send(message.content[3:])
         if msg.startswith(prefix+'addrole') or args[0]==prefix+'ar':
             if message.author.guild_permissions.manage_roles==False:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +f' | <@{str(message.author.id)}>, you don\'t have the `Manage Roles` permission!')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | <@{str(message.author.id)}>, you don\'t have the `Manage Roles` permission!')
             else:
                 toadd = None
                 if args[2].startswith('<@&'):
@@ -781,7 +781,7 @@ async def on_message(message):
                     await aruser.add_roles(toadd)
                     await message.channel.send('Congratulations, '+aruser.name+', you now have the '+toadd.name+' role! :tada:')
                 except Exception as e:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) + f' | An error occured. :x:```{str(e)}```')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) + f' | An error occured. :x:```{str(e)}```')
         if msg.startswith(prefix+'xpbox'):
             results = []
             buttons = []
@@ -801,7 +801,7 @@ async def on_message(message):
                 except:
                     await message.channel.send('Command canceled. No response after 30 seconds.')
                 if '/' in str(trying.content) or '?' in str(trying.content) or '&' in str(trying.content):
-                    await message.channel.send(client.get_emoji(BotEmotes.error) +' | Your request contain an invalid symbol. Please try again.')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Your request contain an invalid symbol. Please try again.')
                     accept = False
                     break
                 else:
@@ -825,7 +825,7 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'removerole') or args[0]==prefix+'rr':
             if message.author.guild_permissions.manage_roles==False:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +f' | <@{str(message.author.id)}>, you don\'t have the `Manage Roles` permission!')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | <@{str(message.author.id)}>, you don\'t have the `Manage Roles` permission!')
             else:
                 aruser = message.mentions[0]
                 toadd = None
@@ -845,7 +845,7 @@ async def on_message(message):
                     await message.channel.send(f'An error occured. :x: ```{e}```')
         if msg.startswith(prefix+'permission') or msg.startswith('perms'):
             if len(args)!=2:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +' | Please mention someone!\nExample:\n'+prefix+'permissions <@'+str(message.author.id)+'>')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Please mention someone!\nExample:\n'+prefix+'permissions <@'+str(message.author.id)+'>')
             else:
                 member = message.mentions[0]
                 perm = ''
@@ -860,33 +860,33 @@ async def on_message(message):
                     permissionsEmbed = discord.Embed(title='User permissions for '+str(message.mentions[0].name)+';', description=str(perm), colour=discord.Colour.blue())
                     await message.channel.send(embed=permissionsEmbed)
                 except Exception as e:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) +' | elol. we have an elol here:```'+str(e)+'```')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | elol. we have an elol here:```'+str(e)+'```')
         if msg.startswith(prefix+'makechannel'):
             if message.author.guild_permissions.manage_channels==False:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +' | You don\'t have the permission `Manage Channel`. Which is required.')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | You don\'t have the permission `Manage Channel`. Which is required.')
                 acceptId = 1
             else:
                 acceptId = 0
             if acceptId==0:
                 trashCrap = ['text', 'voice']
                 if len(args)<3:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) +' | Invalid arguments.')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid arguments.')
                 elif args[1] not in trashCrap:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) +' | Invalid type. Please add `text` or `voice`.')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid type. Please add `text` or `voice`.')
                 elif args[1]=='text':
                     try:
                         await message.guild.create_text_channel(msg[int(len(args[0])+len(args[1])+2):].replace(' ', '-'))
                         await message.channel.send(':white_check_mark: Done! Created a text channel: '+str(msg[int(len(args[0])+len(args[1])+2):]))
                     except:
-                        await message.channel.send(client.get_emoji(BotEmotes.error) + ' | Oops! It seemed that we have a problem creating a text channel. :(')
+                        await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Oops! It seemed that we have a problem creating a text channel. :(')
                 elif args[1]=='voice':
                     await message.guild.create_voice_channel(msg[int(len(args[0])+len(args[1])+2):])
                     await message.channel.send(':white_check_mark: Done! Created a voice channel: '+str(msg[int(len(args[0])+len(args[1])+2):]))
                 else:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) + ' | error. (not 404)')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | error. (not 404)')
         if msg.startswith(prefix+'kick'):
             if no_args:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +' | Please mention someone!!1!11')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Please mention someone!!1!11')
             else:
                 if args[1].startswith('<@!'):
                     idiot = message.guild.get_member(int(args[1][3:][:-1]))
@@ -894,13 +894,13 @@ async def on_message(message):
                     idiot = message.guild.get_member(int(args[1][2:][:-1]))
                 misterKicker = message.guild.get_member(int(message.author.id))
                 if misterKicker.guild_permissions.kick_members==False:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) +' | You cannot kick '+str(idiot.name)+', because you don\'t even have the `Kick Members` permission!')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | You cannot kick '+str(idiot.name)+', because you don\'t even have the `Kick Members` permission!')
                     acceptId = 1
                 elif idiot.guild_permissions.administrator==True or idiot.guild_permissions.manage_guild==True:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) +' | **You want me to kick an mod/admin?!**\nCome on, you gotta be kidding me.')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | **You want me to kick an mod/admin?!**\nCome on, you gotta be kidding me.')
                     acceptId = 1
                 elif idiot.id==message.author.id:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) +' | Don\'t be a weirdo, kicking urself. If you want, just leave the server! That\'s easy! :grinning:')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Don\'t be a weirdo, kicking urself. If you want, just leave the server! That\'s easy! :grinning:')
                     acceptId = 1
                 else:
                     acceptId = 0
@@ -918,9 +918,9 @@ async def on_message(message):
                     else:
                         reas = msg[int(len(args[1])+len(args[0])+2):]
                     await message.guild.kick(idiot, reason=str(reas))
-                    await message.channel.send(client.get_emoji(BotEmotes.success) + ' | ' +random.choice(msgs))
+                    await message.channel.send(str(client.get_emoji(BotEmotes.success)) + ' | ' +random.choice(msgs))
                 else:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) +' | Kick declined by myself.')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Kick declined by myself.')
         if msg.startswith(prefix+'nick'):
             acceptId = 0
             if no_args:
@@ -934,26 +934,26 @@ async def on_message(message):
                         else:
                             changethem = message.guild.get_member(int(args[1][2:][:-1]))
                     except ValueError:
-                        await message.channel.send(client.get_emoji(BotEmotes.error) + ' | Error with the tag. :x: :(')
+                        await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Error with the tag. :x: :(')
                         acceptId = 1
                     finally:
                         if message.author.guild_permissions.manage_nicknames==False:
-                            await message.channel.send(client.get_emoji(BotEmotes.error) +' | You need the `Manage Nicknames` permissions to do this command.')
+                            await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | You need the `Manage Nicknames` permissions to do this command.')
                             acceptId = 1
                 else:
                     changethem = message.guild.get_member(int(message.author.id))
                     if changethem.guild_permissions.change_nickname==False:
                         acceptId = 1
-                        await message.channel.send(client.get_emoji(BotEmotes.error) +' | You need the `Change Nickname` permission to change your, nickname, DUH')
+                        await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | You need the `Change Nickname` permission to change your, nickname, DUH')
                 if acceptId==0:
                     newnick = message.content[int(len(args[1])+len(args[0])+2):]
                     try:
                         await changethem.edit(nick=newnick)
                         await message.channel.send('Change the '+changethem.name+'\'s nickname to `'+str(newnick)+'`. Nice name!')
                     except:
-                        await message.channel.send(client.get_emoji(BotEmotes.error) +' | So umm, i wanted to change their nickname and...\nDiscord says: `Missing Permissions`\nMe and '+str(message.author.name)+': :neutral_face:')
+                        await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | So umm, i wanted to change their nickname and...\nDiscord says: `Missing Permissions`\nMe and '+str(message.author.name)+': :neutral_face:')
         if msg.startswith(prefix+'imdb'):
-            wait = await message.channel.send(client.get_emoji(BotEmotes.loading) + ' | Please wait...')
+            wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
             if no_args or args[1]=='help' or args[1]=='--help':
                 embed = discord.Embed(title='IMDb command help', description='Searches through the IMDb Movie database.\n{} are Parameters that is **REQUIRED** to get the info.\n\n', colour=discord.Colour.red())
                 embed.add_field(name='Commands', value=prefix+'imdb --top {NUMBER}\n'+prefix+'imdb --search {TYPE} {QUERY}\n'+prefix+'imdb help\n'+prefix+'imdb --movie {MOVIE_ID or MOVIE_NAME}', inline='False')
@@ -975,7 +975,7 @@ async def on_message(message):
                             embed = discord.Embed(title='IMDb Top '+str(num)+':', description=str(total), colour=discord.Colour.red())
                             await wait.edit(content='', embed=embed)
                     except ValueError:
-                        await wait.edit(content=client.get_emoji(BotEmotes.error) +' | Is the top thing you inputted REALLY a number?\nlike, Not top TEN, but top 10.\nGET IT?')
+                        await wait.edit(content=str(client.get_emoji(BotEmotes.error)) +' | Is the top thing you inputted REALLY a number?\nlike, Not top TEN, but top 10.\nGET IT?')
             if args[1]=='--movie':
                 if args[1]=='--movie' and len(args)==2:
                     await wait.edit(content='Where\'s the ID?!?!?!')
@@ -989,19 +989,19 @@ async def on_message(message):
                     data = ia.get_movie(str(movieId))
                 try:
                     embed = discord.Embed(title=data['title'], colour=discord.Colour.red())
-                    await wait.edit(content=client.get_emoji(BotEmotes.loading) + ' | Please wait... Retrieving data...')
+                    await wait.edit(content=str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... Retrieving data...')
                     emoteStar = ''
                     for i in range(0, round(int(ia.get_movie_main(theID)['data']['rating']))):
                         emoteStar = emoteStar + ' :star:'
                     upload_date = ia.get_movie_release_info(str(theID))['data']['raw release dates'][0]['date']
                     imdb_url = ia.get_imdbURL(data)
-                    await wait.edit(content=client.get_emoji(BotEmotes.loading) + ' | Please wait... Creating result...')
+                    await wait.edit(content=str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... Creating result...')
                     embed.add_field(name='General Information', value=f'**IMDb URL: **{imdb_url}\n**Upload date: **{upload_date}\n**Written by: **'+ia.get_movie_main(str(theID))['data']['writer'][0]['name']+'\n**Directed by: **'+ia.get_movie_main(str(theID))['data']['director'][0]['name'])
                     embed.add_field(name='Ratings', value=emoteStar+'\n**Overall rating: **'+str(ia.get_movie_main(str(theID))['data']['rating'])+'\n**Rated by '+str(ia.get_movie_main(str(theID))['data']['votes'])+' people**')
                     embed.set_image(url=ia.get_movie_main(str(theID))['data']['cover url'])
                     await wait.edit(content='', embed=embed)
                 except KeyError:
-                    await wait.edit(content=client.get_emoji(BotEmotes.error) + ' | An error occured!\n**Good news, we *may* fix it.**')
+                    await wait.edit(content=str(client.get_emoji(BotEmotes.error)) + ' | An error occured!\n**Good news, we *may* fix it.**')
                     errorQuick = discord.Embed(title=data['title'], colour=discord.Colour.red())
                     errorQuick.add_field(name='General Information', value=f'**IMDb URL: **{imdb_url}\n**Upload date: **{upload_date}')
                     errorQuick.add_field(name='Ratings', value=emoteStar+'\n**Overall rating: **'+str(ia.get_movie_main(str(theID))['data']['rating'])+'\n**Rated by '+str(ia.get_movie_main(str(theID))['data']['votes'])+' people**')
@@ -1039,7 +1039,7 @@ async def on_message(message):
         if msg.startswith(prefix+'dogfact'):
             fact = myself.api('https://dog-api.kinduff.com/api/facts')
             if fact['success']!=True:
-                desc = client.get_emoji(BotEmotes.error) + ' | Error getting the fact.'
+                desc = str(client.get_emoji(BotEmotes.error)) + ' | Error getting the fact.'
             else:
                 desc = fact['facts'][0]
             embed = discord.Embed(title='Did you know?',description=str(desc))
@@ -1056,7 +1056,7 @@ async def on_message(message):
                             data = message.guild.get_role(i.id)
                             break
                 if data==None:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) +' | Your input seemed to be invalid. Please try again.')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Your input seemed to be invalid. Please try again.')
                 else:
                     if data.permissions.administrator==True:
                         perm = ':white_check_mark: Server Administrator'
@@ -1104,7 +1104,7 @@ async def on_message(message):
             getprof = myself.urlify(unprefixed)
             data = myself.insp('https://api.alexflipnote.dev/steam/user/'+str(getprof))
             if '<title>404 Not Found</title>' in data:
-                await message.channel.send(client.get_emoji(BotEmotes.error) + ' | Error **404**! `not found...`')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Error **404**! `not found...`')
             else:
                 steam_id = data.split('"steamid64":')[1].split(',')[0][1:]
                 custom_url = data.split('"customurl":')[1].split('},')[0][1:]
@@ -1122,7 +1122,7 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'salty'):
             if len(args)!=2:
-                await message.channel.send(client.get_emoji(BotEmotes.error) + ' | Error! Invalid args.')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Error! Invalid args.')
             else:
                 av = message.mentions[0].avatar_url
                 embed = discord.Embed(colour=discord.Colour.magenta())
@@ -1130,14 +1130,14 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'woosh') or msg.startswith(prefix+'wooosh') or msg.startswith(prefix+'woooosh'):
             if len(args)!=2:
-                await message.channel.send(client.get_emoji(BotEmotes.error) + ' | Error! Invalid args.')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Error! Invalid args.')
             else:
                 av = message.mentions[0].avatar_url
                 embed = discord.Embed(colour=discord.Colour.magenta())
                 embed.set_image(url='https://api.alexflipnote.dev/jokeoverhead?image='+str(av))
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'funfact'):
-            wait = await message.channel.send(client.get_emoji(BotEmotes.loading) + ' | Please wait...')
+            wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
             data = myself.insp('https://bestlPlease waitifeonline.com/random-fun-facts/')
             byFact = data.split('<div class="title ">')
             accepted = False
@@ -1156,7 +1156,7 @@ async def on_message(message):
             embed.set_image(url='https://api.alexflipnote.dev/supreme?text='+str(text))
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'googledoodle'):
-            wait = await message.channel.send(client.get_emoji(BotEmotes.loading) + ' | Please wait... This may take a few moments...')
+            wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... This may take a few moments...')
             data = myself.insp('https://google.com/doodles')
             byLatest = data.split('<li class="latest-doodle ">')
             del byLatest[0]
@@ -1202,7 +1202,7 @@ async def on_message(message):
             warning = 'No errors found.'
             for i in range(0, int(len(message.guild.text_channels))):
                 if len(channels)>2048:
-                    warning = client.get_emoji(BotEmotes.error) + ' | Error: Too many channels, some channels may be not listed.'
+                    warning = str(client.get_emoji(BotEmotes.error)) + ' | Error: Too many channels, some channels may be not listed.'
                 channels = channels +'<#'+ str(message.guild.text_channels[i].id) + '> \n'
             embed = discord.Embed(title=message.guild.name+'\'s Text channels:', description=str(channels), inline='True')
             embed.set_footer(text=str(warning))
@@ -1248,7 +1248,7 @@ async def on_message(message):
                     await message.channel.send(f'Please provide a hex!\nExample: {prefix}rolecolor {random.choice(message.guild.roles).name} #ff0000')
                 else:
                     if message.author.guild_permissions.manage_roles==False:
-                        await message.channel.send(client.get_emoji(BotEmotes.error) +' | You need the `MANAGE ROLES` permission to change role colors!')
+                        await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | You need the `MANAGE ROLES` permission to change role colors!')
                     else:
                         role = None
                         for i in message.guild.roles:
@@ -1256,14 +1256,14 @@ async def on_message(message):
                                 role = i
                                 break
                         if role==None:
-                            await message.channel.send(client.get_emoji(BotEmotes.error) +' | Invalid role input! :(')
+                            await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid role input! :(')
                         else:
                             try:
                                 colint = myself.toint(unprefixed.split('#')[1].lower())
                                 await role.edit(colour=discord.Colour(colint))
                                 await message.channel.send('Color of '+role.name+' role has been changed.', delete_after=10)
                             except Exception as e:
-                                await message.channel.send(client.get_emoji(BotEmotes.error) + f' | An error occured while editing role:```{e}```')
+                                await message.channel.send(str(client.get_emoji(BotEmotes.error)) + f' | An error occured while editing role:```{e}```')
         if msg.startswith(prefix+'isprime'):
             if int(args[1])<999999:
                 numsArray = range(2, int(args[1]))
@@ -1278,7 +1278,7 @@ async def on_message(message):
                 else:
                     await message.channel.send("NO. "+str(args[1])+" can be divided by "+str(myself.dearray(canBeDividedBy))+".")
             else:
-                await message.channel.send(client.get_emoji(BotEmotes.error) + ' | OverloadInputError: Beyond the limit of 999999')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | OverloadInputError: Beyond the limit of 999999')
         if msg.startswith(prefix+'jpeg') or msg.startswith(prefix+'invert') or msg.startswith(prefix+'magik')or msg.startswith(prefix+'pixelate')or msg.startswith(prefix+'b&w'):
             if args[0][1:]=='jpeg':
                 com = 'jpegify'
@@ -1314,7 +1314,7 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'ascii'):
             if no_args:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +' | Invalid. Please send a word or something.')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid. Please send a word or something.')
             else:
                 if '--randomfont' not in msg:
                     query = myself.urlify(str(unprefixed))
@@ -1334,7 +1334,7 @@ async def on_message(message):
                     embed.set_footer(text='Type --randomfont for umm.. random font to be generated.')
                     await message.channel.send(embed=embed)
         if msg.startswith(prefix+'typingtest'):
-            wait = await message.channel.send(client.get_emoji(BotEmotes.loading) + ' | Please wait...')
+            wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
             data = myself.api("https://random-word-api.herokuapp.com/word?number=10")
             text = myself.arrspace(data)
             guy = message.author
@@ -1347,9 +1347,9 @@ async def on_message(message):
             except:
                 await main.edit(content='Time is up.')
             if str(trying.content).lower()==text.lower():
-                await message.channel.send(client.get_emoji(BotEmotes.success) +' | Correct!\nYour time: **'+str(datetime.datetime.now()-first)[:-7]+'**')
+                await message.channel.send(str(client.get_emoji(BotEmotes.success)) +' | Correct!\nYour time: **'+str(datetime.datetime.now()-first)[:-7]+'**')
             else:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +' | Did you do a typo or something?\nYour time: **'+str(datetime.datetime.now()-first)[:-7]+'**')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Did you do a typo or something?\nYour time: **'+str(datetime.datetime.now()-first)[:-7]+'**')
         if msg.startswith(prefix+'defuse') or msg.startswith(prefix+'bomb'):
             def embedType(a):
                 if a==1:
@@ -1412,7 +1412,7 @@ async def on_message(message):
                 embed.set_thumbnail(url=user.avatar_url)
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'wikipedia'):
-            wait = await message.channel.send(client.get_emoji(BotEmotes.loading) + ' | Please wait...')
+            wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
             if no_args:
                 await wait.edit(content='Please input a page name!')
             else:
@@ -1449,7 +1449,7 @@ async def on_message(message):
                     await wait.edit(content='', embed=embed)
         if msg.startswith(prefix+'getinvite'):
             if message.author.guild_permissions.create_invite==False:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +' | You need to have the permission `Create Invite` to continue!')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | You need to have the permission `Create Invite` to continue!')
             else:
                 serverinvite = await message.channel.create_invite(reason='Requested by '+str(message.author.name))
                 await message.channel.send('New invite created! Link: **'+str(serverinvite)+'**')
@@ -1461,10 +1461,10 @@ async def on_message(message):
                 embed.set_image(url=str(user.avatar_url).replace('.webp', '.png'))
                 await message.channel.send(embed=embed)
             except:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +' | Invalid avatar.')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid avatar.')
         if args[0]==prefix+'phcomment':
             if no_args:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +f' | Invalid type.\nTry:\n`{prefix}phcomment [text]` or;\n`{prefix}phcomment [tag] [text]`')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | Invalid type.\nTry:\n`{prefix}phcomment [text]` or;\n`{prefix}phcomment [tag] [text]`')
             else:
                 if len(message.mentions)==0:
                     text = unprefixed
@@ -1530,9 +1530,9 @@ async def on_message(message):
                     embed.set_footer(text='Shown 1 result out of '+str(leng)+' results!')
                     await message.channel.send(embed=embed)
                 except:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) + ' | There was an error on searching! Please check your spelling :eyes:')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | There was an error on searching! Please check your spelling :eyes:')
         if msg.startswith(prefix+'translate'):
-            wait = await message.channel.send(client.get_emoji(BotEmotes.loading) + ' | Please wait...')
+            wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
             if len(args)>1:
                 if args[1]=='--list':
                     lang = ''
@@ -1549,13 +1549,13 @@ async def on_message(message):
                         embed.set_footer(text=f'Translated {LANGUAGES[trans.src]} to {LANGUAGES[trans.dest]}')
                         await wait.edit(content='', embed=embed)
                     except:
-                        await wait.edit(content=client.get_emoji(BotEmotes.error) + ' | An error occured!')
+                        await wait.edit(content=str(client.get_emoji(BotEmotes.error)) + ' | An error occured!')
                 else:
                     await wait.edit(content=f'Please add a language! To have the list and their id, type\n`{prefix}translate --list`.')
             else:
                 await wait.edit(content=f'Please add translations or\nType `{prefix}translate --list` for supported languages.')
         if msg.startswith(prefix+'catfact'):
-            catWait = await message.channel.send(client.get_emoji(BotEmotes.loading) + ' | Please wait...')
+            catWait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
             data = myself.api("https://catfact.ninja/fact")
             embed = discord.Embed(
                 title = 'Did you know;',
@@ -1603,7 +1603,7 @@ async def on_message(message):
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'tts'):
             if no_args:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +' | Invalid.')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid.')
             else:
                 await message.channel.send(content=msg[int(args[0]+1):], tts=True)
         if msg.startswith(prefix+'scroll'):
@@ -1626,7 +1626,7 @@ async def on_message(message):
             embed.set_footer(text=f'Type {prefix}ship [tag1] [tag2] for cooler ones instead of just random!')
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'ghiblifilms'):
-            wait = await message.channel.send(client.get_emoji(BotEmotes.loading) + ' | Please wait... Getting data...')
+            wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... Getting data...')
             data = myself.api('https://ghibliapi.herokuapp.com/films')
             if no_args:
                 films = ""
@@ -1659,26 +1659,26 @@ async def on_message(message):
             await message.channel.send(embed=theEm)
         if msg.startswith(prefix+'slowmode'):
             if len(args)!=2:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +' | Invalid setup.')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid setup.')
             else:
                 if message.author.guild_permissions.manage_channels==False:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) +' | <@'+str(message.author.id)+'> you need the `Manage channels` permission.')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | <@'+str(message.author.id)+'> you need the `Manage channels` permission.')
                 else:
                     try:
                         global delay
                         delay = int(args[1])
                     except ValueError:
-                        await message.channel.send(client.get_emoji(BotEmotes.error) +' | Invalid number!')
+                        await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid number!')
                     if delay>21600:
-                        await message.channel.send(client.get_emoji(BotEmotes.error) +' | That\'s too long! You must be an insane admin to do this :flushed:')
+                        await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | That\'s too long! You must be an insane admin to do this :flushed:')
                     elif delay<0:
-                        await message.channel.send(client.get_emoji(BotEmotes.error) +f' | Nope, you expect me to minus slowmode?\n\n**To disable slowmode, type {prefix}slowmode 0 instead.**')
+                        await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | Nope, you expect me to minus slowmode?\n\n**To disable slowmode, type {prefix}slowmode 0 instead.**')
                     else:
                         await message.channel.edit(slowmode_delay=delay)
                         if delay==0:
-                            await message.channel.send(client.get_emoji(BotEmotes.success) + ' | Successfully disabled slowmode.')
+                            await message.channel.send(str(client.get_emoji(BotEmotes.success)) + ' | Successfully disabled slowmode.')
                         else:
-                            await message.channel.send(client.get_emoji(BotEmotes.success) + ' | Successfully changed the slowmode delay of this channel to '+str(delay)+' seconds.')
+                            await message.channel.send(str(client.get_emoji(BotEmotes.success)) + ' | Successfully changed the slowmode delay of this channel to '+str(delay)+' seconds.')
         if msg.startswith(prefix+'inviteme') or msg.startswith(prefix+'invite'):
             if message.guild.id!=264445053596991498:
                 embed = discord.Embed(
@@ -1747,7 +1747,7 @@ async def on_message(message):
                 factor.append(int(args[1]))
                 await message.channel.send(str(factor))
             else:
-                await message.channel.send(client.get_emoji(BotEmotes.error) + ' | OverloadInputError: Beyond the limit of 999999.')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | OverloadInputError: Beyond the limit of 999999.')
         if msg.startswith(prefix+'multiplication'):
             arr = []
             for i in range(1, 15):
@@ -1771,16 +1771,16 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
             except Exception as e:
                 print('https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&days=1-second')
-                await message.channel.send(client.get_emoji(BotEmotes.error) +f' | Invalid!\nThe flow is this: `{prefix}gdcomment text | name | like count`\nExample: `{prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | Invalid!\nThe flow is this: `{prefix}gdcomment text | name | like count`\nExample: `{prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
         if msg.startswith(prefix+'gdbox'):
             if no_args:
                 await message.channel.send('Please input a text!')
             else:
-                wait = await message.channel.send(client.get_emoji(BotEmotes.loading) + ' | Please wait...')
+                wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
                 text = myself.urlify(unprefixed)
                 av = message.author.avatar_url
                 if len(text)>100:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) +' | the text is too long!')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | the text is too long!')
                 else:
                     if message.author.guild_permissions.manage_guild==False:
                         color = 'brown'
@@ -1861,14 +1861,14 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'lockdown'):
             if len(args)!=2:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +f' | Invalid parameters. Correct Example: `{prefix}lockdown [seconds]`\nMinimum: 10, Maximum: 900')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | Invalid parameters. Correct Example: `{prefix}lockdown [seconds]`\nMinimum: 10, Maximum: 900')
             else:
                 if args[1].isnumeric()==False:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) +' | Invalid time.')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid time.')
                 elif int(args[1])<10 or int(args[1])>900:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) +' | Invalid: off-limits.')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid: off-limits.')
                 elif message.author.guild_permissions.administrator==False:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) +' | You need the administrator permission to do this!')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | You need the administrator permission to do this!')
                 else:
                     try:
                         await message.channel.send('Everyone, <#'+str(message.channel.id)+'> is on lockdown for '+str(args[1])+' seconds! No one except administrators can chat! :x:')
@@ -1877,7 +1877,7 @@ async def on_message(message):
                         await message.channel.set_permissions(message.guild.default_role, send_messages=True)
                         await message.channel.send('Lockdown ended.')
                     except:
-                        await message.channel.send(client.get_emoji(BotEmotes.error) +' | For some reason, i cannot lock this channel :(')
+                        await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | For some reason, i cannot lock this channel :(')
         if args[0]==prefix+"math" or args[0]==prefix+'calc':
             if no_args:
                 await message.channel.send("No math problem? Ok no fix.")
@@ -1953,7 +1953,7 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
         if msg.startswith(prefix+'trap'):
             if no_args or len(message.mentions)==0:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +f' | Wrong.\nPlease try the correct like following:\n`{prefix}trap [tag]`')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | Wrong.\nPlease try the correct like following:\n`{prefix}trap [tag]`')
             else:
                 embed = discord.Embed(colour=discord.Colour.magenta())
                 embed.set_image(url='http://nekobot.xyz/api/imagegen?type=trap&name='+myself.urlify(str(message.mentions[0].name))+'&author='+myself.urlify(str(message.author.name))+'&image='+str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')+'&raw=1')
@@ -2000,7 +2000,7 @@ async def on_message(message):
             warning = 'Down triangles means that the bot is down. And up triangles mean the bot is well... up.'
             for i in range(0, int(len(message.guild.members))):
                 if len(botmembers)>2048:
-                    warning = client.get_emoji(BotEmotes.error) + ' | Error: Too many bots, some bot are not listed above.'
+                    warning = str(client.get_emoji(BotEmotes.error)) + ' | Error: Too many bots, some bot are not listed above.'
                     break
                 if message.guild.members[i].bot==True:
                     if str(message.guild.members[i].status)=='offline':
@@ -2127,7 +2127,7 @@ async def on_message(message):
                 try:
                     trying = await client.wait_for('message', check=check_not_stranger, timeout=20.0)
                 except asyncio.TimeoutError:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) +' | You did not respond for the next 20 seconds!\nGame ended.')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | You did not respond for the next 20 seconds!\nGame ended.')
                     gameplay = False
                     break
                 if trying.content.isnumeric()==False:
@@ -2141,7 +2141,7 @@ async def on_message(message):
                         await message.channel.send('Lower!')
                         attempts = int(attempts) - 1
                     if int(trying.content)==num:
-                        await message.channel.send(client.get_emoji(BotEmotes.success) +' | You are correct!\n**The answer is '+str(num)+'!**')
+                        await message.channel.send(str(client.get_emoji(BotEmotes.success)) +' | You are correct!\n**The answer is '+str(num)+'!**')
                         gameplay = False
                         break
         if msg.startswith(prefix+"randomcolor") or msg.startswith(prefix+'colorinfo') or msg.startswith(prefix+'colourinfo'):
@@ -2155,7 +2155,7 @@ async def on_message(message):
                 continuing = True
             else:
                 if len(args)!=2:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) +' | Invalid arguments.')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid arguments.')
                 elif args[1].startswith('#'):
                     hexCode = args[1][1:]
                     continuing = True
@@ -2375,7 +2375,7 @@ async def on_message(message):
                 for i in range(int(begin), int(end)):
                     await message.add_reaction(emojiArr[i])
             elif errorLevel==1:
-                await message.channel.send(client.get_emoji(BotEmotes.error) + ' | Error: Invalid Integer.')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Error: Invalid Integer.')
         if msg.startswith(prefix+'slap'):
             embed=discord.Embed(title=splashes.slap('msg')+" "+str(message.mentions[0].name)+"!", color=discord.Colour.red())
             embed.set_image(url=splashes.slap('gif'))
@@ -2434,7 +2434,7 @@ async def on_message(message):
             if emojiid==0:
                 await message.channel.send(total)
             else:
-                await message.channel.send(client.get_emoji(BotEmotes.error) + ' | BadSymbolError: Error! You added an invalid symbol\nthat cannot be converted to emojis. Sorry.')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | BadSymbolError: Error! You added an invalid symbol\nthat cannot be converted to emojis. Sorry.')
         if args[0]==prefix+'reverse':
             word = msg[9:]
             await message.channel.send(word[::-1])
@@ -2473,7 +2473,7 @@ async def on_message(message):
                     withoutSpaces = int(withoutSpaces)+1
             await message.channel.send("**With Spaces:** "+str(withSpaces)+"\n**Without Spaces:**"+str(withoutSpaces))
         if msg.startswith(prefix+'randomword'):
-            toEdit = await message.channel.send(client.get_emoji(BotEmotes.loading) + ' | Please wait...')
+            toEdit = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
             data = myself.api("https://random-word-api.herokuapp.com/word?number=1")
             await toEdit.edit(content=str(data[0]))
         if msg.startswith(prefix+'inspirobot'):
@@ -2496,12 +2496,12 @@ async def on_message(message):
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'atbash'):
             if no_args:
-                await message.channel.send(client.get_emoji(BotEmotes.error) + ' | Invalid. Please give us the word to encode...')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Invalid. Please give us the word to encode...')
             else:
                 await message.channel.send(myself.atbash(unprefixed))
         if msg.startswith(prefix+'caesar'):
             if len(args)<3:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +f' | Invalid.\nPlease input:\n`{prefix}caesar [offset] [text]`\nExample: `{prefix}caesar 3 Hello world!`')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | Invalid.\nPlease input:\n`{prefix}caesar [offset] [text]`\nExample: `{prefix}caesar 3 Hello world!`')
             else:
                 if args[1].isnumeric()==False:
                     await message.channel.send('That offset is NOT a number!')
@@ -2509,7 +2509,7 @@ async def on_message(message):
                     try:
                         await message.channel.send(myself.caesar(message.content[int(len(args[0])+len(args[1])+2):], int(args[1])))
                     except Exception as e:
-                        await message.channel.send(client.get_emoji(BotEmotes.error) + f' | Error!\n```{e}```Look at dat error tho :flushed:')
+                        await message.channel.send(str(client.get_emoji(BotEmotes.error)) + f' | Error!\n```{e}```Look at dat error tho :flushed:')
         if msg.startswith(prefix+'binary'):
             if no_args:
                 await message.channel.send(f'Please send something to encode to binary!\nExample: `{prefix}binary {message.author.name}`')
@@ -2557,12 +2557,12 @@ async def on_message(message):
         if msg.startswith(prefix+'lovelevel'):
             nums = list(range(0, 100))
             if no_args:
-                await message.channel.send(client.get_emoji(BotEmotes.error) + ' | Error: Please mention someone you love (lenny)')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Error: Please mention someone you love (lenny)')
             elif len(args)==2:
                 await message.channel.send('Love level of '+message.author.name+' with <@!'+str(args[1][3:][:-1])+'> is **'+str(random.choice(nums))+'%.**')
         if msg.startswith(prefix+'gaylevel'):
             if no_args:
-                await message.channel.send(client.get_emoji(BotEmotes.error) + ' | SomeoneError: Say/mention someone!')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | SomeoneError: Say/mention someone!')
             else:
                 nums = list(range(0, 101))
                 await message.channel.send('The gayness level of '+msg[10:]+' is **'+str(random.choice(nums))+'%.**')
@@ -2583,7 +2583,7 @@ async def on_message(message):
             if len(messageReact)<20:
                 for i in range(0, int(len(messageReact))):
                     if messageReact[i] in used:
-                        await message.channel.send(client.get_emoji(BotEmotes.error) + ' | Error: Your message contain multiple characters. Which is not allowed on reactions.')
+                        await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Error: Your message contain multiple characters. Which is not allowed on reactions.')
                         validId = 1
                         break
                     else:
@@ -2592,10 +2592,10 @@ async def on_message(message):
                                 if messageReact[i]==str(order[j]):
                                     used.append(emo[j])
                         else:
-                            await message.channel.send(client.get_emoji(BotEmotes.error) + ' | Error: Your message contain invalid symbols.\nValid: Alphabet Number ? ! space')
+                            await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Error: Your message contain invalid symbols.\nValid: Alphabet Number ? ! space')
                             break
             else:
-                await message.channel.send(client.get_emoji(BotEmotes.error) + ' | Error! Your message contain more than 20 characters.\nWhich is the react message limit.')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Error! Your message contain more than 20 characters.\nWhich is the react message limit.')
             if validId==0:
                 for i in range(0, int(len(used))):
                     await message.add_reaction(used[i])
@@ -2613,7 +2613,7 @@ async def on_message(message):
                     embed.set_image(url='https://memegen.link/'+str(name)+'/'+str(top)+'/'+str(bott)+'.jpg'+str(extr))
                     await message.channel.send(embed=embed)
                 except Exception as e:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) +f' | Error!\n```{e}```Invalid parameters. Example: `{prefix}avmeme <tag someone> [top text] [bottom text]`')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | Error!\n```{e}```Invalid parameters. Example: `{prefix}avmeme <tag someone> [top text] [bottom text]`')
             else:
                 try:
                     mes = myself.urlify(unprefixed)
@@ -2624,7 +2624,7 @@ async def on_message(message):
                     embed.set_image(url='https://memegen.link/'+str(name)+'/'+str(top)+'/'+str(bott)+'.jpg?watermark=none')
                     await message.channel.send(embed=embed)
                 except Exception as e:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) +f' | Error!\n```{e}```Invalid parameters.')
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | Error!\n```{e}```Invalid parameters.')
         if msg.startswith(prefix+'barcode'):
             if no_args:
                 await message.channel.send('Please provide a text!')
@@ -2664,7 +2664,7 @@ async def on_message(message):
         if msg.startswith(prefix+'trivia'):
             al = None
             try:
-                wait = await message.channel.send(client.get_emoji(BotEmotes.loading) + ' | Please wait... generating quiz...')
+                wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... generating quiz...')
                 auth = message.author
                 data = myself.api('https://wiki-quiz.herokuapp.com/v1/quiz?topics=Science')
                 q = random.choice(data['quiz'])
@@ -2680,7 +2680,7 @@ async def on_message(message):
                 for i in range(0, len(al)):
                     await wait.add_reaction(al[i])
             except Exception as e:
-                await wait.edit(content=client.get_emoji(BotEmotes.error) + f' | An error occured!\nReport this using {prefix}feedback.\n```{e}```')
+                await wait.edit(content=str(client.get_emoji(BotEmotes.error)) + f' | An error occured!\nReport this using {prefix}feedback.\n```{e}```')
             guy = message.author
             def check(reaction, user):
                 return user == guy
@@ -2689,14 +2689,14 @@ async def on_message(message):
             except asyncio.TimeoutError:
                 await main.add_reaction('😔')
             if str(reaction.emoji)==str(corr):
-                await message.channel.send(client.get_emoji(BotEmotes.success) +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
+                await message.channel.send(str(client.get_emoji(BotEmotes.success)) +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
             else:
-                await message.channel.send(client.get_emoji(BotEmotes.error) +' | <@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr)+'.')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | <@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr)+'.')
         if msg.startswith(prefix+'rhyme'):
             if no_args:
                 await message.channel.send('Please input a word! And we will try to find the word that best rhymes with it.')
             else:
-                wait = await message.channel.send(client.get_emoji(BotEmotes.loading) + ' | Please wait... Searching...')
+                wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... Searching...')
                 data = myself.api('https://rhymebrain.com/talk?function=getRhymes&word='+str(myself.urlify(unprefixed)))
                 words = ''
                 if len(data)<1:
@@ -2706,7 +2706,7 @@ async def on_message(message):
                         if data[i]['flags']=='bc':
                             words = words + data[i]['word']+ ', '
                     if len(words)>1950:
-                        await wait.edit(content=client.get_emoji(BotEmotes.error) + ' | There seemed to be *so many* words to be listed. Sorry.')
+                        await wait.edit(content=str(client.get_emoji(BotEmotes.error)) + ' | There seemed to be *so many* words to be listed. Sorry.')
                     else:
                         embed = discord.Embed(title='Words that rhymes with '+msg[int(len(args[0])+1):]+':', description=words, colour=discord.Colour.blue())
                         await wait.edit(content='', embed=embed)
