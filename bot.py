@@ -2384,9 +2384,14 @@ async def on_message(message):
                 data = myself.jsonisp(link)
                 keyz = list(data.keys())
                 total = ''
-                for j in range(num, len(keyz)):
-                    if total=='': total = unprefixed
-                    total = total.replace(keyz[j], data[keyz[j]])
+                if msg.startswith(prefix+'temmie'):
+                    for j in range(num, len(keyz)):
+                        if total=='': total = unprefixed
+                        total = total.replace(keyz[j], data[keyz[j]])
+                else:
+                    word = list(unprefixed)
+                    for i in word:
+                        total.append(i.replace(keyz[j], data[keyz[j]]))
                 if msg.startswith(prefix+'temmie'): await message.channel.send(total)
                 else: await message.channel.send(' '.join(total.split()))
         if msg.startswith(prefix+'slap'):
