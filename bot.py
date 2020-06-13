@@ -2385,10 +2385,8 @@ async def on_message(message):
                 keyz = list(data.keys())
                 for i in range(0, len(toenc)):
                     for j in range(0, len(keyz)):
-                        toenc[i].replace(keyz[j], data[keyz[j]])
-                if msg.startswith(prefix+'morse'): res = ' '.join(toenc)
-                else: res = ''.join(toenc)
-                await message.channel.send(''.join(toenc))
+                        toenc = toenc[i].replace(keyz[j], data[keyz[j]])
+                await message.channel.send(' '.join(toenc))
         if msg.startswith(prefix+'slap'):
             if no_args:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Slap who? Tag someone!")
