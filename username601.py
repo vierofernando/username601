@@ -10,6 +10,11 @@ cmdtypes = ['Bot Help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Enco
 bot_ver = '1.9.7c'
 bot_changelog = 'Optimized help command, Meme command is now filtered, Bot code formatted.'
 
+class Emojis:
+    loading = 704242088425816085
+    error = 711736311215554560
+    success = 704242067097911307
+
 def limit(word):
     total = ''
     for i in range(0, len(word)):
