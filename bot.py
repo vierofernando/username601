@@ -2671,14 +2671,7 @@ async def on_message(message):
                 embed.set_image(url='https://wttr.in/'+str(myself.urlify(unprefixed))+'.png?m')
                 await message.channel.send(embed=embed)
         if cmd(msg, 'github'):
-            git = ''
-            for i in range(0, len(github_object['files'])):
-                git = git + '**'+github_object['files'][i]['name']+'** = '+github_object['files'][i]['type']+'\n'
-            embed = discord.Embed(
-                title=src.getGitMsg(),
-                description='To visit my github, [Click this link.](http://github.com/vierofernando/username601).\nYou as a dev can see *how bad i am at programming, detect codes that i copied from stackoverflow, and probably copy-paste my bot\'s code to your bot :wink:*\n\n'+str(git),
-                colour=discord.Colour.red()
-            )
+            embed = discord.Embed(title="Click me to visit the Bot's github page.", colour=discord.Colour.red(), url='https://github.com/vierofernando/username601')
             await message.channel.send(embed=embed)
         if cmd(msg, 'quote'):
             data = myself.insp('https://quotes.herokuapp.com/libraries/math/random')

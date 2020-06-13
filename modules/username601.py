@@ -8,7 +8,7 @@ from requests import get as decodeurl
 prefix = '1'
 cmdtypes = ['Bot Help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps', 'Owner']
 bot_ver = '1.9.7c'
-bot_changelog = 'Optimized help command, Meme command is now filtered, Bot code formatted.'
+bot_changelog = 'Bot code formatted.'
 
 class BotEmotes:
     loading = 704242088425816085
@@ -157,56 +157,6 @@ def convertrgb(hexCode, typ):
         return rgb
     else:
         return percentageRgb
-
-# JSON TIME LOL
-github_object = {
-    "files": [
-        {
-            "name":"readme.md",
-            "type":"to read more info about the repo and the files"
-        },
-        {
-            "name":"bot.py",
-            "type":"main bot source code. commands belong here."
-        },
-        {
-            "name":"username601.py",
-            "type":"basically like `config.json` for discord.js programmers."
-        },
-        {
-            "name":"discordgames.py",
-            "type":"the guy that handles all of games commands from this bot."
-        },
-        {
-            "name":"splashes.py",
-            "type":"a big array code for splashes. like random messages (splashes) on your minecraft main menu."
-        },
-	    {
-	        "name":"index.html",
-            "type":"main website file. (homepage)"
-        },
-	    {
-	        "name":"commands.html",
-            "type":"main website file (commands page)"
-	    },
-        {
-            "name":"thanks.html",
-            "name":"website for thanking strangers"
-        },
-	    {
-	        "name":"commands.json",
-            "type":"all of the commands as a json file."
-	    },
-        {
-            "name":".gitignore",
-            "type":"the code that ignores my git commits."            
-        },
-        {
-            "name":"assets (DIRECTORY)",
-            "type":"all the bot's assets, like .png files."
-        }
-    ]
-}
 
 def bin(text):
     result = " ".join(f"{ord(i):08b}" for i in text) # THANKS STACK OVERFLOW! UWU
