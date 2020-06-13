@@ -1,5 +1,5 @@
 function loadCommands() {
-    fetch('./commands.json')
+    fetch('https://vierofernando.github.io/username601/modules/commands.json') // decided to use this because client kept giving me 404s
     .then (res => res.json())
     .then (out => {
         var links = "";
