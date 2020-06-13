@@ -577,7 +577,7 @@ async def on_message(message):
                                 'We don\'t even need '+criminal.name+' anymore.',
                                 'Bye bye, '+criminal.name+'.'
                             ]
-                            await message.channel.send((client.get_emoji(Emojis.success) + ' | '+random.choice(msgs))
+                            await message.channel.send(client.get_emoji(Emojis.success) + ' | '+random.choice(msgs))
                         except:
                             await message.channel.send(client.get_emoji(Emojis.error) + ' | There was an error on banning '+criminal.name+'.')
         if msg.startswith(prefix+'rp'):
