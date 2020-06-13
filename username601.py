@@ -12,7 +12,7 @@ bot_changelog = 'Optimized help command, Meme command is now filtered, Bot code 
 
 class BotEmotes:
     loading = 704242088425816085
-    error = 711736311215554560
+    error = 708143217182244886
     success = 704242067097911307
 
 def limit(word):

@@ -2376,14 +2376,33 @@ async def on_message(message):
                     await message.add_reaction(emojiArr[i])
             elif errorLevel==1:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Error: Invalid Integer.')
+        if msg.startswith(prefix+'morse') or msg.startswith(prefix+'temmie'):
+            if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | Please send something to be encoded.')
+            else:
+                if msg.startswith(prefix+'morse'): link = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/morse.json'
+                elif msg.startswith(prefix+'temmie'): link = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/temmie.json'
+                data = myself.jsonisp(link)
+                toenc = list(unprefixed)
+                keyz = list(data.keys())
+                for i in range(0, len(toenc)):
+                    for j in range(0, len(keyz)):
+                        toenc[i].replace(keyz[i], data[keyz[i]])
+                await message.channel.send(' '.join(toenc))
         if msg.startswith(prefix+'slap'):
-            embed=discord.Embed(title=splashes.slap('msg')+" "+str(message.mentions[0].name)+"!", color=discord.Colour.red())
-            embed.set_image(url=splashes.slap('gif'))
+            if no_args:
+                await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Slap who? Tag someone!")
+            else:
+                await message.channel.send(splashes.slap('msg')+', '+message.mentions[0].name+'!\n'+splashes.slap('gif'))
+        if msg.startswith(prefix+'fact-core') or msg.startswith(prefix+'fact') or msg.startswith(prefix+'factcore') or msg.startswith(prefix+'fact-sphere') or msg.startswith(prefix+'factsphere'):
+            data = myself.jsonisp('https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fact-core.json')
+            embed = discord.Embed(title='Fact Core', description=random.choice(data), colour=discord.Colour.green())
+            embed.set_thumbnail(url='https://i1.theportalwiki.net/img/thumb/5/55/FactCore.png/300px-FactCore.png')
             await message.channel.send(embed=embed)
         if msg.startswith(prefix+'hbd'):
-            embed = discord.Embed(title="Happy birthday, "+message.mentions[0].name+"!", colour=discord.Colour.green())
-            embed.set_image(url=splashes.hbd())
-            await message.channel.send(embed=embed)
+            if no_args:
+                await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | who is having their birthday today?")
+            else:
+                await message.channel.send("Happy birthday, "+message.mentions[0].name+"!\n"+splashes.hbd())
         if msg.startswith(prefix+'choose'):
             array = []
             i = 1
