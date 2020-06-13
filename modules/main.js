@@ -1,5 +1,5 @@
 function loadCommands() {
-    fetch('./assets/commands.json')
+    fetch('../assets/commands.json')
     .then (res => res.json())
     .then (out => {
         var links = "";
