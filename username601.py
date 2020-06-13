@@ -223,3 +223,9 @@ def encodeb64(text):
     base64_bytes = base64.b64encode(message_bytes)
     base64_message = base64_bytes.decode('ascii')
     return base64_message # yes. copy-pasted i know. #EPICDEVELOPER2020
+
+def cmd(message, name):
+    if message.startswith(prefix+name):
+        return True
+    else:
+        return False

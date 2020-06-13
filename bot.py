@@ -79,9 +79,9 @@ async def on_message(message):
     if len(args)==1: no_args = True
     i_dont_know_what_this_means_but_i_am_declaring_it_anyway = 0
     if msg.startswith(prefix) and message.author.bot==False and len(args[0])!=1:
-        if msg.startswith(prefix+'say'):
+        if cmd(msg, 'say'):
             await message.channel.send(unprefixed)
-        if msg.startswith(prefix+'hack'):
+        if cmd(msg, 'hack'):
             if no_args:
                 await message.channel.send(f'Please tag someone!\nExample: {prefix}hack <@'+str(message.author.id)+'>')
             else:
@@ -100,12 +100,12 @@ async def on_message(message):
                     console = console + 'hack.exe -u '+str(message.author.name)+'ERROR: INVALID TAG.\nACCESS DENIED.\n\nHash encoded base64 cipher code:\n'+myself.bin(message.author.name)+ '\n' + console
                     embed = discord.Embed(title='Anonymous601 Hacking Console', description=f'```{console}```',colour=discord.Colour.green())
                     await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'base64'):
+        if cmd(msg, 'base64'):
             if no_args:
                 await message.channel.send(f'Please input something to encode! Like `{prefix}base64 discord.py is better than discord.js`')
             else:
                 await message.channel.send(f'```{myself.encodeb64(unprefixed)}```')
-        if msg.startswith(prefix+'ufo'):
+        if cmd(msg, 'ufo'):
             num = str(random.randint(50, 100))
             data = myself.api('http://ufo-api.herokuapp.com/api/sightings/search?limit='+num)
             if data['status']!='OK':
@@ -115,7 +115,7 @@ async def on_message(message):
                 embed = discord.Embed(title='UFO Sighting in '+str(ufo['city'])+', '+str(ufo['state']), description='**Summary:** '+str(ufo['summary'])+'\n\n**Shape:** '+str(ufo['shape'])+'\n**Sighting Date: **'+str(ufo['date'])[:-8].replace('T', ' ')+'\n**Duration: **'+str(ufo['duration'])+'\n\n[Article Source]('+str(ufo['url'])+')', colour=discord.Colour.green())
                 embed.set_footer(text='Username601 raided Area 51 and found this!')
                 await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'embed'):
+        if cmd(msg, 'embed'):
             if '(title:' not in msg or '(desc:' not in msg:
                 await message.channel.send('An embed requires title and description.\nFor example: `'+prefix+'embed (title:this is a title) (desc:this is a description)`\n\nOptional; `footer, auth, hex`')
             else:
@@ -140,7 +140,7 @@ async def on_message(message):
                     await message.channel.send(embed=embed)
                 except Exception as e:
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) + f' | An error occurd. For programmers: ```{e}```')
-        if msg.startswith(prefix+'pokequiz'):
+        if cmd(msg, 'pokequiz'):
             wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... Generating quiz...')
             num = random.randint(1, 800)
             try:
@@ -196,7 +196,7 @@ async def on_message(message):
                         await message.channel.send('You lose! The pokemon is **'+str(corr)+'**!')
                         gameplay = False
                         break
-        if msg.startswith(prefix+'ss'):
+        if cmd(msg, 'ss'):
             if len(args)>1:
                 if args[1]=='--help':
                     embed = discord.Embed(title='Special say command help', description='**REQUIRES `MANAGE CHANNELS` PERMISSION**\nThis is a special say command that has the following:\n1. @someone | Tags random people in the server. [On April fools 2018, Discord made this feature, but removed the day after.](https://www.youtube.com/watch?v=BeG5FqTpl9U) (Please use wisely.)\n2. @owner | Tags the server owner. Please don\'t spam this feature.\n3. --ch #{channelname} | Sends a message on a specific channel.', colour=discord.Colour.green())
@@ -214,7 +214,7 @@ async def on_message(message):
                                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | An error occured! :x:')
                         else:
                             await message.channel.send(msg[int(len(args[0])+1):].replace('@someone', f'<@{str(randomppl)}>').replace('@owner', '<@'+str(message.guild.owner.id)+'>'))
-        if msg.startswith(prefix+'inspectservers'):
+        if cmd(msg, 'inspectservers'):
             if int(message.author.id)==661200758510977084:
                 ee = ''
                 for i in range(0, len(client.guilds)):
@@ -224,12 +224,12 @@ async def on_message(message):
                 await message.channel.send('...k')
             else:
                 await message.channel.send('...')
-        if msg.startswith(prefix+'pandafact') or msg.startswith(prefix+'birdfact') or msg.startswith(prefix+'birbfact'):
-            if msg.startswith(prefix+'pandafact'): link = 'https://some-random-api.ml/facts/panda'
+        if cmd(msg, 'pandafact') or cmd(msg, 'birdfact') or cmd(msg, 'birbfact'):
+            if cmd(msg, 'pandafact'): link = 'https://some-random-api.ml/facts/panda'
             else: link = 'https://some-random-api.ml/facts/bird'
             data = myself.jsonisp(link)['fact']
             await message.channel.send(embed=discord.Embed(title='Did you know?', description=data, colour=discord.Colour.red()))
-        if msg.startswith(prefix+'iss'):
+        if cmd(msg, 'iss'):
             iss = myself.jsonisp('https://open-notify-api.herokuapp.com/iss-now.json')
             ppl = myself.jsonisp('https://open-notify-api.herokuapp.com/astros.json')
             total = '```'
@@ -237,15 +237,15 @@ async def on_message(message):
                 total += str(i+1) + '. ' + ppl['people'][i]['name'] + ((20-(len(ppl['people'][i]['name'])))*' ') + ppl['people'][i]['craft'] + '\n'
             embed = discord.Embed(title='Position: '+str(iss['iss_position']['latitude'])+' '+str(iss['iss_position']['longitude']), description='**People at craft:**\n\n'+str(total)+'```', colour=discord.Colour.red())
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'qotd'):
+        if cmd(msg, 'qotd'):
             data = myself.jsonisp('https://quotes.rest/qod')['contents']['quotes'][0]
             embed = discord.Embed(title=data['quote'], description=data['author'], color=discord.Colour.blue())
             embed.set_image(url=data['background'])
             embed.set_footer(text='New quote will be generated in the next day.')
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'pika') or args[0]==prefix+'panda' or msg.startswith(prefix+'redpanda'):
-            if msg.startswith(prefix+'pika'): link, col, msg = "https://some-random-api.ml/pikachuimg", discord.Colour.from_rgb(255, 255, 0), 'pika pika!'
-            elif msg.startswith(prefix+'redpanda'): link, col, msg = "https://some-random-api.ml/img/red_panda", discord.Colour.red(), 'Ok, here are some pics of red pandas.'
+        if cmd(msg, 'pika') or args[0]==prefix+'panda' or cmd(msg, 'redpanda'):
+            if cmd(msg, 'pika'): link, col, msg = "https://some-random-api.ml/pikachuimg", discord.Colour.from_rgb(255, 255, 0), 'pika pika!'
+            elif cmd(msg, 'redpanda'): link, col, msg = "https://some-random-api.ml/img/red_panda", discord.Colour.red(), 'Ok, here are some pics of red pandas.'
             else: link, col, msg = "https://some-random-api.ml/img/panda", discord.Colour.green(), 'Here is some cute pics of pandas.'
             data = myself.jsonisp(link)['link']
             embed = discord.Embed(title=msg, color=col)
@@ -261,7 +261,7 @@ async def on_message(message):
                     await wait.edit(content=data)
                 except:
                     await wait.edit(content='I am sorry. I do not understand your message.')
-        if msg.startswith(prefix+'hangman'):
+        if cmd(msg, 'hangman'):
             wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... generating...')
             the_word = myself.api("https://random-word-api.herokuapp.com/word?number=1")
             main_guess_cor = list(the_word[0])
@@ -319,7 +319,7 @@ async def on_message(message):
                 else:
                     level = int(level) + 1
                     wrong_guesses = wrong_guesses + str(trying.content).lower() + ', '
-        if msg.startswith(prefix+'tictactoe'):
+        if cmd(msg, 'tictactoe'):
             box_nums = list('123456789')
             can_used = list('123456789')
             box = f' {box_nums[0]} | {box_nums[1]} | {box_nums[2]}\n===========\n {box_nums[3]} | {box_nums[4]} | {box_nums[5]}\n===========\n {box_nums[6]} | {box_nums[7]} | {box_nums[8]}\n'
@@ -398,14 +398,14 @@ async def on_message(message):
                             await message.channel.send('Game ended.')
                             gameplay = False
                             break
-        if msg.startswith(prefix+'randomavatar'):
+        if cmd(msg, 'randomavatar'):
             gibb_name = ''
             for i in range(0, random.randint(5, 10)):
                 gibb_name = gibb_name + random.choice(list('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'))
             embed = discord.Embed(colour=discord.Colour.green())
             embed.set_image(url=f'https://api.adorable.io/avatars/285/{gibb_name}.png')
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'mathquiz'):
+        if cmd(msg, 'mathquiz'):
             num1 = random.randint(1, 100)
             num2 = random.randint(1, 100)
             symArray = ['+', '-', 'x', ':', '^']
@@ -424,7 +424,7 @@ async def on_message(message):
                 await message.channel.send(str(client.get_emoji(BotEmotes.success)) +' | <@'+str(message.author.id)+'>, You are correct! :tada:')
             else:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | <@'+str(message.author.id)+'>, Incorrect. The answer is {}.'.format(answer))
-        if msg.startswith(prefix+'guessavatar'):
+        if cmd(msg, 'guessavatar'):
             if len(message.guild.members)>500:
                 await message.channel.send('Sorry, to protect some people\'s privacy, this command is not available for Large servers. (over 500 members)')
             else:
@@ -472,7 +472,7 @@ async def on_message(message):
                         await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | <@'+str(message.author.id)+'>, You are correct! :tada:')
                     else:
                         await message.channel.send(str(client.get_emoji(BotEmotes.success)) +' | <@'+str(message.author.id)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
-        if msg.startswith(prefix+'geoquiz'):
+        if cmd(msg, 'geoquiz'):
             wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... generating question...')
             data = myself.api("https://restcountries.eu/rest/v2/")
             topic = random.choice(splashes.getGeoQuiz())
@@ -513,7 +513,7 @@ async def on_message(message):
                 await message.channel.send(str(client.get_emoji(BotEmotes.success)) +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
             else:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | <@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr_order)+'.')
-        if msg.startswith(prefix+'emojiimg'):
+        if cmd(msg, 'emojiimg'):
             if no_args:
                 await message.channel.send('Please send a custom emoji!')
             elif len(args)==2:
@@ -538,7 +538,7 @@ async def on_message(message):
                     await message.channel.send(embed=embed)
             else:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid parameters.')
-        if msg.startswith(prefix+'ban'):
+        if cmd(msg, 'ban'):
             begin = True
             if no_args:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Please mention someone!')
@@ -580,7 +580,7 @@ async def on_message(message):
                             await message.channel.send(str(client.get_emoji(BotEmotes.success)) + ' | '+random.choice(msgs))
                         except:
                             await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | There was an error on banning '+criminal.name+'.')
-        if msg.startswith(prefix+'rp'):
+        if cmd(msg, 'rp'):
             if message.author.id==661200758510977084:
                 try:
                     user_to_send = client.get_user(int(args[1]))
@@ -592,7 +592,7 @@ async def on_message(message):
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) + f' | Error: `{e}`')
             else:
                 await message.channel.send('You are not the bot owner.')
-        if msg.startswith(prefix+'feedback'):
+        if cmd(msg, 'feedback'):
             if no_args:
                 await message.channel.send('Where\'s the feedback? :(')
             elif len(list(args))>1000:
@@ -618,12 +618,12 @@ async def on_message(message):
                         await wait.edit(content='', embed=embed)
                     except:
                         await wait.edit(content=str(client.get_emoji(BotEmotes.error)) + ' | Error: There was an error while sending your feedback. Sorry! :(')
-        if msg.startswith(prefix+'fbban'):
+        if cmd(msg, 'fbban'):
             if message.channel.id==706459051034279956 and int(message.author.id)==661200758510977084:
                 await message.channel.send('Banned user with ID of: ['+str(args[1])+'] REASON:"'+str(message.content[int(len(args[0])+len(args[1])+2):])+'"')
             else:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid channel/user.')
-        if msg.startswith(prefix+'gdlevel'):
+        if cmd(msg, 'gdlevel'):
             if no_args:
                 await message.channel.send(':x: Please enter a level ID!')
             else:
@@ -650,7 +650,7 @@ async def on_message(message):
                         await toEdit.edit(content='', embed=embed)
                     except Exception as e:
                         await toEdit.edit(content=f'```{e}```')
-        if msg.startswith(prefix+'gdsearch'):
+        if cmd(msg, 'gdsearch'):
             if no_args:
                 await message.channel.send(':x: Please input a query!')
             else:
@@ -670,7 +670,7 @@ async def on_message(message):
                     await message.channel.send(embed=embedy)
                 except:
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Error: Not Found. :four::zero::four:')
-        if msg.startswith(prefix+'emojiinfo'):
+        if cmd(msg, 'emojiinfo'):
             test = 0
             if test==0:
                 try:
@@ -707,7 +707,7 @@ async def on_message(message):
                 embed = discord.Embed(colour=discord.Colour.blue())
                 embed.set_image(url='https://nekobot.xyz/api/imagegen?type='+str(args[0][1:])+'&text='+myself.urlify(str(unprefixed))+'&raw=1')
                 await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'clear') or msg.startswith(prefix+'purge'):
+        if cmd(msg, 'clear') or cmd(msg, 'purge'):
             checky = message.author.guild_permissions.manage_messages
             req = message.author.name
             if checky==False:
@@ -762,7 +762,7 @@ async def on_message(message):
                 accept = False
             if accept==True:
                 await message.channel.send(message.content[3:])
-        if msg.startswith(prefix+'addrole') or args[0]==prefix+'ar':
+        if cmd(msg, 'addrole') or args[0]==prefix+'ar':
             if message.author.guild_permissions.manage_roles==False:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | <@{str(message.author.id)}>, you don\'t have the `Manage Roles` permission!')
             else:
@@ -782,7 +782,7 @@ async def on_message(message):
                     await message.channel.send('Congratulations, '+aruser.name+', you now have the '+toadd.name+' role! :tada:')
                 except Exception as e:
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) + f' | An error occured. :x:```{str(e)}```')
-        if msg.startswith(prefix+'xpbox'):
+        if cmd(msg, 'xpbox'):
             results = []
             buttons = []
             ques = [
@@ -823,7 +823,7 @@ async def on_message(message):
                 embed = discord.Embed(title='Error!', colour=discord.Colour.red())
                 embed.set_image(url='http://atom.smasher.org/error/xp.png.php?icon=Error3&style=xp&title='+str(results[0]).replace(' ', '+')+'&text='+str(results[1]).replace(' ', '+')+'&b1='+str(results[2]).replace(' ', '+'))
                 await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'removerole') or args[0]==prefix+'rr':
+        if cmd(msg, 'removerole') or args[0]==prefix+'rr':
             if message.author.guild_permissions.manage_roles==False:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | <@{str(message.author.id)}>, you don\'t have the `Manage Roles` permission!')
             else:
@@ -843,7 +843,7 @@ async def on_message(message):
                     await message.channel.send(aruser.name+', you lost the '+toadd.name+' role. :pensive:')
                 except Exception as e:
                     await message.channel.send(f'An error occured. :x: ```{e}```')
-        if msg.startswith(prefix+'permission') or msg.startswith('perms'):
+        if cmd(msg, 'permission') or msg.startswith('perms'):
             if len(args)!=2:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Please mention someone!\nExample:\n'+prefix+'permissions <@'+str(message.author.id)+'>')
             else:
@@ -861,7 +861,7 @@ async def on_message(message):
                     await message.channel.send(embed=permissionsEmbed)
                 except Exception as e:
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | elol. we have an elol here:```'+str(e)+'```')
-        if msg.startswith(prefix+'makechannel'):
+        if cmd(msg, 'makechannel'):
             if message.author.guild_permissions.manage_channels==False:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | You don\'t have the permission `Manage Channel`. Which is required.')
                 acceptId = 1
@@ -884,7 +884,7 @@ async def on_message(message):
                     await message.channel.send(':white_check_mark: Done! Created a voice channel: '+str(msg[int(len(args[0])+len(args[1])+2):]))
                 else:
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | error. (not 404)')
-        if msg.startswith(prefix+'kick'):
+        if cmd(msg, 'kick'):
             if no_args:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Please mention someone!!1!11')
             else:
@@ -921,7 +921,7 @@ async def on_message(message):
                     await message.channel.send(str(client.get_emoji(BotEmotes.success)) + ' | ' +random.choice(msgs))
                 else:
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Kick declined by myself.')
-        if msg.startswith(prefix+'nick'):
+        if cmd(msg, 'nick'):
             acceptId = 0
             if no_args:
                 await message.channel.send('Where\'s da paramaters!?!')
@@ -952,7 +952,7 @@ async def on_message(message):
                         await message.channel.send('Change the '+changethem.name+'\'s nickname to `'+str(newnick)+'`. Nice name!')
                     except:
                         await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | So umm, i wanted to change their nickname and...\nDiscord says: `Missing Permissions`\nMe and '+str(message.author.name)+': :neutral_face:')
-        if msg.startswith(prefix+'imdb'):
+        if cmd(msg, 'imdb'):
             wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
             if no_args or args[1]=='help' or args[1]=='--help':
                 embed = discord.Embed(title='IMDb command help', description='Searches through the IMDb Movie database.\n{} are Parameters that is **REQUIRED** to get the info.\n\n', colour=discord.Colour.red())
@@ -1036,7 +1036,7 @@ async def on_message(message):
                 if main_name=='MOVIE':
                     embed.set_footer(text='Type '+prefix+'imdb --'+str(main_name.lower())+' {'+main_name+'_ID} to show each info.')
                 await wait.edit(content='', embed=embed)
-        if msg.startswith(prefix+'dogfact'):
+        if cmd(msg, 'dogfact'):
             fact = myself.api('https://dog-api.kinduff.com/api/facts')
             if fact['success']!=True:
                 desc = str(client.get_emoji(BotEmotes.error)) + ' | Error getting the fact.'
@@ -1044,7 +1044,7 @@ async def on_message(message):
                 desc = fact['facts'][0]
             embed = discord.Embed(title='Did you know?',description=str(desc))
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'roleinfo'):
+        if cmd(msg, 'roleinfo'):
             if len(args)>1:
                 data = None
                 if args[1].startswith('<@&'):
@@ -1084,12 +1084,12 @@ async def on_message(message):
             embed = discord.Embed(title=msgtitle, colour=discord.Color(col))
             embed.set_image(url=link.replace('\/', '/'))
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'fox'):
+        if cmd(msg, 'fox'):
             img = myself.insp('https://randomfox.ca/floof/?ref=apilist.fun').split('"image":"')[1].split('"')[0].replace('\/', '/')
             embed = discord.Embed(colour=discord.Colour.red())
             embed.set_image(url=img)
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'newemote'):
+        if cmd(msg, 'newemote'):
             data = myself.api('https://discordemoji.com/')
             byEmote = data.split('<div class="float-right"><a href="')
             del byEmote[0]
@@ -1100,7 +1100,7 @@ async def on_message(message):
             embed = discord.Embed(colour=discord.Colour.blue())
             embed.set_image(url=random.choice(alls))
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'steamprofile'):
+        if cmd(msg, 'steamprofile'):
             getprof = myself.urlify(unprefixed)
             data = myself.insp('https://api.alexflipnote.dev/steam/user/'+str(getprof))
             if '<title>404 Not Found</title>' in data:
@@ -1120,7 +1120,7 @@ async def on_message(message):
                 embed = discord.Embed(title=username, description='**[Profile Link]('+str(url)+')**\n**Current state: **'+str(state)+'\n**Privacy: **'+str(privacy)+'\n**[Profile pic URL]('+str(avatar)+')**', colour = embedColor)
                 embed.set_thumbnail(url=avatar)
                 await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'salty'):
+        if cmd(msg, 'salty'):
             if len(args)!=2:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Error! Invalid args.')
             else:
@@ -1128,7 +1128,7 @@ async def on_message(message):
                 embed = discord.Embed(colour=discord.Colour.magenta())
                 embed.set_image(url='https://api.alexflipnote.dev/salty?image='+str(av))
                 await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'woosh') or msg.startswith(prefix+'wooosh') or msg.startswith(prefix+'woooosh'):
+        if cmd(msg, 'woosh') or cmd(msg, 'wooosh') or cmd(msg, 'woooosh'):
             if len(args)!=2:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Error! Invalid args.')
             else:
@@ -1136,7 +1136,7 @@ async def on_message(message):
                 embed = discord.Embed(colour=discord.Colour.magenta())
                 embed.set_image(url='https://api.alexflipnote.dev/jokeoverhead?image='+str(av))
                 await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'funfact'):
+        if cmd(msg, 'funfact'):
             wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
             data = myself.insp('https://bestlPlease waitifeonline.com/random-fun-facts/')
             byFact = data.split('<div class="title ">')
@@ -1150,12 +1150,12 @@ async def on_message(message):
                 else:
                     continue
             await wait.edit(content='Did you know?\n**'+str(random.choice(facts))+'**')
-        if msg.startswith(prefix+'supreme'):
+        if cmd(msg, 'supreme'):
             text = myself.urlify(message.content[9:])
             embed = discord.Embed(colour=discord.Colour.magenta())
             embed.set_image(url='https://api.alexflipnote.dev/supreme?text='+str(text))
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'googledoodle'):
+        if cmd(msg, 'googledoodle'):
             wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... This may take a few moments...')
             data = myself.insp('https://google.com/doodles')
             byLatest = data.split('<li class="latest-doodle ">')
@@ -1167,7 +1167,7 @@ async def on_message(message):
             embed = discord.Embed(title=doodle_name, description=doodle_link, colour=discord.Colour.blue())
             embed.set_image(url=doodle_img)
             await wait.edit(content='', embed=embed)
-        if msg.startswith(prefix+'createbot'):
+        if cmd(msg, 'createbot'):
             if no_args:
                 tutorials = f'{prefix}createbot --started `Getting started, preparing stuff.`\n{prefix}createbot --say `Say command help.`\n{prefix}createbot --ping `Ping command help. (Client latency).`\n{prefix}createbot --coin `Flip coin game`\n{prefix}createbot --embed `Creating embeds`\n{prefix}createbot --avatar `Avatar commands help.`'
                 embed = discord.Embed(title='Createbot; the discord.py bot tutorial', description=f'This is a tutorial on how to create a discord bot.\nEvery thing other than `--started` needs to have the same module or string.\nEach are args on different categories.\n\n{tutorials}', colour=discord.Colour.red())
@@ -1188,7 +1188,7 @@ async def on_message(message):
                     description='This is how you make a BOT using Discord.py\nAccording to the dev! ;)',
                     colour = discord.Colour.dark_blue()
                 )
-                code = 'import discord\ntoken = \'YOUR TOKEN\'\nclient = discord.Client()\n@client.event\nasync def on_ready():\n\tprint(\'Bot is ready!\')\n@client.event\nasync def on_message(message):\n\tmsg = message.content.lower()\n\tprefix = \'your prefix\'\n\tif msg.startswith(prefix+\'command thing\'):\n\t\tawait message.channel.send(\'Message your bot responds with\')\nclient.run(token)'
+                code = 'import discord\ntoken = \'YOUR TOKEN\'\nclient = discord.Client()\n@client.event\nasync def on_ready():\n\tprint(\'Bot is ready!\')\n@client.event\nasync def on_message(message):\n\tmsg = message.content.lower()\n\tprefix = \'your prefix\'\n\tif cmd(msg, \'command thing\'):\n\t\tawait message.channel.send(\'Message your bot responds with\')\nclient.run(token)'
                 embed.add_field(name='A. Preparing stuff', value='1. Install python through http://python.org/downloads \n2. Learn Python programming language first\n3. Open your console, and type \'pip install discord.py\'\n4.Have some text editor (notepad++/VScode/Sublime Text)', inline='False')
                 embed.add_field(name='B. Bot Setup', value='1. Go to http://discordapp.com/developers \n2. Click on \'New Application.\'\n3. Type your bot name and click \'Create\'.\n4. Click on \'bot\' tab, and Click \'Add bot.\'\n5. Click \'Yes, do it!\'\n6. If your name is not approved, please change the bot name in the \'General Information Tab.\' Else, congrats!', inline='False')
                 embed.add_field(name='C. Invite the bot to your server', value='1. On the \'Oauth2\' Tab, scroll down and on the scopes list, check \'Bot\'.\n2. Check the bot permissions first.\n3. Click on COPY.\n4. Open that link on your browser.\n5. Authorize the bot to your server.\n6. Boom! Your bot joined your server!', inline='False')
@@ -1197,7 +1197,7 @@ async def on_message(message):
                 embed.add_field(name='F. Discord API?', value='https://discordpy.readthedocs.io/en/latest/api.html', inline='False')
                 embed.set_footer(text='Enjoy your BOT! ;)')
                 await message.channel.send(embed=embed, content='```py\n'+str(code)+'```')
-        if msg.startswith(prefix+'channels'):
+        if cmd(msg, 'channels'):
             channels = ''
             warning = 'No errors found.'
             for i in range(0, int(len(message.guild.text_channels))):
@@ -1207,7 +1207,7 @@ async def on_message(message):
             embed = discord.Embed(title=message.guild.name+'\'s Text channels:', description=str(channels), inline='True')
             embed.set_footer(text=str(warning))
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'slot'):
+        if cmd(msg, 'slot'):
             win = False
             jackpot = False
             slots = []
@@ -1229,7 +1229,7 @@ async def on_message(message):
                 col = discord.Colour.red()
             embed = discord.Embed(title=msgslot, description=slots[0]+'\n\n'+slots[1]+'\n\n'+slots[2], colour=col)
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'rolecolor'):
+        if cmd(msg, 'rolecolor'):
             if no_args:
                 res = ''
                 exc = 0
@@ -1264,7 +1264,7 @@ async def on_message(message):
                                 await message.channel.send('Color of '+role.name+' role has been changed.', delete_after=10)
                             except Exception as e:
                                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) + f' | An error occured while editing role:```{e}```')
-        if msg.startswith(prefix+'isprime'):
+        if cmd(msg, 'isprime'):
             if int(args[1])<999999:
                 numsArray = range(2, int(args[1]))
                 id = 0
@@ -1279,7 +1279,7 @@ async def on_message(message):
                     await message.channel.send("NO. "+str(args[1])+" can be divided by "+str(myself.dearray(canBeDividedBy))+".")
             else:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | OverloadInputError: Beyond the limit of 999999')
-        if msg.startswith(prefix+'jpeg') or msg.startswith(prefix+'invert') or msg.startswith(prefix+'magik')or msg.startswith(prefix+'pixelate')or msg.startswith(prefix+'b&w'):
+        if cmd(msg, 'jpeg') or cmd(msg, 'invert') or cmd(msg, 'magik')or cmd(msg, 'pixelate')or cmd(msg, 'b&w'):
             if args[0][1:]=='jpeg':
                 com = 'jpegify'
             elif args[0][1:]=='invert':
@@ -1297,7 +1297,7 @@ async def on_message(message):
                 embed = discord.Embed(colour=discord.Colour.magenta())
                 embed.set_image(url='https://api.alexflipnote.dev/filter/'+str(com)+'?image='+str(av).replace('webp', 'png'))
                 await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'drake'):
+        if cmd(msg, 'drake'):
             if args[1]=='help':
                 embed = discord.Embed(
                     title='Drake meme helper help',
@@ -1312,7 +1312,7 @@ async def on_message(message):
                 embed.set_image(url='https://api.alexflipnote.dev/drake?top='+str(txt1)+'&bottom='+str(txt2))
                 print('https://api.alexflipnote.dev/drake?top='+str(txt1)+'&bottom='+str(txt2))
                 await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'ascii'):
+        if cmd(msg, 'ascii'):
             if no_args:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid. Please send a word or something.')
             else:
@@ -1333,7 +1333,7 @@ async def on_message(message):
                     )
                     embed.set_footer(text='Type --randomfont for umm.. random font to be generated.')
                     await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'typingtest'):
+        if cmd(msg, 'typingtest'):
             wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
             data = myself.api("https://random-word-api.herokuapp.com/word?number=10")
             text = myself.arrspace(data)
@@ -1350,7 +1350,7 @@ async def on_message(message):
                 await message.channel.send(str(client.get_emoji(BotEmotes.success)) +' | Correct!\nYour time: **'+str(datetime.datetime.now()-first)[:-7]+'**')
             else:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Did you do a typo or something?\nYour time: **'+str(datetime.datetime.now()-first)[:-7]+'**')
-        if msg.startswith(prefix+'defuse') or msg.startswith(prefix+'bomb'):
+        if cmd(msg, 'defuse') or cmd(msg, 'bomb'):
             def embedType(a):
                 if a==1:
                     return discord.Embed(title='The bomb exploded!', description='Game OVER!', colour=discord.Colour(000))
@@ -1374,7 +1374,7 @@ async def on_message(message):
                 await main.edit(content='', embed=embedType(1))
             else:
                 await main.edit(content='', embed=embedType(2))
-        if msg.startswith(prefix+'userinfo'):
+        if cmd(msg, 'userinfo'):
             acceptId = 0
             if acceptId==0:
                 if no_args:
@@ -1411,7 +1411,7 @@ async def on_message(message):
                 embed.add_field(name='Server specific', value='**'+thing+' nickname: **'+str(guy.display_name)+'\n**'+thing+' roles: **'+str(userrole)+'\nThis user owns '+str(percentage)+'% of all roles in this server.\n**Joined this server at: **'+str(joinServer)[:-7])
                 embed.set_thumbnail(url=user.avatar_url)
                 await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'wikipedia'):
+        if cmd(msg, 'wikipedia'):
             wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
             if no_args:
                 await wait.edit(content='Please input a page name!')
@@ -1447,13 +1447,13 @@ async def on_message(message):
                     embed = discord.Embed(title=pageTitle, description=str(explain), colour=discord.Colour.blue())
                     embed.set_footer(text='Get more info at '+str(page.fullurl))
                     await wait.edit(content='', embed=embed)
-        if msg.startswith(prefix+'getinvite'):
+        if cmd(msg, 'getinvite'):
             if message.author.guild_permissions.create_invite==False:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | You need to have the permission `Create Invite` to continue!')
             else:
                 serverinvite = await message.channel.create_invite(reason='Requested by '+str(message.author.name))
                 await message.channel.send('New invite created! Link: **'+str(serverinvite)+'**')
-        if msg.startswith(prefix+'avatar'):
+        if cmd(msg, 'avatar'):
             try:
                 if len(message.mentions)==0: user = message.author
                 else: user = message.mentions[0]
@@ -1486,7 +1486,7 @@ async def on_message(message):
                 embed = discord.Embed(colour=discord.Colour.red())
                 embed.set_image(url='https://api.alexflipnote.dev/pornhub?text='+str(txt1)+'&text2='+str(txt2))
                 await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'steamapp'):
+        if cmd(msg, 'steamapp'):
             if no_args:
                 await message.channel.send('Please insert an app name.')
             else:
@@ -1510,7 +1510,7 @@ async def on_message(message):
                     embed = discord.Embed(title=data['items'][0]['name'], url='https://store.steampowered.com/'+str(data['items'][0]['type'])+'/'+str(data['items'][0]['id']), description='**Price tag:** '+str(prize)+'\n**Metascore: **'+str(rate)+'\n**This app supports the following OSs: **'+str(myself.dearray(oss_raw)), colour=discord.Colour.red())
                     embed.set_image(url=data['items'][0]['tiny_image'])
                     await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'stackoverflow') or msg.startswith(prefix+'sof'):
+        if cmd(msg, 'stackoverflow') or cmd(msg, 'sof'):
             if no_args:
                 await message.channel.send('Hey fellow developer, Try add a question!')
             else:
@@ -1531,7 +1531,7 @@ async def on_message(message):
                     await message.channel.send(embed=embed)
                 except:
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | There was an error on searching! Please check your spelling :eyes:')
-        if msg.startswith(prefix+'translate'):
+        if cmd(msg, 'translate'):
             wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
             if len(args)>1:
                 if args[1]=='--list':
@@ -1554,7 +1554,7 @@ async def on_message(message):
                     await wait.edit(content=f'Please add a language! To have the list and their id, type\n`{prefix}translate --list`.')
             else:
                 await wait.edit(content=f'Please add translations or\nType `{prefix}translate --list` for supported languages.')
-        if msg.startswith(prefix+'catfact'):
+        if cmd(msg, 'catfact'):
             catWait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
             data = myself.api("https://catfact.ninja/fact")
             embed = discord.Embed(
@@ -1563,7 +1563,7 @@ async def on_message(message):
                 color = 0x333333
             )
             await catWait.edit(content='', embed=embed)
-        if msg.startswith(prefix+'trash'):
+        if cmd(msg, 'trash'):
             if len(args)!=2:
                 await message.channel.send('Please mention someone!\nExample: `'+prefix+'trash <@'+message.author.id+'>`')
             else:
@@ -1572,8 +1572,8 @@ async def on_message(message):
                 embed = discord.Embed(colour=discord.Colour.magenta())
                 embed.set_image(url='https://api.alexflipnote.dev/trash?face='+str(av).replace('webp', 'png')+'&trash='+str(toTrash).replace('webp', 'png'))
                 await message.channel.send(embed=embed)
-        if args[0]==prefix+'bird' or msg.startswith(prefix+'sadcat'):
-            if msg.startswith(prefix+'bird'):
+        if args[0]==prefix+'bird' or cmd(msg, 'sadcat'):
+            if cmd(msg, 'bird'):
                 getreq = 'birb'
             else:
                 getreq = 'sadcat'
@@ -1581,7 +1581,7 @@ async def on_message(message):
             embed = discord.Embed(colour=discord.Colour.magenta())
             embed.set_image(url=image_url)
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'ytthumbnail'):
+        if cmd(msg, 'ytthumbnail'):
             if args[1].startswith('https://youtu.be/'):
                 videoid = args[1][17:]
             elif args[1].startswith('http://youtu.be/'):
@@ -1596,22 +1596,22 @@ async def on_message(message):
             embed = discord.Embed(title='Thumbnail for '+str(args[1]), color=0xff0000)
             embed.set_image(url='https://img.youtube.com/vi/'+str(videoid)+'/mqdefault.jpg')
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'captcha'):
+        if cmd(msg, 'captcha'):
             capt = myself.urlify(message.content[int(len(args[1])+1):])
             embed = discord.Embed(colour=discord.Colour.blue())
             embed.set_image(url='https://api.alexflipnote.dev/captcha?text='+str(capt))
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'tts'):
+        if cmd(msg, 'tts'):
             if no_args:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid.')
             else:
                 await message.channel.send(content=msg[int(args[0]+1):], tts=True)
-        if msg.startswith(prefix+'scroll'):
+        if cmd(msg, 'scroll'):
             scrolltxt = myself.urlify(unprefixed)
             embed = discord.Embed(colour=discord.Colour.red())
             embed.set_image(url='https://api.alexflipnote.dev/scroll?text='+str(scrolltxt))
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'ship') and no_args:
+        if cmd(msg, 'ship') and no_args:
             member = []
             av = []
             for i in range(0, int(len(message.guild.members))):
@@ -1625,7 +1625,7 @@ async def on_message(message):
             embed.set_image(url='https://api.alexflipnote.dev/ship?user='+str(message.author.avatar_url).replace('webp', 'png')+'&user2='+str(avd).replace('webp', 'png'))
             embed.set_footer(text=f'Type {prefix}ship [tag1] [tag2] for cooler ones instead of just random!')
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'ghiblifilms'):
+        if cmd(msg, 'ghiblifilms'):
             wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... Getting data...')
             data = myself.api('https://ghibliapi.herokuapp.com/films')
             if no_args:
@@ -1649,7 +1649,7 @@ async def on_message(message):
                 embed.add_field(name='Directed by', value=data[num]['director'], inline='True')
                 embed.add_field(name='Produced by', value=data[num]['producer'], inline='True')
                 await wait.edit(content='', embed=embed)
-        if msg.startswith(prefix+'servericon'):
+        if cmd(msg, 'servericon'):
             if message.guild.is_icon_animated()==True:
                 link = 'https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.gif?size=1024'
             else:
@@ -1657,7 +1657,7 @@ async def on_message(message):
             theEm = discord.Embed(title=message.guild.name+'\'s Icon', colour=discord.Colour.blue())
             theEm.set_image(url=link)
             await message.channel.send(embed=theEm)
-        if msg.startswith(prefix+'slowmode'):
+        if cmd(msg, 'slowmode'):
             if len(args)!=2:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid setup.')
             else:
@@ -1679,7 +1679,7 @@ async def on_message(message):
                             await message.channel.send(str(client.get_emoji(BotEmotes.success)) + ' | Successfully disabled slowmode.')
                         else:
                             await message.channel.send(str(client.get_emoji(BotEmotes.success)) + ' | Successfully changed the slowmode delay of this channel to '+str(delay)+' seconds.')
-        if msg.startswith(prefix+'inviteme') or msg.startswith(prefix+'invite'):
+        if cmd(msg, 'inviteme') or cmd(msg, 'invite'):
             if message.guild.id!=264445053596991498:
                 embed = discord.Embed(
                     title='Sure thing! Invite this bot to your server using the link below.',
@@ -1687,7 +1687,7 @@ async def on_message(message):
                     colour=discord.Colour.green()
                 )
                 await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'serverinfo'):
+        if cmd(msg, 'serverinfo'):
             acceptId = 0
             o_web = 0
             o_desk = 0
@@ -1737,7 +1737,7 @@ async def on_message(message):
                 embed.set_thumbnail(url=str('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=1024'))
                 embed.set_image(url='https://discord.com/api/guilds/'+str(message.guild.id)+'/embed.png?style=banner1')
                 await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'factor'):
+        if cmd(msg, 'factor'):
             if int(args[1])<999999:
                 numList = range(1, int(args[1]))
                 factor = []
@@ -1748,12 +1748,12 @@ async def on_message(message):
                 await message.channel.send(str(factor))
             else:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | OverloadInputError: Beyond the limit of 999999.')
-        if msg.startswith(prefix+'multiplication'):
+        if cmd(msg, 'multiplication'):
             arr = []
             for i in range(1, 15):
                 arr.append(int(args[1])*i)
             await message.channel.send(str(arr))
-        if msg.startswith(prefix+'gdcomment'):
+        if cmd(msg, 'gdcomment'):
             try:
                 byI = unprefixed.split(' | ')
                 text = myself.urlify(byI[0])
@@ -1772,7 +1772,7 @@ async def on_message(message):
             except Exception as e:
                 print('https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&days=1-second')
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | Invalid!\nThe flow is this: `{prefix}gdcomment text | name | like count`\nExample: `{prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
-        if msg.startswith(prefix+'gdbox'):
+        if cmd(msg, 'gdbox'):
             if no_args:
                 await message.channel.send('Please input a text!')
             else:
@@ -1789,7 +1789,7 @@ async def on_message(message):
                     embed = discord.Embed(colour=discord.Colour.green())
                     embed.set_image(url='https://gdcolon.com/tools/gdtextbox/img/'+str(text)+'?color='+color+'&name='+str(message.author.name)+'&url='+str(av).replace('webp', 'png')+'&resize=1')
                     await wait.edit(content='', embed=embed)
-        if msg.startswith(prefix+'serveremojis'):
+        if cmd(msg, 'serveremojis'):
             acceptId = 0
             if acceptId==0:
                 if len(args)==2 and args[1]=='--short':
@@ -1832,7 +1832,7 @@ async def on_message(message):
                     embed.add_field(name='Animated Emojis ('+str(animatecount)+')', value=str(animateemo), inline='False')
                     embed.set_footer(text=str(warning))
                     await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'id'):
+        if cmd(msg, 'id'):
             var = args[1][:-1]
             if args[1].startswith('<#'):
                 var = var[2:]
@@ -1841,7 +1841,7 @@ async def on_message(message):
             elif (args[1].startswith('<@&')):
                 var = var[3:]
             await message.channel.send(str(var))
-        if msg.startswith(prefix+'robohash'):
+        if cmd(msg, 'robohash'):
             if no_args:
                 gib = ''
                 for i in range(0, random.randint(5, 10)):
@@ -1851,7 +1851,7 @@ async def on_message(message):
             embed = discord.Embed(title='Here is some robohash for you.', colour=discord.Colour.magenta())
             embed.set_image(url='https://robohash.org/'+str(gib))
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'gdlogo'):
+        if cmd(msg, 'gdlogo'):
             if no_args:
                 await message.channel.send('Please input a text!')
             else:
@@ -1859,7 +1859,7 @@ async def on_message(message):
                 embed = discord.Embed(colour=discord.Colour.green())
                 embed.set_image(url='https://gdcolon.com/tools/gdlogo/img/'+str(text))
                 await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'lockdown'):
+        if cmd(msg, 'lockdown'):
             if len(args)!=2:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | Invalid parameters. Correct Example: `{prefix}lockdown [seconds]`\nMinimum: 10, Maximum: 900')
             else:
@@ -1882,13 +1882,15 @@ async def on_message(message):
             if no_args:
                 await message.channel.send("No math problem? Ok no fix.")
             else:
-                ban = True
+                ban = False
                 for i in range(0, len(unprefixed.lower())):
-                    if unprefixed.lower()[i] in list("ABCDEFGHIJKLMNOPQRSTUVWXYZ."):
-                        ban = True
-                        break
+                    for j in list("ABCDEFGHIJKLMNOPQRSTUVWXYZ."):
+                        if j in unprefixed.lower()[i]:
+                            ban = True
+                            break
+                    if ban: break
                 if ban:
-                    await message.channel.send('This command has closed down for maintenance. It will be open again in the future. Sorry!')
+                    await message.channel.send(client.get_emoji(BotEmotes.error)+' | Invalid calculation.')
                 else:
                     try:
                         await message.channel.send(embed=discord.Embed(title="Equation result", description=f'**Equation:** ```{unprefixed}```\n**Result:**\n```{eval(unprefixed)}```', colour=discord.Colour.red()))
@@ -1898,17 +1900,17 @@ async def on_message(message):
             ending = int(args[2])
             ran = random.randint(int(beginning), int(ending))
             await message.channel.send(str(ran))
-        if msg.startswith(prefix+"flipdice") or msg.startswith(prefix+"dice"):
+        if cmd(msg, "flipdice") or cmd(msg, "dice"):
             arr = ["one", "two", "three", "four", "five", "six"]
             ran = random.randint(0, 5)
             await message.channel.send(":"+arr[ran]+":")
-        if msg.startswith(prefix+"flipcoin") or msg.startswith(prefix+"coin"):
+        if cmd(msg, "flipcoin") or cmd(msg, "coin"):
             ran = random.randint(0, 1)
             if (ran==0):
                 await message.channel.send("HEADS")
             elif (ran==1):
                 await message.channel.send("TAILS")
-        if msg.startswith(prefix+'ship') and len(args)>1:
+        if cmd(msg, 'ship') and len(args)>1:
             if len(args)<3:
                 await message.channel.send(':x: Please tag 2 people!')
             elif len(args)==3:
@@ -1929,12 +1931,12 @@ async def on_message(message):
             embed = discord.Embed(colour=discord.Colour.magenta())
             embed.set_image(url=img)
             await message.channel.send(embed=embed)
-        if msg==prefix+"cat" or msg.startswith(prefix+"cats"):
+        if msg==prefix+"cat" or cmd(msg, "cats"):
             data = myself.api("https://aws.random.cat/meow")
             embed = discord.Embed(colour=discord.Colour.magenta())
             embed.set_image(url=data['file'])
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'imgcaptcha'):
+        if cmd(msg, 'imgcaptcha'):
             if len(message.mentions)==0:
                 av = str(message.author.avatar_url).replace('.webp?size=1024', '.png')
                 nm = myself.urlify(str(message.author.name))
@@ -1944,21 +1946,21 @@ async def on_message(message):
             embed = discord.Embed(colour=discord.Colour.green())
             embed.set_image(url='http://nekobot.xyz/api/imagegen?type=captcha&username='+nm+'&url='+av+'&raw=1')
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'whowouldwin'):
+        if cmd(msg, 'whowouldwin'):
             if len(message.mentions)!=2:
                 await message.channel.send('Please tag TWO people!')
             else:
                 embed = discord.Embed(colour=discord.Colour.red())
                 embed.set_image(url='http://nekobot.xyz/api/imagegen?type=whowouldwin&raw=1&user1='+str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')+'&user2='+str(message.mentions[1].avatar_url).replace('.webp?size=1024', '.png'))
                 await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'trap'):
+        if cmd(msg, 'trap'):
             if no_args or len(message.mentions)==0:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | Wrong.\nPlease try the correct like following:\n`{prefix}trap [tag]`')
             else:
                 embed = discord.Embed(colour=discord.Colour.magenta())
                 embed.set_image(url='http://nekobot.xyz/api/imagegen?type=trap&name='+myself.urlify(str(message.mentions[0].name))+'&author='+myself.urlify(str(message.author.name))+'&image='+str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')+'&raw=1')
                 await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'roles'):
+        if cmd(msg, 'roles'):
             acceptId = 0
             if acceptId==0:
                 serverroles = ""
@@ -1976,7 +1978,7 @@ async def on_message(message):
                 )
                 embed.set_footer(text=str(warning))
                 await message.channel.send(embed=embed)
-        if msg.startswith(prefix+"gddaily"):
+        if cmd(msg, "gddaily"):
             toEdit = await message.channel.send("Retrieving Data...")
             data = myself.api("https://gdbrowser.com/api/level/daily")
             image = 'https://gdbrowser.com/icon/'+data["author"]
@@ -1995,7 +1997,7 @@ async def on_message(message):
             embed.add_field(name='Level Stats', value=str(data["likes"])+' '+gesture+'\n'+str(data["downloads"])+" :arrow_down:", inline='False')
             embed.add_field(name='Level Rewards', value=str(data["stars"])+" :star:\n"+str(data["orbs"])+" orbs\n"+str(data["diamonds"])+" :gem:")
             await toEdit.edit(content='', embed=embed)
-        if msg.startswith(prefix+'botmembers'):
+        if cmd(msg, 'botmembers'):
             botmembers = ""
             warning = 'Down triangles means that the bot is down. And up triangles mean the bot is well... up.'
             for i in range(0, int(len(message.guild.members))):
@@ -2014,7 +2016,7 @@ async def on_message(message):
             )
             embed.set_footer(text=warning)
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+"gdweekly"):
+        if cmd(msg, "gdweekly"):
             toEdit = await message.channel.send("Retrieving Data...")
             data = myself.api("https://gdbrowser.com/api/level/weekly")
             image = 'https://gdbrowser.com/icon/'+data["author"]
@@ -2033,11 +2035,11 @@ async def on_message(message):
             embed.add_field(name='Level Stats', value=str(data["likes"])+' '+gesture+'\n'+str(data["downloads"])+" :arrow_down:", inline='False')
             embed.add_field(name='Level Rewards', value=str(data["stars"])+" :star:\n"+str(data["orbs"])+" orbs\n"+str(data["diamonds"])+" :gem:")
             await toEdit.edit(content='', embed=embed)
-        if msg.startswith(prefix+'facts'):
+        if cmd(msg, 'facts'):
             embed = discord.Embed(colour=discord.Colour.magenta())
             embed.set_image(url='https://api.alexflipnote.dev/facts?text='+myself.urlify(unprefixed))
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+"gdprofile"):
+        if cmd(msg, "gdprofile"):
             url = myself.urlify(unprefixed)
             data = myself.api("https://gdbrowser.com/api/profile/"+url)
             embed = discord.Embed(
@@ -2059,7 +2061,7 @@ async def on_message(message):
             embed.add_field(name='Creator Points', value=cp)
             embed.set_author(name='Display User Information', icon_url="https://gdbrowser.com/icon/"+url)
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+"rps"):
+        if cmd(msg, "rps"):
             main = await message.channel.send(embed=discord.Embed(title='Rock Paper Scissors game.', description='Click the reaction below. And game will begin.', colour=discord.Colour.green()))
             exp = ['✊', '🖐️', '✌']
             for i in range(0, len(exp)):
@@ -2095,7 +2097,7 @@ async def on_message(message):
                 embed.add_field(name=str(message.author.name), value=':'+given+':', inline="True")
                 embed.add_field(name='Username601', value=':'+str(emojiArray[ran])+':', inline="True")
                 await main.edit(embed=embed)
-        if msg.startswith(prefix+"randomcase"):
+        if cmd(msg, "randomcase"):
             statement = []
             for i in range(1, int(len(args))):
                 statement.append(args[i])
@@ -2109,7 +2111,7 @@ async def on_message(message):
                 elif ran==1:
                     result.append(letterArr[i].lower())
             await message.channel.send("".join(result))
-        if msg.startswith(prefix+'guessnum') or msg.startswith(prefix+'gn'):
+        if cmd(msg, 'guessnum') or cmd(msg, 'gn'):
             num = random.randint(5, 100)
             username = message.author.display_name
             user_class = message.author
@@ -2144,9 +2146,9 @@ async def on_message(message):
                         await message.channel.send(str(client.get_emoji(BotEmotes.success)) +' | You are correct!\n**The answer is '+str(num)+'!**')
                         gameplay = False
                         break
-        if msg.startswith(prefix+"randomcolor") or msg.startswith(prefix+'colorinfo') or msg.startswith(prefix+'colourinfo'):
+        if cmd(msg, "randomcolor") or cmd(msg, 'colorinfo') or cmd(msg, 'colourinfo'):
             continuing = False
-            if msg.startswith(prefix+'randomcolor'):
+            if cmd(msg, 'randomcolor'):
                 listHex = list('0123456789ABCDEF')
                 hexCode = ''
                 for i in range(0, 6):
@@ -2178,17 +2180,17 @@ async def on_message(message):
                 embed.set_thumbnail(url='https://api.alexflipnote.dev/colour/image/'+str(hexCode))
                 embed.set_image(url='https://api.alexflipnote.dev/colour/image/gradient/'+str(hexCode))
                 await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'call'):
+        if cmd(msg, 'call'):
             call = myself.urlify(msg[6:])
             embed = discord.Embed(colour=discord.Colour.blue())
             embed.set_image(url='https://api.alexflipnote.dev/calling?text='+str(call))
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'achieve'):
+        if cmd(msg, 'achieve'):
             txt = myself.urlify(unprefixed)
             embed = discord.Embed(colour=discord.Colour.blue())
             embed.set_image(url='https://api.alexflipnote.dev/achievement?text='+str(txt))
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+"country"):
+        if cmd(msg, "country"):
             country = myself.urlify(unprefixed)
             c = myself.api("https://restcountries.eu/rest/v2/name/"+str(country.lower()))
             if len(c[0]['borders'])==0: borderz = 'No borders.'
@@ -2200,7 +2202,7 @@ async def on_message(message):
             )
             embed.set_author(name=c[0]['name'])
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'commands') or msg.startswith(prefix+'help'):
+        if cmd(msg, 'commands') or cmd(msg, 'help'):
             data = myself.jsonisp("https://raw.githubusercontent.com/vierofernando/username601/master/commands.json")
             types = ['Bot Help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps']
             if no_args:
@@ -2254,11 +2256,11 @@ async def on_message(message):
                                 parameters += '**'+source['p'][i]+'**\n'
                         embed = discord.Embed(title='Command help for '+str(source['n'])+':', description='**Function: **'+str(source['f'])+'\n**Parameters:** \n'+str(parameters), colour=discord.Colour.red())
                     await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'uptime'):
+        if cmd(msg, 'uptime'):
             embed = discord.Embed(title=str(datetime.datetime.now()-latest_update)[:-7], description='Last time down: '+str(latest_update)[:-7], color=discord.Colour.red())
             embed.set_footer(text='Don\'t worry! 99% Uptime guaranteed.\nUnless there is an big error/on development.')
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'about'):
+        if cmd(msg, 'about'):
             if message.guild.id!=264445053596991498:
                 messageRandom = splashes.getAbout()
                 # osinfo = myself.platform()
@@ -2278,14 +2280,14 @@ async def on_message(message):
                 embed.set_thumbnail(url='https://raw.githubusercontent.com/vierofernando/username601/master/pfp.png')
                 embed.set_footer(text='© Viero Fernando Programming, 2018-2020. All rights reserved.')
                 await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'vote'):
+        if cmd(msg, 'vote'):
             embed = discord.Embed(title='Support by Voting us at top.gg!', description='Sure thing, mate! [Vote us at top.gg by clicking me!](https://top.gg/bot/696973408000409626/vote)', colour=discord.Colour.blue())
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'space'):
+        if cmd(msg, 'space'):
             embed = discord.Embed(colour=discord.Colour.dark_blue())
             embed.set_image(url='https://source.unsplash.com/500x500/?space')
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'time') or msg.startswith(prefix+'utc'):
+        if cmd(msg, 'time') or cmd(msg, 'utc'):
             data = myself.api("http://worldtimeapi.org/api/timezone/africa/accra")
             year = str(data["utc_datetime"])[:-28]
             time = str(data["utc_datetime"])[:-22]
@@ -2305,7 +2307,7 @@ async def on_message(message):
                 colour = discord.Colour.green()
             )
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'joke') or msg.startswith(prefix+'jokes'):
+        if cmd(msg, 'joke') or cmd(msg, 'jokes'):
             data = myself.api("https://official-joke-api.appspot.com/jokes/general/random")
             embed = discord.Embed(
                 title = str(data[0]["setup"]),
@@ -2313,7 +2315,7 @@ async def on_message(message):
                 colour = discord.Colour.blue()
             )
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'qr'):
+        if cmd(msg, 'qr'):
             content = myself.urlify(unprefixed)
             link = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+str(content.lower())
             embed = discord.Embed(
@@ -2322,7 +2324,7 @@ async def on_message(message):
             embed.set_author(name="Image not appearing? Try using this link.", url=str(link))
             embed.set_image(url=str(link))
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'didyoumean'):
+        if cmd(msg, 'didyoumean'):
             if args[1]=='help':
                 embed = discord.Embed(title='didyoumean command help', description='Type like the following\n'+prefix+'didyoumean [text1] [text2]\n\nFor example:\n'+prefix+'didyoumean [i am gay] [i am guy]', colour=discord.Colour.blue())
                 embed.set_image(url='https://api.alexflipnote.dev/didyoumean?top=i%20am%20gay&bottom=i%20am%20guy')
@@ -2332,12 +2334,12 @@ async def on_message(message):
                 embed = discord.Embed(colour=discord.Colour.blue())
                 embed.set_image(url='https://api.alexflipnote.dev/didyoumean?top='+str(txt1)+'&bottom='+str(txt2))
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'challenge'):
+        if cmd(msg, 'challenge'):
             txt = myself.urlify(unprefixed)
             embed = discord.Embed(colour=discord.Colour.blue())
             embed.set_image(url='https://api.alexflipnote.dev/challenge?text='+str(txt))
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'median') or msg.startswith(prefix+'mean'):
+        if cmd(msg, 'median') or cmd(msg, 'mean'):
             numArray = []
             i = 1
             try:
@@ -2346,7 +2348,7 @@ async def on_message(message):
                     i = int(i)+1
             except IndexError:
                 print("Reached the limit.")
-            if msg.startswith(prefix+'median'):
+            if cmd(msg, 'median'):
                 if len(numArray)%2==0:
                     first = int(len(numArray))/2
                     second = int(first)
@@ -2355,16 +2357,16 @@ async def on_message(message):
                 else:
                     resultPosition = int(len(numArray))-int(((len(numArray))-1)/2)
                     result = numArray[int(resultPosition)-1]
-            if msg.startswith(prefix+'mean'):
+            if cmd(msg, 'mean'):
                 temp = 0
                 for i in range(0, int(len(numArray))):
                     temp = int(temp)+int(numArray[i])
                 result = int(temp)/int(len(numArray))
             await message.channel.send(str(result))
-        if msg.startswith(prefix+"sqrt"):
+        if cmd(msg, "sqrt"):
             num = int(args[1])
             await message.channel.send(str(math.sqrt(int(num))))
-        if msg.startswith(prefix+'reactnum'):
+        if cmd(msg, 'reactnum'):
             emojiArr = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣']
             begin = int(args[1])
             end = int(args[2])+1
@@ -2376,41 +2378,44 @@ async def on_message(message):
                     await message.add_reaction(emojiArr[i])
             elif errorLevel==1:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Error: Invalid Integer.')
-        if msg.startswith(prefix+'morse') or msg.startswith(prefix+'temmie'):
+        if cmd(msg, 'morse') or cmd(msg, 'temmie'):
             if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | Please send something to be encoded.')
             else:
-                if msg.startswith(prefix+'morse'): link, num = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/morse.json', 0
-                elif msg.startswith(prefix+'temmie'): link, num = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/temmie.json', 1
-                data = myself.jsonisp(link)
-                keyz = list(data.keys())
-                if msg.startswith(prefix+'temmie'):
-                    total = ''
-                    for j in range(num, len(keyz)):
-                        if total=='': total = unprefixed
-                        total = total.replace(keyz[j], data[keyz[j]])
-                else:
-                    word = list(unprefixed)
-                    total = []
-                    for i in word:
-                        total.append(i.replace(keyz[j], data[keyz[j]]))
-                if msg.startswith(prefix+'temmie'): await message.channel.send(total)
-                else: await message.channel.send(' '.join(total))
-        if msg.startswith(prefix+'slap'):
+                if cmd(msg, 'morse'): await message.channel.send('This command is closed for maintenance.')
+                elif cmd(msg, 'temmie'): 
+                    link, num = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/temmie.json', 1
+                    data = myself.jsonisp(link)
+                    keyz = list(data.keys())
+                    if cmd(msg, 'temmie'):
+                        total = ''
+                        for j in range(num, len(keyz)):
+                            if total=='': total = unprefixed
+                            total = total.replace(keyz[j], data[keyz[j]])
+                # else:
+                #     word = list(unprefixed)
+                #     total = []
+                #     for i in word:
+                #         for x in range(num, len(keyz)):
+                #             i.replace(keyz[x], data[keyz[x]])
+                #         total.append(i)
+                if cmd(msg, 'temmie'): await message.channel.send(total)
+                # else: await message.channel.send(' '.join(total))
+        if cmd(msg, 'slap'):
             if no_args:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Slap who? Tag someone!")
             else:
                 await message.channel.send(splashes.slap('msg')+', '+message.mentions[0].name+'!\n'+splashes.slap('gif'))
-        if msg.startswith(prefix+'fact-core') or msg.startswith(prefix+'fact') or msg.startswith(prefix+'factcore') or msg.startswith(prefix+'fact-sphere') or msg.startswith(prefix+'factsphere'):
+        if cmd(msg, 'fact-core') or cmd(msg, 'fact') or cmd(msg, 'factcore') or cmd(msg, 'fact-sphere') or cmd(msg, 'factsphere'):
             data = myself.jsonisp('https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fact-core.json')
             embed = discord.Embed(title='Fact Core', description=random.choice(data), colour=discord.Colour.green())
             embed.set_thumbnail(url='https://i1.theportalwiki.net/img/thumb/5/55/FactCore.png/300px-FactCore.png')
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'hbd'):
+        if cmd(msg, 'hbd'):
             if no_args:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | who is having their birthday today?")
             else:
                 await message.channel.send("Happy birthday, "+message.mentions[0].name+"!\n"+splashes.hbd())
-        if msg.startswith(prefix+'choose'):
+        if cmd(msg, 'choose'):
             array = []
             i = 1
             try:
@@ -2420,7 +2425,7 @@ async def on_message(message):
             except IndexError:
                 print("Reached the limit.")
             await message.channel.send(random.choice(array))
-        if msg.startswith(prefix+'search'):
+        if cmd(msg, 'search'):
             query = myself.urlify(unprefixed)
             searches = [
                 "[Google Search](http://google.com/search?q="+str(query),
@@ -2436,7 +2441,7 @@ async def on_message(message):
             for i in range(0, len(searches)): total += str(i+1) + '. **' + searches[i] + ')**\n'
             embed = discord.Embed(title = 'Internet Searches for '+str(unprefixed), description=total, color = 0xff0000)
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'emojify'):
+        if cmd(msg, 'emojify'):
             emojified = []
             emojiid = 0
             listed = list(msg[9:])
@@ -2464,7 +2469,7 @@ async def on_message(message):
         if args[0]==prefix+'reverse':
             word = msg[9:]
             await message.channel.send(word[::-1])
-        if msg.startswith(prefix+'leet'):
+        if cmd(msg, 'leet'):
             array = list(str(msg)[6:])
             alph = list("abcdefghijklmnopqrstuvwxyz")
             total = []
@@ -2487,7 +2492,7 @@ async def on_message(message):
                 else:
                     total.append(array[i])
             await message.channel.send("".join(total))
-        if msg.startswith(prefix+'length'):
+        if cmd(msg, 'length'):
             word = str(msg)[8:]
             withSpaces = 0
             withoutSpaces = 0
@@ -2498,18 +2503,18 @@ async def on_message(message):
                     withSpaces = int(withSpaces)+1
                     withoutSpaces = int(withoutSpaces)+1
             await message.channel.send("**With Spaces:** "+str(withSpaces)+"\n**Without Spaces:**"+str(withoutSpaces))
-        if msg.startswith(prefix+'randomword'):
+        if cmd(msg, 'randomword'):
             toEdit = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
             data = myself.api("https://random-word-api.herokuapp.com/word?number=1")
             await toEdit.edit(content=str(data[0]))
-        if msg.startswith(prefix+'inspirobot'):
+        if cmd(msg, 'inspirobot'):
             img = myself.insp('https://inspirobot.me/api?generate=true')
             embed = discord.Embed(
                 colour = 0xff0000
             )
             embed.set_image(url=str(img))
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'meme'):
+        if cmd(msg, 'meme'):
             data = myself.api("https://meme-api.herokuapp.com/gimme")
             embed = discord.Embed(
                 colour = 0x00ff00
@@ -2520,12 +2525,12 @@ async def on_message(message):
             else:
                 embed.set_image(url=data["url"])
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'atbash'):
+        if cmd(msg, 'atbash'):
             if no_args:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Invalid. Please give us the word to encode...')
             else:
                 await message.channel.send(myself.atbash(unprefixed))
-        if msg.startswith(prefix+'caesar'):
+        if cmd(msg, 'caesar'):
             if len(args)<3:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | Invalid.\nPlease input:\n`{prefix}caesar [offset] [text]`\nExample: `{prefix}caesar 3 Hello world!`')
             else:
@@ -2536,7 +2541,7 @@ async def on_message(message):
                         await message.channel.send(myself.caesar(message.content[int(len(args[0])+len(args[1])+2):], int(args[1])))
                     except Exception as e:
                         await message.channel.send(str(client.get_emoji(BotEmotes.error)) + f' | Error!\n```{e}```Look at dat error tho :flushed:')
-        if msg.startswith(prefix+'binary'):
+        if cmd(msg, 'binary'):
             if no_args:
                 await message.channel.send(f'Please send something to encode to binary!\nExample: `{prefix}binary {message.author.name}`')
             else:
@@ -2545,10 +2550,10 @@ async def on_message(message):
                     await message.channel.send('The binary result is too long... '+myself.bin('lol uwu'))
                 else:
                     await message.channel.send(f'```{myself.bin(text)}```')
-        if msg.startswith(prefix+'bored'):
+        if cmd(msg, 'bored'):
             data = myself.api("https://www.boredapi.com/api/activity?participants=1")
             await message.channel.send('**Feeling bored?**\nWhy don\'t you '+str(data['activity'])+'? :wink::ok_hand:')
-        if msg.startswith(prefix+'8ball'):
+        if cmd(msg, '8ball'):
             data = myself.api("https://yesno.wtf/api")
             if data['answer']=='no':
                 colorhex = discord.Colour.red()
@@ -2557,7 +2562,7 @@ async def on_message(message):
             embed = discord.Embed(title=data['answer'], colour=colorhex)
             embed.set_image(url=data['image'])
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'deathnote'):
+        if cmd(msg, 'deathnote'):
             member = []
             in_the_note = ""
             notecount = 0
@@ -2580,19 +2585,19 @@ async def on_message(message):
                 colour = discord.Colour.from_rgb(255, 255, 0)
             )
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'lovelevel'):
+        if cmd(msg, 'lovelevel'):
             nums = list(range(0, 100))
             if no_args:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Error: Please mention someone you love (lenny)')
             elif len(args)==2:
                 await message.channel.send('Love level of '+message.author.name+' with <@!'+str(args[1][3:][:-1])+'> is **'+str(random.choice(nums))+'%.**')
-        if msg.startswith(prefix+'gaylevel'):
+        if cmd(msg, 'gaylevel'):
             if no_args:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | SomeoneError: Say/mention someone!')
             else:
                 nums = list(range(0, 101))
                 await message.channel.send('The gayness level of '+msg[10:]+' is **'+str(random.choice(nums))+'%.**')
-        if msg.startswith(prefix+'secret'):
+        if cmd(msg, 'secret'):
             member = []
             for i in range(0, int(len(message.guild.members))):
                 if message.guild.members[i].name!=message.author.name and message.guild.members[i].name!=message.author.name:
@@ -2600,7 +2605,7 @@ async def on_message(message):
             secretlist = splashes.getSecrets()
             await message.author.send('Did you know?\n'+random.choice(member)+str(random.choice(secretlist))+'\nDon\'t tell this to anybody else.')
             await message.channel.send('I shared the secret through DM. don\'t show anyone else! :wink::ok_hand:')
-        if msg.startswith(prefix+'reactmsg'):
+        if cmd(msg, 'reactmsg'):
             messageReact = list(msg[10:])
             used = []
             order = list("abcdefghijklmnopqrstuvwxyz!?0123456789 ")
@@ -2625,33 +2630,31 @@ async def on_message(message):
             if validId==0:
                 for i in range(0, int(len(used))):
                     await message.add_reaction(used[i])
-        if msg.startswith(prefix+'wonka') or msg.startswith(prefix+'avmeme') or msg.startswith(prefix+'buzz') or msg.startswith(prefix+'doge') or msg.startswith(prefix+'fry') or msg.startswith(prefix+'philosoraptor') or msg.startswith(prefix+'money'):
-            if msg.startswith(prefix+'avmeme'):
+        if cmd(msg, 'wonka') or cmd(msg, 'avmeme') or cmd(msg, 'buzz') or cmd(msg, 'doge') or cmd(msg, 'fry') or cmd(msg, 'philosoraptor') or cmd(msg, 'money'):
+            if cmd(msg, 'avmeme'):
                 try:
                     av = message.mentions[0].avatar_url
-                    mes = myself.urlify(message.content[int(len(args[0])+len(args[1])+1):])
-                    top = mes.split('[')[1].split(']')[0]
-                    bott = mes.split('[')[2].split(']')[0]
+                    mes = message.content[int(len(args[0])+len(args[1])+1):]
+                    top = myself.urlify(mes.split('[')[1].split(']')[0])
+                    bott = myself.urlify(mes.split('[')[2].split(']')[0])
                     name = 'custom'
                     extr = '?alt='+str(av).replace('webp', 'png')
                     embed = discord.Embed(colour=discord.Colour.green())
-                    print('https://memegen.link/'+str(name)+'/'+str(top)+'/'+str(bott)+'.jpg'+str(extr))
                     embed.set_image(url='https://memegen.link/'+str(name)+'/'+str(top)+'/'+str(bott)+'.jpg'+str(extr))
                     await message.channel.send(embed=embed)
                 except Exception as e:
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | Error!\n```{e}```Invalid parameters. Example: `{prefix}avmeme <tag someone> [top text] [bottom text]`')
             else:
                 try:
-                    mes = myself.urlify(unprefixed)
-                    top = mes.split('[')[1].split(']')[0]
-                    bott = mes.split('[')[2].split(']')[0]
+                    top = myself.urlify(unprefixed.split('[')[1].split(']')[0])
+                    bott = myself.urlify(unprefixed.split('[')[2].split(']')[0])
                     name = args[0][1:]
                     embed = discord.Embed(colour=discord.Colour.green())
                     embed.set_image(url='https://memegen.link/'+str(name)+'/'+str(top)+'/'+str(bott)+'.jpg?watermark=none')
                     await message.channel.send(embed=embed)
                 except Exception as e:
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | Error!\n```{e}```Invalid parameters.')
-        if msg.startswith(prefix+'barcode'):
+        if cmd(msg, 'barcode'):
             if no_args:
                 await message.channel.send('Please provide a text!')
             else:
@@ -2661,7 +2664,7 @@ async def on_message(message):
                     embed = discord.Embed(title='Barcode for '+str(msg[int(len(args[0])+1):]), colour=discord.Colour.blue())
                     embed.set_image(url='http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data='+str(myself.urlify(unprefixed)))
                     await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'weather'):
+        if cmd(msg, 'weather'):
             if no_args:
                 await message.channel.send(f'Please send a **City name!**\nExample: `{prefix}weather New York`')
             else:
@@ -2671,7 +2674,7 @@ async def on_message(message):
                 )
                 embed.set_image(url='https://wttr.in/'+str(myself.urlify(unprefixed))+'.png?m')
                 await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'github'):
+        if cmd(msg, 'github'):
             git = ''
             for i in range(0, len(github_object['files'])):
                 git = git + '**'+github_object['files'][i]['name']+'** = '+github_object['files'][i]['type']+'\n'
@@ -2681,13 +2684,13 @@ async def on_message(message):
                 colour=discord.Colour.red()
             )
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'quote'):
+        if cmd(msg, 'quote'):
             data = myself.insp('https://quotes.herokuapp.com/libraries/math/random')
             text = data.split(' -- ')[0]
             quoter = data.split(' -- ')[1]
             embed = discord.Embed(title='Quotes', description=text+'\n\n - '+quoter+' - ', colour=discord.Colour.blue())
             await message.channel.send(embed=embed)
-        if msg.startswith(prefix+'trivia'):
+        if cmd(msg, 'trivia'):
             al = None
             try:
                 wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... generating quiz...')
@@ -2718,7 +2721,7 @@ async def on_message(message):
                 await message.channel.send(str(client.get_emoji(BotEmotes.success)) +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
             else:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | <@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr)+'.')
-        if msg.startswith(prefix+'rhyme'):
+        if cmd(msg, 'rhyme'):
             if no_args:
                 await message.channel.send('Please input a word! And we will try to find the word that best rhymes with it.')
             else:
