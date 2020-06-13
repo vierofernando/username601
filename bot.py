@@ -2379,16 +2379,16 @@ async def on_message(message):
         if msg.startswith(prefix+'morse') or msg.startswith(prefix+'temmie'):
             if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | Please send something to be encoded.')
             else:
-                if msg.startswith(prefix+'morse'): link, toenc = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/morse.json', list(unprefixed)
-                elif msg.startswith(prefix+'temmie'): link, toenc = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/temmie.json', unprefixed.split(' ')
+                if msg.startswith(prefix+'morse'): link, num = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/morse.json', 0
+                elif msg.startswith(prefix+'temmie'): link, num = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/temmie.json', 1
                 data = myself.jsonisp(link)
                 keyz = list(data.keys())
-                total = []
-                for i in range(0, len(toenc)):
-                    for j in range(0, len(keyz)):
-                        total.append(toenc[i].replace(keyz[j], data[keyz[j]]))
-                if msg.startswith(prefix+'temmie'): await message.channel.send(''.join(total))
-                else: await message.channel.send(' '.join(total))
+                total = ''
+                for j in range(num, len(keyz)):
+                    if total=='': total = unprefixed
+                    total = total.replace(keyz[j], data[keyz[j]])
+                if msg.startswith(prefix+'temmie'): await message.channel.send(total)
+                else: await message.channel.send(' '.join(total.split()))
         if msg.startswith(prefix+'slap'):
             if no_args:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Slap who? Tag someone!")
