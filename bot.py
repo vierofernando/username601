@@ -1,8 +1,8 @@
-import username601 as myself
-from username601 import *
+import modules.username601 as myself
+from modules.username601 import *
 import os
-import discordgames
-import splashes
+import modules.discordgames as Games
+import modules.splashes as src
 import inspect
 import dbl
 
@@ -43,13 +43,13 @@ async def on_ready():
 @client.event
 async def on_member_join(member):
     if member.guild.id==688373853889495044:
-        await member.guild.get_channel(694521383908016188).send(':heart: | '+splashes.welcome('<@'+str(member.id)+'>', client.get_user(661200758510977084).name))
+        await member.guild.get_channel(694521383908016188).send(':heart: | '+src.welcome('<@'+str(member.id)+'>', client.get_user(661200758510977084).name))
 
 # ONLY IN SUPPORT SERVER ALSO
 @client.event
 async def on_member_remove(member):
     if member.guild.id==688373853889495044:
-        await member.guild.get_channel(694521383908016188).send(':broken_heart: | '+splashes.exit(member.name))
+        await member.guild.get_channel(694521383908016188).send(':broken_heart: | '+src.exit(member.name))
 
 @client.command(pass_context=True, name='hell')
 async def hell(ctx):
@@ -72,7 +72,7 @@ async def on_message(message):
             embed.set_thumbnail(url='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif')
             embed.set_footer(text='Ping and embed sent time may differ.')
             await wait.edit(content='', embed=embed)
-    sayTag = splashes.getTag()
+    sayTag = src.getTag()
     msg = message.content.lower()
     args = message.content.split(' ')
     unprefixed = message.content[int(len(args[0])+1):]
@@ -89,7 +89,7 @@ async def on_message(message):
                 console = 'C:\\Users\\Anonymous601>'
                 if args[1].startswith('<@'):
                     main = await message.channel.send('Opening Console...')
-                    flow = splashes.hackflow(tohack)
+                    flow = src.hackflow(tohack)
                     for i in range(0, len(flow)):
                         console = console + flow[i][1:]
                         newembed = discord.Embed(title='Anonymous601 Hacking Console', description=f'```{console}```',colour=discord.Colour.green())
@@ -324,7 +324,7 @@ async def on_message(message):
             can_used = list('123456789')
             box = f' {box_nums[0]} | {box_nums[1]} | {box_nums[2]}\n===========\n {box_nums[3]} | {box_nums[4]} | {box_nums[5]}\n===========\n {box_nums[6]} | {box_nums[7]} | {box_nums[8]}\n'
             if no_args:
-                embed = discord.Embed(title='TicTacToe™ wtih '+str(splashes.getTicTacToeHeader()), description=f'Plays tic-tac-toe with the BOT. Very simple.\n\n**To start playing, type;**\n`{prefix}tictactoe X` (To play tictactoe as X)\n`{prefix}tictactoe O` (To play tictactoe as O)', colour=discord.Colour.red())
+                embed = discord.Embed(title='TicTacToe™ wtih '+str(src.getTicTacToeHeader()), description=f'Plays tic-tac-toe with the BOT. Very simple.\n\n**To start playing, type;**\n`{prefix}tictactoe X` (To play tictactoe as X)\n`{prefix}tictactoe O` (To play tictactoe as O)', colour=discord.Colour.red())
                 embed.set_image(url='https://raw.githubusercontent.com/vierofernando/username601/master/assets/tictactoe.png')
                 await message.channel.send(embed=embed)
             else:
@@ -347,15 +347,15 @@ async def on_message(message):
                     embed.set_footer(text='Type "endgame" to well, end the game. Or wait for 20 seconds and the game will kill itself! ;)')
                     gameview = await message.channel.send(embed=embed)
                     while gameplay==True:
-                        if discordgames.checkWinner(box_nums, user_sym, bot_sym)=='userwin':
+                        if Games.checkWinner(box_nums, user_sym, bot_sym)=='userwin':
                             await message.channel.send(f'Congrats <@{user_id}>! You won against me! :tada:')
                             gameplay = False
                             break
-                        elif discordgames.checkWinner(box_nums, user_sym, bot_sym)=='botwin':
+                        elif Games.checkWinner(box_nums, user_sym, bot_sym)=='botwin':
                             await message.channel.send(f'LOL, i win the tic tac toe! :tada:\nYou lose! :pensive:')
                             gameplay = False
                             break
-                        elif discordgames.checkEndGame(can_used)==True:
+                        elif Games.checkEndGame(can_used)==True:
                             await message.channel.send('Nobody wins? OK... :neutral_face:')
                             gameplay = False
                             break
@@ -475,7 +475,7 @@ async def on_message(message):
         if cmd(msg, 'geoquiz'):
             wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... generating question...')
             data = myself.api("https://restcountries.eu/rest/v2/")
-            topic = random.choice(splashes.getGeoQuiz())
+            topic = random.choice(src.getGeoQuiz())
             chosen_nation_num = random.randint(0, len(data))
             chosen_nation = data[chosen_nation_num]
             data.remove(data[chosen_nation_num])
@@ -1212,12 +1212,12 @@ async def on_message(message):
             jackpot = False
             slots = []
             for i in range(0, 3):
-                newslot = discordgames.slot()
+                newslot = Games.slot()
                 if newslot[1]==newslot[2] and newslot[1]==newslot[3] and newslot[2]==newslot[3]:
                     win = True
                     if newslot[1]==':flushed:':
                         jackpot = True
-                slots.append(discordgames.slotify(newslot))
+                slots.append(Games.slotify(newslot))
             if win:
                 msgslot = 'You win!'
                 col = discord.Colour.blue()
@@ -1320,7 +1320,7 @@ async def on_message(message):
                     query = myself.urlify(str(unprefixed))
                     word = myself.insp("http://artii.herokuapp.com/make?text="+query.replace('--randomfont', ''))
                 else:
-                    fonts = splashes.getAsciiFonts()
+                    fonts = src.getAsciiFonts()
                     query = myself.urlify(str(unprefixed))
                     query = query.replace('--randomfont ', '')
                     word = myself.insp("http://artii.herokuapp.com/make?text="+query.replace('--randomfont', '')+'&font='+random.choice(fonts))
@@ -1885,7 +1885,7 @@ async def on_message(message):
                 ban = False
                 for i in range(0, len(unprefixed.lower())):
                     for j in list("ABCDEFGHIJKLMNOPQRSTUVWXYZ."):
-                        if j in unprefixed.lower()[i]:
+                        if j in unprefixed.upper()[i]:
                             ban = True
                             break
                     if ban: break
@@ -1893,13 +1893,9 @@ async def on_message(message):
                     await message.channel.send(client.get_emoji(BotEmotes.error)+' | Invalid calculation.')
                 else:
                     try:
-                        await message.channel.send(embed=discord.Embed(title="Equation result", description=f'**Equation:** ```{unprefixed}```\n**Result:**\n```{eval(unprefixed)}```', colour=discord.Colour.red()))
+                        await message.channel.send(embed=discord.Embed(description=f'**Equation:** ```{str(unprefixed)}```\n**Result:**\n```{eval(unprefixed)}```', colour=discord.Colour.green()))
                     except ZeroDivisionError:
-                        await message.channel.send(embed=discord.Embed(title="Equation result", description=f'**Equation:** ```{unprefixed}```\n**Result:**\n```yo mama```', colour=discord.Colour.red()))
-            beginning = int(args[1])
-            ending = int(args[2])
-            ran = random.randint(int(beginning), int(ending))
-            await message.channel.send(str(ran))
+                        await message.channel.send(embed=discord.Embed(description=f'**Equation:** ```{str(unprefixed)}```\n**Result:**\n```yo mama```', colour=discord.Colour.red()))
         if cmd(msg, "flipdice") or cmd(msg, "dice"):
             arr = ["one", "two", "three", "four", "five", "six"]
             ran = random.randint(0, 5)
@@ -2080,7 +2076,7 @@ async def on_message(message):
                 emotes = ["fist", "hand_splayed", "v"]
                 num = myself.findNum(str(reaction.emoji), exp)
                 beginGame = True
-                res = discordgames.rps(emotes[num])
+                res = Games.rps(emotes[num])
                 given = emotes[num]
                 msgId = res[0]
                 emojiArray = emotes
@@ -2203,7 +2199,7 @@ async def on_message(message):
             embed.set_author(name=c[0]['name'])
             await message.channel.send(embed=embed)
         if cmd(msg, 'commands') or cmd(msg, 'help'):
-            data = myself.jsonisp("https://raw.githubusercontent.com/vierofernando/username601/master/commands.json")
+            data = myself.jsonisp("https://raw.githubusercontent.com/vierofernando/username601/master/assets/commands.json")
             types = ['Bot Help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps']
             if no_args:
                 if message.guild.id!=264445053596991498:
@@ -2262,7 +2258,7 @@ async def on_message(message):
             await message.channel.send(embed=embed)
         if cmd(msg, 'about'):
             if message.guild.id!=264445053596991498:
-                messageRandom = splashes.getAbout()
+                messageRandom = src.getAbout()
                 # osinfo = myself.platform()
                 if str(client.get_guild(688373853889495044).get_member(661200758510977084).status)=='offline':
                     devstatus = 'Offline'
@@ -2277,7 +2273,7 @@ async def on_message(message):
                 embed.add_field(name='Programmer info', value='**Programmed by: **Viero Fernando. ('+client.get_user(661200758510977084).name+'#'+str(client.get_user(661200758510977084).discriminator)+') \n**Best languages: **~~HTML, CSS,~~ VB .NET, JavaScript, Python\n**Current Discord Status:** '+devstatus+'\n**Social links:**\n[Discord Server](http://discord.gg/HhAPkD8)\n[GitHub](http://github.com/vierofernando)\n[Top.gg](https://top.gg/user/661200758510977084)\n[SoloLearn](https://www.sololearn.com/Profile/17267145)\n[Brainly (Indonesia)](http://bit.ly/vierofernandobrainly)\n[Geometry Dash](https://gdbrowser.com/profile/knowncreator56)', inline='True')
                 embed.add_field(name='Version Info', value='**Bot version: ** '+bot_ver+'\n**Changelog: **'+bot_changelog+'\n\n**Discord.py version: **'+str(discord.__version__)+'\n**Python version: **'+str(sys.version).split(' (default')[0])#+'\n'+str(osinfo))
                 embed.add_field(name='Links', value='[Invite this bot to your server!](http://vierofernando.github.io/programs/username601) | [Source code](http://github.com/vierofernando/username601) | [The support server!](http://discord.gg/HhAPkD8) | [Vote us on top.gg](https://top.gg/bot/696973408000409626/vote) | [Official Website](https://vierofernando.github.io/username601)', inline='False')
-                embed.set_thumbnail(url='https://raw.githubusercontent.com/vierofernando/username601/master/pfp.png')
+                embed.set_thumbnail(url='https://raw.githubusercontent.com/vierofernando/username601/master/assets/pfp.png')
                 embed.set_footer(text='© Viero Fernando Programming, 2018-2020. All rights reserved.')
                 await message.channel.send(embed=embed)
         if cmd(msg, 'vote'):
@@ -2404,7 +2400,7 @@ async def on_message(message):
             if no_args:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Slap who? Tag someone!")
             else:
-                await message.channel.send(splashes.slap('msg')+', '+message.mentions[0].name+'!\n'+splashes.slap('gif'))
+                await message.channel.send(src.slap('msg')+', '+message.mentions[0].name+'!\n'+src.slap('gif'))
         if cmd(msg, 'fact-core') or cmd(msg, 'fact') or cmd(msg, 'factcore') or cmd(msg, 'fact-sphere') or cmd(msg, 'factsphere'):
             data = myself.jsonisp('https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fact-core.json')
             embed = discord.Embed(title='Fact Core', description=random.choice(data), colour=discord.Colour.green())
@@ -2414,7 +2410,7 @@ async def on_message(message):
             if no_args:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | who is having their birthday today?")
             else:
-                await message.channel.send("Happy birthday, "+message.mentions[0].name+"!\n"+splashes.hbd())
+                await message.channel.send("Happy birthday, "+message.mentions[0].name+"!\n"+src.hbd())
         if cmd(msg, 'choose'):
             array = []
             i = 1
@@ -2602,7 +2598,7 @@ async def on_message(message):
             for i in range(0, int(len(message.guild.members))):
                 if message.guild.members[i].name!=message.author.name and message.guild.members[i].name!=message.author.name:
                     member.append(message.guild.members[i].name)
-            secretlist = splashes.getSecrets()
+            secretlist = src.getSecrets()
             await message.author.send('Did you know?\n'+random.choice(member)+str(random.choice(secretlist))+'\nDon\'t tell this to anybody else.')
             await message.channel.send('I shared the secret through DM. don\'t show anyone else! :wink::ok_hand:')
         if cmd(msg, 'reactmsg'):
@@ -2679,7 +2675,7 @@ async def on_message(message):
             for i in range(0, len(github_object['files'])):
                 git = git + '**'+github_object['files'][i]['name']+'** = '+github_object['files'][i]['type']+'\n'
             embed = discord.Embed(
-                title=splashes.getGitMsg(),
+                title=src.getGitMsg(),
                 description='To visit my github, [Click this link.](http://github.com/vierofernando/username601).\nYou as a dev can see *how bad i am at programming, detect codes that i copied from stackoverflow, and probably copy-paste my bot\'s code to your bot :wink:*\n\n'+str(git),
                 colour=discord.Colour.red()
             )
