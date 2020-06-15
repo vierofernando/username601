@@ -3,8 +3,8 @@ import io
 
 # BIGGIE FONTS, CODE STYLED LIKE MY PYGAME GAME LMAO
 class Fonts:
-    futura_large = ImageFont.truetype(r'/app/modules/Futura Condensed.ttf', 50)
-    futura_medium = ImageFont.truetype(r'/app/modules/Futura Condensed.ttf', 40)
+    helvetica_large = ImageFont.truetype(r'/app/modules/Helvetica.ttf', 50)
+    helvetica_medium = ImageFont.truetype(r'/app/modules/Helvetica.ttf', 40)
 
 # LIMITS THE CHARACTER
 def limitify(raw, linelimit, maxlimit):
@@ -30,16 +30,16 @@ def compile(data):
 def simpleTopMeme(text, src, linelimit, maxlimit):
     image = Image.open(r'{}'.format(src))
     draw = ImageDraw.Draw(image)
-    text = limitify(text, linelimit, maxlimit)
-    draw.text((5, 5), text, fill ="black", font = Fonts.futura_large, align ="left") 
+    text = limitify(text, linelimit-2, maxlimit)
+    draw.text((5, 5), text, fill ="black", font = Fonts.helvetica_large, align ="left") 
     data = compile(image)
     return data
 
 def presentationMeme(text, link):
     image = Image.open(r'{}'.format(link))
-    text = limitify(text, 31, 5)
+    text = limitify(text, 29, 5)
     draw = ImageDraw.Draw(image)
-    draw.text((130, 55), text, fill ="black", font = Fonts.futura_medium, align ="left")  
+    draw.text((130, 55), text, fill ="black", font = Fonts.helvetica_medium, align ="left")  
     data = compile(image)
     return data
 
@@ -47,8 +47,8 @@ def presentationMeme(text, link):
 def firstwords(text, link):
     image = Image.open(r'{}'.format(link))
     draw = ImageDraw.Draw(image)
-    raw = limitify(text, 32, 2)
-    draw.text((150, 20), list(raw)[0]+'..'+list(raw)[0]+'...', fill ="black", font = Fonts.futura_medium, align ="left")  
-    draw.text((35, 420), raw, fill ="black", font = Fonts.futura_medium, align ="left")
+    raw = limitify(text, 30, 2)
+    draw.text((150, 20), list(raw)[0]+'..'+list(raw)[0]+'...', fill ="black", font = Fonts.helvetica_medium, align ="left")  
+    draw.text((35, 420), raw, fill ="black", font = Fonts.helvetica_medium, align ="left")
     data = compile(image)
     return data
