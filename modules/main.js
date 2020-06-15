@@ -1,4 +1,11 @@
+const prm = new URLSearchParams(window.location.search);
+
 function loadCommands() {
+	if (!prm.has('prefix')) {
+		var prefix = '1';
+	} else {
+		var prefix = prm.get('prefix').toString();
+	}
     fetch('https://vierofernando.github.io/username601/assets/json/commands.json') // decided to use this because client kept giving me 404s
     .then (res => res.json())
     .then (out => {
@@ -22,7 +29,7 @@ function loadCommands() {
                     var par = '<br>';
                     var subcount = 1;
                     for (k = 0; k < cmds[i][libs[i]][num]['p'].length; k++) {
-                        var par = par+'<strong>'+subcount.toString()+'.</strong> '+cmds[i][libs[i]][num]['p'][k]+'<br>';
+                        var par = par+'<strong>'+subcount.toString()+'.</strong> '+cmds[i][libs[i]][num]['p'][k].split(": ")[0]+': '+prefix+cmds[i][libs[i]][num]['p'][k].split(": ")[1]+'<br>';
                         subcount++;
                     }
                 }
