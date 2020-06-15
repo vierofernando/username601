@@ -3,9 +3,9 @@ import io
 
 # BIGGIE FONTS, CODE STYLED LIKE MY PYGAME GAME LMAO
 class Fonts:
-    helvetica_large = ImageFont.truetype(r'/app/modules/Helvetica.ttf', 50)
-    helvetica_medium = ImageFont.truetype(r'/app/modules/Helvetica.ttf', 40)
-    comicsans_medium = ImageFont.truetype(r'/app/modules/comic.ttf', 40)
+    helvetica_large = ImageFont.truetype(r'/app/assets/fonts/Helvetica.ttf', 50)
+    helvetica_medium = ImageFont.truetype(r'/app/assets/fonts/Helvetica.ttf', 40)
+    comicsans_medium = ImageFont.truetype(r'/app/assets/fonts/comic.ttf', 40)
 
 # LIMITS THE CHARACTER
 def limitify(raw, linelimit, maxlimit):
