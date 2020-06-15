@@ -3,7 +3,9 @@ import io
 
 # BIGGIE FONTS, CODE STYLED LIKE MY PYGAME GAME LMAO
 class Fonts:
-    impact = ImageFont.truetype(r'/app/modules/Futura Condensed.ttf', 50)
+    futura_large = ImageFont.truetype(r'/app/modules/Futura Condensed.ttf', 50)
+    futura_medium = ImageFont.truetype(r'/app/modules/Futura Condensed.ttf', 40)
+
 # LIMITS THE CHARACTER
 def limitify(raw, linelimit, maxlimit):
     text = ''
@@ -29,6 +31,15 @@ def simpleTopMeme(text, src, linelimit, maxlimit):
     image = Image.open(r'{}'.format(src))
     draw = ImageDraw.Draw(image)
     text = limitify(text, linelimit, maxlimit)
-    draw.text((5, 5), text, fill ="black", font = Fonts.impact, align ="left") 
+    draw.text((5, 5), text, fill ="black", font = Fonts.futura_large, align ="left") 
+    data = compile(image)
+    return data
+
+def presentationMeme(text):
+    link = "../assets/pics/presentation.jpg"
+    image = Image.open(r'{}'.format(link))
+    text = limitify(text, 31, 5)
+    draw = ImageDraw.Draw(image)
+    draw.text((130, 55), text, fill ="black", font = Fonts.futura_medium, align ="left")  
     data = compile(image)
     return data

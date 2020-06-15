@@ -116,13 +116,24 @@ async def on_message(message):
                 embed.set_footer(text='Username601 raided Area 51 and found this!')
                 await message.channel.send(embed=embed)
         if cmd(msg, 'stonks') or cmd(msg, 'monkeypuppet'):
-            await message.add_reaction(client.get_emoji(BotEmotes.loading))
-            try:
-                data = Painter.simpleTopMeme(unprefixed, './assets/pics/'+args[0][1:]+'.jpg', 40, 3)
-                fileName = args[0][1:]+'.png'
-                await message.channel.send(file=discord.File(data, fileName))
-            except Exception as e:
-                await message.channel.send('Oopsies! There was an error on creating your chosen meme;\n'+str(e))
+            if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Where is the meme's context?")
+            else:
+                await message.add_reaction(client.get_emoji(BotEmotes.loading))
+                try:
+                    data = Painter.simpleTopMeme(unprefixed, './assets/pics/'+args[0][1:]+'.jpg', 40, 3)
+                    fileName = args[0][1:]+'.png'
+                    await message.channel.send(file=discord.File(data, fileName))
+                except Exception as e:
+                    await message.channel.send('Oopsies! There was an error on creating your chosen meme;\n'+str(e))
+        if cmd(msg, 'presentation'):
+            if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Where is the meme's context?")
+            else:
+                await message.add_reaction(client.get_emoji(BotEmotes.loading))
+                try:
+                    data = Painter.presentationMeme(unprefixed)
+                    await message.channel.send(file=discord.File(data, 'presentation.png'))
+                except Exception as e:
+                    await message.channel.send('Oopsies! There was an error on creating your chosen meme;\n'+str(e))
         if cmd(msg, 'embed'):
             if '(title:' not in msg or '(desc:' not in msg:
                 await message.channel.send('An embed requires title and description.\nFor example: `'+prefix+'embed (title:this is a title) (desc:this is a description)`\n\nOptional; `footer, auth, hex`')
