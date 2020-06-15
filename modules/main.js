@@ -29,7 +29,7 @@ function loadCommands() {
                     var par = '<br>';
                     var subcount = 1;
                     for (k = 0; k < cmds[i][libs[i]][num]['p'].length; k++) {
-                        var par = par+'<strong>'+subcount.toString()+'.</strong> '+cmds[i][libs[i]][num]['p'][k].split(": ")[0]+': '+prefix+cmds[i][libs[i]][num]['p'][k].split(": ")[1]+'<br>';
+                        var par = par+'<strong>'+prefix+subcount.toString()+'.</strong> '+cmds[i][libs[i]][num]['p'][k].split(": ")[0]+': '+prefix+cmds[i][libs[i]][num]['p'][k].split(": ")[1]+'<br>';
                         subcount++;
                     }
                 }
