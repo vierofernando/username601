@@ -5,6 +5,7 @@ import io
 class Fonts:
     helvetica_large = ImageFont.truetype(r'/app/modules/Helvetica.ttf', 50)
     helvetica_medium = ImageFont.truetype(r'/app/modules/Helvetica.ttf', 40)
+    comicsans_medium = ImageFont.truetype(r'/app/modules/comic.ttf', 40)
 
 # LIMITS THE CHARACTER
 def limitify(raw, linelimit, maxlimit):
@@ -39,7 +40,7 @@ def presentationMeme(text, link):
     image = Image.open(r'{}'.format(link))
     text = limitify(text, 29, 5)
     draw = ImageDraw.Draw(image)
-    draw.text((130, 55), text, fill ="black", font = Fonts.helvetica_medium, align ="left")  
+    draw.text((115, 55), text, fill ="black", font = Fonts.helvetica_medium, align ="left")  
     data = compile(image)
     return data
 
@@ -49,6 +50,6 @@ def firstwords(text, link):
     draw = ImageDraw.Draw(image)
     raw = limitify(text, 30, 2)
     draw.text((150, 20), list(raw)[0]+'..'+list(raw)[0]+'...', fill ="black", font = Fonts.helvetica_medium, align ="left")  
-    draw.text((35, 420), raw, fill ="black", font = Fonts.helvetica_medium, align ="left")
+    draw.text((35, 420), raw, fill ="black", font = Fonts.comicsans_medium, align ="left")
     data = compile(image)
     return data
