@@ -1,4 +1,4 @@
-import PIL
+from PIL import Image, ImageFont, ImageDraw  
 import io
 
 # BIGGIE FONTS, CODE STYLED LIKE MY PYGAME GAME LMAO
@@ -27,8 +27,8 @@ def compile(data):
     return arr
 
 def simpleTopMeme(text, src, linelimit, maxlimit):
-    image = PIL.Image.open(r'{}'.format(src))
-    draw = PIL.ImageDraw.Draw(image)
+    image = Image.open(r'{}'.format(src))
+    draw = ImageDraw.Draw(image)
     text = limitify(text, linelimit, maxlimit)
-    draw.text((5, 5), text, fill ="black", font = font, align ="left") 
+    draw.text((5, 5), text, fill ="black", font = Fonts.futura, align ="left") 
     compile(image)
