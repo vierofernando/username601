@@ -6,13 +6,17 @@ function loadCommands() {
 	} else {
 		var prefix = prm.get('prefix').toString();
 	}
+	fetch('https://vierofernando.github.io/username601/assets/json/categories.json')
+	.then (res => res.json())
+	.then (out => {
+		var libs = out;
+	});
     fetch('https://vierofernando.github.io/username601/assets/json/commands.json') // decided to use this because client kept giving me 404s
     .then (res => res.json())
     .then (out => {
         var links = "";
         var cmds = out;
         var total = ''
-		var libs = fetch('https://vierofernando.github.io/username601/assets/json/categories.json').then(res=>res.json());
         var totalcount = 0;
         var elementCounter = 0;
         for (i = 0; i < cmds.length; i++) {
