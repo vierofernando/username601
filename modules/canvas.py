@@ -46,7 +46,6 @@ def presentationMeme(text, link):
 # 32, 2
 def firstwords(text, link):
     image = Image.open(r'{}'.format(link))
-    text = limitify(text, 31, 5)
     draw = ImageDraw.Draw(image)
     raw = limitify(text, 32, 2)
     draw.text((150, 20), list(raw)[0]+'..'+list(raw)[0]+'...', fill ="black", font = Fonts.futura_medium, align ="left")  
