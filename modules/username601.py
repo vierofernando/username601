@@ -22,7 +22,7 @@ class Config:
         id = 688373853889495044 # support server ID
         logging = 694521383908016188 # logging channel ID in support server
         invite = 'https://discord.gg/HhAPkD8' # your support server invite link
-    class Owner:
+    class owner:
         id = 661200758510977084 # YOUR USER ID
         name = 'Viero Fernando'
 prefix = Config.prefix

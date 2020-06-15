@@ -1,9 +1,13 @@
-import modules.username601 as myself
+# LOCAL FILES
 from modules.username601 import *
-import os
+import modules.username601 as myself
 import modules.discordgames as Games
 import modules.splashes as src
-import inspect
+import modules.canvas as Painter
+
+# EXTERNAL PACKAGES
+import os
+from inspect import isawaitable
 import dbl
 
 print('Please wait...')
@@ -23,8 +27,8 @@ import math
 from json import decoder
 from googletrans import Translator, LANGUAGES
 gtr = Translator()
-client = commands.Bot(command_prefix=Config.prefix)
 ia = imdb.IMDb()
+client = commands.Bot(command_prefix=Config.prefix)
 topgg = dbl.DBLClient(client, fetchdata['DBL_TOKEN'])
 
 @client.event
@@ -111,6 +115,14 @@ async def on_message(message):
                 embed = discord.Embed(title='UFO Sighting in '+str(ufo['city'])+', '+str(ufo['state']), description='**Summary:** '+str(ufo['summary'])+'\n\n**Shape:** '+str(ufo['shape'])+'\n**Sighting Date: **'+str(ufo['date'])[:-8].replace('T', ' ')+'\n**Duration: **'+str(ufo['duration'])+'\n\n[Article Source]('+str(ufo['url'])+')', colour=discord.Colour.green())
                 embed.set_footer(text='Username601 raided Area 51 and found this!')
                 await message.channel.send(embed=embed)
+        if cmd(msg, 'stonks') or cmd(msg, 'monkeypuppet'):
+            await message.add_reaction(client.get_emoji(BotEmotes.loading))
+            try:
+                data = Painter.simpleTopMeme(unprefixed, './assets/pics/'+args[0][1:]+'.jpg', 37, 3)
+                fileName = args[0][1:]+'.png'
+                await message.channel.send(file=discord.File(data, fileName))
+            except Exception as e:
+                await message.channel.send('Oopsies! There was an error on creating your chosen meme;\n'+str(e))
         if cmd(msg, 'embed'):
             if '(title:' not in msg or '(desc:' not in msg:
                 await message.channel.send('An embed requires title and description.\nFor example: `'+prefix+'embed (title:this is a title) (desc:this is a description)`\n\nOptional; `footer, auth, hex`')
@@ -740,7 +752,7 @@ async def on_message(message):
                 command = unprefixed
                 try:
                     res = eval(command)
-                    if inspect.isawaitable(res):
+                    if isawaitable(res):
                         await message.channel.send('```py\n'+await res+'```')
                     else:
                         await message.channel.send('```py\n'+str(res)+'```')
@@ -1686,15 +1698,7 @@ async def on_message(message):
                 )
                 await message.channel.send(embed=embed)
         if cmd(msg, 'serverinfo'):
-            acceptId = 0
-            o_web = 0
-            o_desk = 0
-            o_pho = 0
-            botcount = 0
-            online = 0
-            idle = 0
-            dnd = 0
-            offline = 0
+            acceptId, o_web, o_desk, o_pho, botcount, online, idle, dnd, offline = 0, 0, 0, 0, 0, 0, 0, 0, 0
             if acceptId==0:
                 for i in range(0, int(len(message.guild.members))):
                     if message.guild.get_member(int(message.guild.members[i].id)).desktop_status.name!='offline':
@@ -1891,9 +1895,9 @@ async def on_message(message):
                     await message.channel.send(client.get_emoji(BotEmotes.error)+' | Invalid calculation.')
                 else:
                     try:
-                        await message.channel.send(embed=discord.Embed(description=f'**Equation:** ```{str(unprefixed)}```\n**Result:**\n```{eval(unprefixed)}```', colour=discord.Colour.green()))
+                        await message.channel.send(embed=discord.Embed(description=f'**Result:**\n```{eval(unprefixed)}```', colour=discord.Colour.green()))
                     except ZeroDivisionError:
-                        await message.channel.send(embed=discord.Embed(description=f'**Equation:** ```{str(unprefixed)}```\n**Result:**\n```yo mama```', colour=discord.Colour.red()))
+                        await message.channel.send(embed=discord.Embed(description=f'**Result:**\n```yo mama```', colour=discord.Colour.red()))
         if cmd(msg, "flipdice") or cmd(msg, "dice"):
             arr = ["one", "two", "three", "four", "five", "six"]
             ran = random.randint(0, 5)
@@ -2265,7 +2269,7 @@ async def on_message(message):
                     colour = 0xff0000
                 )
                 embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Programmed in: **Discord.py (Python)\n**Created in: **6 April 2020.\n**Successor of: **somebot56.\n**Default prefix: ** 1', inline='True')
-                embed.add_field(name='Programmer info', value='**Programmed by: **'+Config.Owner.name+'. ('+client.get_user(Config.owner.id).name+'#'+str(client.get_user(Config.owner.id).discriminator)+') \n**Best languages: **~~HTML, CSS,~~ VB .NET, JavaScript, Python\n**Current Discord Status:** '+devstatus+'\n**Social links:**\n[Discord Server]('+str(Config.SupportServer.invite)+')\n[GitHub](http://github.com/vierofernando)\n[Top.gg](https://top.gg/user/Config.owner.id)\n[SoloLearn](https://www.sololearn.com/Profile/17267145)\n[Brainly (Indonesia)](http://bit.ly/vierofernandobrainly)\n[Geometry Dash](https://gdbrowser.com/profile/knowncreator56)', inline='True')
+                embed.add_field(name='Programmer info', value='**Programmed by: **'+Config.owner.name+'. ('+client.get_user(Config.owner.id).name+'#'+str(client.get_user(Config.owner.id).discriminator)+') \n**Best languages: **~~HTML, CSS,~~ VB .NET, JavaScript, Python\n**Current Discord Status:** '+devstatus+'\n**Social links:**\n[Discord Server]('+str(Config.SupportServer.invite)+')\n[GitHub](http://github.com/vierofernando)\n[Top.gg](https://top.gg/user/'+str(Config.owner.id)+')\n[SoloLearn](https://www.sololearn.com/Profile/17267145)\n[Brainly (Indonesia)](http://bit.ly/vierofernandobrainly)\n[Geometry Dash](https://gdbrowser.com/profile/knowncreator56)', inline='True')
                 embed.add_field(name='Version Info', value='**Bot version: ** '+Config.Version.number+'\n**Changelog: **'+Config.Version.changelog+'\n\n**Discord.py version: **'+str(discord.__version__)+'\n**Python version: **'+str(sys.version).split(' (default')[0])#+'\n'+str(osinfo))
                 embed.add_field(name='Links', value='[Invite this bot to your server!](http://vierofernando.github.io/programs/username601) | [Source code](http://github.com/vierofernando/username601) | [The support server!]('+str(Config.SupportServer.invite)+') | [Vote us on top.gg](https://top.gg/bot/'+str(Config.id)+'/vote) | [Official Website](https://vierofernando.github.io/username601)', inline='False')
                 embed.set_thumbnail(url='https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/pfp.png')
@@ -2273,10 +2277,6 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
         if cmd(msg, 'vote'):
             embed = discord.Embed(title='Support by Voting us at top.gg!', description='Sure thing, mate! [Vote us at top.gg by clicking me!](https://top.gg/bot/'+str(Config.id)+'/vote)', colour=discord.Colour.blue())
-            await message.channel.send(embed=embed)
-        if cmd(msg, 'space'):
-            embed = discord.Embed(colour=discord.Colour.dark_blue())
-            embed.set_image(url='https://source.unsplash.com/500x500/?space')
             await message.channel.send(embed=embed)
         if cmd(msg, 'time') or cmd(msg, 'utc'):
             data = myself.api("http://worldtimeapi.org/api/timezone/africa/accra")
