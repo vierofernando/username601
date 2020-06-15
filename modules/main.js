@@ -23,8 +23,10 @@ function loadCommands() {
                 var api = 'No API used.';
                 var par = 'No parameters.';
                 if (cmds[i][libs[i]][num]['a'].length>0) {
-                    var api = '<a href="'+cmds[i][libs[i]][num]['a'][0]+'">'+cmds[i][libs[i]][num]['a'][0]+'</a>';
-                }
+					for (n = 0; n < cmds[i][libs[i]][num]['a'].length; n++) {
+						var api = '<a href="'+cmds[i][libs[i]][num]['a'][n]+'">'+cmds[i][libs[i]][num]['a'][n]+'</a>';
+					}
+				}
                 if (cmds[i][libs[i]][num]['p'].length>0) {
                     var par = '<br>';
                     var subcount = 1;
