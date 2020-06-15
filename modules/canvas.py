@@ -42,3 +42,14 @@ def presentationMeme(text, link):
     draw.text((130, 55), text, fill ="black", font = Fonts.futura_medium, align ="left")  
     data = compile(image)
     return data
+
+# 32, 2
+def firstwords(text, link):
+    image = Image.open(r'{}'.format(link))
+    text = limitify(text, 31, 5)
+    draw = ImageDraw.Draw(image)
+    raw = limitify(raw, 32, 2)
+    draw.text((150, 20), list(raw)[0]+'..'+list(raw)[0]+'...', fill ="black", font = font, align ="left")  
+    draw.text((35, 420), raw, fill ="black", font = font, align ="left")
+    data = compile(image)
+    return data

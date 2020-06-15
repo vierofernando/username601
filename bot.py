@@ -124,11 +124,12 @@ async def on_message(message):
                     await message.channel.send(file=discord.File(data, fileName))
                 except Exception as e:
                     await message.channel.send('Oopsies! There was an error on creating your chosen meme;\n'+str(e))
-        if cmd(msg, 'presentation'):
+        if cmd(msg, 'presentation') or cmd(msg, 'firstwords'):
             if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Where is the meme's context?")
             else:
                 try:
-                    data = Painter.presentationMeme(unprefixed, "./assets/pics/presentation.jpg")
+                    if cmd(msg, 'presentation'): data = Painter.presentationMeme(unprefixed, "./assets/pics/presentation.jpg")
+                    elif cmd(msg, 'firstwords'): data = Painter.firstwords(unprefixed, "./assets/pics/firstwords.jpg")
                     await message.channel.send(file=discord.File(data, 'presentation.png'))
                 except Exception as e:
                     await message.channel.send('Oopsies! There was an error on creating your chosen meme;\n'+str(e))
