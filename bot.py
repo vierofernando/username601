@@ -277,7 +277,7 @@ async def on_message(message):
                 if message.content==prefix+'hangman' and message.author.id!=int(playing_with_id) and message.guild.id==server_id:
                     await message.channel.send('<@'+str(message.author.id)+'>, cannot play hangman when a game is currently playing!')
                 newembed = discord.Embed(title=''.join(main_guess_hid), description='Wrong guesses: '+str(wrong_guesses), colour=discord.Colour.red())
-                newembed.set_image(url=f'https://raw.githubusercontent.com/vierofernando/username601/master/assets/hangman_{str(level)}.png')
+                newembed.set_image(url=f'https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{str(level)}.png')
                 newembed.set_footer(text='Type "showanswer" to show the answer and end the game.')
                 await message.channel.send(embed=newembed)
                 if '\_ ' not in ''.join(main_guess_hid):
@@ -321,7 +321,7 @@ async def on_message(message):
             box = f' {box_nums[0]} | {box_nums[1]} | {box_nums[2]}\n===========\n {box_nums[3]} | {box_nums[4]} | {box_nums[5]}\n===========\n {box_nums[6]} | {box_nums[7]} | {box_nums[8]}\n'
             if no_args:
                 embed = discord.Embed(title='TicTacToe™ wtih '+str(src.getTicTacToeHeader()), description=f'Plays tic-tac-toe with the BOT. Very simple.\n\n**To start playing, type;**\n`{prefix}tictactoe X` (To play tictactoe as X)\n`{prefix}tictactoe O` (To play tictactoe as O)', colour=discord.Colour.red())
-                embed.set_image(url='https://raw.githubusercontent.com/vierofernando/username601/master/assets/tictactoe.png')
+                embed.set_image(url='https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/tictactoe.png')
                 await message.channel.send(embed=embed)
             else:
                 if args[1].lower() not in list('xo'):
@@ -581,7 +581,7 @@ async def on_message(message):
                 try:
                     user_to_send = client.get_user(int(args[1]))
                     em = discord.Embed(title="Hi, "+user_to_send.name+"! the bot owner sent a response for your feedback.", description=str(message.content[int(len(args[0])+len(args[1])+2):]), colour=discord.Colour.green())
-                    em.set_footer(text="Feeling unsatisfied? Then join our support server! (discord.gg/HhAPkD8)")
+                    em.set_footer(text="Feeling unsatisfied? Then join our support server! ('+str(Config.SupportServer.invite)+')")
                     await user_to_send.send(embed=em)
                     await message.add_reaction('✅')
                 except Exception as e:
@@ -610,7 +610,7 @@ async def on_message(message):
                         fb = unprefixed
                         feedbackCh = client.get_channel(706459051034279956)
                         await feedbackCh.send('<@Config.owner.id>, User with ID: '+str(message.author.id)+' sent a feedback: **"'+str(fb)+'"**')
-                        embed = discord.Embed(title='Feedback Successful', description=str(client.get_emoji(BotEmotes.success)) + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.](https://discord.gg/HhAPkD8)',colour=discord.Colour.green())
+                        embed = discord.Embed(title='Feedback Successful', description=str(client.get_emoji(BotEmotes.success)) + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+str(Config.SupportServer.invite)+')',colour=discord.Colour.green())
                         await wait.edit(content='', embed=embed)
                     except:
                         await wait.edit(content=str(client.get_emoji(BotEmotes.error)) + ' | Error: There was an error while sending your feedback. Sorry! :(')
@@ -1681,7 +1681,7 @@ async def on_message(message):
             if message.guild.id!=264445053596991498:
                 embed = discord.Embed(
                     title='Sure thing! Invite this bot to your server using the link below.',
-                    description='[Invite link](https://top.gg/bot/'+str(Config.id)+') | [Support Server](http://discord.gg/HhAPkD8)',
+                    description='[Invite link](https://top.gg/bot/'+str(Config.id)+') | [Support Server]('+str(Config.SupportServer.invite)+')',
                     colour=discord.Colour.green()
                 )
                 await message.channel.send(embed=embed)
@@ -2197,22 +2197,19 @@ async def on_message(message):
             embed.set_author(name=c[0]['name'])
             await message.channel.send(embed=embed)
         if cmd(msg, 'commands') or cmd(msg, 'help'):
-            data = myself.jsonisp("https://raw.githubusercontent.com/vierofernando/username601/master/modules/commands.json")
+            data = myself.jsonisp("https://vierofernando.github.io/username601/assets/json/commands.json")
             types = ['Bot Help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps']
             if no_args:
-                if message.guild.id!=264445053596991498:
-                    cate = ''
-                    for i in range(0, len(types)):
-                        cate += f'**{str(i+1)}. **{prefix}help {str(types[i])}\n'
-                    embed = discord.Embed(
-                        title='Username601\'s commands',
-                        description='[Join the support server](https://discord.gg/HhAPkD8) | [Vote us on top.gg](https://top.gg/bot/'+str(Config.id)+'/vote)\n\n**[More information on our website here.](https://vierofernando.github.io/username601/commands)**\n**Command Categories:** \n'+str(cate),
-                        colour=discord.Colour.dark_blue()
-                    )
-                    embed.set_footer(text=f'Type {prefix}help <command/category> for more details.')
-                    await message.channel.send(embed=embed)
-                else:
-                    await message.channel.send(embed=discord.Embed(title='Bot commands', description='[All commands are here.](https://vierofernando.github.io/username601/commands)'), colour=discord.Colour.blue())
+                cate = ''
+                for i in range(0, len(types)):
+                    cate += f'**{str(i+1)}. **{prefix}help {str(types[i])}\n'
+                embed = discord.Embed(
+                    title='Username601\'s commands',
+                    description='[Join the support server]('+str(Config.SupportServer.invite)+') | [Vote us on top.gg](https://top.gg/bot/'+str(Config.id)+'/vote)\n\n**[More information on our website here.](https://vierofernando.github.io/username601/commands)**\n**Command Categories:** \n'+str(cate),
+                    colour=discord.Colour.dark_blue()
+                )
+                embed.set_footer(text=f'Type {prefix}help <command/category> for more details.')
+                await message.channel.send(embed=embed)
             else:
                 source = None
                 typ = ''
@@ -2268,10 +2265,10 @@ async def on_message(message):
                     colour = 0xff0000
                 )
                 embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Programmed in: **Discord.py (Python)\n**Created in: **6 April 2020.\n**Successor of: **somebot56.\n**Default prefix: ** 1', inline='True')
-                embed.add_field(name='Programmer info', value='**Programmed by: **'+Config.Owner.name+'. ('+client.get_user(Config.owner.id).name+'#'+str(client.get_user(Config.owner.id).discriminator)+') \n**Best languages: **~~HTML, CSS,~~ VB .NET, JavaScript, Python\n**Current Discord Status:** '+devstatus+'\n**Social links:**\n[Discord Server](http://discord.gg/HhAPkD8)\n[GitHub](http://github.com/vierofernando)\n[Top.gg](https://top.gg/user/Config.owner.id)\n[SoloLearn](https://www.sololearn.com/Profile/17267145)\n[Brainly (Indonesia)](http://bit.ly/vierofernandobrainly)\n[Geometry Dash](https://gdbrowser.com/profile/knowncreator56)', inline='True')
+                embed.add_field(name='Programmer info', value='**Programmed by: **'+Config.Owner.name+'. ('+client.get_user(Config.owner.id).name+'#'+str(client.get_user(Config.owner.id).discriminator)+') \n**Best languages: **~~HTML, CSS,~~ VB .NET, JavaScript, Python\n**Current Discord Status:** '+devstatus+'\n**Social links:**\n[Discord Server]('+str(Config.SupportServer.invite)+')\n[GitHub](http://github.com/vierofernando)\n[Top.gg](https://top.gg/user/Config.owner.id)\n[SoloLearn](https://www.sololearn.com/Profile/17267145)\n[Brainly (Indonesia)](http://bit.ly/vierofernandobrainly)\n[Geometry Dash](https://gdbrowser.com/profile/knowncreator56)', inline='True')
                 embed.add_field(name='Version Info', value='**Bot version: ** '+Config.Version.number+'\n**Changelog: **'+Config.Version.changelog+'\n\n**Discord.py version: **'+str(discord.__version__)+'\n**Python version: **'+str(sys.version).split(' (default')[0])#+'\n'+str(osinfo))
-                embed.add_field(name='Links', value='[Invite this bot to your server!](http://vierofernando.github.io/programs/username601) | [Source code](http://github.com/vierofernando/username601) | [The support server!](http://discord.gg/HhAPkD8) | [Vote us on top.gg](https://top.gg/bot/'+str(Config.id)+'/vote) | [Official Website](https://vierofernando.github.io/username601)', inline='False')
-                embed.set_thumbnail(url='https://raw.githubusercontent.com/vierofernando/username601/master/assets/pfp.png')
+                embed.add_field(name='Links', value='[Invite this bot to your server!](http://vierofernando.github.io/programs/username601) | [Source code](http://github.com/vierofernando/username601) | [The support server!]('+str(Config.SupportServer.invite)+') | [Vote us on top.gg](https://top.gg/bot/'+str(Config.id)+'/vote) | [Official Website](https://vierofernando.github.io/username601)', inline='False')
+                embed.set_thumbnail(url='https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/pfp.png')
                 embed.set_footer(text='© Viero Fernando Programming, 2018-2020. All rights reserved.')
                 await message.channel.send(embed=embed)
         if cmd(msg, 'vote'):
