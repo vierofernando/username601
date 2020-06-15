@@ -35,8 +35,7 @@ def simpleTopMeme(text, src, linelimit, maxlimit):
     data = compile(image)
     return data
 
-def presentationMeme(text):
-    link = "../assets/pics/presentation.jpg"
+def presentationMeme(text, link):
     image = Image.open(r'{}'.format(link))
     text = limitify(text, 31, 5)
     draw = ImageDraw.Draw(image)
