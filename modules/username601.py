@@ -5,15 +5,25 @@ from urllib.request import urlopen as getapi
 from urllib.parse import quote_plus as urlencode
 from json import loads as jsonify
 from requests import get as decodeurl
-prefix = '1'
-cmdtypes = ['Bot Help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps', 'Owner']
-bot_ver = '1.9.7c'
-bot_changelog = 'Bot code formatted.'
 
 class BotEmotes:
     loading = 704242088425816085
     error = 708143217182244886
     success = 704242067097911307
+
+class Config:
+    id = 696973408000409626 # BOT ID
+    prefix = '1' # your prefix here
+    cmdtypes = ['Bot Help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps', 'Owner']
+    class Version:
+        number = '1.9.7c'
+        changelog = 'Bot code formatted, now coffee command uses 2 APIs lol'
+    class SupportServer:
+        id = 688373853889495044 # support server ID
+        logging = 694521383908016188 # logging channel ID in support server
+    class Owner:
+        id = 661200758510977084 # YOUR USER ID
+        name = 'Viero Fernando'
 
 def limit(word):
     total = ''

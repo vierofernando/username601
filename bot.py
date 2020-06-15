@@ -23,7 +23,7 @@ import math
 from json import decoder
 from googletrans import Translator, LANGUAGES
 gtr = Translator()
-client = commands.Bot(command_prefix='1')
+client = commands.Bot(command_prefix=Config.prefix)
 ia = imdb.IMDb()
 topgg = dbl.DBLClient(client, fetchdata['DBL_TOKEN'])
 
@@ -42,23 +42,19 @@ async def on_ready():
 # ONLY IN SUPPORT SERVER
 @client.event
 async def on_member_join(member):
-    if member.guild.id==688373853889495044:
-        await member.guild.get_channel(694521383908016188).send(':heart: | '+src.welcome('<@'+str(member.id)+'>', client.get_user(661200758510977084).name))
+    if member.guild.id==Config.SupportServer.id:
+        await member.guild.get_channel(Config.SupportServer.logging).send(':heart: | '+src.welcome('<@'+str(member.id)+'>', client.get_user(Config.owner.id).name))
 
 # ONLY IN SUPPORT SERVER ALSO
 @client.event
 async def on_member_remove(member):
-    if member.guild.id==688373853889495044:
-        await member.guild.get_channel(694521383908016188).send(':broken_heart: | '+src.exit(member.name))
-
-@client.command(pass_context=True, name='hell')
-async def hell(ctx):
-    await ctx.send("HELLLLLLLLLLLLLLLLLLLLLLL")
+    if member.guild.id==Config.SupportServer.id:
+        await member.guild.get_channel(Config.SupportServer.logging).send(':broken_heart: | '+src.exit(member.name))
 
 @client.event
 async def on_message(message):
     checkprefix, no_args = False, False
-    if message.author.bot==False and '<@!696973408000409626>' in message.content or '<@696973408000409626>' in message.content:
+    if message.author.bot==False and '<@!'+str(Config.id)+'>' in message.content or '<@'+str(Config.id)+'>' in message.content:
         await message.channel.send('The prefix is `'+prefix+'`.\n**Commands: **`'+prefix+'help`')
         checkprefix = True
     if message.author.bot==False:
@@ -215,7 +211,7 @@ async def on_message(message):
                         else:
                             await message.channel.send(msg[int(len(args[0])+1):].replace('@someone', f'<@{str(randomppl)}>').replace('@owner', '<@'+str(message.guild.owner.id)+'>'))
         if cmd(msg, 'inspectservers'):
-            if int(message.author.id)==661200758510977084:
+            if int(message.author.id)==Config.owner.id:
                 ee = ''
                 for i in range(0, len(client.guilds)):
                     ee = ee + '**' + client.guilds[i].name + '** ('+str(len(client.guilds[i].members))+' Members)\n'
@@ -581,7 +577,7 @@ async def on_message(message):
                         except:
                             await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | There was an error on banning '+criminal.name+'.')
         if cmd(msg, 'rp'):
-            if message.author.id==661200758510977084:
+            if message.author.id==Config.owner.id:
                 try:
                     user_to_send = client.get_user(int(args[1]))
                     em = discord.Embed(title="Hi, "+user_to_send.name+"! the bot owner sent a response for your feedback.", description=str(message.content[int(len(args[0])+len(args[1])+2):]), colour=discord.Colour.green())
@@ -613,13 +609,13 @@ async def on_message(message):
                     try:
                         fb = unprefixed
                         feedbackCh = client.get_channel(706459051034279956)
-                        await feedbackCh.send('<@661200758510977084>, User with ID: '+str(message.author.id)+' sent a feedback: **"'+str(fb)+'"**')
+                        await feedbackCh.send('<@Config.owner.id>, User with ID: '+str(message.author.id)+' sent a feedback: **"'+str(fb)+'"**')
                         embed = discord.Embed(title='Feedback Successful', description=str(client.get_emoji(BotEmotes.success)) + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.](https://discord.gg/HhAPkD8)',colour=discord.Colour.green())
                         await wait.edit(content='', embed=embed)
                     except:
                         await wait.edit(content=str(client.get_emoji(BotEmotes.error)) + ' | Error: There was an error while sending your feedback. Sorry! :(')
         if cmd(msg, 'fbban'):
-            if message.channel.id==706459051034279956 and int(message.author.id)==661200758510977084:
+            if message.channel.id==706459051034279956 and int(message.author.id)==Config.owner.id:
                 await message.channel.send('Banned user with ID of: ['+str(args[1])+'] REASON:"'+str(message.content[int(len(args[0])+len(args[1])+2):])+'"')
             else:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid channel/user.')
@@ -740,7 +736,7 @@ async def on_message(message):
                         except Exception as e:
                             await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | An error occured during purging. ```'+str(e)+'```')
         if args[0]==prefix+'ex' or args[0]==prefix+'eval':
-            if int(message.author.id)==661200758510977084:
+            if int(message.author.id)==Config.owner.id:
                 command = unprefixed
                 try:
                     res = eval(command)
@@ -755,7 +751,7 @@ async def on_message(message):
         if args[0]==prefix+'s':
             await message.delete()
             member = message.guild.get_member(int(message.author.id))
-            if message.author.guild_permissions.manage_guild==True or int(message.author.id)==661200758510977084:
+            if message.author.guild_permissions.manage_guild==True or int(message.author.id)==Config.owner.id:
                 accept = True
             else:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | <@'+str(message.author.id)+'>, You need to have the MANAGE SERVER permission or  be the bot owner to do this command.\nTo be the bot owner, try creating a bot :v')
@@ -1070,17 +1066,19 @@ async def on_message(message):
                     embedrole.add_field(name='Role Colour', value='**Color hex: **#'+str(myself.tohex(data.color.value))+'\n**Color integer: **'+str(data.color.value)+'\n**Color RGB: **'+str(myself.dearray(list(data.color.to_rgb()))))
                     await message.channel.send(embed=embedrole)
         if args[0]==prefix+'food' or args[0]==prefix+'coffee':
-            data = myself.insp('https://nekobot.xyz/api/image?type='+str(args[0][1:]))
-            link = data.split('"message":"')[1].split('"')[0]
+            data = myself.jsonisp('https://nekobot.xyz/api/image?type='+str(args[0][1:]))
+            link = data['message'].replace('\/', '/')
             if args[0].endswith('food'):
-                col = int(data.split('"color":')[1].split(',')[0])
+                col = int(data['color'])
                 msgtitle = 'hungry?'
             elif args[0].endswith('coffee'):
-                col = int(data.split('"color":')[1][:-1])
+                col = int(data['color'])
                 msgtitle = 'get caffeinated uwu'
                 num = random.randint(0, 1)
                 if num==0:
                     link = myself.jsonisp('https://coffee.alexflipnote.dev/random.json')['file']
+                else:
+                    link = myself.jsonisp('https://nekobot.xyz/api/image?type=coffee')['message'].replace('\/', '/')
             embed = discord.Embed(title=msgtitle, colour=discord.Color(col))
             embed.set_image(url=link.replace('\/', '/'))
             await message.channel.send(embed=embed)
@@ -1683,7 +1681,7 @@ async def on_message(message):
             if message.guild.id!=264445053596991498:
                 embed = discord.Embed(
                     title='Sure thing! Invite this bot to your server using the link below.',
-                    description='[Invite link](https://top.gg/bot/696973408000409626) | [Support Server](http://discord.gg/HhAPkD8)',
+                    description='[Invite link](https://top.gg/bot/'+str(Config.id)+') | [Support Server](http://discord.gg/HhAPkD8)',
                     colour=discord.Colour.green()
                 )
                 await message.channel.send(embed=embed)
@@ -2199,7 +2197,7 @@ async def on_message(message):
             embed.set_author(name=c[0]['name'])
             await message.channel.send(embed=embed)
         if cmd(msg, 'commands') or cmd(msg, 'help'):
-            data = myself.jsonisp("https://raw.githubusercontent.com/vierofernando/username601/master/assets/commands.json")
+            data = myself.jsonisp("https://raw.githubusercontent.com/vierofernando/username601/master/modules/commands.json")
             types = ['Bot Help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps']
             if no_args:
                 if message.guild.id!=264445053596991498:
@@ -2208,7 +2206,7 @@ async def on_message(message):
                         cate += f'**{str(i+1)}. **{prefix}help {str(types[i])}\n'
                     embed = discord.Embed(
                         title='Username601\'s commands',
-                        description='[Join the support server](https://discord.gg/HhAPkD8) | [Vote us on top.gg](https://top.gg/bot/696973408000409626/vote)\n\n**[More information on our website here.](https://vierofernando.github.io/username601/commands)**\n**Command Categories:** \n'+str(cate),
+                        description='[Join the support server](https://discord.gg/HhAPkD8) | [Vote us on top.gg](https://top.gg/bot/'+str(Config.id)+'/vote)\n\n**[More information on our website here.](https://vierofernando.github.io/username601/commands)**\n**Command Categories:** \n'+str(cate),
                         colour=discord.Colour.dark_blue()
                     )
                     embed.set_footer(text=f'Type {prefix}help <command/category> for more details.')
@@ -2260,7 +2258,7 @@ async def on_message(message):
             if message.guild.id!=264445053596991498:
                 messageRandom = src.getAbout()
                 # osinfo = myself.platform()
-                if str(client.get_guild(688373853889495044).get_member(661200758510977084).status)=='offline':
+                if str(client.get_guild(Config.SupportServer.id).get_member(Config.owner.id).status)=='offline':
                     devstatus = 'Offline'
                 else:
                     devstatus = 'Online'
@@ -2270,14 +2268,14 @@ async def on_message(message):
                     colour = 0xff0000
                 )
                 embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Programmed in: **Discord.py (Python)\n**Created in: **6 April 2020.\n**Successor of: **somebot56.\n**Default prefix: ** 1', inline='True')
-                embed.add_field(name='Programmer info', value='**Programmed by: **Viero Fernando. ('+client.get_user(661200758510977084).name+'#'+str(client.get_user(661200758510977084).discriminator)+') \n**Best languages: **~~HTML, CSS,~~ VB .NET, JavaScript, Python\n**Current Discord Status:** '+devstatus+'\n**Social links:**\n[Discord Server](http://discord.gg/HhAPkD8)\n[GitHub](http://github.com/vierofernando)\n[Top.gg](https://top.gg/user/661200758510977084)\n[SoloLearn](https://www.sololearn.com/Profile/17267145)\n[Brainly (Indonesia)](http://bit.ly/vierofernandobrainly)\n[Geometry Dash](https://gdbrowser.com/profile/knowncreator56)', inline='True')
-                embed.add_field(name='Version Info', value='**Bot version: ** '+bot_ver+'\n**Changelog: **'+bot_changelog+'\n\n**Discord.py version: **'+str(discord.__version__)+'\n**Python version: **'+str(sys.version).split(' (default')[0])#+'\n'+str(osinfo))
-                embed.add_field(name='Links', value='[Invite this bot to your server!](http://vierofernando.github.io/programs/username601) | [Source code](http://github.com/vierofernando/username601) | [The support server!](http://discord.gg/HhAPkD8) | [Vote us on top.gg](https://top.gg/bot/696973408000409626/vote) | [Official Website](https://vierofernando.github.io/username601)', inline='False')
+                embed.add_field(name='Programmer info', value='**Programmed by: **'+Config.Owner.name+'. ('+client.get_user(Config.owner.id).name+'#'+str(client.get_user(Config.owner.id).discriminator)+') \n**Best languages: **~~HTML, CSS,~~ VB .NET, JavaScript, Python\n**Current Discord Status:** '+devstatus+'\n**Social links:**\n[Discord Server](http://discord.gg/HhAPkD8)\n[GitHub](http://github.com/vierofernando)\n[Top.gg](https://top.gg/user/Config.owner.id)\n[SoloLearn](https://www.sololearn.com/Profile/17267145)\n[Brainly (Indonesia)](http://bit.ly/vierofernandobrainly)\n[Geometry Dash](https://gdbrowser.com/profile/knowncreator56)', inline='True')
+                embed.add_field(name='Version Info', value='**Bot version: ** '+Config.Version.number+'\n**Changelog: **'+Config.Version.changelog+'\n\n**Discord.py version: **'+str(discord.__version__)+'\n**Python version: **'+str(sys.version).split(' (default')[0])#+'\n'+str(osinfo))
+                embed.add_field(name='Links', value='[Invite this bot to your server!](http://vierofernando.github.io/programs/username601) | [Source code](http://github.com/vierofernando/username601) | [The support server!](http://discord.gg/HhAPkD8) | [Vote us on top.gg](https://top.gg/bot/'+str(Config.id)+'/vote) | [Official Website](https://vierofernando.github.io/username601)', inline='False')
                 embed.set_thumbnail(url='https://raw.githubusercontent.com/vierofernando/username601/master/assets/pfp.png')
                 embed.set_footer(text='© Viero Fernando Programming, 2018-2020. All rights reserved.')
                 await message.channel.send(embed=embed)
         if cmd(msg, 'vote'):
-            embed = discord.Embed(title='Support by Voting us at top.gg!', description='Sure thing, mate! [Vote us at top.gg by clicking me!](https://top.gg/bot/696973408000409626/vote)', colour=discord.Colour.blue())
+            embed = discord.Embed(title='Support by Voting us at top.gg!', description='Sure thing, mate! [Vote us at top.gg by clicking me!](https://top.gg/bot/'+str(Config.id)+'/vote)', colour=discord.Colour.blue())
             await message.channel.send(embed=embed)
         if cmd(msg, 'space'):
             embed = discord.Embed(colour=discord.Colour.dark_blue())
@@ -2466,7 +2464,7 @@ async def on_message(message):
             word = msg[9:]
             await message.channel.send(word[::-1])
         if cmd(msg, 'leet'):
-            array = list(str(msg)[6:])
+            array = list(unprefixed)
             alph = list("abcdefghijklmnopqrstuvwxyz")
             total = []
             leeted = ["4", "6", "(", "cl", "3", "I=", "9", "/-/", "1", ")", "|<", "!", "^^", "^/", "0", "I°", "()_", "l^", "5", "-|_", "V", "VV", "><", "=|", "2", " "]
