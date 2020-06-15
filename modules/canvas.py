@@ -3,8 +3,7 @@ import io
 
 # BIGGIE FONTS, CODE STYLED LIKE MY PYGAME GAME LMAO
 class Fonts:
-    futura = PIL.ImageFont.truetype(r'C:\Users\user\Desktop\Futura Condensed.ttf', 50)  
-
+    impact = ImageFont.truetype(r'/app/modules/Futura Condensed.ttf', 50)
 # LIMITS THE CHARACTER
 def limitify(raw, linelimit, maxlimit):
     text = ''
@@ -30,5 +29,6 @@ def simpleTopMeme(text, src, linelimit, maxlimit):
     image = Image.open(r'{}'.format(src))
     draw = ImageDraw.Draw(image)
     text = limitify(text, linelimit, maxlimit)
-    draw.text((5, 5), text, fill ="black", font = Fonts.futura, align ="left") 
-    compile(image)
+    draw.text((5, 5), text, fill ="black", font = Fonts.impact, align ="left") 
+    data = compile(image)
+    return data

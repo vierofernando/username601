@@ -118,7 +118,7 @@ async def on_message(message):
         if cmd(msg, 'stonks') or cmd(msg, 'monkeypuppet'):
             await message.add_reaction(client.get_emoji(BotEmotes.loading))
             try:
-                data = Painter.simpleTopMeme(unprefixed, './assets/pics/'+args[0][1:]+'.jpg', 37, 3)
+                data = Painter.simpleTopMeme(unprefixed, './assets/pics/'+args[0][1:]+'.jpg', 40, 3)
                 fileName = args[0][1:]+'.png'
                 await message.channel.send(file=discord.File(data, fileName))
             except Exception as e:
