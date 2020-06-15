@@ -2198,7 +2198,7 @@ async def on_message(message):
             await message.channel.send(embed=embed)
         if cmd(msg, 'commands') or cmd(msg, 'help'):
             data = myself.jsonisp("https://vierofernando.github.io/username601/assets/json/commands.json")
-            types = ['Bot Help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps']
+            types = Config.cmdtypes
             if no_args:
                 cate = ''
                 for i in range(0, len(types)):

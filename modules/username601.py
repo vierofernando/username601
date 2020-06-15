@@ -14,7 +14,7 @@ class BotEmotes:
 class Config:
     id = 696973408000409626 # BOT ID
     prefix = '1' # your prefix here
-    cmdtypes = ['Bot Help', 'Moderation', 'Utilities', 'Math', 'Fun', 'Games', 'Encoding', 'Memes', 'Images', 'Apps', 'Owner']
+    cmdtypes = decodeurl("https://vierofernando.github.io/username601/assets/json/categories.json").json()
     class Version:
         number = '1.9.7c'
         changelog = 'Bot code formatted, now coffee command uses 2 APIs lol'
