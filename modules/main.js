@@ -10,14 +10,7 @@ function loadCommands() {
     .then (res => res.json())
     .then (out => {
         var links = "";
-		var libs = [];
-		fetch('https://vierofernando.github.io/username601/assets/json/categories.json')
-		.then (res => res.json())
-		.then (out => {
-			for (i = 0; i < out.length; i++) {
-				libs.push(out[i]);
-			}
-		});
+		var libs = ["Bot Help", "Moderation", "Utilities", "Math", "Fun", "Games", "Encoding", "Memes", "Images", "Apps", "Owner"];
         var cmds = out;
         var total = ''
         var totalcount = 0;
