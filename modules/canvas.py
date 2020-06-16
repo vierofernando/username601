@@ -1,5 +1,6 @@
 from PIL import Image, ImageFont, ImageDraw  
 import io
+import requests
 
 # BIGGIE FONTS, CODE STYLED LIKE MY PYGAME GAME LMAO
 class Fonts:
@@ -31,14 +32,14 @@ def compile(data):
 def simpleTopMeme(text, src, linelimit, maxlimit):
     image = Image.open(r'{}'.format(src))
     draw = ImageDraw.Draw(image)
-    text = limitify(text, linelimit-2, maxlimit)
+    text = limitify(text, linelimit-4, maxlimit)
     draw.text((5, 5), text, fill ="black", font = Fonts.helvetica_large, align ="left") 
     data = compile(image)
     return data
 
 def presentationMeme(text, link):
     image = Image.open(r'{}'.format(link))
-    text = limitify(text, 24, 5)
+    text = limitify(text, 20, 5)
     draw = ImageDraw.Draw(image)
     draw.text((115, 55), text, fill ="black", font = Fonts.helvetica_medium, align ="left")  
     data = compile(image)
@@ -48,7 +49,7 @@ def presentationMeme(text, link):
 def firstwords(text, link):
     image = Image.open(r'{}'.format(link))
     draw = ImageDraw.Draw(image)
-    raw = limitify(text, 30, 2)
+    raw = limitify(text, 28, 2)
     draw.text((150, 20), list(raw)[0]+'..'+list(raw)[0]+'...', fill ="black", font = Fonts.helvetica_medium, align ="left")  
     draw.text((35, 420), raw, fill ="black", font = Fonts.comicsans_medium, align ="left")
     data = compile(image)
@@ -65,19 +66,38 @@ def limit(text):
         text += list(raw)[i]
     return text
 
-def drawtext(draw, text, fontsize, x, y, col):
-    draw.text((x, y), text, fill =col, font = ImageFont.truetype(r'/app/assets/fonts/Whitney-Medium.ttf', fontsize)  , align ="left") 
+def drawtext(draw, fontname, text, fontsize, x, y, col):
+    draw.text((x, y), text, fill =col, font = ImageFont.truetype(r'/app/assets/fonts/'+fontname+'.ttf', fontsize)  , align ="left") 
 
-def servercard(link, name, date, author, humans, bots, channels, roles, boosters, tier, online):
+def servercard(link, icon, name, date, author, humans, bots, channels, roles, boosters, tier, online):
     image = Image.open(r'{}'.format(link))
-    drawtext(ImageDraw.Draw(image), name, 60, 30, 100, 'white')
-    drawtext(ImageDraw.Draw(image), 'Created in '+date+' by '+author, 40, 30, 170, 'white')
-    drawtext(ImageDraw.Draw(image), humans, 60, 130, 265, 'white')
-    drawtext(ImageDraw.Draw(image), bots, 60, 480, 265, 'white')
-    drawtext(ImageDraw.Draw(image), channels+' Channels', 60, 650, 265, 'black')
-    drawtext(ImageDraw.Draw(image), roles+' Roles', 60, 650, 340, 'black')
-    drawtext(ImageDraw.Draw(image), boosters+' boosters', 60, 1000, 265, 'black')
-    drawtext(ImageDraw.Draw(image), 'Level '+tier, 60, 1000, 340, 'black')
-    drawtext(ImageDraw.Draw(image), online+' online', 50, 90, 360, 'black')
+    response = requests.get(icon)
+    servericon = Image.open(io.BytesIO(response.content))
+    image.paste(servericon, (1195, 115))
+    drawtext(ImageDraw.Draw(image),'Whitney-Medium', name, 60, 30, 100, 'white')
+    drawtext(ImageDraw.Draw(image),'Whitney-Medium', 'Created in '+date+' by '+author, 40, 30, 170, 'white')
+    drawtext(ImageDraw.Draw(image),'Whitney-Medium', humans, 60, 130, 265, 'white')
+    drawtext(ImageDraw.Draw(image),'Whitney-Medium', bots, 60, 480, 265, 'white')
+    drawtext(ImageDraw.Draw(image),'Whitney-Medium', channels+' Channels', 60, 650, 265, 'black')
+    drawtext(ImageDraw.Draw(image),'Whitney-Medium', roles+' Roles', 60, 650, 340, 'black')
+    drawtext(ImageDraw.Draw(image),'Whitney-Medium', boosters+' boosters', 60, 1000, 265, 'black')
+    drawtext(ImageDraw.Draw(image),'Whitney-Medium', 'Level '+tier, 60, 1000, 340, 'black')
+    drawtext(ImageDraw.Draw(image),'Whitney-Medium', online+' online', 50, 90, 360, 'black')
     data = compile(image)
     return data
+
+def headache(text):
+    link = './assets/pics/typesofheadache.jpg'
+    image = Image.open(r'{}'.format(link))
+    x = 330
+    total = limit(text)
+    if len(text)>15:
+        size = 40-(len(text)-15)
+        if size<15:
+            size = 15
+    else:
+        size = 40
+        x += size*2.5
+    x += round(size-(size/0.5)+5)
+    drawtext(ImageDraw.Draw(image), text, 'Impact', x, 510, 'black')
+    return compile(image)

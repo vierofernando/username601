@@ -124,13 +124,23 @@ async def on_message(message):
                     await message.channel.send(file=discord.File(data, fileName))
                 except Exception as e:
                     await message.channel.send('Oopsies! There was an error on creating your chosen meme;\n'+str(e))
+        if cmd(msg, 'headache') or cmd(msg, 'typesofheadache'):
+            if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Where is the meme's context?")
+            else:
+                if len(unprefixed)>50: await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Your text is too long.")
+                else:
+                    try:
+                        data = Painter.headache(unprefixed)
+                        await message.channel.send(file=discord.File(data, 'headache.png'))
+                    except Exception as e:
+                        await message.channel.send('Oopsies! There was an error on creating your chosen meme;\n'+str(e))
         if cmd(msg, 'presentation') or cmd(msg, 'firstwords'):
             if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Where is the meme's context?")
             else:
                 try:
                     if cmd(msg, 'presentation'): data = Painter.presentationMeme(unprefixed, "./assets/pics/presentation.jpg")
                     elif cmd(msg, 'firstwords'): data = Painter.firstwords(unprefixed, "./assets/pics/firstwords.jpg")
-                    await message.channel.send(file=discord.File(data, 'presentation.png'))
+                    await message.channel.send(file=discord.File(data, args[0][1:]+'.png'))
                 except Exception as e:
                     await message.channel.send('Oopsies! There was an error on creating your chosen meme;\n'+str(e))
         if cmd(msg, 'embed'):
@@ -1713,7 +1723,7 @@ async def on_message(message):
                 if i.status != 'offline': online += 1
                 if i.bot: bots += 1
                 if not i.bot: humans += 1
-            image = Painter.servercard("./assets/pics/card.jpg", message.guild.name, str(message.guild.created_at)[:-7], message.guild.owner.name, str(humans), str(bots), str(len(message.guild.channels)), str(len(message.guild.roles)), str(message.guild.premium_subscription_count), str(message.guild.premium_tier), str(online))
+            image = Painter.servercard("./assets/pics/card.jpg", str(message.guild.icon_url).replace(".webp?size=1024", ".jpg?size=128"), message.guild.name, str(message.guild.created_at)[:-7], message.guild.owner.name, str(humans), str(bots), str(len(message.guild.channels)), str(len(message.guild.roles)), str(message.guild.premium_subscription_count), str(message.guild.premium_tier), str(online))
             await message.channel.send(content='Here is the '+message.guild.name+'\'s server card.', file=discord.File(image, message.guild.name+'.png'))
         if cmd(msg, 'factor'):
             if int(args[1])<999999:
