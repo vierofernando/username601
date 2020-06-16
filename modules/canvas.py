@@ -46,7 +46,7 @@ def presentationMeme(text, link):
     return data
 
 def imagefromURL(url):
-    response = requests.get(icon)
+    response = requests.get(url)
     image = Image.open(io.BytesIO(response.content))
     return image
 
@@ -91,10 +91,10 @@ def servercard(link, icon, name, date, author, humans, bots, channels, roles, bo
     data = compile(image)
     return data
 
-def wanted(url):
-    image = Image.open(r'/app/assets/pics/wanted.jpg')
+def putimage(url, name, resx, resy, posx, posy):
+    image = Image.open(r'/app/assets/pics/'+name+'.jpg')
     pic = imagefromURL(url)
-    pic = pic.resize((547, 539), Image.ANTIALIAS)
-    image.paste(pic, (167, 423))
+    pic = pic.resize((resx, resy), Image.ANTIALIAS)
+    image.paste(pic, (posx, posy))
     data = compile(image)
     return data

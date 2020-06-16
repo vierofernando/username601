@@ -118,21 +118,23 @@ async def on_message(message):
         if cmd(msg, 'stonks') or cmd(msg, 'immaheadout') or cmd(msg, 'homer') or cmd(msg, 'monkeypuppet') or cmd(msg, 'tom') or cmd(msg, 'surprisedpikachu') or cmd(msg, 'meandtheboys'):
             if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Where is the meme's context?")
             else:
-                try:
-                    data = Painter.simpleTopMeme(unprefixed, './assets/pics/'+args[0][1:]+'.jpg', 40, 3)
-                    fileName = args[0][1:]+'.png'
-                    await message.channel.send(file=discord.File(data, fileName))
-                except Exception as e:
-                    await message.channel.send('Oopsies! There was an error on creating your chosen meme;\n'+str(e))
+                async with message.channel.typing():
+                    try:
+                        data = Painter.simpleTopMeme(unprefixed, './assets/pics/'+args[0][1:]+'.jpg', 40, 3)
+                        fileName = args[0][1:]+'.png'
+                        await message.channel.send(file=discord.File(data, fileName))
+                    except Exception as e:
+                        await message.channel.send('Oopsies! There was an error on creating your chosen meme;\n'+str(e))
         if cmd(msg, 'presentation') or cmd(msg, 'firstwords'):
             if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Where is the meme's context?")
             else:
-                try:
-                    if cmd(msg, 'presentation'): data = Painter.presentationMeme(unprefixed, "./assets/pics/presentation.jpg")
-                    elif cmd(msg, 'firstwords'): data = Painter.firstwords(unprefixed, "./assets/pics/firstwords.jpg")
-                    await message.channel.send(file=discord.File(data, args[0][1:]+'.png'))
-                except Exception as e:
-                    await message.channel.send('Oopsies! There was an error on creating your chosen meme;\n'+str(e))
+                async with message.channel.typing():
+                    try:
+                        if cmd(msg, 'presentation'): data = Painter.presentationMeme(unprefixed, "./assets/pics/presentation.jpg")
+                        elif cmd(msg, 'firstwords'): data = Painter.firstwords(unprefixed, "./assets/pics/firstwords.jpg")
+                        await message.channel.send(file=discord.File(data, args[0][1:]+'.png'))
+                    except Exception as e:
+                        await message.channel.send('Oopsies! There was an error on creating your chosen meme;\n'+str(e))
         if cmd(msg, 'embed'):
             if '(title:' not in msg or '(desc:' not in msg:
                 await message.channel.send('An embed requires title and description.\nFor example: `'+prefix+'embed (title:this is a title) (desc:this is a description)`\n\nOptional; `footer, auth, hex`')
@@ -158,13 +160,14 @@ async def on_message(message):
                     await message.channel.send(embed=embed)
                 except Exception as e:
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) + f' | An error occurd. For programmers: ```{e}```')
-        if cmd(msg, 'wanted'):
-            if len(message.mentions)<1:
-                ava = str(message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
-            else:
-                ava = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=512')
-            image = Painter.wanted(ava)
-            await message.channel.send(file=discord.File(image, 'wanted.png'))
+        if args[0]==prefix+'wanted' or args[0]==prefix+'ferbtv':
+            async with message.channel.typing():
+                if len(message.mentions)<1:
+                    ava = str(message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
+                else:
+                    ava = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=512')
+                image = Painter.wanted(ava, args[0][1:], 547, 539, 167, 423)
+                await message.channel.send(file=discord.File(image, args[0][1:]+'.png'))
         if cmd(msg, 'pokequiz'):
             wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... Generating quiz...')
             num = random.randint(1, 800)
