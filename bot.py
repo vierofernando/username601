@@ -160,7 +160,7 @@ async def on_message(message):
                     await message.channel.send(embed=embed)
                 except Exception as e:
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) + f' | An error occurd. For programmers: ```{e}```')
-        if args[0]==prefix+'wanted' or args[0]==prefix+'ferbtv' or args[0]==prefix+'chatroulette':
+        if args[0]==prefix+'wanted' or args[0]==prefix+'sacred' or args[0]==prefix+'ferbtv' or args[0]==prefix+'chatroulette':
             async with message.channel.typing():
                 if len(message.mentions)<1:
                     ava = str(message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
@@ -169,6 +169,7 @@ async def on_message(message):
                 if 'wanted' in args[0]: num1, num2, num3, num4 = 547, 539, 167, 423
                 elif 'ferbtv' in args[0]: num1, num2, num3, num4 = 362, 278, 363, 187
                 elif 'chatroulette' in args[0]: num1, num2, num3, num4 = 324, 243, 14, 345
+                elif 'sacred' in args[0]: num1, num2, num3, num4 = 454, 498, 1210, 986
                 image = Painter.putimage(ava, args[0][1:], num1, num2, num3, num4)
                 await message.channel.send(file=discord.File(image, args[0][1:]+'.png'))
         if cmd(msg, 'pokequiz'):
