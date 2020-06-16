@@ -130,7 +130,7 @@ async def on_message(message):
                 if len(unprefixed)>50: await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Your text is too long.")
                 else:
                     try:
-                        data = Painter.headache(unprefixed)
+                        data = Painter.headache(unprefixed, '../assets/pics/typesofheadaches.jpg')
                         await message.channel.send(file=discord.File(data, 'headache.png'))
                     except Exception as e:
                         await message.channel.send('Oopsies! There was an error on creating your chosen meme;\n'+str(e))

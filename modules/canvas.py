@@ -86,11 +86,9 @@ def servercard(link, icon, name, date, author, humans, bots, channels, roles, bo
     data = compile(image)
     return data
 
-def headache(text):
-    link = './assets/pics/typesofheadache.jpg'
+def headache(text, link):
     image = Image.open(r'{}'.format(link))
     x = 330
-    total = limit(text)
     if len(text)>15:
         size = 40-(len(text)-15)
         if size<15:
@@ -99,5 +97,5 @@ def headache(text):
         size = 40
         x += size*2.5
     x += round(size-(size/0.5)+5)
-    drawtext(ImageDraw.Draw(image), text, 'Impact', x, 510, 'black')
+    drawtext(ImageDraw.Draw(image), text, 'Impact', size, x, 510, 'black')
     return compile(image)
