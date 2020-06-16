@@ -45,6 +45,11 @@ def presentationMeme(text, link):
     data = compile(image)
     return data
 
+def imagefromURL(url):
+    response = requests.get(icon)
+    image = Image.open(io.BytesIO(response.content))
+    return image
+
 # 32, 2
 def firstwords(text, link):
     image = Image.open(r'{}'.format(link))
@@ -86,16 +91,10 @@ def servercard(link, icon, name, date, author, humans, bots, channels, roles, bo
     data = compile(image)
     return data
 
-def headache(text, link):
-    image = Image.open(r'{}'.format(link))
-    x = 330
-    if len(text)>15:
-        size = 40-(len(text)-15)
-        if size<15:
-            size = 15
-    else:
-        size = 40
-        x += size*2.5
-    x += round(size-(size/0.5)+5)
-    drawtext(ImageDraw.Draw(image), text, 'Impact', size, x, 510, 'black')
-    return compile(image)
+def wanted(url):
+    image = Image.open(r'/app/assets/pics/wanted.jpg')
+    pic = imagefromURL(url)
+    pic = pic.resize((547, 539), Image.ANTIALIAS)
+    image.paste(pic, (167, 423))
+    data = compile(image)
+    return data
