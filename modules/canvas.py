@@ -70,14 +70,14 @@ def drawtext(draw, text, fontsize, x, y, col):
 
 def servercard(link, name, date, author, humans, bots, channels, roles, boosters, tier, online):
     image = Image.open(r'{}'.format(link))
-    drawtext(ImageDraw.Draw(image), name, 30, 100, 'white')
+    drawtext(ImageDraw.Draw(image), name, 60, 30, 100, 'white')
     drawtext(ImageDraw.Draw(image), 'Created in '+date+' by '+author, 40, 30, 170, 'white')
     drawtext(ImageDraw.Draw(image), humans, 60, 130, 265, 'white')
     drawtext(ImageDraw.Draw(image), bots, 60, 480, 265, 'white')
     drawtext(ImageDraw.Draw(image), channels+' Channels', 60, 650, 265, 'black')
     drawtext(ImageDraw.Draw(image), roles+' Roles', 60, 650, 340, 'black')
-    drawtext(ImageDraw.Draw(image), boosters+' boosters', 60, 1050, 265, 'black')
-    drawtext(ImageDraw.Draw(image), 'Level '+tier, 60, 1050, 340, 'black')
-    drawtext(ImageDraw.Draw(image), '12391 online', 50, 90, 360, 'black')
+    drawtext(ImageDraw.Draw(image), boosters+' boosters', 60, 1000, 265, 'black')
+    drawtext(ImageDraw.Draw(image), 'Level '+tier, 60, 1000, 340, 'black')
+    drawtext(ImageDraw.Draw(image), online+' online', 50, 90, 360, 'black')
     data = compile(image)
     return data
