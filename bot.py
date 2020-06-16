@@ -168,7 +168,7 @@ async def on_message(message):
                     ava = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=512')
                 if 'wanted' in args[0]: num1, num2, num3, num4 = 547, 539, 167, 423
                 elif 'ferbtv' in args[0]: num1, num2, num3, num4 = 362, 278, 363, 187
-                elif 'chatroulette' in args[0]: num1, num2, num3, num4 = 14, 345, 324, 243
+                elif 'chatroulette' in args[0]: num1, num2, num3, num4 = 324, 243, 14, 345
                 image = Painter.putimage(ava, args[0][1:], num1, num2, num3, num4)
                 await message.channel.send(file=discord.File(image, args[0][1:]+'.png'))
         if cmd(msg, 'pokequiz'):
