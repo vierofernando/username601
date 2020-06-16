@@ -1707,55 +1707,14 @@ async def on_message(message):
                     colour=discord.Colour.green()
                 )
                 await message.channel.send(embed=embed)
-        if cmd(msg, 'serverinfo'):
+        if cmd(msg, 'server'):
             humans, bots, online = 0, 0, 0
             for i in message.guild.members:
                 if i.status != 'offline': online += 1
                 if i.bot: bots += 1
                 if not i.bot: humans += 1
-            image = Painter.servercard("./", message.guild.name, str(message.guild.created_at)[:-7], message.guild.owner.name, str(humans), str(bots), str(len(message.guild.channels)), str(len(message.guild.roles)), str(message.guild.premium_subscription_count), str(message.guild.premium_tier), str(online))
+            image = Painter.servercard("./assets/pics/card.jpg", message.guild.name, str(message.guild.created_at)[:-7], message.guild.owner.name, str(humans), str(bots), str(len(message.guild.channels)), str(len(message.guild.roles)), str(message.guild.premium_subscription_count), str(message.guild.premium_tier), str(online))
             await message.channel.send(content='Here is the '+message.guild.name+'\'s server card.', file=discord.File(image, message.guild.name+'.png'))
-            # acceptId, o_web, o_desk, o_pho, botcount, online, idle, dnd, offline = 0, 0, 0, 0, 0, 0, 0, 0, 0
-            # if acceptId==0:
-            #     for i in range(0, int(len(message.guild.members))):
-            #         if message.guild.get_member(int(message.guild.members[i].id)).desktop_status.name!='offline':
-            #             o_desk = int(o_desk)+1
-            #         elif message.guild.get_member(int(message.guild.members[i].id)).mobile_status.name!='offline':
-            #             o_pho = int(o_pho)+1
-            #         elif message.guild.get_member(int(message.guild.members[i].id)).web_status.name!='offline':
-            #             o_web = int(o_web)+1
-            #         if message.guild.members[i].bot==True:
-            #             botcount = int(botcount)+1
-            #         memstat = message.guild.get_member(int(message.guild.members[i].id)).status.name
-            #         if memstat=='online':
-            #             online = online + 1
-            #         elif memstat=='idle':
-            #             idle = idle + 1
-            #         elif memstat=='dnd':
-            #             dnd = dnd + 1
-            #         else:
-            #             offline = int(offline) + 1
-            #     total_on = online + idle + dnd
-            #     onperc = round(total_on/len(message.guild.members)*100)
-            #     humans = int(len(message.guild.members))-int(botcount)
-            #     embed = discord.Embed(
-            #         title=str(message.guild.name),
-            #         description='Shows the information about '+str(message.guild.name),
-            #         color=0x000000
-            #     )
-            #     embed.add_field(name='General Info', value='**Region:** '+str(message.guild.region)+'\n**Server ID: **'+str(message.guild.id)+'\n**Server created at: **'+str(message.guild.created_at)[:-7]+' UTC\n**Verification Level: **'+str(message.guild.verification_level)+'\n**Notification level:  **'+str(message.guild.default_notifications)[18:].replace("_", " ")+'\n**Explicit Content Filter:**'+str(message.guild.explicit_content_filter)+'\n**AFK timeout: **'+str(message.guild.afk_timeout)+' seconds\n**Description: **"'+str(message.guild.description)+'"', inline='True')
-            #     embed.add_field(name='Channel Info', value='**Text Channels: **'+str(len(message.guild.text_channels))+'\n**Voice channels: **'+str(len(message.guild.voice_channels))+'\n**Channel categories: **'+str(len(message.guild.categories))+'\n**AFK Channel: **'+str(message.guild.afk_channel), inline='True')
-            #     embed.add_field(name='Members Info', value='**Server owner: **'+str(message.guild.owner)[:-5]+'\n**Members count: **'+str(len(message.guild.members))+'\n**Server Boosters: **'+str(len(message.guild.premium_subscribers))+'\n**Role Count: **'+str(len(message.guild.roles))+'\n**Bot accounts: **'+str(botcount)+'\n**Human accounts: **'+str(humans), inline='True')
-            #     embed.add_field(name='Member Status', value=':green_circle: '+str(online)+' :orange_circle: '+str(idle)+' :red_circle: '+str(dnd)+' :black_circle: '+str(offline)+'\n:grinning: '+str(total_on)+' ('+str(onperc)+'%) | :sleeping: '+str(offline)+' ('+str(100-int(onperc))+'%)\n:iphone: '+str(o_pho)+' | :computer: '+str(o_desk)+' | :globe_with_meridians: '+str(o_web))
-            #     serverurl = 'https://discordapp.com/channels/'+str(message.guild.id)
-            #     if message.guild.is_icon_animated()==False:
-            #         servericonurl = str('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=1024')
-            #     else:
-            #         servericonurl = str('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.gif?size=1024')
-            #     embed.add_field(name='URL stuff', value=f'[Server URL]({serverurl}) | [Server Icon URL]({servericonurl})')
-            #     embed.set_thumbnail(url=str('https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=1024'))
-            #     embed.set_image(url='https://discord.com/api/guilds/'+str(message.guild.id)+'/embed.png?style=banner1')
-            #     await message.channel.send(embed=embed)
         if cmd(msg, 'factor'):
             if int(args[1])<999999:
                 numList = range(1, int(args[1]))

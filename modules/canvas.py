@@ -54,8 +54,6 @@ def firstwords(text, link):
     data = compile(image)
     return data
 
-draw = ImageDraw.Draw(image)
-
 def limit(text):
     text = ''
     for i in range(0, len(raw)):
@@ -83,5 +81,3 @@ def servercard(link, name, date, author, humans, bots, channels, roles, boosters
     drawtext(ImageDraw.Draw(image), '12391 online', 50, 90, 360, 'black')
     data = compile(image)
     return data
-
-image.show() 
