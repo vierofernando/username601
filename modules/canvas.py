@@ -38,7 +38,7 @@ def simpleTopMeme(text, src, linelimit, maxlimit):
 
 def presentationMeme(text, link):
     image = Image.open(r'{}'.format(link))
-    text = limitify(text, 29, 5)
+    text = limitify(text, 24, 5)
     draw = ImageDraw.Draw(image)
     draw.text((115, 55), text, fill ="black", font = Fonts.helvetica_medium, align ="left")  
     data = compile(image)
@@ -53,3 +53,35 @@ def firstwords(text, link):
     draw.text((35, 420), raw, fill ="black", font = Fonts.comicsans_medium, align ="left")
     data = compile(image)
     return data
+
+draw = ImageDraw.Draw(image)
+
+def limit(text):
+    text = ''
+    for i in range(0, len(raw)):
+        if len(raw.split('\n'))>1:
+            break
+        if i>2:
+            if i%50==0:
+                text += '\n'
+        text += list(raw)[i]
+    return text
+
+def drawtext(draw, text, fontsize, x, y, col):
+    draw.text((x, y), text, fill =col, font = ImageFont.truetype(r'/app/assets/fonts/Whitney-Medium.ttf', fontsize)  , align ="left") 
+
+def servercard(link, name, date, author, humans, bots, channels, roles, boosters, tier, online):
+    image = Image.open(r'{}'.format(link))
+    drawtext(ImageDraw.Draw(image), name, 30, 100, 'white')
+    drawtext(ImageDraw.Draw(image), 'Created in '+date+' by '+author, 40, 30, 170, 'white')
+    drawtext(ImageDraw.Draw(image), humans, 60, 130, 265, 'white')
+    drawtext(ImageDraw.Draw(image), bots, 60, 480, 265, 'white')
+    drawtext(ImageDraw.Draw(image), channels+' Channels', 60, 650, 265, 'black')
+    drawtext(ImageDraw.Draw(image), roles+' Roles', 60, 650, 340, 'black')
+    drawtext(ImageDraw.Draw(image), boosters+' boosters', 60, 1050, 265, 'black')
+    drawtext(ImageDraw.Draw(image), 'Level '+tier, 60, 1050, 340, 'black')
+    drawtext(ImageDraw.Draw(image), '12391 online', 50, 90, 360, 'black')
+    data = compile(image)
+    return data
+
+image.show() 
