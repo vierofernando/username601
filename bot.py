@@ -115,7 +115,7 @@ async def on_message(message):
                 embed = discord.Embed(title='UFO Sighting in '+str(ufo['city'])+', '+str(ufo['state']), description='**Summary:** '+str(ufo['summary'])+'\n\n**Shape:** '+str(ufo['shape'])+'\n**Sighting Date: **'+str(ufo['date'])[:-8].replace('T', ' ')+'\n**Duration: **'+str(ufo['duration'])+'\n\n[Article Source]('+str(ufo['url'])+')', colour=discord.Colour.green())
                 embed.set_footer(text='Username601 raided Area 51 and found this!')
                 await message.channel.send(embed=embed)
-        if cmd(msg, 'stonks') or cmd(msg, 'immaheadout') or cmd(msg, 'homer') or cmd(msg, 'monkeypuppet') or cmd(msg, 'tom') or cmd(msg, 'surprisedpikachu') or cmd(msg, 'meandtheboys'):
+        if cmd(msg, 'stonks') or cmd(msg, 'pabloescobar') or cmd(msg, 'immaheadout') or cmd(msg, 'homer') or cmd(msg, 'monkeypuppet') or cmd(msg, 'tom') or cmd(msg, 'surprisedpikachu') or cmd(msg, 'meandtheboys'):
             if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Where is the meme's context?")
             else:
                 async with message.channel.typing():
@@ -160,13 +160,16 @@ async def on_message(message):
                     await message.channel.send(embed=embed)
                 except Exception as e:
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) + f' | An error occurd. For programmers: ```{e}```')
-        if args[0]==prefix+'wanted' or args[0]==prefix+'ferbtv':
+        if args[0]==prefix+'wanted' or args[0]==prefix+'ferbtv' or args[0]==prefix+'chatroulette':
             async with message.channel.typing():
                 if len(message.mentions)<1:
                     ava = str(message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
                 else:
                     ava = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=512')
-                image = Painter.wanted(ava, args[0][1:], 547, 539, 167, 423)
+                if 'wanted' in args[0]: num1, num2, num3, num4 = 547, 539, 167, 423
+                elif 'ferbtv' in args[0]: num1, num2, num3, num4 = 362, 278, 363, 187
+                elif 'chatroulette' in args[0]: num1, num2, num3, num4 = 14, 345, 324, 243
+                image = Painter.putimage(ava, args[0][1:], num1, num2, num3, num4)
                 await message.channel.send(file=discord.File(image, args[0][1:]+'.png'))
         if cmd(msg, 'pokequiz'):
             wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... Generating quiz...')

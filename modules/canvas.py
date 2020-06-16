@@ -16,7 +16,7 @@ def limitify(raw, linelimit, maxlimit):
             text = text[:-1]
             break
         if i>2:
-            if i%linelimit==0:
+            if i%(linelimit-2)==0:
                 text += '\n'
         text += list(raw)[i]
     return text
