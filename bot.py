@@ -115,7 +115,7 @@ async def on_message(message):
                 embed = discord.Embed(title='UFO Sighting in '+str(ufo['city'])+', '+str(ufo['state']), description='**Summary:** '+str(ufo['summary'])+'\n\n**Shape:** '+str(ufo['shape'])+'\n**Sighting Date: **'+str(ufo['date'])[:-8].replace('T', ' ')+'\n**Duration: **'+str(ufo['duration'])+'\n\n[Article Source]('+str(ufo['url'])+')', colour=discord.Colour.green())
                 embed.set_footer(text='Username601 raided Area 51 and found this!')
                 await message.channel.send(embed=embed)
-        if cmd(msg, 'stonks') or cmd(msg, 'immaheadout') or cmd(msg, 'monkeypuppet') or cmd(msg, 'tom') or cmd(msg, 'surprisedpikachu') or cmd(msg, 'meandtheboys'):
+        if cmd(msg, 'stonks') or cmd(msg, 'immaheadout') or cmd(msg, 'homer') or cmd(msg, 'monkeypuppet') or cmd(msg, 'tom') or cmd(msg, 'surprisedpikachu') or cmd(msg, 'meandtheboys'):
             if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Where is the meme's context?")
             else:
                 try:
