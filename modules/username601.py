@@ -39,7 +39,6 @@ def accept_message(authorid, authorbot, message): # ACCEPT THE SPECIFIC REQUIREM
         yes += 'v'
     if '<@'+str(Config.id)+'>' not in message:
         yes += 'v'
-    print(yes)
     if yes=='vvvvv':
         return True
     else:
