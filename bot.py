@@ -117,34 +117,13 @@ async def on_message(message):
         if cmd(msg, 'changemymind') or cmd(msg, 'changedmymind'):
             if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Error! You need a text...")
             else:
+                await message.add_reaction(client.get_emoji(BotEmotes.loading))
                 async with message.channel.typing():
                     try:
                         data = Painter.urltoimage('https://nekobot.xyz/api/imagegen?type=changemymind&text='+myself.urlify(unprefixed)+'&raw=1')
                         await message.channel.send(file=discord.File(data, 'changemymind.png'))
                     except Exception as e:
                         await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Oops! There was an error on generating your meme; `"+str(e)+"`")
-        if cmd(msg, 'undertale'):
-            if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Are you lost? Type `"+prefix+"undertale help` for more info.")
-            else:
-                json_data = myself.jsonisp('https://vierofernando.github.io/username601/assets/json/undertale.json')
-                chars = []
-                for i in list(json_data.keys()): chars.append(i)
-                if args[1].lower()=='help': await message.channel.send(embed=discord.Embed(title='Undertale box generator help', description='Type `'+prefix+'undertale {CHARACTER} text`. (except for random)\n\nAll available characters are:```apache\n'+myself.dearray(chars)+'```', colour=discord.Colour.red()))
-                else:
-                    character = None
-                    for i in chars:
-                        if args[1].lower()==i.lower():
-                            character = i
-                            break
-                    if character==None:
-                        await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Your character doesn't exist in our database! Type `"+prefix+"undertale help` for more details.")
-                    else:
-                        if character!='random':
-                            image_url = str(json_data[character]).replace("INSERTTEXT", myself.urlify(message.content[int(len(args[0])+len(args[1])+2):]))
-                        else: image_url = json_data[character]
-                        async with message.channel.typing():
-                            data = Painter.urltoimage(image_url)
-                            await message.channel.send(file=discord.File(data, 'undertale.png'))
         if cmd(msg, 'triggered'):
             increment, accept = None, True
             for i in args:
