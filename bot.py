@@ -178,6 +178,26 @@ async def on_message(message):
                 else:
                     image = Painter.art(ava)
                 await message.channel.send(file=discord.File(image, args[0][1:]+'.png'))
+        if cmd(msg, 'resize'):
+            correct = ''
+            wh = []
+            for i in args:
+                if i.isnumeric():
+                    correct += 'y'
+                    wh.append(i)
+            async with message.channel.typing():
+                if correct=='yy':
+                    if len(message.mentions)<1:
+                        ava = str(message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
+                    else:
+                        ava = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=512')
+                    if wh[0]>2000 or wh[1]>2000: await message.channel.send(client.get_emoji(BotEmotes.error) + " | Your image is too big!")
+                    elif wh[0]<300 or wh[1]<300: await message.channel.send(client.get_emoji(BotEmotes.error) + " | Your image is too small!")
+                    else:
+                        data = Painter.resize(ava, wh[0], wh[1])
+                        await message.channel.send(file=discord.File(data, 'resize.png'))
+                else:
+                    await message.channel.send(client.get_emoji(BotEmotes.error) + " | Where are the parameters?")
         if cmd(msg, 'pokequiz'):
             wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... Generating quiz...')
             num = random.randint(1, 800)
@@ -821,46 +841,47 @@ async def on_message(message):
                 except Exception as e:
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) + f' | An error occured. :x:```{str(e)}```')
         if cmd(msg, 'xpbox'):
-            results = []
-            buttons = []
-            ques = [
-                'Please input the box title.',
-                'Please input the message to display.',
-                'How many buttons shall be in the message box?'
-            ]
-            auth = message.author
-            accept = True
-            for i in range(0, 3):
-                await message.channel.send(ques[i])
-                def check(m):
-                    return m.author == auth
-                try:
-                    trying = await client.wait_for('message', check=check, timeout=30.0)
-                except:
-                    await message.channel.send('Command canceled. No response after 30 seconds.')
-                if '/' in str(trying.content) or '?' in str(trying.content) or '&' in str(trying.content):
-                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Your request contain an invalid symbol. Please try again.')
-                    accept = False
-                    break
-                else:
-                    results.append(str(trying.content))
-                    if len(results)>2:
-                        for i in range(1, results[3]+1):
-                            nds = ['st', 'nd', 'rd']
-                            await message.channel.send('Please input the '+str(i)+str(nds[i-1])+' button.')
-                            def checkingagain(m):
-                                return m.author == auth
-                            try:
-                                buttonInput = await client.wait_for('message', check=checkingagain, timeout=30.0)
-                            except:
-                                await message.channel.send('Command canceled. No response after 30 seconds.')
-                                accept = False
-                                break
-                            buttons.append(str(trying.content))
-            if accept==True:
-                embed = discord.Embed(title='Error!', colour=discord.Colour.red())
-                embed.set_image(url='http://atom.smasher.org/error/xp.png.php?icon=Error3&style=xp&title='+str(results[0]).replace(' ', '+')+'&text='+str(results[1]).replace(' ', '+')+'&b1='+str(results[2]).replace(' ', '+'))
-                await message.channel.send(embed=embed)
+            await message.channel.send("this command has been closed for maintenance. sorry.")
+            # results = []
+            # buttons = []
+            # ques = [
+            #     'Please input the box title.',
+            #     'Please input the message to display.',
+            #     'How many buttons shall be in the message box?'
+            # ]
+            # auth = message.author
+            # accept = True
+            # for i in range(0, 3):
+            #     await message.channel.send(ques[i])
+            #     def check(m):
+            #         return m.author == auth
+            #     try:
+            #         trying = await client.wait_for('message', check=check, timeout=30.0)
+            #     except:
+            #         await message.channel.send('Command canceled. No response after 30 seconds.')
+            #     if '/' in str(trying.content) or '?' in str(trying.content) or '&' in str(trying.content):
+            #         await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Your request contain an invalid symbol. Please try again.')
+            #         accept = False
+            #         break
+            #     else:
+            #         results.append(str(trying.content))
+            #         if len(results)>2:
+            #             for i in range(1, results[3]+1):
+            #                 nds = ['st', 'nd', 'rd']
+            #                 await message.channel.send('Please input the '+str(i)+str(nds[i-1])+' button.')
+            #                 def checkingagain(m):
+            #                     return m.author == auth
+            #                 try:
+            #                     buttonInput = await client.wait_for('message', check=checkingagain, timeout=30.0)
+            #                 except:
+            #                     await message.channel.send('Command canceled. No response after 30 seconds.')
+            #                     accept = False
+            #                     break
+            #                 buttons.append(str(trying.content))
+            # if accept==True:
+            #     embed = discord.Embed(title='Error!', colour=discord.Colour.red())
+            #     embed.set_image(url='http://atom.smasher.org/error/xp.png.php?icon=Error3&style=xp&title='+str(results[0]).replace(' ', '+')+'&text='+str(results[1]).replace(' ', '+')+'&b1='+str(results[2]).replace(' ', '+'))
+            #     await message.channel.send(embed=embed)
         if cmd(msg, 'removerole') or args[0]==prefix+'rr':
             if message.author.guild_permissions.manage_roles==False:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | <@{str(message.author.id)}>, you don\'t have the `Manage Roles` permission!')

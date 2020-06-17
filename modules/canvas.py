@@ -104,7 +104,13 @@ def art(ava):
     pic = imagefromURL(ava)
     firpic = pic.resize((152, 174), Image.ANTIALIAS)
     image.paste(firpic, (435, 39))
-    secpic = pic.resize((450, 174), Image.ANTIALIAS)
-    image.paste(secpic, (440, 381))
+    secpic = pic.resize((152, 176), Image.ANTIALIAS)
+    image.paste(secpic, (440, 379))
     data = compile(image)
+    return data
+
+def resize(url, x, y):
+    pic = imagefromURL(url)
+    pic = pic.resize((x, y), Image.ANTIALIAS)
+    data = compile(pic)
     return data
