@@ -150,5 +150,3 @@ class gif:
             num += 5
         data = gif.compilegif(images, 10)
         return data
-    
-    def c(pic, increment):
