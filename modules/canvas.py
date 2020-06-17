@@ -150,3 +150,8 @@ class gif:
             num += 5
         data = gif.compilegif(images, 10)
         return data
+    
+def urltoimage(url):
+    image = imagefromURL(url)
+    data = compile(image)
+    return data

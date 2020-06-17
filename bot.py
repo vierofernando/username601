@@ -133,7 +133,7 @@ async def on_message(message):
                         if character!='random':
                             image_url = str(json_data[character]).replace("INSERTTEXT", message.content[int(len(args[0])+len(args[1])+2):])
                         else: image_url = json_data[character]
-                        data = Painter.imagefromURL(image_url)
+                        data = Painter.urltoimage(image_url)
                         await message.channel.send(file=discord.File(data, 'undertale.png'))
         if cmd(msg, 'triggered'):
             increment, accept = None, True
