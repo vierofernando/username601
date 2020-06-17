@@ -131,10 +131,11 @@ async def on_message(message):
                         await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Your character doesn't exist in our database! Type `"+prefix+"undertale help` for more details.")
                     else:
                         if character!='random':
-                            image_url = str(json_data[character]).replace("INSERTTEXT", message.content[int(len(args[0])+len(args[1])+2):])
+                            image_url = str(json_data[character]).replace("INSERTTEXT", myself.urlify(message.content[int(len(args[0])+len(args[1])+2):]))
                         else: image_url = json_data[character]
-                        data = Painter.urltoimage(image_url)
-                        await message.channel.send(file=discord.File(data, 'undertale.png'))
+                        async with message.channel.typing():
+                            data = Painter.urltoimage(image_url)
+                            await message.channel.send(file=discord.File(data, 'undertale.png'))
         if cmd(msg, 'triggered'):
             increment, accept = None, True
             for i in args:
