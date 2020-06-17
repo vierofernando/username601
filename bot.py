@@ -110,10 +110,30 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
         if cmd(msg, 'rotate'):
             async with message.channel.typing():
-                if len(message.mentions)==0: ava = str(message.author.avatar_url).replace('.webp?size=1024', '.jpg')
-                else: ava = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg')
+                if len(message.mentions)==0: ava = str(message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
+                else: ava = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=512')
                 data = Painter.gif.rotate(ava)
                 await message.channel.send(file=discord.File(data, 'rotate.gif'))
+        if cmd(msg, 'triggered'):
+            increment, accept = None, True
+            for i in args:
+                if i.isnumeric():
+                    increment = i
+                    break
+            if increment==None: increment = 5
+            if increment!=5:
+                if increment<1: 
+                    accept = False
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) + " | Increment to small!")
+                elif increment>50:
+                    accept = False
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) + " | Increment to big!")
+            if accept:
+                if len(message.mentions)==0: ava = str(message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
+                else: ava = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=512')
+                async with message.channel.typing():
+                    data = Painter.gif.triggered(ava, increment)
+                    await message.channel.send(file=discord.File(data, 'triggered.gif'))
         if cmd(msg, 'stonks') or cmd(msg, 'pabloescobar') or cmd(msg, 'immaheadout') or cmd(msg, 'homer') or cmd(msg, 'monkeypuppet') or cmd(msg, 'tom') or cmd(msg, 'surprisedpikachu') or cmd(msg, 'meandtheboys'):
             if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Where is the meme's context?")
             else:

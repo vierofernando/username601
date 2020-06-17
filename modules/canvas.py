@@ -130,3 +130,20 @@ class gif:
             num += 5
         data = gif.compilegif(images, 5)
         return data
+    
+    def triggered(pic, increment):
+        image = imagefromurl(pic)
+        red = Image.open('/apps/assets/pics/red.jpg')
+        image = Image.blend(image, red, alpha=0.25)
+        text = Image.open('/apps/assets/pics/triggered.jpg')
+
+        canvas = Image.new(mode='RGB',size=image.size ,color=(0, 0, 0))
+        images, num = [], 0
+        while num<100:
+            canvas.paste(image, (random.randint(-increment, increment), random.randint(-increment, increment)))
+            images.append(canvas)
+            canvas.paste(text, (random.randint(-increment, increment), 418+(random.randint(-increment, increment))))
+            canvas = Image.new(mode='RGB',size=image.size ,color=(0, 0, 0))
+            num += 5
+        data = gif.compilegif(images, 10)
+        return data
