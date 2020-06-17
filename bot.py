@@ -114,6 +114,15 @@ async def on_message(message):
                 else: ava = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=512')
                 data = Painter.gif.rotate(ava)
                 await message.channel.send(file=discord.File(data, 'rotate.gif'))
+        if cmd(msg, 'changemymind') or cmd(msg, 'changedmymind'):
+            if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Error! You need a text...")
+            else:
+                async with message.channel.typing():
+                    try:
+                        data = Painter.urltoimage('https://nekobot.xyz/api/imagegen?type=changemymind&text='+myself.urlify(unprefixed)+'&raw=1')
+                        await message.channel.send(file=discord.File(data, 'changemymind.png'))
+                    except Exception as e:
+                        await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Oops! There was an error on generating your meme; `"+str(e)+"`")
         if cmd(msg, 'undertale'):
             if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Are you lost? Type `"+prefix+"undertale help` for more info.")
             else:
