@@ -27,18 +27,19 @@ class Config:
         name = 'Viero Fernando'
 prefix = Config.prefix
 
-def accept_message(authorid, authorbot, args, message): # ACCEPT THE SPECIFIC REQUIREMENTS
+def accept_message(authorid, authorbot, message): # ACCEPT THE SPECIFIC REQUIREMENTS
     yes = ''
     if authorid!=Config.id:
         yes += 'v'
     if not authorbot:
         yes += 'v'
-    if args.startswith(Config.prefix):
+    if message.startswith(Config.prefix):
         yes += 'v'
-    if len(args)>1:
+    if len(message)>1:
         yes += 'v'
     if '<@'+str(Config.id)+'>' not in message:
         yes += 'v'
+    print(yes)
     if yes=='vvvvv':
         return True
     else:

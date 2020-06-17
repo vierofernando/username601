@@ -62,7 +62,7 @@ async def on_message(message):
     if message.author.bot==False and msg.startswith('<@!'+str(Config.id)+'>'):
         await message.channel.send('The prefix is `'+prefix+'`.\n**Commands: **`'+prefix+'help`')
     if len(args)==1: no_args = True
-    if myself.accept_message(message.author.id, message.author.bot, args, msg):
+    if myself.accept_message(message.author.id, message.author.bot, msg):
         if cmd(msg, 'ping'):
             ping = str(round(client.latency*1000))
             if int(ping)<100:
