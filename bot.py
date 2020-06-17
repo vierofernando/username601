@@ -57,7 +57,8 @@ async def on_member_remove(member):
 
 @client.event
 async def on_message(message):
-    no_args, msg, args, unprefixed = False, message.content.lower(), message.content.split(' '), message.content[int(len(args[0])+1):]
+    no_args, msg, args = False, message.content.lower(), message.content.split(' ')
+    unprefixed = message.content[int(len(args[0])+1):]
     if message.author.bot==False and msg.startswith('<@!'+str(Config.id)+'>'):
         await message.channel.send('The prefix is `'+prefix+'`.\n**Commands: **`'+prefix+'help`')
     if len(args)==1: no_args = True
