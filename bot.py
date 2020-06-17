@@ -57,13 +57,12 @@ async def on_member_remove(member):
 
 @client.event
 async def on_message(message):
-    checkprefix, no_args = False, False
-    if message.author.bot==False and '<@!'+str(Config.id)+'>' in message.content or '<@'+str(Config.id)+'>' in message.content:
+    no_args, msg, args, unprefixed = False, message.content.lower(), message.content.split(' '), message.content[int(len(args[0])+1):]
+    if message.author.bot==False and msg.startswith('<@!'+str(Config.id)+'>'):
         await message.channel.send('The prefix is `'+prefix+'`.\n**Commands: **`'+prefix+'help`')
-        checkprefix = True
-    if message.author.bot==False:
-        if message.content==prefix+"ping":
-            wait = await message.channel.send('Pinging... :thinking:')
+    if len(args)==1: no_args = True
+    if myself.accept_message(message.author.id, message.author.bot, args, msg):
+        if cmd(msg, 'ping'):
             ping = str(round(client.latency*1000))
             if int(ping)<100:
                 embed = discord.Embed(title=f'Pong! {ping} ms.', colour=discord.Colour.red())
@@ -71,14 +70,7 @@ async def on_message(message):
                 embed = discord.Embed(title=f'Pong! {ping} ms.', description='Ping time may be slower due to;\n1. People kept spamming me\n2. My hosting system is slow\n3. I am in too many servers\n4. Discord\'s servers are currectly down\n5. I am snail :snail:', colour=discord.Colour.red())
             embed.set_thumbnail(url='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif')
             embed.set_footer(text='Ping and embed sent time may differ.')
-            await wait.edit(content='', embed=embed)
-    sayTag = src.getTag()
-    msg = message.content.lower()
-    args = message.content.split(' ')
-    unprefixed = message.content[int(len(args[0])+1):]
-    if len(args)==1: no_args = True
-    i_dont_know_what_this_means_but_i_am_declaring_it_anyway = 0
-    if msg.startswith(prefix) and message.author.bot==False and len(args[0])!=1:
+            await message.channel.send(embed=embed)
         if cmd(msg, 'say'):
             await message.channel.send(unprefixed)
         if cmd(msg, 'hack'):
@@ -184,20 +176,20 @@ async def on_message(message):
             for i in args:
                 if i.isnumeric():
                     correct += 'y'
-                    wh.append(i)
+                    wh.append(int(i))
             async with message.channel.typing():
                 if correct=='yy':
                     if len(message.mentions)<1:
                         ava = str(message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
                     else:
                         ava = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=512')
-                    if wh[0]>2000 or wh[1]>2000: await message.channel.send(client.get_emoji(BotEmotes.error) + " | Your image is too big!")
-                    elif wh[0]<300 or wh[1]<300: await message.channel.send(client.get_emoji(BotEmotes.error) + " | Your image is too small!")
+                    if wh[0]>2000 or wh[1]>2000: await message.channel.send(str(client.get_emoji(BotEmotes.error)) + " | Your image is too big!")
+                    elif wh[0]<300 or wh[1]<300: await message.channel.send(str(client.get_emoji(BotEmotes.error)) + " | Your image is too small!")
                     else:
                         data = Painter.resize(ava, wh[0], wh[1])
                         await message.channel.send(file=discord.File(data, 'resize.png'))
                 else:
-                    await message.channel.send(client.get_emoji(BotEmotes.error) + " | Where are the parameters?")
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) + " | Where are the parameters?")
         if cmd(msg, 'pokequiz'):
             wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... Generating quiz...')
             num = random.randint(1, 800)

@@ -27,6 +27,23 @@ class Config:
         name = 'Viero Fernando'
 prefix = Config.prefix
 
+def accept_message(authorid, authorbot, args, message): # ACCEPT THE SPECIFIC REQUIREMENTS
+    yes = ''
+    if authorid!=Config.id:
+        yes += 'v'
+    if not authorbot:
+        yes += 'v'
+    if args.startswith(Config.prefix):
+        yes += 'v'
+    if len(args)>1:
+        yes += 'v'
+    if '<@'+str(Config.id)+'>' not in message:
+        yes += 'v'
+    if yes=='vvvvv':
+        return True
+    else:
+        return False
+
 def limit(word):
     total = ''
     for i in range(0, len(word)):
