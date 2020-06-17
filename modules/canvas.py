@@ -114,3 +114,19 @@ def resize(url, x, y):
     pic = pic.resize((x, y), Image.ANTIALIAS)
     data = compile(pic)
     return data
+
+class gif:
+    def compilegif(images, duration):
+        arr = io.BytesIO()
+        images[0].save(arr, "GIF", save_all=True, append_images=images[1:], optimize=False, duration=duration, loop=0)
+        arr.seek(0)
+        return arr
+
+    def rotate(pic):
+        image = imagefromURL(pic)
+        images, num = [], 0
+        while num<360:
+            images.append(image.rotate(num))
+            num += 5
+        data = gif.compilegif(images, 5)
+        return data

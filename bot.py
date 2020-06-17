@@ -108,6 +108,12 @@ async def on_message(message):
                 embed = discord.Embed(title='UFO Sighting in '+str(ufo['city'])+', '+str(ufo['state']), description='**Summary:** '+str(ufo['summary'])+'\n\n**Shape:** '+str(ufo['shape'])+'\n**Sighting Date: **'+str(ufo['date'])[:-8].replace('T', ' ')+'\n**Duration: **'+str(ufo['duration'])+'\n\n[Article Source]('+str(ufo['url'])+')', colour=discord.Colour.green())
                 embed.set_footer(text='Username601 raided Area 51 and found this!')
                 await message.channel.send(embed=embed)
+        if cmd(msg, 'rotate'):
+            async with message.channel.typing():
+                if len(message.mentions)==0: ava = str(message.author.avatar_url).replace('.webp?size=1024', '.jpg')
+                else: ava = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg')
+                data = Painter.gif.rotate(ava)
+                await message.channel.send(file=discord.File(data, 'rotate.gif'))
         if cmd(msg, 'stonks') or cmd(msg, 'pabloescobar') or cmd(msg, 'immaheadout') or cmd(msg, 'homer') or cmd(msg, 'monkeypuppet') or cmd(msg, 'tom') or cmd(msg, 'surprisedpikachu') or cmd(msg, 'meandtheboys'):
             if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Where is the meme's context?")
             else:
@@ -2733,5 +2739,6 @@ async def on_message(message):
                     else:
                         embed = discord.Embed(title='Words that rhymes with '+msg[int(len(args[0])+1):]+':', description=words, colour=discord.Colour.blue())
                         await wait.edit(content='', embed=embed)
+
 print('Logging in to discord...')
 client.run(fetchdata['DISCORD_TOKEN'])
