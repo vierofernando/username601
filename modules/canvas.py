@@ -1,6 +1,7 @@
 from PIL import Image, ImageFont, ImageDraw  
 import io
 import requests
+import random
 
 # BIGGIE FONTS, CODE STYLED LIKE MY PYGAME GAME LMAO
 class Fonts:
@@ -124,6 +125,7 @@ class gif:
 
     def rotate(pic):
         image = imagefromURL(pic)
+        image = image.resize((216, 216), Image.ANTIALIAS)
         images, num = [], 0
         while num<360:
             images.append(image.rotate(num))
@@ -132,10 +134,11 @@ class gif:
         return data
     
     def triggered(pic, increment):
-        image = imagefromurl(pic)
-        red = Image.open('/apps/assets/pics/red.jpg')
+        image = imagefromURL(pic)
+        image = image.resize((216, 216), Image.ANTIALIAS)
+        red = Image.open('/app/assets/pics/red.jpg')
         image = Image.blend(image, red, alpha=0.25)
-        text = Image.open('/apps/assets/pics/triggered.jpg')
+        text = Image.open('/app/assets/pics/triggered.jpg')
 
         canvas = Image.new(mode='RGB',size=image.size ,color=(0, 0, 0))
         images, num = [], 0
@@ -147,3 +150,5 @@ class gif:
             num += 5
         data = gif.compilegif(images, 10)
         return data
+    
+    def c(pic, increment):
