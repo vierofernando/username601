@@ -142,7 +142,7 @@ class gif:
         while num<100:
             canvas.paste(image, (random.randint(-increment, increment), random.randint(-increment, increment)))
             images.append(canvas)
-            canvas.paste(text, (random.randint(-increment, increment), 418+(random.randint(-increment, increment))))
+            canvas.paste(text, (random.randint(-increment, increment), (216-39)+(random.randint(-increment, increment))))
             canvas = Image.new(mode='RGB',size=image.size ,color=(0, 0, 0))
             num += 5
         data = gif.compilegif(images, 10)

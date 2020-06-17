@@ -110,8 +110,8 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
         if cmd(msg, 'rotate'):
             async with message.channel.typing():
-                if len(message.mentions)==0: ava = str(message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
-                else: ava = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=512')
+                if len(message.mentions)==0: ava = str(message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=216')
+                else: ava = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=216')
                 data = Painter.gif.rotate(ava)
                 await message.channel.send(file=discord.File(data, 'rotate.gif'))
         if cmd(msg, 'triggered'):
@@ -129,8 +129,8 @@ async def on_message(message):
                     accept = False
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) + " | Increment to big!")
             if accept:
-                if len(message.mentions)==0: ava = str(message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
-                else: ava = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=512')
+                if len(message.mentions)==0: ava = str(message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=216')
+                else: ava = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=216')
                 async with message.channel.typing():
                     data = Painter.gif.triggered(ava, increment)
                     await message.channel.send(file=discord.File(data, 'triggered.gif'))
