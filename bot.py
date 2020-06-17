@@ -160,7 +160,7 @@ async def on_message(message):
                     await message.channel.send(embed=embed)
                 except Exception as e:
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) + f' | An error occurd. For programmers: ```{e}```')
-        if args[0]==prefix+'wanted' or args[0]==prefix+'sacred' or args[0]==prefix+'coffindance' or args[0]==prefix+'ferbtv' or args[0]==prefix+'chatroulette':
+        if args[0]==prefix+'wanted' or args[0]==prefix+'window' or args[0]==prefix+'frame' or args[0]==prefix+'art' or args[0]==prefix+'sacred' or args[0]==prefix+'coffindance' or args[0]==prefix+'ferbtv' or args[0]==prefix+'chatroulette':
             async with message.channel.typing():
                 if len(message.mentions)<1:
                     ava = str(message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
@@ -171,7 +171,12 @@ async def on_message(message):
                 elif 'chatroulette' in args[0]: num1, num2, num3, num4 = 324, 243, 14, 345
                 elif 'sacred' in args[0]: num1, num2, num3, num4 = 454, 498, 1210, 986
                 elif 'coffindance' in args[0]: num1, num2, num3, num4 = 220, 228, 421, 58
-                image = Painter.putimage(ava, args[0][1:], num1, num2, num3, num4)
+                elif 'window' in args[0]: num1, num2, num3, num4, ava = 1025, 715, 137, 141, str(ava).replace("=512", "=1024")
+                elif 'frame' in args[0]: num1, num2, num3, num4 = 219, 199, 4, 21
+                if 'art' not in args[0]:
+                    image = Painter.putimage(ava, args[0][1:], num1, num2, num3, num4)
+                else:
+                    image = Painter.art(ava, '../assets/pics/art.jpg')
                 await message.channel.send(file=discord.File(image, args[0][1:]+'.png'))
         if cmd(msg, 'pokequiz'):
             wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... Generating quiz...')

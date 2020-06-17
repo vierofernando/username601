@@ -98,3 +98,13 @@ def putimage(url, name, resx, resy, posx, posy):
     image.paste(pic, (posx, posy))
     data = compile(image)
     return data
+
+def art(ava, link):
+    image = Image.open(r'{}'.format(link))
+    pic = imagefromURL(ava)
+    firpic = pic.resize((152, 174), Image.ANTIALIAS)
+    image.paste(firpic, (435, 39))
+    secpic = pic.resize((450, 174), Image.ANTIALIAS)
+    image.paste(secpic, (440, 381))
+    data = compile(image)
+    return data
