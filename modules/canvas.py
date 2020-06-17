@@ -99,8 +99,8 @@ def putimage(url, name, resx, resy, posx, posy):
     data = compile(image)
     return data
 
-def art(ava, link):
-    image = Image.open(r'{}'.format(link))
+def art(ava):
+    image = Image.open(r'/app/assets/pics/art.jpg')
     pic = imagefromURL(ava)
     firpic = pic.resize((152, 174), Image.ANTIALIAS)
     image.paste(firpic, (435, 39))
