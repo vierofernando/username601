@@ -1642,7 +1642,7 @@ async def on_message(message):
             embed = discord.Embed(
                 title = 'Did you know;',
                 description = data["fact"],
-                color = 0x333333
+                color = discord.Colour.from_rgb(123, 63, 0)
             )
             await catWait.edit(content='', embed=embed)
         if cmd(msg, 'trash'):
@@ -1722,7 +1722,7 @@ async def on_message(message):
                 embed = discord.Embed(
                     title = 'List of Ghibli Films',
                     description = str(films),
-                    color = 0x00ff00
+                    color = discord.Colour.from_rgb(123, 63, 0)
                 )
                 embed.set_footer(text='Type `'+str(prefix)+'ghiblifilms <number>` to get each movie info.')
                 await wait.edit(content='', embed=embed)
@@ -1731,7 +1731,7 @@ async def on_message(message):
                 embed = discord.Embed(
                     title = data[num]['title'] + ' ('+str(data[num]['release_date'])+')',
                     description = '**Rotten Tomatoes Rating: '+str(data[num]['rt_score'])+'%**\n'+data[num]['description'],
-                    color = 0x00ff00
+                    color = discord.Colour.from_rgb(123, 63, 0)
                 )
                 embed.add_field(name='Directed by', value=data[num]['director'], inline='True')
                 embed.add_field(name='Produced by', value=data[num]['producer'], inline='True')
@@ -2232,7 +2232,7 @@ async def on_message(message):
             embed = discord.Embed(
                 title = c[0]['nativeName'],
                 description = '**Capital:** '+str(c[0]['capital'])+'\n**Region: **'+str(c[0]['region'])+'\n**Sub Region: **'+str(c[0]['subregion'])+"\n**Population: **"+str(c[0]['population'])+"\n**Area: **"+str(c[0]['area'])+' km²\n**Time Zones:** '+str(myself.dearray(c[0]['timezones']))+'\n**Borders: **'+str(borderz),
-                colour = 0xffffff
+                colour = discord.Colour.from_rgb(123, 63, 0)
             )
             embed.set_author(name=c[0]['name'])
             await message.channel.send(embed=embed)
@@ -2302,7 +2302,7 @@ async def on_message(message):
                 embed = discord.Embed(
                     title = 'About this seemingly normal bot.',
                     description = random.choice(messageRandom),
-                    colour = 0xff0000
+                    colour = discord.Colour.from_rgb(123, 63, 0)
                 )
                 embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Programmed in: **Discord.py (Python)\n**Created in: **6 April 2020.\n**Successor of: **somebot56.\n**Default prefix: ** 1', inline='True')
                 embed.add_field(name='Programmer info', value='**Programmed by: **'+Config.owner.name+'. ('+client.get_user(Config.owner.id).name+'#'+str(client.get_user(Config.owner.id).discriminator)+') \n**Best languages: **~~HTML, CSS,~~ VB .NET, JavaScript, Python\n**Current Discord Status:** '+devstatus+'\n**Social links:**\n[Discord Server]('+str(Config.SupportServer.invite)+')\n[GitHub](http://github.com/vierofernando)\n[Top.gg](https://top.gg/user/'+str(Config.owner.id)+')\n[SoloLearn](https://www.sololearn.com/Profile/17267145)\n[Brainly (Indonesia)](http://bit.ly/vierofernandobrainly)\n[Geometry Dash](https://gdbrowser.com/profile/knowncreator56)', inline='True')
@@ -2464,7 +2464,7 @@ async def on_message(message):
             ]
             total = ''
             for i in range(0, len(searches)): total += str(i+1) + '. **' + searches[i] + ')**\n'
-            embed = discord.Embed(title = 'Internet Searches for '+str(unprefixed), description=total, color = 0xff0000)
+            embed = discord.Embed(title = 'Internet Searches for '+str(unprefixed), description=total, color = discord.Colour.from_rgb(123, 63, 0))
             await message.channel.send(embed=embed)
         if cmd(msg, 'emojify'):
             emojified = []
@@ -2538,7 +2538,7 @@ async def on_message(message):
                 await message.channel.send(file=discord.File(Painter.urltoimage(img), 'inspirobot.png'))
         if cmd(msg, 'meme'):
             data = myself.api("https://meme-api.herokuapp.com/gimme")
-            embed = discord.Embed(colour = 0x00ff00)
+            embed = discord.Embed(colour = discord.Colour.from_rgb(123, 63, 0))
             embed.set_author(name=data["title"], url=data["postLink"])
             if data["nsfw"]:
                 embed.set_footer(text='WARNING: IMAGE IS NSFW.')
