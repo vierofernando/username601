@@ -2211,7 +2211,7 @@ async def on_message(message):
                 embed.set_image(url='https://api.alexflipnote.dev/colour/image/gradient/'+str(hexCode))
                 await message.channel.send(embed=embed)
         if cmd(msg, 'call'):
-            if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | Where are the arguments?!'))
+            if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | Where are the arguments?!')
             else:
                 async with message.channel.typing():
                     call = myself.urlify(unprefixed)
