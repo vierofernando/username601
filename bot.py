@@ -1771,7 +1771,7 @@ async def on_message(message):
                     colour=discord.Colour.from_rgb(123, 63, 0)
                 )
                 await message.channel.send(embed=embed)
-        if cmd(msg, 'server'):
+        if cmd(msg, 'serverinfo') or cmd(msg, 'servercard'):
             humans, bots, online = 0, 0, 0
             for i in message.guild.members:
                 if i.status != 'offline': online += 1
@@ -2037,7 +2037,7 @@ async def on_message(message):
                         botmembers += ':small_red_triangle: ' + message.guild.members[i].name + '\n'
             embed = discord.Embed(
                 title = 'Bot members of '+message.guild.name+':',
-                description = '**Online: '+str(on)+' ('+str(on/(off+on)*100)+'%)\nOffline: '+str(off)+' ('+str(off/(off+on)*100)+')**\n\n'+str(botmembers),
+                description = '**Online: '+str(on)+' ('+str(round(on/(off+on)*100))+'%)\nOffline: '+str(off)+' ('+str(round(off/(off+on)*100))+'%)**\n\n'+str(botmembers),
                 colour = discord.Colour.from_rgb(123, 63, 0)
             )
             embed.set_footer(text=warning)
