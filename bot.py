@@ -1980,14 +1980,14 @@ async def on_message(message):
             else:
                 async with message.channel.typing():
                     url='http://nekobot.xyz/api/imagegen?type=whowouldwin&raw=1&user1='+str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')+'&user2='+str(message.mentions[1].avatar_url).replace('.webp?size=1024', '.png')
-                    await message.channel.send(discord.File(Painter.urltoimage(url), 'whowouldwin.png'))
+                    await message.channel.send(file=discord.File(Painter.urltoimage(url), 'whowouldwin.png'))
         if cmd(msg, 'trap'):
             if no_args or len(message.mentions)==0:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | Wrong.\nPlease try the correct like following:\n`{prefix}trap [tag]`')
             else:
                 async with message.channel.typing():
                     url='http://nekobot.xyz/api/imagegen?type=trap&name='+myself.urlify(str(message.mentions[0].name))+'&author='+myself.urlify(str(message.author.name))+'&image='+str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')+'&raw=1'
-                    await message.channel.send(discord.File(Painter.urltoimage(url), 'trap.png'))
+                    await message.channel.send(file=discord.File(Painter.urltoimage(url), 'trap.png'))
         if cmd(msg, 'roles'):
             acceptId = 0
             if acceptId==0:
@@ -2068,7 +2068,7 @@ async def on_message(message):
             else:
                 async with message.channel.typing():
                     url='https://api.alexflipnote.dev/facts?text='+myself.urlify(unprefixed)
-                    await message.channel.send(discord.File(Painter.urltoimage(url), 'facts.png'))
+                    await message.channel.send(file=discord.File(Painter.urltoimage(url), 'facts.png'))
         if cmd(msg, "gdprofile"):
             url = myself.urlify(unprefixed)
             data = myself.api("https://gdbrowser.com/api/profile/"+url)
@@ -2216,14 +2216,14 @@ async def on_message(message):
                 async with message.channel.typing():
                     call = myself.urlify(unprefixed)
                     url='https://api.alexflipnote.dev/calling?text='+str(call)
-                    await message.channel.send(discord.File(Painter.urltoimage(url), 'call.png'))
+                    await message.channel.send(file=discord.File(Painter.urltoimage(url), 'call.png'))
         if cmd(msg, 'achieve'):
             if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | Where are the arguments?!')
             else:
                 async with message.channel.typing():
                     txt = myself.urlify(unprefixed)
                     url='https://api.alexflipnote.dev/achievement?text='+str(txt)
-                    await message.channel.send(discord.File(Painter.urltoimage(url), 'achievement.png'))
+                    await message.channel.send(file=discord.File(Painter.urltoimage(url), 'achievement.png'))
         if cmd(msg, "country"):
             country = myself.urlify(unprefixed)
             c = myself.api("https://restcountries.eu/rest/v2/name/"+str(country.lower()))
