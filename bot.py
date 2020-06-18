@@ -1984,7 +1984,7 @@ async def on_message(message):
         if cmd(msg, 'trap'):
             if no_args or len(message.mentions)==0:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | Wrong.\nPlease try the correct like following:\n`{prefix}trap [tag]`')
-            else
+            else:
                 async with message.channel.typing():
                     url='http://nekobot.xyz/api/imagegen?type=trap&name='+myself.urlify(str(message.mentions[0].name))+'&author='+myself.urlify(str(message.author.name))+'&image='+str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')+'&raw=1'
                     await message.channel.send(discord.File(Painter.urltoimage(url), 'trap.png'))
