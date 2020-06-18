@@ -363,8 +363,6 @@ async def on_message(message):
             playing_with = message.author
             playing_with_id = int(message.author.id)
             while gameplay==True:
-                print(''.join(main_guess_cor))
-                print(''.join(main_guess_hid))
                 if message.content==prefix+'hangman' and message.author.id!=int(playing_with_id) and message.guild.id==server_id:
                     await message.channel.send('<@'+str(message.author.id)+'>, cannot play hangman when a game is currently playing!')
                 newembed = discord.Embed(title=''.join(main_guess_hid), description='Wrong guesses: '+str(wrong_guesses), colour=discord.Colour.from_rgb(123, 63, 0))
@@ -467,7 +465,6 @@ async def on_message(message):
                             bot_select = ''
                             while bot_select=='' and len(can_used)>1:
                                 bot_select = random.choice(can_used)
-                            print('I SELECT: '+bot_select)
                             for i in range(0, len(can_used)):
                                 if can_used[i]==bot_select:
                                     for j in range(0, len(box_nums)):
@@ -1813,7 +1810,6 @@ async def on_message(message):
                     else: url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&days=1-second'
                     await message.channel.send(file=discord.File(Painter.urltoimage(url), 'gdcomment.png'))
                 except Exception as e:
-                    print('https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&days=1-second')
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | Invalid!\nThe flow is this: `{prefix}gdcomment text | name | like count`\nExample: `{prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
         if cmd(msg, 'gdbox'):
             if no_args: await message.channel.send('Please input a text!')
