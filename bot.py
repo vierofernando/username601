@@ -621,20 +621,16 @@ async def on_message(message):
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid parameters.')
         if cmd(msg, 'ban'):
             begin = True
-            if no_args:
+            if no_args or len(message.mentions)==0:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Please mention someone!')
                 begin = False
             else:
-                perms = message.author.guild_permissions.ban_members
-                if perms==False:
+                if not message.author.guild_permissions.ban_members:
                     begin = False
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) + f' | <@{str(message.author.id)}>, you don\'t have the `Ban Members` permission! :rage:')
                 else:
                     try:
-                        if args[1].startswith('<@!'):
-                            criminal = message.guild.get_member(int(args[1][3:][:-1]))
-                        else:
-                            criminal = message.guild.get_member(int(args[1][2:][:-1]))
+                        criminal = message.mentions[0]
                         if criminal.id==message.author.id:
                             await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | What a weirdo. Banning yourself.')
                             begin = False
@@ -832,7 +828,7 @@ async def on_message(message):
                 await message.channel.send('This command somehow doesn\'t work in discord.py.\nTry discord.js instead.')
         if args[0]==prefix+'s':
             await message.delete()
-            member = message.guild.get_member(int(message.author.id))
+            member = message.author
             if message.author.guild_permissions.manage_guild==True or int(message.author.id)==Config.owner.id:
                 accept = True
             else:
@@ -964,18 +960,15 @@ async def on_message(message):
                 else:
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | error. (not 404)')
         if cmd(msg, 'kick'):
-            if no_args:
+            if no_args or len(message.mentions)==0:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Please mention someone!!1!11')
             else:
-                if args[1].startswith('<@!'):
-                    idiot = message.guild.get_member(int(args[1][3:][:-1]))
-                else:
-                    idiot = message.guild.get_member(int(args[1][2:][:-1]))
-                misterKicker = message.guild.get_member(int(message.author.id))
+                idiot = message.mentions[0]
+                misterKicker = message.author
                 if misterKicker.guild_permissions.kick_members==False:
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | You cannot kick '+str(idiot.name)+', because you don\'t even have the `Kick Members` permission!')
                     acceptId = 1
-                elif idiot.guild_permissions.administrator==True or idiot.guild_permissions.manage_guild==True:
+                elif idiot.guild_permissions.administrator or idiot.guild_permissions.manage_guild:
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | **You want me to kick an mod/admin?!**\nCome on, you gotta be kidding me.')
                     acceptId = 1
                 elif idiot.id==message.author.id:
@@ -1020,7 +1013,7 @@ async def on_message(message):
                             await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | You need the `Manage Nicknames` permissions to do this command.')
                             acceptId = 1
                 else:
-                    changethem = message.guild.get_member(int(message.author.id))
+                    changethem = message.author
                     if changethem.guild_permissions.change_nickname==False:
                         acceptId = 1
                         await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | You need the `Change Nickname` permission to change your, nickname, DUH')
@@ -2297,7 +2290,7 @@ async def on_message(message):
                 else: devstatus = 'Online'
                 embed = discord.Embed(title = 'About '+str(message.guild.get_member(Config.id).display_name), description = random.choice(messageRandom), colour = discord.Colour.from_rgb(123, 63, 0))
                 embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Library: **Discord.py\n**Default prefix: ** 1', inline='True')
-                embed.add_field(name='Programmer info', value='**Programmed by: **'+Config.owner.name+'. ('+client.get_user(Config.owner.id).name+'#'+str(client.get_user(Config.owner.id).discriminator)+')\n**Current Discord Status:** '+devstatus+'y)', inline='True')
+                embed.add_field(name='Programmer info', value='**Programmed by: **'+Config.owner.name+'. ('+client.get_user(Config.owner.id).name+'#'+str(client.get_user(Config.owner.id).discriminator)+')\n**Current Discord Status:** '+devstatus, inline='True')
                 embed.add_field(name='Version Info', value='**Bot version: ** '+Config.Version.number+'\n**Changelog: **'+Config.Version.changelog)#+'\n'+str(osinfo))
                 embed.add_field(name='Links', value='[Invite this bot to your server!](http://vierofernando.github.io/programs/username601)\n[The support server!]('+str(Config.SupportServer.invite)+')\n[Vote us on top.gg](https://top.gg/bot/'+str(Config.id)+'/vote)\n[Official Website](https://vierofernando.github.io/username601)', inline='False')
                 embed.set_thumbnail(url='https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/pfp.png')
