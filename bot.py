@@ -1481,10 +1481,16 @@ async def on_message(message):
                     colour = guy.colour
                 )
                 joinServer = guy.joined_at
-                embed.add_field(name='General info.', value='**'+thing+' name: **'+str(user.name)+'\n**'+thing+' ID: **'+str(user.id)+'\n**Discriminator: **'+str(user.discriminator)+'\n**'+thing+' creation: **'+str(user.created_at)[:-7]+'\n**Status:** '+str(status)+'\n**Current activity: **'+str(message.guild.get_member(user.id).activity), inline='True')
+                embed.add_field(name='General info.', value='**'+thing+' name: **'+str(user.name)+'\n**'+thing+' ID: **'+str(user.id)+'\n**Discriminator: **'+str(user.discriminator)+'\n**'+thing+' creation: **'+str(user.created_at)[:-7]+'\n**Status:** '+str(status)+'\n**Current activity: **'+str(message.guild.get_member(user.id).activity.name), inline='True')
                 embed.add_field(name='Server specific', value='**'+thing+' nickname: **'+str(guy.display_name)+'\n**'+thing+' roles: **'+str(userrole)+'\nThis user owns '+str(percentage)+'% of all roles in this server.\n**Joined this server at: **'+str(joinServer)[:-7])
                 embed.set_thumbnail(url=user.avatar_url)
                 await message.channel.send(embed=embed)
+        if cmd(msg, 'communist'):
+            async with message.channel.typing():
+                if len(message.mentions)==0: comrade = str(message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
+                else: comrade = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=512')
+                data = Painter.gif.communist(comrade)
+                await message.channel.send(file=discord.File(data, 'cyka_blyat.gif'))
         if cmd(msg, 'wikipedia'):
             wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
             if no_args:

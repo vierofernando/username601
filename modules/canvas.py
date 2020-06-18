@@ -150,6 +150,28 @@ class gif:
             num += 5
         data = gif.compilegif(images, 10)
         return data
+        
+    def communist(comrade):
+        flag = Image.open('/app/assets/pics/blyat.jpg')
+        user = imagefromurl(url)
+        images = []
+        user = user.resize((216, 216))
+        opacity = float(0)
+        while int(opacity)!=1:
+            print(opacity)
+            newimage = Image.blend(user, flag, opacity)
+            images.append(newimage)
+            opacito += 0.05
+        extras = 0
+
+        while extras<100:
+            image = flag
+            drawtext(ImageDraw.Draw(image),'Whitney-Medium', 'COMMUNIST', 30, 216/2-86, 10, 'white')
+            drawtext(ImageDraw.Draw(image),'Whitney-Medium', 'CONFIRMED', 30, 216/2-84, 170, 'white')
+            images.append(image)
+            extras += 1
+        gif = gif.compilegif(images)
+        return gif
     
 def urltoimage(url):
     image = imagefromURL(url)
