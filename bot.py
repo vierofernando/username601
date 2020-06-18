@@ -2022,20 +2022,22 @@ async def on_message(message):
             embed.add_field(name='Level Rewards', value=str(data["stars"])+" :star:\n"+str(data["orbs"])+" orbs\n"+str(data["diamonds"])+" :gem:")
             await toEdit.edit(content='', embed=embed)
         if cmd(msg, 'botmembers'):
-            botmembers = ""
+            botmembers, off, on = "", 0, 0
             warning = 'Down triangles means that the bot is down. And up triangles mean the bot is well... up.'
             for i in range(0, int(len(message.guild.members))):
-                if len(botmembers)>2048:
+                if len(botmembers)>1900:
                     warning = str(client.get_emoji(BotEmotes.error)) + ' | Error: Too many bots, some bot are not listed above.'
                     break
                 if message.guild.members[i].bot==True:
                     if str(message.guild.members[i].status)=='offline':
+                        off += 1
                         botmembers += ':small_red_triangle_down: '+ message.guild.members[i].name + '\n'
                     else:
+                        on += 1
                         botmembers += ':small_red_triangle: ' + message.guild.members[i].name + '\n'
             embed = discord.Embed(
                 title = 'Bot members of '+message.guild.name+':',
-                description = str(botmembers),
+                description = '**Online: '+str(on)+' ('+str(on/(off+on)*100)+'%)\nOffline: '+str(off)+' ('+str(off/(off+on)*100)+')**\n\n'+str(botmembers),
                 colour = discord.Colour.from_rgb(123, 63, 0)
             )
             embed.set_footer(text=warning)
@@ -2291,19 +2293,13 @@ async def on_message(message):
             if message.guild.id!=264445053596991498:
                 messageRandom = src.getAbout()
                 # osinfo = myself.platform()
-                if str(client.get_guild(Config.SupportServer.id).get_member(Config.owner.id).status)=='offline':
-                    devstatus = 'Offline'
-                else:
-                    devstatus = 'Online'
-                embed = discord.Embed(
-                    title = 'About this seemingly normal bot.',
-                    description = random.choice(messageRandom),
-                    colour = discord.Colour.from_rgb(123, 63, 0)
-                )
-                embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Programmed in: **Discord.py (Python)\n**Created in: **6 April 2020.\n**Successor of: **somebot56.\n**Default prefix: ** 1', inline='True')
-                embed.add_field(name='Programmer info', value='**Programmed by: **'+Config.owner.name+'. ('+client.get_user(Config.owner.id).name+'#'+str(client.get_user(Config.owner.id).discriminator)+') \n**Best languages: **~~HTML, CSS,~~ VB .NET, JavaScript, Python\n**Current Discord Status:** '+devstatus+'\n**Social links:**\n[Discord Server]('+str(Config.SupportServer.invite)+')\n[GitHub](http://github.com/vierofernando)\n[Top.gg](https://top.gg/user/'+str(Config.owner.id)+')\n[SoloLearn](https://www.sololearn.com/Profile/17267145)\n[Brainly (Indonesia)](http://bit.ly/vierofernandobrainly)\n[Geometry Dash](https://gdbrowser.com/profile/knowncreator56)', inline='True')
-                embed.add_field(name='Version Info', value='**Bot version: ** '+Config.Version.number+'\n**Changelog: **'+Config.Version.changelog+'\n\n**Discord.py version: **'+str(discord.__version__)+'\n**Python version: **'+str(sys.version).split(' (default')[0])#+'\n'+str(osinfo))
-                embed.add_field(name='Links', value='[Invite this bot to your server!](http://vierofernando.github.io/programs/username601) | [Source code](http://github.com/vierofernando/username601) | [The support server!]('+str(Config.SupportServer.invite)+') | [Vote us on top.gg](https://top.gg/bot/'+str(Config.id)+'/vote) | [Official Website](https://vierofernando.github.io/username601)', inline='False')
+                if str(client.get_guild(Config.SupportServer.id).get_member(Config.owner.id).status)=='offline': devstatus = 'Offline'
+                else: devstatus = 'Online'
+                embed = discord.Embed(title = 'About '+str(message.guild.get_member(Config.id).display_name), description = random.choice(messageRandom), colour = discord.Colour.from_rgb(123, 63, 0))
+                embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Library: **Discord.py\n**Default prefix: ** 1', inline='True')
+                embed.add_field(name='Programmer info', value='**Programmed by: **'+Config.owner.name+'. ('+client.get_user(Config.owner.id).name+'#'+str(client.get_user(Config.owner.id).discriminator)+')\n**Current Discord Status:** '+devstatus+'y)', inline='True')
+                embed.add_field(name='Version Info', value='**Bot version: ** '+Config.Version.number+'\n**Changelog: **'+Config.Version.changelog)#+'\n'+str(osinfo))
+                embed.add_field(name='Links', value='[Invite this bot to your server!](http://vierofernando.github.io/programs/username601)\n[The support server!]('+str(Config.SupportServer.invite)+')\n[Vote us on top.gg](https://top.gg/bot/'+str(Config.id)+'/vote)\n[Official Website](https://vierofernando.github.io/username601)', inline='False')
                 embed.set_thumbnail(url='https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/pfp.png')
                 embed.set_footer(text='© Viero Fernando Programming, 2018-2020. All rights reserved.')
                 await message.channel.send(embed=embed)
