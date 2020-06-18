@@ -1172,7 +1172,7 @@ async def on_message(message):
                 data = Painter.urltoimage(img)
                 await message.channel.send(file=discord.File(data, 'furry.png'))
         if cmd(msg, 'newemote'):
-            data = myself.api('https://discordemoji.com/')
+            data = myself.insp('https://discordemoji.com/')
             byEmote = data.split('<div class="float-right"><a href="')
             del byEmote[0]
             alls = []
@@ -2430,7 +2430,7 @@ async def on_message(message):
                 await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Slap who? Tag someone!")
             else:
                 await message.channel.send(src.slap('msg')+', '+message.mentions[0].name+'!\n'+src.slap('gif'))
-        if cmd(msg, 'fact-core') or cmd(msg, 'fact') or cmd(msg, 'factcore') or cmd(msg, 'fact-sphere') or cmd(msg, 'factsphere'):
+        if cmd(msg, 'fact-core') or cmd(msg, 'factcore') or cmd(msg, 'fact-sphere') or cmd(msg, 'factsphere'):
             data = myself.jsonisp('https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fact-core.json')
             embed = discord.Embed(title='Fact Core', description=random.choice(data), colour=discord.Colour.from_rgb(123, 63, 0))
             embed.set_thumbnail(url='https://i1.theportalwiki.net/img/thumb/5/55/FactCore.png/300px-FactCore.png')
