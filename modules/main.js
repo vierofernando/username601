@@ -58,4 +58,9 @@ function loadMySanity() {
         var randomTitle = out[Math.floor(Math.random() * out.length)];
         window.document.title = randomTitle;
     });
+    while (true) {
+        if (document.getElementById('thebotsname').value!='Username601') {
+            alert("DO NOT CHANGE MY NAME!");
+        }
+    }
 }
