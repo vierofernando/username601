@@ -148,12 +148,12 @@ class gif:
             canvas.paste(text, (random.randint(-increment, increment), (216-39)+(random.randint(-increment, increment))))
             canvas = Image.new(mode='RGB',size=image.size ,color=(0, 0, 0))
             num += 5
-        data = gif.compilegif(images, 10)
+        data = gif.compilegif(images, 3)
         return data
         
     def communist(comrade):
         flag = Image.open('/app/assets/pics/blyat.jpg')
-        user = imagefromurl(url)
+        user = imagefromURL(comrade)
         images = []
         user = user.resize((216, 216))
         opacity = float(0)
@@ -161,7 +161,7 @@ class gif:
             print(opacity)
             newimage = Image.blend(user, flag, opacity)
             images.append(newimage)
-            opacito += 0.05
+            opacity += 0.05
         extras = 0
 
         while extras<100:
@@ -170,8 +170,8 @@ class gif:
             drawtext(ImageDraw.Draw(image),'Whitney-Medium', 'CONFIRMED', 30, 216/2-84, 170, 'white')
             images.append(image)
             extras += 1
-        gif = gif.compilegif(images)
-        return gif
+        data = gif.compilegif(images, 5)
+        return data
     
 def urltoimage(url):
     image = imagefromURL(url)

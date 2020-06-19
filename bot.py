@@ -1241,36 +1241,9 @@ async def on_message(message):
             embed = discord.Embed(title=doodle_name, description=doodle_link, colour=discord.Colour.from_rgb(123, 63, 0))
             embed.set_image(url=doodle_img)
             await wait.edit(content='', embed=embed)
-        if cmd(msg, 'createbot'):
-            if no_args:
-                tutorials = f'{prefix}createbot --started `Getting started, preparing stuff.`\n{prefix}createbot --say `Say command help.`\n{prefix}createbot --ping `Ping command help. (Client latency).`\n{prefix}createbot --coin `Flip coin game`\n{prefix}createbot --embed `Creating embeds`\n{prefix}createbot --avatar `Avatar commands help.`'
-                embed = discord.Embed(title='Createbot; the discord.py bot tutorial', description=f'This is a tutorial on how to create a discord bot.\nEvery thing other than `--started` needs to have the same module or string.\nEach are args on different categories.\n\n{tutorials}', colour=discord.Colour.from_rgb(123, 63, 0))
-                await message.channel.send(embed=embed)
-            elif args[1]=='--avatar':
-                await message.channel.send('```py\nif msg.startswith(\f\'{prefix}avatar\'):\n\tembed = discord.Embed(colour=discord.Colour.from_rgb(123, 63, 0))\n\tembed.set_image(url=message.guild.get_member(int(msg.split()[1][2:][:-1])).avatar_url)\n\tawait message.channel.send(embed=embed)```')
-            elif args[1]=='--embed':
-                await message.channel.send('Embed example: ```py\nif message.channel.send(f\'{prefix}embedthing\'):\n\tembed = discord.Embed(\n\t\ttitle = \'My embed title\',\n\t\tdescription = \'The embed description and stuff. Lorem ipsum asdf\',\n\t\tcolour = discord.Colour.from_rgb(123, 63, 0)\n\tembed.add_field(name=\'Field name\', value=\'embed field value is here\', inline=\'True\')\n\tembed.set_footer(text=\'this is a footer\')\n\tawait message.channel.send(embed=embed)```')
-            elif args[1]=='--coin':
-                await message.channel.send('Requires: `Random module`\nType the following at the first line of your code;```py\nimport random```Then type the if statement:```py\nif msg.startswith(f\'{prefix}coinflip\'):\n\tawait message.channel.send(random.choice([\'HEADS!\', \'TAILS!\']))```')
-            elif args[1]=='--ping':
-                await message.channel.send('```py\nif msg.startswith(f\'{prefix}ping\'):\n\tawait message.channel.send(\'**Pong!**\\n\'+str(round(client.latency*1000))+\' ms.\')```')
-            elif args[1]=='--say':
-                await message.channel.send('```py\nif msg.startswith(f\'{prefix}say\'):\n\tawait message.channel.send(msg[int(len(msg.split()[0])+1):])```')
-            elif args[1]=='--started':
-                embed = discord.Embed(
-                    title='How to create a discord BOT with Discord.py',
-                    description='This is how you make a BOT using Discord.py\nAccording to the dev! ;)',
-                    colour = discord.Colour.from_rgb(123, 63, 0)
-                )
-                code = 'import discord\ntoken = \'YOUR TOKEN\'\nclient = discord.Client()\n@client.event\nasync def on_ready():\n\tprint(\'Bot is ready!\')\n@client.event\nasync def on_message(message):\n\tmsg = message.content.lower()\n\tprefix = \'your prefix\'\n\tif cmd(msg, \'command thing\'):\n\t\tawait message.channel.send(\'Message your bot responds with\')\nclient.run(token)'
-                embed.add_field(name='A. Preparing stuff', value='1. Install python through http://python.org/downloads \n2. Learn Python programming language first\n3. Open your console, and type \'pip install discord.py\'\n4.Have some text editor (notepad++/VScode/Sublime Text)', inline='False')
-                embed.add_field(name='B. Bot Setup', value='1. Go to http://discordapp.com/developers \n2. Click on \'New Application.\'\n3. Type your bot name and click \'Create\'.\n4. Click on \'bot\' tab, and Click \'Add bot.\'\n5. Click \'Yes, do it!\'\n6. If your name is not approved, please change the bot name in the \'General Information Tab.\' Else, congrats!', inline='False')
-                embed.add_field(name='C. Invite the bot to your server', value='1. On the \'Oauth2\' Tab, scroll down and on the scopes list, check \'Bot\'.\n2. Check the bot permissions first.\n3. Click on COPY.\n4. Open that link on your browser.\n5. Authorize the bot to your server.\n6. Boom! Your bot joined your server!', inline='False')
-                embed.add_field(name='D. Coding time!', value='1. Create a folder.\n2. Open that folder and create a file named \'bot.py\' in .py extension.\n3. Open that file with a text editor.\n4. Code the following above.\n', inline='False')
-                embed.add_field(name='E. How to get the Token?', value='1. Open the http://discordapp.com/developers, and click on your bot.\n2. Open the \'Bot\' tab.\n3. On token, click \'Copy\'.\n4. Change the \'YOUR TOKEN\' above by pasting your token.\n5. DON\'T SHARE YOUR TOKEN WITH ANYBODY.', inline='False')
-                embed.add_field(name='F. Discord API?', value='https://discordpy.readthedocs.io/en/latest/api.html', inline='False')
-                embed.set_footer(text='Enjoy your BOT! ;)')
-                await message.channel.send(embed=embed, content='```py\n'+str(code)+'```')
+        if cmd(msg, 'hidechannel'):
+            if not message.author.guild_permissions.manage_channels:
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) + " | You cannot hide this channel because you don't have the `Manage Channels` permission!")
         if cmd(msg, 'channels'):
             channels = ''
             warning = 'No errors found.'
@@ -1659,6 +1632,7 @@ async def on_message(message):
                 data = Painter.urltoimage(image_url)
                 await message.channel.send(file=discord.File(data, args[0][1:]+'.png'))
         if cmd(msg, 'ytthumbnail'):
+            if no_args: videoid = 'dQw4w9WgXcQ'
             async with message.channel.typing():
                 if args[1].startswith('https://youtu.be/'):
                     videoid = args[1][17:]
@@ -1893,25 +1867,47 @@ async def on_message(message):
                     text = myself.urlify(unprefixed)
                     url='https://gdcolon.com/tools/gdlogo/img/'+str(text)
                     await message.channel.send(file=discord.File(Painter.urltoimage(url), 'gdlogo.png'))
-        if cmd(msg, 'lockdown'):
-            if len(args)!=2:
-                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | Invalid parameters. Correct Example: `{prefix}lockdown [seconds]`\nMinimum: 10, Maximum: 900')
+        if cmd(msg, 'lockdown') or cmd(msg, 'hidechannel'):
+            if no_args:
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | Invalid parameters. Correct Example: `{prefix}{args[0][1:]} [disable/enable]`')
             else:
-                if args[1].isnumeric()==False:
-                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid time.')
-                elif int(args[1])<10 or int(args[1])>900:
-                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Invalid: off-limits.')
-                elif message.author.guild_permissions.administrator==False:
-                    await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | You need the administrator permission to do this!')
+                accept = True
+                if not message.author.guild_permissions.administrator:
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | You need the `Administrator` permission to do this, unless you are trying to mute yourself.')
+                    accept = False
                 else:
-                    try:
-                        await message.channel.send('Everyone, <#'+str(message.channel.id)+'> is on lockdown for '+str(args[1])+' seconds! No one except administrators can chat! :x:')
-                        await message.channel.set_permissions(message.guild.default_role, send_messages=False)
-                        await asyncio.sleep(int(args[1]))
-                        await message.channel.set_permissions(message.guild.default_role, send_messages=True)
-                        await message.channel.send('Lockdown ended.')
-                    except:
-                        await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | For some reason, i cannot lock this channel :(')
+                    if args[1].lower()=='disable':
+                        if cmd(msg, 'lockdown'):
+                            if message.guild.default_role.permissions.send_messages:
+                                await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | This channel is already unlocked!')
+                                accept = False
+                        elif cmd(msg, 'hidechannel'):
+                            if message.guild.default_role.permissions.read_messages:
+                                await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | This channel is not hidden!')
+                                accept = False
+                    elif args[1].lower()=='enable':
+                        if cmd(msg, 'lockdown'):
+                            if not message.guild.default_role.permissions.send_messages:
+                                await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | This channel is already locked!')
+                                accept = False
+                        elif cmd(msg, 'hidechannel'):
+                            if not message.guild.default_role.permissions.read_messages:
+                                await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | This channel is already hidden!')
+                                accept = False
+                    else:
+                        await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | Oops! Please type `enable` or `disable`.')
+                        accept = False
+                    if accept:
+                        try:
+                            if args[1].lower()=='disable':
+                                if cmd(msg, 'hidechannel'): await message.channel.set_permissions(message.guild.default_role, read_messages=True)
+                                if cmd(msg, 'lockdown'): await message.channel.set_permissions(message.guild.default_role, send_messages=True)
+                            elif args[1].lower()=='enable':
+                                if cmd(msg, 'hidechannel'): await message.channel.set_permissions(message.guild.default_role, read_messages=False)
+                                if cmd(msg, 'lockdown'): await message.channel.set_permissions(message.guild.default_role, send_messages=False)
+                            await message.channel.send(str(client.get_emoji(BotEmotes.success)) +f' | Success! <#{message.channel.id}>\'s {args[0][1:]} has been {args[1]}d!')
+                        except Exception as e:
+                            await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | For some reason, i cannot lock <#{message.channel.id}>\'s :(\n\n```{e}```')
         if args[0]==prefix+"math" or args[0]==prefix+'calc':
             if no_args:
                 await message.channel.send("No math problem? Ok no fix.")
