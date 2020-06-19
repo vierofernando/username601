@@ -49,13 +49,24 @@ function loadCommands() {
         document.getElementById('all').innerHTML = total;
         document.getElementById('title').innerHTML = 'Username601 Commands ('+totalcount.toString()+')'
         document.getElementById('links').innerHTML = links;
-    })
+
+        // load other stuff
+        if (prm.has('category')) {
+            var category = document.getElementById('category'+prm.get('category'));
+            if (category==null) {
+                document.write("<strong>ERROR 404</strong><br>Invalid parameters!");
+            } else {
+                fastScroll(prm.get('category'));
+            }
+        }
+    });
 }
 function loadMySanity() {
+    // very true.
     fetch('https://vierofernando.github.io/username601/assets/json/webtitle.json') // decided to use this because client kept giving me 404s
     .then (res => res.json())
     .then (out => {
-        var randomTitle = out[Math.floor(Math.random() * out.length)];
+        var randomTitle = "Username601 | "+out[Math.floor(Math.random() * out.length)];
         window.document.title = randomTitle;
     });
 }
