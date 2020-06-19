@@ -51,3 +51,11 @@ function loadCommands() {
         document.getElementById('links').innerHTML = links;
     })
 }
+function loadMySanity() {
+    fetch('https://vierofernando.github.io/username601/assets/json/webtitle.json') // decided to use this because client kept giving me 404s
+    .then (res => res.json())
+    .then (out => {
+        var randomTitle = out[Math.floor(Math.random() * out.length)];
+        window.document.title = randomTitle;
+    });
+}

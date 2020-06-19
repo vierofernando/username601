@@ -35,9 +35,9 @@ topgg = dbl.DBLClient(client, fetchdata['DBL_TOKEN'])
 async def on_ready():
     print('Bot is online.')
     while True:
-        await asyncio.sleep(1800)
         myAct = discord.Activity(name=str(len(client.users))+' strangers in '+str(len(client.guilds))+' cults.', type=discord.ActivityType.watching)
         await client.change_presence(activity=myAct)
+        await asyncio.sleep(1800)
         try:
             await topgg.post_guild_count()
         except Exception as e:
@@ -2546,8 +2546,7 @@ async def on_message(message):
         if cmd(msg, '8ball'):
             async with message.channel.typing():
                 data = myself.api("https://yesno.wtf/api")
-                if not data['image'].endswith('.gif'): await message.channel.send(content=data['answer'], file=discord.File(Painter.urltoimage(data['image']), data['answer']+'.png'))
-                else: await message.channel.send(content=data['answer'], file=discord.File(Painter.gif.fromURL(data['image']), data['answer']+'.gif'))
+                await message.channel.send(content=data['answer'], file=discord.File(Painter.urltoimage(data['image']), data['answer']+'.png'))
         if cmd(msg, 'deathnote'):
             member = []
             in_the_note = ""
