@@ -1876,27 +1876,10 @@ async def on_message(message):
                     await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | You need the `Administrator` permission to do this, unless you are trying to mute yourself.')
                     accept = False
                 else:
-                    if args[1].lower()=='disable':
-                        if cmd(msg, 'lockdown'):
-                            if message.guild.default_role.permissions.send_messages:
-                                await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | This channel is already unlocked!')
-                                accept = False
-                        elif cmd(msg, 'hidechannel'):
-                            if message.guild.default_role.permissions.read_messages:
-                                await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | This channel is not hidden!')
-                                accept = False
-                    elif args[1].lower()=='enable':
-                        if cmd(msg, 'lockdown'):
-                            if not message.guild.default_role.permissions.send_messages:
-                                await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | This channel is already locked!')
-                                accept = False
-                        elif cmd(msg, 'hidechannel'):
-                            if not message.guild.default_role.permissions.read_messages:
-                                await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | This channel is already hidden!')
-                                accept = False
-                    else:
-                        await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | Oops! Please type `enable` or `disable`.')
-                        accept = False
+                    if 'enable' not in args[1].lower():
+                        if 'disable' not in args[1].lower():
+                            await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | Oops! Please type `enable` or `disable`.')
+                            accept = False
                     if accept:
                         try:
                             if args[1].lower()=='disable':
