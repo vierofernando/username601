@@ -173,6 +173,10 @@ class gif:
         data = gif.compilegif(images, 5)
         return data
     
+    def fromURL(url):
+        data = gif.compilegif(imagefromURL(url))
+        return data
+    
 def urltoimage(url):
     image = imagefromURL(url)
     data = compile(image)
