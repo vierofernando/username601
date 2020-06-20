@@ -66,9 +66,9 @@ async def on_message(message):
         if cmd(msg, 'ping'):
             ping = str(round(client.latency*1000))
             if int(ping)<100:
-                embed = discord.Embed(title=f'Pong! {ping} ms.', colour=discord.Colour.from_rgb(123, 63, 0))
+                embed = discord.Embed(title=f'Pong! {ping} ms.', colour=discord.Colour.from_rgb(216, 86, 35))
             else:
-                embed = discord.Embed(title=f'Pong! {ping} ms.', description='Ping time may be slower due to;\n1. People kept spamming me\n2. My hosting system is slow\n3. I am in too many servers\n4. Discord\'s servers are currectly down\n5. I am snail :snail:', colour=discord.Colour.from_rgb(123, 63, 0))
+                embed = discord.Embed(title=f'Pong! {ping} ms.', description='Ping time may be slower due to;\n1. People kept spamming me\n2. My hosting system is slow\n3. I am in too many servers\n4. Discord\'s servers are currectly down\n5. I am snail :snail:', colour=discord.Colour.from_rgb(216, 86, 35))
             embed.set_thumbnail(url='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif')
             embed.set_footer(text='Ping and embed sent time may differ.')
             await message.channel.send(embed=embed)
@@ -85,13 +85,13 @@ async def on_message(message):
                     flow = src.hackflow(tohack)
                     for i in range(0, len(flow)):
                         console = console + flow[i][1:]
-                        newembed = discord.Embed(title='Anonymous601 Hacking Console', description=f'```{console}```',colour=discord.Colour.from_rgb(123, 63, 0))
+                        newembed = discord.Embed(title='Anonymous601 Hacking Console', description=f'```{console}```',colour=discord.Colour.from_rgb(216, 86, 35))
                         newembed.set_thumbnail(url=myself.hackfind(flow[i], tohack.avatar_url))
                         await main.edit(content='', embed=newembed)
                         await asyncio.sleep(random.randint(2, 4))
                 else:
                     console = console + 'hack.exe -u '+str(message.author.name)+'ERROR: INVALID TAG.\nACCESS DENIED.\n\nHash encoded base64 cipher code:\n'+myself.bin(message.author.name)+ '\n' + console
-                    embed = discord.Embed(title='Anonymous601 Hacking Console', description=f'```{console}```',colour=discord.Colour.from_rgb(123, 63, 0))
+                    embed = discord.Embed(title='Anonymous601 Hacking Console', description=f'```{console}```',colour=discord.Colour.from_rgb(216, 86, 35))
                     await message.channel.send(embed=embed)
         if cmd(msg, 'base64'):
             if no_args:
@@ -105,7 +105,7 @@ async def on_message(message):
                 await message.channel.send('There was a problem on retrieving the info.\nThe server said: "'+str(data['status'])+'" :eyes:')
             else:
                 ufo = random.choice(data['sightings'])
-                embed = discord.Embed(title='UFO Sighting in '+str(ufo['city'])+', '+str(ufo['state']), description='**Summary:** '+str(ufo['summary'])+'\n\n**Shape:** '+str(ufo['shape'])+'\n**Sighting Date: **'+str(ufo['date'])[:-8].replace('T', ' ')+'\n**Duration: **'+str(ufo['duration'])+'\n\n[Article Source]('+str(ufo['url'])+')', colour=discord.Colour.from_rgb(123, 63, 0))
+                embed = discord.Embed(title='UFO Sighting in '+str(ufo['city'])+', '+str(ufo['state']), description='**Summary:** '+str(ufo['summary'])+'\n\n**Shape:** '+str(ufo['shape'])+'\n**Sighting Date: **'+str(ufo['date'])[:-8].replace('T', ' ')+'\n**Duration: **'+str(ufo['duration'])+'\n\n[Article Source]('+str(ufo['url'])+')', colour=discord.Colour.from_rgb(216, 86, 35))
                 embed.set_footer(text='Username601 raided Area 51 and found this!')
                 await message.channel.send(embed=embed)
         if cmd(msg, 'rotate'):
@@ -239,7 +239,7 @@ async def on_message(message):
             gameplay = True
             guy = message.author
             while gameplay==True:
-                newembed = discord.Embed(title='Pokemon Quiz!', description=f'Guess the pokemon\'s name!\nTimeout: 45 seconds.\nHint left: **{str(hint)}** | Attempts left: **{str(attempt)}**', colour=discord.Colour.from_rgb(123, 63, 0))
+                newembed = discord.Embed(title='Pokemon Quiz!', description=f'Guess the pokemon\'s name!\nTimeout: 45 seconds.\nHint left: **{str(hint)}** | Attempts left: **{str(attempt)}**', colour=discord.Colour.from_rgb(216, 86, 35))
                 newembed.set_image(url=f'https://assets.pokemon.com/assets/cms2/img/pokedex/full/{str(num)}.png')
                 newembed.set_footer(text='Type "hint" to give.. uh... the HINT! :D')
                 newembed.set_thumbnail(url=f'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{str(num)}.png')
@@ -286,7 +286,7 @@ async def on_message(message):
         if cmd(msg, 'ss'):
             if len(args)>1:
                 if args[1]=='--help':
-                    embed = discord.Embed(title='Special say command help', description='**REQUIRES `MANAGE CHANNELS` PERMISSION**\nThis is a special say command that has the following:\n1. @someone | Tags random people in the server. [On April fools 2018, Discord made this feature, but removed the day after.](https://www.youtube.com/watch?v=BeG5FqTpl9U) (Please use wisely.)\n2. @owner | Tags the server owner. Please don\'t spam this feature.\n3. --ch #{channelname} | Sends a message on a specific channel.', colour=discord.Colour.from_rgb(123, 63, 0))
+                    embed = discord.Embed(title='Special say command help', description='**REQUIRES `MANAGE CHANNELS` PERMISSION**\nThis is a special say command that has the following:\n1. @someone | Tags random people in the server. [On April fools 2018, Discord made this feature, but removed the day after.](https://www.youtube.com/watch?v=BeG5FqTpl9U) (Please use wisely.)\n2. @owner | Tags the server owner. Please don\'t spam this feature.\n3. --ch #{channelname} | Sends a message on a specific channel.', colour=discord.Colour.from_rgb(216, 86, 35))
                     await message.channel.send(embed=embed)
                 else:
                     if message.author.guild_permissions.manage_channels==False:
@@ -306,7 +306,7 @@ async def on_message(message):
                 ee = ''
                 for i in range(0, len(client.guilds)):
                     ee = ee + '**' + client.guilds[i].name + '** ('+str(len(client.guilds[i].members))+' Members)\n'
-                embed = discord.Embed(title='Heya, here are all the servers i am in.', description=ee, colour=discord.Colour.from_rgb(123, 63, 0))
+                embed = discord.Embed(title='Heya, here are all the servers i am in.', description=ee, colour=discord.Colour.from_rgb(216, 86, 35))
                 await message.author.send(embed=embed)
                 await message.channel.send('...k')
             else:
@@ -315,25 +315,25 @@ async def on_message(message):
             if cmd(msg, 'pandafact'): link = 'https://some-random-api.ml/facts/panda'
             else: link = 'https://some-random-api.ml/facts/bird'
             data = myself.jsonisp(link)['fact']
-            await message.channel.send(embed=discord.Embed(title='Did you know?', description=data, colour=discord.Colour.from_rgb(123, 63, 0)))
+            await message.channel.send(embed=discord.Embed(title='Did you know?', description=data, colour=discord.Colour.from_rgb(216, 86, 35)))
         if cmd(msg, 'iss'):
             iss = myself.jsonisp('https://open-notify-api.herokuapp.com/iss-now.json')
             ppl = myself.jsonisp('https://open-notify-api.herokuapp.com/astros.json')
             total = '```'
             for i in range(0, len(ppl['people'])):
                 total += str(i+1) + '. ' + ppl['people'][i]['name'] + ((20-(len(ppl['people'][i]['name'])))*' ') + ppl['people'][i]['craft'] + '\n'
-            embed = discord.Embed(title='Position: '+str(iss['iss_position']['latitude'])+' '+str(iss['iss_position']['longitude']), description='**People at craft:**\n\n'+str(total)+'```', colour=discord.Colour.from_rgb(123, 63, 0))
+            embed = discord.Embed(title='Position: '+str(iss['iss_position']['latitude'])+' '+str(iss['iss_position']['longitude']), description='**People at craft:**\n\n'+str(total)+'```', colour=discord.Colour.from_rgb(216, 86, 35))
             await message.channel.send(embed=embed)
         if cmd(msg, 'qotd'):
             data = myself.jsonisp('https://quotes.rest/qod')['contents']['quotes'][0]
-            embed = discord.Embed(title=data['quote'], description=data['author'], color=discord.Colour.from_rgb(123, 63, 0))
+            embed = discord.Embed(title=data['quote'], description=data['author'], color=discord.Colour.from_rgb(216, 86, 35))
             embed.set_image(url=data['background'])
             embed.set_footer(text='New quote will be generated in the next day.')
             await message.channel.send(embed=embed)
         if cmd(msg, 'pika') or args[0]==prefix+'panda' or cmd(msg, 'redpanda'):
             if cmd(msg, 'pika'): link, col, msg = "https://some-random-api.ml/pikachuimg", discord.Colour.from_rgb(255, 255, 0), 'pika pika!'
-            elif cmd(msg, 'redpanda'): link, col, msg = "https://some-random-api.ml/img/red_panda", discord.Colour.from_rgb(123, 63, 0), 'Ok, here are some pics of red pandas.'
-            else: link, col, msg = "https://some-random-api.ml/img/panda", discord.Colour.from_rgb(123, 63, 0), 'Here is some cute pics of pandas.'
+            elif cmd(msg, 'redpanda'): link, col, msg = "https://some-random-api.ml/img/red_panda", discord.Colour.from_rgb(216, 86, 35), 'Ok, here are some pics of red pandas.'
+            else: link, col, msg = "https://some-random-api.ml/img/panda", discord.Colour.from_rgb(216, 86, 35), 'Here is some cute pics of pandas.'
             data = myself.jsonisp(link)['link']
             embed = discord.Embed(title=msg, color=col)
             embed.set_image(url=data)
@@ -365,7 +365,7 @@ async def on_message(message):
             while gameplay==True:
                 if message.content==prefix+'hangman' and message.author.id!=int(playing_with_id) and message.guild.id==server_id:
                     await message.channel.send('<@'+str(message.author.id)+'>, cannot play hangman when a game is currently playing!')
-                newembed = discord.Embed(title=''.join(main_guess_hid), description='Wrong guesses: '+str(wrong_guesses), colour=discord.Colour.from_rgb(123, 63, 0))
+                newembed = discord.Embed(title=''.join(main_guess_hid), description='Wrong guesses: '+str(wrong_guesses), colour=discord.Colour.from_rgb(216, 86, 35))
                 newembed.set_image(url=f'https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{str(level)}.png')
                 newembed.set_footer(text='Type "showanswer" to show the answer and end the game.')
                 await message.channel.send(embed=newembed)
@@ -409,7 +409,7 @@ async def on_message(message):
             can_used = list('123456789')
             box = f' {box_nums[0]} | {box_nums[1]} | {box_nums[2]}\n===========\n {box_nums[3]} | {box_nums[4]} | {box_nums[5]}\n===========\n {box_nums[6]} | {box_nums[7]} | {box_nums[8]}\n'
             if no_args:
-                embed = discord.Embed(title='TicTacToe™ wtih '+str(src.getTicTacToeHeader()), description=f'Plays tic-tac-toe with the BOT. Very simple.\n\n**To start playing, type;**\n`{prefix}tictactoe X` (To play tictactoe as X)\n`{prefix}tictactoe O` (To play tictactoe as O)', colour=discord.Colour.from_rgb(123, 63, 0))
+                embed = discord.Embed(title='TicTacToe™ wtih '+str(src.getTicTacToeHeader()), description=f'Plays tic-tac-toe with the BOT. Very simple.\n\n**To start playing, type;**\n`{prefix}tictactoe X` (To play tictactoe as X)\n`{prefix}tictactoe O` (To play tictactoe as O)', colour=discord.Colour.from_rgb(216, 86, 35))
                 embed.set_image(url='https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/tictactoe.png')
                 await message.channel.send(embed=embed)
             else:
@@ -428,7 +428,7 @@ async def on_message(message):
                     gameplay = True
                     usedByUser = []
                     usedByBot = []
-                    embed = discord.Embed(title='Playing Tictactoe with '+str(user_name), description=f'Viero Fernando ({user_sym}) | Username601 ({bot_sym})\nType the numbers to fill out the boxes.```{box}```', colour=discord.Colour.from_rgb(123, 63, 0))
+                    embed = discord.Embed(title='Playing Tictactoe with '+str(user_name), description=f'Viero Fernando ({user_sym}) | Username601 ({bot_sym})\nType the numbers to fill out the boxes.```{box}```', colour=discord.Colour.from_rgb(216, 86, 35))
                     embed.set_footer(text='Type "endgame" to well, end the game. Or wait for 20 seconds and the game will kill itself! ;)')
                     gameview = await message.channel.send(embed=embed)
                     while gameplay==True:
@@ -475,7 +475,7 @@ async def on_message(message):
                                     del can_used[i]
                                     break
                             box = f' {box_nums[0]} | {box_nums[1]} | {box_nums[2]}\n===========\n {box_nums[3]} | {box_nums[4]} | {box_nums[5]}\n===========\n {box_nums[6]} | {box_nums[7]} | {box_nums[8]}\n'
-                            newembed = discord.Embed(title='Playing Tictactoe with '+str(user_name), description=f'Viero Fernando ({user_sym}) | Username601 ({bot_sym})\nType the numbers to fill out the boxes.```{box}```', colour=discord.Colour.from_rgb(123, 63, 0))
+                            newembed = discord.Embed(title='Playing Tictactoe with '+str(user_name), description=f'Viero Fernando ({user_sym}) | Username601 ({bot_sym})\nType the numbers to fill out the boxes.```{box}```', colour=discord.Colour.from_rgb(216, 86, 35))
                             newembed.set_footer(text='Type "endgame" to well, end the game. Or wait for 20 seconds and the game will kill itself! ;)')
                             await message.channel.send(embed=newembed)
                         elif str(trying.content).lower()=='endgame':
@@ -540,7 +540,7 @@ async def on_message(message):
                             chooseCount = int(chooseCount) + 1
                         else:
                             question = question + '**'+ str(corr_order) + '.** '+str(corr_name)+ '\n'
-                    embed = discord.Embed(title='What does the avatar below belongs to?', description=':eyes: Click the reactions! **You have 20 seconds.**\n\n'+str(question), colour=discord.Colour.from_rgb(123, 63, 0))
+                    embed = discord.Embed(title='What does the avatar below belongs to?', description=':eyes: Click the reactions! **You have 20 seconds.**\n\n'+str(question), colour=discord.Colour.from_rgb(216, 86, 35))
                     embed.set_footer(text='For privacy reasons, the people displayed above are online users.')
                     embed.set_image(url=corr_avatar)
                     main = await message.channel.send(embed=embed)
@@ -581,7 +581,7 @@ async def on_message(message):
                     wrongs.remove(added)
                 else:
                     question = question + corr_order + ' ' + correct + '\n'
-            embed = discord.Embed(title='Geography: '+str(topic)+' quiz!', description=':nerd: Click on the reaction! **You have 20 seconds.**\n\nWhich '+str(topic)+' belongs to '+str(chosen_nation['name'])+'?\n'+str(question), colour=discord.Colour.from_rgb(123, 63, 0))
+            embed = discord.Embed(title='Geography: '+str(topic)+' quiz!', description=':nerd: Click on the reaction! **You have 20 seconds.**\n\nWhich '+str(topic)+' belongs to '+str(chosen_nation['name'])+'?\n'+str(question), colour=discord.Colour.from_rgb(216, 86, 35))
             await wait.edit(content='', embed=embed)
             for i in range(0, len(static_emot)):
                 await wait.add_reaction(static_emot[i])
@@ -661,7 +661,7 @@ async def on_message(message):
             if message.author.id==Config.owner.id:
                 try:
                     user_to_send = client.get_user(int(args[1]))
-                    em = discord.Embed(title="Hi, "+user_to_send.name+"! the bot owner sent a response for your feedback.", description=str(message.content[int(len(args[0])+len(args[1])+2):]), colour=discord.Colour.from_rgb(123, 63, 0))
+                    em = discord.Embed(title="Hi, "+user_to_send.name+"! the bot owner sent a response for your feedback.", description=str(message.content[int(len(args[0])+len(args[1])+2):]), colour=discord.Colour.from_rgb(216, 86, 35))
                     em.set_footer(text="Feeling unsatisfied? Then join our support server! ('+str(Config.SupportServer.invite)+')")
                     await user_to_send.send(embed=em)
                     await message.add_reaction('✅')
@@ -683,7 +683,7 @@ async def on_message(message):
                 if len(bans)>0:
                     for i in bans:
                         if int(message.author.id)==int(i.split('[')[1].split(']')[0]):
-                            await wait.edit(content='', embed=discord.Embed(title='You are banned', description='Sorry! you are banned from using the `'+prefix+'feedback` command. Reason:```'+i.split('REASON:"')[1].split('"')[0]+'```', colour=discord.Colour.from_rgb(123, 63, 0)))
+                            await wait.edit(content='', embed=discord.Embed(title='You are banned', description='Sorry! you are banned from using the `'+prefix+'feedback` command. Reason:```'+i.split('REASON:"')[1].split('"')[0]+'```', colour=discord.Colour.from_rgb(216, 86, 35)))
                             banned = True
                             break
                 if not banned:
@@ -691,7 +691,7 @@ async def on_message(message):
                         fb = unprefixed
                         feedbackCh = client.get_channel(706459051034279956)
                         await feedbackCh.send('<@Config.owner.id>, User with ID: '+str(message.author.id)+' sent a feedback: **"'+str(fb)+'"**')
-                        embed = discord.Embed(title='Feedback Successful', description=str(client.get_emoji(BotEmotes.success)) + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+str(Config.SupportServer.invite)+')',colour=discord.Colour.from_rgb(123, 63, 0))
+                        embed = discord.Embed(title='Feedback Successful', description=str(client.get_emoji(BotEmotes.success)) + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+str(Config.SupportServer.invite)+')',colour=discord.Colour.from_rgb(216, 86, 35))
                         await wait.edit(content='', embed=embed)
                     except:
                         await wait.edit(content=str(client.get_emoji(BotEmotes.error)) + ' | Error: There was an error while sending your feedback. Sorry! :(')
@@ -715,7 +715,7 @@ async def on_message(message):
                         embed = discord.Embed(
                             title = data["name"]+' ('+str(data["id"])+')',
                             description = data["description"],
-                            colour = discord.Colour.from_rgb(123, 63, 0)
+                            colour = discord.Colour.from_rgb(216, 86, 35)
                         )
                         embed.set_author(name=data["author"], icon_url=image)
                         embed.add_field(name='Difficulty', value=data["difficulty"])
@@ -743,7 +743,7 @@ async def on_message(message):
                             like = ':+1:'
                         levels = levels + str(count+1)+'. **'+data[count]['name']+'** by '+data[count]['author']+' (`'+data[count]['id']+'`)\n:arrow_down: '+data[count]['downloads']+' | '+like+' '+data[count]['likes']+'\n'
                         count = int(count) + 1
-                    embedy = discord.Embed(title='Geometry Dash Level searches for "'+str(unprefixed)+'":', description=levels, colour=discord.Colour.from_rgb(123, 63, 0))
+                    embedy = discord.Embed(title='Geometry Dash Level searches for "'+str(unprefixed)+'":', description=levels, colour=discord.Colour.from_rgb(216, 86, 35))
                     await message.channel.send(embed=embedy)
                 except:
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Error: Not Found. :four::zero::four:')
@@ -762,7 +762,7 @@ async def on_message(message):
                         anim = 'This emoji is an animated emoji. **Only nitro users can use it.**'
                     else:
                         anim = 'This emoji is a static emoji. **Everyone can use it (except if limited by role)**'
-                    embedy = discord.Embed(title='Emoji info for :'+str(data.name)+':', description='**Emoji name:** '+str(data.name)+'\n**Emoji ID: **'+str(data.id)+'\n'+anim+'\n**Emoji\'s server ID: **'+str(data.guild_id)+'\n**Emoji creation time: **'+str(data.created_at)[:-7]+' UTC.', colour=discord.Colour.from_rgb(123, 63, 0))
+                    embedy = discord.Embed(title='Emoji info for :'+str(data.name)+':', description='**Emoji name:** '+str(data.name)+'\n**Emoji ID: **'+str(data.id)+'\n'+anim+'\n**Emoji\'s server ID: **'+str(data.guild_id)+'\n**Emoji creation time: **'+str(data.created_at)[:-7]+' UTC.', colour=discord.Colour.from_rgb(216, 86, 35))
                     embedy.set_thumbnail(url='https://cdn.discordapp.com/emojis/'+str(data.id)+'.png?v=1')
                     await message.channel.send(embed=embedy)
         if args[0]==prefix+'threats' or args[0]==prefix+'deepfry' or args[0]==prefix+'blurpify':
@@ -895,7 +895,7 @@ async def on_message(message):
             #                     break
             #                 buttons.append(str(trying.content))
             # if accept==True:
-            #     embed = discord.Embed(title='Error!', colour=discord.Colour.from_rgb(123, 63, 0))
+            #     embed = discord.Embed(title='Error!', colour=discord.Colour.from_rgb(216, 86, 35))
             #     embed.set_image(url='http://atom.smasher.org/error/xp.png.php?icon=Error3&style=xp&title='+str(results[0]).replace(' ', '+')+'&text='+str(results[1]).replace(' ', '+')+'&b1='+str(results[2]).replace(' ', '+'))
             #     await message.channel.send(embed=embed)
         if cmd(msg, 'removerole') or args[0]==prefix+'rr':
@@ -932,7 +932,7 @@ async def on_message(message):
                     else:
                         perm += ':x: '+str(permString[i])+'\n'
                 try:
-                    permissionsEmbed = discord.Embed(title='User permissions for '+str(message.mentions[0].name)+';', description=str(perm), colour=discord.Colour.from_rgb(123, 63, 0))
+                    permissionsEmbed = discord.Embed(title='User permissions for '+str(message.mentions[0].name)+';', description=str(perm), colour=discord.Colour.from_rgb(216, 86, 35))
                     await message.channel.send(embed=permissionsEmbed)
                 except Exception as e:
                     await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | elol. we have an elol here:```'+str(e)+'```')
@@ -1027,7 +1027,7 @@ async def on_message(message):
         if cmd(msg, 'imdb'):
             wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
             if no_args or args[1]=='help' or args[1]=='--help':
-                embed = discord.Embed(title='IMDb command help', description='Searches through the IMDb Movie database.\n{} are Parameters that is **REQUIRED** to get the info.\n\n', colour=discord.Colour.from_rgb(123, 63, 0))
+                embed = discord.Embed(title='IMDb command help', description='Searches through the IMDb Movie database.\n{} are Parameters that is **REQUIRED** to get the info.\n\n', colour=discord.Colour.from_rgb(216, 86, 35))
                 embed.add_field(name='Commands', value=prefix+'imdb --top {NUMBER}\n'+prefix+'imdb --search {TYPE} {QUERY}\n'+prefix+'imdb help\n'+prefix+'imdb --movie {MOVIE_ID or MOVIE_NAME}', inline='False')
                 embed.add_field(name='Help', value='*{TYPE} could be "movie", "person", or "company".\n{QUERY} is the movie/person/company name.\n{MOVIE_ID} can be got from the search. Example: `'+prefix+'imdb --search movie Inception`.', inline='False')
                 await wait.edit(content='', embed=embed)
@@ -1044,7 +1044,7 @@ async def on_message(message):
                             total = ''
                             for i in range(0, int(num)):
                                 total = total + str(int(i)+1) + '. '+str(arr[i]['title'])+' (`'+str(arr[i].movieID)+'`)\n'
-                            embed = discord.Embed(title='IMDb Top '+str(num)+':', description=str(total), colour=discord.Colour.from_rgb(123, 63, 0))
+                            embed = discord.Embed(title='IMDb Top '+str(num)+':', description=str(total), colour=discord.Colour.from_rgb(216, 86, 35))
                             await wait.edit(content='', embed=embed)
                     except ValueError:
                         await wait.edit(content=str(client.get_emoji(BotEmotes.error)) +' | Is the top thing you inputted REALLY a number?\nlike, Not top TEN, but top 10.\nGET IT?')
@@ -1060,7 +1060,7 @@ async def on_message(message):
                         theID = str(movieId)
                     data = ia.get_movie(str(movieId))
                 try:
-                    embed = discord.Embed(title=data['title'], colour=discord.Colour.from_rgb(123, 63, 0))
+                    embed = discord.Embed(title=data['title'], colour=discord.Colour.from_rgb(216, 86, 35))
                     await wait.edit(content=str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... Retrieving data...')
                     emoteStar = ''
                     for i in range(0, round(int(ia.get_movie_main(theID)['data']['rating']))):
@@ -1074,7 +1074,7 @@ async def on_message(message):
                     await wait.edit(content='', embed=embed)
                 except KeyError:
                     await wait.edit(content=str(client.get_emoji(BotEmotes.error)) + ' | An error occured!\n**Good news, we *may* fix it.**')
-                    errorQuick = discord.Embed(title=data['title'], colour=discord.Colour.from_rgb(123, 63, 0))
+                    errorQuick = discord.Embed(title=data['title'], colour=discord.Colour.from_rgb(216, 86, 35))
                     errorQuick.add_field(name='General Information', value=f'**IMDb URL: **{imdb_url}\n**Upload date: **{upload_date}')
                     errorQuick.add_field(name='Ratings', value=emoteStar+'\n**Overall rating: **'+str(ia.get_movie_main(str(theID))['data']['rating'])+'\n**Rated by '+str(ia.get_movie_main(str(theID))['data']['votes'])+' people**')
                     errorQuick.set_footer(text='Information given is limited due to Errors and... stuff.')
@@ -1104,7 +1104,7 @@ async def on_message(message):
                         if len(lists)>1950:
                             break
                         lists = lists + str(int(i)+1) + '. '+str(persons[i]['name']) + ' (`'+str(persons[i].personID)+'`)\n'
-                embed = discord.Embed(title=main_name.lower()+' search for "'+str(query)+'":', description=str(lists), colour=discord.Colour.from_rgb(123, 63, 0))
+                embed = discord.Embed(title=main_name.lower()+' search for "'+str(query)+'":', description=str(lists), colour=discord.Colour.from_rgb(216, 86, 35))
                 if main_name=='MOVIE':
                     embed.set_footer(text='Type '+prefix+'imdb --'+str(main_name.lower())+' {'+main_name+'_ID} to show each info.')
                 await wait.edit(content='', embed=embed)
@@ -1169,7 +1169,7 @@ async def on_message(message):
             for i in range(0, len(byEmote)):
                 if byEmote[i].startswith('http'):
                     alls.append(byEmote[i].split('"')[0])
-            embed = discord.Embed(colour=discord.Colour.from_rgb(123, 63, 0))
+            embed = discord.Embed(colour=discord.Colour.from_rgb(216, 86, 35))
             embed.set_image(url=random.choice(alls))
             await message.channel.send(embed=embed)
         if cmd(msg, 'steamprofile'):
@@ -1186,9 +1186,9 @@ async def on_message(message):
                 state = data.split('"state": "')[1].split('"')[0]
                 privacy = data.split('"privacy": "')[1].split('"')[0]
                 if state=='Offline':
-                    embedColor = discord.Colour.from_rgb(123, 63, 0)
+                    embedColor = discord.Colour.from_rgb(216, 86, 35)
                 else:
-                    embedColor = discord.Colour.from_rgb(123, 63, 0)
+                    embedColor = discord.Colour.from_rgb(216, 86, 35)
                 embed = discord.Embed(title=username, description='**[Profile Link]('+str(url)+')**\n**Current state: **'+str(state)+'\n**Privacy: **'+str(privacy)+'\n**[Profile pic URL]('+str(avatar)+')**', colour = embedColor)
                 embed.set_thumbnail(url=avatar)
                 await message.channel.send(embed=embed)
@@ -1238,7 +1238,7 @@ async def on_message(message):
             doodle_link = 'https://google.com'+str(byTag[3][8:].split('"\n')[0])
             doodle_img = 'https:'+str(byTag[4][9:].split('" alt="')[0])
             doodle_name = doodle_link[27:].replace('-', ' ')
-            embed = discord.Embed(title=doodle_name, description=doodle_link, colour=discord.Colour.from_rgb(123, 63, 0))
+            embed = discord.Embed(title=doodle_name, description=doodle_link, colour=discord.Colour.from_rgb(216, 86, 35))
             embed.set_image(url=doodle_img)
             await wait.edit(content='', embed=embed)
         if cmd(msg, 'hidechannel'):
@@ -1267,13 +1267,13 @@ async def on_message(message):
                 slots.append(Games.slotify(newslot))
             if win:
                 msgslot = 'You win!'
-                col = discord.Colour.from_rgb(123, 63, 0)
+                col = discord.Colour.from_rgb(216, 86, 35)
                 if jackpot:
                     msgslot = 'JACKPOT!'
-                    col = discord.Colour.from_rgb(123, 63, 0)
+                    col = discord.Colour.from_rgb(216, 86, 35)
             else:
                 msgslot = 'You lose... Try again!'
-                col = discord.Colour.from_rgb(123, 63, 0)
+                col = discord.Colour.from_rgb(216, 86, 35)
             embed = discord.Embed(title=msgslot, description=slots[0]+'\n\n'+slots[1]+'\n\n'+slots[2], colour=col)
             await message.channel.send(embed=embed)
         if cmd(msg, 'rolecolor'):
@@ -1287,7 +1287,7 @@ async def on_message(message):
                     if len(res)>1950:
                         break
                     res += '<@&'+str(message.guild.roles[i].id)+'> #'+str(myself.tohex(message.guild.roles[i].color.value))+'\n'
-                embed = discord.Embed(title='Server role colors OwO', description=res, colour=discord.Colour.from_rgb(123, 63, 0))
+                embed = discord.Embed(title='Server role colors OwO', description=res, colour=discord.Colour.from_rgb(216, 86, 35))
                 embed.set_footer(text=f'This excludes normal default color roles. ({str(exc)})\nTIP: try {prefix}rolecolor [role name] [#hex]*\n*make sure the hex starts with #!')
                 await message.channel.send(embed=embed)
             else:
@@ -1376,7 +1376,7 @@ async def on_message(message):
                 else:
                     embed = discord.Embed(
                         description=f'```{word}```',
-                        colour=discord.Colour.from_rgb(123, 63, 0)
+                        colour=discord.Colour.from_rgb(216, 86, 35)
                     )
                     embed.set_footer(text='Type --randomfont for umm.. random font to be generated.')
                     await message.channel.send(embed=embed)
@@ -1402,8 +1402,8 @@ async def on_message(message):
                 if a==1:
                     return discord.Embed(title='The bomb exploded!', description='Game OVER!', colour=discord.Colour(000))
                 elif a==2:
-                    return discord.Embed(title='The bomb defused!', description='Congratulations! :grinning:', colour=discord.Colour.from_rgb(123, 63, 0))
-            embed = discord.Embed(title='DEFUSE THE BOMB!', description='**Cut the correct wire!\nThe bomb will explode in 15 seconds!**', colour=discord.Colour.from_rgb(123, 63, 0))
+                    return discord.Embed(title='The bomb defused!', description='Congratulations! :grinning:', colour=discord.Colour.from_rgb(216, 86, 35))
+            embed = discord.Embed(title='DEFUSE THE BOMB!', description='**Cut the correct wire!\nThe bomb will explode in 15 seconds!**', colour=discord.Colour.from_rgb(216, 86, 35))
             main = await message.channel.send(embed=embed)
             buttons = ['🔴', '🟡', '🔵', '🟢']
             for i in range(0, len(buttons)):
@@ -1497,7 +1497,7 @@ async def on_message(message):
                             explain = explain + str(list(page.summary)[i])
                             if list(page.summary)[i]=='.':
                                 count = int(count) + 1
-                    embed = discord.Embed(title=pageTitle, description=str(explain), colour=discord.Colour.from_rgb(123, 63, 0))
+                    embed = discord.Embed(title=pageTitle, description=str(explain), colour=discord.Colour.from_rgb(216, 86, 35))
                     embed.set_footer(text='Get more info at '+str(page.fullurl))
                     await wait.edit(content='', embed=embed)
         if cmd(msg, 'getinvite'):
@@ -1510,7 +1510,7 @@ async def on_message(message):
             try:
                 if len(message.mentions)==0: user = message.author
                 else: user = message.mentions[0]
-                embed = discord.Embed(title=user.name+'\'s avatar', colour = discord.Colour.from_rgb(123, 63, 0))
+                embed = discord.Embed(title=user.name+'\'s avatar', colour = discord.Colour.from_rgb(216, 86, 35))
                 embed.set_image(url=str(user.avatar_url).replace('.webp', '.png'))
                 await message.channel.send(embed=embed)
             except:
@@ -1529,7 +1529,7 @@ async def on_message(message):
                     await message.channel.send(file=discord.File(Painter.urltoimage(url), 'ph_comment.png'))
         if args[0]==prefix+'ph':
             if args[1]=='help':
-                embed = discord.Embed(title='ph command help', description='Type the following:\n'+prefix+'ph [txt1] [txt2]\n\nFor example:\n'+prefix+'ph [Git] [Hub]', colour=discord.Colour.from_rgb(123, 63, 0))
+                embed = discord.Embed(title='ph command help', description='Type the following:\n'+prefix+'ph [txt1] [txt2]\n\nFor example:\n'+prefix+'ph [Git] [Hub]', colour=discord.Colour.from_rgb(216, 86, 35))
                 await message.channel.send(embed=embed)
             elif '[' in msg:
                 async with message.channel.typing():
@@ -1558,7 +1558,7 @@ async def on_message(message):
                     for i in range(0, len(data['items'][0]['platforms'])):
                         if data['items'][0]['platforms'][str(list(data['items'][0]['platforms'].keys())[i])]==True:
                             oss_raw.append(str(list(data['items'][0]['platforms'].keys())[i]))
-                    embed = discord.Embed(title=data['items'][0]['name'], url='https://store.steampowered.com/'+str(data['items'][0]['type'])+'/'+str(data['items'][0]['id']), description='**Price tag:** '+str(prize)+'\n**Metascore: **'+str(rate)+'\n**This app supports the following OSs: **'+str(myself.dearray(oss_raw)), colour=discord.Colour.from_rgb(123, 63, 0))
+                    embed = discord.Embed(title=data['items'][0]['name'], url='https://store.steampowered.com/'+str(data['items'][0]['type'])+'/'+str(data['items'][0]['id']), description='**Price tag:** '+str(prize)+'\n**Metascore: **'+str(rate)+'\n**This app supports the following OSs: **'+str(myself.dearray(oss_raw)), colour=discord.Colour.from_rgb(216, 86, 35))
                     embed.set_image(url=data['items'][0]['tiny_image'])
                     await message.channel.send(embed=embed)
         if cmd(msg, 'stackoverflow') or cmd(msg, 'sof'):
@@ -1576,7 +1576,7 @@ async def on_message(message):
                             tags += '['+str(ques['tags'][i])+'](https://stackoverflow.com/questions/tagged/'+str(ques['tags'][i])+')'
                             break
                         tags += '['+str(ques['tags'][i])+'](https://stackoverflow.com/questions/tagged/'+str(ques['tags'][i])+') | '
-                    embed = discord.Embed(title=ques['title'], description='**'+str(ques['view_count'])+' *desperate* developers looked into this post.**\n**TAGS:** '+str(tags), url=ques['link'], colour=discord.Colour.from_rgb(123, 63, 0))
+                    embed = discord.Embed(title=ques['title'], description='**'+str(ques['view_count'])+' *desperate* developers looked into this post.**\n**TAGS:** '+str(tags), url=ques['link'], colour=discord.Colour.from_rgb(216, 86, 35))
                     embed.set_author(name=ques['owner']['display_name'], url=ques['owner']['link'], icon_url=ques['owner']['profile_image'])
                     embed.set_footer(text='Shown 1 result out of '+str(leng)+' results!')
                     await message.channel.send(embed=embed)
@@ -1589,14 +1589,14 @@ async def on_message(message):
                     lang = ''
                     for bahasa in LANGUAGES:
                         lang = lang+str(bahasa)+' ('+str(LANGUAGES[bahasa])+')\n'
-                    embed = discord.Embed(title='List of supported languages', description=str(lang), colour=discord.Colour.from_rgb(123, 63, 0))
+                    embed = discord.Embed(title='List of supported languages', description=str(lang), colour=discord.Colour.from_rgb(216, 86, 35))
                     await wait.edit(content='', embed=embed)
                 elif len(args)>2:
                     destination = args[1]
                     toTrans = msg[int(len(args[1])+len(args[0])+2):]
                     try:
                         trans = gtr.translate(toTrans, dest=args[1])
-                        embed = discord.Embed(title=f'Translation', description=f'**{trans.text}**', colour=discord.Colour.from_rgb(123, 63, 0))
+                        embed = discord.Embed(title=f'Translation', description=f'**{trans.text}**', colour=discord.Colour.from_rgb(216, 86, 35))
                         embed.set_footer(text=f'Translated {LANGUAGES[trans.src]} to {LANGUAGES[trans.dest]}')
                         await wait.edit(content='', embed=embed)
                     except:
@@ -1611,7 +1611,7 @@ async def on_message(message):
             embed = discord.Embed(
                 title = 'Did you know;',
                 description = data["fact"],
-                color = discord.Colour.from_rgb(123, 63, 0)
+                color = discord.Colour.from_rgb(216, 86, 35)
             )
             await catWait.edit(content='', embed=embed)
         if cmd(msg, 'trash'):
@@ -1664,7 +1664,7 @@ async def on_message(message):
             else:
                 async with message.channel.typing():
                     scrolltxt = myself.urlify(unprefixed)
-                    embed = discord.Embed(colour=discord.Colour.from_rgb(123, 63, 0))
+                    embed = discord.Embed(colour=discord.Colour.from_rgb(216, 86, 35))
                     url='https://api.alexflipnote.dev/scroll?text='+str(scrolltxt)
                     data = Painter.urltoimage(url)
                     await message.channel.send(file=discord.File(data, 'scroll.png'))
@@ -1692,7 +1692,7 @@ async def on_message(message):
                 embed = discord.Embed(
                     title = 'List of Ghibli Films',
                     description = str(films),
-                    color = discord.Colour.from_rgb(123, 63, 0)
+                    color = discord.Colour.from_rgb(216, 86, 35)
                 )
                 embed.set_footer(text='Type `'+str(prefix)+'ghiblifilms <number>` to get each movie info.')
                 await wait.edit(content='', embed=embed)
@@ -1701,7 +1701,7 @@ async def on_message(message):
                 embed = discord.Embed(
                     title = data[num]['title'] + ' ('+str(data[num]['release_date'])+')',
                     description = '**Rotten Tomatoes Rating: '+str(data[num]['rt_score'])+'%**\n'+data[num]['description'],
-                    color = discord.Colour.from_rgb(123, 63, 0)
+                    color = discord.Colour.from_rgb(216, 86, 35)
                 )
                 embed.add_field(name='Directed by', value=data[num]['director'], inline='True')
                 embed.add_field(name='Produced by', value=data[num]['producer'], inline='True')
@@ -1711,7 +1711,7 @@ async def on_message(message):
                 link = 'https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.gif?size=1024'
             else:
                 link = 'https://cdn.discordapp.com/icons/'+str(message.guild.id)+'/'+str(message.guild.icon)+'.png?size=1024'
-            theEm = discord.Embed(title=message.guild.name+'\'s Icon', colour=discord.Colour.from_rgb(123, 63, 0))
+            theEm = discord.Embed(title=message.guild.name+'\'s Icon', colour=discord.Colour.from_rgb(216, 86, 35))
             theEm.set_image(url=link)
             await message.channel.send(embed=theEm)
         if cmd(msg, 'slowmode'):
@@ -1741,7 +1741,7 @@ async def on_message(message):
                 embed = discord.Embed(
                     title='Sure thing! Invite this bot to your server using the link below.',
                     description='[Invite link](https://top.gg/bot/'+str(Config.id)+') | [Support Server]('+str(Config.SupportServer.invite)+')',
-                    colour=discord.Colour.from_rgb(123, 63, 0)
+                    colour=discord.Colour.from_rgb(216, 86, 35)
                 )
                 await message.channel.send(embed=embed)
         if cmd(msg, 'serverinfo') or cmd(msg, 'servercard'):
@@ -1830,7 +1830,7 @@ async def on_message(message):
                             staticemo = staticemo + '<:'+str(message.guild.emojis[i].name)+':'+str(message.guild.emojis[i].id)+'> ('+str(message.guild.emojis[i].name)+') \n'
                     embed = discord.Embed(
                         title = message.guild.name+'\'s emojis',
-                        colour = discord.Colour.from_rgb(123, 63, 0)
+                        colour = discord.Colour.from_rgb(216, 86, 35)
                     )
                     if staticemo=="":
                         staticemo = 'No emojis found :('
@@ -1906,9 +1906,9 @@ async def on_message(message):
                     await message.channel.send(client.get_emoji(BotEmotes.error)+' | Invalid calculation.')
                 else:
                     try:
-                        await message.channel.send(embed=discord.Embed(description=f'**Result:**\n```{eval(unprefixed)}```', colour=discord.Colour.from_rgb(123, 63, 0)))
+                        await message.channel.send(embed=discord.Embed(description=f'**Result:**\n```{eval(unprefixed)}```', colour=discord.Colour.from_rgb(216, 86, 35)))
                     except ZeroDivisionError:
-                        await message.channel.send(embed=discord.Embed(description=f'**Result:**\n```yo mama```', colour=discord.Colour.from_rgb(123, 63, 0)))
+                        await message.channel.send(embed=discord.Embed(description=f'**Result:**\n```yo mama```', colour=discord.Colour.from_rgb(216, 86, 35)))
         if cmd(msg, "flipdice") or cmd(msg, "dice"):
             arr = ["one", "two", "three", "four", "five", "six"]
             ran = random.randint(0, 5)
@@ -1976,7 +1976,7 @@ async def on_message(message):
                 embed = discord.Embed(
                     title = 'Server roles of '+message.guild.name+' (From top to bottom.)',
                     description = str(serverroles),
-                    color = discord.Colour.from_rgb(123, 63, 0)
+                    color = discord.Colour.from_rgb(216, 86, 35)
                 )
                 embed.set_footer(text=str(warning))
                 await message.channel.send(embed=embed)
@@ -1987,7 +1987,7 @@ async def on_message(message):
             embed = discord.Embed(
                 title = data["name"]+' ('+str(data["id"])+')',
                 description = data["description"],
-                colour = discord.Colour.from_rgb(123, 63, 0)
+                colour = discord.Colour.from_rgb(216, 86, 35)
             )
             embed.set_author(name=data["author"], icon_url=image)
             embed.add_field(name='Uploaded at', value=data["uploaded"], inline='True')
@@ -2016,7 +2016,7 @@ async def on_message(message):
             embed = discord.Embed(
                 title = 'Bot members of '+message.guild.name+':',
                 description = '**Online: '+str(on)+' ('+str(round(on/(off+on)*100))+'%)\nOffline: '+str(off)+' ('+str(round(off/(off+on)*100))+'%)**\n\n'+str(botmembers),
-                colour = discord.Colour.from_rgb(123, 63, 0)
+                colour = discord.Colour.from_rgb(216, 86, 35)
             )
             embed.set_footer(text=warning)
             await message.channel.send(embed=embed)
@@ -2027,7 +2027,7 @@ async def on_message(message):
             embed = discord.Embed(
                 title = data["name"]+' ('+str(data["id"])+')',
                 description = data["description"],
-                colour = discord.Colour.from_rgb(123, 63, 0)
+                colour = discord.Colour.from_rgb(216, 86, 35)
             )
             embed.set_author(name=data["author"], icon_url=image)
             embed.add_field(name='Uploaded at', value=data["uploaded"], inline='True')
@@ -2068,7 +2068,7 @@ async def on_message(message):
             embed.set_author(name='Display User Information', icon_url="https://gdbrowser.com/icon/"+url)
             await message.channel.send(embed=embed)
         if cmd(msg, "rps"):
-            main = await message.channel.send(embed=discord.Embed(title='Rock Paper Scissors game.', description='Click the reaction below. And game will begin.', colour=discord.Colour.from_rgb(123, 63, 0)))
+            main = await message.channel.send(embed=discord.Embed(title='Rock Paper Scissors game.', description='Click the reaction below. And game will begin.', colour=discord.Colour.from_rgb(216, 86, 35)))
             exp = ['✊', '🖐️', '✌']
             for i in range(0, len(exp)):
                 await main.add_reaction(exp[i])
@@ -2092,7 +2092,7 @@ async def on_message(message):
                 emojiArray = emotes
                 ran = res[1]
             messages = ["Congratulations! "+str(message.author.name)+" WINS!", "It's a draw.", "Oops, "+str(message.author.name)+" lost!"]
-            colors = [discord.Colour.from_rgb(123, 63, 0), discord.Colour.orange(), discord.Colour.from_rgb(123, 63, 0)]
+            colors = [discord.Colour.from_rgb(216, 86, 35), discord.Colour.orange(), discord.Colour.from_rgb(216, 86, 35)]
             if beginGame:
                 embed = discord.Embed(
                     title = messages[msgId],
@@ -2121,7 +2121,7 @@ async def on_message(message):
             num = random.randint(5, 100)
             username = message.author.display_name
             user_class = message.author
-            embed = discord.Embed(title='Starting the game!', description='You have to guess a *secret* number between 5 and 100!\n\nYou have 20 attempts, and 20 second timer in each attempt!\n\n**G O O D  L U C K**', colour=discord.Colour.from_rgb(123, 63, 0))
+            embed = discord.Embed(title='Starting the game!', description='You have to guess a *secret* number between 5 and 100!\n\nYou have 20 attempts, and 20 second timer in each attempt!\n\n**G O O D  L U C K**', colour=discord.Colour.from_rgb(216, 86, 35))
             await message.channel.send(embed=embed)
             gameplay = True
             attempts = 20
@@ -2208,7 +2208,7 @@ async def on_message(message):
             embed = discord.Embed(
                 title = c[0]['nativeName'],
                 description = '**Capital:** '+str(c[0]['capital'])+'\n**Region: **'+str(c[0]['region'])+'\n**Sub Region: **'+str(c[0]['subregion'])+"\n**Population: **"+str(c[0]['population'])+"\n**Area: **"+str(c[0]['area'])+' km²\n**Time Zones:** '+str(myself.dearray(c[0]['timezones']))+'\n**Borders: **'+str(borderz),
-                colour = discord.Colour.from_rgb(123, 63, 0)
+                colour = discord.Colour.from_rgb(216, 86, 35)
             )
             embed.set_author(name=c[0]['name'])
             await message.channel.send(embed=embed)
@@ -2222,7 +2222,7 @@ async def on_message(message):
                 embed = discord.Embed(
                     title='Username601\'s commands',
                     description='[Join the support server]('+str(Config.SupportServer.invite)+') | [Vote us on top.gg](https://top.gg/bot/'+str(Config.id)+'/vote)\n\n**[More information on our website here.](https://vierofernando.github.io/username601/commands)**\n**Command Categories:** \n'+str(cate),
-                    colour=discord.Colour.from_rgb(123, 63, 0)
+                    colour=discord.Colour.from_rgb(216, 86, 35)
                 )
                 embed.set_footer(text=f'Type {prefix}help <command/category> for more details.')
                 await message.channel.send(embed=embed)
@@ -2254,17 +2254,17 @@ async def on_message(message):
                         for i in range(0, len(source)):
                             cmds.append(source[i]['n'])
                         cmds = myself.dearray(cmds)
-                        embed = discord.Embed(title='Category help for '+str(category_name)+':', description='**Commands:** \n```'+str(cmds)+'```', colour=discord.Colour.from_rgb(123, 63, 0))
+                        embed = discord.Embed(title='Category help for '+str(category_name)+':', description='**Commands:** \n```'+str(cmds)+'```', colour=discord.Colour.from_rgb(216, 86, 35))
                     if typ=='Command':
                         parameters = 'No parameters required.'
                         if len(source['p'])>0:
                             parameters = ''
                             for i in range(0, len(source['p'])):
                                 parameters += '**'+source['p'][i]+'**\n'
-                        embed = discord.Embed(title='Command help for '+str(source['n'])+':', description='**Function: **'+str(source['f'])+'\n**Parameters:** \n'+str(parameters), colour=discord.Colour.from_rgb(123, 63, 0))
+                        embed = discord.Embed(title='Command help for '+str(source['n'])+':', description='**Function: **'+str(source['f'])+'\n**Parameters:** \n'+str(parameters), colour=discord.Colour.from_rgb(216, 86, 35))
                     await message.channel.send(embed=embed)
         if cmd(msg, 'uptime'):
-            embed = discord.Embed(title=str(datetime.datetime.now()-latest_update)[:-7], description='Last time down: '+str(latest_update)[:-7], color=discord.Colour.from_rgb(123, 63, 0))
+            embed = discord.Embed(title=str(datetime.datetime.now()-latest_update)[:-7], description='Last time down: '+str(latest_update)[:-7], color=discord.Colour.from_rgb(216, 86, 35))
             embed.set_footer(text='Don\'t worry! 99% Uptime guaranteed.\nUnless there is an big error/on development.')
             await message.channel.send(embed=embed)
         if cmd(msg, 'about'):
@@ -2273,7 +2273,7 @@ async def on_message(message):
                 # osinfo = myself.platform()
                 if str(client.get_guild(Config.SupportServer.id).get_member(Config.owner.id).status)=='offline': devstatus = 'Offline'
                 else: devstatus = 'Online'
-                embed = discord.Embed(title = 'About '+str(message.guild.get_member(Config.id).display_name), description = random.choice(messageRandom), colour = discord.Colour.from_rgb(123, 63, 0))
+                embed = discord.Embed(title = 'About '+str(message.guild.get_member(Config.id).display_name), description = random.choice(messageRandom), colour = discord.Colour.from_rgb(216, 86, 35))
                 embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Library: **Discord.py\n**Default prefix: ** 1', inline='True')
                 embed.add_field(name='Programmer info', value='**Programmed by: **'+Config.owner.name+'. ('+client.get_user(Config.owner.id).name+'#'+str(client.get_user(Config.owner.id).discriminator)+')\n**Current Discord Status:** '+devstatus, inline='True')
                 embed.add_field(name='Version Info', value='**Bot version: ** '+Config.Version.number+'\n**Changelog: **'+Config.Version.changelog)#+'\n'+str(osinfo))
@@ -2282,7 +2282,7 @@ async def on_message(message):
                 embed.set_footer(text='© Viero Fernando Programming, 2018-2020. All rights reserved.')
                 await message.channel.send(embed=embed)
         if cmd(msg, 'vote'):
-            embed = discord.Embed(title='Support by Voting us at top.gg!', description='Sure thing, mate! [Vote us at top.gg by clicking me!](https://top.gg/bot/'+str(Config.id)+'/vote)', colour=discord.Colour.from_rgb(123, 63, 0))
+            embed = discord.Embed(title='Support by Voting us at top.gg!', description='Sure thing, mate! [Vote us at top.gg by clicking me!](https://top.gg/bot/'+str(Config.id)+'/vote)', colour=discord.Colour.from_rgb(216, 86, 35))
             await message.channel.send(embed=embed)
         if cmd(msg, 'time') or cmd(msg, 'utc'):
             data = myself.api("http://worldtimeapi.org/api/timezone/africa/accra")
@@ -2301,7 +2301,7 @@ async def on_message(message):
             embed = discord.Embed(
                 title = str(date)+' | '+str(time)+' (API)',
                 description = str(datetime.datetime.now())[:-7]+'(SYSTEM)\nBoth time above is on UTC.\n**Unix Time:** '+str(data["unixtime"])+'\n**Day of the year: **'+str(data["day_of_year"])+' ('+str(progressDayYear)+'%)\n**Day of the week: **'+str(data["day_of_week"])+' ('+str(progressDayWeek)+'%)\n'+str(yearType),
-                colour = discord.Colour.from_rgb(123, 63, 0)
+                colour = discord.Colour.from_rgb(216, 86, 35)
             )
             await message.channel.send(embed=embed)
         if cmd(msg, 'joke') or cmd(msg, 'jokes'):
@@ -2309,7 +2309,7 @@ async def on_message(message):
             embed = discord.Embed(
                 title = str(data[0]["setup"]),
                 description = '||'+str(data[0]["punchline"])+'||',
-                colour = discord.Colour.from_rgb(123, 63, 0)
+                colour = discord.Colour.from_rgb(216, 86, 35)
             )
             await message.channel.send(embed=embed)
         if cmd(msg, 'qr'):
@@ -2320,7 +2320,7 @@ async def on_message(message):
                 await message.channel.send(file=discord.File(Painter.urltoimage(link), 'qr.png'))
         if cmd(msg, 'didyoumean'):
             if args[1]=='help':
-                embed = discord.Embed(title='didyoumean command help', description='Type like the following\n'+prefix+'didyoumean [text1] [text2]\n\nFor example:\n'+prefix+'didyoumean [i am gay] [i am guy]', colour=discord.Colour.from_rgb(123, 63, 0))
+                embed = discord.Embed(title='didyoumean command help', description='Type like the following\n'+prefix+'didyoumean [text1] [text2]\n\nFor example:\n'+prefix+'didyoumean [i am gay] [i am guy]', colour=discord.Colour.from_rgb(216, 86, 35))
                 await message.channel.send(embed=embed)
             else:
                 async with message.channel.typing():
@@ -2391,7 +2391,7 @@ async def on_message(message):
                 await message.channel.send(src.slap('msg')+', '+message.mentions[0].name+'!\n'+src.slap('gif'))
         if cmd(msg, 'fact-core') or cmd(msg, 'factcore') or cmd(msg, 'fact-sphere') or cmd(msg, 'factsphere'):
             data = myself.jsonisp('https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fact-core.json')
-            embed = discord.Embed(title='Fact Core', description=random.choice(data), colour=discord.Colour.from_rgb(123, 63, 0))
+            embed = discord.Embed(title='Fact Core', description=random.choice(data), colour=discord.Colour.from_rgb(216, 86, 35))
             embed.set_thumbnail(url='https://i1.theportalwiki.net/img/thumb/5/55/FactCore.png/300px-FactCore.png')
             await message.channel.send(embed=embed)
         if cmd(msg, 'hbd'):
@@ -2423,7 +2423,7 @@ async def on_message(message):
             ]
             total = ''
             for i in range(0, len(searches)): total += str(i+1) + '. **' + searches[i] + ')**\n'
-            embed = discord.Embed(title = 'Internet Searches for '+str(unprefixed), description=total, color = discord.Colour.from_rgb(123, 63, 0))
+            embed = discord.Embed(title = 'Internet Searches for '+str(unprefixed), description=total, color = discord.Colour.from_rgb(216, 86, 35))
             await message.channel.send(embed=embed)
         if cmd(msg, 'emojify'):
             emojified = []
@@ -2497,7 +2497,7 @@ async def on_message(message):
                 await message.channel.send(file=discord.File(Painter.urltoimage(img), 'inspirobot.png'))
         if cmd(msg, 'meme'):
             data = myself.api("https://meme-api.herokuapp.com/gimme")
-            embed = discord.Embed(colour = discord.Colour.from_rgb(123, 63, 0))
+            embed = discord.Embed(colour = discord.Colour.from_rgb(216, 86, 35))
             embed.set_author(name=data["title"], url=data["postLink"])
             if data["nsfw"]:
                 embed.set_footer(text='WARNING: IMAGE IS NSFW.')
@@ -2575,7 +2575,7 @@ async def on_message(message):
             embed = discord.Embed(
                 title=message.guild.name+'\'s death note',
                 description=str(in_the_note),
-                colour = discord.Colour.from_rgb(255, 255, 0)
+                colour = discord.Colour.from_rgb(216, 86, 35)
             )
             await message.channel.send(embed=embed)
         if cmd(msg, 'lovelevel'):
@@ -2664,13 +2664,13 @@ async def on_message(message):
                 url='https://wttr.in/'+str(myself.urlify(unprefixed))+'.png?m'
                 await message.channel.send(file=discord.File(Painter.urltoimage(url), 'weather.png'))
         if cmd(msg, 'github'):
-            embed = discord.Embed(title="Click me to visit the Bot's github page.", colour=discord.Colour.from_rgb(123, 63, 0), url='https://github.com/vierofernando/username601')
+            embed = discord.Embed(title="Click me to visit the Bot's github page.", colour=discord.Colour.from_rgb(216, 86, 35), url='https://github.com/vierofernando/username601')
             await message.channel.send(embed=embed)
         if cmd(msg, 'quote'):
             data = myself.insp('https://quotes.herokuapp.com/libraries/math/random')
             text = data.split(' -- ')[0]
             quoter = data.split(' -- ')[1]
-            embed = discord.Embed(title='Quotes', description=text+'\n\n - '+quoter+' - ', colour=discord.Colour.from_rgb(123, 63, 0))
+            embed = discord.Embed(title='Quotes', description=text+'\n\n - '+quoter+' - ', colour=discord.Colour.from_rgb(216, 86, 35))
             await message.channel.send(embed=embed)
         if cmd(msg, 'trivia'):
             al = None
@@ -2685,7 +2685,7 @@ async def on_message(message):
                     if q['answer']==q['options'][i]:
                         corr = al[i]
                     choices = choices + al[i] +' '+ q['options'][i]+'\n'
-                embed = discord.Embed(title='Trivia!', description='**'+q['question']+'**\n'+choices, colour=discord.Colour.from_rgb(123, 63, 0))
+                embed = discord.Embed(title='Trivia!', description='**'+q['question']+'**\n'+choices, colour=discord.Colour.from_rgb(216, 86, 35))
                 embed.set_footer(text='Answer by clicking the reaction! You have 60 seconds.')
                 await wait.edit(content='', embed=embed)
                 for i in range(0, len(al)):
@@ -2719,7 +2719,7 @@ async def on_message(message):
                     if len(words)>1950:
                         await wait.edit(content=str(client.get_emoji(BotEmotes.error)) + ' | There seemed to be *so many* words to be listed. Sorry.')
                     else:
-                        embed = discord.Embed(title='Words that rhymes with '+msg[int(len(args[0])+1):]+':', description=words, colour=discord.Colour.from_rgb(123, 63, 0))
+                        embed = discord.Embed(title='Words that rhymes with '+msg[int(len(args[0])+1):]+':', description=words, colour=discord.Colour.from_rgb(216, 86, 35))
                         await wait.edit(content='', embed=embed)
 
 print('Logging in to discord...')
