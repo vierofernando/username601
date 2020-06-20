@@ -2624,6 +2624,7 @@ async def on_message(message):
                 for i in range(0, int(len(used))):
                     await message.add_reaction(used[i])
         if cmd(msg, 'floor'):
+            if no_args: text = 'I forgot to put the arguments, oops'
             async with message.channel.typing():
                 if len(message.mentions)==0: auth, text = str(message.author.avatar_url).replace('.webp', '.png'), unprefixed
                 else: auth, text = str(message.mentions[1].avatar_url).replace('.webp', '.png'), unprefixed.split('> ')[1]
