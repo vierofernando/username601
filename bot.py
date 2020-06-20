@@ -2373,28 +2373,17 @@ async def on_message(message):
                     await message.add_reaction(emojiArr[i])
             elif errorLevel==1:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Error: Invalid Integer.')
-        if cmd(msg, 'morse') or cmd(msg, 'temmie'):
+        if cmd(msg, 'temmie'):
             if no_args: await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | Please send something to be encoded.')
             else:
-                if cmd(msg, 'morse'): await message.channel.send('This command is closed for maintenance.')
-                elif cmd(msg, 'temmie'): 
-                    link, num = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/temmie.json', 1
-                    data = myself.jsonisp(link)
-                    keyz = list(data.keys())
-                    if cmd(msg, 'temmie'):
-                        total = ''
-                        for j in range(num, len(keyz)):
-                            if total=='': total = unprefixed
-                            total = total.replace(keyz[j], data[keyz[j]])
-                # else:
-                #     word = list(unprefixed)
-                #     total = []
-                #     for i in word:
-                #         for x in range(num, len(keyz)):
-                #             i.replace(keyz[x], data[keyz[x]])
-                #         total.append(i)
+                link, num = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/temmie.json', 1
+                data = myself.jsonisp(link)
+                keyz = list(data.keys())
+                total = ''
+                for j in range(num, len(keyz)):
+                    if total=='': total = unprefixed
+                    total = total.replace(keyz[j], data[keyz[j]])
                 if cmd(msg, 'temmie'): await message.channel.send(total)
-                # else: await message.channel.send(' '.join(total))
         if cmd(msg, 'slap'):
             if no_args:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Slap who? Tag someone!")
