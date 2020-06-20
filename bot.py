@@ -2538,7 +2538,7 @@ async def on_message(message):
             total = ''
             for i in list(unprefixed):
                 for j in range(0, len(list(data.keys()))):
-                    i = i.replace(list(data.keys())[i], data[list(data.keys())[i]])
+                    i = i.replace(list(data.keys())[j], data[list(data.keys())[j]])
                 if cmd(msg, 'morse'):
                     if i==' ': i = '/'
                     else: i += ' '
