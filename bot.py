@@ -2540,6 +2540,21 @@ async def on_message(message):
                     await message.channel.send('The binary result is too long... '+myself.bin('lol uwu'))
                 else:
                     await message.channel.send(f'```{myself.bin(text)}```')
+        if cmd(msg, 'fliptext') or cmd(msg, 'cursive') or cmd(msg, 'fancy') or cmd(msg, 'braille') or cmd(msg, 'morse'):
+            if cmd(msg, 'fliptext'): data = "https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/upside-down.json"
+            elif cmd(msg, 'cursive'): data = "https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/cursive.json"
+            elif cmd(msg, 'fancy'): data = "https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fancy.json"
+            elif cmd(msg, 'braille'): data = "https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/braille.json"
+            else: data = "https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/morse.json"
+            total = ''
+            for i in list(unprefixed):
+                for j in range(0, len(list(data.keys()))):
+                    i = i.replace(list(data.keys())[i], data[list(data.keys())[i]])
+                if cmd(msg, 'morse'):
+                    if i==' ': i = '/'
+                    else: i += ' '
+                total += i
+            await message.channel.send(total)
         if cmd(msg, 'bored'):
             data = myself.api("https://www.boredapi.com/api/activity?participants=1")
             await message.channel.send('**Feeling bored?**\nWhy don\'t you '+str(data['activity'])+'? :wink::ok_hand:')
