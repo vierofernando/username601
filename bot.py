@@ -2634,7 +2634,7 @@ async def on_message(message):
                         name = 'custom'
                         extr = '?alt='+str(av).replace('webp', 'png')
                         url='https://memegen.link/'+str(name)+'/'+str(top)+'/'+str(bott)+'.jpg'+str(extr)
-                        await message.channel.send(file=discord.File(Painter.urltoimage(url), 'avmeme.png'))
+                        await message.channel.send(file=discord.File(Painter.memegen(url), 'avmeme.png'))
                     except Exception as e:
                         await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | Error!\n```{e}```Invalid parameters. Example: `{prefix}avmeme <tag someone> [top text] [bottom text]`')
             else:
@@ -2644,7 +2644,7 @@ async def on_message(message):
                         bott = myself.urlify(unprefixed.split('[')[2].split(']')[0])
                         name = args[0][1:]
                         url='https://memegen.link/'+str(name)+'/'+str(top)+'/'+str(bott)+'.jpg?watermark=none'
-                        await message.channel.send(file=discord.File(Painter.urltoimage(url), args[0][1:]+'.png'))
+                        await message.channel.send(file=discord.File(Painter.memegen(url), args[0][1:]+'.png'))
                     except Exception as e:
                         await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | Error!\n```{e}```Invalid parameters.')
         if cmd(msg, 'barcode'):
