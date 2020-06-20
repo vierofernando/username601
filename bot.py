@@ -2623,6 +2623,11 @@ async def on_message(message):
             if validId==0:
                 for i in range(0, int(len(used))):
                     await message.add_reaction(used[i])
+        if cmd(msg, 'floor'):
+            async with message.channel.typing():
+                if len(message.mentions)==0: auth, text = str(message.author.avatar_url).replace('.webp', '.png'), unprefixed
+                else: auth, text = str(message.mentions[1].avatar_url).replace('.webp', '.png'), unprefixed.split('> ')[1]
+                await message.channel.send(file=discord.File(Painter.floorMeme(auth, text), 'floor.png'))
         if cmd(msg, 'wonka') or cmd(msg, 'avmeme') or cmd(msg, 'buzz') or cmd(msg, 'doge') or cmd(msg, 'fry') or cmd(msg, 'philosoraptor') or cmd(msg, 'money'):
             if cmd(msg, 'avmeme'):
                 async with message.channel.typing():

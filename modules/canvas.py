@@ -184,3 +184,7 @@ def memegen(url):
     cropped_img = image.crop(area)
     data = compile(cropped_img)
     return data
+
+def floorMeme(image, text):
+    data = urltoimage('https://api.alexflipnote.dev/floor?image='+image+'&text='+text)
+    return data
