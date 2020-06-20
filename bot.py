@@ -2628,7 +2628,7 @@ async def on_message(message):
             else: text = unprefixed
             async with message.channel.typing():
                 if len(message.mentions)>0: auth, text = str(message.mentions[0].avatar_url).replace('.webp', '.png'), str(message.content)[int(len(args[0])+len(args[1])+2):]
-                await message.channel.send(file=discord.File(Painter.urltoimage('https://api.alexflipnote.dev/floor?image='+auth+'&text='+text), 'floor.png'))
+                await message.channel.send(file=discord.File(Painter.urltoimage('https://api.alexflipnote.dev/floor?image='+auth+'&text='+myself.urlify(text)), 'floor.png'))
         if cmd(msg, 'wonka') or cmd(msg, 'avmeme') or cmd(msg, 'buzz') or cmd(msg, 'doge') or cmd(msg, 'fry') or cmd(msg, 'philosoraptor') or cmd(msg, 'money'):
             if cmd(msg, 'avmeme'):
                 async with message.channel.typing():
