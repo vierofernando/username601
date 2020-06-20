@@ -180,7 +180,7 @@ def urltoimage(url):
 
 def memegen(url):
     image = imagefromURL(url)
-    area = (0, 12, list(image.size)[0], list(image.size)[1]-6)
+    area = (0, 20, list(image.size)[0], list(image.size)[1]-12)
     cropped_img = image.crop(area)
-    total = compile(cropped_img)
-    return total
+    data = compile(cropped_img)
+    return data
