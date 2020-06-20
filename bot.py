@@ -2530,11 +2530,11 @@ async def on_message(message):
                 else:
                     await message.channel.send(f'```{myself.bin(text)}```')
         if cmd(msg, 'fliptext') or cmd(msg, 'cursive') or cmd(msg, 'fancy') or cmd(msg, 'braille') or cmd(msg, 'morse'):
-            if cmd(msg, 'fliptext'): data = "https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/upside-down.json"
-            elif cmd(msg, 'cursive'): data = "https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/cursive.json"
-            elif cmd(msg, 'fancy'): data = "https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fancy.json"
-            elif cmd(msg, 'braille'): data = "https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/braille.json"
-            else: data = "https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/morse.json"
+            if cmd(msg, 'fliptext'): data = myself.jsonisp("https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/upside-down.json")
+            elif cmd(msg, 'cursive'): data = myself.jsonisp("https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/cursive.json")
+            elif cmd(msg, 'fancy'): data = myself.jsonisp("https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fancy.json")
+            elif cmd(msg, 'braille'): data = myself.jsonisp("https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/braille.json")
+            else: data = myself.jsonisp("https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/morse.json")
             total = ''
             for i in list(unprefixed):
                 for j in range(0, len(list(data.keys()))):
