@@ -2536,9 +2536,13 @@ async def on_message(message):
             elif cmd(msg, 'braille'): data = myself.jsonisp("https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/braille.json")
             else: data = myself.jsonisp("https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/morse.json")
             total = ''
-            for i in list(unprefixed):
+            for i in list(unprefixed.lower()):
                 for j in range(0, len(list(data.keys()))):
-                    i = i.replace(list(data.keys())[j], data[list(data.keys())[j]])
+                    if i.lower()==list(data.keys())[j].lower():
+                        i = i.replace(list(data.keys())[j], data[list(data.keys())[j]])
+                        break
+                    else:
+                        continue
                 if cmd(msg, 'morse'):
                     if i==' ': i = '/'
                     else: i += ' '
