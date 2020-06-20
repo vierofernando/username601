@@ -2630,7 +2630,6 @@ async def on_message(message):
                 if len(message.mentions)>0: 
                     auth = str(message.mentions[0].avatar_url).replace('.webp', '.png')
                     if len(args)>2: text = str(message.content)[int(len(args[0])+len(args[1])+2):]
-                except 
                 await message.channel.send(file=discord.File(Painter.urltoimage('https://api.alexflipnote.dev/floor?image='+auth+'&text='+myself.urlify(text)), 'floor.png'))
         if cmd(msg, 'wonka') or cmd(msg, 'avmeme') or cmd(msg, 'buzz') or cmd(msg, 'doge') or cmd(msg, 'fry') or cmd(msg, 'philosoraptor') or cmd(msg, 'money'):
             if cmd(msg, 'avmeme'):
