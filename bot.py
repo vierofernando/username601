@@ -1386,7 +1386,7 @@ async def on_message(message):
         if cmd(msg, 'typingtest'):
             async with message.channel.typing():
                 wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
-                data = myself.api("https://random-word-api.herokuapp.com/word?number=10")
+                data = myself.api("https://random-word-api.herokuapp.com/word?number=5")
                 text, guy, first = myself.arrspace(data), message.author, t.now()
                 print(text)
                 main = await message.channel.send(content='You have 2 minutes.\nPlease type the following on the image:\n', file=discord.File(Painter.simpletext(text), 'test.png'))
@@ -1408,9 +1408,9 @@ async def on_message(message):
                 accuracy, err = round((len(text)-wrong)/len(text)*100), False
                 try: sec = offset.seconds
                 except AttributeError: err = True
-                if not err: wpm = round(len(str(trying.content))/round(sec/60))
-                else: wpm = '`Error while calculating WPM. Maybe you are typing too fast.`'
-                await message.channel.send("Your time: "+str(offset)+'\nYour accuracy: '+str(accuracy)+'%\nYour speed: '+str(wpm)+' wpm (words per minute).')
+                if not err: wpm = round(len(str(trying.content))/round(sec))
+                else: wpm = '`Error while calculating CPS. Maybe you are typing too fast.`'
+                await message.channel.send(embed=discord.Embed(title='TYPING TEST RESULTS', description='**Your time: **'+str(offset)[:-7]+'\n**Your accuracy: **'+str(accuracy)+'%\n**Your speed: **'+str(wpm)+' cps (characters per second).', colour=discord.Colour.from_rgb(201, 160, 112)))
         if cmd(msg, 'bomb'):
             def embedType(a):
                 if a==1:
