@@ -75,6 +75,13 @@ def limit(text):
 def drawtext(draw, fontname, text, fontsize, x, y, col):
     draw.text((x, y), text, fill =col, font = ImageFont.truetype(r'/app/assets/fonts/'+fontname+'.ttf', fontsize)  , align ="left") 
 
+def simpletext(text):
+    image = Image.new(mode='RGB',size=(5+(len(text)*18)+5, 50) ,color=(255, 255, 255))
+    draw = ImageDraw.Draw(image)
+    draw.text((10, 10), text, fill ="white", font = ImageFont.truetype(r'/app/assets/fonts/consola.ttf'), 30)  , align ="left") 
+    data = compile(image)
+    return data
+
 def servercard(link, icon, name, date, author, humans, bots, channels, roles, boosters, tier, online):
     image = Image.open(r'{}'.format(link))
     response = requests.get(icon)

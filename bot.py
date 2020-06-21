@@ -1384,23 +1384,34 @@ async def on_message(message):
                     embed.set_footer(text='Type --randomfont for umm.. random font to be generated.')
                     await message.channel.send(embed=embed)
         if cmd(msg, 'typingtest'):
-            wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
-            data = myself.api("https://random-word-api.herokuapp.com/word?number=10")
-            text = myself.arrspace(data)
-            guy = message.author
-            first = t.now()
-            main = await message.channel.send('Please type the following:\n`'+str(text)+'`')
+            async with message.channel.typing():
+                wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
+                data = myself.api("https://random-word-api.herokuapp.com/word?number=10")
+                text, guy, first = myself.arrspace(data), message.author, t.now()
+                print(text)
+                main = await message.channel.send(content='You have 2 minutes.\nPlease type the following on the image:\n', file=discord.File(Painter.simpletext(text), 'test.png'))
             def check(m):
                 return m.author == guy
             try:
-                trying = await client.wait_for('message', check=check, timeout=60.0)
+                trying = await client.wait_for('message', check=check, timeout=120.0)
             except:
                 await main.edit(content='Time is up.')
-            if str(trying.content).lower()==text.lower():
-                await message.channel.send(str(client.get_emoji(BotEmotes.success)) +' | Correct!\nYour time: **'+str(t.now()-first)[:-7]+'**')
-            else:
-                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Did you do a typo or something?\nYour time: **'+str(t.now()-first)[:-7]+'**')
-        if cmd(msg, 'defuse') or cmd(msg, 'bomb'):
+            if str(trying.content)!=None:
+                offset = t.now()-first
+                asked, answered, wrong = text.lower(), str(trying.content).lower(), 0
+                if len(str(trying.content))!=len(text):
+                    while len(answered)!=len(asked):
+                        if len(answered)>len(asked): asked += ' '
+                        else: answered += ' '
+                for i in range(0, len(asked)):
+                    if answered[i]!=asked[i]: wrong += 1
+                accuracy, err = round((len(text)-wrong)/len(text)*100), False
+                try: sec = offset.seconds
+                except AttributeError: err = True
+                if not err: wpm = round(len(str(trying.content))/round(sec/60))
+                else: wpm = '`Error while calculating WPM. Maybe you are typing too fast.`'
+                await message.channel.send("Your time: "+str(offset)+'\nYour accuracy: '+str(accuracy)+'%\nYour speed: '+str(wpm)+' wpm (words per minute).')
+        if cmd(msg, 'bomb'):
             def embedType(a):
                 if a==1:
                     return discord.Embed(title='The bomb exploded!', description='Game OVER!', colour=discord.Colour(000))
