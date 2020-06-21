@@ -1385,11 +1385,9 @@ async def on_message(message):
                     await message.channel.send(embed=embed)
         if cmd(msg, 'typingtest'):
             async with message.channel.typing():
-                wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
                 data = myself.api("https://random-word-api.herokuapp.com/word?number=5")
                 text, guy, first = myself.arrspace(data), message.author, t.now()
-                print(text)
-                main = await message.channel.send(content='You have 2 minutes.\nPlease type the following on the image:\n', file=discord.File(Painter.simpletext(text), 'test.png'))
+                main = await message.channel.send(content='**Type the text on the image.**\nYou have 2 minutes.\n', file=discord.File(Painter.simpletext(text), 'test.png'))
             def check(m):
                 return m.author == guy
             try:
