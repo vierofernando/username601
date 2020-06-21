@@ -99,7 +99,7 @@ async def on_message(message):
             else:
                 await message.channel.send(f'```{myself.encodeb64(unprefixed)}```')
         if cmd(msg, 'emoji'):
-            emoji = r"\U000{}".format(myself.jsonisp("https://ranmoji.herokuapp.com/emojis/api/v.1.0/")["emoji"].split("&#x")[1].split(";")[0])
+            emoji = "\\U000{}".format(myself.jsonisp("https://ranmoji.herokuapp.com/emojis/api/v.1.0/")["emoji"].split("&#x")[1].split(";")[0])
             await message.channel.send(emoji.decode('string_escape'))
         if cmd(msg, 'ufo'):
             num = str(random.randint(50, 100))
