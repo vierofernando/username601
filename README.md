@@ -10,7 +10,7 @@ Hello, fellow discord bot programmer! Welcome to my githoob page. This project i
 *P.S: All commits with the message "Updated Files for public version of Username601" is entirely automatic!*
 
 # Details
-**LAST UPDATE TIME:** 2020-06-21 15:44:39 (UTC+7)<br>
+**LAST UPDATE TIME:** 2020-06-21 15:53:25 (UTC+7)<br>
 **RELEASE VERSION:** 1.9.7c<br>
 **COMMANDS COUNT:** 202<br>
 **CATEGORIES:** 11<br>

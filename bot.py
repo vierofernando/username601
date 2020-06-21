@@ -327,7 +327,7 @@ async def on_message(message):
         if cmd(msg, 'shibe'):
             async with message.channel.typing():
                 data = myself.jsonisp("http://shibe.online/api/shibes?count=1")[0]
-                await message.channel.send(file=discord.File(Painter.urltoimage(data), 'shibe.png'))
+                await message.channel.send(file=discord.File(Painter.smallURL(data), 'shibe.png'))
         if cmd(msg, 'qotd'):
             data = myself.jsonisp('https://quotes.rest/qod')['contents']['quotes'][0]
             embed = discord.Embed(title=data['quote'], description=data['author'], color=discord.Colour.from_rgb(201, 160, 112))

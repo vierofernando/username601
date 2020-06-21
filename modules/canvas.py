@@ -178,6 +178,13 @@ def urltoimage(url):
     data = compile(image)
     return data
 
+def smallURL(url):
+    image = imagefromURL(url)
+    size = list(image.size)
+    pic = pic.resize((size[0]/2, size[1]/2), Image.ANTIALIAS)
+    data = compile(pic)
+    return data
+
 def memegen(url):
     image = imagefromURL(url)
     area = (0, 20, list(image.size)[0], list(image.size)[1]-12)
