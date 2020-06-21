@@ -13,8 +13,8 @@ import dbl
 print('Please wait...')
 import pokebase as pb
 import youtube_dl
-import datetime
-latest_update = datetime.datetime.now()
+from datetime import datetime as t
+latest_update = t.now()
 from os import environ as fetchdata
 import discord
 from discord.ext import commands
@@ -98,9 +98,6 @@ async def on_message(message):
                 await message.channel.send(f'Please input something to encode! Like `{prefix}base64 discord.py is better than discord.js`')
             else:
                 await message.channel.send(f'```{myself.encodeb64(unprefixed)}```')
-        if cmd(msg, 'emoji'):
-            emoji = "\\U000{}".format(myself.jsonisp("https://ranmoji.herokuapp.com/emojis/api/v.1.0/")["emoji"].split("&#x")[1].split(";")[0])
-            await message.channel.send(u'{}'.format(emoji.replace("\\\\", "\\")))
         if cmd(msg, 'ufo'):
             num = str(random.randint(50, 100))
             data = myself.api('http://ufo-api.herokuapp.com/api/sightings/search?limit='+num)
@@ -1391,7 +1388,7 @@ async def on_message(message):
             data = myself.api("https://random-word-api.herokuapp.com/word?number=10")
             text = myself.arrspace(data)
             guy = message.author
-            first = datetime.datetime.now()
+            first = t.now()
             main = await message.channel.send('Please type the following:\n`'+str(text)+'`')
             def check(m):
                 return m.author == guy
@@ -1400,9 +1397,9 @@ async def on_message(message):
             except:
                 await main.edit(content='Time is up.')
             if str(trying.content).lower()==text.lower():
-                await message.channel.send(str(client.get_emoji(BotEmotes.success)) +' | Correct!\nYour time: **'+str(datetime.datetime.now()-first)[:-7]+'**')
+                await message.channel.send(str(client.get_emoji(BotEmotes.success)) +' | Correct!\nYour time: **'+str(t.now()-first)[:-7]+'**')
             else:
-                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Did you do a typo or something?\nYour time: **'+str(datetime.datetime.now()-first)[:-7]+'**')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Did you do a typo or something?\nYour time: **'+str(t.now()-first)[:-7]+'**')
         if cmd(msg, 'defuse') or cmd(msg, 'bomb'):
             def embedType(a):
                 if a==1:
@@ -2270,7 +2267,7 @@ async def on_message(message):
                         embed = discord.Embed(title='Command help for '+str(source['n'])+':', description='**Function: **'+str(source['f'])+'\n**Parameters:** \n'+str(parameters), colour=discord.Colour.from_rgb(201, 160, 112))
                     await message.channel.send(embed=embed)
         if cmd(msg, 'uptime'):
-            embed = discord.Embed(title=str(datetime.datetime.now()-latest_update)[:-7], description='Last time down: '+str(latest_update)[:-7], color=discord.Colour.from_rgb(201, 160, 112))
+            embed = discord.Embed(title=str(t.now()-latest_update)[:-7], description='Last time down: '+str(latest_update)[:-7], color=discord.Colour.from_rgb(201, 160, 112))
             embed.set_footer(text='Don\'t worry! 99% Uptime guaranteed.\nUnless there is an big error/on development.')
             await message.channel.send(embed=embed)
         if cmd(msg, 'about'):
@@ -2306,7 +2303,7 @@ async def on_message(message):
             progressDayWeek = round(int(data["day_of_week"])/7*100)
             embed = discord.Embed(
                 title = str(date)+' | '+str(time)+' (API)',
-                description = str(datetime.datetime.now())[:-7]+'(SYSTEM)\nBoth time above is on UTC.\n**Unix Time:** '+str(data["unixtime"])+'\n**Day of the year: **'+str(data["day_of_year"])+' ('+str(progressDayYear)+'%)\n**Day of the week: **'+str(data["day_of_week"])+' ('+str(progressDayWeek)+'%)\n'+str(yearType),
+                description = str(t.now())[:-7]+'(SYSTEM)\nBoth time above is on UTC.\n**Unix Time:** '+str(data["unixtime"])+'\n**Day of the year: **'+str(data["day_of_year"])+' ('+str(progressDayYear)+'%)\n**Day of the week: **'+str(data["day_of_week"])+' ('+str(progressDayWeek)+'%)\n'+str(yearType),
                 colour = discord.Colour.from_rgb(201, 160, 112)
             )
             await message.channel.send(embed=embed)
