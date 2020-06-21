@@ -181,7 +181,7 @@ def urltoimage(url):
 def smallURL(url):
     image = imagefromURL(url)
     size = list(image.size)
-    pic = pic.resize((size[0]/2, size[1]/2), Image.ANTIALIAS)
+    pic = image.resize((round(size[0]/4), round(size[1]/4)), Image.ANTIALIAS)
     data = compile(pic)
     return data
 
