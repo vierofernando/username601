@@ -98,6 +98,9 @@ async def on_message(message):
                 await message.channel.send(f'Please input something to encode! Like `{prefix}base64 discord.py is better than discord.js`')
             else:
                 await message.channel.send(f'```{myself.encodeb64(unprefixed)}```')
+        if cmd(msg, 'emoji'):
+            emoji = myself.jsonisp("https://ranmoji.herokuapp.com/emojis/api/v.1.0/")["emoji"].split("&#x")[1].split(";")[0]
+            await message.channel.send("\U000"+str(emoji))
         if cmd(msg, 'ufo'):
             num = str(random.randint(50, 100))
             data = myself.api('http://ufo-api.herokuapp.com/api/sightings/search?limit='+num)
