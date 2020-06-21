@@ -324,16 +324,19 @@ async def on_message(message):
                 total += str(i+1) + '. ' + ppl['people'][i]['name'] + ((20-(len(ppl['people'][i]['name'])))*' ') + ppl['people'][i]['craft'] + '\n'
             embed = discord.Embed(title='Position: '+str(iss['iss_position']['latitude'])+' '+str(iss['iss_position']['longitude']), description='**People at craft:**\n\n'+str(total)+'```', colour=discord.Colour.from_rgb(201, 160, 112))
             await message.channel.send(embed=embed)
+        if cmd(msg, 'shibe'):
+            async with message.channel.typing():
+                data = myself.jsonisp("http://shibe.online/api/shibes?count=1")[0]
+                await message.channel.send(file=discord.File(Painter.urltoimage(data), 'shibe.png'))
         if cmd(msg, 'qotd'):
             data = myself.jsonisp('https://quotes.rest/qod')['contents']['quotes'][0]
             embed = discord.Embed(title=data['quote'], description=data['author'], color=discord.Colour.from_rgb(201, 160, 112))
             embed.set_image(url=data['background'])
             embed.set_footer(text='New quote will be generated in the next day.')
             await message.channel.send(embed=embed)
-        if cmd(msg, 'pika') or args[0]==prefix+'panda' or cmd(msg, 'redpanda'):
+        if cmd(msg, 'pika') or args[0]==prefix+'panda':
             if cmd(msg, 'pika'): link, col, msg = "https://some-random-api.ml/pikachuimg", discord.Colour.from_rgb(255, 255, 0), 'pika pika!'
-            elif cmd(msg, 'redpanda'): link, col, msg = "https://some-random-api.ml/img/red_panda", discord.Colour.from_rgb(201, 160, 112), 'Ok, here are some pics of red pandas.'
-            else: link, col, msg = "https://some-random-api.ml/img/panda", discord.Colour.from_rgb(201, 160, 112), 'Here is some cute pics of pandas.'
+            else: link, col, msg = random.choice(["https://some-random-api.ml/img/panda", "https://some-random-api.ml/img/red_panda"]), discord.Colour.from_rgb(201, 160, 112), 'Here is some cute pics of pandas.'
             data = myself.jsonisp(link)['link']
             embed = discord.Embed(title=msg, color=col)
             embed.set_image(url=data)
@@ -2628,7 +2631,7 @@ async def on_message(message):
             else: text = unprefixed
             auth = str(message.author.avatar_url).replace('.webp', '.png')
             async with message.channel.typing():
-                if len(message.mentions)>0: 
+                if len(message.mentions)>0:
                     auth = str(message.mentions[0].avatar_url).replace('.webp', '.png')
                     if len(args)>2: text = str(message.content)[int(len(args[0])+len(args[1])+2):]
                     else: text = 'I forgot to put the arguments, oops'
