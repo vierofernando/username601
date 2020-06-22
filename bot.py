@@ -133,7 +133,7 @@ async def on_message(message):
                 if len(message.mentions)==0: ava = str(message.author.avatar_url).replace('.webp?size=1024', '.png?size=512')
                 else: ava = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.png?size=512')
                 if cmd(msg, 'door'): await message.channel.send(file=discord.File(Painter.doormeme(ava), 'door.png'))
-                else: await message.channel.send(file=discord.File(painter.baby(ava), 'baby.png'))
+                else: await message.channel.send(file=discord.File(Painter.baby(ava), 'baby.png'))
         if cmd(msg, 'triggered'):
             increment, accept = None, True
             for i in args:
