@@ -135,7 +135,7 @@ async def on_message(message):
                 if cmd(msg, 'door'): await message.channel.send(file=discord.File(Painter.put_transparent(ava, "door", 1000, 479, 496, 483, 247, 9), 'door.png'))
                 elif cmd(msg, 'wolverine'):  await message.channel.send(file=discord.File(Painter.put_transparent(ava, "wolverine", 450, 698, 368, 316, 85, 373), 'wolverine.png'))
                 elif cmd(msg, 'disgusting'): await message.channel.send(file=discord.File(Painter.put_transparent(ava, "disgusting", 1024, 1080, 614, 407, 179, 24), 'disgusting.png'))
-                elif args[0]==prefix+'f': await message.channel.send(file=discord.File(Painter.f(ava), 'f.png')
+                elif args[0]==prefix+'f': await message.channel.send(file=discord.File(Painter.f(ava), 'f.png'))
                 else: await message.channel.send(file=discord.File(Painter.baby(ava), 'baby.png'))
         if cmd(msg, 'triggered'):
             increment, accept = None, True
