@@ -128,6 +128,11 @@ async def on_message(message):
                         await message.channel.send(file=discord.File(data, 'changemymind.png'))
                     except Exception as e:
                         await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Oops! There was an error on generating your meme; `"+str(e)+"`")
+        if cmd(msg, 'door'):
+            async with message.channel.typing():
+                if len(message.mentions)==0: ava = str(message.author.avatar_url).replace('.webp?size=1024', '.png?size=512')
+                else: ava = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.png?size=512')
+                await message.channel.send(file=discord.File(Painter.doormeme(ava), 'door.png'))
         if cmd(msg, 'triggered'):
             increment, accept = None, True
             for i in args:

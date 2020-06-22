@@ -106,6 +106,16 @@ def putimage(url, name, resx, resy, posx, posy):
     data = compile(image)
     return data
 
+def doormeme(avatar):
+    door = Image.open('/app/assets/pics/door.png')
+    canvas = Image.new(mode='RGB',size=(1000, 479) ,color=(0, 0, 0))
+    avatar = imagefromURL(avatar)
+    avatar = avatar.resize((496, 483))
+    canvas.paste(avatar, (247, 9))
+    canvas.paste(door, (0, 0), door)
+    data = compile(canvas)
+    return data
+
 def art(ava):
     image = Image.open(r'/app/assets/pics/art.jpg')
     pic = imagefromURL(ava)
