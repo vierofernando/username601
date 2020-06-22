@@ -82,6 +82,10 @@ def arrspace(arr):
             res += arr[i] + ' '
     return res
 
+def report(auth):
+    # NEVER GONNA GIVE YOU UP, NEVER GONNA LET YOU DOWN...
+    return 'lol'
+
 def jsonisp(url):
     return decodeurl(url).json()
 def api(url):

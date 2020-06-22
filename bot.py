@@ -57,6 +57,10 @@ async def on_member_remove(member):
 
 @client.event
 async def on_message(message):
+    if message.channel.id==700040209705861120:
+        await message.author.add_roles(message.guild.get_role(700042707468550184))
+    if message.channel.id==724454726908772373:
+        await message.author.add_roles(message.guild.get_role(701586228000325733))
     no_args, msg, args = False, message.content.lower(), message.content.split(' ')
     unprefixed = message.content[int(len(args[0])+1):]
     if message.author.bot==False and msg.startswith('<@!'+str(Config.id)+'>'):
@@ -95,7 +99,7 @@ async def on_message(message):
                     await message.channel.send(embed=embed)
         if cmd(msg, 'base64'):
             if no_args:
-                await message.channel.send(f'Please input something to encode! Like `{prefix}base64 discord.py is better than discord.js`')
+                await message.channel.send(f'Please input something to encode! Like `{prefix}base64 i am a cool hacker`')
             else:
                 await message.channel.send(f'```{myself.encodeb64(unprefixed)}```')
         if cmd(msg, 'ufo'):
@@ -828,7 +832,8 @@ async def on_message(message):
                 except Exception as e:
                     await message.channel.send(f'Oops! We got an error here, nerd!\n```{e}```')
             else:
-                await message.channel.send('This command somehow doesn\'t work in discord.py.\nTry discord.js instead.')
+                myself.report(message.author) # reports to the owner
+                await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | Ok. reported to the owner ('+str(client.get_user(BotEmotes.owner.name))+') for doing the `eval` command.')
         if args[0]==prefix+'s':
             await message.delete()
             member = message.author
