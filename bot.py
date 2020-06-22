@@ -128,12 +128,13 @@ async def on_message(message):
                         await message.channel.send(file=discord.File(data, 'changemymind.png'))
                     except Exception as e:
                         await message.channel.send(str(client.get_emoji(BotEmotes.error))+" | Oops! There was an error on generating your meme; `"+str(e)+"`")
-        if cmd(msg, 'door') or cmd(msg, 'baby') or cmd(msg, 'wolverine'):
+        if cmd(msg, 'door') or cmd(msg, 'baby') or cmd(msg, 'wolverine') or cmd(msg, 'disgusting'):
             async with message.channel.typing():
                 if len(message.mentions)==0: ava = str(message.author.avatar_url).replace('.webp?size=1024', '.png?size=512')
                 else: ava = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.png?size=512')
                 if cmd(msg, 'door'): await message.channel.send(file=discord.File(Painter.put_transparent(ava, "door", 1000, 479, 496, 483, 247, 9), 'door.png'))
                 elif cmd(msg, 'wolverine'):  await message.channel.send(file=discord.File(Painter.put_transparent(ava, "wolverine", 450, 698, 368, 316, 85, 373), 'wolverine.png'))
+                elif cmd(msg, 'disgusting'): await message.channel.send(file=discord.File(Painter.put_transparent(ava, "disgusting", 1024, 1080, 614, 407, 179, 24), 'disgusting.png'))
                 else: await message.channel.send(file=discord.File(Painter.baby(ava), 'baby.png'))
         if cmd(msg, 'triggered'):
             increment, accept = None, True
