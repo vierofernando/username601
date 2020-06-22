@@ -137,6 +137,16 @@ def art(ava):
     data = compile(image)
     return data
 
+def f(ava):
+    avatar = imagefromURL(ava)
+    bg = Image.open(r'/app/assets/pics/f.png')
+    canvas = Image.new(mode='RGB',size=(680, 383) ,color=(0, 0, 0))
+    avatar = avatar.resize((104, 85))
+    canvas.paste(avatar, (318, 120))
+    canvas.paste(bg, (0, 0), bg)
+    data = compile(canvas)
+    return data
+
 def resize(url, x, y):
     pic = imagefromURL(url)
     pic = pic.resize((x, y), Image.ANTIALIAS)
