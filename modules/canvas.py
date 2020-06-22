@@ -116,6 +116,17 @@ def doormeme(avatar):
     data = compile(canvas)
     return data
 
+def baby(ava):
+    avatar = imagefromURL(ava)
+    canvas = Image.new(mode='RGB',size=(728, 915) ,color=(0, 0, 0))
+    baby = Image.open("/app/assets/picsbaby.png")
+    avatar = avatar.resize((382, 349))
+    avatar = avatar.rotate(50)
+    canvas.paste(avatar, (203, 309))
+    canvas.paste(baby, (0, 0), baby)
+    data = compile(canvas)
+    return data
+
 def art(ava):
     image = Image.open(r'/app/assets/pics/art.jpg')
     pic = imagefromURL(ava)
