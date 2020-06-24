@@ -10,13 +10,13 @@ Hello, fellow discord bot programmer! Welcome to my githoob page. This project i
 *P.S: All commits with the message "Updated Files for public version of Username601" is entirely automatic!*
 
 # Details
-**LAST UPDATE TIME:** 2020-06-22 22:39:12 (UTC+7)<br>
-**RELEASE VERSION:** 1.9.7c<br>
-**COMMANDS COUNT:** 208<br>
+**LAST UPDATE TIME:** 2020-06-24 21:49:17 (UTC+7)<br>
+**RELEASE VERSION:** 1.9.8<br>
+**COMMANDS COUNT:** 210<br>
 **CATEGORIES:** 11<br>
 # Links
 [Vote us on top.gg.](https://top.gg/bot/696973408000409626/vote)<br>
 [Official Website](https://vierofernando.github.io/username601)<br>
 [Add the bot to your server!](https://discordapp.com/api/oauth2/authorize?client_id=696973408000409626&permissions=8&scope=bot)<br>
 
-(c) Viero Fernando Programming 2088-2020. All rights reserved.
+(c) Viero Fernando Programming 2108-2020. All rights reserved.

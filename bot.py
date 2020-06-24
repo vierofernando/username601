@@ -63,18 +63,14 @@ async def on_message(message):
         await message.author.add_roles(message.guild.get_role(701586228000325733))
     no_args, msg, args = False, message.content.lower(), message.content.split(' ')
     unprefixed = message.content[int(len(args[0])+1):]
-    if message.author.bot==False and msg.startswith('<@!'+str(Config.id)+'>'):
-        await message.channel.send('The prefix is `'+prefix+'`.\n**Commands: **`'+prefix+'help`')
+    if message.author.bot==False and f'<@{str(Config.id)}>' in msg:
+        await message.channel.send(f'<@{str(message.author.id)}>, My prefix in this server is `{prefix}`.')
     if len(args)==1: no_args = True
     if myself.accept_message(message.author.id, message.author.bot, msg):
         if cmd(msg, 'ping'):
             ping = str(round(client.latency*1000))
-            if int(ping)<100:
-                embed = discord.Embed(title=f'Pong! {ping} ms.', colour=discord.Colour.from_rgb(201, 160, 112))
-            else:
-                embed = discord.Embed(title=f'Pong! {ping} ms.', description='Ping time may be slower due to;\n1. People kept spamming me\n2. My hosting system is slow\n3. I am in too many servers\n4. Discord\'s servers are currectly down\n5. I am snail :snail:', colour=discord.Colour.from_rgb(201, 160, 112))
+            embed = discord.Embed(title=f'Pong!', description=f'**Discord\'s Latency:** {ping} ms.\n**Username601\'s Latency:** {str(round(int((t.now()-message.created_at).microseconds)/1000))} ms.', colour=discord.Colour.from_rgb(201, 160, 112))
             embed.set_thumbnail(url='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif')
-            embed.set_footer(text='Ping and embed sent time may differ.')
             await message.channel.send(embed=embed)
         if cmd(msg, 'say'):
             await message.channel.send(unprefixed)
@@ -803,32 +799,33 @@ async def on_message(message):
             if checky==False:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | You don\'t have the permission `Manage Messages` to do this command \>:(')
             else:
-                contin = True
-                if args[1].isnumeric()==True:
-                    try:
-                        count = int(args[1])+1
-                        if count>500:
-                            await message.channel.send('That\'s **TOO MANY** messages to be deleted!\nJust clone the channel and delete the old one.\neasy peasy.')
-                            contin = False
-                    except:
-                        await message.channel.send('That is NOT a number!')
-                        contin = False
-                if contin==True:
+                if no_args: await message.channel.send("Please send a number. LIMIT: 500")
+                else:
+                    contin = True
                     if args[1].isnumeric()==True:
                         try:
-                            deleted_messages = await message.channel.purge(limit=count)
-                            await message.channel.send('**Requested by '+req+':** Deleted '+str(len(deleted_messages)-1)+' messages in <#'+str(message.channel.id)+'>.', delete_after=3)
-                        except Exception as e:
-                            await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | An error occured during purging. ```'+str(e)+'```')
-                    elif args[1].startswith('<@'):
-                        check_guy = message.mentions[0]
-                        try:
-                            def forperson(m):
-                                return m.author == check_guy
-                            deleted_messages = await message.channel.purge(check=forperson, limit=500)
-                            await message.channel.send('**Requested by '+req+':** Deleted '+str(len(deleted_messages))+' messages in <#'+str(message.channel.id)+'>.\nSpecifically for messages by <@'+str(check_guy.id)+'>.', delete_after=10)
-                        except Exception as e:
-                            await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | An error occured during purging. ```'+str(e)+'```')
+                            count = int(args[1])+1
+                            if count>500:
+                                await message.channel.send('That\'s **TOO MANY** messages to be deleted!\nJust clone the channel and delete the old one.\neasy peasy.')
+                                contin = False
+                        except:
+                            await message.channel.send('That is NOT a number!')
+                            contin = False
+                    if contin==True:
+                        if args[1].isnumeric()==True:
+                            try:
+                                deleted_messages = await message.channel.purge(limit=count)
+                                await message.channel.send('**Requested by '+req+':** Deleted '+str(len(deleted_messages)-1)+' messages in <#'+str(message.channel.id)+'>.', delete_after=3)
+                            except Exception as e:
+                                await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | An error occured during purging. ```'+str(e)+'```')
+                        elif len(message.mentions)>0:
+                            try:
+                                def forperson(m):
+                                    return m.author == message.mentions[0]
+                                deleted_messages = await message.channel.purge(check=forperson, limit=500)
+                                await message.channel.send('**Requested by '+req+':** Deleted '+str(len(deleted_messages))+' messages in <#'+str(message.channel.id)+'>.\nSpecifically for messages by <@'+str(check_guy.id)+'>.', delete_after=3)
+                            except Exception as e:
+                                await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | An error occured during purging. ```'+str(e)+'```')
         if args[0]==prefix+'ex' or args[0]==prefix+'eval':
             if int(message.author.id)==Config.owner.id:
                 command = unprefixed
@@ -842,17 +839,16 @@ async def on_message(message):
                     await message.channel.send(f'Oops! We got an error here, nerd!\n```{e}```')
             else:
                 myself.report(message.author) # reports to the owner
-                await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | Ok. reported to the owner ('+str(client.get_user(BotEmotes.owner.name))+') for doing the `eval` command.')
+                await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | Are you looking for the bots token? Well here you are: `ASKDPASKDOKASODKASODKOASKSDAODSKASD`')
         if args[0]==prefix+'s':
             await message.delete()
-            member = message.author
             if message.author.guild_permissions.manage_guild==True or int(message.author.id)==Config.owner.id:
                 accept = True
             else:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | <@'+str(message.author.id)+'>, You need to have the MANAGE SERVER permission or  be the bot owner to do this command.\nTo be the bot owner, try creating a bot :v')
                 accept = False
             if accept==True:
-                await message.channel.send(message.content[3:])
+                await message.channel.send(unprefixed)
         if cmd(msg, 'addrole') or args[0]==prefix+'ar':
             if message.author.guild_permissions.manage_roles==False:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | <@{str(message.author.id)}>, you don\'t have the `Manage Roles` permission!')
@@ -2739,6 +2735,18 @@ async def on_message(message):
                 await message.channel.send(str(client.get_emoji(BotEmotes.success)) +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
             else:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | <@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr)+'.')
+        if cmd(msg, 'blur') or cmd(msg, 'glitch'):
+	    async with message.channel.typing():
+                if len(message.mentions)==0: source = str(message.author.avatar_url).replace('.webp?size=1024', '.png')
+                else: source = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')
+                link = 'https://neko-love.xyz/api/v2/'+args[0][1:].replace('glitch', 'offset')+'?url='+source
+                try:
+                    data = myself.jsonisp(link)
+                    if data['code']!=200: await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | Oopsies! Error '+str(data['code']))
+                    else:
+                        await message.channel.send(file=discord.File(Painter.urltoimage(data['url']), args[0][1:]+'.png'))
+                except KeyError:
+                    await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | Oops! It seemed that i cannot found the image. sorryy')
         if cmd(msg, 'rhyme'):
             if no_args:
                 await message.channel.send('Please input a word! And we will try to find the word that best rhymes with it.')
