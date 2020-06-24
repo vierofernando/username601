@@ -2737,10 +2737,8 @@ async def on_message(message):
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | <@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr)+'.')
         if cmd(msg, 'blur') or cmd(msg, 'glitch'):
 	        async with message.channel.typing():
-                if len(message.mentions)==0:
-                    source = str(message.author.avatar_url).replace('.webp?size=1024', '.png')
-                else:
-                    source = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')
+                if len(message.mentions)==0: source = str(message.author.avatar_url).replace('.webp?size=1024', '.png')
+                else: source = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')
                 link = 'https://neko-love.xyz/api/v2/'+args[0][1:].replace('glitch', 'offset')+'?url='+source
                 try:
                     data = myself.jsonisp(link)
