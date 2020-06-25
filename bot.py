@@ -72,7 +72,10 @@ async def on_message(message):
             embed.set_thumbnail(url='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif')
             await message.channel.send(embed=embed)
         if cmd(msg, 'say'):
-            await message.channel.send(unprefixed)
+            if no_args: await message.channel.send('nope')
+            else:
+                if '--h' in unprefixed: await message.delete()
+                await message.channel.send(unprefixed)
         if cmd(msg, 'hack'):
             if no_args:
                 await message.channel.send(f'Please tag someone!\nExample: {prefix}hack <@'+str(message.author.id)+'>')
@@ -825,42 +828,31 @@ async def on_message(message):
                                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | An error occured during purging. ```'+str(e)+'```')
         if cmd(msg, 'bash'):
             if int(message.author.id)==Config.owner.id:
-                async with message.channel.typing():
-                    try:
-                        if no_args: raise OSError('you are gay')
-                        if len(unprefixed.split())==1:
-                            data = run([unprefixed], stdout=PIPE).stdout.decode('utf-8')
-                        else:
-                            data = run([unprefixed.split()[0], ' '.join(unprefixed.split()[1:len(unprefixed)])], stdout=PIPE).stdout.decode('utf-8')
-                        await message.channel.send(embed=discord.Embed(title='Bash Terminal', description='Input:```sh\n'+str(unprefixed)+'```**Output:**```sh\n'+str(data)+'```', color=discord.Color.green()))
-                    except Exception as e:
-                        await message.channel.send(embed=discord.Embed(title='Error on execution', description='Input:```sh\n'+str(unprefixed)+'```**Error:**```py\n'+str(e)+'```', color=discord.Color.red()))
+                try:
+                    if no_args: raise OSError('you are gay')
+                    if len(unprefixed.split())==1:
+                        data = run([unprefixed], stdout=PIPE).stdout.decode('utf-8')
+                    else:
+                        data = run([unprefixed.split()[0], ' '.join(unprefixed.split()[1:len(unprefixed)])], stdout=PIPE).stdout.decode('utf-8')
+                    await message.channel.send(embed=discord.Embed(title='Bash Terminal', description='Input:```sh\n'+str(unprefixed)+'```**Output:**```sh\n'+str(data)+'```', color=discord.Color.green()))
+                except Exception as e:
+                    await message.channel.send(embed=discord.Embed(title='Error on execution', description='Input:```sh\n'+str(unprefixed)+'```**Error:**```py\n'+str(e)+'```', color=discord.Color.red()))
             else:
                 await message.channel.send(embed=discord.Embed(title='Error on execution', description='Input:```sh\n'+str(unprefixed)+'```**Error:**```py\nDenied by username601.sh```', color=discord.Color.red()))
         if args[0]==prefix+'ex' or args[0]==prefix+'eval':
             if int(message.author.id)==Config.owner.id:
-                async with message.channel.typing():
-                    try:
-                        res = eval(unprefixed)
-                        if 'token' in unprefixed: res = 'YO MAMA'
-                        if isawaitable(res):
-                            await message.channel.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```**Output:**```py\n'+str(await res)+'```Return type:```py\n'+str(type(await res))+'```', color=discord.Colour.green()))
-                        else:
-                            await message.channel.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```**Output:**```py\n'+str(res)+'```Return type:```py\n'+str(type(res))+'```', color=discord.Color.green()))
-                    except Exception as e:
-                        await message.channel.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+unprefixed+'```\nException:```py\n'+str(e)+'```', color=discord.Colour.red()))
+                try:
+                    res = eval(unprefixed)
+                    if 'token' in unprefixed: res = 'YO MAMA'
+                    if isawaitable(res):
+                        await message.channel.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```**Output:**```py\n'+str(await res)+'```Return type:```py\n'+str(type(await res))+'```', color=discord.Colour.green()))
+                    else:
+                        await message.channel.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```**Output:**```py\n'+str(res)+'```Return type:```py\n'+str(type(res))+'```', color=discord.Color.green()))
+                except Exception as e:
+                    await message.channel.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+unprefixed+'```\nException:```py\n'+str(e)+'```', color=discord.Colour.red()))
             else:
                 myself.report(message.author) # reports to the owner
                 await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | Are you looking for the bots token? Well here you are: `ASKDPASKDOKASODKASODKOASKSDAODSKASD`')
-        if args[0]==prefix+'s':
-            await message.delete()
-            if message.author.guild_permissions.manage_guild==True or int(message.author.id)==Config.owner.id:
-                accept = True
-            else:
-                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | <@'+str(message.author.id)+'>, You need to have the MANAGE SERVER permission or  be the bot owner to do this command.\nTo be the bot owner, try creating a bot :v')
-                accept = False
-            if accept==True:
-                await message.channel.send(unprefixed)
         if cmd(msg, 'addrole') or args[0]==prefix+'ar':
             if message.author.guild_permissions.manage_roles==False:
                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) +f' | <@{str(message.author.id)}>, you don\'t have the `Manage Roles` permission!')
