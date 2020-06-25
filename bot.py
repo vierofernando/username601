@@ -64,7 +64,7 @@ async def on_message(message):
     if message.author.bot==False and f'<@{str(Config.id)}>' in msg or f'<@!{str(Config.id)}>' in msg:
         await message.channel.send(f'<@{str(message.author.id)}>, My prefix in this server is `{prefix}`.')
     if len(args)==1: no_args = True
-    if myself.accept_message(message.author.id, message.author.bot, msg):
+    if myself.accept_message(message.author.id, message.author.bot, msg, message.guild):
         if cmd(msg, 'ping'):
             ping = str(round(client.latency*1000))
             embed = discord.Embed(title=f'Pong!', description=f'**Discord\'s Latency:** {ping} ms.\n**Username601\'s Latency:** {str(round(int((t.now()-message.created_at).microseconds)/1000))} ms.', colour=discord.Colour.from_rgb(201, 160, 112))
@@ -829,9 +829,9 @@ async def on_message(message):
                     res = eval(command)
                     if 'token' in unprefixed: res = 'YO MAMA'
                     if isawaitable(res):
-                        await message.channel.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```\nOutput:```py\n'+str(await res)+'```\n\n:white_check_mark: Async-await Syntax\nReturn type:```py\n'+str(type(await res))+'```', color=discord.Colour.green()))
+                        await message.channel.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```\nOutput:```py\n'+str(await res)+'```Return type:```py\n'+str(type(await res))+'```', color=discord.Colour.green()))
                     else:
-                        await message.channel.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```\nOutput:```py\n'+str(res)+'```\n\n:x: Async-await Syntax\nReturn type:```py\n'+str(type(res))+'```', color=discord.Color.green()))
+                        await message.channel.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```\nOutput:```py\n'+str(res)+'```Return type:```py\n'+str(type(res))+'```', color=discord.Color.green()))
                 except Exception as e:
                     await message.channel.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+unprefixed+'```\nException:```py\n'+str(e)+'```', color=discord.Colour.red()))
             else:
@@ -1321,21 +1321,6 @@ async def on_message(message):
                                 await message.channel.send('Color of '+role.name+' role has been changed.', delete_after=10)
                             except Exception as e:
                                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) + f' | An error occured while editing role:```{e}```')
-        if cmd(msg, 'isprime'):
-            if int(args[1])<999999:
-                numsArray = range(2, int(args[1]))
-                id = 0
-                canBeDividedBy = []
-                for k in range(0, int(len(numsArray))):
-                    if int(args[1])%numsArray[k]==0:
-                        id = 1
-                        canBeDividedBy.append(str(numsArray[k]))
-                if id==0:
-                    await message.channel.send("YES. "+str(args[1])+" is a prime number.")
-                else:
-                    await message.channel.send("NO. "+str(args[1])+" can be divided by "+str(myself.dearray(canBeDividedBy))+".")
-            else:
-                await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | OverloadInputError: Beyond the limit of 999999')
         if cmd(msg, 'jpeg') or cmd(msg, 'invert') or cmd(msg, 'magik')or cmd(msg, 'pixelate')or cmd(msg, 'b&w'):
             if args[0][1:]=='jpeg':
                 com = 'jpegify'
@@ -1755,7 +1740,7 @@ async def on_message(message):
                             await message.channel.send(str(client.get_emoji(BotEmotes.success)) + ' | Successfully disabled slowmode.')
                         else:
                             await message.channel.send(str(client.get_emoji(BotEmotes.success)) + ' | Successfully changed the slowmode delay of this channel to '+str(delay)+' seconds.')
-        if cmd(msg, 'inviteme') or cmd(msg, 'invite'):
+        if cmd(msg, 'inviteme') or cmd(msg, 'invite') or cmd(msg, 'support'):
             if message.guild.id!=264445053596991498:
                 embed = discord.Embed(
                     title='Sure thing! Invite this bot to your server using the link below.',
@@ -1771,22 +1756,6 @@ async def on_message(message):
                 if not i.bot: humans += 1
             image = Painter.servercard("./assets/pics/card.jpg", str(message.guild.icon_url).replace(".webp?size=1024", ".jpg?size=128"), message.guild.name, str(message.guild.created_at)[:-7], message.guild.owner.name, str(humans), str(bots), str(len(message.guild.channels)), str(len(message.guild.roles)), str(message.guild.premium_subscription_count), str(message.guild.premium_tier), str(online))
             await message.channel.send(content='Here is the '+message.guild.name+'\'s server card.', file=discord.File(image, message.guild.name+'.png'))
-        if cmd(msg, 'factor'):
-            if int(args[1])<999999:
-                numList = range(1, int(args[1]))
-                factor = []
-                for i in range(0, int(len(numList))):
-                    if int(args[1])%int(numList[i])==0:
-                        factor.append(numList[i])
-                factor.append(int(args[1]))
-                await message.channel.send(str(factor))
-            else:
-                await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | OverloadInputError: Beyond the limit of 999999.')
-        if cmd(msg, 'multiplication'):
-            arr = []
-            for i in range(1, 15):
-                arr.append(int(args[1])*i)
-            await message.channel.send(str(arr))
         if cmd(msg, 'gdcomment'):
             async with message.channel.typing():
                 try:
@@ -2288,11 +2257,10 @@ async def on_message(message):
             await message.channel.send(embed=embed)
         if cmd(msg, 'about'):
             if message.guild.id!=264445053596991498:
-                messageRandom = src.getAbout()
                 # osinfo = myself.platform()
                 if str(client.get_guild(Config.SupportServer.id).get_member(Config.owner.id).status)=='offline': devstatus = 'Offline'
                 else: devstatus = 'Online'
-                embed = discord.Embed(title = 'About '+str(message.guild.get_member(Config.id).display_name), description = random.choice(messageRandom), colour = discord.Colour.from_rgb(201, 160, 112))
+                embed = discord.Embed(title = 'About '+str(message.guild.get_member(Config.id).display_name), colour = discord.Colour.from_rgb(201, 160, 112))
                 embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Library: **Discord.py\n**Default prefix: ** 1', inline='True')
                 embed.add_field(name='Programmer info', value='**Programmed by: **'+Config.owner.name+'. ('+client.get_user(Config.owner.id).name+'#'+str(client.get_user(Config.owner.id).discriminator)+')\n**Current Discord Status:** '+devstatus, inline='True')
                 embed.add_field(name='Version Info', value='**Bot version: ** '+Config.Version.number+'\n**Changelog: **'+Config.Version.changelog)#+'\n'+str(osinfo))
@@ -2353,33 +2321,6 @@ async def on_message(message):
                     txt = myself.urlify(unprefixed)
                     url='https://api.alexflipnote.dev/challenge?text='+str(txt)
                     await message.channel.send(file=discord.File(Painter.urltoimage(url), 'challenge.png'))
-        if cmd(msg, 'median') or cmd(msg, 'mean'):
-            numArray = []
-            i = 1
-            try:
-                while args[i]!="":
-                    numArray.append(args[i])
-                    i = int(i)+1
-            except IndexError:
-                print("Reached the limit.")
-            if cmd(msg, 'median'):
-                if len(numArray)%2==0:
-                    first = int(len(numArray))/2
-                    second = int(first)
-                    first = int(first)-1
-                    result = int(int(numArray[first])+int(numArray[second]))/2
-                else:
-                    resultPosition = int(len(numArray))-int(((len(numArray))-1)/2)
-                    result = numArray[int(resultPosition)-1]
-            if cmd(msg, 'mean'):
-                temp = 0
-                for i in range(0, int(len(numArray))):
-                    temp = int(temp)+int(numArray[i])
-                result = int(temp)/int(len(numArray))
-            await message.channel.send(str(result))
-        if cmd(msg, "sqrt"):
-            num = int(args[1])
-            await message.channel.send(str(math.sqrt(int(num))))
         if cmd(msg, 'reactnum'):
             emojiArr = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣']
             begin = int(args[1])
