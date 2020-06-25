@@ -829,9 +829,9 @@ async def on_message(message):
                     res = eval(command)
                     if 'token' in unprefixed: res = 'YO MAMA'
                     if isawaitable(res):
-                        await message.channel.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```\nOutput:```py\n'+str(await res)+'```\n\n:white_check_mark: Async-await Syntax\nReturn type:```py\n'+str(type(await res))+'```', color=discord.Colour.green())
+                        await message.channel.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```\nOutput:```py\n'+str(await res)+'```\n\n:white_check_mark: Async-await Syntax\nReturn type:```py\n'+str(type(await res))+'```', color=discord.Colour.green()))
                     else:
-                        await message.channel.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```\nOutput:```py\n'+str(res)+'```\n\n:x: Async-await Syntax\nReturn type:```py\n'+str(type(res))+'```', color=discord.Color.green())
+                        await message.channel.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```\nOutput:```py\n'+str(res)+'```\n\n:x: Async-await Syntax\nReturn type:```py\n'+str(type(res))+'```', color=discord.Color.green()))
                 except Exception as e:
                     await message.channel.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+unprefixed+'```\nException:```py\n'+str(e)+'```', color=discord.Colour.red())
             else:
@@ -2283,8 +2283,8 @@ async def on_message(message):
                         embed = discord.Embed(title='Command help for '+str(source['n'])+':', description='**Function: **'+str(source['f'])+'\n**Parameters:** \n'+str(parameters), colour=discord.Colour.from_rgb(201, 160, 112))
                     await message.channel.send(embed=embed)
         if cmd(msg, 'uptime'):
-            embed = discord.Embed(title=str(t.now()-latest_update)[:-7], description='Last time down: '+str(latest_update)[:-7], color=discord.Colour.from_rgb(201, 160, 112))
-            embed.set_footer(text='Don\'t worry! 99% Uptime guaranteed.\nUnless there is an big error/on development.')
+            embed = discord.Embed(title=str(t.now()-latest_update)[:-7], color=discord.Colour.from_rgb(201, 160, 112))
+            embed.set_footer(text='Last downtime: '+str(latest_update)[:-7]+' UTC')
             await message.channel.send(embed=embed)
         if cmd(msg, 'about'):
             if message.guild.id!=264445053596991498:
