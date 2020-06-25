@@ -57,13 +57,11 @@ async def on_member_remove(member):
 
 @client.event
 async def on_message(message):
-    if message.channel.id==700040209705861120:
-        await message.author.add_roles(message.guild.get_role(700042707468550184))
-    if message.channel.id==724454726908772373:
-        await message.author.add_roles(message.guild.get_role(701586228000325733))
+    if message.channel.id==700040209705861120: await message.author.add_roles(message.guild.get_role(700042707468550184))
+    if message.channel.id==724454726908772373: await message.author.add_roles(message.guild.get_role(701586228000325733))
     no_args, msg, args = False, message.content.lower(), message.content.split(' ')
     unprefixed = message.content[int(len(args[0])+1):]
-    if message.author.bot==False and f'<@{str(Config.id)}>' in msg:
+    if message.author.bot==False and f'<@{str(Config.id)}>' in msg or f'<@!{str(Config.id)}>' in msg:
         await message.channel.send(f'<@{str(message.author.id)}>, My prefix in this server is `{prefix}`.')
     if len(args)==1: no_args = True
     if myself.accept_message(message.author.id, message.author.bot, msg):
@@ -94,10 +92,8 @@ async def on_message(message):
                     embed = discord.Embed(title='Anonymous601 Hacking Console', description=f'```{console}```',colour=discord.Colour.from_rgb(201, 160, 112))
                     await message.channel.send(embed=embed)
         if cmd(msg, 'base64'):
-            if no_args:
-                await message.channel.send(f'Please input something to encode! Like `{prefix}base64 i am a cool hacker`')
-            else:
-                await message.channel.send(f'```{myself.encodeb64(unprefixed)}```')
+            if no_args: await message.channel.send(f'Please input something to encode! Like `{prefix}base64 i am a cool hacker`')
+            else: await message.channel.send(f'```{myself.encodeb64(unprefixed)}```')
         if cmd(msg, 'ufo'):
             num = str(random.randint(50, 100))
             data = myself.api('http://ufo-api.herokuapp.com/api/sightings/search?limit='+num)
@@ -822,8 +818,8 @@ async def on_message(message):
                             try:
                                 def forperson(m):
                                     return m.author == message.mentions[0]
-                                deleted_messages = await message.channel.purge(check=forperson, limit=500)
-                                await message.channel.send('**Requested by '+req+':** Deleted '+str(len(deleted_messages))+' messages in <#'+str(message.channel.id)+'>.\nSpecifically for messages by <@'+str(check_guy.id)+'>.', delete_after=3)
+                                deleted_messages = await message.channel.purge(check=forperson)
+                                await message.channel.send('**Requested by '+req+':** Deleted '+str(len(deleted_messages))+' messages in <#'+str(message.channel.id)+'>.\nSpecifically for messages by <@'+str(message.mentions[0].id)+'>.', delete_after=3)
                             except Exception as e:
                                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | An error occured during purging. ```'+str(e)+'```')
         if args[0]==prefix+'ex' or args[0]==prefix+'eval':
@@ -831,12 +827,13 @@ async def on_message(message):
                 command = unprefixed
                 try:
                     res = eval(command)
+                    if 'token' in unprefixed: res = 'YO MAMA'
                     if isawaitable(res):
-                        await message.channel.send('```py\n'+await res+'```')
+                        await message.channel.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```\nOutput:```py\n'+str(await res)+'```\n\n:white_check_mark: Async-await Syntax\nReturn type:```py\n'+str(type(await res))+'```', color=discord.Colour.green())
                     else:
-                        await message.channel.send('```py\n'+str(res)+'```')
+                        await message.channel.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```\nOutput:```py\n'+str(res)+'```\n\n:x: Async-await Syntax\nReturn type:```py\n'+str(type(res))+'```', color=discord.Color.green())
                 except Exception as e:
-                    await message.channel.send(f'Oops! We got an error here, nerd!\n```{e}```')
+                    await message.channel.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+unprefixed+'```\nException:```py\n'+str(e)+'```', color=discord.Colour.red())
             else:
                 myself.report(message.author) # reports to the owner
                 await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | Are you looking for the bots token? Well here you are: `ASKDPASKDOKASODKASODKOASKSDAODSKASD`')
