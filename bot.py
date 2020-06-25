@@ -823,14 +823,14 @@ async def on_message(message):
                                 await message.channel.send('**Requested by '+req+':** Deleted '+str(len(deleted_messages))+' messages in <#'+str(message.channel.id)+'>.\nSpecifically for messages by <@'+str(message.mentions[0].id)+'>.', delete_after=3)
                             except Exception as e:
                                 await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | An error occured during purging. ```'+str(e)+'```')
-        if args[0]==prefix+'bash':
+        if cmd(msg, 'bash'):
             if int(message.author.id)==Config.owner.id:
                 try:
                     if no_args: raise OSError('you are gay')
                     if len(unprefixed.split())==1:
                         data = run([unprefixed], stdout=PIPE).stdout.decode('utf-8')
                     else:
-                        data = run([unprefixed.split()[0], unprefixed[1:len(unprefixed)]], stdout=PIPE).stdout.decode('utf-8')
+                        data = run([unprefixed.split()[0], ' '.join(unprefixed.split()[1:len(unprefixed)])], stdout=PIPE).stdout.decode('utf-8')
                     await message.channel.send(embed=discord.Embed(title='Bash Terminal', description='Input:```sh\n'+str(unprefixed)+'```**Output:**```sh\n'+str(data)+'```', color=discord.Color.green()))
                 except Exception as e:
                     await message.channel.send(embed=discord.Embed(title='Error on B45H', description='Input:```sh\n'+str(unprefixed)+'```**Error:**```py\n'+str(e)+'```', color=discord.Color.red()))
