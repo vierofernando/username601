@@ -833,7 +833,7 @@ async def on_message(message):
                     else:
                         await message.channel.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```\nOutput:```py\n'+str(res)+'```\n\n:x: Async-await Syntax\nReturn type:```py\n'+str(type(res))+'```', color=discord.Color.green()))
                 except Exception as e:
-                    await message.channel.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+unprefixed+'```\nException:```py\n'+str(e)+'```', color=discord.Colour.red())
+                    await message.channel.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+unprefixed+'```\nException:```py\n'+str(e)+'```', color=discord.Colour.red()))
             else:
                 myself.report(message.author) # reports to the owner
                 await message.channel.send(str(client.get_emoji(BotEmotes.error))+' | Are you looking for the bots token? Well here you are: `ASKDPASKDOKASODKASODKOASKSDAODSKASD`')
