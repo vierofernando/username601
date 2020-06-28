@@ -196,7 +196,7 @@ class moderation(commands.Cog):
             for i in ctx.message.guild.roles: total.append('<@&'+str(i.id)+'>')
         await ctx.send(embed=discord.Embed(description=myself.dearray(total), color=discord.Color(201, 160, 112)))
 
-    @commcmdands.command(pass_context=True)
+    @commands.command(pass_context=True)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def userinfo(self, ctx):
         if len(ctx.message.mentions)==0: guy = ctx.message.author
