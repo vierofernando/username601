@@ -29,6 +29,9 @@ class Config:
         name = 'Viero Fernando'
 prefix = Config.prefix
 
+def getStatus():
+    return jsonify(open("../assets/json/status.json"))
+
 def accept_message(authorid, authorbot, message, guild): # ACCEPT THE SPECIFIC REQUIREMENTS
     yes = ''
     if authorid!=Config.id: yes += 'v'

@@ -1,0 +1,6 @@
+[
+	"WATCHING:{MEMBERS} strangers in {SERVERS} cults.",
+	"PLAYING:Half-life 3",
+	"LISTENING:to feedbacks!"
+	// you can also add STREAMING: for streaming events. and yes, this is case-sensitive.
+]

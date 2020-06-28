@@ -1,3 +1,5 @@
+print('Please wait...')
+
 # LOCAL FILES
 from modules.username601 import *
 import modules.username601 as myself
@@ -7,27 +9,18 @@ import modules.canvas as Painter
 
 # EXTERNAL PACKAGES
 import os
-import dbl
-
-print('Please wait...')
-#import pokebase as pb
-from datetime import datetime as t
-latest_update = t.now()
+from itertools import cycle
 from os import environ as fetchdata
 import discord
-from discord.ext import commands
-#import wikipediaapi
+from discord.ext import commands, tasks
 import random
 import sys
-#import imdb
 import asyncio
-#import math
-#from googletrans import Translator, LANGUAGES
-#gtr = Translator()
-#ia = imdb.IMDb()
+
+# DECLARATION AND STUFF
 client = commands.Bot(command_prefix=Config.prefix)
 client.remove_command('help')
-topgg = dbl.DBLClient(client, fetchdata['DBL_TOKEN'])
+bot_status = cycle(myself.getStatus())
 
 @client.event
 async def on_ready():
@@ -35,14 +28,15 @@ async def on_ready():
         print('[BOT] Loaded cog: '+str(i[:-3]))
         client.load_extension('category.{}'.format(i[:-3]))
     print('Bot is online.')
-    while True:
-        myAct = discord.Activity(name=str(len(client.users))+' strangers in '+str(len(client.guilds))+' cults.', type=discord.ActivityType.watching)
-        await client.change_presence(activity=myAct)
-        await asyncio.sleep(1800)
-        try:
-            await topgg.post_guild_count()
-        except Exception as e:
-            print(e)
+
+@tasks.loop
+async def statusChange(seconds=5):
+    new_status = str(next(bot_status)).replace('{MEMBERS}', str(len(client.members))).replace('{SERVERS}', str(len(client.guilds)))
+    if new_status.startswith('PLAYING:'): await client.change_presence(activity=discord.Game(name=new_status.split(':')[1]))
+    elif new_status.startswith('STREAMING:'): await client.change_presence(activity=discord.Streaming(name=new_status.split(':')[1], url='https://bit.ly/username601'))
+    elif new_status.startswith('LISTENING:'): await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=new_status.split(':')[1]))
+    else: await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=new_status.split(':')[1]))
+    
 
 # ONLY IN SUPPORT SERVER
 @client.event
