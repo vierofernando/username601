@@ -51,7 +51,17 @@ def imagefromURL(url):
     image = Image.open(io.BytesIO(response.content))
     return image
 
-# 32, 2
+def ifearnoman(url, url2):
+    avpic = imagefromURL(url)
+    avpic2 = imagefromURL(url2)
+    template = Image.open(r'/app/assets/pics/ifearnoman.jpg')
+    template.paste(avpic.resize((173, 159), Image.ANTIALIAS), (98, 28))
+    template.paste(avpic.resize((114, 109), Image.ANTIALIAS), (60, 536))
+    template.paste(avpic.resize((139, 145), Image.ANTIALIAS), (598, 549))
+    template.paste(avpic2.resize((251, 249), Image.ANTIALIAS), (262, 513))
+    data = compile(template)
+    return data
+
 def firstwords(text, link):
     image = Image.open(r'{}'.format(link))
     draw = ImageDraw.Draw(image)
@@ -99,7 +109,7 @@ def servercard(link, icon, name, date, author, humans, bots, channels, roles, bo
     return data
 
 def putimage(url, name, resx, resy, posx, posy):
-    image = Image.open(r'/app/assets/pics/'+name+'.jpg')
+    image = Image.open('/app/assets/pics/'+name+'.jpg')
     pic = imagefromURL(url)
     pic = pic.resize((resx, resy), Image.ANTIALIAS)
     image.paste(pic, (posx, posy))

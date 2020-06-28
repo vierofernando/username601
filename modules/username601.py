@@ -22,6 +22,7 @@ class Config:
         id = 688373853889495044 # support server ID
         logging = 694521383908016188 # logging channel ID in support server
         Announcements = 722752725267382323 # announcements channel
+        feedback = 706459051034279956 # feedback channel
         invite = 'https://discord.gg/HhAPkD8' # your support server invite link
     class owner:
         id = 661200758510977084 # YOUR USER ID
@@ -82,6 +83,19 @@ def arrspace(arr):
 def report(auth):
     # NEVER GONNA GIVE YOU UP, NEVER GONNA LET YOU DOWN...
     return 'lol'
+
+def check_if_owner(ctx):
+    return ctx.message.channel.id == Config.owner.id
+
+def time_encode(sec):
+    time_type = 'seconds'
+    if sec>60:
+        sec, time_type = round(sec/60), 'minutes'
+        if sec>3600: 
+            sec, time_type = round(sec/3600), 'hours'
+            if sec>86400:
+                sec, time_type = round(sec/86400), 'days'
+    return str(sec+' '+time_type)
 
 def jsonisp(url):
     return decodeurl(url).json()
