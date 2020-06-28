@@ -111,7 +111,7 @@ class apps(commands.Cog):
                     movieId = args[1]
                     theID = str(movieId)
                 else:
-                    q = str(ctx.message.content).split(' ')[2]
+                    q = ' '.join(list(args)[1:len(list(args))])
                     movieId = ia.search_movie(q)[0].movieID
                     theID = str(movieId)
                 data = ia.get_movie(str(movieId))

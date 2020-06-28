@@ -31,7 +31,7 @@ class bothelp(commands.Cog):
             source = None
             typ = ''
             category_name = None
-            query = ' '.join(args)
+            query = ' '.join(list(args))
             for i in range(0, len(types)):
                 if query==types[i].lower():
                     source = data[i][types[i]]

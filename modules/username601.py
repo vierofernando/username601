@@ -86,7 +86,6 @@ def report(auth):
 
 def check_if_owner(ctx):
     return ctx.message.channel.id == Config.owner.id
-
 def time_encode(sec):
     time_type = 'seconds'
     if sec>60:
@@ -95,7 +94,7 @@ def time_encode(sec):
             sec, time_type = round(sec/3600), 'hours'
             if sec>86400:
                 sec, time_type = round(sec/86400), 'days'
-    return str(sec+' '+time_type)
+    return str(str(sec)+' '+time_type)
 
 def jsonisp(url):
     return decodeurl(url).json()

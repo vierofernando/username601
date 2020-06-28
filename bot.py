@@ -7,13 +7,10 @@ import modules.canvas as Painter
 
 # EXTERNAL PACKAGES
 import os
-#from subprocess import run, PIPE
-#from inspect import isawaitable
 import dbl
 
 print('Please wait...')
 #import pokebase as pb
-#import youtube_dl
 from datetime import datetime as t
 latest_update = t.now()
 from os import environ as fetchdata
@@ -25,7 +22,6 @@ import sys
 #import imdb
 import asyncio
 #import math
-from json import decoder
 #from googletrans import Translator, LANGUAGES
 #gtr = Translator()
 #ia = imdb.IMDb()
@@ -60,10 +56,14 @@ async def on_member_remove(member):
     if member.guild.id==Config.SupportServer.id:
         await member.guild.get_channel(Config.SupportServer.logging).send(':broken_heart: | '+src.exit(member.name))
 
-@client.command(pass_context=True)
-async def nice(ctx):
-    await ctx.send("nice")
-
+@client.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandOnCooldown):
+        await ctx.send("Calm down!\nYou can do the command again in {}.".format(myself.time_encode(round(error.retry_after))))
+    elif isinstance(error, commands.CommandNotFound):
+        pass
+    else:
+        print("An error occured: {}".format(str(error)))
 #@client.event
 #@commands.cooldown(5, 30, commands.BucketType.user)
 #async def on_message(message):

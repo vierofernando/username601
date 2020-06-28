@@ -204,6 +204,57 @@ class moderation(commands.Cog):
             image = Painter.servercard("./assets/pics/card.jpg", str(ctx.message.guild.icon_url).replace(".webp?size=1024", ".jpg?size=128"), ctx.message.guild.name, str(ctx.message.guild.created_at)[:-7], ctx.message.guild.owner.name, str(humans), str(bots), str(len(ctx.message.guild.channels)), str(len(ctx.message.guild.roles)), str(ctx.message.guild.premium_subscription_count), str(ctx.message.guild.premium_tier), str(online))
             await ctx.send(content='Here is the '+ctx.message.guild.name+'\'s server card.', file=discord.File(image, ctx.message.guild.name+'.png'))
     
+    @commands.command(pass_context=True, aliases=['perms', 'perm', 'permission', 'permfor', 'permsfor', 'perms-for', 'perm-for'])
+    @commands.cooldown(1, 15, commands.BucketType.user)
+    async def permissions(self, ctx):
+        if len(ctx.message.mentions)==0: source = ctx.message.author
+        else: source = ctx.message.mentions[0]
+        perms_list = []
+        for i in dir(source.guild_permissions):
+            if str(i).startswith('__'): continue
+            data = eval('source.guild_permissions.{}'.format(i))
+            if str(type(data))=="<class 'bool'>":
+                if data: perms_list.append(':white_check_mark: {}'.format(i.replace('_', ' ')))
+                else: perms_list.append(':x: {}'.format(i.replace('_', ' ')))
+        embed = discord.Embed(title='Guild permissions for '+source.name, description='\n'.join(perms_list), colour=discord.Colour.from_rgb(201, 160, 112))
+        await ctx.send(embed=embed)
+    
+    @commands.command(pass_context=True)
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def emojiinfo(self, ctx, *args):
+        if len(list(args))==0:
+            await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Please gimme the emoji!")
+        else:
+            try:
+                erry = False
+                emojiid = int(list(args)[0].split(':')[2][:-1])
+                data = self.client.get_emoji(emojiid)
+            except:
+                erry = True
+                await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | For some reason, we cannot process your emoji ;(')
+            if not erry:
+                if data.animated: anim = 'This emoji is an animated emoji. **Only nitro users can use it.**'
+                else: anim = 'This emoji is a static emoji. **Everyone can use it (except if limited by role)**'
+                embedy = discord.Embed(title='Emoji info for :'+str(data.name)+':', description='**Emoji name:** '+str(data.name)+'\n**Emoji ID: **'+str(data.id)+'\n'+anim+'\n**Emoji\'s server ID: **'+str(data.guild_id)+'\n**Emoji creation time: **'+str(data.created_at)[:-7]+' UTC.', colour=discord.Colour.from_rgb(201, 160, 112))
+                embedy.set_thumbnail(url='https://cdn.discordapp.com/emojis/'+str(data.id)+'.png?v=1')
+                await ctx.send(embed=embedy)
+
+    @commands.command(pass_context=True, aliases=['mkchannel', 'mkch', 'createchannel', 'make-channel', 'create-channel'])
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def makechannel(self, ctx, *args):
+        if len(list(args))<2:
+            await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Please send me an args or something!')
+        else:
+            begin = True
+            if list(args)[0].lower()!='voice':
+                if list(args)[0].lower()!='text':
+                    await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Please use 'text' or 'channel'!")
+                    begin = False
+            if begin:
+                name = str(ctx.message.content).split(' ')[2:len(str(ctx.message.content).split())].replace(' ', '-')
+                if list(args)[0].lower()=='voice': await ctx.message.guild.create_voice_channel(name)
+                else: await ctx.message.guild.create_voice_channel(name)
+
     @commands.command(pass_context=True, aliases=['nickname'])
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def nick(self, ctx, *args):
