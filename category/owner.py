@@ -22,7 +22,6 @@ class owner(commands.Cog):
             try:
                 user_to_send = self.client.get_user(int(args[0]))
                 em = discord.Embed(title="Hi, "+user_to_send.name+"! the bot owner sent a response for your feedback.", description=str(ctx.message.content).split(' ')[2], colour=discord.Colour.from_rgb(201, 160, 112))
-                em.set_footer(text="Feeling unsatisfied? Then join our support server! ("+str(Config.SupportServer.invite)+")")
                 await user_to_send.send(embed=em)
                 await ctx.message.add_reaction('✅')
             except Exception as e:

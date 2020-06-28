@@ -30,11 +30,13 @@ from json import decoder
 #gtr = Translator()
 #ia = imdb.IMDb()
 client = commands.Bot(command_prefix=Config.prefix)
+client.remove_command('help')
 topgg = dbl.DBLClient(client, fetchdata['DBL_TOKEN'])
 
 @client.event
 async def on_ready():
     for i in os.listdir('./category'):
+        print('[BOT] Loaded cog: '+str(i[:-3]))
         client.load_extension('category.{}'.format(i[:-3]))
     print('Bot is online.')
     while True:

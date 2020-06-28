@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import imdb
 ia = imdb.IMDb()
+import sys
 sys.path.append('/app/modules')
 import username601 as myself
 from username601 import *
@@ -25,7 +26,7 @@ class apps(commands.Cog):
                 await wait.edit(content='', embed=embed)
             elif len(args)>1:
                 destination = args[0]
-                toTrans = str(ctx.message.content)[len(str(ctx.message.content).split(' ')[0])+len(str(args[0]))+2:]
+                toTrans = ' '.join(args[1:len(list(args))])
                 try:
                     trans = gtr.translate(toTrans, dest=args[1])
                     embed = discord.Embed(title=f'Translation', description=f'**{trans.text}**', colour=discord.Colour.from_rgb(201, 160, 112))
@@ -46,7 +47,7 @@ class apps(commands.Cog):
             await wait.edit(content='Please input a page name!')
         else:
             wikipedia = wikipediaapi.Wikipedia('en')
-            page = wikipedia.page(str(ctx.message.content)[11:])
+            page = wikipedia.page(' '.join(list(args)))
             if page.exists()==False:
                 await wait.edit(content='That page does not exist!\n40404040404040404040404')
             else:
@@ -110,7 +111,8 @@ class apps(commands.Cog):
                     movieId = args[1]
                     theID = str(movieId)
                 else:
-                    movieId = ia.search_movie(str(ctx.message.content)[len(str(ctx.message.content).split(' ')[0])+len(str(args[0]))+2:][0].movieID)
+                    q = str(ctx.message.content).split(' ')[2]
+                    movieId = ia.search_movie(q)[0].movieID
                     theID = str(movieId)
                 data = ia.get_movie(str(movieId))
             try:
