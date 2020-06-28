@@ -186,6 +186,41 @@ class moderation(commands.Cog):
                     except Exception as e:
                         await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +f' | For some reason, i cannot change <#{ctx.message.channel.id}>\'s :(\n\n```{e}```')
 
+    @commands.command(pass_context=True, aliases=['roles', 'serverroles', 'serverchannels', 'channels'])
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def channel(self, ctx):
+        total = ''
+        if 'channel' in ctx.message.content:
+            for i in ctx.message.guild.channels: total.append('<#'+str(i.id)+'>')
+        else:
+            for i in ctx.message.guild.roles: total.append('<@&'+str(i.id)+'>')
+        await ctx.send(embed=discord.Embed(description=myself.dearray(total), color=discord.Color(201, 160, 112)))
+
+    @commcmdands.command(pass_context=True)
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def userinfo(self, ctx):
+        if len(ctx.message.mentions)==0: guy = ctx.message.author
+        else: guy = ctx.message.mentions[0]
+        user, joinServer, percentage, userrole = self.client.get_user(guy.id), str(guy.status.name).replace('dnd', 'do not disturb'), guy.joined_at, round(int(len(guy.roles))/int(len(ctx.message.guild.roles))*100), ''
+        for i in range(0, int(len(guy.roles))):
+            if len(userrole)>899: break
+            userrole +='<@&'+str(guy.roles[i].id)+'> '
+        if user.bot: thing = 'Bot'
+        else: thing = 'User'
+        embed = discord.Embed(title=user.name, colour=guy.colour)
+        embed.add_field(name='General info.', value='**'+thing+' name: **'+str(user.name)+'\n**'+thing+' ID: **'+str(user.id)+'\n**Discriminator: **'+str(user.discriminator)+'\n**'+thing+' creation: **'+str(user.created_at)[:-7]+'\n**Status:** '+str(status)+'\n**Current activity: **'+str(ctx.message.guild.get_member(user.id).activity.name), inline='True')
+        embed.add_field(name='Server specific', value='**'+thing+' nickname: **'+str(guy.display_name)+'\n**'+thing+' roles: **'+str(userrole)+'\nThis user owns '+str(percentage)+'% of all roles in this server.\n**Joined this server at: **'+str(joinServer)[:-7])
+        embed.set_thumbnail(url=user.avatar_url)
+        await ctx.send(embed=embed)
+
+    @commands.command(pass_context=True, aliases=['av', 'ava'])
+    @commands.cooldown(1, 1, commands.BucketType.user)
+    async def avatar(self, ctx):
+        embed = discord.Embed(color=discord.Colour(201, 160, 112))
+        if len(ctx.message.mentions)==0: embed.title = ctx.message.author.name+'\'s avatar' ; embed.set_image(url=ctx.message.author.avatar_url)
+        else: embed.title = ctx.message.mentions[0].name+'\'s avatar' ; embed.set_image(url=ctx.message.mentions[0].avatar_url)
+        await ctx.send(embed=embed)
+
     @commands.command(pass_context=True, aliases=['serverinfo', 'server', 'servericon'])
     @commands.cooldown(1, 7, commands.BucketType.user)
     async def servercard(self, ctx):
@@ -204,6 +239,67 @@ class moderation(commands.Cog):
             image = Painter.servercard("./assets/pics/card.jpg", str(ctx.message.guild.icon_url).replace(".webp?size=1024", ".jpg?size=128"), ctx.message.guild.name, str(ctx.message.guild.created_at)[:-7], ctx.message.guild.owner.name, str(humans), str(bots), str(len(ctx.message.guild.channels)), str(len(ctx.message.guild.roles)), str(ctx.message.guild.premium_subscription_count), str(ctx.message.guild.premium_tier), str(online))
             await ctx.send(content='Here is the '+ctx.message.guild.name+'\'s server card.', file=discord.File(image, ctx.message.guild.name+'.png'))
     
+    @commands.command(pass_context=True, aliases=['bots', 'serverbots', 'server-bots'])
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def botmembers(self, ctx):
+        botmembers, off, on, warning = "", 0, 0, 'Down triangles means that the bot is down. And up triangles mean the bot is well... up.'
+        for i in range(0, int(len(ctx.message.guild.members))):
+            if len(botmembers)>1900:
+                warning = str(self.client.get_emoji(BotEmotes.error)) + ' | Error: Too many bots, some bot are not listed above.'
+                break
+            if ctx.message.guild.members[i].bot==True:
+                if str(ctx.message.guild.members[i].status)=='offline':
+                    off += 1
+                    botmembers += ':small_red_triangle_down: '+ ctx.message.guild.members[i].name + '\n'
+                else:
+                    on += 1
+                    botmembers += ':small_red_triangle: ' + ctx.message.guild.members[i].name + '\n'
+        embed = discord.Embed( title = 'Bot members of '+ctx.message.guild.name+':', description = '**Online: '+str(on)+' ('+str(round(on/(off+on)*100))+'%)\nOffline: '+str(off)+' ('+str(round(off/(off+on)*100))+'%)**\n\n'+str(botmembers), colour = discord.Colour.from_rgb(201, 160, 112))
+        embed.set_footer(text=warning)
+        await ctx.send(embed=embed)
+
+    @commands.command(pass_context=True, aliases=['serverinvite', 'create-invite', 'createinvite', 'makeinvite', 'make-invite', 'server-invite'])
+    @commands.cooldown(1, 30, commands.BucketType.user)
+    async def getinvite(self, ctx):
+        if not ctx.message.author.guild_permissions.create_invite:
+            await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | No create invite permission?')
+        else:
+            serverinvite = await ctx.message.channel.create_invite(reason='Requested by '+str(message.author.name))
+            await ctx.send(str(self.client.get_emoji(BotEmotes.success))+' | New invite created! Link: **'+str(serverinvite)+'**')
+
+    @commands.command(pass_context=True, name='id')
+    @commands.cooldown(1, 2, commands.BucketType.user)
+    async def _id(self, ctx, *args):
+        if '<#' in ''.join(list(args)): total = str('Channel ID: ')+str(''.join(list(args)).split('<#')[1].split('>')[0])
+        elif '<@&' in ''.join(list(args)): total = str('Role ID: ')+str(''.join(list(args)).split('<@&')[1].split('>')[0])
+        elif '<@!' in ''.join(list(args)): total = str('User ID: ')+str(''.join(list(args)).split('<@!')[1].split('>')[0])
+        elif '<@' in ''.join(list(args)): total = str('User ID')+str(''.join(list(args)).split('<@')[1].split('>')[0])
+        else: total = str(self.client.get_emoji(BotEmotes.error))+' | No ID\'s found.'
+        await ctx.send(total)
+
+    @commands.command(pass_context=True)
+    @commands.cooldown(1, 7, commands.BucketType.user)
+    async def roleinfo(self, ctx, *args):
+        if len(list(args))==0:
+            await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Please send a role name or a role mention! (don\'t)")
+        else:
+            data = None
+            if '<@&' in ''.join(list(args)):
+                data = ctx.message.guild.get_role(int(str(ctx.message.content).split('<@&')[1].split('>')[0]))
+            else:
+                for i in ctx.message.guild.roles:
+                    if ' '.join(list(args)).lower()==str(i.name).lower(): data = i
+            if data==None:
+                await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Role not found!')
+            else:
+                if data.permissions.administrator==True: perm = ':white_check_mark: Server Administrator'
+                else: perm = ':x: Server Administrator'
+                if data.mentionable==True: men = ':warning: You can mention this role and they can get pinged.'
+                else: men = ':v: You can mention this role and they will not get pinged! ;)'
+                embedrole = discord.Embed(title='Role info for role: '+str(data.name), description='**Role ID: **'+str(data.id)+'\n**Role created at: **'+str(data.created_at)[:-7]+' UTC\n**Role position: **'+str(data.position)+'\n**Members having this role: **'+str(len(data.members))+'\n'+str(men)+'\nPermissions Value: '+str(data.permissions.value)+'\n'+str(perm), colour=data.colour)
+                embedrole.add_field(name='Role Colour', value='**Color hex: **#'+str(myself.tohex(data.color.value))+'\n**Color integer: **'+str(data.color.value)+'\n**Color RGB: **'+str(myself.dearray(list(data.color.to_rgb()))))
+                await ctx.send(embed=embedrole)
+
     @commands.command(pass_context=True, aliases=['perms', 'perm', 'permission', 'permfor', 'permsfor', 'perms-for', 'perm-for'])
     @commands.cooldown(1, 15, commands.BucketType.user)
     async def permissions(self, ctx):

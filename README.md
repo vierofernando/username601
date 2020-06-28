@@ -5,7 +5,13 @@
 
 [![Support Server](https://discord.com/api/guilds/688373853889495044/embed.png?style=banner1)](https://discord.gg/HhAPkD8)
 
-Hello, fellow discord bot programmer! Welcome to my githoob page. This project is **Open Source for Everyone! (Good luck copy pasting lol)** Written entirely in **discord.py**.
+Hello, fellow discord bot programmer! Welcome to my githoob page. This project is **Open Source for Everyone! (Good luck copy pasting lol)** Written entirely in **discord.py**.<br>
+Username601 is a multi-purposed general-purpose sh*t-purpose bot with over 200 commands. Please add it to your server! It's worth it! :v<br>
+Everything filled on the details below are automatic.<br>
+
+Category folder is a cogs folder, modules folder is basically "tools" folder. Anything else are misc.<br>
+`heroku-tools.py` is just a file i made for people who hosts their bot through heroku.<br>
+it will automatically creates files for you (i like automatic stuff cuz i am lazy lol)<br>
 
 *P.S: All commits with the message "Updated Files for public version of Username601" is entirely automatic!*
 

@@ -1444,42 +1444,7 @@ async def on_command_error(ctx, error):
 #            else:
 #                await main.edit(content='', embed=embedType(2))
 #        if cmd(msg, 'userinfo'):
-#            acceptId = 0
-#            if acceptId==0:
-#                if no_args:
-#                    userid = int(message.author.id)
-#                    user = client.get_user(int(message.author.id))
-#                elif len(args)==2:
-#                    if len(message.mentions)>0:
-#                        userid = message.mentions[0].id
-#                        user = message.mentions[0]
-#                    else:
-#                        userid = message.author.id
-#                        user = message.author
-#                guy = message.guild.get_member(int(userid))
-#                if guy.status.name=='dnd':
-#                    status = 'do not disturb'
-#                else:
-#                    status = guy.status.name
-#                percentage = round(int(len(guy.roles))/int(len(message.guild.roles))*100)
-#                userrole = ''
-#                for i in range(0, int(len(guy.roles))):
-#                    if len(userrole)>899:
-#                        break
-#                    userrole +='<@&'+str(guy.roles[i].id)+'> '
-#                if user.bot==True:
-#                    thing = 'Bot'
-#                else:
-#                    thing = 'User'
-#                embed = discord.Embed(
-#                    title=user.name,
-#                    colour = guy.colour
-#                )
-#                joinServer = guy.joined_at
-#                embed.add_field(name='General info.', value='**'+thing+' name: **'+str(user.name)+'\n**'+thing+' ID: **'+str(user.id)+'\n**Discriminator: **'+str(user.discriminator)+'\n**'+thing+' creation: **'+str(user.created_at)[:-7]+'\n**Status:** '+str(status)+'\n**Current activity: **'+str(message.guild.get_member(user.id).activity.name), inline='True')
-#                embed.add_field(name='Server specific', value='**'+thing+' nickname: **'+str(guy.display_name)+'\n**'+thing+' roles: **'+str(userrole)+'\nThis user owns '+str(percentage)+'% of all roles in this server.\n**Joined this server at: **'+str(joinServer)[:-7])
-#                embed.set_thumbnail(url=user.avatar_url)
-#                await message.channel.send(embed=embed)
+#            
 #        if cmd(msg, 'communist'):
 #            async with message.channel.typing():
 #                if len(message.mentions)==0: comrade = str(message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
