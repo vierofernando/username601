@@ -16,7 +16,7 @@ class apps(commands.Cog):
     @commands.command(pass_context=True)
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def translate(self, ctx, *args):
-        wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
+        wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait...') ; args = list(args)
         if len(args)>0:
             if args[0]=='--list':
                 lang = ''
@@ -26,14 +26,17 @@ class apps(commands.Cog):
                 await wait.edit(content='', embed=embed)
             elif len(args)>1:
                 destination = args[0]
-                toTrans = ' '.join(args[1:len(list(args))])
                 try:
-                    trans = gtr.translate(toTrans, dest=args[1])
-                    embed = discord.Embed(title=f'Translation', description=f'**{trans.text}**', colour=discord.Colour.from_rgb(201, 160, 112))
-                    embed.set_footer(text=f'Translated {LANGUAGES[trans.src]} to {LANGUAGES[trans.dest]}')
+                    toTrans = str(ctx.message.content).split(' ')[2:len(str(ctx.message.content).split())]
+                except IndexError:
+                    await wait.edit(str(self.client.get_emoji(BotEmotes.error))+' | Gimme something to translate!')
+                try:
+                    translation = gtr.translate(toTrans, dest=destination)
+                    embed = discord.Embed(title=f'**{translation.text}**', colour=discord.Colour.from_rgb(201, 160, 112))
+                    embed.set_footer(text=f'Translated {LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}.')
                     await wait.edit(content='', embed=embed)
                 except Exception as e:
-                    await wait.edit(content=str(client.get_emoji(BotEmotes.error)) + f' | An error occured! ```py\n{e}```')
+                    await wait.edit(content=str(self.client.get_emoji(BotEmotes.error)) + f' | An error occured! ```py\n{e}```')
             else:
                 await wait.edit(content=f'Please add a language! To have the list and their id, type\n`{prefix}translate --list`.')
         else:
@@ -74,8 +77,7 @@ class apps(commands.Cog):
                         explain = explain + str(list(page.summary)[i])
                         if list(page.summary)[i]=='.':
                             count = int(count) + 1
-                embed = discord.Embed(title=pageTitle, description=str(explain), colour=discord.Colour.from_rgb(201, 160, 112))
-                embed.set_footer(text='Get more info at '+str(page.fullurl))
+                embed = discord.Embed(title=pageTitle, url=str(page.fullurl), description=str(explain), colour=discord.Colour.from_rgb(201, 160, 112))
                 await wait.edit(content='', embed=embed)
     @commands.command(pass_context=True)
     @commands.cooldown(1, 10, commands.BucketType.user)

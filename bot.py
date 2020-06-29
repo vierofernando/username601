@@ -24,14 +24,15 @@ bot_status = cycle(myself.getStatus())
 
 @client.event
 async def on_ready():
+    statusChange.start()
     for i in os.listdir('./category'):
         print('[BOT] Loaded cog: '+str(i[:-3]))
         client.load_extension('category.{}'.format(i[:-3]))
     print('Bot is online.')
 
-@tasks.loop
-async def statusChange(seconds=5):
-    new_status = str(next(bot_status)).replace('{MEMBERS}', str(len(client.members))).replace('{SERVERS}', str(len(client.guilds)))
+@tasks.loop(seconds=7)
+async def statusChange():
+    new_status = str(next(bot_status)).replace('{MEMBERS}', str(len(client.users))).replace('{SERVERS}', str(len(client.guilds)))
     if new_status.startswith('PLAYING:'): await client.change_presence(activity=discord.Game(name=new_status.split(':')[1]))
     elif new_status.startswith('STREAMING:'): await client.change_presence(activity=discord.Streaming(name=new_status.split(':')[1], url='https://bit.ly/username601'))
     elif new_status.startswith('LISTENING:'): await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=new_status.split(':')[1]))

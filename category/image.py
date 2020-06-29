@@ -42,9 +42,9 @@ class image(commands.Cog):
     @commands.command(pass_context=True)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def ytthumbnail(self, ctx, *args):
-        if len(list(args))==0:
+        if len(list(args))!=0:
             videoid = 'dQw4w9WgXcQ'
-            async with message.channel.typing():
+            async with ctx.message.channel.typing():
                 if list(args)[0].endswith('/'): list(args)[0] = list(args)[0][:-1]
                 if list(args)[0].startswith('https://youtu.be/'): videoid = list(args)[0][17:]
                 elif list(args)[0].startswith('http://youtu.be/'): videoid = list(args)[0][16:]
@@ -54,21 +54,23 @@ class image(commands.Cog):
                 url = 'https://img.youtube.com/vi/'+str(videoid)+'/mqdefault.jpg'
                 data = Painter.urltoimage(url)
                 await ctx.send(file=discord.File(data, 'thumbnail.png'))
-    @commands.command(pass_context=True, aliaeses=['cat', 'fox', 'sadcat', 'bird'])
+        else: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | gimme something to work with! Like a youtube url!')
+    @commands.command(pass_context=True, aliases=['cat', 'fox', 'sadcat', 'bird'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def dog(self, ctx):
         async with ctx.message.channel.typing():
             links = {
                 "dog": "https://random.dog/woof.json|url",
-                "cat": "https://aws.random.cat/meow|file",
-                "sadcat": "'https://api.alexflipnote.dev/sadcat|file",
-                "bird": "'https://api.alexflipnote.dev/sadcat|file",
+                "cat": "https://api.alexflipnote.dev/cats|file",
+                "sadcat": "https://api.alexflipnote.dev/sadcat|file",
+                "bird": "https://api.alexflipnote.dev/sadcat|file",
                 "fox": 'https://randomfox.ca/floof/?ref=apilist.fun|image'
             }
-            link = str(links[str(ctx.message.content).split(' ')[0][1:]]).split('|')[0]
-            apiied = myself.jsonisp(link)[links[str(ctx.message.content).split('|')[1]]]
+            for i in list(links.keys()):
+                if str(ctx.message.content[1:]).lower().replace(' ', '')==i: link = links[i] ; break
+            apiied = myself.jsonisp(link.split('|')[0])[link.split('|')[1]]
             data = Painter.urltoimage(apiied)
-            await ctx.send(file=discord.File(data, 'dog.png'))
+            await ctx.send(file=discord.File(data, 'animal.png'))
 
     @commands.command(pass_context=True)
     @commands.cooldown(1, 5, commands.BucketType.user)

@@ -216,9 +216,9 @@ class moderation(commands.Cog):
     @commands.command(pass_context=True, aliases=['av', 'ava'])
     @commands.cooldown(1, 1, commands.BucketType.user)
     async def avatar(self, ctx):
-        embed = discord.Embed(color=discord.Colour(201, 160, 112))
-        if len(ctx.message.mentions)==0: embed.title = ctx.message.author.name+'\'s avatar' ; embed.set_image(url=ctx.message.author.avatar_url)
-        else: embed.title = ctx.message.mentions[0].name+'\'s avatar' ; embed.set_image(url=ctx.message.mentions[0].avatar_url)
+        embed = discord.Embed(title='look at dis avatar', color=discord.Colour.from_rgb(201, 160, 112))
+        if len(ctx.message.mentions)==0: embed.set_image(url=ctx.message.author.avatar_url)
+        else: embed.set_image(url=ctx.message.mentions[0].avatar_url)
         await ctx.send(embed=embed)
 
     @commands.command(pass_context=True, aliases=['serverinfo', 'server', 'servericon'])

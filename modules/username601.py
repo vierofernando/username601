@@ -30,7 +30,7 @@ class Config:
 prefix = Config.prefix
 
 def getStatus():
-    return jsonify(open("../assets/json/status.json"))
+    return jsonify(open("/app/assets/json/status.json", "r").read())
 
 def accept_message(authorid, authorbot, message, guild): # ACCEPT THE SPECIFIC REQUIREMENTS
     yes = ''

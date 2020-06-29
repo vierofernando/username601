@@ -74,12 +74,12 @@ class memes(commands.Cog):
     @commands.command(pass_context=True, aliases=['stonks', 'immaheadout', 'homer', 'monkeypuppet', 'tom', 'surprisedpikachu', 'meandtheboys'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def pabloescobar(self, ctx, *args):
-        if len(ctx.message.mentions)==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Where is the meme's context?")
+        if len(list(args))==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Where is the meme's context?")
         else:
             async with ctx.message.channel.typing():
                 try:
                     data = Painter.simpleTopMeme(' '.join(list(args)), './assets/pics/'+str(ctx.message.content).split(' ')[0][1:]+'.jpg', 40, 3)
-                    await ctx.send(file=discord.File(data, 'top_meme.pngs'))
+                    await ctx.send(file=discord.File(data, 'top_meme.png'))
                 except Exception as e:
                     await ctx.send('Oopsies! There was an error on creating your chosen meme;\n'+str(e))
 
