@@ -1,0 +1,10 @@
+[
+    "[Google Search](http://google.com/search?q={QUERY}",
+    "[Google Image Search](https://www.google.com/search?tbm=isch&q={QUERY}",
+    "[YouTube Search](http://youtube.com/results?q={QUERY}",
+    "[Wikipedia Search](https://en.wikipedia.org/w/index.php?cirrusUserTesting=control&search={QUERY}&title=Special%3ASearch&go=Go&ns0=1",
+    "[Instagram Tag Search](https://www.instagram.com/explore/tags/{QUERY}",
+    "[Creative Commons Search](https://search.creativecommons.org/search?q={QUERY}",
+    "[WikiHow Search](https://www.wikihow.com/wikiHowTo?search={QUERY}",
+    "[Stackoverflow Search](https://stackoverflow.com/search?q={QUERY}"
+]

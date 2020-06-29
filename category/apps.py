@@ -32,7 +32,10 @@ class apps(commands.Cog):
                     await wait.edit(str(self.client.get_emoji(BotEmotes.error))+' | Gimme something to translate!')
                 try:
                     translation = gtr.translate(toTrans, dest=destination)
-                    embed = discord.Embed(title=f'**{translation.text}**', colour=discord.Colour.from_rgb(201, 160, 112))
+                    try:
+                        embed = discord.Embed(title=f'**{translation.text}**', colour=discord.Colour.from_rgb(201, 160, 112))
+                    except:
+                        embed = discord.Embed(title=f'**{list(translation)[0].text}**', colour=discord.Colour.from_rgb(201, 160, 112))
                     embed.set_footer(text=f'Translated {LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}.')
                     await wait.edit(content='', embed=embed)
                 except Exception as e:

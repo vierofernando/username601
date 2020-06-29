@@ -1195,26 +1195,6 @@ async def on_command_error(ctx, error):
 #            embed = discord.Embed(colour=discord.Colour.from_rgb(201, 160, 112))
 #            embed.set_image(url=random.choice(alls))
 #            await message.channel.send(embed=embed)
-#        if cmd(msg, 'steamprofile'):
-#            getprof = myself.urlify(unprefixed)
-#            data = myself.insp('https://api.alexflipnote.dev/steam/user/'+str(getprof))
-#            if '<title>404 Not Found</title>' in data:
-#                await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Error **404**! `not found...`')
-#            else:
-#                steam_id = data.split('"steamid64":')[1].split(',')[0][1:]
-#                custom_url = data.split('"customurl":')[1].split('},')[0][1:]
-#                avatar = data.split('"avatarfull": "')[1].split('"')[0]
-#                username = data.split('"username": "')[1].split('"')[0]
-#                url = data.split('"url": "')[1].split('"')[0]
-#                state = data.split('"state": "')[1].split('"')[0]
-#                privacy = data.split('"privacy": "')[1].split('"')[0]
-#                if state=='Offline':
-#                    embedColor = discord.Colour.from_rgb(201, 160, 112)
-#                else:
-#                    embedColor = discord.Colour.from_rgb(201, 160, 112)
-#                embed = discord.Embed(title=username, description='**[Profile Link]('+str(url)+')**\n**Current state: **'+str(state)+'\n**Privacy: **'+str(privacy)+'\n**[Profile pic URL]('+str(avatar)+')**', colour = embedColor)
-#                embed.set_thumbnail(url=avatar)
-#                await message.channel.send(embed=embed)
 #        if cmd(msg, 'salty'):
 #            if len(args)!=2:
 #                await message.channel.send(str(client.get_emoji(BotEmotes.error)) + ' | Error! Invalid args.')
@@ -2349,16 +2329,7 @@ async def on_command_error(ctx, error):
 #            await message.channel.send(random.choice(array))
 #        if cmd(msg, 'search'):
 #            query = myself.urlify(unprefixed)
-#            searches = [
-#                "[Google Search](http://google.com/search?q="+str(query),
-#                "[Google Image Search](https://www.google.com/search?tbm=isch&q="+str(query),
-#                "[YouTube Search](http://youtube.com/results?q="+str(query),
-#                "[Wikipedia Search](https://en.wikipedia.org/w/index.php?cirrusUserTesting=control&search="+str(query)+"&title=Special%3ASearch&go=Go&ns0=1",
-#                "[Instagram Tag Search](https://www.instagram.com/explore/tags/"+str(query),
-#                "[Creative Commons Search](https://search.creativecommons.org/search?q="+str(query),
-#                "[WikiHow Search](https://www.wikihow.com/wikiHowTo?search="+str(query),
-#                "[Stackoverflow Search](https://stackoverflow.com/search?q="+str(query)
-#            ]
+#            
 #            total = ''
 #            for i in range(0, len(searches)): total += str(i+1) + '. **' + searches[i] + ')**\n'
 #            embed = discord.Embed(title = 'Internet Searches for '+str(unprefixed), description=total, color = discord.Colour.from_rgb(201, 160, 112))
