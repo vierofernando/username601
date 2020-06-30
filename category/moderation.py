@@ -189,12 +189,12 @@ class moderation(commands.Cog):
     @commands.command(pass_context=True, aliases=['roles', 'serverroles', 'serverchannels', 'channels'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def channel(self, ctx):
-        total = ''
+        total = []
         if 'channel' in ctx.message.content:
             for i in ctx.message.guild.channels: total.append('<#'+str(i.id)+'>')
         else:
             for i in ctx.message.guild.roles: total.append('<@&'+str(i.id)+'>')
-        await ctx.send(embed=discord.Embed(description=myself.dearray(total), color=discord.Color(201, 160, 112)))
+        await ctx.send(embed=discord.Embed(description=myself.dearray(total), color=discord.Color.from_rgb(201, 160, 112)))
 
     @commands.command(pass_context=True)
     @commands.cooldown(1, 5, commands.BucketType.user)
