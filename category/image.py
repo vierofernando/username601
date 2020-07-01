@@ -12,6 +12,43 @@ class image(commands.Cog):
 
     @commands.command(pass_context=True)
     @commands.cooldown(1, 5, commands.BucketType.user)
+    async def lucario(self, ctx):
+        embed = discord.Embed(color=discord.Color.from_rgb(201, 160, 112))
+        embed.set_image(myself.jsonisp('http://pics.floofybot.moe/image?token=lucario&category=sfw')['image'])
+        await ctx.send(embed=embed)
+    
+    @commands.command(pass_context=True, aliases=['ducks', 'quack', 'duk'])
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def duck(self, ctx):
+        await ctx.send(file=discord.File(Painter.urltoimage(myself.jsonisp('https://random-d.uk/api/v2/random?format=json')['url']), 'duck.png'))
+
+    @commands.command(pass_context=True, aliases=['snek', 'snakes', 'python', 'py'])
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def snake(self, ctx):
+        await ctx.send(file=discord.File(Painter.urltoimage('https://fur.im/snek/i/'+str(random.randint(1, 874))+'.png')))
+
+    @commands.command(pass_context=True, aliases=['imageoftheday'])
+    @commands.cooldown(1, 21600, commands.BucketType.user)
+    async def iotd(self, ctx):
+        data = myself.jsonisp('https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=en-US')['images'][0]
+        embed = discord.Embed( title=data['copyright'], url=data['copyrightlink'], color=discord.Color.from_rgb(201, 160, 112))
+        embed.set_image(url='https://bing.com'+data['url'])
+        await ctx.send(embed=embed)
+
+    @commands.command(pass_context=True)
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def httpcat(self, ctx, *args):
+        if len(list(args))==0: code = str(random.randint(200, 550))
+        else: code = str(' '.join(list(args)))
+        await ctx.send(file=discord.File(Painter.urltoimage('https://http.cat/'+str(code)+'.jpg'), 'httpcat.png'))
+
+    @commands.command(pass_context=True)
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def goat(self, ctx):
+        await ctx.send(file=discord.File(Painter.urltoimage('https://placegoat.com/'+str(random.randint(500, 700)), 'goat.png')))
+
+    @commands.command(pass_context=True)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def rotate(self, ctx):
         async with ctx.message.channel.typing():
             if len(ctx.message.mentions)==0: ava = str(ctx.message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
