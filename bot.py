@@ -51,6 +51,20 @@ async def on_member_remove(member):
     if member.guild.id==Config.SupportServer.id:
         await member.guild.get_channel(Config.SupportServer.logging).send(':broken_heart: | '+src.exit(member.name))
 
+# IF SOMEONE ADDS THE BOT TO THEIR SERVER, ADD THE CONTRIBUTOR ROLE (IF ON SUPPORT SERVER)
+@client.event
+async def on_guild_join(guild):
+    if guild.owner.id in [a.id for a in client.get_guild(Config.SupportServer.id).members]:
+        userinsupp = client.get_guild(Config.SupportServer.id).get_member(guild.owner.id)
+        await userinsupp.add_roles(client.get_guild(Config.SupportServer.id).get_role(727667048645394492))
+
+# ...AND VICE VERSA
+@client.event
+async def on_guild_remove(guild):
+    if guild.owner.id in [a.id for a in client.get_guild(Config.SupportServer.id).members]:
+        userinsupp = client.get_guild(Config.SupportServer.id).get_member(guild.owner.id)
+        await userinsupp.remove_roles(client.get_guild(Config.SupportServer.id).get_role(727667048645394492))
+
 @client.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):

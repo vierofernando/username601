@@ -157,7 +157,7 @@ class games(commands.Cog):
 
     @commands.command(pass_context=True)
     @commands.cooldown(1, 15, commands.BucketType.user)
-    async def pokequic(self, ctx):
+    async def pokequiz(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait... Generating quiz...')
         num = random.randint(1, 800)
         try:

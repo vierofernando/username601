@@ -6,6 +6,7 @@ import username601 as myself
 from username601 import *
 from subprocess import run, PIPE
 from inspect import isawaitable
+from asyncio import sleep
 import os
 
 class owner(commands.Cog):
@@ -16,6 +17,17 @@ class owner(commands.Cog):
             os.environ['DBL_TOKEN']
         ]
     
+    @commands.command(pass_context=True)
+    async def cont(self, ctx):
+        if ctx.message.author.id==Config.owner.id:
+            owners, c = [i.owner.id for i in self.client.guilds], 0
+            for i in self.client.get_guild(Config.SupportServer.id).members:
+                if i.id in owners:
+                    await self.client.get_guild(Config.SupportServer.id).get_member(i.id).add_roles(self.client.get_guild(Config.SupportServer.id).get_role(727667048645394492))
+                    await sleep(1)
+                    c += 1
+            await ctx.send(f"found {str(c)} new conts!")
+
     @commands.command(pass_context=True)
     async def rp(self, ctx, *args):
         if ctx.message.author.id==Config.owner.id:
