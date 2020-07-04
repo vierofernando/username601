@@ -13,8 +13,8 @@ class image(commands.Cog):
     @commands.command(pass_context=True)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def lucario(self, ctx):
-        embed = discord.Embed(color=discord.Color.from_rgb(201, 160, 112))
-        embed.set_image(myself.jsonisp('http://pics.floofybot.moe/image?token=lucario&category=sfw')['image'])
+        embed = discord.Embed(title='Lucario!', color=discord.Color.from_rgb(201, 160, 112))
+        embed.set_image(url=myself.jsonisp('http://pics.floofybot.moe/image?token=lucario&category=sfw')['image'])
         await ctx.send(embed=embed)
     
     @commands.command(pass_context=True, aliases=['ducks', 'quack', 'duk'])
@@ -25,7 +25,7 @@ class image(commands.Cog):
     @commands.command(pass_context=True, aliases=['snek', 'snakes', 'python', 'py'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def snake(self, ctx):
-        await ctx.send(file=discord.File(Painter.urltoimage('https://fur.im/snek/i/'+str(random.randint(1, 874))+'.png')))
+        await ctx.send(file=discord.File(Painter.urltoimage('https://fur.im/snek/i/'+str(random.randint(1, 874))+'.png'), 'snek.png'))
 
     @commands.command(pass_context=True, aliases=['imageoftheday'])
     @commands.cooldown(1, 21600, commands.BucketType.user)
@@ -45,7 +45,7 @@ class image(commands.Cog):
     @commands.command(pass_context=True)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def goat(self, ctx):
-        await ctx.send(file=discord.File(Painter.urltoimage('https://placegoat.com/'+str(random.randint(500, 700)), 'goat.png')))
+        await ctx.send(file=discord.File(Painter.urltoimage('https://placegoat.com/'+str(random.randint(500, 700))), 'goat.png'))
 
     @commands.command(pass_context=True)
     @commands.cooldown(1, 5, commands.BucketType.user)

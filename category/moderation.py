@@ -196,22 +196,13 @@ class moderation(commands.Cog):
             for i in ctx.message.guild.roles: total.append('<@&'+str(i.id)+'>')
         await ctx.send(embed=discord.Embed(description=myself.dearray(total), color=discord.Color.from_rgb(201, 160, 112)))
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['user', 'usercard', 'user-info', 'user-card'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def userinfo(self, ctx):
         if len(ctx.message.mentions)==0: guy = ctx.message.author
         else: guy = ctx.message.mentions[0]
-        user, joinServer, percentage, userrole = self.client.get_user(guy.id), str(guy.status.name).replace('dnd', 'do not disturb'), guy.joined_at, round(int(len(guy.roles))/int(len(ctx.message.guild.roles))*100), ''
-        for i in range(0, int(len(guy.roles))):
-            if len(userrole)>899: break
-            userrole +='<@&'+str(guy.roles[i].id)+'> '
-        if user.bot: thing = 'Bot'
-        else: thing = 'User'
-        embed = discord.Embed(title=user.name, colour=guy.colour)
-        embed.add_field(name='General info.', value='**'+thing+' name: **'+str(user.name)+'\n**'+thing+' ID: **'+str(user.id)+'\n**Discriminator: **'+str(user.discriminator)+'\n**'+thing+' creation: **'+str(user.created_at)[:-7]+'\n**Status:** '+str(status)+'\n**Current activity: **'+str(ctx.message.guild.get_member(user.id).activity.name), inline='True')
-        embed.add_field(name='Server specific', value='**'+thing+' nickname: **'+str(guy.display_name)+'\n**'+thing+' roles: **'+str(userrole)+'\nThis user owns '+str(percentage)+'% of all roles in this server.\n**Joined this server at: **'+str(joinServer)[:-7])
-        embed.set_thumbnail(url=user.avatar_url)
-        await ctx.send(embed=embed)
+        data = Painter.usercard(guy)
+        await ctx.send(file=discord.File(data, str(guy.discriminator)+'.png'))
 
     @commands.command(pass_context=True, aliases=['av', 'ava'])
     @commands.cooldown(1, 1, commands.BucketType.user)

@@ -110,7 +110,9 @@ class fun(commands.Cog):
     async def _8ball(self, ctx):
         async with ctx.message.channel.typing():
             data = myself.api("https://yesno.wtf/api")
-            await ctx.send(content=data['answer'], file=discord.File(Painter.urltoimage(data['image']), data['answer']+'.png'))
+            if data["image"].endswith('.gif'): img, filename = Painter.gif.giffromURL(data["image"], True), 'answer.gif'
+            else: img, filename = Painter.urltoimage(data["image"]), 'answer.png'
+            await ctx.send(content=data['answer'], file=discord.File(img, filename))
 
     @commands.command(pass_context=True, aliases=['serverdeathnote', 'dn'])
     @commands.cooldown(1, 20, commands.BucketType.user)

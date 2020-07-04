@@ -1,4 +1,4 @@
-from PIL import Image, ImageFont, ImageDraw  
+from PIL import Image, ImageFont, ImageDraw, GifImagePlugin
 import io
 import requests
 import random
@@ -8,6 +8,13 @@ class Fonts:
     helvetica_large = ImageFont.truetype(r'/app/assets/fonts/Helvetica.ttf', 50)
     helvetica_medium = ImageFont.truetype(r'/app/assets/fonts/Helvetica.ttf', 40)
     comicsans_medium = ImageFont.truetype(r'/app/assets/fonts/comic.ttf', 40)
+    consolas_small = ImageFont.truetype(r'/app/assets/fonts/consola.ttf', 25)
+    consolas =  ImageFont.truetype(r'/app/assets/fonts/consola.ttf', 60)
+    whitney_tinier =  ImageFont.truetype(r'/app/assets/fonts/Whitney-Medium.ttf', 20)
+    whitney_tiny =  ImageFont.truetype(r'/app/assets/fonts/Whitney-Medium.ttf', 30)
+    whitney_small =  ImageFont.truetype(r'/app/assets/fonts/Whitney-Medium.ttf', 40)
+    whitney_medium =  ImageFont.truetype(r'/app/assets/fonts/Whitney-Medium.ttf', 50)
+    whitney_large =  ImageFont.truetype(r'/app/assets/fonts/Whitney-Medium.ttf', 60)
 
 # LIMITS THE CHARACTER
 def limitify(raw, linelimit, maxlimit):
@@ -71,7 +78,7 @@ def firstwords(text, link):
     data = compile(image)
     return data
 
-def limit(text):
+def limit(raw):
     text = ''
     for i in range(0, len(raw)):
         if len(raw.split('\n'))>1:
@@ -82,12 +89,12 @@ def limit(text):
         text += list(raw)[i]
     return text
 
-def drawtext(draw, fontname, text, fontsize, x, y, col):
-    draw.text((x, y), text, fill =col, font = ImageFont.truetype(r'/app/assets/fonts/'+fontname+'.ttf', fontsize)  , align ="left") 
+def drawtext(draw, thefont, text, x, y, col):
+    draw.text((x, y), text, fill =col, font=thefont, align ="left") 
 
 def simpletext(text):
     image = Image.new(mode='RGB',size=(5+(len(text)*38)+5, 80) ,color=(255, 255, 255))
-    drawtext(ImageDraw.Draw(image), 'consola', text, 60, 10, 10, "black")
+    drawtext(ImageDraw.Draw(image), Fonts.consolas, text, 10, 10, "black")
     data = compile(image)
     return data
 
@@ -96,15 +103,15 @@ def servercard(link, icon, name, date, author, humans, bots, channels, roles, bo
     response = requests.get(icon)
     servericon = Image.open(io.BytesIO(response.content))
     image.paste(servericon, (1195, 115))
-    drawtext(ImageDraw.Draw(image),'Whitney-Medium', name, 60, 30, 100, 'white')
-    drawtext(ImageDraw.Draw(image),'Whitney-Medium', 'Created in '+date+' by '+author, 40, 30, 170, 'white')
-    drawtext(ImageDraw.Draw(image),'Whitney-Medium', humans, 60, 130, 265, 'white')
-    drawtext(ImageDraw.Draw(image),'Whitney-Medium', bots, 60, 480, 265, 'white')
-    drawtext(ImageDraw.Draw(image),'Whitney-Medium', channels+' Channels', 60, 650, 265, 'black')
-    drawtext(ImageDraw.Draw(image),'Whitney-Medium', roles+' Roles', 60, 650, 340, 'black')
-    drawtext(ImageDraw.Draw(image),'Whitney-Medium', boosters+' boosters', 60, 1000, 265, 'black')
-    drawtext(ImageDraw.Draw(image),'Whitney-Medium', 'Level '+tier, 60, 1000, 340, 'black')
-    drawtext(ImageDraw.Draw(image),'Whitney-Medium', online+' online', 50, 90, 360, 'black')
+    drawtext(ImageDraw.Draw(image), Fonts.whitney_large, name, 30, 100, 'white')
+    drawtext(ImageDraw.Draw(image), Fonts.whitney_small, 'Created in '+date+' by '+author, 30, 170, 'white')
+    drawtext(ImageDraw.Draw(image), Fonts.whitney_large, humans, 130, 265, 'white')
+    drawtext(ImageDraw.Draw(image), Fonts.whitney_large, bots, 480, 265, 'white')
+    drawtext(ImageDraw.Draw(image), Fonts.whitney_large, channels+' Channels', 650, 265, 'black')
+    drawtext(ImageDraw.Draw(image), Fonts.whitney_large, roles+' Roles', 650, 340, 'black')
+    drawtext(ImageDraw.Draw(image), Fonts.whitney_large, boosters+' boosters', 1000, 265, 'black')
+    drawtext(ImageDraw.Draw(image), Fonts.whitney_large, 'Level '+tier, 1000, 340, 'black')
+    drawtext(ImageDraw.Draw(image), Fonts.whitney_medium, online+' online', 90, 360, 'black')
     data = compile(image)
     return data
 
@@ -115,6 +122,18 @@ def putimage(url, name, resx, resy, posx, posy):
     image.paste(pic, (posx, posy))
     data = compile(image)
     return data
+
+def usercard(this):
+    bg = Image.open('/app/assets/pics/card_{}.png'.format(this.status.value))
+    canvas = Image.new(mode='RGB', size=bg.size, color=(0,0,0))
+    ava = imagefromURL(str(this.avatar_url).replace('.webp?size=1024', '.png?size=512')).resize((189, 190))
+    canvas.paste(ava, (299, 12))
+    canvas.paste(bg, (0, 0), bg)
+    drawtext(ImageDraw.Draw(canvas), Fonts.whitney_medium, this.name, 13, 13, 'black')
+    drawtext(ImageDraw.Draw(canvas), Fonts.whitney_tiny, '#'+str(this.discriminator), 203, 111, 'black')
+    drawtext(ImageDraw.Draw(canvas), Fonts.consolas_small, str(this.id), 13, 66, 'black')
+    drawtext(ImageDraw.Draw(canvas), Fonts.whitney_tinier, 'Hoist role: '+str(this.roles[::-1][0].name), 14, 168, 'black')
+    return compile(canvas)
 
 def put_transparent(avatar, name, overallx, overally, avatarw, avatarh, avatarx, avatary):
     door = Image.open('/app/assets/pics/'+name+'.png')
@@ -213,13 +232,23 @@ class gif:
 
         while extras<100:
             image = flag
-            drawtext(ImageDraw.Draw(image),'Whitney-Medium', 'COMMUNIST', 30, 216/2-86, 10, 'white')
-            drawtext(ImageDraw.Draw(image),'Whitney-Medium', 'CONFIRMED', 30, 216/2-84, 170, 'white')
+            drawtext(ImageDraw.Draw(image), Fonts.whitney_tiny, 'COMMUNIST', 216/2-86, 10, 'white')
+            drawtext(ImageDraw.Draw(image), Fonts.whitney_tiny, 'CONFIRMED', 216/2-84, 170, 'white')
             images.append(image)
             extras += 1
         data = gif.compilegif(images, 5)
         return data
     
+    def giffromURL(url, compress):
+        mygif = imagefromURL(url)
+        frames = []
+        for i in range(0, mygif.n_frames):
+            mygif.seek(i)
+            if compress: frames.append(mygif.resize((216, 216), Image.ANTIALIAS)) ; continue
+            frames.append(mygif)
+        data = gif.compilegif(frames, 5)
+        return data
+
 def urltoimage(url):
     image = imagefromURL(url)
     data = compile(image)
