@@ -127,9 +127,7 @@ class bothelp(commands.Cog):
     @commands.command(pass_context=True)
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def uptime(self, ctx):
-        with open('/proc/uptime', 'r') as u:
-            uptime = myself.time_encode(round(float(u.readline().split()[0])))
-        embed = discord.Embed(title=f'I was up for {str(uptime)}!', color=discord.Colour.from_rgb(201, 160, 112))
+        embed = discord.Embed(title='My uptime: {}'.format(str(myself.terminal('uptime -p'))[3:]), color=discord.Colour.from_rgb(201, 160, 112))
         await ctx.send(embed=embed)
 
     @commands.command(pass_context=True)

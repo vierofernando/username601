@@ -16,14 +16,14 @@ class encoding(commands.Cog):
         elif 'fancy' in str(ctx.message.content).split(' ')[0][1:]: data = myself.jsonisp("https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fancy.json")
         elif 'braille' in str(ctx.message.content).split(' ')[0][1:]: data = myself.jsonisp("https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/braille.json")
         else: data = myself.jsonisp("https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/morse.json")
-        total = ''
-        for i in list(str(' '.join(list(args))).lower()):
-            for j in range(0, len(list(data.keys()))):
-                if i.lower()==list(data.keys())[j].lower():
-                    i = i.replace(list(data.keys())[j], data[list(data.keys())[j]])
-                    break
-                else:
-                    continue
+        total, tocon = '', str(' '.join(list(args)))
+        for i in list(tocon.lower()):
+            if i.lower() in ''.join(list(data.keys())):
+                for j in list(data.keys()):
+                    if i.lower()==j.lower():
+                        total += data[j] ; break
+            else:
+                total += i
             if 'morse' in str(ctx.message.content).split(' ')[0]:
                 if i==' ': i = '/'
                 else: i += ' '

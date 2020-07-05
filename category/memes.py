@@ -135,7 +135,7 @@ class memes(commands.Cog):
     async def communist(self, ctx):
         async with ctx.message.channel.typing():
             if len(ctx.message.mentions)==0: comrade = str(ctx.message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
-            else: comrade = str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=512')
+            else: comrade = str(ctx.message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=512')
             data = Painter.gif.communist(comrade)
             await ctx.send(file=discord.File(data, 'cyka_blyat.gif'))
 
@@ -168,7 +168,7 @@ class memes(commands.Cog):
             await ctx.send('Please tag TWO people!')
         else:
             async with ctx.message.channel.typing():
-                url='http://nekobot.xyz/api/imagegen?type=whowouldwin&raw=1&user1='+str(ctx.message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')+'&user2='+str(message.mentions[1].avatar_url).replace('.webp?size=1024', '.png')
+                url='http://nekobot.xyz/api/imagegen?type=whowouldwin&raw=1&user1='+str(ctx.message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')+'&user2='+str(ctx.message.mentions[1].avatar_url).replace('.webp?size=1024', '.png')
                 await ctx.send(file=discord.File(Painter.urltoimage(url), 'whowouldwin.png'))
 
     @commands.command(pass_context=True, aliases=['wanted', 'chatroulette', 'sacred', 'coffindance', 'frame', 'window', 'art'])

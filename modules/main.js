@@ -10,7 +10,7 @@ function loadCommands() {
     .then (res => res.json())
     .then (out => {
         var links = "";
-		var libs = ["Bot Help", "Moderation", "Utilities", "Fun", "Games", "Encoding", "Memes", "Images", "Apps", "Owner"];
+		var libs = ["Bot Help", "Moderation", "Economy", "Utilities", "Fun", "Games", "Encoding", "Memes", "Images", "Apps", "Owner"];
         var cmds = out;
         var total = ''
         var totalcount = 0;

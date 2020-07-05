@@ -1,5 +1,7 @@
 import random
 import base64
+from subprocess import run, PIPE
+
 # import platform as systema
 from urllib.request import urlopen as getapi
 from urllib.parse import quote_plus as urlencode
@@ -89,15 +91,24 @@ def report(auth):
 
 def check_if_owner(ctx):
     return ctx.message.channel.id == Config.owner.id
+
 def time_encode(sec):
     time_type = 'seconds'
+    newsec = int(sec)
     if sec>60:
-        sec, time_type = round(sec/60), 'minutes'
+        newsec, time_type = round(sec/60), 'minutes'
         if sec>3600: 
-            sec, time_type = round(sec/3600), 'hours'
+            newsec, time_type = round(sec/3600), 'hours'
             if sec>86400:
-                sec, time_type = round(sec/86400), 'days'
-    return str(str(sec)+' '+time_type)
+                newsec, time_type = round(sec/86400), 'days'
+    return str(str(newsec)+' '+time_type)
+
+def terminal(command):
+    try:
+        data = run([command.split(' ')[0], str(' '.join(command.split(' ')[1:len(command.split(' '))]))], stdout=PIPE).stdout.decode('utf-8')
+    except IndexError:
+        data = run([command], stdout=PIPE).stdout.decode('utf-8')
+    return data
 
 def jsonisp(url):
     return decodeurl(url).json()

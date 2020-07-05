@@ -11,7 +11,7 @@ import username601 as myself
 class moderation(commands.Cog):
     def __init__(self, client):
         self.client = client
-    
+
     @commands.command(pass_context=True)
     @commands.cooldown(1, 15, commands.BucketType.user)
     async def rolecolor(self, ctx, *args):
@@ -252,10 +252,10 @@ class moderation(commands.Cog):
     @commands.command(pass_context=True, aliases=['serverinvite', 'create-invite', 'createinvite', 'makeinvite', 'make-invite', 'server-invite'])
     @commands.cooldown(1, 30, commands.BucketType.user)
     async def getinvite(self, ctx):
-        if not ctx.message.author.guild_permissions.create_invite:
+        if not ctx.message.author.guild_permissions.create_instant_invite:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | No create invite permission?')
         else:
-            serverinvite = await ctx.message.channel.create_invite(reason='Requested by '+str(message.author.name))
+            serverinvite = await ctx.message.channel.create_invite(reason='Requested by '+str(ctx.message.author.name))
             await ctx.send(str(self.client.get_emoji(BotEmotes.success))+' | New invite created! Link: **'+str(serverinvite)+'**')
 
     @commands.command(pass_context=True, name='id')
@@ -360,5 +360,18 @@ class moderation(commands.Cog):
                         await ctx.send(str(self.client.get_emoji(BotEmotes.success))+" | Changed the nickname to {}!".format(newname))
                     except:
                         await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Try making my role higher than the person you are looking for!")
+
+    @commands.command(pass_context=True, aliases=['createchannel', 'create-channel', 'mc'])
+    async def makechannel(self, ctx, *args):
+        if len(list(args))<2:
+            await ctx.sned(str(self.client.get_emoji(BotEmotes.error))+' | Oops! Not a valid arg!')
+        else:
+            if list(args)[0].lower()!='text' or list(args)[0].lower()!='voice':
+                await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Oops! Not a valid type of channel!')
+            else:
+                names = list(args)[1:len(list(args))]
+                if list(args)[0].lower()=='text': await ctx.message.guild.create_text_channel(name='-'.join(list(names)))
+                else: await ctx.message.guild.create_voice_channel(name='-'.join(names))
+                await ctx.send(str(self.client.get_emoji(BotEmotes.success))+" | Successfully created a {} channel named {}.".format(list(args)[0], str('-'.join(names))))
 def setup(client):
     client.add_cog(moderation(client))

@@ -14,7 +14,8 @@ class owner(commands.Cog):
         self.client = client
         self.protected_files = [ # CONFIDENTIAL FILES
             os.environ['DISCORD_TOKEN'],
-            os.environ['DBL_TOKEN']
+            os.environ['DBL_TOKEN'],
+            os.environ['DB_LINK']
         ]
     
     @commands.command(pass_context=True)
