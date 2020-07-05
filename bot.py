@@ -1,11 +1,15 @@
 print('Please wait...')
 
+import sys
+sys.path.append('/app/modules')
+
 # LOCAL FILES
-from modules.username601 import *
-import modules.username601 as myself
-import modules.discordgames as Games
-import modules.splashes as src
-import modules.canvas as Painter
+from username601 import *
+from database import * as db
+import username601 as myself
+import discordgames as Games
+import splashes as src
+import canvas as Painter
 
 # EXTERNAL PACKAGES
 import os
@@ -14,7 +18,6 @@ from os import environ as fetchdata
 import discord
 from discord.ext import commands, tasks
 import random
-import sys
 import asyncio
 
 # DECLARATION AND STUFF
