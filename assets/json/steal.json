@@ -1,0 +1,46 @@
+[
+	{
+		"statement": "{D1} Stole {D2}'s wallet!{NL}however {D2} called the police and {D1} received a 100 diamond fine...",
+		"amount": -100
+	},
+	{
+		"statement": "{D1} went to {D2}'s house to rob!{NL}then {D1} realised that the door is locked and {D2} is on vacation... better luck next time, {D1}!",
+		"amount": 0
+	},
+	{
+		"statement": "{D1} went to the bank disguised as {D2} and stole 500 diamonds!",
+		"amount": 500
+	},
+	{
+		"statement": "{D1} managed to reach {D2}'s pocket and found a single diamond.",
+		"amount": 1
+	},
+	{
+		"statement": "{D1} hacked {D2} and spread their personal information on the dark web.{NL}{D1} received 1000 diamonds.",
+		"amount": 1000
+	},
+	{
+		"statement": "{D1} you lost 1 diamond for taking your time to be a criminal.",
+		"amount": -1
+	},
+	{
+		"statement": "{D1} robbed {D2}'s house and found ||nothing.||",
+		"amount": 0
+	},
+	{
+		"statement": "{D1} robbed {D2}'s house and found ||50 diamonds.||",
+		"amount": 50
+	},
+	{
+		"statement": "{D2}'s house got robbed by {D1}. {D1} managed to get 1000 diamonds,{NL}...but the police came and {D1} got a fine of 250 diamonds.",
+		"amount": 750
+	},
+	{
+		"statement": "NO U.",
+		"amount": "{SAME_AMOUNT}"
+	},
+	{
+		"statement": "Do not do the crime/rob command. Seriously.{NL}You __lost__ all of your diamonds.",
+		"amount": "{THE_GUYS_BAL}"
+	}
+]

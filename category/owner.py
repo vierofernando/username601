@@ -4,6 +4,7 @@ import sys
 sys.path.append('/app/modules')
 import username601 as myself
 from username601 import *
+from database import Economy
 from subprocess import run, PIPE
 from inspect import isawaitable
 from asyncio import sleep
@@ -17,6 +18,15 @@ class owner(commands.Cog):
             os.environ['DBL_TOKEN'],
             os.environ['DB_LINK']
         ]
+    
+    @commands.command(pass_context=True)
+    async def setbal(self, ctx, *args):
+        if ctx.message.author.id==Config.owner.id:
+            await ctx.message.add_reaction(self.client.get_emoji(BotEmotes.loading))
+            resp = Economy.setbal(int(list(args)[0]), int(list(args)[1]))
+            await ctx.send(resp)
+        else:
+            await ctx.send('no u.')
     
     @commands.command(pass_context=True)
     async def cont(self, ctx):
