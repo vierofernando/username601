@@ -25,18 +25,22 @@ class economy(commands.Cog):
             else: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+f" | Oops there was an error... Please report this to the owner using `1feedback.`\n`{new_data}`")
             
     @commands.command(pass_context=True)
-    @commands.cooldown(1, 86400, commands.BucketType.user)
+    @commands.cooldown(1, 15, commands.BucketType.user)
     async def daily(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait...")
         data = Economy.get(ctx.message.author.id)
         if data==None: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+" | You don't have a profile yet! Create a profile using `1new`")
         else:
-            reward = str(random.randint(250, 1000))
-            new_data = Economy.addbal(ctx.message.author.id, int(reward))
-            if new_data=='success':
-                await wait.edit(content=str(self.client.get_emoji(BotEmotes.success))+f" | You took your daily for {reward} diamonds!")
+            cooldown = Economy.is_daily_cooldown(ctx.message.author.id, 'bool')
+            if cooldown: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+" | You are still on cooldown! Try again in **{}**.".format(Economy.is_daily_cooldown(ctx.message.author.id, 'time')))
             else:
-                await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+f" | Oops there was an error... Please report this to the owner using `1feedback.`\n`{new_data}`")
+                reward = str(random.randint(250, 1000))
+                data = Economy.update_time(ctx.message.author.id)
+                new_data = Economy.addbal(ctx.message.author.id, int(reward))
+                if new_data=='success':
+                    await wait.edit(content=str(self.client.get_emoji(BotEmotes.success))+f" | You took your daily for {reward} diamonds!")
+                else:
+                    await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+f" | Oops there was an error... Please report this to the owner using `1feedback.`\n`{new_data}`")
     
     @commands.command(pass_context=True, aliases=['steal'])
     @commands.cooldown(1, 3600, commands.BucketType.user)
