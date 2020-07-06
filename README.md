@@ -16,10 +16,10 @@ it will automatically creates files for you (i like automatic stuff cuz i am laz
 *P.S: All commits with the message "Updated Files for public version of Username601" is entirely automatic!*
 
 # Details
-**LAST UPDATE TIME:** 2020-06-28 14:48:26 (UTC+7)<br>
-**RELEASE VERSION:** 1.9.8<br>
-**COMMANDS COUNT:** 199<br>
-**CATEGORIES:** 10<br>
+**LAST UPDATE TIME:** 2020-06-28 18:15:XX (UTC+7)<br>
+**RELEASE VERSION:** 1.9.X<br>
+**COMMANDS COUNT:** 205<br>
+**CATEGORIES:** 11<br>
 # Links
 [Vote us on top.gg.](https://top.gg/bot/696973408000409626/vote)<br>
 [Official Website](https://vierofernando.github.io/username601)<br>
