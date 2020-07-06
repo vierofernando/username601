@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 import os
-from datetime import datetime, timedelta
+# from datetime import datetime, timedelta
 
 database = MongoClient(os.environ['DB_LINK'])['username601']
 
@@ -13,21 +13,22 @@ class Economy:
             else: continue
         return total
         
-    def is_daily_cooldown(userid, returntype):
-        if returntype=='bool':
-            tmstmp = database["economy"].find({"userid": userid})["lastdaily"]
-            if tmstmp==0: return False
-            else:
-                time = datetime.now() - datetime.fromtimestamp(tmstmp)
-                try:
-                    days_passed = time.days
-                    if days_passed > 0: return False
-                    else: return True
-                except AttributeError:
-                    return True
-        else:
-            time = datetime.fromtimestamp(database["economy"].find({"userid": userid})["lastdaily"]) + timedelta(days=1)
-            return str(time)
+    # def is_daily_cooldown(userid, returntype):
+    #     if returntype=='bool':
+    #         tmstmp = database["economy"].find({"userid": userid})["lastdaily"]
+    #         if tmstmp==0: return False
+    #         else:
+    #             time = datetime.now() - datetime.fromtimestamp(tmstmp)
+    #             print(str(time))
+    #             try:
+    #                 days_passed = time.days
+    #                 if days_passed > 0: return False
+    #                 else: return True
+    #             except AttributeError:
+    #                 return True
+    #     else:
+    #         time = datetime.fromtimestamp(database["economy"].find({"userid": userid})["lastdaily"]) + timedelta(days=1)
+    #         return str(time)
     
     def setdesc(userid, newdesc):
         try:
@@ -71,12 +72,12 @@ class Economy:
         except Exception as e:
             return e
     
-    def daily(userid, bal):
+    def daily(userid, bal, time):
         try:
             old = database["economy"].find_one({"userid": userid})
-            database["economy"].update_one({"userid": userid}, { "$set": {
-                "lastdaily": int(datetime.now().timestamp())
-            }})
+            # database["economy"].update_one({"userid": userid}, { "$set": {
+            #     "lastdaily": time
+            # }})
             database["economy"].update_one({"userid": userid}, { "$set": {
                 "bal": old["bal"]+bal
             }})

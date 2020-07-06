@@ -6,6 +6,7 @@ import random
 from json import loads
 from username601 import BotEmotes
 from database import Economy
+from datetime import datetime
 
 class economy(commands.Cog):
     def __init__(self, client):
@@ -31,15 +32,15 @@ class economy(commands.Cog):
         data = Economy.get(ctx.message.author.id)
         if data==None: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+" | You don't have a profile yet! Create a profile using `1new`")
         else:
-            cooldown = Economy.is_daily_cooldown(ctx.message.author.id, 'bool')
-            if cooldown: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+" | You are still on cooldown! Try again in **{}**.".format(Economy.is_daily_cooldown(ctx.message.author.id, 'time')))
+            # cooldown = Economy.is_daily_cooldown(ctx.message.author.id, 'bool')
+            # if cooldown: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+" | You are still on cooldown! Try again in **{}**.".format(Economy.is_daily_cooldown(ctx.message.author.id, 'time')))
+            # else:
+            reward = str(random.randint(250, 1000))
+            new_data = Economy.daily(ctx.message.author.id, int(reward), int(datetime.now().timestamp()))
+            if new_data=='success':
+                await wait.edit(content=str(self.client.get_emoji(BotEmotes.success))+f" | You took your daily for {reward} diamonds!")
             else:
-                reward = str(random.randint(250, 1000))
-                new_data = Economy.daily(ctx.message.author.id, int(reward))
-                if new_data=='success':
-                    await wait.edit(content=str(self.client.get_emoji(BotEmotes.success))+f" | You took your daily for {reward} diamonds!")
-                else:
-                    await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+f" | Oops there was an error... Please report this to the owner using `1feedback.`\n`{new_data}`")
+                await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+f" | Oops there was an error... Please report this to the owner using `1feedback.`\n`{new_data}`")
     
     @commands.command(pass_context=True, aliases=['steal'])
     @commands.cooldown(1, 3600, commands.BucketType.user)
