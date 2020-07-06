@@ -12,23 +12,6 @@ class Economy:
                 total.append(str(i["userid"])+"|"+str(i["bal"]))
             else: continue
         return total
-        
-    # def is_daily_cooldown(userid, returntype):
-    #     if returntype=='bool':
-    #         tmstmp = database["economy"].find({"userid": userid})["lastdaily"]
-    #         if tmstmp==0: return False
-    #         else:
-    #             time = datetime.now() - datetime.fromtimestamp(tmstmp)
-    #             print(str(time))
-    #             try:
-    #                 days_passed = time.days
-    #                 if days_passed > 0: return False
-    #                 else: return True
-    #             except AttributeError:
-    #                 return True
-    #     else:
-    #         time = datetime.fromtimestamp(database["economy"].find({"userid": userid})["lastdaily"]) + timedelta(days=1)
-    #         return str(time)
     
     def setdesc(userid, newdesc):
         try:
@@ -72,12 +55,9 @@ class Economy:
         except Exception as e:
             return e
     
-    def daily(userid, bal, time):
+    def daily(userid, bal):
         try:
             old = database["economy"].find_one({"userid": userid})
-            # database["economy"].update_one({"userid": userid}, { "$set": {
-            #     "lastdaily": time
-            # }})
             database["economy"].update_one({"userid": userid}, { "$set": {
                 "bal": old["bal"]+bal
             }})

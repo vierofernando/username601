@@ -42,5 +42,17 @@
 	{
 		"statement": "Do not do the crime/rob command. Seriously.{NL}You __lost__ all of your diamonds.",
 		"amount": "{THE_GUYS_BAL}"
+	},
+	{
+		"statement": "OK. {D2} got robbed.",
+		"amount": "{REAL}"
+	},
+	{
+		"statement": "OK. {D2} got robbed.",
+		"amount": "{REAL}"
+	}
+	{
+		"statement": "OK. {D2} got robbed.",
+		"amount": "{REAL}"
 	}
 ]
