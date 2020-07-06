@@ -34,8 +34,7 @@ class Economy:
             database["economy"].insert_one({
                 "userid": userid,
                 "bal": 0,
-                "desc": "nothing here!",
-                "lastdaily": 0
+                "desc": "nothing here!"
             })
             return 'done'
         except Exception as e:
