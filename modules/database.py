@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 import os
-from datetime import datetime, fromtimestamp, timedelta
+from datetime import datetime, timedelta
 
 database = MongoClient(os.environ['DB_LINK'])['username601']
 
@@ -12,16 +12,13 @@ class Economy:
                 total.append(str(i["userid"])+"|"+str(i["bal"]))
             else: continue
         return total
-    
-    def update_time(userid):
-        database["economy"].update_one({"userid": userid}, { "$set": { "desc": datetime.now().timestamp() } })
         
     def is_daily_cooldown(userid, returntype):
         if returntype=='bool':
             tmstmp = database["economy"].find({"userid": userid})["lastdaily"]
             if tmstmp==0: return False
             else:
-                time = datetime.now() - fromtimestamp(tmstmp)
+                time = datetime.now() - datetime.fromtimestamp(tmstmp)
                 try:
                     days_passed = time.days
                     if days_passed > 0: return False
@@ -29,7 +26,7 @@ class Economy:
                 except AttributeError:
                     return True
         else:
-            time = fromtimestamp(database["economy"].find({"userid": userid})["lastdaily"]) + timedelta(days=1)
+            time = datetime.fromtimestamp(database["economy"].find({"userid": userid})["lastdaily"]) + timedelta(days=1)
             return str(time)[:-7]
     
     def setdesc(userid, newdesc):
@@ -72,6 +69,14 @@ class Economy:
             return 'success'
         except Exception as e:
             return e
+    
+    def daily(userid, bal):
+        oldbal = database["economy"].find({"userid": userid})['bal']
+        database["economy"].update_one({"userid": userid}, { "$set": {
+            "lastdaily": datetime.now().timestamp(),
+            "bal": oldbal+bal
+        }})
+    
     def changedesc(userid, newdesc):
         try:
             data = database["economy"].find({"userid": userid})

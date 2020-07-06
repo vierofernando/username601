@@ -35,8 +35,7 @@ class economy(commands.Cog):
             if cooldown: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+" | You are still on cooldown! Try again in **{}**.".format(Economy.is_daily_cooldown(ctx.message.author.id, 'time')))
             else:
                 reward = str(random.randint(250, 1000))
-                data = Economy.update_time(ctx.message.author.id)
-                new_data = Economy.addbal(ctx.message.author.id, int(reward))
+                new_data = Economy.daily(ctx.message.author.id, int(reward))
                 if new_data=='success':
                     await wait.edit(content=str(self.client.get_emoji(BotEmotes.success))+f" | You took your daily for {reward} diamonds!")
                 else:
