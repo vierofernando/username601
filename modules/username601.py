@@ -2,7 +2,6 @@ import random
 import base64
 from subprocess import run, PIPE
 
-# import platform as systema
 from urllib.request import urlopen as getapi
 from urllib.parse import quote_plus as urlencode
 from json import loads as jsonify
@@ -10,8 +9,8 @@ from requests import get as decodeurl
 
 class BotEmotes:
     loading = 704242088425816085
-    error = 708143217182244886
-    success = 704242063725559868
+    error = 704242063725559868
+    success = 713399284149518417
 
 class Config:
     id = 696973408000409626 # BOT ID
