@@ -61,7 +61,7 @@ class economy(commands.Cog):
                     else:
                         data = random.choice(loads(open('/app/assets/json/steal.json', 'r').read()))
                         if not str(data['amount']).replace('-', '').isnumeric():
-                            if data['amount']=='{SAME_AMOUNT}': robamount = -
+                            if data['amount']=='{SAME_AMOUNT}': robamount = -robamount
                             elif data['amount']=='{REAL}': robamount = int(amount2rob)
                             else: robamount = -Economy.get(ctx.message.author.id)['bal']
                         else: robamount = data['amount']
