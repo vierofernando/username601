@@ -27,7 +27,7 @@ class Economy:
                     return True
         else:
             time = datetime.fromtimestamp(database["economy"].find({"userid": userid})["lastdaily"]) + timedelta(days=1)
-            return str(time)[:-7]
+            return str(time)
     
     def setdesc(userid, newdesc):
         try:
@@ -50,7 +50,8 @@ class Economy:
             database["economy"].insert_one({
                 "userid": userid,
                 "bal": 0,
-                "desc": "nothing here!"
+                "desc": "nothing here!",
+                "lastdaily": 0
             })
             return 'done'
         except Exception as e:
@@ -71,11 +72,17 @@ class Economy:
             return e
     
     def daily(userid, bal):
-        oldbal = database["economy"].find({"userid": userid})['bal']
-        database["economy"].update_one({"userid": userid}, { "$set": {
-            "lastdaily": datetime.now().timestamp(),
-            "bal": oldbal+bal
-        }})
+        try:
+            old = database["economy"].find_one({"userid": userid})
+            database["economy"].update_one({"userid": userid}, { "$set": {
+                "lastdaily": int(datetime.now().timestamp())
+            }})
+            database["economy"].update_one({"userid": userid}, { "$set": {
+                "bal": old["bal"]+bal
+            }})
+            return 'success'
+        except Exception as e:
+            return e
     
     def changedesc(userid, newdesc):
         try:
