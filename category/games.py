@@ -58,7 +58,7 @@ class games(commands.Cog):
                     else: like = ':+1:'
                     levels += str(count+1)+'. **'+data[count]['name']+'** by '+data[count]['author']+' (`'+data[count]['id']+'`)\n:arrow_down: '+data[count]['downloads']+' | '+like+' '+data[count]['likes']+'\n'
                     count += 1
-                embedy = discord.Embed(title='Geometry Dash Level searches for "'+str(unprefixed)+'":', description=levels, colour=discord.Colour.from_rgb(201, 160, 112))
+                embedy = discord.Embed(title='Geometry Dash Level searches for "'+str(' '.join(list(args)))+'":', description=levels, colour=discord.Colour.from_rgb(201, 160, 112))
                 await ctx.send(embed=embedy)
             except:
                 await ctx.send(str(self.client.get_emoji(BotEmotes.error)) + ' | Error: Not Found. :four::zero::four:')
@@ -93,7 +93,7 @@ class games(commands.Cog):
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Please input a text!')
         else:
             async with ctx.message.channel.typing():
-                text = myself.urlify(unprefixed)
+                text = myself.urlify(' '.join(list(args)))
                 url='https://gdcolon.com/tools/gdlogo/img/'+str(text)
                 await ctx.send(file=discord.File(Painter.urltoimage(url), 'gdlogo.png'))
     
