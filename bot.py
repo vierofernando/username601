@@ -76,15 +76,14 @@ async def on_command_error(ctx, error):
         pass
     else:
         print("An error occured: {}".format(str(error)))
-#@client.event
-#@commands.cooldown(5, 30, commands.BucketType.user)
-#async def on_message(message):
-#    if message.channel.id==700040209705861120: await message.author.add_roles(message.guild.get_role(700042707468550184))
-#    if message.channel.id==724454726908772373: await message.author.add_roles(message.guild.get_role(701586228000325733))
+@client.event
+async def on_message(message):
+    if message.channel.id==700040209705861120: await message.author.add_roles(message.guild.get_role(700042707468550184))
+    if message.channel.id==724454726908772373: await message.author.add_roles(message.guild.get_role(701586228000325733))
+    if message.content.startswith('<@'+str(client.user.id)+'>') or message.content.startswith('<@!'+str(client.user.id)+'>'): await message.channel.send(f'Hi! My prefix is `{Config.prefix}`.')
+    await client.process_commands(message)
 #    no_args, msg, args = False, message.content.lower(), message.content.split(' ')
-#    unprefixed = message.content[int(len(args[0])+1):]
-#    if message.author.bot==False and f'<@{str(Config.id)}>' in msg or f'<@!{str(Config.id)}>' in msg:
-#        await message.channel.send(f'<@{str(message.author.id)}>, My prefix in this server is `{prefix}`.')
+#    unprefixed = message.content[int(len(arg
 #    if len(args)==1: no_args = True
 #    if myself.accept_message(message.author.id, message.author.bot, msg, message.guild):
 #        if cmd(msg, 'ping'):

@@ -39,8 +39,26 @@ class economy(commands.Cog):
             else:
                 await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+f" | Oops there was an error... Please report this to the owner using `1feedback.`\n`{new_data}`")
     
+    @commands.command(pass_context=True)
+    @commands.cooldown(1, 30, commands.BucketType.user)
+    async def transfer(self, ctx, *args):
+        if len(list(args))==0 or len(ctx.message.mentions)==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | gimme some tag and some amount.')
+        else:
+            wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+' | Please wait...?')
+            amount = None
+            for i in list(args):
+                if i.isnumeric(): amount = int(i); break
+            if amount==None: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+' | Give me some valid amount!')
+            elif amount < 1: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+' | Invalid amount!')
+            elif Economy.get(ctx.message.author.id)==None or Economy.get(ctx.message.mentions[0].id)==None:
+                await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+' | Neither of them has a profile!')
+            else:
+                Economy.addbal(ctx.message.mentions[0].id, amount)
+                Economy.delbal(ctx.message.author.id, amount) # EFFICIENT CODE LMFAO
+                await wait.edit(content=str(self.client.get_emoji(BotEmotes.success))+f' | Done! Transferred {str(amount)} diamonds to {ctx.message.mentions[0].name}!')
+
     @commands.command(pass_context=True, aliases=['steal'])
-    @commands.cooldown(1, 3600, commands.BucketType.user)
+    @commands.cooldown(1, 60, commands.BucketType.user)
     async def rob(self, ctx, *args):
         if len(ctx.message.mentions)==0 or len(list(args))==0:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Who?')
