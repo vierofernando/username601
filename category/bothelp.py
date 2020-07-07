@@ -22,7 +22,7 @@ class bothelp(commands.Cog):
                 cate += f'**{str(i+1)}. **{Config.prefix}help {str(types[i])}\n'
             embed = discord.Embed(
                 title='Username601\'s commands',
-                description='INFO: Bot is currently being rewritten. Most commands won\'t respond yet. Sorry for the inconvenience!\n[Join the support server]('+str(Config.SupportServer.invite)+') | [Vote us on top.gg](https://top.gg/bot/'+str(Config.id)+'/vote)\n\n**[More information on our website here.](https://vierofernando.github.io/username601/commands)**\n**Command Categories:** \n'+str(cate),
+                description='[Join the support server]('+str(Config.SupportServer.invite)+') | [Vote us on top.gg](https://top.gg/bot/'+str(Config.id)+'/vote)\n\n**[More information on our website here.](https://vierofernando.github.io/username601/commands)**\n**Command Categories:** \n'+str(cate),
                 colour=discord.Colour.from_rgb(201, 160, 112)
             )
             embed.set_footer(text=f'Type {Config.prefix}help <command/category> for more details.')
@@ -136,7 +136,6 @@ class bothelp(commands.Cog):
         if str(self.client.get_guild(Config.SupportServer.id).get_member(Config.owner.id).status)=='offline': devstatus = 'Offline'
         else: devstatus = 'Online'
         embed = discord.Embed(title = 'About '+str(ctx.message.guild.get_member(Config.id).display_name), colour = discord.Colour.from_rgb(201, 160, 112))
-        embed.description = 'NOTE: Bot is currently on reconstruction. The only functioning commands now are 75% from all commands. The dev will fix/add as fast as he can. Sorry!'
         embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Library: **Discord.py\n**Default Config.prefix: ** 1', inline='True')
         embed.add_field(name='Programmer info', value='**Programmed by: **'+Config.owner.name+'. ('+self.client.get_user(Config.owner.id).name+'#'+str(self.client.get_user(Config.owner.id).discriminator)+')\n**Current Discord Status:** '+devstatus, inline='True')
         embed.add_field(name='Version Info', value='**Bot version: ** '+Config.Version.number+'\n**Changelog: **'+Config.Version.changelog)#+'\n'+str(osinfo))

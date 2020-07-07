@@ -17,8 +17,8 @@ class Config:
     prefix = '1' # your prefix here
     cmdtypes = decodeurl("https://vierofernando.github.io/username601/assets/json/categories.json").json()
     class Version:
-        number = '1.9.8'
-        changelog = 'Changed from Python 3.6.10 to 3.8.3'
+        number = '2.0'
+        changelog = 'Added database, added Economy category, fixed several commands, rewrite fixed.'
     class SupportServer:
         id = 688373853889495044 # support server ID
         logging = 694521383908016188 # logging channel ID in support server

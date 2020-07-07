@@ -213,9 +213,6 @@ class moderation(commands.Cog):
         else: embed.set_image(url=ctx.message.mentions[0].avatar_url)
         await ctx.send(embed=embed)
 
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 12, commands.BucketType.user)
-
     @commands.command(pass_context=True, aliases=['serveremotes', 'emotes', 'serveremoji'])
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def serveremojis(self, ctx):
