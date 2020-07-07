@@ -103,10 +103,8 @@ class games(commands.Cog):
         if len(list(args))==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Please input a text!')
         else:
             async with ctx.message.channel.typing():
-                text = myself.urlify(str(' '.join(list(args)))
-                av = ctx.message.author.avatar_url
-                if len(text)>100:
-                    await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | the text is too long!')
+                text, av = myself.urlify(str(' '.join(list(args)))), ctx.message.author.avatar_url
+                if len(text)>100: await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | the text is too long!')
                 else:
                     if not ctx.message.author.guild_permissions.manage_guild: color = 'brown'
                     else: color = 'blue'
