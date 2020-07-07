@@ -22,7 +22,7 @@ class games(commands.Cog):
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Please enter a level ID!')
         else:
             if not args[0].isnumeric():
-                await message.channel.send(str(self.client.get_emoji(BotEmotes.error))+' | That is not a level ID!')
+                await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | That is not a level ID!')
             else:
                 try:
                     levelid = str(args[0])
@@ -108,13 +108,13 @@ class games(commands.Cog):
                 else:
                     if not ctx.message.author.guild_permissions.manage_guild: color = 'brown'
                     else: color = 'blue'
-                    url='https://gdcolon.com/tools/gdtextbox/img/'+str(text)+'?color='+color+'&name='+str(message.author.name)+'&url='+str(av).replace('webp', 'png')+'&resize=1'
+                    url='https://gdcolon.com/tools/gdtextbox/img/'+str(text)+'?color='+color+'&name='+str(ctx.message.author.name)+'&url='+str(av).replace('webp', 'png')+'&resize=1'
                     await ctx.send(file=discord.File(Painter.urltoimage(url), 'gdbox.png'))
    
     @commands.command(pass_context=True)
     @commands.cooldown(1, 3, commands.BucketType.user)
     async def gdcomment(self, ctx, *args):
-        async with message.channel.typing():
+        async with ctx.message.channel.typing():
             try:
                 byI = str(' '.join(list(args))).split(' | ')
                 text = myself.urlify(byI[0])
@@ -215,7 +215,8 @@ class games(commands.Cog):
         toEdit = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Retrieving Data...")
         if 'daily' in ctx.message.content: name = 'daily'
         else: name = 'weekly'
-        data, image = myself.api("https://gdbrowser.com/api/level/"+name), 'https://gdbrowser.com/icon/'+data["author"]
+        data = myself.api("https://gdbrowser.com/api/level/"+name)
+        image = 'https://gdbrowser.com/icon/'+data["author"]
         embed = discord.Embed(
             title = data["name"]+' ('+str(data["id"])+')',
             description = data["description"],
@@ -261,9 +262,9 @@ class games(commands.Cog):
                 title = messages[msgId],
                 colour = colors[msgId]
             )
-            embed.set_footer(text='Playin\' rock paper scissors w/ '+str(message.author.name))
-            embed.set_author(name="Playing Rock Paper Scissors with "+str(message.author.name))
-            embed.add_field(name=str(message.author.name), value=':'+given+':', inline="True")
+            embed.set_footer(text='Playin\' rock paper scissors w/ '+str(ctx.message.author.name))
+            embed.set_author(name="Playing Rock Paper Scissors with "+str(ctx.message.author.name))
+            embed.add_field(name=str(ctx.message.author.name), value=':'+given+':', inline="True")
             embed.add_field(name='Username601', value=':'+str(emojiArray[ran])+':', inline="True")
             await main.edit(embed=embed)
 
@@ -276,18 +277,17 @@ class games(commands.Cog):
     @commands.command(pass_context=True, aliases=['guessav'])
     @commands.cooldown(1, 7, commands.BucketType.user)
     async def guessavatar(self, ctx):
-        if len(message.guild.members)>500:
-            await message.channel.send('Sorry, to protect some people\'s privacy, this command is not available for Large servers. (over 500 members)')
+        if len(ctx.message.guild.members)>500:
+            await ctx.send('Sorry, to protect some people\'s privacy, this command is not available for Large servers. (over 500 members)')
         else:
-            wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... generating question...\nThis process may take longer if your server has more members.')
-            avatarAll = []
-            nameAll = []
-            for ppl in message.guild.members:
-                if message.guild.get_member(int(ppl.id)).status.name!='offline':
+            wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait... generating question...\nThis process may take longer if your server has more members.')
+            avatarAll, nameAll = [], []
+            for ppl in ctx.guild.members:
+                if ctx.guild.get_member(int(ppl.id)).status.name!='offline':
                     avatarAll.append(str(ppl.avatar_url).replace('webp', 'png'))
                     nameAll.append(ppl.display_name)
             if len(avatarAll)<=4:
-                await message.channel.send(str(client.get_emoji(BotEmotes.error)) +' | Need more online members! :x:')
+                await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | Need more online members! :x:')
             else:
                 numCorrect = random.randint(0, len(avatarAll)-1)
                 corr_avatar, corr_name = avatarAll[numCorrect], nameAll[numCorrect]
@@ -317,9 +317,9 @@ class games(commands.Cog):
                 except asyncio.TimeoutError:
                     return await ctx.send(':pensive: No one? Okay then, the answer is: '+str(corr_order)+'. '+str(corr_name))
                 if str(reaction.emoji)==str(corr_order):
-                    await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | <@'+str(message.author.id)+'>, You are correct! :tada:')
+                    await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | <@'+str(ctx.message.author.id)+'>, You are correct! :tada:')
                 else:
-                    await ctx.send(str(self.client.get_emoji(BotEmotes.success)) +' | <@'+str(message.author.id)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
+                    await ctx.send(str(self.client.get_emoji(BotEmotes.success)) +' | <@'+str(ctx.message.author.id)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
 
     @commands.command(pass_context=True)
     @commands.cooldown(1, 12, commands.BucketType.user)
@@ -366,30 +366,30 @@ class games(commands.Cog):
         sym = symArray[arrayId]
         await ctx.send('**MATH QUIZ (15 seconds)**\n'+str(num1)+' '+str(sym)+' '+str(num2)+' = ???')
         def is_correct(m):
-            return m.author == message.author
+            return m.author == ctx.message.author
         answer = round(ansArray[arrayId])
         try:
             trying = await self.client.wait_for('message', check=is_correct, timeout=15.0)
         except asyncio.TimeoutError:
             return await ctx.send(':pensive: No one? Okay then, the answer is: {}.'.format(answer))
         if str(trying.content)==str(answer):
-            await ctx.send(str(self.client.get_emoji(BotEmotes.success)) +' | <@'+str(message.author.id)+'>, You are correct! :tada:')
+            await ctx.send(str(self.client.get_emoji(BotEmotes.success)) +' | <@'+str(ctx.message.author.id)+'>, You are correct! :tada:')
         else:
-            await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | <@'+str(message.author.id)+'>, Incorrect. The answer is {}.'.format(answer))
+            await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | <@'+str(ctx.message.author.id)+'>, Incorrect. The answer is {}.'.format(answer))
 
     @commands.command(pass_context=True)
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def hangman(self, ctx):
-        wait = await message.channel.send(str(client.get_emoji(BotEmotes.loading)) + ' | Please wait... generating...')
+        wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait... generating...')
         the_word = myself.api("https://random-word-api.herokuapp.com/word?number=1")
         main_guess_cor, main_guess_hid = list(the_word[0]), []
-        server_id, wrong_guesses = message.guild.id, ''
+        server_id, wrong_guesses = ctx.message.guild.id, ''
         for i in range(0, len(main_guess_cor)):
             main_guess_hid.append('\_ ')
         guessed, gameplay, playing_with, playing_with_id, level = [], True, ctx.message.author, int(ctx.message.author.id), 0
         while gameplay:
-            if message.content==prefix+'hangman' and message.author.id!=int(playing_with_id) and message.guild.id==server_id:
-                await message.channel.send('<@'+str(message.author.id)+'>, cannot play hangman when a game is currently playing!')
+            if ctx.message.content==Config.prefix+'hangman' and ctx.message.author.id!=int(playing_with_id) and ctx.message.guild.id==server_id:
+                await ctx.send('<@'+str(ctx.message.author.id)+'>, cannot play hangman when a game is currently playing!')
             newembed = discord.Embed(title=''.join(main_guess_hid), description='Wrong guesses: '+str(wrong_guesses), colour=discord.Colour.from_rgb(201, 160, 112))
             newembed.set_image(url=f'https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{str(level)}.png')
             newembed.set_footer(text='Type "showanswer" to show the answer and end the game.')
