@@ -73,7 +73,9 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
         await ctx.send("Calm down!\nYou can do the command again in {}.".format(myself.time_encode(round(error.retry_after))))
     elif isinstance(error, commands.CommandNotFound):
-        pass
+        pass # ignore that shit
+    elif 'missing permissions' in str(error).lower():
+        await ctx.send(str(client.get_emoji(BotEmotes.error))+" | I don't have the permission required to use that command!")
     else:
         print("An error occured: {}".format(str(error)))
 @client.event

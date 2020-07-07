@@ -6,6 +6,11 @@ def randomhash():
 
 import random
 import requests
+def num2word(num):
+    arr, word = list(range(0, 10)), 'zero,one,two,three,four,five,six,seven,eight,nine'.split(',')
+    for i in range(0, len(arr)):
+        if num==arr[i]:
+            return word[i] ; break
 def getGeoQuiz():
     return ['capital', 'region', 'subregion', 'population', 'demonym', 'nativeName']
 def lastmsg(a):

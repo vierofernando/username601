@@ -5,6 +5,7 @@ import random
 import asyncio
 sys.path.append('/app/modules')
 from username601 import *
+from splashes import num2word
 import canvas as Painter
 import username601 as myself
 
@@ -137,7 +138,7 @@ class moderation(commands.Cog):
                     await ctx.message.guild.ban(ctx.message.mentions[0])
                     await ctx.send(str(self.client.get_emoji(BotEmotes.success))+" | Successfully banned "+ctx.message.mentions[0].name+".")
     @commands.command(pass_context=True, aliases=['purge'])
-    @commands.cooldown(1, 15, commands.BucketType.user)
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def clear(self, ctx, *args):
         if not ctx.message.author.guild_permissions.manage_channels:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | You need the manage channel permission!")
@@ -211,6 +212,19 @@ class moderation(commands.Cog):
         if len(ctx.message.mentions)==0: embed.set_image(url=ctx.message.author.avatar_url)
         else: embed.set_image(url=ctx.message.mentions[0].avatar_url)
         await ctx.send(embed=embed)
+
+    @commands.command(pass_context=True)
+    @commands.cooldown(1, 12, commands.BucketType.user)
+
+    @commands.command(pass_context=True, aliases=['serveremotes', 'emotes', 'serveremoji'])
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def serveremojis(self, ctx):
+        if len(ctx.guild.emojis)==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | This server has no emojis!')
+        else:
+            try:
+                await ctx.send(myself.dearray([str(i) for i in ctx.guild.emojis]))
+            except:
+                await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | This server probably has too many emojis to be listed!')
 
     @commands.command(pass_context=True, aliases=['serverinfo', 'server', 'servericon'])
     @commands.cooldown(1, 7, commands.BucketType.user)
@@ -305,26 +319,6 @@ class moderation(commands.Cog):
                 else: perms_list.append(':x: {}'.format(i.replace('_', ' ')))
         embed = discord.Embed(title='Guild permissions for '+source.name, description='\n'.join(perms_list), colour=discord.Colour.from_rgb(201, 160, 112))
         await ctx.send(embed=embed)
-    
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 5, commands.BucketType.user)
-    async def emojiinfo(self, ctx, *args):
-        if len(list(args))==0:
-            await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Please gimme the emoji!")
-        else:
-            try:
-                erry = False
-                emojiid = int(list(args)[0].split(':')[2][:-1])
-                data = self.client.get_emoji(emojiid)
-            except:
-                erry = True
-                await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | For some reason, we cannot process your emoji ;(')
-            if not erry:
-                if data.animated: anim = 'This emoji is an animated emoji. **Only nitro users can use it.**'
-                else: anim = 'This emoji is a static emoji. **Everyone can use it (except if limited by role)**'
-                embedy = discord.Embed(title='Emoji info for :'+str(data.name)+':', description='**Emoji name:** '+str(data.name)+'\n**Emoji ID: **'+str(data.id)+'\n'+anim+'\n**Emoji\'s server ID: **'+str(data.guild_id)+'\n**Emoji creation time: **'+str(data.created_at)[:-7]+' UTC.', colour=discord.Colour.from_rgb(201, 160, 112))
-                embedy.set_thumbnail(url='https://cdn.discordapp.com/emojis/'+str(data.id)+'.png?v=1')
-                await ctx.send(embed=embedy)
 
     @commands.command(pass_context=True, aliases=['mkchannel', 'mkch', 'createchannel', 'make-channel', 'create-channel'])
     @commands.cooldown(1, 5, commands.BucketType.user)
@@ -361,10 +355,43 @@ class moderation(commands.Cog):
                     except:
                         await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Try making my role higher than the person you are looking for!")
 
+    @commands.command(pass_context=True, aliases=['emoji'])
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def emojiinfo(self, ctx, *args):
+        try:
+            erry, emojiid = int(list(args)[0].split(':')[2][:-1]), False
+            data = self.client.get_emoji(emojiid)
+        except:
+            erry = True
+            await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | For some reason, we cannot process your emoji ;(')
+        if not erry:
+            if data.animated: anim = 'This emoji is an animated emoji. **Only nitro users can use it.**'
+            else: anim = 'This emoji is a static emoji. **Everyone can use it (except if limited by role)**'
+            embedy = discord.Embed(title='Emoji info for :'+str(data.name)+':', description='**Emoji name:** '+str(data.name)+'\n**Emoji ID: **'+str(data.id)+'\n'+anim+'\n**Emoji\'s server ID: **'+str(data.guild_id)+'\n**Emoji creation time: **'+str(data.created_at)[:-7]+' UTC.', colour=discord.Colour.from_rgb(201, 160, 112))
+            embedy.set_thumbnail(url='https://cdn.discordapp.com/emojis/'+str(data.id)+'.png?v=1')
+            await ctx.send(embed=embedy)
+
+    @commands.command(pass_context=True)
+    @commands.cooldown(1, 12, commands.BucketType.user)
+    async def reactnum(self, ctx, *args):
+        if len(list(args))==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Oops! Not a valid arg!')
+        else:
+            num = []
+            for i in list(args):
+                if i.isnumeric(): num.append(int(i))
+            if len(num)!=2: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Oops! Not a valid arg!')
+            elif num[1] or num[0] not in list(range(0, 10)):
+                await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | The valid range is from 0 to 9!')
+            else:
+                if num[1] > num[0]: num = num[::-1]
+                for i in range(num[0], num[1]):
+                    await ctx.message.add_reaction(num2word(i))
+
     @commands.command(pass_context=True, aliases=['createchannel', 'create-channel', 'mc'])
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def makechannel(self, ctx, *args):
         if len(list(args))<2:
-            await ctx.sned(str(self.client.get_emoji(BotEmotes.error))+' | Oops! Not a valid arg!')
+            await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Oops! Not a valid arg!')
         else:
             if list(args)[0].lower()!='text' or list(args)[0].lower()!='voice':
                 await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Oops! Not a valid type of channel!')
