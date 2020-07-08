@@ -63,11 +63,13 @@ def ifunny(avatar):
     avatar.paste(watermark, (0, 0), watermark)
     return compile(avatar)
     
-
 def wasted(avatar):
-    avatar, wasted = imagefromURL(avatar).resize((240, 240)), Image.open(r'/app/assets/pics/wasted.png')
-    red = Image.new(mode='RGB', size=(240, 240), color=(255, 0, 0))
-    avatar = Image.blend(avatar, red, alpha=0.4)
+    avatar, wasted = imagefromURL(avatar).resize((240, 240), Image.ANTIALIAS), Image.open(r'/app/assets/pics/wasted.png').resize((240, 240))
+    try:
+        red = Image.new(mode='RGB', size=(240, 240), color=(255, 0, 0))
+        avatar = Image.blend(avatar, red, alpha=0.4)
+    except ValueError:
+        pass
     avatar.paste(wasted, (0, 0), wasted)
     return compile(avatar)
 

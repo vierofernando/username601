@@ -18,7 +18,7 @@ class memes(commands.Cog):
             else: source = ctx.message.mentions[0].avatar_url
             if 'wasted' in ctx.message.content: data, filename = Painter.wasted(str(source).replace('.webp?size=1024', '.png?size=512')), 'wasted.png'
             else: data, filename = Painter.ifunny(str(source).replace('.webp?size=1024', '.png?size=512')), 'ifunny.png'
-            await ctx.send(file=discord.File(data, 'wasted.png'))
+            await ctx.send(file=discord.File(data, filename))
     
     @commands.command(pass_context=True, aliases=['achieve', 'call'])
     @commands.cooldown(1, 5, commands.BucketType.user)
