@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 import os
-# from datetime import datetime, timedelta
+from datetime import datetime as t
 
 database = MongoClient(os.environ['DB_LINK'])['username601']
 
@@ -80,3 +80,44 @@ class Economy:
             return data
         except Exception as e:
             return None
+
+class selfDB:
+    def post_uptime():
+        for i in database["config"].find():
+            if "uptime" in list(i.keys()):
+                old_uptime = i["uptime"] ; break
+        database["config"].update_one({"uptime": old_uptime}, { "$set": { "uptime": t.now().timestamp() } })
+    def get_uptime():
+        for i in database["config"].find():
+            if "uptime" in list(i.keys()):
+                uptime = i["uptime"] ; break
+        time = str(t.now() - t.fromtimestamp(uptime))[:-7]
+        return time+'|'+str(t.fromtimestamp(uptime))[:-7]
+    def feedback_ban(userid, reason):
+        for i in database["config"].find():
+            if "bans" in list(i.keys()):
+                old_bans = i["bans"] ; break
+        database["config"].update_one({"bans": old_bans}, { "$push": {"bans": str(userid)+"|"+str(reason)} })
+    def feedback_unban(userid):
+        try:
+            for i in database["config"].find():
+                if "bans" in list(i.keys()):
+                    for j in i["bans"]:
+                        if j.startswith(str(userid)): reason = j.split('|')[1] ; break
+                    old_bans = i["bans"] ; break
+            database["config"].update_one({"bans": old_bans}, { "$pull": {"bans": str(userid)+"|"+str(reason)} })
+            return '200'
+        except:
+            return '404'
+    def is_banned(user_id):
+        banned, reason = False, None
+        for i in database["config"].find():
+            if "bans" in list(i.keys()):
+                for lists in i["bans"]:
+                    if user_id == int(lists.split('|')[0]):
+                        banned, reason = True, lists.split('|')[1] ;break
+                break
+        if banned:
+            return reason
+        else:
+            return False

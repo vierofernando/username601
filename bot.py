@@ -5,7 +5,7 @@ sys.path.append('/app/modules')
 
 # LOCAL FILES
 from username601 import *
-from database import Economy
+from database import Economy, selfDB
 import username601 as myself
 import discordgames as Games
 import splashes as src
@@ -27,6 +27,7 @@ bot_status = cycle(myself.getStatus())
 
 @client.event
 async def on_ready():
+    selfDB.post_uptime() # update the uptime
     statusChange.start()
     for i in os.listdir('./category'):
         print('[BOT] Loaded cog: '+str(i[:-3]))

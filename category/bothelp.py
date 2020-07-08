@@ -4,6 +4,8 @@ import sys
 sys.path.append('/app/modules')
 import username601 as myself
 from username601 import *
+from datetime import datetime as t
+from database import selfDB
 
 class bothelp(commands.Cog):
     def __init__(self, client):
@@ -97,24 +99,22 @@ class bothelp(commands.Cog):
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Do NOT send discord invites through feedback! Use the advertising channel in our support server instead!')
         else:
             wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait... Transmitting data to owner...')
-            bans, banned = [], False
-            async for messages in self.client.get_channel(706459051034279956).history():
-                if messages.content.startswith('Banned user with ID of: ['): bans.append(messages.content)
-            if len(bans)>0:
-                for i in bans:
-                    if int(ctx.message.author.id)==int(i.split('[')[1].split(']')[0]):
-                        await wait.edit(content='', embed=discord.Embed(title='You are banned', description='Sorry! you are banned from using the `'+prefix+'feedback` command. Reason:```'+i.split('REASON:"')[1].split('"')[0]+'```', colour=discord.Colour.from_rgb(201, 160, 112)))
-                        banned = True
-                        break
+            banned = selfDB.is_banned(ctx.message.author.id)
             if not banned:
                 try:
                     fb = ' '.join(list(args))
                     feedbackCh = self.client.get_channel(Config.SupportServer.feedback)
                     await feedbackCh.send('<@'+str(Config.owner.id)+'>, User with ID: '+str(ctx.message.author.id)+' sent a feedback: **"'+str(fb)+'"**')
-                    embed = discord.Embed(title='Feedback Successful', description=str(client.get_emoji(BotEmotes.success)) + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+str(Config.SupportServer.invite)+')',colour=discord.Colour.from_rgb(201, 160, 112))
+                    embed = discord.Embed(title='Feedback Successful', description=str(self.client.get_emoji(BotEmotes.success)) + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+str(Config.SupportServer.invite)+')',colour=discord.Colour.from_rgb(201, 160, 112))
                     await wait.edit(content='', embed=embed)
                 except:
                     await wait.edit(content=str(self.client.get_emoji(BotEmotes.error)) + ' | Error: There was an error while sending your feedback. Sorry! :(')
+            else:
+                await wait.edit(content='', embed=discord.Embed(
+                    title="You have been banned from using the Feedback command.",
+                    description="**Reason: **```"+str(banned)+"```",
+                    color=discord.Colour.red()
+                ))
     @commands.command(pass_context=True)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def ping(self, ctx):
@@ -126,7 +126,8 @@ class bothelp(commands.Cog):
     @commands.command(pass_context=True)
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def uptime(self, ctx):
-        embed = discord.Embed(title='My uptime: {}'.format(str(myself.terminal('uptime -p'))[3:]), color=discord.Colour.from_rgb(201, 160, 112))
+        up = selfDB.get_uptime()
+        embed = discord.Embed(title='Bot uptime: {}\nOS uptime: {}\nLast downtime: {}'.format(up.split('|')[0], str(myself.terminal('uptime -p'))[3:], up.split('|')[1]), color=discord.Colour.from_rgb(201, 160, 112))
         await ctx.send(embed=embed)
 
     @commands.command(pass_context=True)

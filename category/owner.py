@@ -4,7 +4,7 @@ import sys
 sys.path.append('/app/modules')
 import username601 as myself
 from username601 import *
-from database import Economy
+from database import Economy, selfDB
 from subprocess import run, PIPE
 from inspect import isawaitable
 from asyncio import sleep
@@ -53,11 +53,20 @@ class owner(commands.Cog):
             await ctx.send('You are not the bot owner. Go get a life.')
 
     @commands.command(pass_context=True)
-    async def fbban(self, ctx, *args):
-        if ctx.message.channel.id==706459051034279956 and int(ctx.message.author.id)==Config.owner.id:
-            await ctx.send('Banned user with ID of: ['+str(list(args)[0])+'] REASON:\"'+str(ctx.message.content)[int(len(list(args)[0])+2):]+'\"')
+    async def fban(self, ctx, *args):
+        if int(ctx.message.author.id)==Config.owner.id:
+            selfDB.feedback_ban(int(list(args)[0]), str(' '.join(list(args)[1:len(list(args))])))
+            await ctx.message.add_reaction(self.client.get_emoji(BotEmotes.success))
         else:
-            await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | Invalid channel/user.')
+            await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | You are not the owner, nerd.')
+    @commands.command(pass_context=True)
+    async def funban(self, ctx, *args):
+        if int(ctx.message.author.id)==Config.owner.id:
+            data = selfDB.feedback_unban(int(list(args)[0]))
+            if data=='200': await ctx.message.add_reaction(self.client.get_emoji(BotEmotes.success))
+            else: await ctx.message.add_reaction(self.client.get_emoji(BotEmotes.error))
+        else:
+            await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | Invalid person.')
     @commands.command(pass_context=True, aliases=['ex'])
     async def eval(self, ctx, *args):
         unprefixed = ' '.join(list(args))
