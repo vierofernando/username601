@@ -184,9 +184,9 @@ def art(ava):
 def f(ava):
     avatar = imagefromURL(ava)
     bg = Image.open(r'/app/assets/pics/f.png')
-    canvas = Image.new(mode='RGB',size=(680, 383) ,color=(0, 0, 0))
-    avatar = avatar.resize((104, 85))
-    canvas.paste(avatar, (318, 120))
+    canvas = Image.new(mode='RGB',size=(960, 540) ,color=(0, 0, 0))
+    avatar = avatar.resize((82, 111))
+    canvas.paste(avatar, (361, 86))
     canvas.paste(bg, (0, 0), bg)
     data = compile(canvas)
     return data
