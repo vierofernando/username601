@@ -66,7 +66,7 @@ def ifunny(avatar):
 
 def wasted(avatar):
     avatar, wasted = imagefromURL(avatar).resize((240, 240)), Image.open(r'/app/assets/pics/wasted.png')
-    red = Image.open(r'/app/assets/pics/red.jpg').resize((240, 240))
+    red = Image.new(mode='RGB', size=(240, 240), color=(255, 0, 0))
     avatar = Image.blend(avatar, red, alpha=0.4)
     avatar.paste(wasted, (0, 0), wasted)
     return compile(avatar)
@@ -215,7 +215,7 @@ class gif:
     def triggered(pic, increment):
         image = imagefromURL(pic)
         image = image.resize((216, 216), Image.ANTIALIAS)
-        red = Image.open('/app/assets/pics/red.jpg')
+        red = Image.new(mode='RGB', size=(216, 216), color=(255, 0, 0))
         image = Image.blend(image, red, alpha=0.25)
         text = Image.open('/app/assets/pics/triggered.jpg')
 
