@@ -9,9 +9,8 @@ Hello, fellow discord bot programmer! Welcome to my githoob page. This project i
 Username601 is a multi-purposed general-purpose sh*t-purpose bot with over 200 commands. Please add it to your server! It's worth it! :v<br>
 Everything filled on the details below are automatic.<br>
 
-Category folder is a cogs folder, modules folder is basically "tools" folder. Anything else are misc.<br>
-`heroku-tools.py` is just a file i made for people who hosts their bot through heroku.<br>
-it will automatically creates files for you (i like automatic stuff cuz i am lazy lol)<br>
+Category folder is a cogs folder, modules folder is basically "tools" folder. Anything else are misc.<br
+Bot is hosted in [heroku.](https://heroku.com) 24/7.<br>
 
 *P.S: All commits with the message "Updated Files for public version of Username601" is entirely automatic!*
 # Configuration
