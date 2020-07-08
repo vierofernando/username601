@@ -58,9 +58,16 @@ def imagefromURL(url):
     image = Image.open(io.BytesIO(response.content))
     return image
 
+def ifunny(avatar):
+    avatar, watermark = imagefromURL(avatar).replace((545, 481)), Image.open(r'/app/assets/pics/ifunny.png')
+    avatar.paste(watermark, (0, 0), watermark)
+    return compile(avatar)
+    
+
 def wasted(avatar):
     avatar, wasted = imagefromURL(avatar).resize((240, 240)), Image.open(r'/app/assets/pics/wasted.png')
-    avatar = Image.blend(avatar, Image.open(r'/app/assets/pics/red.jpg'), alpha=0.4)
+    red = Image.open(r'/app/assets/pics/red.jpg').resize((240, 240))
+    avatar = Image.blend(avatar, red, alpha=0.4)
     avatar.paste(wasted, (0, 0), wasted)
     return compile(avatar)
 

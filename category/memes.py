@@ -10,13 +10,14 @@ class memes(commands.Cog):
     def __init__(self, client):
         self.client = client
     
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['ifunny'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def wasted(self, ctx):
         async with ctx.message.channel.typing():
             if len(ctx.message.mentions)==0: source = ctx.message.author.avatar_url
             else: source = ctx.message.mentions[0].avatar_url
-            data = Painter.wasted(str(source).replace('.webp?size=1024', '.png?size=512'))
+            if 'wasted' in ctx.message.content: data, filename = Painter.wasted(str(source).replace('.webp?size=1024', '.png?size=512')), 'wasted.png'
+            else: data, filename = Painter.ifunny(str(source).replace('.webp?size=1024', '.png?size=512')), 'ifunny.png'
             await ctx.send(file=discord.File(data, 'wasted.png'))
     
     @commands.command(pass_context=True, aliases=['achieve', 'call'])
