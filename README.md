@@ -20,7 +20,7 @@ DISCORD_TOKEN = Your discord token<br>
 DBL_TOKEN = Your discord bot list (top.gg) token<br>
 DB_LINK = Your Mongo DB database link<br> (With "economy" as a collection)<br>
 
-**REQUIREMENTS:**
+**REQUIREMENTS:**<br>
 Flask==1.1.2<br>
 discord.py==1.3.3<br>
 IMDbPY==6.8<br>
