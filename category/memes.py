@@ -13,10 +13,11 @@ class memes(commands.Cog):
     @commands.command(pass_context=True)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def wasted(self, ctx):
-        if len(ctx.message.mentions)==0: source = ctx.message.author.avatar_url
-        else: source = ctx.message.mentions[0].avatar_url
-        data = Painter.wasted(source.replace('.webp?size=1024', '.png?size=512'))
-        await ctx.send(file=discord.File(data, 'wasted.png'))
+        async with ctx.message.channel.typing():
+            if len(ctx.message.mentions)==0: source = ctx.message.author.avatar_url
+            else: source = ctx.message.mentions[0].avatar_url
+            data = Painter.wasted(str(source).replace('.webp?size=1024', '.png?size=512'))
+            await ctx.send(file=discord.File(data, 'wasted.png'))
     
     @commands.command(pass_context=True, aliases=['achieve', 'call'])
     @commands.cooldown(1, 5, commands.BucketType.user)
