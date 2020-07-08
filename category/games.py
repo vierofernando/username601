@@ -128,91 +128,6 @@ class games(commands.Cog):
                 await ctx.send(file=discord.File(Painter.urltoimage(url), 'gdcomment.png'))
             except Exception as e:
                 await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +f' | Invalid!\nThe flow is this: `{Config.prefix}gdcomment text | name | like count`\nExample: `{prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
-    
-    @commands.command(pass_context=True, aliases=['ttt'])
-    @commands.cooldown(1, 50, commands.BucketType.user)
-    async def tictactoe(self, ctx, *args):
-        box_nums = list('123456789')
-        can_used = list('123456789')
-        box = f' {box_nums[0]} | {box_nums[1]} | {box_nums[2]}\n===========\n {box_nums[3]} | {box_nums[4]} | {box_nums[5]}\n===========\n {box_nums[6]} | {box_nums[7]} | {box_nums[8]}\n'
-        if len(list(args))==0:
-            embed = discord.Embed(title='TicTacToe™ wtih '+str(src.getTicTacToeHeader()), description=f'Plays tic-tac-toe with the BOT. Very simple.\n\n**To start playing, type;**\n`{prefix}tictactoe X` (To play tictactoe as X)\n`{prefix}tictactoe O` (To play tictactoe as O)', colour=discord.Colour.from_rgb(201, 160, 112))
-            embed.set_image(url='https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/tictactoe.png')
-            await ctx.send(embed=embed)
-        else:
-            if args[0].lower() not in list('xo'):
-                await ctx.send('Must be X or O!')
-            else:
-                if args[0].lower()=='x':
-                    user_sym = 'X'
-                    bot_sym = 'O'
-                else:
-                    user_sym = 'O'
-                    bot_sym = 'X'
-                playing_with = ctx.message.author
-                user_id = int(ctx.message.author.id)
-                user_name = ctx.message.guild.get_member(user_id).display_name
-                gameplay = True
-                usedByUser = []
-                usedByBot = []
-                embed = discord.Embed(title='Playing Tictactoe with '+str(user_name), description=f'Viero Fernando ({user_sym}) | Username601 ({bot_sym})\nType the numbers to fill out the boxes.```{box}```', colour=discord.Colour.from_rgb(201, 160, 112))
-                embed.set_footer(text='Type "endgame" to well, end the game. Or wait for 20 seconds and the game will kill itself! ;)')
-                gameview = await ctx.send(embed=embed)
-                while gameplay==True:
-                    if Games.checkWinner(box_nums, user_sym, bot_sym)=='userwin':
-                        await ctx.send(f'Congrats <@{user_id}>! You won against me! :tada:')
-                        if Economy.get(ctx.message.author.id)!=None:
-                            reward = random.randint(5, 100)
-                            Economy.addbal(ctx.message.author.id, reward)
-                            await ctx.send('thanks for playing! added an extra '+str(reward)+' diamonds to your profile!')
-                        gameplay = False
-                        break
-                    elif Games.checkWinner(box_nums, user_sym, bot_sym)=='botwin':
-                        await ctx.send(f'LOL, i win the tic tac toe! :tada:\nYou lose! :pensive:')
-                        gameplay = False
-                        break
-                    elif Games.checkEndGame(can_used)==True:
-                        await ctx.send('Nobody wins? OK... :neutral_face:')
-                        gameplay = False
-                        break
-                    def is_not_stranger(m):
-                        return m.author == playing_with
-                    try:
-                        trying = await self.client.wait_for('message', check=is_not_stranger, timeout=20.0)
-                    except asyncio.TimeoutError:
-                        await ctx.send(f'<@{user_id}> did not response in 20 seconds so i ended the game. Keep un-AFK!')
-                        gameplay = False
-                        break
-                    if str(trying.content) in can_used:
-                        for i in range(0, len(box_nums)):
-                            if box_nums[i]==trying.content:
-                                usedByUser.append(box_nums[i])
-                                box_nums[i] = user_sym
-                                for j in range(0, len(can_used)):
-                                    if j==box_nums[i]:
-                                        del can_used[j]
-                                        break
-                                break
-                        bot_select = ''
-                        while bot_select=='' and len(can_used)>1:
-                            bot_select = random.choice(can_used)
-                        for i in range(0, len(can_used)):
-                            if can_used[i]==bot_select:
-                                for j in range(0, len(box_nums)):
-                                    if box_nums[j]==can_used[i]:
-                                        box_nums[j] = bot_sym
-                                        break
-                                usedByBot.append(can_used[i])
-                                del can_used[i]
-                                break
-                        box = f' {box_nums[0]} | {box_nums[1]} | {box_nums[2]}\n===========\n {box_nums[3]} | {box_nums[4]} | {box_nums[5]}\n===========\n {box_nums[6]} | {box_nums[7]} | {box_nums[8]}\n'
-                        newembed = discord.Embed(title='Playing Tictactoe with '+str(user_name), description=f'Viero Fernando ({user_sym}) | Username601 ({bot_sym})\nType the numbers to fill out the boxes.```{box}```', colour=discord.Colour.from_rgb(201, 160, 112))
-                        newembed.set_footer(text='Type "endgame" to well, end the game. Or wait for 20 seconds and the game will kill itself! ;)')
-                        await ctx.send(embed=embed)
-                    elif str(trying.content).lower()=='endgame':
-                        await ctx.send('Game ended.')
-                        gameplay = False
-                        break
 
     @commands.command(pass_context=True, aliases=['gdweekly'])
     @commands.cooldown(1, 2, commands.BucketType.user)
@@ -274,13 +189,23 @@ class games(commands.Cog):
             await main.edit(embed=embed)
 
     @commands.command(pass_context=True, aliases=['dice', 'flipcoin', 'flipdice', 'coinflip', 'diceflip', 'rolldice'])
-    @commands.cooldown(1, 1, commands.BucketType.user)
-    async def coin(self, ctx):
-        if 'coin' in ctx.message.content: await ctx.send(random.randint(['***heads!***', '***tails!***']))
-        else: await ctx.send(':'+src.num2word(random.randint(1, 6))+':')
+    @commands.cooldown(1, 3, commands.BucketType.user)
+    async def coin(self, ctx, *args):
+        if 'coin' in ctx.message.content:
+            res = random.choice(['***heads!***', '***tails!***'])
+            await ctx.send(res)
+            if len(list(args))>0 and args[0].lower()==res.replace('*', '').replace('!', '') and Economy.get(ctx.message.author.id)!=None:
+                prize = random.randint(50, 200)
+                Economy.addbal(ctx.message.author.id, prize) ; await ctx.send('your bet was right! you get '+str(prize)+' diamonds.')
+        else:
+            res = random.randint(1, 6)
+            await ctx.send(':'+src.num2word(res)+':')
+            if len(list(args))>0 and args[0]==str(res) and Economy.get(ctx.message.author.id)!=None:
+                prize = random.randint(50, 100)
+                Economy.addbal(ctx.message.author.id, prize) ; await ctx.send('your bet was right! you get '+str(prize)+' diamonds.')
 
     @commands.command(pass_context=True, aliases=['guessav'])
-    @commands.cooldown(1, 60, commands.BucketType.user)
+    @commands.cooldown(1, 30, commands.BucketType.user)
     async def guessavatar(self, ctx):
         if len(ctx.message.guild.members)>500:
             await ctx.send('Sorry, to protect some people\'s privacy, this command is not available for Large servers. (over 500 members)')

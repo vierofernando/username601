@@ -1,11 +1,11 @@
+import random
+import requests
 def randomhash():
     hashh = ''
     for i in range(0, random.randint(13, 21)):
         hashh = hashh + random.choice(list('ABCDEFHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'))
     return hashh
 
-import random
-import requests
 def num2word(num):
     arr, word = list(range(0, 10)), 'zero,one,two,three,four,five,six,seven,eight,nine'.split(',')
     for i in range(0, len(arr)):

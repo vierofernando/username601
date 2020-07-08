@@ -4,7 +4,6 @@ import sys
 sys.path.append('/app/modules')
 import username601 as myself
 from username601 import *
-from datetime import datetime as t
 
 class bothelp(commands.Cog):
     def __init__(self, client):
@@ -136,7 +135,7 @@ class bothelp(commands.Cog):
         if str(self.client.get_guild(Config.SupportServer.id).get_member(Config.owner.id).status)=='offline': devstatus = 'Offline'
         else: devstatus = 'Online'
         embed = discord.Embed(title = 'About '+str(ctx.message.guild.get_member(Config.id).display_name), colour = discord.Colour.from_rgb(201, 160, 112))
-        embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Library: **Discord.py\n**Default Config.prefix: ** 1', inline='True')
+        embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Library: **Discord.py\n**Default prefix: **'+str(Config.prefix), inline='True')
         embed.add_field(name='Programmer info', value='**Programmed by: **'+Config.owner.name+'. ('+self.client.get_user(Config.owner.id).name+'#'+str(self.client.get_user(Config.owner.id).discriminator)+')\n**Current Discord Status:** '+devstatus, inline='True')
         embed.add_field(name='Version Info', value='**Bot version: ** '+Config.Version.number+'\n**Changelog: **'+Config.Version.changelog)#+'\n'+str(osinfo))
         embed.add_field(name='Links', value='[Invite this bot to your server!](http://vierofernando.github.io/programs/username601)\n[The support server!]('+str(Config.SupportServer.invite)+')\n[Vote us on top.gg](https://top.gg/bot/'+str(Config.id)+'/vote)\n[Official Website](https://vierofernando.github.io/username601)', inline='False')
