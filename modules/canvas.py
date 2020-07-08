@@ -58,6 +58,12 @@ def imagefromURL(url):
     image = Image.open(io.BytesIO(response.content))
     return image
 
+def wasted(avatar):
+    avatar, wasted = imagefromURL(avatar).resize((240, 240)), Image.open(r'/app/assets/pics/wasted.png')
+    avatar = Image.blend(avatar, Image.open(r'/app/assets/pics/red.png'), alpha=0.4)
+    avatar.paste(wasted, (0, 0), wasted)
+    return compile(avatar)
+
 def ifearnoman(url, url2):
     avpic = imagefromURL(url)
     avpic2 = imagefromURL(url2)

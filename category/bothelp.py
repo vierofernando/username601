@@ -127,7 +127,8 @@ class bothelp(commands.Cog):
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def uptime(self, ctx):
         up = selfDB.get_uptime()
-        embed = discord.Embed(title='Bot uptime: {}\nOS uptime: {}\nLast downtime: {}'.format(up.split('|')[0], str(myself.terminal('uptime -p'))[3:], up.split('|')[1]), color=discord.Colour.from_rgb(201, 160, 112))
+        bot_uptime = up.split('|')[0].split(':')[0]+' Hours, '+up.split('|')[0].split(':')[1]+' minutes, '+up.split('|')[0].split(':')[2]+' seconds.'
+        embed = discord.Embed(description='Bot uptime: {}\nOS uptime: {}\nLast downtime: {} UTC'.format(bot_uptime, str(myself.terminal('uptime -p'))[3:], up.split('|')[1]), color=discord.Colour.from_rgb(201, 160, 112))
         await ctx.send(embed=embed)
 
     @commands.command(pass_context=True)
