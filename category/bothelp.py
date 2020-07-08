@@ -111,7 +111,7 @@ class bothelp(commands.Cog):
                 try:
                     fb = ' '.join(list(args))
                     feedbackCh = self.client.get_channel(Config.SupportServer.feedback)
-                    await feedbackCh.send('<@Config.owner.id>, User with ID: '+str(ctx.message.author.id)+' sent a feedback: **"'+str(fb)+'"**')
+                    await feedbackCh.send('<@'+str(Config.owner.id)+'>, User with ID: '+str(ctx.message.author.id)+' sent a feedback: **"'+str(fb)+'"**')
                     embed = discord.Embed(title='Feedback Successful', description=str(client.get_emoji(BotEmotes.success)) + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+str(Config.SupportServer.invite)+')',colour=discord.Colour.from_rgb(201, 160, 112))
                     await wait.edit(content='', embed=embed)
                 except:

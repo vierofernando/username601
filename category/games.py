@@ -9,6 +9,7 @@ import canvas as Painter
 from username601 import *
 import pokebase as pb
 import discordgames as Games
+from database import Economy
 import asyncio
 
 class games(commands.Cog):
@@ -129,8 +130,8 @@ class games(commands.Cog):
                 await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +f' | Invalid!\nThe flow is this: `{Config.prefix}gdcomment text | name | like count`\nExample: `{prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
     
     @commands.command(pass_context=True, aliases=['ttt'])
-    @commands.cooldown(1, 12, commands.BucketType.user)
-    async def tictactoe(self, ctx):
+    @commands.cooldown(1, 50, commands.BucketType.user)
+    async def tictactoe(self, ctx, *args):
         box_nums = list('123456789')
         can_used = list('123456789')
         box = f' {box_nums[0]} | {box_nums[1]} | {box_nums[2]}\n===========\n {box_nums[3]} | {box_nums[4]} | {box_nums[5]}\n===========\n {box_nums[6]} | {box_nums[7]} | {box_nums[8]}\n'
@@ -160,6 +161,10 @@ class games(commands.Cog):
                 while gameplay==True:
                     if Games.checkWinner(box_nums, user_sym, bot_sym)=='userwin':
                         await ctx.send(f'Congrats <@{user_id}>! You won against me! :tada:')
+                        if Economy.get(ctx.message.author.id)!=None:
+                            reward = random.randint(5, 100)
+                            Economy.addbal(ctx.message.author.id, reward)
+                            await ctx.send('thanks for playing! added an extra '+str(reward)+' diamonds to your profile!')
                         gameplay = False
                         break
                     elif Games.checkWinner(box_nums, user_sym, bot_sym)=='botwin':
@@ -233,7 +238,7 @@ class games(commands.Cog):
         await toEdit.edit(content='', embed=embed)
 
     @commands.command(pass_context=True, aliases=['rockpaperscissors'])
-    @commands.cooldown(1, 1, commands.BucketType.user)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def rps(self, ctx):
         main = await ctx.send(embed=discord.Embed(title='Rock Paper Scissors game.', description='Click the reaction below. And game will begin.', colour=discord.Colour.from_rgb(201, 160, 112)))
         exp = ['✊', '🖐️', '✌']
@@ -275,7 +280,7 @@ class games(commands.Cog):
         else: await ctx.send(':'+src.num2word(random.randint(1, 6))+':')
 
     @commands.command(pass_context=True, aliases=['guessav'])
-    @commands.cooldown(1, 7, commands.BucketType.user)
+    @commands.cooldown(1, 60, commands.BucketType.user)
     async def guessavatar(self, ctx):
         if len(ctx.message.guild.members)>500:
             await ctx.send('Sorry, to protect some people\'s privacy, this command is not available for Large servers. (over 500 members)')
@@ -297,12 +302,13 @@ class games(commands.Cog):
                     wrongArr.append(random.choice(nameAll))
                 abcs, emots = list('🇦🇧🇨🇩'), list('🇦🇧🇨🇩')
                 randomInt = random.randint(0, 3)
+                corr_order = random.choice(abcs[randomInt])
                 abcs[randomInt] = '0'
-                question, chooseCount, corr_order = '', 0, random.choice(abcs[randomInt])
+                question, chooseCount = '', 0
                 for assign in abcs:
                     if assign!='0':
                         question += '**'+ str(assign) + '.** '+str(wrongArr[chooseCount])+ '\n'
-                        chooseCount = int(chooseCount) + 1
+                        chooseCount += 1
                     else:
                         question += '**'+ str(corr_order) + '.** '+str(corr_name)+ '\n'
                 embed = discord.Embed(title='What does the avatar below belongs to?', description=':eyes: Click the reactions! **You have 20 seconds.**\n\n'+str(question), colour=discord.Colour.from_rgb(201, 160, 112))
@@ -317,12 +323,16 @@ class games(commands.Cog):
                 except asyncio.TimeoutError:
                     return await ctx.send(':pensive: No one? Okay then, the answer is: '+str(corr_order)+'. '+str(corr_name))
                 if str(reaction.emoji)==str(corr_order):
-                    await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | <@'+str(ctx.message.author.id)+'>, You are correct! :tada:')
+                    await ctx.send(str(self.client.get_emoji(BotEmotes.success)) +' | <@'+str(ctx.message.author.id)+'>, You are correct! :tada:')
+                    if Economy.get(ctx.message.author.id)!=None:
+                        reward = random.randint(5, 100)
+                        Economy.addbal(ctx.message.author.id, reward)
+                        await ctx.send('thanks for playing! You received '+str(reward)+' extra diamonds!')
                 else:
-                    await ctx.send(str(self.client.get_emoji(BotEmotes.success)) +' | <@'+str(ctx.message.author.id)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
+                    await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | <@'+str(ctx.message.author.id)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
 
     @commands.command(pass_context=True)
-    @commands.cooldown(1, 12, commands.BucketType.user)
+    @commands.cooldown(1, 30, commands.BucketType.user)
     async def geoquiz(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait... generating question...')
         data, topic = myself.api("https://restcountries.eu/rest/v2/"), random.choice(src.getGeoQuiz())
@@ -356,13 +366,18 @@ class games(commands.Cog):
             await main.add_reaction('😔')
         if str(reaction.emoji)==str(corr_order):
             await ctx.send(str(self.client.get_emoji(BotEmotes.success)) +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
+            if Economy.get(ctx.message.author.id)!=None:
+                reward = random.randint(5, 150)
+                Economy.addbal(ctx.message.author.id, reward)
+                await ctx.send('thanks for playing! You obtained '+str(reward)+' diamonds in total!')
         else:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | <@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr_order)+'.')
 
     @commands.command(pass_context=True)
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.cooldown(1, 15, commands.BucketType.user)
     async def mathquiz(self, ctx):
-        arrayId, num1, num2, symArray, ansArray = random.randint(0, 4), random.randint(1, 100), random.randint(1, 100), ['+', '-', 'x', ':', '^'], [num1+num2, num1-num2, num1*num2, num1/num2, num1**num2]
+        arrayId, num1, num2, symArray = random.randint(0, 4), random.randint(1, 100), random.randint(1, 100), ['+', '-', 'x', ':', '^']
+        ansArray = [num1+num2, num1-num2, num1*num2, num1/num2, num1**num2]
         sym = symArray[arrayId]
         await ctx.send('**MATH QUIZ (15 seconds)**\n'+str(num1)+' '+str(sym)+' '+str(num2)+' = ???')
         def is_correct(m):
@@ -374,11 +389,15 @@ class games(commands.Cog):
             return await ctx.send(':pensive: No one? Okay then, the answer is: {}.'.format(answer))
         if str(trying.content)==str(answer):
             await ctx.send(str(self.client.get_emoji(BotEmotes.success)) +' | <@'+str(ctx.message.author.id)+'>, You are correct! :tada:')
+            if Economy.get(ctx.message.author.id)!=None:
+                reward = random.randint(5, 50)
+                Economy.addbal(ctx.message.author.id, reward)
+                await ctx.send('thanks for playing! we added an extra '+str(reward)+' diamonds to your profile.')
         else:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | <@'+str(ctx.message.author.id)+'>, Incorrect. The answer is {}.'.format(answer))
 
     @commands.command(pass_context=True)
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.cooldown(1, 60, commands.BucketType.user)
     async def hangman(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait... generating...')
         the_word = myself.api("https://random-word-api.herokuapp.com/word?number=1")
@@ -396,6 +415,10 @@ class games(commands.Cog):
             await ctx.send(embed=newembed)
             if '\_ ' not in ''.join(main_guess_hid):
                 await ctx.send(f'Congratulations! <@{str(playing_with_id)}> win! :tada:\nThe answer is "'+str(''.join(main_guess_cor))+'".')
+                if Economy.get(ctx.message.author.id)!=None:
+                    reward = random.randint(5, 500)
+                    Economy.addbal(ctx.message.author.id, reward)
+                    await ctx.send('thanks for playing! you get an extra '+str(reward)+' diamonds!')
                 gameplay = False ; break
             if level>7:
                 await ctx.send(f'<@{str(playing_with_id)}> lost! :(\nThe answer is actually "'+str(''.join(main_guess_cor))+'".')
@@ -442,6 +465,10 @@ class games(commands.Cog):
             if jackpot:
                 msgslot = 'JACKPOT!'
                 col = discord.Colour.from_rgb(201, 160, 112)
+            if Economy.get(ctx.message.author.id)!=None:
+                reward = random.randint(500, 1000)
+                Economy.addbal(ctx.message.author.id, reward)
+                await ctx.send('thanks for playing! you received a whopping '+str(reward)+' diamonds!')
         else:
             msgslot = 'You lose... Try again!'
             col = discord.Colour.from_rgb(201, 160, 112)
@@ -449,7 +476,7 @@ class games(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(pass_context=True, aliases=['defuse', 'boom'])
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @commands.cooldown(1, 7, commands.BucketType.user)
     async def bomb(self, ctx):
         def embedType(a):
             if a==1: return discord.Embed(title='The bomb exploded!', description='Game OVER!', colour=discord.Colour(000))
@@ -472,7 +499,7 @@ class games(commands.Cog):
             await main.edit(content='', embed=embedType(2))
 
     @commands.command(pass_context=True, aliases=['gn', 'guessnumber'])
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @commands.cooldown(1, 30, commands.BucketType.user)
     async def guessnum(self, ctx):
         num = random.randint(5, 100)
         username = ctx.message.author.display_name
@@ -506,11 +533,15 @@ class games(commands.Cog):
                     attempts = int(attempts) - 1
                 if int(trying.content)==num:
                     await ctx.send(str(self.client.get_emoji(BotEmotes.success)) +' | You are correct!\n**The answer is '+str(num)+'!**')
+                    if Economy.get(ctx.message.author.id)!=None:
+                        reward = random.randint(5, 50)
+                        Economy.addbal(ctx.message.author.id, reward)
+                        await ctx.send('thanks for playing! You get an extra '+str(reward)+' diamonds!')
                     gameplay = False
                     break
 
     @commands.command(pass_context=True)
-    @commands.cooldown(1, 15, commands.BucketType.user)
+    @commands.cooldown(1, 25, commands.BucketType.user)
     async def pokequiz(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait... Generating quiz...')
         num = random.randint(1, 800)
@@ -545,6 +576,10 @@ class games(commands.Cog):
                 currentmsg = guessing
                 await currentmsg.add_reaction('✅')
                 await ctx.send(str(self.client.get_emoji(BotEmotes.success)) +' | You are correct! The pokemon is **'+str(corr)+'**')
+                if Economy.get(ctx.message.author.id)!=None:
+                    reward = random.randint(50, 250)
+                    Economy.addbal(ctx.message.author.id, reward)
+                    await ctx.send('thanks for playing! You get also a '+str(reward)+' diamonds as a prize!')
                 gameplay = False
                 break
             elif str(guessing.content).lower()=='hint':
@@ -569,7 +604,7 @@ class games(commands.Cog):
                     break
 
     @commands.command(pass_context=True)
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.cooldown(1, 30, commands.BucketType.user)
     async def trivia(self, ctx):
         al = None
         try:
