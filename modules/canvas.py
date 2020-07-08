@@ -59,7 +59,7 @@ def imagefromURL(url):
     return image
 
 def ifunny(avatar):
-    avatar, watermark = imagefromURL(avatar).replace((545, 481)), Image.open(r'/app/assets/pics/ifunny.png')
+    avatar, watermark = imagefromURL(avatar).resize((545, 481)), Image.open(r'/app/assets/pics/ifunny.png')
     avatar.paste(watermark, (0, 0), watermark)
     return compile(avatar)
     
