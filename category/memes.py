@@ -208,7 +208,7 @@ class memes(commands.Cog):
             elif 'coffindance' in ctx.message.content: num1, num2, num3, num4 = 220, 228, 421, 58
             elif 'frame' in ctx.message.content: num1, num2, num3, num4, ava = 1025, 715, 137, 141, str(ava).replace("=512", "=1024")
             elif 'window' in ctx.message.content: num1, num2, num3, num4 = 219, 199, 4, 21
-            if 'art' not in ctx.message.content: image = Painter.putimage(ava, str(ctx.message.content)[1:].replace(' ', ''), num1, num2, num3, num4)
+            if 'art' not in ctx.message.content: image = Painter.putimage(ava, str(ctx.message.content).split()[0][1:], num1, num2, num3, num4)
             else: image = Painter.art(ava)
             await ctx.send(file=discord.File(image, str(ctx.message.content)[1:].replace(' ', '')+'.png'))
 
