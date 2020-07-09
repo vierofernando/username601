@@ -313,7 +313,7 @@ class memes(commands.Cog):
         elif 'bad' in ctx.message.content: url = 'https://api.alexflipnote.dev/bad?image='+str(source)
         elif 'amiajoke' in ctx.message.content: url = 'https://api.alexflipnote.dev/amiajoke?image='+str(source)
         else: url = 'https://api.alexflipnote.dev/salty?image='+str(source)
-        await ctx.send(file=discord.File(Painter.urltoimage(url)), 'maymays.png')
+        await ctx.send(file=discord.File(Painter.urltoimage(url), 'maymays.png'))
 
     @commands.command(pass_context=True, aliases=['avmeme', 'philosoraptor', 'money', 'doge', 'fry'])
     @commands.cooldown(1, 12, commands.BucketType.user)
