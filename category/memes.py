@@ -181,6 +181,13 @@ class memes(commands.Cog):
                 url='http://nekobot.xyz/api/imagegen?type=whowouldwin&raw=1&user1='+str(ctx.message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')+'&user2='+str(ctx.message.mentions[1].avatar_url).replace('.webp?size=1024', '.png')
                 await ctx.send(file=discord.File(Painter.urltoimage(url), 'whowouldwin.png'))
 
+    @commands.command(pass_context=True, aliases=['mywaifu', 'wf', 'waifuinsult', 'waifu-insult'])
+    @commands.cooldown(1, 7, commands.BucketType.user)
+    async def waifu(self, ctx):
+        if len(ctx.message.mentions)==0: source = str(ctx.message.author.avatar_url).replace('.gif', '.webp')
+        else: source = str(ctx.message.author.avatar_url).replace('.gif', '.webp')
+        await ctx.send(file=discord.File(Painter.waifu(str(source).replace('.webp?size=1024', '.png?size=512')), 'mywaifu.png'))
+
     @commands.command(pass_context=True, aliases=['wanted', 'chatroulette', 'sacred', 'coffindance', 'frame', 'window', 'art'])
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def ferbtv(self, ctx):

@@ -58,6 +58,14 @@ def imagefromURL(url):
     image = Image.open(io.BytesIO(response.content))
     return image
 
+def waifu(avatar):
+    cnv = Image.new(mode='RGB', size=(450, 344), color=(0, 0, 0))
+    img = Image.open(r'/app/assets/pics/waifu.png')
+    ava = imagefromURL(avatar).resize((131, 162))
+    cnv.paste(ava.rotate(-20), (112, 182))
+    cnv.paste(img, (0, 0), img)
+    return compile(cnv)
+
 def ifunny(avatar):
     avatar, watermark = imagefromURL(avatar).resize((545, 481)), Image.open(r'/app/assets/pics/ifunny.png')
     avatar.paste(watermark, (0, 0), watermark)

@@ -63,29 +63,32 @@ class games(commands.Cog):
                 await ctx.send(embed=embedy)
             except:
                 await ctx.send(str(self.client.get_emoji(BotEmotes.error)) + ' | Error: Not Found. :four::zero::four:')
-    
+
     @commands.command(pass_context=True)
     @commands.cooldown(1, 3, commands.BucketType.user)
     async def gdprofile(self, ctx, *args):
         if len(list(args))==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Gimme some ARGS!')
         else:
-            url = myself.urlify(str(' '.join(list(args))))
-            data = myself.api("https://gdbrowser.com/api/profile/"+url)
-            embed = discord.Embed(
-                title = data["username"],
-                description = 'Displays user data for '+data["username"]+'.',
-                colour = discord.Colour.orange()
-            )
-            if data["rank"]=="0": rank = "Not yet defined :("
-            else: rank = str(data["rank"])
-            if data["cp"]=="0": cp = "This user don't have Creator Points :("
-            else: cp = data["cp"]
-            embed.add_field(name='ID Stuff', value='Player ID: '+str(data["playerID"])+'\nAccount ID: '+str(data["accountID"]), inline='True')
-            embed.add_field(name='Rank', value=rank, inline='True')
-            embed.add_field(name='Stats', value=str(data["stars"])+" Stars"+"\n"+str(data["diamonds"])+" Diamonds\n"+str(data["coins"])+" Secret Coins\n"+str(data["userCoins"])+" User Coins\n"+str(data["demons"])+" Demons beaten", inline='False')
-            embed.add_field(name='Creator Points', value=cp)
-            embed.set_author(name='Display User Information', icon_url="https://gdbrowser.com/icon/"+url)
-            await ctx.send(embed=embed)
+            try:
+                url = myself.urlify(str(' '.join(list(args))))
+                data = myself.api("https://gdbrowser.com/api/profile/"+url)
+                embed = discord.Embed(
+                    title = data["username"],
+                    description = 'Displays user data for '+data["username"]+'.',
+                    colour = discord.Colour.orange()
+                )
+                if data["rank"]=="0": rank = "Not yet defined :("
+                else: rank = str(data["rank"])
+                if data["cp"]=="0": cp = "This user don't have Creator Points :("
+                else: cp = data["cp"]
+                embed.add_field(name='ID Stuff', value='Player ID: '+str(data["playerID"])+'\nAccount ID: '+str(data["accountID"]), inline='True')
+                embed.add_field(name='Rank', value=rank, inline='True')
+                embed.add_field(name='Stats', value=str(data["stars"])+" Stars"+"\n"+str(data["diamonds"])+" Diamonds\n"+str(data["coins"])+" Secret Coins\n"+str(data["userCoins"])+" User Coins\n"+str(data["demons"])+" Demons beaten", inline='False')
+                embed.add_field(name='Creator Points', value=cp)
+                embed.set_author(name='Display User Information', icon_url="https://gdbrowser.com/icon/"+url)
+                await ctx.send(embed=embed)
+            except:
+                await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Error, user not found.')
     
     @commands.command(pass_context=True)
     @commands.cooldown(1, 3, commands.BucketType.user)
@@ -187,6 +190,10 @@ class games(commands.Cog):
             embed.add_field(name=str(ctx.message.author.name), value=':'+given+':', inline="True")
             embed.add_field(name='Username601', value=':'+str(emojiArray[ran])+':', inline="True")
             await main.edit(embed=embed)
+            if msgId==1 and Economy.get(ctx.message.author.id)!=None:
+                reward = random.randint(5, 100)
+                Economy.addbal(ctx.message.author.id, reward)
+                await ctx.send('thank you for playing! you earned '+str(reward)+' as a prize!')
 
     @commands.command(pass_context=True, aliases=['dice', 'flipcoin', 'flipdice', 'coinflip', 'diceflip', 'rolldice'])
     @commands.cooldown(1, 3, commands.BucketType.user)
@@ -493,10 +500,8 @@ class games(commands.Cog):
             try:
                 guessing = await self.client.wait_for('message', check=checking, timeout=45.0)
             except asyncio.TimeoutError:
-                attempt = int(attempt) - 1
                 await ctx.send('Too late! Game ended... :pensive:')
-                gameplay = False
-                break
+                gameplay = False ; break
             if str(guessing.content).lower()==corr:
                 currentmsg = guessing
                 await currentmsg.add_reaction('✅')
@@ -511,22 +516,20 @@ class games(commands.Cog):
                 currentmsg = guessing
                 if hint<1:
                     await currentmsg.add_reaction('❌')
-                    attempt = int(attempt) - 1
+                    attempt -= - 1
                 else:
                     await currentmsg.add_reaction('✅')
                     thehint = random.choice([myself.hintify(corr), 'Pokemon name starts with "'+str(list(corr)[0])+'"', 'Pokemon name has '+str(len(corr))+' letters!', 'Pokemon name ends with "'+str(list(corr)[len(corr)-1])+'"'])
                     await ctx.send('Hint: '+thehint+'!')
-                    hint = int(hint) - 1
-                    attempt = int(attempt) - 1
+                    hint -= 1 ; attempt -= 1
             else:
                 if attempt!=0:
                     await guessing.add_reaction('❌')
-                    attempt = int(attempt) - 1
+                    attempt -= 1
                 else:
                     await guessing.add_reaction('❌')
                     await ctx.send('You lose! The pokemon is **'+str(corr)+'**!')
-                    gameplay = False
-                    break
+                    gameplay = False ; break
 
     @commands.command(pass_context=True)
     @commands.cooldown(1, 30, commands.BucketType.user)

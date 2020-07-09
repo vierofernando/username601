@@ -10,7 +10,7 @@ from requests import get as decodeurl
 class BotEmotes:
     loading = 704242088425816085
     error = 704242063725559868
-    success = 713399284149518417
+    success = 704264842709565490
 
 class Config:
     id = 696973408000409626 # BOT ID
