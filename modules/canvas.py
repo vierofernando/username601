@@ -191,7 +191,7 @@ def art(ava):
     image = Image.open(r'/app/assets/pics/art.png')
     cnv, pic = Image.new(mode='RGB', size=(1364, 1534), color=(0,0,0)), imagefromURL(ava)
     cnv.paste(pic.resize((315, 373)), (927, 94))
-    cnv.paste(secpic.resize((318, 375)), (925, 861))
+    cnv.paste(pic.resize((318, 375)), (925, 861))
     cnv.paste(image, (0, 0), image)
     return compile(cnv)
 
