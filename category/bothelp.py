@@ -11,7 +11,7 @@ class bothelp(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['commands', 'h', 'yardim'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def help(self, ctx, *args):
         data = myself.jsonisp("https://vierofernando.github.io/username601/assets/json/commands.json")
@@ -34,7 +34,7 @@ class bothelp(commands.Cog):
             category_name = None
             query = ' '.join(list(args))
             for i in range(0, len(types)):
-                if query==types[i].lower():
+                if query.lower()==types[i].lower():
                     source = data[i][types[i]]
                     typ = 'Category'
                     category_name = types[i]
@@ -42,7 +42,7 @@ class bothelp(commands.Cog):
             if source==None:
                 for i in range(0, len(data)):
                     for j in range(0, len(data[i][types[i]])):
-                        if query==data[i][types[i]][j]['n'].lower():
+                        if query.lower()==data[i][types[i]][j]['n'].lower():
                             source = data[i][types[i]][j]
                             typ = 'Command'
                             break
