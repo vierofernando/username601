@@ -238,7 +238,7 @@ class moderation(commands.Cog):
                 if i.status != 'offline': online += 1
                 if i.bot: bots += 1
                 if not i.bot: humans += 1
-            image = Painter.servercard("./assets/pics/card.jpg", str(ctx.message.guild.icon_url).replace(".webp?size=1024", ".jpg?size=128"), ctx.message.guild.name, str(ctx.message.guild.created_at)[:-7], ctx.message.guild.owner.name, str(humans), str(bots), str(len(ctx.message.guild.channels)), str(len(ctx.message.guild.roles)), str(ctx.message.guild.premium_subscription_count), str(ctx.message.guild.premium_tier), str(online))
+            image = Painter.servercard("/app/assets/pics/card.jpg", str(ctx.message.guild.icon_url).replace('.gif', '.webp').replace(".webp?size=1024", ".jpg?size=128"), ctx.message.guild.name, str(ctx.message.guild.created_at)[:-7], ctx.message.guild.owner.name, str(humans), str(bots), str(len(ctx.message.guild.channels)), str(len(ctx.message.guild.roles)), str(ctx.message.guild.premium_subscription_count), str(ctx.message.guild.premium_tier), str(online))
             await ctx.send(content='Here is the '+ctx.message.guild.name+'\'s server card.', file=discord.File(image, ctx.message.guild.name+'.png'))
     
     @commands.command(pass_context=True, aliases=['bots', 'serverbots', 'server-bots'])
