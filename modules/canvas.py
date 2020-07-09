@@ -58,6 +58,14 @@ def imagefromURL(url):
     image = Image.open(io.BytesIO(response.content))
     return image
 
+def squidwardstv(avatar):
+    cnv = Image.new(mode='RGB', size=(1088, 720), color=(0, 0, 0))
+    img = Image.open(r'/app/assets/pics/squidwardstv.png')
+    ava = imagefromURL(avatar).resize((577, 467))
+    cnv.paste(ava.rotate(-27), (381, 125))
+    cnv.paste(img, (0, 0), img)
+    return compile(cnv)
+
 def waifu(avatar):
     cnv = Image.new(mode='RGB', size=(450, 344), color=(0, 0, 0))
     img = Image.open(r'/app/assets/pics/waifu.png')
