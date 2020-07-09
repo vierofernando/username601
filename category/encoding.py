@@ -10,7 +10,7 @@ class encoding(commands.Cog):
         self.client = client
     
     @commands.command(pass_context=True, aliases=['fliptext', 'fancy', 'cursive', 'braille'])
-    @commands.cooldown(1, 1, commands.BucketType.user)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def morse(self, ctx, *args):
         async with ctx.message.channel.typing():
             res = myself.jsonisp('https://useless-api--vierofernando.repl.co/encode?text='+myself.urlify(' '.join(list(args))))
@@ -19,7 +19,7 @@ class encoding(commands.Cog):
             elif 'fancy' in str(ctx.message.content).split(' ')[0][1:]: data = res['styles']['fancy']
             elif 'braille' in str(ctx.message.content).split(' ')[0][1:]: data = res['braille']
             else: data = res['ciphers']['morse']
-            await ctx.send(f'`{data}`')
+            await ctx.send(f'{data}')
     @commands.command(pass_context=True, aliases=['qr', 'qrcode', 'qr-code'])
     @commands.cooldown(1, 1, commands.BucketType.user)
     async def barcode(self, ctx, *args):
