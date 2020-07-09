@@ -14,6 +14,14 @@ class fun(commands.Cog):
     def __init__(self, client):
         self.client = client
     
+    @commands.command(pass_context=True, aliases=['howlove', 'friendship', 'fs'])
+    @commands.cooldown(1, 2, commands.BucketType.user)
+    async def lovelevel(self, ctx):
+        if len(ctx.message.mentions)!=2: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Error: Please give me 2 tags!')
+        else:
+            result = algorithm.love_finder(ctx.message.mentions[0].id, ctx.message.mentions[1].id)
+            await ctx.send('Love level of {} and {} is **{}%!**'.format(ctx.message.mentions[0].name, ctx.message.mentions[1].name, str(result)))
+    
     @commands.command(pass_context=True)
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def say(self, ctx, *args):
