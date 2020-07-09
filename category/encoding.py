@@ -3,6 +3,7 @@ from discord.ext import commands
 import sys
 sys.path.append('/app/modules')
 import username601 as myself
+import canvas as Painter
 
 class encoding(commands.Cog):
     def __init__(self, client):
@@ -11,24 +12,14 @@ class encoding(commands.Cog):
     @commands.command(pass_context=True, aliases=['fliptext', 'fancy', 'cursive', 'braille'])
     @commands.cooldown(1, 1, commands.BucketType.user)
     async def morse(self, ctx, *args):
-        if 'fliptext' in str(ctx.message.content).split(' ')[0][1:]: data = myself.jsonisp("https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/upside-down.json")
-        elif 'cursive' in str(ctx.message.content).split(' ')[0][1:]: data = myself.jsonisp("https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/cursive.json")
-        elif 'fancy' in str(ctx.message.content).split(' ')[0][1:]: data = myself.jsonisp("https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fancy.json")
-        elif 'braille' in str(ctx.message.content).split(' ')[0][1:]: data = myself.jsonisp("https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/braille.json")
-        else: data = myself.jsonisp("https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/morse.json")
-        total, tocon = '', str(' '.join(list(args)))
-        for i in list(tocon.lower()):
-            if i.lower() in ''.join(list(data.keys())):
-                for j in list(data.keys()):
-                    if i.lower()==j.lower():
-                        total += data[j] ; break
-            else:
-                total += i
-            if 'morse' in str(ctx.message.content).split(' ')[0]:
-                if i==' ': i = '/'
-                else: i += ' '
-                total += i
-        await ctx.send(total)
+        async with ctx.message.channel.typing():
+            res = myself.jsonisp('https://useless-api--vierofernando.repl.co/encode?text='+myself.urlify(' '.join(list(args))))
+            if 'fliptext' in str(ctx.message.content).split(' ')[0][1:]: data = res['styles']['upside-down']
+            elif 'cursive' in str(ctx.message.content).split(' ')[0][1:]: data = res['styles']['cursive']
+            elif 'fancy' in str(ctx.message.content).split(' ')[0][1:]: data = res['styles']['fancy']
+            elif 'braille' in str(ctx.message.content).split(' ')[0][1:]: data = res['braille']
+            else: data = res['ciphers']['morse']
+            await ctx.send(f'`{data}`')
     @commands.command(pass_context=True, aliases=['qr', 'qrcode', 'qr-code'])
     @commands.cooldown(1, 1, commands.BucketType.user)
     async def barcode(self, ctx, *args):
