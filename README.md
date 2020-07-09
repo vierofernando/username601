@@ -19,6 +19,11 @@ Bot is hosted in [heroku.](https://heroku.com) 24/7.<br>
 [Official Website](https://vierofernando.github.io/username601)<br>
 [Add the bot to your server!](https://discordapp.com/api/oauth2/authorize?client_id=696973408000409626&permissions=8&scope=bot)<br>
 
+# Screenshots
+![Example 1](https://vierofernando.github.io/username601/assets/screenshots/1.png)<br>
+![Example 2](https://vierofernando.github.io/username601/assets/screenshots/2.png)<br>
+![Example 3](https://vierofernando.github.io/username601/assets/screenshots/3.png)<br>
+
 # Configuration
 **ENVIRONMENT VARIABLES:**<br>
 DISCORD_TOKEN = Your discord token<br>
