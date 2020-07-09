@@ -129,16 +129,6 @@ class memes(commands.Cog):
             async with ctx.message.channel.typing():
                 data = Painter.gif.triggered(ava, increment)
                 await ctx.send(file=discord.File(data, 'triggered.gif'))
-    @commands.command(pass_context=True, aliases=['woosh', 'woooosh', 'whoosh', 'whooosh', 'whoooosh'])
-    @commands.cooldown(1, 5, commands.BucketType.user)
-    async def wooosh(self, ctx, *args):
-        if len(list(args))!=1:
-            await ctx.send(str(self.client.get_emoji(BotEmotes.error)) + ' | Error! Invalid args.')
-        else:
-            async with ctx.message.channel.typing():
-                av = ctx.message.mentions[0].avatar_url
-                data = Painter.urltoimage('https://api.alexflipnote.dev/jokeoverhead?image='+str(av))
-                await ctx.send(file=discord.File(data, 'wooosh.png'))
 
     @commands.command(pass_context=True, aliases=['communism', 'ussr', 'soviet', 'cykablyat', 'cyka-blyat', 'blyat'])
     @commands.cooldown(1, 5, commands.BucketType.user)
@@ -304,15 +294,13 @@ class memes(commands.Cog):
                 else: text = 'I forgot to put the arguments, oops'
             await ctx.send(file=discord.File(Painter.urltoimage('https://api.alexflipnote.dev/floor?image='+auth+'&text='+myself.urlify(text)), 'floor.png'))
 
-    @commands.command(pass_context=True, aliases=['wooosh', 'amiajoke', 'bad', 'salty', 'wooooosh', 'woosh'])
+    @commands.command(pass_context=True, aliases=['bad'])
     @commands.cooldown(1, 7, commands.BucketType.user)
-    async def woooosh(self, ctx, *args):
+    async def amiajoke(self, ctx, *args):
         if len(ctx.message.content)==0: source = str(ctx.message.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
         else: source = str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
-        if 'wsh' == str(ctx.message.content).lower().split()[0][1:].replace('o', ''): url = 'https://api.alexflipnote.dev/jokeoverhead?image='+str(source)
-        elif 'bad' in ctx.message.content: url = 'https://api.alexflipnote.dev/bad?image='+str(source)
-        elif 'amiajoke' in ctx.message.content: url = 'https://api.alexflipnote.dev/amiajoke?image='+str(source)
-        else: url = 'https://api.alexflipnote.dev/salty?image='+str(source)
+        if 'bad' in ctx.message.content: url = 'https://api.alexflipnote.dev/bad?image='+str(source)
+        else: url = 'https://api.alexflipnote.dev/amiajoke?image='+str(source)
         await ctx.send(file=discord.File(Painter.urltoimage(url), 'maymays.png'))
 
     @commands.command(pass_context=True, aliases=['avmeme', 'philosoraptor', 'money', 'doge', 'fry'])
