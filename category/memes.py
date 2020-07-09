@@ -241,7 +241,7 @@ class memes(commands.Cog):
             data = Painter.urltoimage('https://api.alexflipnote.dev/captcha?text='+str(capt))
             await ctx.send(file=discord.File(data, 'captcha.png'))
 
-    @commands.command(pass_context=True, aliases=['baby', 'wolverine', 'disgusting', 'f', 'studying', 'starvstheforcesof'])
+    @commands.command(pass_context=True, aliases=['baby', 'clint', 'wolverine', 'disgusting', 'f', 'studying', 'starvstheforcesof'])
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def door(self, ctx):
         async with ctx.message.channel.typing():
@@ -249,7 +249,7 @@ class memes(commands.Cog):
             else: ava = str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
             if 'door' in ctx.message.content: await ctx.send(file=discord.File(Painter.put_transparent(ava, "door", 1000, 479, 496, 483, 247, 9), 'door.png'))
             elif 'studying' in ctx.message.content: await ctx.send(file=discord.File(Painter.put_transparent(ava, "studying", 563, 999, 290, 315, 85, 160), "studying.png")) 
-            elif 'clint' in ctx.message.content: await ctx.send(file=discord.File(Painter.put_transparent(ava, "clint", 1200, 675, 339, 629, 777, 29, 'clintclint.png')))
+            elif 'clint' in ctx.message.content: await ctx.send(file=discord.File(Painter.put_transparent(ava, "clint", 1200, 675, 339, 629, 777, 29), 'clintclint.png'))
             elif 'starvstheforcesof' in ctx.message.content: await ctx.send(file=discord.File(Painter.put_transparent(ava, "starvstheforcesof", 1920, 1080, 995, 1079, 925, 0), "starvstheforcesof.png")) 
             elif 'wolverine' in ctx.message.content: await ctx.send(file=discord.File(Painter.put_transparent(ava, "wolverine", 450, 698, 368, 316, 85, 373), 'wolverine.png'))
             elif 'disgusting' in ctx.message.content: await ctx.send(file=discord.File(Painter.put_transparent(ava, "disgusting", 1024, 1080, 614, 407, 179, 24), 'disgusting.png'))
