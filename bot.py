@@ -86,7 +86,8 @@ async def on_command_error(ctx, error):
 async def on_message(message):
     # VOTING STUFF.
     if message.channel.id==Config.SupportServer.logging:
-        if message.content.startswith(':arrow_up: | User with ID of "'):
+        print('vooteee '+str(message.content))
+        if '| User with ID of "' in str(message.content):
             user_id = int(str(message.content).split('"')[1].split('"')[0])
             if Economy.get(user_id)!=None and client.get_user(user_id)!=None:
                 amount = Economy.daily(user_id)
