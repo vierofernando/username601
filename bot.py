@@ -77,6 +77,8 @@ async def on_command_error(ctx, error):
         pass # ignore that shit
     elif 'missing permissions' in str(error).lower():
         await ctx.send(str(client.get_emoji(BotEmotes.error))+" | I don't have the permission required to use that command!")
+    elif 'cannot identify image file' in str(error).lower():
+        await ctx.send(str(client.get_emoji(BotEmotes.error))+' | Error, it seemed i can\'t load/send the image! Check your arguments and try again. Else, report this to the bot owner using `'+Config.prefix+'feedback.`')
     else:
         print("An error occured: {}".format(str(error)))
 

@@ -3,6 +3,7 @@ from discord.ext import commands
 import sys
 sys.path.append('/app/modules')
 import username601 as myself
+from username601 import *
 import canvas as Painter
 
 class encoding(commands.Cog):
@@ -12,19 +13,25 @@ class encoding(commands.Cog):
     @commands.command(pass_context=True, aliases=['fliptext', 'fancy', 'cursive', 'braille'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def morse(self, ctx, *args):
-        async with ctx.message.channel.typing():
-            res = myself.jsonisp('https://useless-api--vierofernando.repl.co/encode?text='+myself.urlify(' '.join(list(args))))
-            if 'fliptext' in str(ctx.message.content).split(' ')[0][1:]: data = res['styles']['upside-down']
-            elif 'cursive' in str(ctx.message.content).split(' ')[0][1:]: data = res['styles']['cursive']
-            elif 'fancy' in str(ctx.message.content).split(' ')[0][1:]: data = res['styles']['fancy']
-            elif 'braille' in str(ctx.message.content).split(' ')[0][1:]: data = res['braille']
-            else: data = res['ciphers']['morse']
-            await ctx.send(f'{data}')
+        if len(list(args))==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | no arguments? Really?')
+        elif len(' '.join(list(args))) > 100:
+            await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | too long....')
+        else:
+            async with ctx.message.channel.typing():
+                res = myself.jsonisp('https://useless-api--vierofernando.repl.co/encode?text='+myself.urlify(' '.join(list(args))))
+                if 'fliptext' in str(ctx.message.content).split(' ')[0][1:]: data = res['styles']['upside-down']
+                elif 'cursive' in str(ctx.message.content).split(' ')[0][1:]: data = res['styles']['cursive']
+                elif 'fancy' in str(ctx.message.content).split(' ')[0][1:]: data = res['styles']['fancy']
+                elif 'braille' in str(ctx.message.content).split(' ')[0][1:]: data = res['braille']
+                else: data = res['ciphers']['morse']
+                await ctx.send(f'{data}')
     @commands.command(pass_context=True, aliases=['qr', 'qrcode', 'qr-code'])
     @commands.cooldown(1, 1, commands.BucketType.user)
     async def barcode(self, ctx, *args):
         if len(list(args))==0:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Please provide a text!')
+        elif len(' '.join(list(args))) > 50:
+            await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | too longggggggggg')
         else:
             async with ctx.message.channel.typing():
                 if 'qr' in str(ctx.message.content).split(' ')[0][1:]: url = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+str(myself.urlify(str(' '.join(list(args)))))
@@ -36,6 +43,8 @@ class encoding(commands.Cog):
     async def binary(self, ctx, *args):
         if len(list(args))==0:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | gimme something.')
+        elif len(' '.join(list(args))) > 50:
+            await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | too long.')
         else:
             if len(myself.bin(str(' '.join(list(args)))))>4000: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | the result is too long for discord to proccess...')
             else: await ctx.send('```'+str(myself.bin(str(' '.join(list(args)))))+'```')

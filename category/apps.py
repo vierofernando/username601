@@ -25,21 +25,22 @@ class apps(commands.Cog):
                 embed = discord.Embed(title='List of supported languages', description=str(lang), colour=discord.Colour.from_rgb(201, 160, 112))
                 await wait.edit(content='', embed=embed)
             elif len(args)>1:
-                destination = args[0]
-                try:
-                    toTrans = str(ctx.message.content).split(' ')[2:len(str(ctx.message.content).split())]
-                except IndexError:
-                    await wait.edit(str(self.client.get_emoji(BotEmotes.error))+' | Gimme something to translate!')
-                try:
-                    translation = gtr.translate(toTrans, dest=destination)
-                    try:
-                        embed = discord.Embed(title=f'**{translation.text}**', colour=discord.Colour.from_rgb(201, 160, 112))
-                    except:
-                        embed = discord.Embed(title=f'**{list(translation)[0].text}**', colour=discord.Colour.from_rgb(201, 160, 112))
-                    embed.set_footer(text=f'Translated {LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}.')
-                    await wait.edit(content='', embed=embed)
-                except Exception as e:
-                    await wait.edit(content=str(self.client.get_emoji(BotEmotes.error)) + f' | An error occured! ```py\n{e}```')
+                await ctx.send('sorry! This command is closed down for maintenance.')
+                #destination = args[0]
+                #try:
+                #    toTrans = str(ctx.message.content).split(' ')[2:len(str(ctx.message.content).split())]
+                #except IndexError:
+                #    await wait.edit(str(self.client.get_emoji(BotEmotes.error))+' | Gimme something to translate!')
+                #try:
+                #    translation = gtr.translate(toTrans, dest=destination)
+                #    try:
+                #        embed = discord.Embed(title=f'**{translation.text}**', colour=discord.Colour.from_rgb(201, 160, 112))
+                #    except:
+                #        embed = discord.Embed(title=f'**{list(translation)[0].text}**', colour=discord.Colour.from_rgb(201, 160, 112))
+                #   embed.set_footer(text=f'Translated {LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}.')
+                #    await wait.edit(content='', embed=embed)
+                #except Exception as e:
+                #    await wait.edit(content=str(self.client.get_emoji(BotEmotes.error)) + f' | An error occured! ```py\n{e}```')
             else:
                 await wait.edit(content=f'Please add a language! To have the list and their id, type\n`{prefix}translate --list`.')
         else:
@@ -86,12 +87,12 @@ class apps(commands.Cog):
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def imdb(self, ctx, *args):
         wait, args = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait...'), list(args)
-        if len(args)==0 or args[0]=='help' or args[0]=='--help':
+        if len(args)==0 or args[0].lower()=='help' or args[0].lower()=='--help':
             embed = discord.Embed(title='IMDb command help', description='Searches through the IMDb Movie database.\n{} are Parameters that is **REQUIRED** to get the info.\n\n', colour=discord.Colour.from_rgb(201, 160, 112))
             embed.add_field(name='Commands', value=prefix+'imdb --top {NUMBER}\n'+prefix+'imdb --search {TYPE} {QUERY}\n'+prefix+'imdb help\n'+prefix+'imdb --movie {MOVIE_ID or MOVIE_NAME}', inline='False')
             embed.add_field(name='Help', value='*{TYPE} could be "movie", "person", or "company".\n{QUERY} is the movie/person/company name.\n{MOVIE_ID} can be got from the search. Example: `'+prefix+'imdb --search movie Inception`.', inline='False')
             await wait.edit(content='', embed=embed)
-        if args[0]=='--top':
+        elif args[0].lower()=='--top':
             if len(args)==2:
                 await wait.edit(content='Please type the number!\nex: --top 5, --top 10, etc.')
             else:
@@ -108,7 +109,7 @@ class apps(commands.Cog):
                         await wait.edit(content='', embed=embed)
                 except ValueError:
                     await wait.edit(content=str(self.client.get_emoji(BotEmotes.error)) +' | Is the top thing you inputted REALLY a number?\nlike, Not top TEN, but top 10.\nGET IT?')
-        if args[0]=='--movie':
+        elif args[0].lower()=='--movie':
             if args[0]=='--movie' and len(args)==1:
                 await wait.edit(content='Where\'s the ID or movie name?!?!?!')
             else:
@@ -141,7 +142,7 @@ class apps(commands.Cog):
                 errorQuick.add_field(name='Ratings', value=emoteStar+'\n**Overall rating: **'+str(ia.get_movie_main(str(theID))['data']['rating'])+'\n**Rated by '+str(ia.get_movie_main(str(theID))['data']['votes'])+' people**')
                 errorQuick.set_footer(text='Information given is limited due to Errors and... stuff.')
                 await wait.edit(content='', embed=errorQuick)
-        if args[0]=='--search':
+        elif args[0].lower()=='--search':
             query = str(ctx.message.content).split(' ')[2]
             lists = ''
             if args[1].startswith('movie') or args[1].startswith('film'):
@@ -169,6 +170,8 @@ class apps(commands.Cog):
             if main_name=='MOVIE':
                 embed.set_footer(text='Type '+prefix+'imdb --'+str(main_name.lower())+' {'+main_name+'_ID} to show each info.')
             await wait.edit(content='', embed=embed)
+        else:
+            await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+' | Wrong syntax. Use `'+Config.prefix+'imdb help` next time.')
 
 def setup(client):
     client.add_cog(apps(client))
