@@ -26,7 +26,7 @@ class Economy:
     
     def can_vote(userid):
         data = database["economy"].find({"userid": userid})[0]
-        if str(data['lastdaily'])=='0':
+        if round(data['lastdaily'])<2:
             return {
                 "bool": True,
                 "time": None
