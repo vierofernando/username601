@@ -90,7 +90,10 @@ async def on_message(message):
             user_id = int(str(message.content).split('"')[1].split('"')[0])
             if Economy.get(user_id)!=None and client.get_user(user_id)!=None:
                 amount = Economy.daily(user_id)
-                await client.get_user(user_id).send(embed=discord.Embed(title='Thank you for voting! You received **'+str(amount)+' diamonds!**'), color=discord.Colour.green())
+                await client.get_user(user_id).send(embed=discord.Embed(
+                    title='Thank you for voting! You received **'+str(amount)+' diamonds!**',
+                    colour=discord.Colour.green()
+                )
     
     # THESE TWO IF STATEMENTS ARE JUST FOR ME ON THE SUPPORT SERVER CHANNEL. YOU CAN DELETE THESE TWO.
     if message.channel.id==700040209705861120: await message.author.add_roles(message.guild.get_role(700042707468550184))
