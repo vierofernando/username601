@@ -93,7 +93,8 @@ async def on_message(message):
                 await client.get_user(user_id).send(embed=discord.Embed(
                     title='Thank you for voting! You received **'+str(amount)+' diamonds!**',
                     colour=discord.Colour.green()
-                )
+                ))
+                await message.add_reaction(client.get_emoji(BotEmotes.success))
     
     # THESE TWO IF STATEMENTS ARE JUST FOR ME ON THE SUPPORT SERVER CHANNEL. YOU CAN DELETE THESE TWO.
     if message.channel.id==700040209705861120: await message.author.add_roles(message.guild.get_role(700042707468550184))
