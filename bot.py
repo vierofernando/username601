@@ -84,8 +84,18 @@ async def on_command_error(ctx, error):
 
 @client.event
 async def on_message(message):
+    # VOTING STUFF.
+    if message.channel.id==Config.SupportServer.logging:
+        if message.content.startswith(':arrow_up: | User with ID of "'):
+            user_id = int(str(message.content).split('"')[1].split('"')[0])
+            if Economy.get(user_id)!=None and client.get_user(user_id)!=None:
+                amount = Economy.daily(user_id)
+                await client.get_user(user_id).send('Thank you for voting! You received **'+str(amount)+' diamonds!**')
+    
+    # THESE TWO IF STATEMENTS ARE JUST FOR ME ON THE SUPPORT SERVER CHANNEL. YOU CAN DELETE THESE TWO.
     if message.channel.id==700040209705861120: await message.author.add_roles(message.guild.get_role(700042707468550184))
     if message.channel.id==724454726908772373: await message.author.add_roles(message.guild.get_role(701586228000325733))
+    
     if message.content.startswith('<@'+str(client.user.id)+'>') or message.content.startswith('<@!'+str(client.user.id)+'>'): await message.channel.send(f'Hi! My prefix is `{Config.prefix}`.')
     await client.process_commands(message) # else bot will not respond to 99% commands
 

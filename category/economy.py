@@ -25,19 +25,24 @@ class economy(commands.Cog):
             if new_data=='success': await wait.edit(content=str(self.client.get_emoji(BotEmotes.success))+f" | {ctx.message.author.name} worked {job} and earned {reward} diamonds!")
             else: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+f" | Oops there was an error... Please report this to the owner using `1feedback.`\n`{new_data}`")
             
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 86400, commands.BucketType.user)
+    @commands.command(pass_context=True, aliases=['d'])
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def daily(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait...")
-        data = Economy.get(ctx.message.author.id)
-        if data==None: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+" | You don't have a profile yet! Create a profile using `1new`")
+        if Economy.get(ctx.message.author.id)==None: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+" | You don't have a profile yet! Create a profile using `1new`")
         else:
-            reward = str(random.randint(250, 1000))
-            new_data = Economy.daily(ctx.message.author.id, int(reward))
-            if new_data=='success':
-                await wait.edit(content=str(self.client.get_emoji(BotEmotes.success))+f" | You took your daily for {reward} diamonds!")
+            obj = Economy.can_vote(ctx.message.author.id)
+            if obj['bool']:
+                await wait.edit(content='', embed=discord.Embed(
+                    title='Vote us at top.gg!',
+                    description='By voting, we will give you rewards such as ***LOTS of diamonds!***',
+                    color = discord.Colour.green()
+                ))
             else:
-                await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+f" | Oops there was an error... Please report this to the owner using `1feedback.`\n`{new_data}`")
+                await wait.edit(content='', embed=discord.Embed(
+                    title='You can vote us again in '+str(obj['time'])+'!',
+                    colour=discord.Colour.red()
+                ))
     
     @commands.command(pass_context=True)
     @commands.cooldown(1, 30, commands.BucketType.user)

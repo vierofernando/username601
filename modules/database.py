@@ -1,6 +1,11 @@
 from pymongo import MongoClient
 import os
+from sys import path
+from random import choice
 from datetime import datetime as t
+from datetime import timedelta as d
+path.append('/app/modules')
+from username601 import time_encode
 
 database = MongoClient(os.environ['DB_LINK'])['username601']
 
@@ -19,6 +24,25 @@ class Economy:
         except:
             return 'error'
     
+    def can_vote(userid):
+        data = database["economy"].find({"userid": userid})
+        if str(data['lastdaily'])=='0':
+            return {
+                "bool": True,
+                "time": None
+            }
+        else:
+            if (t.now() - t.fromtimestamp(data['lastdaily'])).seconds > 43200:
+                return {
+                    "bool": True,
+                    "time": None
+                }
+            else:
+                return {
+                    "bool": False,
+                    "time": str(t.fromtimestamp(data['lastdaily']) + d(hours=12))
+                }
+    
     def setbal(userid, newbal):
         if userid not in [i["userid"] for i in database["economy"].find()]:
             return 'user has no profile'
@@ -34,7 +58,8 @@ class Economy:
             database["economy"].insert_one({
                 "userid": userid,
                 "bal": 0,
-                "desc": "nothing here!"
+                "desc": "nothing here!",
+                "lastdaily": float(0)
             })
             return 'done'
         except Exception as e:
@@ -54,13 +79,15 @@ class Economy:
         except Exception as e:
             return e
     
-    def daily(userid, bal):
+    def daily(userid):
         try:
+            bal = choice([500, 1000, 1500, 2000, 2500, 3000])
             old = database["economy"].find_one({"userid": userid})
             database["economy"].update_one({"userid": userid}, { "$set": {
-                "bal": old["bal"]+bal
+                "bal": old["bal"]+bal,
+                "lastdaily": t.now().timestamp()
             }})
-            return 'success'
+            return bal
         except Exception as e:
             return e
     
