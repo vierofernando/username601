@@ -40,7 +40,7 @@ class Economy:
             else:
                 return {
                     "bool": False,
-                    "time": str(t.fromtimestamp(data['lastdaily']) + d(hours=12))
+                    "time": str((t.fromtimestamp(data['lastdaily']) + d(hours=12)) - t.now())[:-7]
                 }
     
     def setbal(userid, newbal):
