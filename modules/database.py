@@ -25,7 +25,7 @@ class Economy:
             return 'error'
     
     def can_vote(userid):
-        data = database["economy"].find({"userid": userid})
+        data = database["economy"].find({"userid": userid})[0]
         if str(data['lastdaily'])=='0':
             return {
                 "bool": True,
