@@ -4,7 +4,7 @@ from sys import path
 path.append("/app/modules")
 import random
 from json import loads
-from username601 import BotEmotes
+from username601 import *
 from database import Economy
 from datetime import datetime
 
@@ -73,7 +73,7 @@ class economy(commands.Cog):
             else:
                 amount2rob = None
                 for i in list(args):
-                    if i.isnumeric(): amount2rob = int(i)
+                    if i.isnumeric(): amount2rob = int(i) ; break
                 if amount2rob==None: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | How many diamonds shall be robbed?')
                 elif amount2rob>9999: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Dude, you must be crazy. That\'s too many diamonds!')
                 elif amount2rob<0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | minus??? HUH?')

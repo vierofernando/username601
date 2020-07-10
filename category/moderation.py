@@ -47,7 +47,7 @@ class moderation(commands.Cog):
             cd = list(args)[0]
             if ctx.message.author.guild_permissions.manage_channels:
                 if not cd.isnumeric():
-                    await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | That cooldown is not a number!s")
+                    await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | That cooldown is not a number!")
                 else:
                     if int(cd)<0:
                         await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Minus slowmode? Did you mean slowmode 0 seconds?")
@@ -55,7 +55,7 @@ class moderation(commands.Cog):
                         await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | That is too hecking sloow....")
                     else:
                         await ctx.message.channel.edit(slowmode_delay=cd)
-                        await ctx.send(str(self.client.get_emoji(BotEmotes.success))+" | Channel slowmode cooldown has been set to "+myself.time_encode(int(cd)))
+                        await ctx.send(str(self.client.get_emoji(BotEmotes.success))+" | Channel slowmode cooldown has been set to "+str(cd)+" seconds.")
             else: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | You need the manage channels permission to do this command!")
 
     @commands.command(pass_context=True, aliases=['addrole', 'add-role'])
