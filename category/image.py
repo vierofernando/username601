@@ -5,6 +5,7 @@ sys.path.append('/app/modules')
 import canvas as Painter
 import random
 import username601 as myself
+from username601 import *
 
 class image(commands.Cog):
     def __init__(self, client):
