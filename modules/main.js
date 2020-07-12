@@ -62,6 +62,12 @@ function loadCommands() {
     });
 }
 function loadMySanity() {
+	if (prm.has('credits')) {
+		fetch('https://vierofernando.github.io/username601/modules/credits.txt')
+		.then (res => {
+			document.write(res);
+		});
+	}
     // very true.
     fetch('https://vierofernando.github.io/username601/assets/json/webtitle.json') // decided to use this because client kept giving me 404s
     .then (res => res.json())

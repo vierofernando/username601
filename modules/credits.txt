@@ -1,0 +1,25 @@
+=== USERNAME601 CREDITS ===
+
+BIG COMPANIES: (NOT SPONSORED)
+Discord - For being a cool place to chat
+GitHub - Place for you to see other people coding
+Microsoft - For providing Visual Studio Code
+Notepad++ - Providing smaller CPU memory to code (unlike VSC)
+
+ANOTHER ONES:
+top.gg/DBL - A big discord bot library.
+Botsfordiscord.com - Providing another discord bots library,
+Terminal.lnk - Another advanced discord bots library.
+
+PEOPLE:
+hibikidesu - Creator of Nekobot.xyz API (plays a big role in Image commands)
+alexflipnote - Creator of Alexflipnote.dev API and Coffee API (also plays a big role in image commands)
+Danny/Rapptz - Creator of the discord.py library
+Mike Drolf - Creator of Pymongo library
+Fredrik Lundh - Creator of PIL/pillow Library
+
+BETA TESTERS:
+VeguiIzumi (also creator of Nezumi Yui Bot)
+nefomemes (frequent feedbacks)
+Jovantri (also creator of Todoroki Shouto Bot)
+WillolzCitron (partnership and amateur discord bot developer)
