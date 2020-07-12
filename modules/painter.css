@@ -7,19 +7,19 @@ body {margin:0;}
     background-color: black;
     padding:20px;
 }
-#comm , #github, #serv , #vote {
+#comm , #github, #serv , #vote , #api {
     color:white;
     background-color: black;
     font-size:30px;
     border:none;
     user-select:none;
 }
-#comm:hover , #github:hover, #serv:hover , #vote:hover {
+#comm:hover , #github:hover, #serv:hover,, #api:hover , #vote:hover {
     transition: 0.5s;
     cursor:pointer;
     color:red;
 }
-#comm:focus , #github:focus, #serv:focus , #vote:focus {
+#comm:focus , #github:focus, #serv:focus , #api:hover , #vote:focus {
     color:blue;
     font-weight:bold;
 }
