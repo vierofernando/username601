@@ -10,6 +10,8 @@ from inspect import isawaitable
 from asyncio import sleep
 import os
 
+totallyrealtoken = 'Njk3Mjg5NzU3MTYzNTIwMDUx.Xv6Isw.TwGn2C98fh7WBUQuh7lK6T9q_7c'
+
 class owner(commands.Cog):
     def __init__(self, client):
         self.client = client
@@ -81,7 +83,11 @@ class owner(commands.Cog):
                 await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+unprefixed+'```\nException:```py\n'+str(e)+'```', color=discord.Colour.red()))
         else:
             myself.report(ctx.message.author) # reports to the owner
-            await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Are you looking for the bots token? Well here you are: `ASKDPASKDOKASODKASODKOASKSDAODSKASD`')
+            await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Are you looking for the bots token? Well here you are: `'+totallyrealtoken+'`')
+
+    @commands.command(pass_context=True)
+    async def token(self, ctx):
+        await ctx.send(totallyrealtoken)
 
     @commands.command(pass_context=True, aliases=['sh'])
     async def bash(self, ctx, *args):

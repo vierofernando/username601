@@ -13,6 +13,19 @@ class moderation(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    @commands.command(pass_context=True, aliases=['bigemoji', 'emojipic', 'emoji-img'])
+    @commands.cooldown(1, 3, commands.BucketType.user)
+    async def emojiimg(self, ctx, *args):
+        try:
+            em = list(args)[0].lower()
+            if em.startswith('<:a:'): _id, an = em.split(':')[3].split('>')[0], True
+            else: _id, an = em.split(':')[2].split('>')[0], False
+            if an: await ctx.send(file=discord.File(Painter.gif.giffromURL('https://cdn.discordapp.com/emojis/{}.gif'.format(_id)), 'emoji.gif'))
+            else: await ctx.send(file=discord.File(Painter.urltoimage('https://cdn.discordapp.com/emojis/{}.png'.format(_id)), 'emoji.png'))
+        except:
+            await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Invalid emoji.')
+            
+
     @commands.command(pass_context=True)
     @commands.cooldown(1, 15, commands.BucketType.user)
     async def rolecolor(self, ctx, *args):
