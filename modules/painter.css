@@ -14,7 +14,7 @@ body {margin:0;}
     border:none;
     user-select:none;
 }
-#comm:hover , #github:hover, #serv:hover,, #api:hover , #vote:hover {
+#comm:hover , #github:hover, #serv:hover, #api:hover , #vote:hover {
     transition: 0.5s;
     cursor:pointer;
     color:red;
