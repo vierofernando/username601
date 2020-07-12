@@ -19,7 +19,7 @@ body {margin:0;}
     cursor:pointer;
     color:red;
 }
-#comm:focus , #github:focus, #serv:focus , #api:hover , #vote:focus {
+#comm:focus , #github:focus, #serv:focus , #api:focus , #vote:focus {
     color:blue;
     font-weight:bold;
 }
