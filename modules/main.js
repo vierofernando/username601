@@ -63,9 +63,7 @@ function loadCommands() {
 }
 function loadMySanity() {
 	if (prm.has('credits')) {
-		fetch('https://vierofernando.github.io/username601/modules/credits.txt')
-		.then (res => res.text())
-		.then (out => document.write('<style>body {font-family:monospace;}</style>'+out));
+		window.location.href = 'https://vierofernando.github.io/username601/modules/credits.txt';
 	}
     // very true.
     fetch('https://vierofernando.github.io/username601/assets/json/webtitle.json') // decided to use this because client kept giving me 404s
