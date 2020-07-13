@@ -5,6 +5,9 @@ sys.path.append('/app/modules')
 import username601 as myself
 from username601 import *
 from database import Economy, selfDB
+import discordgames as Games
+import canvas as Painter
+import algorithm
 from subprocess import run, PIPE
 from inspect import isawaitable
 from asyncio import sleep
