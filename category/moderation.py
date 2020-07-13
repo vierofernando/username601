@@ -68,7 +68,7 @@ class moderation(commands.Cog):
                         await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | That is too hecking sloow....")
                     else:
                         await ctx.message.channel.edit(slowmode_delay=cd)
-                        await ctx.send(str(self.client.get_emoji(BotEmotes.success))+" | Channel slowmode cooldown has been set to "+str(cd)+" seconds.")
+                        await ctx.send(str(self.client.get_emoji(BotEmotes.success))+" | Channel slowmode cooldown has been set to "+str(myself.time_encode(int(cd))))
             else: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | You need the manage channels permission to do this command!")
 
     @commands.command(pass_context=True, aliases=['addrole', 'add-role'])
@@ -246,11 +246,9 @@ class moderation(commands.Cog):
             theEm.set_image(url=link)
             await ctx.send(embed=theEm)
         else:
-            humans, bots, online = 0, 0, 0
-            for i in ctx.message.guild.members:
-                if i.status != 'offline': online += 1
-                if i.bot: bots += 1
-                if not i.bot: humans += 1
+            humans = len([i for i in ctx.guild.members if not i.bot])
+            bots = len([i for i in ctx.guild.members if i.bot])
+            online = len([i for i in ctx.guild.members if i.status.value!='offline'])
             image = Painter.servercard("/app/assets/pics/card.jpg", str(ctx.message.guild.icon_url).replace('.gif', '.webp').replace(".webp?size=1024", ".jpg?size=128"), ctx.message.guild.name, str(ctx.message.guild.created_at)[:-7], ctx.message.guild.owner.name, str(humans), str(bots), str(len(ctx.message.guild.channels)), str(len(ctx.message.guild.roles)), str(ctx.message.guild.premium_subscription_count), str(ctx.message.guild.premium_tier), str(online))
             await ctx.send(content='Here is the '+ctx.message.guild.name+'\'s server card.', file=discord.File(image, ctx.message.guild.name+'.png'))
     
