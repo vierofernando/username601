@@ -25,23 +25,18 @@ class Economy:
             return 'error'
     
     def can_vote(userid):
-        data = database["economy"].find({"userid": userid})[0]
-        if round(data['lastdaily'])<2:
+        data = requests.get("https://api.ksoft.si
+/webhook/dbl/check?bot={}&user{}".format(str(Config.id), str(userid)), headers={"authorization":"Bearer "+str(os.environ['KSOFT_TOKEN'])}).json()
+        if not data['voted']: 
             return {
-                "bool": True,
+                "bool": False,
                 "time": None
             }
         else:
-            if (t.now() - t.fromtimestamp(data['lastdaily'])).seconds > 43200:
-                return {
-                    "bool": True,
-                    "time": None
-                }
-            else:
-                return {
-                    "bool": False,
-                    "time": str((t.fromtimestamp(data['lastdaily']) + d(hours=12)) - t.now())[:-7]
-                }
+            return {
+                "bool": False,
+                "time": data['expiry'].split('T')[0]+' '+data['expiry'].split('T')[1][:-7]
+            }
     
     def setbal(userid, newbal):
         if userid not in [i["userid"] for i in database["economy"].find()]:
@@ -81,11 +76,10 @@ class Economy:
     
     def daily(userid):
         try:
-            bal = choice([500, 1000, 1500, 2000, 2500, 3000])
+            bal = choice([1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000])
             old = database["economy"].find_one({"userid": userid})
             database["economy"].update_one({"userid": userid}, { "$set": {
-                "bal": old["bal"]+bal,
-                "lastdaily": t.now().timestamp()
+                "bal": old["bal"]+bal
             }})
             return bal
         except Exception as e:

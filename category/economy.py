@@ -26,7 +26,7 @@ class economy(commands.Cog):
             else: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+f" | Oops there was an error... Please report this to the owner using `1feedback.`\n`{new_data}`")
             
     @commands.command(pass_context=True)
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @commands.cooldown(1, 15, commands.BucketType.user)
     async def daily(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait...")
         if Economy.get(ctx.message.author.id)==None: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+" | You don't have a profile yet! Create a profile using `1new`")
@@ -35,7 +35,7 @@ class economy(commands.Cog):
             if obj['bool']:
                 await wait.edit(content='', embed=discord.Embed(
                     title='Vote us at top.gg!',
-                    description='[**VOTE HERE**](https://top.gg/bot/'+str(Config.id)+'/vote)\nBy voting, we will give you rewards such as ***LOTS of diamonds!***',
+                    description='**[VOTE HERE](https://top.gg/bot/'+str(Config.id)+'/vote)**\nBy voting, we will give you rewards such as ***LOTS of diamonds!***',
                     color = discord.Colour.green()
                 ))
             else:
