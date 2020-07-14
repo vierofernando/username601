@@ -6,6 +6,7 @@ import asyncio
 sys.path.append('/app/modules')
 from username601 import *
 from splashes import num2word
+from datetime import datetime as t
 import canvas as Painter
 import username601 as myself
 
@@ -13,6 +14,19 @@ class moderation(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    @commands.command(pass_context=True, aliases=['spot', 'listeningto'])
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def spotify(self, ctx):
+        if len(ctx.message.mentions)==0: source = ctx.message.author.activity
+        else: source = ctx.message.author.activity
+        if str(source).lower()!='spotify': await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Nope, not listening to spotify.')
+        else:
+            embed = discord.Embed(title=source.title, description='Track ID: `'+str(source.track_id)+'`\nStarted listening since '+str(myself.time_encode((t.now() - source.created_at).seconds))+' ago', color=source.color)
+            embed.add_field(name='Artists', value=myself.dearray(source.artists))
+            embed.add_field(name='Album', value=source.album)
+            embed.set_thumbnail(url=source.album_cover_url)
+            await ctx.send(embed=embed)
+        
     @commands.command(pass_context=True, aliases=['bigemoji', 'emojipic', 'emoji-img'])
     @commands.cooldown(1, 3, commands.BucketType.user)
     async def emojiimg(self, ctx, *args):
@@ -305,7 +319,7 @@ class moderation(commands.Cog):
             if data==None:
                 await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Role not found!')
             else:
-                if data.permissions.administrator==True: perm = ':white_check_mark: Server Administrator'
+                if data.permissions.administrator: perm = ':white_check_mark: Server Administrator'
                 else: perm = ':x: Server Administrator'
                 if data.mentionable==True: men = ':warning: You can mention this role and they can get pinged.'
                 else: men = ':v: You can mention this role and they will not get pinged! ;)'

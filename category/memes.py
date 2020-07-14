@@ -36,7 +36,7 @@ class memes(commands.Cog):
     async def didyoumean(self, ctx, *args):
         if args[1]=='help':
             embed = discord.Embed(title='didyoumean command help', description='Type like the following\n'+prefix+'didyoumean [text1] [text2]\n\nFor example:\n'+prefix+'didyoumean [i am gay] [i am guy]', colour=discord.Colour.from_rgb(201, 160, 112))
-            await message.channel.send(embed=embed)
+            await ctx.send(embed=embed)
         else:
             async with ctx.message.channel.typing():
                 txt1, txt2 = myself.urlify(str(ctx.message.content).split('[')[1][:-2]), myself.urlify(str(ctx.message.content).split('[')[2][:-1])
@@ -275,10 +275,10 @@ class memes(commands.Cog):
     @commands.command(pass_context=True, aliases=['trumptweet', 'kannagen'])
     @commands.cooldown(1, 12, commands.BucketType.user)
     async def clyde(self, ctx, *args):
-        if len(list(args))==0: await message.channel.send('Please input a text...')
+        if len(list(args))==0: await ctx.send('Please input a text...')
         else:
             async with ctx.message.channel.typing():
-                url='https://nekobot.xyz/api/imagegen?type='+str(ctx.message.content).split(' ')[0]+'&text='+myself.urlify(' '.join(list(args)))+'&raw=1'
+                url='https://nekobot.xyz/api/imagegen?type='+str(ctx.message.content).split(' ')[0][1:]+'&text='+myself.urlify(' '.join(list(args)))+'&raw=1'
                 await ctx.send(file=discord.File(Painter.urltoimage(url), 'lawl.png'))
 
     @commands.command(pass_context=True)
@@ -318,7 +318,7 @@ class memes(commands.Cog):
                     url='https://memegen.link/'+str(name)+'/'+str(top)+'/'+str(bott)+'.jpg'+str(extr)
                     await ctx.send(file=discord.File(Painter.memegen(url), 'avmeme.png'))
                 except Exception as e:
-                    await message.channel.send(str(self.client.get_emoji(BotEmotes.error)) +f' | Error!\n```{e}```Invalid parameters. Example: `{prefix}avmeme <tag someone> [top text] [bottom text]`')
+                    await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +f' | Error!\n```{e}```Invalid parameters. Example: `{prefix}avmeme <tag someone> [top text] [bottom text]`')
         else:
             async with ctx.message.channel.typing():
                 try:
