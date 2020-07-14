@@ -27,22 +27,34 @@ class economy(commands.Cog):
             
     @commands.command(pass_context=True)
     @commands.cooldown(1, 15, commands.BucketType.user)
-    async def daily(self, ctx):
+    async def daily(self, ctx, *args):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait...")
         if Economy.get(ctx.message.author.id)==None: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+" | You don't have a profile yet! Create a profile using `1new`")
         else:
             obj = Economy.can_vote(ctx.message.author.id)
-            if obj['bool']:
-                await wait.edit(content='', embed=discord.Embed(
-                    title='Vote us at top.gg!',
-                    description='**[VOTE HERE](https://top.gg/bot/'+str(Config.id)+'/vote)**\nBy voting, we will give you rewards such as ***LOTS of diamonds!***',
-                    color = discord.Colour.green()
-                ))
+            if '--claim' in ''.join(list(args)).lower():
+                if not obj['bool']:
+                    await wait.edit(content='', embed=discord.Embed('You have not voted yet!', color=discord.Color.red()))
+                else:
+                    dt = Economy.daily(ctx.message.author.id)
+                    if dt.isnumeric():
+                        await wait.edit(content='', embed=discord.Embed('You claimed your daily for {} diamonds!'.format(str(dt)), color=discord.Color.green()))
+                    else:
+                        await wait.edit(content='ERROR: '+str(dt))
             else:
-                await wait.edit(content='', embed=discord.Embed(
-                    title='You can vote us again in '+str(obj['time'])+'!',
-                    colour=discord.Colour.red()
-                ))
+                if obj['bool']:
+                    em = embed=discord.Embed(
+                        title='Vote us at top.gg!',
+                        description='**[VOTE HERE](https://top.gg/bot/'+str(Config.id)+'/vote)**\nBy voting, we will give you rewards such as ***LOTS of diamonds!***',
+                        color = discord.Colour.green()
+                    )
+                    em.set_footer(text='Type '+str(Config.prefix)+'daily --claim to claim rewards!')
+                    await wait.edit(content='', embed=em)
+                else:
+                    await wait.edit(content='', embed=discord.Embed(
+                        title='You can vote us again in '+str(obj['time'])+'!',
+                        colour=discord.Colour.red()
+                    ))
     
     @commands.command(pass_context=True)
     @commands.cooldown(1, 30, commands.BucketType.user)

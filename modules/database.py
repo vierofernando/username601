@@ -25,16 +25,16 @@ class Economy:
             return 'error'
     
     def can_vote(userid):
-        data = requests.get("https://api.ksoft.si/webhook/dbl/check?bot={}&user{}".format(str(Config.id), str(userid)), headers={"authorization":"Bearer "+str(os.environ['KSOFT_TOKEN'])}).json()
+        data = requests.get("https://api.ksoft.si/webhook/dbl/check?bot={}&user={}".format(str(Config.id), str(userid)), headers={"authorization":"Bearer "+str(os.environ['KSOFT_TOKEN'])}).json()
         if not data['voted']: 
             return {
-                "bool": False,
+                "bool": True,
                 "time": None
             }
         else:
             return {
                 "bool": False,
-                "time": data['expiry'].split('T')[0]+' '+data['expiry'].split('T')[1][:-7]
+                "time": data['data']['expiry'].split('T')[0]+' '+data['expiry'].split('T')[1][:-7]
             }
     
     def setbal(userid, newbal):
