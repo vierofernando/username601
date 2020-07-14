@@ -25,7 +25,7 @@ class economy(commands.Cog):
             if new_data=='success': await wait.edit(content=str(self.client.get_emoji(BotEmotes.success))+f" | {ctx.message.author.name} worked {job} and earned {reward} diamonds!")
             else: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+f" | Oops there was an error... Please report this to the owner using `1feedback.`\n`{new_data}`")
             
-    @commands.command(pass_context=True, aliases=['d'])
+    @commands.command(pass_context=True)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def daily(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait...")
