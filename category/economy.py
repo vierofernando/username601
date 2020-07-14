@@ -37,12 +37,14 @@ class economy(commands.Cog):
                     await wait.edit(content='', embed=discord.Embed('You have not voted yet!', color=discord.Color.red()))
                 else:
                     dt = Economy.daily(ctx.message.author.id)
-                    if dt.isnumeric():
+                    Economy.vote(ctx.message.author.id, True)
+                    if str(dt).isnumeric():
                         await wait.edit(content='', embed=discord.Embed(title='You claimed your daily for {} diamonds!'.format(str(dt)), color=discord.Color.green()))
                     else:
-                        await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+' | ERROR: '+str(dt))
+                        await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+' | ERROR: `'+str(dt)+'`')
             else:
                 if obj['bool']:
+                    Economy.vote(ctx.message.author.id, False)
                     em = embed=discord.Embed(
                         title='Vote us at top.gg!',
                         description='**[VOTE HERE](https://top.gg/bot/'+str(Config.id)+'/vote)**\nBy voting, we will give you rewards such as ***LOTS of diamonds!***',

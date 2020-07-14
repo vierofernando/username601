@@ -10,6 +10,12 @@ from username601 import *
 database = MongoClient(os.environ['DB_LINK'])['username601']
 
 class Economy:
+    def get(userid):
+        try:
+            data = database["economy"].find({"userid": userid})[0]
+            return data
+        except Exception as e:
+            return None
     def leaderboard(guildMembers):
         fetched, total = database["economy"].find(), []
         for i in fetched:
@@ -23,10 +29,15 @@ class Economy:
             database["economy"].update_one({"userid": userid}, { "$set": { "desc": str(newdesc) } })
         except:
             return 'error'
-    
+    def voted(userid, bl)
+        try:
+            database["economy"].update_one({"userid": userid}, { "$set": { "voted": bl } })
+        except:
+            return 'error'
+
     def can_vote(userid):
         data = requests.get("https://api.ksoft.si/webhook/dbl/check?bot={}&user={}".format(str(Config.id), str(userid)), headers={"authorization":"Bearer "+str(os.environ['KSOFT_TOKEN'])}).json()
-        if not data['voted']: 
+        if not data['voted'] or get(userid)['voted']==False:
             return {
                 "bool": True,
                 "time": None
@@ -52,7 +63,8 @@ class Economy:
             database["economy"].insert_one({
                 "userid": userid,
                 "bal": 0,
-                "desc": "nothing here!"
+                "desc": "nothing here!",
+                "voted": False
             })
             return 'done'
         except Exception as e:
@@ -77,8 +89,7 @@ class Economy:
             bal = choice([500, 1000, 1500, 2000, 2500, 3000])
             old = database["economy"].find_one({"userid": userid})
             database["economy"].update_one({"userid": userid}, { "$set": {
-                "bal": old["bal"]+bal,
-                "lastdaily": t.now().timestamp()
+                "bal": old["bal"]+bal
             }})
             return bal
         except Exception as e:
@@ -94,12 +105,6 @@ class Economy:
                 return 'success'
         except Exception as e:
             return 'e'
-    def get(userid):
-        try:
-            data = database["economy"].find({"userid": userid})[0]
-            return data
-        except Exception as e:
-            return None
 
 class selfDB:
     def post_uptime():
