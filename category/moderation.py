@@ -21,9 +21,10 @@ class moderation(commands.Cog):
         else: source = ctx.message.mentions[0].activity
         if str(source).lower()!='spotify': await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Nope, not listening to spotify.')
         else:
-            embed = discord.Embed(title=source.title, description='Track ID: `'+str(source.track_id)+'`\nStarted listening since '+str(myself.time_encode((t.now() - source.created_at).seconds))+' ago', color=source.color)
+            embed = discord.Embed(url='https://open.spotify.com/track/{}'.format(source.track_id), title=source.title, description='Track ID: `'+str(source.track_id)+'`\nStarted listening since '+str(myself.time_encode((t.now() - source.created_at).seconds))+' ago', color=source.color)
             embed.add_field(name='Artists', value=myself.dearray(source.artists))
             embed.add_field(name='Album', value=source.album)
+            embed.set_author(name='Spotify', icon_url='https://images-ext-1.discordapp.net/external/myh_a7c2mTDfnh31SP2539AL_a1bhAYpafwZL5gQ99I/https/www.freepnglogos.com/uploads/spotify-logo-png/spotify-download-logo-30.png')
             embed.set_thumbnail(url=source.album_cover_url)
             await ctx.send(embed=embed)
         
