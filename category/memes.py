@@ -15,14 +15,18 @@ class memes(commands.Cog):
         if len(ctx.message.mentions)==0: source = ctx.message.author.avatar_url
         else: source = ctx.message.mentions[0].avatar_url
         source = str(source).replace('.gif', '.webp').replace('.webp', '.png')
-        await ctx.send(file=discord.File(Painter.urltoimage('https://vacefron.nl/api/{}?user={}'.format(str(ctx.message.content).split(' ')[0], source))))
+        embed = discord.Embed(color=discord.Colour.from_rgb(201, 160, 112))
+        embed.set_image(url='https://vacefron.nl/api/{}?text={}'.format(str(ctx.message.content).split(' ')[0], source))
+        await ctx.send(embed=embed)
 
     @commands.command(pass_context=True, aliases=['water'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def carreverse(self, ctx, *args):
         if len(list(args))==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Gimme something!")
         else:
-            await ctx.send(file=discord.File(Painter.urltoimage('https://vacefron.nl/api/{}?text={}'.format(str(ctx.message.content).split(' ')[0], myself.urlify(' '.join(list(args)))))))
+            embed = discord.Embed(color=discord.Colour.from_rgb(201, 160, 112))
+            embed.set_image(url='https://vacefron.nl/api/{}?text={}'.format(str(ctx.message.content).split(' ')[0], myself.urlify(' '.join(list(args)))))
+            await ctx.send(embed=embed)
 
     @commands.command(pass_context=True, aliases=['ifunny'])
     @commands.cooldown(1, 5, commands.BucketType.user)
