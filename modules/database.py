@@ -2,8 +2,6 @@ from pymongo import MongoClient
 import os
 from sys import path
 from random import choice
-from datetime import datetime as t
-from datetime import timedelta as d
 path.append('/app/modules')
 from username601 import time_encode
 
@@ -25,8 +23,7 @@ class Economy:
             return 'error'
     
     def can_vote(userid):
-        data = requests.get("https://api.ksoft.si
-/webhook/dbl/check?bot={}&user{}".format(str(Config.id), str(userid)), headers={"authorization":"Bearer "+str(os.environ['KSOFT_TOKEN'])}).json()
+        data = requests.get("https://api.ksoft.si/webhook/dbl/check?bot={}&user{}".format(str(Config.id), str(userid)), headers={"authorization":"Bearer "+str(os.environ['KSOFT_TOKEN'])}).json()
         if not data['voted']: 
             return {
                 "bool": False,
