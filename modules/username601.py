@@ -94,12 +94,17 @@ def check_if_owner(ctx):
 def time_encode(sec):
     time_type = 'seconds'
     newsec = int(sec)
+    # YANDEREDEV.EXE
     if sec>60:
         newsec, time_type = round(sec/60), 'minutes'
         if sec>3600: 
             newsec, time_type = round(sec/3600), 'hours'
             if sec>86400:
                 newsec, time_type = round(sec/86400), 'days'
+                if sec>2592000:
+                    newsec, time_type = round(sec/2592000), 'months'
+                    if sec>31536000:
+                        newsec, time_type = round(sec/31536000), 'years'
     return str(str(newsec)+' '+time_type)
 
 def terminal(command):
