@@ -18,7 +18,7 @@ class moderation(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def spotify(self, ctx):
         if len(ctx.message.mentions)==0: source = ctx.message.author.activity
-        else: source = ctx.message.author.activity
+        else: source = ctx.message.mentions[0].activity
         if str(source).lower()!='spotify': await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Nope, not listening to spotify.')
         else:
             embed = discord.Embed(title=source.title, description='Track ID: `'+str(source.track_id)+'`\nStarted listening since '+str(myself.time_encode((t.now() - source.created_at).seconds))+' ago', color=source.color)
