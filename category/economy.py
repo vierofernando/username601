@@ -38,9 +38,9 @@ class economy(commands.Cog):
                 else:
                     dt = Economy.daily(ctx.message.author.id)
                     if dt.isnumeric():
-                        await wait.edit(content='', embed=discord.Embed('You claimed your daily for {} diamonds!'.format(str(dt)), color=discord.Color.green()))
+                        await wait.edit(content='', embed=discord.Embed(title='You claimed your daily for {} diamonds!'.format(str(dt)), color=discord.Color.green()))
                     else:
-                        await wait.edit(content='ERROR: '+str(dt))
+                        await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+' | ERROR: '+str(dt))
             else:
                 if obj['bool']:
                     em = embed=discord.Embed(
