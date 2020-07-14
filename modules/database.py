@@ -53,8 +53,7 @@ class Economy:
             database["economy"].insert_one({
                 "userid": userid,
                 "bal": 0,
-                "desc": "nothing here!",
-                "lastdaily": float(0)
+                "desc": "nothing here!"
             })
             return 'done'
         except Exception as e:
@@ -76,10 +75,11 @@ class Economy:
     
     def daily(userid):
         try:
-            bal = choice([1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000])
+            bal = choice([500, 1000, 1500, 2000, 2500, 3000])
             old = database["economy"].find_one({"userid": userid})
             database["economy"].update_one({"userid": userid}, { "$set": {
-                "bal": old["bal"]+bal
+                "bal": old["bal"]+bal,
+                "lastdaily": t.now().timestamp()
             }})
             return bal
         except Exception as e:
