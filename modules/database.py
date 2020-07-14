@@ -34,7 +34,7 @@ class Economy:
         else:
             return {
                 "bool": False,
-                "time": data['data']['expiry'].split('T')[0]+' '+data['expiry'].split('T')[1][:-7]
+                "time": data['data']['expiry'].split('T')[0]+' '+data['data']['expiry'].split('T')[1][:-7]
             }
     
     def setbal(userid, newbal):
