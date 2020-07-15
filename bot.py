@@ -46,8 +46,6 @@ async def statusChange():
 # ONLY IN SUPPORT SERVER
 @client.event
 async def on_member_join(member):
-    if WelcomeGoodbye.is_exist(member.guild.id):
-        await member.guild.get_channel(WelcomeGoodbye.get_logging_channel(member.guild.id)).send(':partying_face: | {}, Welcome to {}! (Member count: {})'.format(member.name, member.guild.name, str(len(member.guild.members))))
     # DELETE THE IF-STATEMENT BELOW IF YOU ARE PLANNING TO USE MY CODE
     if member.guild.id==Config.SupportServer.id:
         await member.guild.get_channel(Config.SupportServer.logging).send(':heart: | '+src.welcome('<@'+str(member.id)+'>', client.get_user(Config.owner.id).name))
@@ -55,24 +53,15 @@ async def on_member_join(member):
 # ONLY IN SUPPORT SERVER ALSO
 @client.event
 async def on_member_remove(member):
-    if WelcomeGoodbye.is_exist(member.guild.id):
-        await member.guild.get_channel(WelcomeGoodbye.get_logging_channel(member.guild.id)).send(':flushed: | {} left {}... (Member count: {})'.format(member.name, member.guild.name, str(len(member.guild.members))))
     if member.guild.id==Config.SupportServer.id:
         await member.guild.get_channel(Config.SupportServer.logging).send(':broken_heart: | '+src.exit(member.name))
 
 # IF SOMEONE ADDS THE BOT TO THEIR SERVER, ADD THE CONTRIBUTOR ROLE (IF ON SUPPORT SERVER)
 @client.event
 async def on_guild_join(guild):
-    # remove welcome goodbye channel from database if exists
-    WelcomeGoodbye.guild_quit(guild.id)
     if guild.owner.id in [a.id for a in client.get_guild(Config.SupportServer.id).members]:
         userinsupp = client.get_guild(Config.SupportServer.id).get_member(guild.owner.id)
         await userinsupp.add_roles(client.get_guild(Config.SupportServer.id).get_role(727667048645394492))
-
-@client.event
-async def on_guild_channel_delete(channel):
-    # remove welcome goodbye channel from database if exists
-    WelcomeGoodbye.channel_quit(channel.id)
 
 # ...AND VICE VERSA
 @client.event
