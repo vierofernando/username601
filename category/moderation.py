@@ -7,7 +7,6 @@ sys.path.append('/app/modules')
 from username601 import *
 from splashes import num2word
 from datetime import datetime as t
-from database import WelcomeGoodbye
 import canvas as Painter
 import username601 as myself
 
