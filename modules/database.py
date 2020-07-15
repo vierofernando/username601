@@ -29,7 +29,7 @@ class Economy:
             database["economy"].update_one({"userid": userid}, { "$set": { "desc": str(newdesc) } })
         except:
             return 'error'
-    def voted(userid, bl)
+    def vote(userid, bl):
         try:
             database["economy"].update_one({"userid": userid}, { "$set": { "voted": bl } })
         except:
@@ -37,7 +37,7 @@ class Economy:
 
     def can_vote(userid):
         data = requests.get("https://api.ksoft.si/webhook/dbl/check?bot={}&user={}".format(str(Config.id), str(userid)), headers={"authorization":"Bearer "+str(os.environ['KSOFT_TOKEN'])}).json()
-        if not data['voted'] or get(userid)['voted']==False:
+        if not data['voted'] or Economy.get(userid)['voted']==False:
             return {
                 "bool": True,
                 "time": None

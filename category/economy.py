@@ -34,7 +34,7 @@ class economy(commands.Cog):
             obj = Economy.can_vote(ctx.message.author.id)
             if '--claim' in ''.join(list(args)).lower():
                 if not obj['bool']:
-                    await wait.edit(content='', embed=discord.Embed('You have not voted yet!', color=discord.Color.red()))
+                    await wait.edit(content='', embed=discord.Embed(title='You have not voted yet!', color=discord.Color.red()))
                 else:
                     dt = Economy.daily(ctx.message.author.id)
                     Economy.vote(ctx.message.author.id, True)
