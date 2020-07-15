@@ -84,10 +84,11 @@ class image(commands.Cog):
             videoid = 'dQw4w9WgXcQ'
             async with ctx.message.channel.typing():
                 if list(args)[0].endswith('/'): list(args)[0] = list(args)[0][:-1]
-                if list(args)[0].startswith('https://youtu.be/'): videoid = list(args)[0][17:]
-                elif list(args)[0].startswith('http://youtu.be/'): videoid = list(args)[0][16:]
-                elif list(args)[0].startswith('https://youtube.com/watch?v='): videoid = list(args)[0][28:]
-                elif list(args)[0].startswith('https://www.youtube.com/watch?v='): videoid = list(args[0])[32:]
+                if 'https://' in list(args)[0]: list(args)[0] = list(args)[0].replace('https://', '')
+                elif 'http://' in list(args)[0]: list(args)[0] = list(args)[0].replace('http://', '')
+                if '/watch?v=' in list(args)[0]: videoid = list(args)[0].split('/watch?v=')[1]
+                else: videoid = list(args)[0].split('/')[1]
+                else: videoid = ''
                 else: videoid = 'dQw4w9WgXcQ'
                 url = 'https://img.youtube.com/vi/'+str(videoid)+'/mqdefault.jpg'
                 data = Painter.urltoimage(url)

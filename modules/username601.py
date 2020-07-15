@@ -18,7 +18,7 @@ class Config:
     cmdtypes = decodeurl("https://vierofernando.github.io/username601/assets/json/categories.json").json()
     class Version:
         number = '2.1'
-        changelog = 'Added MORE meme commands, removed the 1d alias.'
+        changelog = 'Removed the annoying 1d alias, Fixed several bugs, Moved to python 3.8.4'
     class SupportServer:
         id = 688373853889495044 # support server ID
         logging = 694521383908016188 # logging channel ID in support server
