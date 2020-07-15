@@ -5,7 +5,7 @@ sys.path.append('/app/modules')
 
 # LOCAL FILES
 from username601 import *
-from database import Economy, selfDB, WelcomeGoodbye
+from database import Economy, selfDB
 import username601 as myself
 import discordgames as Games
 import splashes as src
