@@ -7,16 +7,13 @@ sys.path.append('/app/modules')
 from username601 import *
 from splashes import num2word
 from datetime import datetime as t
+from database import WelcomeGoodbye
 import canvas as Painter
 import username601 as myself
 
 class moderation(commands.Cog):
     def __init__(self, client):
         self.client = client
-
-    #@commands.command(pass_context=True)
-    #@commands.cooldown(1, 7, commands.BucketType.user)
-    #lol
 
     @commands.command(pass_context=True, aliases=['spot', 'listeningto'])
     @commands.cooldown(1, 5, commands.BucketType.user)

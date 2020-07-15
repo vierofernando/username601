@@ -70,7 +70,7 @@ async def on_guild_join(guild):
         await userinsupp.add_roles(client.get_guild(Config.SupportServer.id).get_role(727667048645394492))
 
 @client.event
-async on_guild_channel_delete(channel):
+async def on_guild_channel_delete(channel):
     # remove welcome goodbye channel from database if exists
     WelcomeGoodbye.channel_quit(channel.id)
 
@@ -91,8 +91,7 @@ async def on_command_error(ctx, error):
         await ctx.send("I don't have the permission required to use that command!")
     elif 'cannot identify image file' in str(error).lower():
         await ctx.send(str(client.get_emoji(BotEmotes.error))+' | Error, it seemed i can\'t load/send the image! Check your arguments and try again. Else, report this to the bot owner using `'+Config.prefix+'feedback.`')
-    else:
-        print("An error occured on [{}]: {}".format(str(ctx.message.content), str(error)))
+    else: print("ERROR on [{}]: {}".format(ctx.message.content, str(error)))
 
 @client.event
 async def on_message(message):    

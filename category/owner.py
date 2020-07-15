@@ -4,7 +4,7 @@ import sys
 sys.path.append('/app/modules')
 import username601 as myself
 from username601 import *
-from database import Economy, selfDB
+from database import *
 import discordgames as Games
 import canvas as Painter
 import algorithm
