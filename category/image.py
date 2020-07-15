@@ -88,8 +88,6 @@ class image(commands.Cog):
                 elif 'http://' in list(args)[0]: list(args)[0] = list(args)[0].replace('http://', '')
                 if '/watch?v=' in list(args)[0]: videoid = list(args)[0].split('/watch?v=')[1]
                 else: videoid = list(args)[0].split('/')[1]
-                else: videoid = ''
-                else: videoid = 'dQw4w9WgXcQ'
                 url = 'https://img.youtube.com/vi/'+str(videoid)+'/mqdefault.jpg'
                 data = Painter.urltoimage(url)
                 await ctx.send(file=discord.File(data, 'thumbnail.png'))

@@ -9,6 +9,36 @@ from username601 import *
 
 database = MongoClient(os.environ['DB_LINK'])['username601']
 
+class WelcomeGoodbye:
+    def add(guildid, channelid):
+        database["config"].update_one({"type": "wlcm"}, { "$push": {"wlcm": str(guildid)+"|"+str(channelid)} })
+    def guild_quit(guildid):
+        data = database["config"].find({"type": "wlcm"})[0]["wlcm"]
+        found = [str(i) for each in range(0, len(data)) if data[each].startswith(str(guildid))]
+        if len(found)==0: return False
+        database["config"].update_one({"type": "wlcm"}, { "$pull": {"wlcm": found[0]}})
+        return True
+    def channel_quit(channelid):
+        data = database["config"].find({"type": "wlcm"})[0]["wlcm"]
+        found = [str(i) for each in range(0, len(data)) if data[each].endswith(str(channelid))]
+        if len(found)==0: return False
+        database["config"].update_one({"type": "wlcm"}, { "$pull": {"wlcm": found[0]}})
+        return True
+    def get_logging_channel(guildid):
+        return int([i for i in range(0, len(database["config"].find({"type": "wlcm"})[0]["wlcm"])) if i.startswith(str(guildid))][0].split('|')[1])
+    def is_exist(guildid):
+        if len([i for i in range(0, len(database["config"].find({"type": "wlcm"})[0]["wlcm"])) if i.startswith(str(guildid))])==0: return False
+        return True
+    def move(guildid, newchannelid):
+        index = None
+        for each in range(0, len(database["config"].find({"type": "wlcm"})[0])):
+            if each.startswith(str(guildid)):
+                index = i ; break
+        if index==None: return False
+        index = "wlcm.{}.value".format(str(index))
+        database["config"].update_one({"type": "wlcm"}, {"$set": {index: str(guildid)+"|"+str(newchannelid)}})
+        return True
+
 class Economy:
     def get(userid):
         try:

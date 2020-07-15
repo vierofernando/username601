@@ -14,6 +14,10 @@ class moderation(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    #@commands.command(pass_context=True)
+    #@commands.cooldown(1, 7, commands.BucketType.user)
+    #lol
+
     @commands.command(pass_context=True, aliases=['spot', 'listeningto'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def spotify(self, ctx):
