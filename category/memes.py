@@ -34,31 +34,37 @@ class memes(commands.Cog):
     @commands.command(pass_context=True, aliases=['dym'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def didyoumean(self, ctx, *args):
-        if args[1]=='help':
+        if list(args)[0]=='help' or len(list(args))==0:
             embed = discord.Embed(title='didyoumean command help', description='Type like the following\n'+prefix+'didyoumean [text1] [text2]\n\nFor example:\n'+prefix+'didyoumean [i am gay] [i am guy]', colour=discord.Colour.from_rgb(201, 160, 112))
             await ctx.send(embed=embed)
         else:
-            async with ctx.message.channel.typing():
-                txt1, txt2 = myself.urlify(str(ctx.message.content).split('[')[1][:-2]), myself.urlify(str(ctx.message.content).split('[')[2][:-1])
-                url='https://api.alexflipnote.dev/didyoumean?top='+str(txt1)+'&bottom='+str(txt2)
-                await ctx.send(file=discord.File(Painter.urltoimage(url), 'didyoumean.png'))
+            try:
+                async with ctx.message.channel.typing():
+                    txt1, txt2 = myself.urlify(str(ctx.message.content).split('[')[1][:-2]), myself.urlify(str(ctx.message.content).split('[')[2][:-1])
+                    url='https://api.alexflipnote.dev/didyoumean?top='+str(txt1)+'&bottom='+str(txt2)
+                    await ctx.send(file=discord.File(Painter.urltoimage(url), 'didyoumean.png'))
+            except IndexError:
+                await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | error! invalid args!')
     @commands.command(pass_context=True)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def drake(self, ctx, *args):
-        unprefixed = str(ctx.message.content).split('drake ')[1]
-        if list(args)[0]=='help':
+        unprefixed = ' '.join(list(args))
+        if list(args)[0]=='help' or len(list(args))==0:
             embed = discord.Embed(
                 title='Drake meme helper help',
                 description='Type the following:\n`'+str(Config.prefix)+'drake [text1] [text2]`\n\nFor example:\n`'+str(Config.prefix)+'drake [test1] [test2]`'
             )
             await ctx.send(embed=embed)
         else:
-            async with ctx.message.channel.typing():
-                txt1 = myself.urlify(unprefixed.split('[')[1][:-2])
-                txt2 = myself.urlify(unprefixed.split('[')[2][:-1])
-                url='https://api.alexflipnote.dev/drake?top='+str(txt1)+'&bottom='+str(txt2)
-                data = Painter.urltoimage(url)
-                await ctx.send(file=discord.File(data, 'drake.png'))
+            try:
+                async with ctx.message.channel.typing():
+                    txt1 = myself.urlify(unprefixed.split('[')[1][:-2])
+                    txt2 = myself.urlify(unprefixed.split('[')[2][:-1])
+                    url='https://api.alexflipnote.dev/drake?top='+str(txt1)+'&bottom='+str(txt2)
+                    data = Painter.urltoimage(url)
+                    await ctx.send(file=discord.File(data, 'drake.png'))
+            except IndexError:
+                await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Please send something like {}drake [test 1] [test2]!".format(Config.prefix))
     
     @commands.command(pass_context=True)
     @commands.cooldown(1, 5, commands.BucketType.user)
