@@ -88,11 +88,10 @@ class apps(commands.Cog):
         wait, args = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait...'), list(args)
         if len(args)==0 or args[0].lower()=='help' or args[0].lower()=='--help':
             embed = discord.Embed(title='IMDb command help', description='Searches through the IMDb Movie database.\n{} are Parameters that is **REQUIRED** to get the info.\n\n', colour=discord.Colour.from_rgb(201, 160, 112))
-            embed.add_field(name='Commands', value=prefix+'imdb --top {NUMBER}\n'+prefix+'imdb --search {TYPE} {QUERY}\n'+prefix+'imdb help\n'+prefix+'imdb --movie {MOVIE_ID or MOVIE_NAME}', inline='False')
-            embed.add_field(name='Help', value='*{TYPE} could be "movie", "person", or "company".\n{QUERY} is the movie/person/company name.\n{MOVIE_ID} can be got from the search. Example: `'+prefix+'imdb --search movie Inception`.', inline='False')
+            embed.add_field(name='Commands', value=prefix+'imdb --top {NUMBER}\n'+prefix+'imdb help\n'+prefix+'imdb --movie {MOVIE_ID or MOVIE_NAME}', inline='False')
             await wait.edit(content='', embed=embed)
         elif args[0].lower()=='--top':
-            if len(args)==2:
+            if len(args)==1:
                 await wait.edit(content='Please type the number!\nex: --top 5, --top 10, etc.')
             else:
                 num = args[1]
@@ -100,8 +99,7 @@ class apps(commands.Cog):
                     if int(num)>30:
                         await wait.edit(content='That\'s too many movies to be listed!')
                     else:
-                        arr = ia.get_top250_movies()
-                        total = ''
+                        arr, total = ia.get_top250_movies(), ''
                         for i in range(0, int(num)):
                             total = total + str(int(i)+1) + '. '+str(arr[i]['title'])+' (`'+str(arr[i].movieID)+'`)\n'
                         embed = discord.Embed(title='IMDb Top '+str(num)+':', description=str(total), colour=discord.Colour.from_rgb(201, 160, 112))
@@ -141,35 +139,6 @@ class apps(commands.Cog):
                 errorQuick.add_field(name='Ratings', value=emoteStar+'\n**Overall rating: **'+str(ia.get_movie_main(str(theID))['data']['rating'])+'\n**Rated by '+str(ia.get_movie_main(str(theID))['data']['votes'])+' people**')
                 errorQuick.set_footer(text='Information given is limited due to Errors and... stuff.')
                 await wait.edit(content='', embed=errorQuick)
-        elif args[0].lower()=='--search':
-            try:
-                query = str(ctx.message.content).split(' ')[2]
-                lists = ''
-                main_name = args[1].upper()
-                if args[1].startswith('movie'):
-                    movies = ia.search_movie(query)
-                    for i in range(0, int(len(movies))):
-                        if len(lists)>1950:
-                            break
-                        lists += str(int(i)+1) +'. '+ str(movies[i]['title'])+ ' (`'+str(movies[i].movieID)+'`)\n'
-                elif args[1].startswith('company'):
-                    companies = ia.search_company(query)
-                    for i in range(0, int(len(companies))):
-                        if len(lists)>1950:
-                            break
-                        lists += str(int(i)+1) + '. '+str(companies[i]['name']) + ' (`'+str(companies[i].companyID)+'`)\n'
-                elif args[1].startswith('person'):
-                    persons = ia.search_person(query)
-                    for i in range(0, int(len(persons))):
-                        if len(lists)>1950:
-                            break
-                        lists += str(int(i)+1) + '. '+str(persons[i]['name']) + ' (`'+str(persons[i].personID)+'`)\n'
-                embed = discord.Embed(title=main_name.lower()+' search for "'+str(query)+'":', description=str(lists), colour=discord.Colour.from_rgb(201, 160, 112))
-                if main_name=='MOVIE':
-                    embed.set_footer(text='Type '+prefix+'imdb --'+str(main_name.lower())+' {'+main_name+'_ID} to show each info.')
-                await wait.edit(content='', embed=embed)
-            except:
-                await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+' | Invalid input.')
         else:
             await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+' | Wrong syntax. Use `'+Config.prefix+'imdb help` next time.')
 

@@ -39,7 +39,6 @@ class moderation(commands.Cog):
                         await ctx.send("{} | Success! set the welcome log to <#{}>!".format(str(self.client.get_emoji(BotEmotes.success)), channelid))
                     except Exception as e:
                         await ctx.send("{} | Invalid arguments!".format(str(self.client.get_emoji(BotEmotes.error))))
-
     
     @commands.command(pass_context=True, aliases=['auto-role', 'welcome-role', 'welcomerole'])
     @commands.cooldown(1, 30, commands.BucketType.user)
