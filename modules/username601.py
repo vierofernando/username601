@@ -18,7 +18,7 @@ class Config:
     cmdtypes = decodeurl("https://vierofernando.github.io/username601/assets/json/categories.json").json()
     class Version:
         number = '2.2'
-        changelog = 'Added welcome channel logging and autoroles!'
+        changelog = 'Translate reopened for public, Added welcome channel logging and autoroles!'
     class SupportServer:
         id = 688373853889495044 # support server ID
         logging = 694521383908016188 # logging channel ID in support server

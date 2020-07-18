@@ -25,22 +25,21 @@ class apps(commands.Cog):
                 embed = discord.Embed(title='List of supported languages', description=str(lang), colour=discord.Colour.from_rgb(201, 160, 112))
                 await wait.edit(content='', embed=embed)
             elif len(args)>1:
-                await ctx.send('sorry! This command is closed down for maintenance.')
-                #destination = args[0]
-                #try:
-                #    toTrans = str(ctx.message.content).split(' ')[2:len(str(ctx.message.content).split())]
-                #except IndexError:
-                #    await wait.edit(str(self.client.get_emoji(BotEmotes.error))+' | Gimme something to translate!')
-                #try:
-                #    translation = gtr.translate(toTrans, dest=destination)
-                #    try:
-                #        embed = discord.Embed(title=f'**{translation.text}**', colour=discord.Colour.from_rgb(201, 160, 112))
-                #    except:
-                #        embed = discord.Embed(title=f'**{list(translation)[0].text}**', colour=discord.Colour.from_rgb(201, 160, 112))
-                #   embed.set_footer(text=f'Translated {LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}.')
-                #    await wait.edit(content='', embed=embed)
-                #except Exception as e:
-                #    await wait.edit(content=str(self.client.get_emoji(BotEmotes.error)) + f' | An error occured! ```py\n{e}```')
+                destination = args[0]
+                try:
+                    toTrans = ' '.join(args[1:len(args)])
+                except IndexError:
+                    await wait.edit(str(self.client.get_emoji(BotEmotes.error))+' | Gimme something to translate!')
+                try:
+                    translation = gtr.translate(toTrans, dest=destination)
+                    try:
+                        embed = discord.Embed(title=f'**{translation.text}**', colour=discord.Colour.from_rgb(201, 160, 112))
+                    except:
+                        embed = discord.Embed(title=f'**{list(translation)[0].text}**', colour=discord.Colour.from_rgb(201, 160, 112))
+                    embed.set_footer(text=f'Translated {LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}.')
+                    await wait.edit(content='', embed=embed)
+                except Exception as e:
+                    await wait.edit(content=str(self.client.get_emoji(BotEmotes.error)) + f' | An error occured! ```py\n{e}```')
             else:
                 await wait.edit(content=f'Please add a language! To have the list and their id, type\n`{prefix}translate --list`.')
         else:
@@ -143,33 +142,34 @@ class apps(commands.Cog):
                 errorQuick.set_footer(text='Information given is limited due to Errors and... stuff.')
                 await wait.edit(content='', embed=errorQuick)
         elif args[0].lower()=='--search':
-            query = str(ctx.message.content).split(' ')[2]
-            lists = ''
-            if args[1].startswith('movie') or args[1].startswith('film'):
-                main_name = 'MOVIE'
-                movies = ia.search_movie(query)
-                for i in range(0, int(len(movies))):
-                    if len(lists)>1950:
-                        break
-                    lists = lists + str(int(i)+1) +'. '+ str(movies[i]['title'])+ ' (`'+str(movies[i].movieID)+'`)\n'
-            elif args[1].startswith('company'):
-                main_name = 'COMPANY'
-                companies = ia.search_company(query)
-                for i in range(0, int(len(companies))):
-                    if len(lists)>1950:
-                        break
-                    lists = lists + str(int(i)+1) + '. '+str(companies[i]['name']) + ' (`'+str(companies[i].companyID)+'`)\n'
-            elif args[1].startswith('person'):
-                main_name = 'PERSON'
-                persons = ia.search_person(query)
-                for i in range(0, int(len(persons))):
-                    if len(lists)>1950:
-                        break
-                    lists = lists + str(int(i)+1) + '. '+str(persons[i]['name']) + ' (`'+str(persons[i].personID)+'`)\n'
-            embed = discord.Embed(title=main_name.lower()+' search for "'+str(query)+'":', description=str(lists), colour=discord.Colour.from_rgb(201, 160, 112))
-            if main_name=='MOVIE':
-                embed.set_footer(text='Type '+prefix+'imdb --'+str(main_name.lower())+' {'+main_name+'_ID} to show each info.')
-            await wait.edit(content='', embed=embed)
+            try:
+                query = str(ctx.message.content).split(' ')[2]
+                lists = ''
+                main_name = args[1].upper()
+                if args[1].startswith('movie'):
+                    movies = ia.search_movie(query)
+                    for i in range(0, int(len(movies))):
+                        if len(lists)>1950:
+                            break
+                        lists += str(int(i)+1) +'. '+ str(movies[i]['title'])+ ' (`'+str(movies[i].movieID)+'`)\n'
+                elif args[1].startswith('company'):
+                    companies = ia.search_company(query)
+                    for i in range(0, int(len(companies))):
+                        if len(lists)>1950:
+                            break
+                        lists += str(int(i)+1) + '. '+str(companies[i]['name']) + ' (`'+str(companies[i].companyID)+'`)\n'
+                elif args[1].startswith('person'):
+                    persons = ia.search_person(query)
+                    for i in range(0, int(len(persons))):
+                        if len(lists)>1950:
+                            break
+                        lists += str(int(i)+1) + '. '+str(persons[i]['name']) + ' (`'+str(persons[i].personID)+'`)\n'
+                embed = discord.Embed(title=main_name.lower()+' search for "'+str(query)+'":', description=str(lists), colour=discord.Colour.from_rgb(201, 160, 112))
+                if main_name=='MOVIE':
+                    embed.set_footer(text='Type '+prefix+'imdb --'+str(main_name.lower())+' {'+main_name+'_ID} to show each info.')
+                await wait.edit(content='', embed=embed)
+            except:
+                await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+' | Invalid input.')
         else:
             await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+' | Wrong syntax. Use `'+Config.prefix+'imdb help` next time.')
 
