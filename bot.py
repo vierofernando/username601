@@ -49,25 +49,20 @@ async def on_member_join(member):
     data = Dashboard.add_autorole(member.guild.id)
     if data.isnumeric():
         await member.add_roles(member.guild.get_role(int(data)))
-    # DELETE THE IF-STATEMENT BELOW IF YOU ARE PLANNING TO USE MY CODE
-    if member.guild.id==Config.SupportServer.id:
-        await member.guild.get_channel(Config.SupportServer.logging).send(':heart: | '+src.welcome('<@'+str(member.id)+'>', client.get_user(Config.owner.id).name))
 
 @client.event
 async def on_member_remove(member):
     goodbye_message, goodbye_channel = Dashboard.send_goodbye(member, discord), Dashboard.get_welcome_channel(member.guild.id)
     if goodbye_message!=None and goodbye_channel!=None: await member.guild.get_channel(goodbye_channel).send(embed=goodbye_message)
-    if member.guild.id==Config.SupportServer.id:
-        await member.guild.get_channel(Config.SupportServer.logging).send(':broken_heart: | '+src.exit(member.name))
 
-# IF SOMEONE ADDS THE BOT TO THEIR SERVER, ADD THE CONTRIBUTOR ROLE (IF ON SUPPORT SERVER)
+# DELETE THIS @CLIENT.EVENT IF YOU ARE USING THIS CODE
 @client.event
 async def on_guild_join(guild):
     if guild.owner.id in [a.id for a in client.get_guild(Config.SupportServer.id).members]:
         userinsupp = client.get_guild(Config.SupportServer.id).get_member(guild.owner.id)
         await userinsupp.add_roles(client.get_guild(Config.SupportServer.id).get_role(727667048645394492))
 
-# ...AND VICE VERSA
+# DELETE THIS @CLIENT.EVENT IF YOU ARE USING THIS CODE
 @client.event
 async def on_guild_remove(guild):
     Dashboard.delete_data(guild.id)
@@ -78,13 +73,10 @@ async def on_guild_remove(guild):
 @client.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
-        await ctx.send("Calm down!\nYou can do the command again in {}.".format(myself.time_encode(round(error.retry_after))))
-    elif isinstance(error, commands.CommandNotFound):
-        pass # ignore that shit
-    elif 'missing permissions' in str(error).lower():
-        await ctx.send("I don't have the permission required to use that command!")
-    elif 'cannot identify image file' in str(error).lower():
-        await ctx.send(str(client.get_emoji(BotEmotes.error))+' | Error, it seemed i can\'t load/send the image! Check your arguments and try again. Else, report this to the bot owner using `'+Config.prefix+'feedback.`')
+        await ctx.send("You are on cooldown. You can do the command again in {}.".format(myself.time_encode(round(error.retry_after))))
+    elif isinstance(error, commands.CommandNotFound): pass # ignore that shit
+    elif 'missing permissions' in str(error).lower(): await ctx.send("I don't have the permission required to use that command!")
+    elif 'cannot identify image file' in str(error).lower(): await ctx.send(str(client.get_emoji(BotEmotes.error))+' | Error, it seemed i can\'t load/send the image! Check your arguments and try again. Else, report this to the bot owner using `'+Config.prefix+'feedback.`')
     else: print("ERROR on [{}]: {}".format(ctx.message.content, str(error)))
 
 @client.event
