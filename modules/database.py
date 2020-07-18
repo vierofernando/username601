@@ -23,7 +23,7 @@ class Dashboard:
     def delete_data(guildid):
         if Dashboard.exist(guildid):
             database["dashboard"].delete_one({"serverid": guildid})
-            
+
     def set_autorole(guildid, roleid):
         if not Dashboard.exist(guildid): Dashboard.add_guild(guildid, autorole=roleid)
         database["dashboard"].update_one({"serverid": guildid}, {"$set": {
@@ -43,12 +43,14 @@ class Dashboard:
     def send_welcome(member, discord):
         if not Dashboard.exist(member.guild.id): return None
         embed = discord.Embed(timestamp=t.now(), title=member.name, description="Welcome to *{}!*".format(member.guild.name), color=discord.Colour.green())
-        embed.set_footer(text='ID: {} | Member count: '.format(str(member.id), str(len(member.guild.members))))
+        embed.set_footer(text='ID: {} | Member count: {}'.format(str(member.id), str(len(member.guild.members))))
+        embed.set_thumbnail(url=member.avatar_url)
         return embed
     def send_goodbye(member, discord):
         if not Dashboard.exist(member.guild.id): return None
         embed = discord.Embed(timestamp=t.now(), title=member.name, description="Left {}...".format(member.guild.name), color=discord.Colour.green())
-        embed.set_footer(text='ID: {} | Member count: '.format(str(member.id), str(len(member.guild.members))))
+        embed.set_footer(text='ID: {} | Member count: {}'.format(str(member.id), str(len(member.guild.members))))
+        embed.set_thumbnail(url=member.avatar_url)
         return embed
     def get_welcome_channel(guildid):
         if not Dashboard.exist(guildid): return None
