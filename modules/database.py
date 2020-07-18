@@ -18,7 +18,7 @@ class Dashboard:
         database["dashboard"].insert_one({
             "serverid": guildid,
             "autorole": kwargs.get('autorole'),
-            "welcomelog": kwargs.get('welcome')
+            "welcome": kwargs.get('welcome')
         })
     def delete_data(guildid):
         if Dashboard.exist(guildid):
