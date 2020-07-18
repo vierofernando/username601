@@ -43,13 +43,13 @@ class Dashboard:
     def send_welcome(member, discord):
         if not Dashboard.exist(member.guild.id): return None
         embed = discord.Embed(timestamp=t.now(), title=member.name, description="Welcome to *{}!*".format(member.guild.name), color=discord.Colour.green())
-        embed.set_footer(text='ID: {} | Member count: {}'.format(str(member.id), str(len(member.guild.members))))
+        embed.set_footer(text='ID: {}'.format(str(member.id)))
         embed.set_thumbnail(url=member.avatar_url)
         return embed
     def send_goodbye(member, discord):
         if not Dashboard.exist(member.guild.id): return None
-        embed = discord.Embed(timestamp=t.now(), title=member.name, description="Left {}...".format(member.guild.name), color=discord.Colour.green())
-        embed.set_footer(text='ID: {} | Member count: {}'.format(str(member.id), str(len(member.guild.members))))
+        embed = discord.Embed(timestamp=t.now(), title=member.name, description="Left *{}*...".format(member.guild.name), color=discord.Colour.red())
+        embed.set_footer(text='ID: {}'.format(str(member.id)))
         embed.set_thumbnail(url=member.avatar_url)
         return embed
     def get_welcome_channel(guildid):
