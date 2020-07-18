@@ -45,7 +45,7 @@ async def statusChange():
 @client.event
 async def on_member_join(member):
     welcome_message, welcome_channel = Dashboard.send_welcome(member, discord), Dashboard.get_welcome_channel(member.guild.id)
-    if welcome_message!=None and welcome_channel!=None: await member.guild.get_channel(welcome_channel).send(welcome_message)
+    if welcome_message!=None and welcome_channel!=None: await member.guild.get_channel(welcome_channel).send(embed=welcome_message)
     data = Dashboard.add_autorole(member.guild.id)
     if data.isnumeric():
         await member.add_roles(member.guild.get_role(int(data)))
@@ -56,7 +56,7 @@ async def on_member_join(member):
 @client.event
 async def on_member_remove(member):
     goodbye_message, goodbye_channel = Dashboard.send_goodbye(member, discord), Dashboard.get_welcome_channel(member.guild.id)
-    if goodbye_message!=None and goodbye_channel!=None: await member.guild.get_channel(goodbye_channel).send(goodbye_message)
+    if goodbye_message!=None and goodbye_channel!=None: await member.guild.get_channel(goodbye_channel).send(embed=goodbye_message)
     if member.guild.id==Config.SupportServer.id:
         await member.guild.get_channel(Config.SupportServer.logging).send(':broken_heart: | '+src.exit(member.name))
 
