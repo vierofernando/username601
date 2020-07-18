@@ -9,6 +9,53 @@ from username601 import *
 
 database = MongoClient(os.environ['DB_LINK'])['username601']
 
+class Dashboard:
+    def exist(guildid):
+        data = database["dashboard"].find()
+        if len([i for i in data if i["serverid"]==guildid])==0: return False
+        return True
+    def add_guild(guildid, **kwargs):
+        database["dashboard"].insert_one({
+            "serverid": guildid,
+            "autorole": kwargs.get('autorole'),
+            "welcomelog": kwargs.get('welcome')
+        })
+    def delete_data(guildid):
+        if Dashboard.exist(guildid):
+            database["dashboard"].delete_one({"serverid": guildid})
+            
+    def set_autorole(guildid, roleid):
+        if not Dashboard.exist(guildid): Dashboard.add_guild(guildid, autorole=roleid)
+        database["dashboard"].update_one({"serverid": guildid}, {"$set": {
+            "autorole": roleid
+        }})
+    def add_autorole(guildid):
+        if not Dashboard.exist(guildid):
+            return str(None)
+        return str(database["dashboard"].find_one({
+            "serverid": guildid
+        })["autorole"])
+    def set_welcome(guildid, channelid):
+        if not Dashboard.exist(guildid): Dashboard.add_guild(guildid, welcome=channelid)
+        database["dashboard"].update_one({"serverid": guildid}, {"$set": {
+            "welcome": channelid
+        }})
+    def send_welcome(member, discord):
+        if not Dashboard.exist(member.guild.id): return None
+        embed = discord.Embed(timestamp=t.now(), title=member.name, description="Welcome to *{}!*".format(member.guild.name), color=discord.Colour.green())
+        embed.set_footer(text='ID: {} | Member count: '.format(str(member.id), str(len(member.guild.members))))
+        return embed
+    def send_goodbye(member, discord):
+        if not Dashboard.exist(member.guild.id): return None
+        embed = discord.Embed(timestamp=t.now(), title=member.name, description="Left {}...".format(member.guild.name), color=discord.Colour.green())
+        embed.set_footer(text='ID: {} | Member count: '.format(str(member.id), str(len(member.guild.members))))
+        return embed
+    def get_welcome_channel(guildid):
+        if not Dashboard.exist(guildid): return None
+        try:
+            data = database["dashboard"].find_one({"serverid": guildid})["welcome"]
+            return int(data)
+        except: return None
 class Economy:
     def get(userid):
         try:

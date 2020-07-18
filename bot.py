@@ -5,7 +5,7 @@ sys.path.append('/app/modules')
 
 # LOCAL FILES
 from username601 import *
-from database import Economy, selfDB
+from database import Economy, selfDB, Dashboard
 import username601 as myself
 import discordgames as Games
 import splashes as src
@@ -42,17 +42,21 @@ async def statusChange():
     elif new_status.startswith('LISTENING:'): await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=new_status.split(':')[1]))
     else: await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=new_status.split(':')[1]))
     
-
-# ONLY IN SUPPORT SERVER
 @client.event
 async def on_member_join(member):
+    welcome_message, welcome_channel = Dashboard.send_welcome(member, discord), Dashboard.get_welcome_channel(member.guild.id)
+    if welcome_message!=None and welcome_channel!=None: await member.guild.get_channel(welcome_channel).send(welcome_message)
+    data = Dashboard.add_autorole(member.guild.id)
+    if data.isnumeric():
+        await member.add_roles(member.guild.get_role(int(data)))
     # DELETE THE IF-STATEMENT BELOW IF YOU ARE PLANNING TO USE MY CODE
     if member.guild.id==Config.SupportServer.id:
         await member.guild.get_channel(Config.SupportServer.logging).send(':heart: | '+src.welcome('<@'+str(member.id)+'>', client.get_user(Config.owner.id).name))
 
-# ONLY IN SUPPORT SERVER ALSO
 @client.event
 async def on_member_remove(member):
+    goodbye_message, goodbye_channel = Dashboard.send_goodbye(member, discord), Dashboard.get_welcome_channel(member.guild.id)
+    if goodbye_message!=None and goodbye_channel!=None: await member.guild.get_channel(goodbye_channel).send(goodbye_message)
     if member.guild.id==Config.SupportServer.id:
         await member.guild.get_channel(Config.SupportServer.logging).send(':broken_heart: | '+src.exit(member.name))
 
@@ -66,6 +70,7 @@ async def on_guild_join(guild):
 # ...AND VICE VERSA
 @client.event
 async def on_guild_remove(guild):
+    Dashboard.delete_data(guild.id)
     if guild.owner.id in [a.id for a in client.get_guild(Config.SupportServer.id).members]:
         userinsupp = client.get_guild(Config.SupportServer.id).get_member(guild.owner.id)
         await userinsupp.remove_roles(client.get_guild(Config.SupportServer.id).get_role(727667048645394492))

@@ -62,7 +62,7 @@ class encoding(commands.Cog):
             if offset==None:
                 await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | No offset?')
             else:
-                await ctx.send(myself.caesar(str(' '.join(list(args)).replace(str(offset), ''), int(offset))))
+                await ctx.send(myself.caesar(str(' '.join(list(args)).replace(str(offset), '')), int(offset)))
     @commands.command(pass_context=True)
     @commands.cooldown(1, 1, commands.BucketType.user)
     async def atbash(self, ctx, *args):

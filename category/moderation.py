@@ -7,12 +7,64 @@ sys.path.append('/app/modules')
 from username601 import *
 from splashes import num2word
 from datetime import datetime as t
+from database import Dashboard
 import canvas as Painter
 import username601 as myself
 
 class moderation(commands.Cog):
     def __init__(self, client):
         self.client = client
+    
+    @commands.command(pass_context=True, aliases=['welcomelog', 'setwelcome'])
+    @commands.cooldown(1, 30, commands.BucketType.user)
+    async def welcome(self, ctx, *args):
+        if not ctx.author.guild_permissions.manage_channels:
+            await ctx.send("{} | You need the `Manage Channels` permission!".format(str(self.client.get_emoji(BotEmotes.error))))
+        else:
+            if len(list(args))==0:
+                await ctx.send(embed=discord.Embed(
+                    title='Command usage',
+                    description='{}welcome <CHANNEL>\n{}welcome disable'.format(Config.prefix, Config.prefix),
+                    color=discord.Color.from_rgb(201, 160, 112)
+                ))
+            else:
+                if list(args)[0].lower()=='disable':
+                    Dashboard.set_welcome(ctx.guild.id, None)
+                    await ctx.send("{} | Welcome disabled!".format(str(self.client.get_emoji(BotEmotes.success))))
+                else:
+                    try:
+                        if list(args)[0].startswith("<#") and list(args)[0].endswith('>'): channelid = int(list(args)[0].split('<#')[1].split('>')[0])
+                        else: channelid = int([i.id for i in ctx.guild.channels if str(i.name).lower()==str(''.join(list(args))).lower()][0])
+                        Dashboard.set_welcome(ctx.guild.id, channelid)
+                        await ctx.send("{} | Success! set the welcome log to <#{}>!".format(str(self.client.get_emoji(BotEmotes.success)), channelid))
+                    except Exception as e:
+                        await ctx.send("{} | Invalid arguments!".format(str(self.client.get_emoji(BotEmotes.error))))
+
+    
+    @commands.command(pass_context=True, aliases=['auto-role', 'welcome-role', 'welcomerole'])
+    @commands.cooldown(1, 30, commands.BucketType.user)
+    async def autorole(self, ctx, *args):
+        if not ctx.author.guild_permissions.manage_roles:
+            await ctx.send("{} | You need the `Manage Roles` permission!".format(str(self.client.get_emoji(BotEmotes.error))))
+        else:
+            if len(list(args))==0:
+                await ctx.send(embed=discord.Embed(
+                    title='Command usage',
+                    description='{}autorole <ROLENAME/ROLEPING>\n{}autorole disable'.format(Config.prefix, Config.prefix),
+                    color=discord.Color.from_rgb(201, 160, 112)
+                ))
+            else:
+                if list(args)[0].lower()=='disable':
+                    Dashboard.set_autorole(ctx.guild.id, None)
+                    await ctx.send("{} | Autorole disabled!".format(str(self.client.get_emoji(BotEmotes.success))))
+                else:
+                    try:
+                        if list(args)[0].startswith("<@") and list(args)[0].endswith('>'): roleid = int(list(args)[0].split('<@')[1].split('>')[0])
+                        else: roleid = int([i.id for i in ctx.guild.roles if str(i.name).lower()==str(' '.join(list(args))).lower()][0])
+                        Dashboard.set_autorole(ctx.guild.id, roleid)
+                        await ctx.send("{} | Success! set the autorole to **{}!**".format(str(self.client.get_emoji(BotEmotes.success)), ctx.guild.get_role(roleid).name))
+                    except Exception as e:
+                        await ctx.send("{} | Invalid arguments!".format(str(self.client.get_emoji(BotEmotes.error))))
 
     @commands.command(pass_context=True, aliases=['spot', 'listeningto'])
     @commands.cooldown(1, 5, commands.BucketType.user)
