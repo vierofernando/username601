@@ -23,12 +23,13 @@ class Dashboard:
     def delete_data(guildid):
         if Dashboard.exist(guildid):
             database["dashboard"].delete_one({"serverid": guildid})
-
     def set_autorole(guildid, roleid):
-        if not Dashboard.exist(guildid): Dashboard.add_guild(guildid, autorole=roleid)
-        database["dashboard"].update_one({"serverid": guildid}, {"$set": {
-            "autorole": roleid
-        }})
+        if not Dashboard.exist(guildid):
+            Dashboard.add_guild(guildid, autorole=roleid)
+        else:
+            database["dashboard"].update_one({"serverid": guildid}, {"$set": {
+                "autorole": roleid
+            }})
     def add_autorole(guildid):
         if not Dashboard.exist(guildid):
             return str(None)

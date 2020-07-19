@@ -14,7 +14,7 @@ import username601 as myself
 class moderation(commands.Cog):
     def __init__(self, client):
         self.client = client
-    
+
     @commands.command(pass_context=True, aliases=['welcomelog', 'setwelcome'])
     @commands.cooldown(1, 30, commands.BucketType.user)
     async def welcome(self, ctx, *args):

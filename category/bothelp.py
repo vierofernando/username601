@@ -11,7 +11,7 @@ class bothelp(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.command(pass_context=True, aliases=['commands', 'h', 'yardim'])
+    @commands.command(pass_context=True, aliases=['commands', 'yardim'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def help(self, ctx, *args):
         data = myself.jsonisp("https://vierofernando.github.io/username601/assets/json/commands.json")
@@ -138,11 +138,11 @@ class bothelp(commands.Cog):
         else: devstatus = 'Online'
         embed = discord.Embed(title = 'About '+str(ctx.message.guild.get_member(Config.id).display_name), colour = discord.Colour.from_rgb(201, 160, 112))
         embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Library: **Discord.py\n**Default prefix: **'+str(Config.prefix), inline='True')
-        embed.add_field(name='Programmer info', value='**Programmed by: **'+Config.owner.name+'. ('+self.client.get_user(Config.owner.id).name+'#'+str(self.client.get_user(Config.owner.id).discriminator)+')\n**Current Discord Status:** '+devstatus, inline='True')
+        embed.add_field(name='Programmer info', value='**Programmed by: **'+Config.owner.name+'. ('+self.client.get_user(Config.owner.id).name+'#'+str(self.client.get_user(Config.owner.id).discriminator)+')\n(Indie developed)\n**Current Discord Status:** '+devstatus, inline='True')
         embed.add_field(name='Version Info', value='**Bot version: ** '+Config.Version.number+'\n**Changelog: **'+Config.Version.changelog)#+'\n'+str(osinfo))
         embed.add_field(name='Links', value='[Invite this bot to your server!](http://vierofernando.github.io/programs/username601)\n[The support server!]('+str(Config.SupportServer.invite)+')\n[Vote us on top.gg](https://top.gg/bot/'+str(Config.id)+'/vote)\n[Official Website](https://vierofernando.github.io/username601)', inline='False')
         embed.set_thumbnail(url='https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/pfp.png')
-        embed.set_footer(text='© Viero Fernando Programming, 2018-2020. All rights reserved.')
+        embed.set_footer(text='© Viero Fernando Programming, 2020. All rights reserved.')
         await ctx.send(embed=embed)
 
 def setup(client):
