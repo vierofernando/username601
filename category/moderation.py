@@ -58,11 +58,11 @@ class moderation(commands.Cog):
                     await ctx.send("{} | Autorole disabled!".format(str(self.client.get_emoji(BotEmotes.success))))
                 else:
                     try:
-                        if list(args)[0].startswith("<@") and list(args)[0].endswith('>'): roleid = int(list(args)[0].split('<@')[1].split('>')[0])
+                        if list(args)[0].startswith("<@&") and list(args)[0].endswith('>'): roleid = int(list(args)[0].split('<@&')[1].split('>')[0])
                         else: roleid = int([i.id for i in ctx.guild.roles if str(i.name).lower()==str(' '.join(list(args))).lower()][0])
                         Dashboard.set_autorole(ctx.guild.id, roleid)
                         await ctx.send("{} | Success! set the autorole to **{}!**".format(str(self.client.get_emoji(BotEmotes.success)), ctx.guild.get_role(roleid).name))
-                    except Exception as e:
+                    except:
                         await ctx.send("{} | Invalid arguments!".format(str(self.client.get_emoji(BotEmotes.error))))
 
     @commands.command(pass_context=True, aliases=['spot', 'listeningto'])
