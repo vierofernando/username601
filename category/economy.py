@@ -12,6 +12,26 @@ class economy(commands.Cog):
     def __init__(self, client):
         self.client = client
     
+    @commands.command(pass_context=True, aliases=['deletedata', 'deldata', 'del-data', 'delete-data'])
+    @commands.cooldown(1, 3600, commands.BucketType.user)
+    async def reset(self, ctx):
+        wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait...")
+        data = Economy.get(ctx.author.id)
+        if data==None: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+" | You don't have a profile yet! Create a profile using `1new`")
+        else:
+            await wait.edit(content=':thinking: | Are you sure? This action is irreversible!\n(Reply with yes/no)')
+            def check_is_auth(m):
+                return ctx.message.author == m.author
+            try:
+                waiting = await self.client.wait_for('message', check=check_is_auth, timeout=20.0)
+            except:
+                await ctx.send('{} | No it is then.'.format(str(self.client.get_emoji(BotEmotes.success))))
+            if 'y' in str(waiting.content).lower():
+                Economy.delete_data(ctx.author.id)
+                await ctx.send('{} | Data deleted. Thank\'s for playing.'.format(str(self.client.get_emoji(BotEmotes.success))))
+            else:
+                await ctx.send('{} | No it is then.'.format(str(self.client.get_emoji(BotEmotes.success))))
+    
     @commands.command(pass_context=True)
     @commands.cooldown(1, 300, commands.BucketType.user)
     async def work(self, ctx):

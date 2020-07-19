@@ -84,6 +84,12 @@ class Economy:
             database['economy'].update_one({'userid': userid}, { '$set': { 'voted': bl } })
         except:
             return 'error'
+    def delete_data(userid):
+        try:
+            database['economy'].delete_one({"userid": userid})
+            return True
+        except:
+            return False
 
     def can_vote(userid):
         data = requests.get('https://api.ksoft.si/webhook/dbl/check?bot={}&user={}'.format(str(Config.id), str(userid)), headers={'authorization':'Bearer '+str(os.environ['KSOFT_TOKEN'])}).json()
