@@ -51,17 +51,6 @@ async def on_member_join(member):
         await member.add_roles(member.guild.get_role(int(data)))
 
 @client.event
-async def on_guild_channel_create(channel, guild):
-    data = Dashboard.get_mute_role(guild.id)
-    if data!=None:
-        await channel.set_permissions(data, send_messages=False)
-
-@client.event
-async def on_guild_role_delete(role):
-    if Dashboard.get_mute_role(role.guild.id)==role.id:
-        Dashboard.add_muterole(role.guild.id, None) # remove from database if is mute role
-
-@client.event
 async def on_member_remove(member):
     goodbye_message, goodbye_channel = Dashboard.send_goodbye(member, discord), Dashboard.get_welcome_channel(member.guild.id)
     if goodbye_message!=None and goodbye_channel!=None: await member.guild.get_channel(goodbye_channel).send(embed=goodbye_message)
