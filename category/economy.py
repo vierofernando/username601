@@ -96,7 +96,7 @@ class economy(commands.Cog):
                 Economy.delbal(ctx.message.author.id, amount) # EFFICIENT CODE LMFAO
                 await wait.edit(content=str(self.client.get_emoji(BotEmotes.success))+f' | Done! Transferred {str(amount)} diamonds to {ctx.message.mentions[0].name}!')
 
-    @commands.command(pass_context=True, aliases=['steal'])
+    @commands.command(pass_context=True, aliases=['steal', 'crime'])
     @commands.cooldown(1, 60, commands.BucketType.user)
     async def rob(self, ctx, *args):
         if len(ctx.message.mentions)==0 or len(list(args))==0:
@@ -118,7 +118,7 @@ class economy(commands.Cog):
                     else:
                         data = random.choice(loads(open('/app/assets/json/steal.json', 'r').read()))
                         if not str(data['amount']).replace('-', '').isnumeric():
-                            if data['amount']=='{SAME_AMOUNT}': robamount = -robamount
+                            if data['amount']=='{SAME_AMOUNT}': robamount = -amount2rob
                             elif data['amount']=='{REAL}': robamount = int(amount2rob)
                             else: robamount = -Economy.get(ctx.message.author.id)['bal']
                         else: robamount = data['amount']
