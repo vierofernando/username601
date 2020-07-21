@@ -80,7 +80,14 @@ class image(commands.Cog):
     @commands.command(pass_context=True)
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def nature(self, ctx):
-        await ctx.send(file=discord.File(Painter.urltoimage('https://source.unsplash.com./1600x900/?nature'), 'nature.png'))
+        async with ctx.message.typing():
+            await ctx.send(file=discord.File(Painter.urltoimage('https://source.unsplash.com./1600x900/?nature'), 'nature.png'))
+
+    @commands.command(pass_context=True, aliases=['earth', 'moon'])
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def space(self, ctx):
+        async with ctx.message.typing():
+            await ctx.send(file=discord.File(Painter.urltoimage('https://source.unsplash.com./1600x900/?{}'.format(random.choice(['earth', 'moon', 'space']))), 'nature.png'))
 
     @commands.command(pass_context=True)
     @commands.cooldown(1, 5, commands.BucketType.user)
