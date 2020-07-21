@@ -78,6 +78,11 @@ class image(commands.Cog):
                 await ctx.send(str(self.client.get_emoji(BotEmotes.error)) + " | Where are the parameters?")
 
     @commands.command(pass_context=True)
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def nature(self, ctx):
+        await ctx.send(file=discord.File(Painter.urltoimage('https://source.unsplash.com./1600x900/?nature')))
+
+    @commands.command(pass_context=True)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def ytthumbnail(self, ctx, *args):
         if len(list(args))!=0:
