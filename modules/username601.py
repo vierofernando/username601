@@ -62,7 +62,7 @@ def hackfind(data, avatar):
         return links[int(list(data)[0])+1]
 
 def arrspace(arr):
-    return ' '.join(arr)[:-1]
+    return str(' '.join(arr))[:-1]
 
 def report(auth):
     # NEVER GONNA GIVE YOU UP, NEVER GONNA LET YOU DOWN...
@@ -155,7 +155,7 @@ def hintify(word):
     return result
 
 def dearray(arr):
-    return ', '.join(arr)[:-2]+'.'
+    return str(', '.join(arr))[:-2]+'.'
 
 def tohex(integer):
     return str(hex(integer)).upper()[2:]
