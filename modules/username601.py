@@ -33,20 +33,6 @@ prefix = Config.prefix
 def getStatus():
     return jsonify(open("/app/assets/json/status.json", "r").read())
 
-def accept_message(authorid, authorbot, message, guild): # ACCEPT THE SPECIFIC REQUIREMENTS
-    yes = ''
-    if authorid!=Config.id: yes += 'v'
-    if not authorbot: yes += 'v'
-    if message.startswith(Config.prefix): yes += 'v'
-    if len(message)>1: yes += 'v'
-    if '<@'+str(Config.id)+'>' not in message: yes += 'v'
-    if '<@!'+str(Config.id)+'>' not in message: yes += 'v'
-    if guild!=None: yes += 'v'
-    if yes=='vvvvvvv':
-        return True
-    else:
-        return False
-
 def limit(word):
     total = ''
     for i in range(0, len(word)):
@@ -64,32 +50,23 @@ def findNum(word, arr):
             break
 
 def hackfind(data, avatar):
-    if data.startswith('1'):
-        return 'https://i.imgur.com/msmvE09.gif'
-    elif data.startswith('2'):
-        return avatar
-    elif data.startswith('3'):
-        return 'https://seeklogo.com/images/F/FBI_SHIELD-logo-2D02BDDAC8-seeklogo.com.png'
-    elif data.startswith('4'):
-        return 'https://images-ext-1.discordapp.net/external/ByHvJcnlhVe42B9bjwf9umFHeEA5pk1oebLdxeWYY0g/%3Fv%3D1/https/cdn.discordapp.com/emojis/704242063725559868.png'
-    else:
+    links = [
+        'https://i.imgur.com/msmvE09.gif',
+        avatar,
+        'https://seeklogo.com/images/F/FBI_SHIELD-logo-2D02BDDAC8-seeklogo.com.png',
+        'https://images-ext-1.discordapp.net/external/ByHvJcnlhVe42B9bjwf9umFHeEA5pk1oebLdxeWYY0g/%3Fv'
+    ]
+    if int(list(data)[0]) not in range(1, 5):
         return 'https://upload.wikimedia.org/wikipedia/commons/5/50/Black_colour.jpg'
+    else:
+        return links[int(list(data)[0])+1]
 
 def arrspace(arr):
-    res = ''
-    for i in range(0, len(arr)):
-        if i==len(arr)-1:
-            res += arr[i]
-        else:
-            res += arr[i] + ' '
-    return res
+    return ' '.join(arr)[:-1]
 
 def report(auth):
     # NEVER GONNA GIVE YOU UP, NEVER GONNA LET YOU DOWN...
     return 'lol'
-
-def check_if_owner(ctx):
-    return ctx.message.channel.id == Config.owner.id
 
 def time_encode(sec):
     time_type = 'seconds'
@@ -118,10 +95,8 @@ def jsonisp(url):
     return decodeurl(url).json()
 def api(url):
     return jsonify(getapi(url).read())
-
 def insp(url):
     return decodeurl(url).text
-
 def getPrefix():
     return prefix
 
@@ -139,9 +114,6 @@ def atbash(text):
             total += temp[i]
     return total
 
-#def platform():
-#    return f'**Operating System:** {systema.system()} {systema.version()}\n**Processor: **{systema.processor()}\n**Python Compiler: **{systema.python_compiler()}'
-
 def caesar(text, num):
     temp = text.lower()
     if num>26:
@@ -150,8 +122,7 @@ def caesar(text, num):
     elif num<0:
         while num<0:
             num += 26
-    alph = list('abcdefghijklmnopqrstuvwxyz')
-    result = ''
+    alph, result = list('abcdefghijklmnopqrstuvwxyz'), ''
     for i in range(0, len(temp)):
         if temp[i] in alph:
             for j in range(0, len(alph)):
@@ -167,14 +138,11 @@ def caesar(text, num):
     return result
 
 def hintify(word):
-    arr = list(word)
-    alph = []
+    alph = list(word.lower())
     for i in range(0, len(arr)):
         if arr[i] not in alph:
             alph.append(arr[i])
-    amount = random.randint(1, len(alph)-1)
-    temp = list(word)
-    removed = []
+    temp, removed, amount = list(word), [], random.randint(1, len(alph)-1)
     for i in range(0, amount):
         toBlacklistNum = random.randint(0, len(alph)-1)
         toBlacklist = alph[toBlacklistNum]
@@ -187,13 +155,7 @@ def hintify(word):
     return result
 
 def dearray(arr):
-    res = ''
-    for i in range(0, len(arr)):
-        if i!=len(arr)-1:
-            res += str(arr[i]) + ', '
-        else:
-            res += str(arr[i]) + '.'
-    return res
+    return ', '.join(arr)[:-2]+'.'
 
 def tohex(integer):
     return str(hex(integer)).upper()[2:]
@@ -203,12 +165,8 @@ def toint(hex):
 
 def convertrgb(hexCode, typ):
     uselessArray = list(hexCode)
-    part1 = str(uselessArray[0])+str(uselessArray[1])
-    part2 = str(uselessArray[2])+str(uselessArray[3])
-    part3 = str(uselessArray[4])+str(uselessArray[5])
-    partsArray = [part1, part2, part3]
-    rgb = []
-    percentageRgb = []
+    part1, part2, part3 = str(uselessArray[0])+str(uselessArray[1]), str(uselessArray[2])+str(uselessArray[3]), str(uselessArray[4])+str(uselessArray[5])
+    partsArray, rgb, percentageRgb = [part1, part2, part3], [], []
     for i in range(0, 3):
         toConvert = partsArray[i]
         stackOverFlow = int(toConvert, 16)
@@ -217,8 +175,7 @@ def convertrgb(hexCode, typ):
         percentageRgb.append(round(percentageRgbAdd))
     if typ=='0':
         return rgb
-    else:
-        return percentageRgb
+    return percentageRgb
 
 def bin(text):
     result = " ".join(f"{ord(i):08b}" for i in text) # THANKS STACK OVERFLOW! UWU
@@ -229,9 +186,3 @@ def encodeb64(text):
     base64_bytes = base64.b64encode(message_bytes)
     base64_message = base64_bytes.decode('ascii')
     return base64_message # yes. copy-pasted i know. #EPICDEVELOPER2020
-
-def cmd(message, name):
-    if message.startswith(prefix+name):
-        return True
-    else:
-        return False
