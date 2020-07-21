@@ -10,6 +10,17 @@ class memes(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    @commands.command(pass_context=True, aliases=['animegif', 'nj'])
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def nichijou(self, ctx, *args):
+        if len(list(args))==0: txt = ' '.join(list(args))
+        else: txt = 'LAZY PERSON'
+        try:
+            async with ctx.message.channel.typing():
+                await ctx.send(file=discord.File(Painter.gif.giffromURL('https://i.ode.bz/auto/nichijou?text={}'.format(myself.urlify(txt))), 'nichijou.gif'))
+        except:
+            await ctx.send('{} | An error occured!'.format(str(self.client.get_emoji(BotEmotes.error))))
+
     @commands.command(pass_context=True, aliases=['ifunny'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def wasted(self, ctx):
