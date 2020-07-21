@@ -13,11 +13,13 @@ class memes(commands.Cog):
     @commands.command(pass_context=True, aliases=['animegif', 'nj'])
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def nichijou(self, ctx, *args):
-        if len(list(args))==0: txt = ' '.join(list(args))
-        else: txt = 'LAZY PERSON'
+        if len(list(args))==0: txt = 'LAZY PERSON'
+        else: txt = ' '.join(list(args))
         try:
             async with ctx.message.channel.typing():
-                await ctx.send(file=discord.File(Painter.gif.giffromURL('https://i.ode.bz/auto/nichijou?text={}'.format(myself.urlify(txt)), False), 'nichijou.gif'))
+                embed = discord.Embed(color=discord.Colour.from_rgb(201, 160, 112))
+                embed.set_image(url='https://i.ode.bz/auto/nichijou?text={}'.format(myself.urlify(txt)))
+                await ctx.send(embed=embed)
         except Exception as e:
             print(e)
             await ctx.send('{} | An error occured!'.format(str(self.client.get_emoji(BotEmotes.error))))
