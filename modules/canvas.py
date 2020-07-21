@@ -247,7 +247,7 @@ class gif:
         return data
     
     def death_star(url):
-        av = imagefromURL(url).resize(())
+        av = imagefromURL(url).resize((62, 62))
         bg = Image.open('/app/assets/pics/raw_ds.gif')
         img = []
         for i in range(0, bg.n_frames):
