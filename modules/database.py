@@ -111,7 +111,7 @@ class Economy:
             time = t(raw[0], raw[1], raw[2], raw[3], raw[4], raw[5])
             return {
                 'bool': False,
-                'time': myself.time_encode(time-t.now()).seconds)
+                'time': myself.time_encode(time-t.now()).seconds))
             }
     
     def setbal(userid, newbal):
