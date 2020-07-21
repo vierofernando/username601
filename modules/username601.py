@@ -17,8 +17,8 @@ class Config:
     prefix = '1' # your prefix here
     cmdtypes = decodeurl("https://vierofernando.github.io/username601/assets/json/categories.json").json()
     class Version:
-        number = '2.2'
-        changelog = 'Translate reopened for public, Added welcome channel logging and autoroles!'
+        number = '2.3'
+        changelog = 'Fixed a LOT of _spaghetti_ codes'
     class SupportServer:
         id = 688373853889495044 # support server ID
         logging = 694521383908016188 # logging channel ID in support server
