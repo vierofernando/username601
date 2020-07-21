@@ -5,6 +5,7 @@ from datetime import datetime as t
 from random import choice
 import requests
 path.append('/app/modules')
+import username601 as myself
 from username601 import *
 
 database = MongoClient(os.environ['DB_LINK'])['username601']
