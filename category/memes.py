@@ -17,8 +17,9 @@ class memes(commands.Cog):
         else: txt = 'LAZY PERSON'
         try:
             async with ctx.message.channel.typing():
-                await ctx.send(file=discord.File(Painter.gif.giffromURL('https://i.ode.bz/auto/nichijou?text={}'.format(myself.urlify(txt))), 'nichijou.gif'))
-        except:
+                await ctx.send(file=discord.File(Painter.gif.giffromURL('https://i.ode.bz/auto/nichijou?text={}'.format(myself.urlify(txt)), False), 'nichijou.gif'))
+        except Exception as e:
+            print(e)
             await ctx.send('{} | An error occured!'.format(str(self.client.get_emoji(BotEmotes.error))))
 
     @commands.command(pass_context=True, aliases=['ifunny'])
