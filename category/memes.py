@@ -16,10 +16,7 @@ class memes(commands.Cog):
         if len(list(args))==0: txt = 'LAZY PERSON'
         else: txt = ' '.join(list(args))
         try:
-            async with ctx.message.channel.typing():
-                embed = discord.Embed(color=discord.Colour.from_rgb(201, 160, 112))
-                embed.set_image(url='https://i.ode.bz/auto/nichijou?text={}'.format(myself.urlify(txt)))
-                await ctx.send(embed=embed)
+            await ctx.send('https://i.ode.bz/auto/nichijou?text={}'.format(myself.urlify(txt)))
         except Exception as e:
             print(e)
             await ctx.send('{} | An error occured!'.format(str(self.client.get_emoji(BotEmotes.error))))
