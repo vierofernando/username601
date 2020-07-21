@@ -10,15 +10,6 @@ class memes(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.command(pass_context=True, aliases=['blowup', 'explosion', 'duar', 'explode', 'death-star'])
-    @commands.cooldown(1, 10, commands.BucketType.user)
-    async def deathstar(self, ctx, *args):
-        async with ctx.message.channel.typing():
-            avsrc = str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=128')
-            if len(ctx.message.mentions)>0: avsrc = str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=128')
-            data = Painter.gif.death_star(avsrc)
-            await ctx.send(file=discord.File(data, 'duar.gif'))
-
     @commands.command(pass_context=True, aliases=['ifunny'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def wasted(self, ctx):

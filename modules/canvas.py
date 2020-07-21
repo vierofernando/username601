@@ -245,18 +245,6 @@ class gif:
             num += 5
         data = gif.compilegif(images, 3)
         return data
-    
-    def death_star(url):
-        av = imagefromURL(url).resize((62, 62))
-        bg = Image.open('/app/assets/pics/raw_ds.gif')
-        img = []
-        for i in range(0, bg.n_frames):
-            if i > 12:
-                img.append(bg) ; continue
-            bg.seek(8)
-            bg.paste(bg, (182, 142))
-            img.append(bg)
-        return gif.compilegif(img, 2)
 
     def communist(comrade):
         flag = Image.open('/app/assets/pics/blyat.jpg')
