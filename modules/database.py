@@ -99,9 +99,19 @@ class Economy:
                 'time': None
             }
         else:
+            raw = data['data']['expiry'].replace('T', ' ')
+            raw = [
+                int(raw.split('-')[0]),
+                int(raw.split('-')[1].split('-')[0]),
+                int(raw.split('-')[2].split(' ')[0]),
+                int(raw.split(' ')[1].split(':')[0]),
+                int(raw.split(':')[1].split(':')[0]),
+                int(raw.split(':')[2].split('.')[0])
+            ]
+            time = t(raw[0], raw[1], raw[2], raw[3], raw[4], raw[5])
             return {
                 'bool': False,
-                'time': data['data']['expiry'].split('T')[0]+' '+data['data']['expiry'].split('T')[1][:-7]
+                'time': myself.time_encode(time-t.now()).seconds)
             }
     
     def setbal(userid, newbal):
