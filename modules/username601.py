@@ -155,7 +155,7 @@ def hintify(word):
     return result
 
 def dearray(arr):
-    return str(', '.join(arr))[:-2]+'.'
+    return str(', '.join(arr))+'.'
 
 def tohex(integer):
     return str(hex(integer)).upper()[2:]

@@ -23,4 +23,4 @@ def slot():
     return [random.choice(fruits), random.choice(fruits), random.choice(fruits)]
 
 def slotify(slot):
-    return str(' | '.join(slot))[:-3]
+    return ' | '.join(slot)
