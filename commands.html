@@ -25,19 +25,19 @@
                 background-color: black;
                 padding:20px;
             }
-            #home , #vote, #serv , #github {
+            #home , #vote, #serv , #github , #api {
                 color:white;
                 background-color: black;
                 font-size:30px;
                 border:none;
                 user-select:none;
             }
-            #home:hover , #vote:hover, #serv:hover , #github:hover {
+            #home:hover , #vote:hover, #serv:hover , #github:hover , #api:hover {
                 transition: 0.5s;
                 cursor:pointer;
                 color:red;
             }
-            #home:focus , #vote:focus, #serv:focus , #github:focus {
+            #home:focus , #vote:focus, #serv:focus , #github:focus , #api:focus {
                 color:blue;
                 font-weight:bold;
             }
@@ -57,7 +57,8 @@
     <body onload='loadCommands();'>
         <div class='navbar'>
             <button onclick="window.location.href='https://vierofernando.github.io/username601'" id='home'>home</button>
-            <button onclick="window.open('http://github.com/vierofernando/username601')" id='github'>github</button>
+            <button onclick='window.open("https://useless-api--vierofernando.repl.co/")' id='api'>api</button>
+			<button onclick="window.open('http://github.com/vierofernando/username601')" id='github'>github</button>
             <button onclick="window.open('https://top.gg/bot/696973408000409626/vote')" id='vote'>vote</button>
             <button onclick="window.open('http://discord.gg/HhAPkD8')" id='serv'>server</butto">
         </div>
