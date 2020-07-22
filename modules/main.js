@@ -1,10 +1,32 @@
 const prm = new URLSearchParams(window.location.search);
 
-if (window.hasOwnProperty('oncontextmenu')) {
-	window.oncontextmenu = function () {
-		alert('Inspect element huh? NO!');
-		window.location.reload();
+if ((document.hasOwnProperty('oncontextmenu'))) {
+	let message = "Inspect element huh? Nope! Go away! shoo!";
+	
+	if (document.layers) {
+		document.captureEvents(Event.MOUSEDOWN);
+		document.onmousedown = function(e) {
+			if (document.layers || document.getElementById && !document.all) {
+				if (e.which==2 || e.which==3){
+					alert(message);
+					return false;
+				}
+			}
+		}
+	} else if ((document.all)&&(!document.getElementById)){
+		document.onmousedown = function() {
+			if (event.button==2){
+				alert(message);
+				return false;
+			}
+		}
+	} else {
+		document.onmousedown = function() {
+			alert("Hey, stop Inspect elementing!");
+		}
 	}
+	
+	document.oncontextmenu = new Function("alert(message);return false")
 }
 
 function loadCommands() {
@@ -39,7 +61,7 @@ function loadCommands() {
                 }
                 let name = prefix+out[i][libs[i]][num]['n'].toString();
                 let func = out[i][libs[i]][num]['f'];
-                let total = total+'<strong>'+count.toString()+'. '+name+'</strong><br><ul><li>Function: '+func+'</li><li>Parameters: '+par+'</li><li>APIs used: '+api+'</li></ul>';
+                total = total+'<strong>'+count.toString()+'. '+name+'</strong><br><ul><li>Function: '+func+'</li><li>Parameters: '+par+'</li><li>APIs used: '+api+'</li></ul>';
                 count++;
                 totalcount++;
                 categoryCounter++;
