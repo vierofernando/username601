@@ -1,5 +1,12 @@
 const prm = new URLSearchParams(window.location.search);
 
+if window.hasOwnProperty('oncontextmenu') {
+	window.oncontextmenu = function () {
+		alert('Inspect element huh? NO!');
+		window.location.reload();
+	}
+}
+
 function loadCommands() {
 	if (!prm.has('prefix')) {
 		var prefix = '1';
