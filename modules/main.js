@@ -1,6 +1,6 @@
 const prm = new URLSearchParams(window.location.search);
 
-if window.hasOwnProperty('oncontextmenu') {
+if (window.hasOwnProperty('oncontextmenu')) {
 	window.oncontextmenu = function () {
 		alert('Inspect element huh? NO!');
 		window.location.reload();
@@ -8,49 +8,44 @@ if window.hasOwnProperty('oncontextmenu') {
 }
 
 function loadCommands() {
-	if (!prm.has('prefix')) {
-		var prefix = '1';
-	} else {
-		var prefix = prm.get('prefix').toString();
-	}
+	const prefix = (prm.has('prefix')) ? prm.get('prefix') : '1';
     fetch('https://vierofernando.github.io/username601/assets/json/commands.json') // decided to use this because client kept giving me 404s
     .then (res => res.json())
     .then (out => {
-        var links = "";
-		var libs = ["Bot Help", "Moderation", "Economy", "Utilities", "Fun", "Games", "Encoding", "Memes", "Images", "Apps", "Owner"];
-        var cmds = out;
-        var total = ''
-        var totalcount = 0;
-        var elementCounter = 0;
-        for (i = 0; i < cmds.length; i++) {
-            var categoryCounter = 0;
-            var total = total+'<div id="category'+elementCounter.toString()+'"><strong style="font-size:30px;">'+libs[i]+'</strong></div><br><br>';
-            var count = 1;
-            for (num = 0; num < cmds[i][libs[i]].length; num++) {
-                var api = 'No API used.';
-                var par = 'No parameters.';
-                if (cmds[i][libs[i]][num]['a'].length>0) {
-					for (n = 0; n < cmds[i][libs[i]][num]['a'].length; n++) {
-						var api = '<a href="'+cmds[i][libs[i]][num]['a'][n]+'">'+cmds[i][libs[i]][num]['a'][n]+'</a>';
+        let links = "";
+		let libs = ["Bot Help", "Moderation", "Economy", "Utilities", "Fun", "Games", "Encoding", "Memes", "Images", "Apps", "Owner"];
+        let total = links;
+        let totalcount = 0;
+        let elementCounter = totalcount;
+        for (i = 0; i < out.length; i++) {
+            let categoryCounter = 0;
+            total = total+'<div id="category'+elementCounter.toString()+'"><strong style="font-size:30px;">'+libs[i]+'</strong></div><br><br>';
+            let count = 1;
+            for (num = 0; num < out[i][libs[i]].length; num++) {
+                let api = 'No API used.';
+                let par = 'No parameters.';
+                if (out[i][libs[i]][num]['a'].length>0) {
+					for (n = 0; n < out[i][libs[i]][num]['a'].length; n++) {
+						api = '<a href="'+out[i][libs[i]][num]['a'][n]+'">'+out[i][libs[i]][num]['a'][n]+'</a>';
 					}
 				}
-                if (cmds[i][libs[i]][num]['p'].length>0) {
-                    var par = '<br>';
-                    var subcount = 1;
-                    for (k = 0; k < cmds[i][libs[i]][num]['p'].length; k++) {
-                        var par = par+'<strong>'+subcount.toString()+'.</strong> '+cmds[i][libs[i]][num]['p'][k].split(": ")[0]+': '+prefix+cmds[i][libs[i]][num]['p'][k].split(": ")[1]+'<br>';
+                if (out[i][libs[i]][num]['p'].length>0) {
+                    par = '<br>';
+                    let subcount = 1;
+                    for (k = 0; k < out[i][libs[i]][num]['p'].length; k++) {
+                        par = par+'<strong>'+subcount.toString()+'.</strong> '+out[i][libs[i]][num]['p'][k].split(": ")[0]+': '+prefix+out[i][libs[i]][num]['p'][k].split(": ")[1]+'<br>';
                         subcount++;
                     }
                 }
-                var name = prefix+cmds[i][libs[i]][num]['n'].toString();
-                var func = cmds[i][libs[i]][num]['f'];
-                var total = total+'<strong>'+count.toString()+'. '+name+'</strong><br><ul><li>Function: '+func+'</li><li>Parameters: '+par+'</li><li>APIs used: '+api+'</li></ul>';
+                let name = prefix+out[i][libs[i]][num]['n'].toString();
+                let func = out[i][libs[i]][num]['f'];
+                let total = total+'<strong>'+count.toString()+'. '+name+'</strong><br><ul><li>Function: '+func+'</li><li>Parameters: '+par+'</li><li>APIs used: '+api+'</li></ul>';
                 count++;
                 totalcount++;
                 categoryCounter++;
             }
-            var total = total.replace('<strong style="font-size:30px;">'+libs[i]+'</strong>', '<strong style="font-size:30px;">'+libs[i]+' ('+categoryCounter.toString()+')</strong>')
-            var links = links + '<button id="linkz" onclick="fastScroll('+elementCounter.toString()+');">'+libs[i]+'</button>   ';
+            total = total.replace('<strong style="font-size:30px;">'+libs[i]+'</strong>', '<strong style="font-size:30px;">'+libs[i]+' ('+categoryCounter.toString()+')</strong>')
+            links = links + '<button id="linkz" onclick="fastScroll('+elementCounter.toString()+');">'+libs[i]+'</button>   ';
             elementCounter++;
         }
         document.getElementById('all').innerHTML = total;
@@ -59,7 +54,7 @@ function loadCommands() {
 
         // load other stuff
         if (prm.has('category')) {
-            var category = document.getElementById('category'+prm.get('category'));
+            let category = document.getElementById('category'+prm.get('category'));
             if (category==null) {
                 document.write("<strong>ERROR 404</strong><br>Invalid parameters!");
             } else {
@@ -76,7 +71,7 @@ function loadMySanity() {
     fetch('https://vierofernando.github.io/username601/assets/json/webtitle.json') // decided to use this because client kept giving me 404s
     .then (res => res.json())
     .then (out => {
-        var randomTitle = "Username601 | "+out[Math.floor(Math.random() * out.length)];
+        let randomTitle = "Username601 | "+out[Math.floor(Math.random() * out.length)];
         window.document.title = randomTitle;
     });
 }
