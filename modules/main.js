@@ -1,33 +1,26 @@
 const prm = new URLSearchParams(window.location.search);
+let message = "Inspect element huh? Nope! Go away! shoo!";
 
-if ((document.hasOwnProperty('oncontextmenu'))) {
-	let message = "Inspect element huh? Nope! Go away! shoo!";
-	
-	if (document.layers) {
-		document.captureEvents(Event.MOUSEDOWN);
-		document.onmousedown = function(e) {
-			if (document.layers || document.getElementById && !document.all) {
-				if (e.which==2 || e.which==3){
-					alert(message);
-					return false;
-				}
-			}
-		}
-	} else if ((document.all)&&(!document.getElementById)){
-		document.onmousedown = function() {
-			if (event.button==2){
+if (document.layers) {
+	document.captureEvents(Event.MOUSEDOWN);
+	document.onmousedown = function(e) {
+		if (document.layers || document.getElementById && !document.all) {
+			if (e.which==2 || e.which==3){
 				alert(message);
 				return false;
 			}
 		}
-	} else {
-		document.onmousedown = function() {
-			alert("Hey, stop Inspect elementing!");
+	}
+} else if ((document.all)&&(!document.getElementById)){
+	document.onmousedown = function() {
+		if (event.button==2){
+			alert(message);
+			return false;
 		}
 	}
-	
-	document.oncontextmenu = new Function("alert(message);return false")
 }
+
+document.oncontextmenu = new Function("alert(message);return false")
 
 function loadCommands() {
 	const prefix = (prm.has('prefix')) ? prm.get('prefix') : '1';
