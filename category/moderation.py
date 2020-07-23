@@ -204,11 +204,12 @@ class moderation(commands.Cog):
                 if not ctx.message.author.guild_permissions.ban_members:
                     await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | No ban members permission?")
                     accept = False
-            if ctx.message.mentions[0].guild_permissions.administrator:
-                await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Nope, that guy probably has higher permissions than you.")
-                accept = False
-            elif ctx.message.mentions[0].roles[::-1][0].position>ctx.message.guild.get_member(self.client.user.id).roles[::-1][0].position:
-                await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Try moving my role higher than "+ctx.message.mentions[0].name+"'s role.")
+            if ctx.guild.owner.id!=ctx.author.id:
+                if ctx.message.mentions[0].guild_permissions.administrator==True:
+                    await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Nope, that guy probably has higher permissions than you.")
+                    accept = False
+                elif ctx.message.mentions[0].roles[::-1][0].position>ctx.message.guild.get_member(self.client.user.id).roles[::-1][0].position:
+                    await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Try moving my role higher than "+ctx.message.mentions[0].name+"'s role.")
             if accept:
                 if 'kick' in ctx.message.content:
                     await ctx.message.guild.kick(ctx.message.mentions[0])
