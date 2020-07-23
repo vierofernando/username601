@@ -10,7 +10,7 @@ Username601 is a multi-purpose, rich-feature bot with over 200 commands.<br>This
 Everything filled on the details below are automatic.<br>
 
 Category folder is a cogs folder, modules folder is basically "tools" folder. Anything else are misc.<br><br>
-Bot is hosted in [heroku.](https://heroku.com) 24/7.<br>
+Bot is hosted in [heroku.](https://heroku.com) 24/7. Using [MongoDB](https://mongodb.com/) for database.<br>
 
 *P.S: All commits with the message "Updated Files for public version of Username601" is entirely automatic!*<br>
 
@@ -29,6 +29,11 @@ Bot is hosted in [heroku.](https://heroku.com) 24/7.<br>
 DISCORD_TOKEN = Your discord token<br>
 DBL_TOKEN = Your discord bot list (top.gg) token<br>
 DB_LINK = Your Mongo DB database link<br> (With "economy" as a collection)<br>
+
+**DATABASE STRUCTURE:**<br>
+username601 > economy<br>
+username601 > config<br>
+username601 > dashboard<br>
 
 **REQUIREMENTS:**<br>
 Flask==1.1.2<br>
