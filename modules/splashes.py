@@ -5,7 +5,6 @@ def randomhash():
     for i in range(0, random.randint(13, 21)):
         hashh = hashh + random.choice(list('ABCDEFHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'))
     return hashh
-
 def num2word(num):
     arr, word = list(range(0, 10)), 'zero,one,two,three,four,five,six,seven,eight,nine'.split(',')
     for i in range(0, len(arr)):
@@ -135,7 +134,6 @@ def blyat():
         'https://giphy.com/gifs/cbs-tv-dan-rather-CBd2RJor59e6I'
     ]
     return random.choice(gifs)
-
 def history(a):
     arr = [
         'How to create a bot like Username601 no coding free',
@@ -194,41 +192,6 @@ def hackflow(tohack):
         '0\n\nC:\\Users\\Anonymous601>'
     ]
     return flow
-def getGitMsg():
-    arr = [
-        'My githoob',
-        'Repository for Username601',
-        'Repo601',
-        '601Hub',
-        'GitHype',
-        'GiiiiiiitHub!',
-        'GetCodeHub',
-        'Copy and paste my bot\'s code!',
-        'See how much i copied from stackoverflow!',
-        'GitRepo601',
-        'Repository601',
-        'Commit #601: Removed repository',
-        'See my token on GitHub!'
-    ]
-    return random.choice(arr)
-def epicness():
-    arr = [
-        'epicness',
-        'badassness',
-        'sadness',
-        'dramatization',
-        'genericness',
-        'coolness',
-        'eBicness',
-        'kewlness'
-    ]
-    chose = random.choice(arr)
-    total = ''
-    for i in range(0, len(chose)):
-        alph = list(chose)[i].upper()
-        total = total + ' ' + alph
-    return total
-
 def getSecrets():
     arr = [
         ' is sleeping.',
@@ -267,91 +230,3 @@ def getAsciiFonts():
     arr_raw = requests.get("http://artii.herokuapp.com/fonts_list").text
     arr = arr_raw.split('\n')
     return arr
-def getTag():
-    arr = [
-        "ya liek tagz?",
-        "we don't accept services with tags, sorry.",
-        "tag me? lol NO.",
-        'why command me with a tag? that is so unnecessary!',
-        'NO TAG, ~~NO~~ YES SERVICE.',
-        'MORE TAG, LESS SERVICE.',
-        'Everybody gangsta until somebody tagged username601',
-        'Taggy taggy tag tag!',
-        'Playin\' with tagz, bro?',
-        'So uhh i heard u liek tagz',
-        'What kind of word is that?',
-        'tag me? why not tag everyone lul',
-        'you liek tagging me huh uwu',
-        'pinging me? why not 1ping instead lol',
-        'discord pings are not cool!',
-        'i am busy, please don\'t ping me. thanks.',
-        'bruh, pings? again?',
-        'this is like, the 96024th time i am getting pinged.',
-        'it seems that commands doesn\'t require for you to ping me...',
-        'ping... pong...?',
-        'Me: Noo you can\'t ping me!! ;(\nYou: hehe discord go ping ping'
-    ]
-    return arr
-def getAbout():
-    arr = [
-        'Traceback (most recent call last)',
-        'I liek memes',
-        'Hello, discordians! It\'s-a-me. Bot. Which may look stupid the fact that\nthere are THOUSANS of discord bots out there, so *let\'s get straight into it.* (no meme intended)',
-        'Wha? ME? okay then, here ya go.',
-        'Here are some silly lil information.',
-        'Beep boop, beep beep?',
-        'JavaScript ~~sucks~~ is bad. (i was told to change it lmao)',
-        'MEE6 vs Dyno, which is better?',
-        'MEEx6=MEEMEEMEEMEEMEEMEE',
-        'my token is = \*Slams head on keyboard*',
-        'HELP? Please try >help. thanks',
-        'Don\'t be a broom. Use discord.',
-        'Discard the discord right away!',
-        'Garbage bot giving some information here.',
-        'look, i have challenge for you. Can you read this without blinking?',
-        'Don\'t laugh at me.',
-        'Python is for nerds.',
-        'Everybody gangsta until username601 become self-aware',
-        'Coding is not fun, but it will pay off.',
-        'Hehe discord go ping ping',
-        'Vote me in top.gg or i will take your pokecord credits',
-        'And then you showed up. You dangerous, mute, lunatic.',
-        'This bot is available for WhatsApp, Skype, AOL Instant Messenger, even Nokia phones also support me! :D',
-        'V53\|2\|V4\|V\|3 BOT',
-        'pizza time',
-        'r/programmerhumor is my favourite subreddit, ~~cuz i am a nerd~~',
-        'MEEP6',
-        'Ha ha Username601 go vroom vroom',
-        'Botname601',
-        'Programmed *ENTIRELY* using Notepad',
-        'Wanna be a madlad? Try programming a new language\n*WITHOUT LOOKING AT STACKOVERFLOW.*',
-        'Top.gg is the platform where nerds flex their cool bots--\nAnd there is me, lonely :((('
-        'I am the BEST programmer. I can do HTML',
-        'HTML programmers >>> Java Programmers',
-        'Only madlads use Discord.HTML lul',
-        'Hello can i code minecraft using HTML pls thx',
-        'only epic programmers use HTML',
-        'print(\'Hella, World!\')',
-        'PyScript or Javathon? :flushed:',
-        'You can get to google if you know Machine code language LUL'
-    ]
-    return arr
-def getTicTacToeHeader():
-    arr = [
-        'my cool banner',
-        'mspaint.exe',
-        'ew, worst banner 10/1',
-        'myself',
-        'someone',
-        '@everyone',
-        'random stranger',
-        'a discard user',
-        'a skype-hater',
-        'a guy',
-        'a cool guy',
-        'a normal breathing person',
-        'the chosen one',
-        'impossible',
-        'the g4m3r'
-    ]
-    return random.choice(arr)
