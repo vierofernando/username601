@@ -78,7 +78,7 @@ class encoding(commands.Cog):
     @commands.command(pass_context=True, rewrite=['b64'])
     @commands.cooldown(1, 1, commands.BucketType.user)
     async def base64(self, ctx, *args):
-        if len(list(args)): await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Gimme dat args!')
+        if len(list(args))==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Gimme dat args!')
         else: await ctx.send(myself.encodeb4(' '.join(args)))
     
     @commands.command(pass_context=True, rewrite=['leetspeak'])
