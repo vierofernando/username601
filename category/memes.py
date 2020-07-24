@@ -14,6 +14,13 @@ class memes(commands.Cog):
         self.client = client
         self.session = ClientSession()
 
+    @commands.command(pass_context=True, aliases=['lookatthisgraph'])
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def graph(self, ctx, *args):
+        src = str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512') if (len(ctx.message.mentions)==0) else str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
+        async with ctx.message.channel.typing():
+            await ctx.send(file=discord.File(Painter.lookatthisgraph(src), 'lookatthisdudelol.png'))
+    
     @commands.command(pass_context=True, aliases=['animegif', 'nj'])
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def nichijou(self, ctx, *args):

@@ -58,6 +58,14 @@ def imagefromURL(url):
     image = Image.open(io.BytesIO(response.content))
     return image
 
+def lookatthisgraph(url):
+    img = imagefromURL(url).resize((741, 537)).rotate(-20)
+    bg = Image.open(r'/app/assets/pics/graph.png')
+    canvas = Image.new(mode='RGB', size=(1920, 1080), color=(0,0,0))
+    canvas.paste(img, (833, 365))
+    canvas.paste(bg, (0, 0), bg)
+    return compile(canvas)
+
 def squidwardstv(avatar):
     cnv = Image.new(mode='RGB', size=(1088, 720), color=(0, 0, 0))
     img = Image.open(r'/app/assets/pics/squidwardstv.png')
