@@ -3,6 +3,7 @@ from discord.ext import commands
 import sys
 sys.path.append('/app/modules')
 import canvas as Painter
+from io import BytesIO
 import username601 as myself
 from username601 import *
 
@@ -16,10 +17,16 @@ class memes(commands.Cog):
         if len(list(args))==0: txt = 'LAZY PERSON'
         else: txt = ' '.join(list(args))
         try:
-            await ctx.send('https://i.ode.bz/auto/nichijou?text={}'.format(myself.urlify(txt)))
+            if len(text) > 22:
+                return await ctx.send("{} | Text too long ;w;".format(str(self.client.get_emoji(BotEmotes.error))))
+            await ctx.trigger_typing()
+            async with self.session.get("https://i.ode.bz/auto/nichijou?text=%s" % myself.urlify(text)) as r:
+                res = await r.read()
+
+            file = discord.File(fp=BytesIO(res), filename="nichijou.gif")
+            await ctx.send(file=file)
         except Exception as e:
-            print(e)
-            await ctx.send('{} | An error occured!'.format(str(self.client.get_emoji(BotEmotes.error))))
+            await ctx.send('error {}'.format(e))
 
     @commands.command(pass_context=True, aliases=['ifunny'])
     @commands.cooldown(1, 5, commands.BucketType.user)
