@@ -6,28 +6,26 @@ import canvas as Painter
 from io import BytesIO
 import username601 as myself
 from username601 import *
+from requests import get
+from aiohttp import ClientSession
 
 class memes(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.session = ClientSession()
 
     @commands.command(pass_context=True, aliases=['animegif', 'nj'])
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def nichijou(self, ctx, *args):
-        if len(list(args))==0: txt = 'LAZY PERSON'
-        else: txt = ' '.join(list(args))
-        try:
-            if len(text) > 22:
-                return await ctx.send("{} | Text too long ;w;".format(str(self.client.get_emoji(BotEmotes.error))))
-            await ctx.trigger_typing()
-            async with self.session.get("https://i.ode.bz/auto/nichijou?text=%s" % myself.urlify(text)) as r:
-                res = await r.read()
-
-            file = discord.File(fp=BytesIO(res), filename="nichijou.gif")
-            await ctx.send(file=file)
-        except Exception as e:
-            await ctx.send('error {}'.format(e))
-
+        text = ' '.join(list(args)) if (len(list(args))==0) else 'LAZY PERSON'
+        if len(text) > 22:
+            await ctx.send("{} | Text too long ;w;".format(str(self.client.get_emoji(BotEmotes.error))))
+            return
+        async with ctx.message.channel.typing():
+            async with self.session.get("https://i.ode.bz/auto/nichijou?text={}".format(myself.urlify(text))) as r:
+                res = r.read()
+                await ctx.send(file=discord.File(fp=BytesIO(res), filename="nichijou.gif"))
+    
     @commands.command(pass_context=True, aliases=['ifunny'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def wasted(self, ctx):

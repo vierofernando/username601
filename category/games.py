@@ -557,11 +557,15 @@ class games(commands.Cog):
         def check(reaction, user):
             return user == guy
         try:
-            reaction, user = await client.wait_for('reaction_add', timeout=60.0, check=check)
+            reaction, user = await self.client.wait_for('reaction_add', timeout=60.0, check=check)
         except asyncio.TimeoutError:
             await main.add_reaction('😔')
         if str(reaction.emoji)==str(corr):
             await ctx.send(str(self.client.get_emoji(BotEmotes.success)) +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
+            if Economy.get(ctx.author.id)!=None:
+                reward = random.randint(250, 400)
+                Economy.addbal(ctx.message.author.id, reward)
+                await ctx.send('thanks for playing! You get also a '+str(reward)+' diamonds as a prize!')
         else:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | <@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr)+'.')
 
