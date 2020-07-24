@@ -17,13 +17,13 @@ class memes(commands.Cog):
     @commands.command(pass_context=True, aliases=['animegif', 'nj'])
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def nichijou(self, ctx, *args):
-        text = ' '.join(list(args)) if (len(list(args))==0) else 'LAZY PERSON'
+        text = 'LAZY PERSON' if (len(list(args))==0) else ' '.join(list(args))
         if len(text) > 22:
             await ctx.send("{} | Text too long ;w;".format(str(self.client.get_emoji(BotEmotes.error))))
             return
         async with ctx.message.channel.typing():
             async with self.session.get("https://i.ode.bz/auto/nichijou?text={}".format(myself.urlify(text))) as r:
-                res = r.read()
+                res = await r.read()
                 await ctx.send(file=discord.File(fp=BytesIO(res), filename="nichijou.gif"))
     
     @commands.command(pass_context=True, aliases=['ifunny'])
