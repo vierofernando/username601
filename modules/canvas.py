@@ -59,7 +59,7 @@ def imagefromURL(url):
     return image
 
 def lookatthisgraph(url):
-    img = imagefromURL(url).resize((741, 537)).rotate(-20)
+    img = imagefromURL(url).resize((741, 537)).rotate(20)
     bg = Image.open(r'/app/assets/pics/graph.png')
     canvas = Image.new(mode='RGB', size=(1920, 1080), color=(0,0,0))
     canvas.paste(img, (833, 365))
