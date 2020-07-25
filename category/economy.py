@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from sys import path
-path.append("/app/modules")
+path.append("/home/runner/hosting601/modules")
 import random
 from json import loads
 from username601 import *

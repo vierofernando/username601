@@ -5,16 +5,16 @@ import random
 
 # BIGGIE FONTS, CODE STYLED LIKE MY PYGAME GAME LMAO
 class Fonts:
-    helvetica_large = ImageFont.truetype(r'/app/assets/fonts/Helvetica.ttf', 50)
-    helvetica_medium = ImageFont.truetype(r'/app/assets/fonts/Helvetica.ttf', 40)
-    comicsans_medium = ImageFont.truetype(r'/app/assets/fonts/comic.ttf', 40)
-    consolas_small = ImageFont.truetype(r'/app/assets/fonts/consola.ttf', 25)
-    consolas =  ImageFont.truetype(r'/app/assets/fonts/consola.ttf', 60)
-    whitney_tinier =  ImageFont.truetype(r'/app/assets/fonts/Whitney-Medium.ttf', 20)
-    whitney_tiny =  ImageFont.truetype(r'/app/assets/fonts/Whitney-Medium.ttf', 30)
-    whitney_small =  ImageFont.truetype(r'/app/assets/fonts/Whitney-Medium.ttf', 40)
-    whitney_medium =  ImageFont.truetype(r'/app/assets/fonts/Whitney-Medium.ttf', 50)
-    whitney_large =  ImageFont.truetype(r'/app/assets/fonts/Whitney-Medium.ttf', 60)
+    helvetica_large = ImageFont.truetype(r'/home/runner/hosting601/assets/fonts/Helvetica.ttf', 50)
+    helvetica_medium = ImageFont.truetype(r'/home/runner/hosting601/assets/fonts/Helvetica.ttf', 40)
+    comicsans_medium = ImageFont.truetype(r'/home/runner/hosting601/assets/fonts/comic.ttf', 40)
+    consolas_small = ImageFont.truetype(r'/home/runner/hosting601/assets/fonts/consola.ttf', 25)
+    consolas =  ImageFont.truetype(r'/home/runner/hosting601/assets/fonts/consola.ttf', 60)
+    whitney_tinier =  ImageFont.truetype(r'/home/runner/hosting601/assets/fonts/Whitney-Medium.ttf', 20)
+    whitney_tiny =  ImageFont.truetype(r'/home/runner/hosting601/assets/fonts/Whitney-Medium.ttf', 30)
+    whitney_small =  ImageFont.truetype(r'/home/runner/hosting601/assets/fonts/Whitney-Medium.ttf', 40)
+    whitney_medium =  ImageFont.truetype(r'/home/runner/hosting601/assets/fonts/Whitney-Medium.ttf', 50)
+    whitney_large =  ImageFont.truetype(r'/home/runner/hosting601/assets/fonts/Whitney-Medium.ttf', 60)
 
 # LIMITS THE CHARACTER
 def limitify(raw, linelimit, maxlimit):
@@ -60,7 +60,7 @@ def imagefromURL(url):
 
 def lookatthisgraph(url):
     img = imagefromURL(url).resize((741, 537)).rotate(20)
-    bg = Image.open(r'/app/assets/pics/graph.png')
+    bg = Image.open(r'/home/runner/hosting601/assets/pics/graph.png')
     canvas = Image.new(mode='RGB', size=(1920, 1080), color=(0,0,0))
     canvas.paste(img, (833, 365))
     canvas.paste(bg, (0, 0), bg)
@@ -68,7 +68,7 @@ def lookatthisgraph(url):
 
 def squidwardstv(avatar):
     cnv = Image.new(mode='RGB', size=(1088, 720), color=(0, 0, 0))
-    img = Image.open(r'/app/assets/pics/squidwardstv.png')
+    img = Image.open(r'/home/runner/hosting601/assets/pics/squidwardstv.png')
     ava = imagefromURL(avatar).resize((577, 467))
     cnv.paste(ava.rotate(-27), (381, 125))
     cnv.paste(img, (0, 0), img)
@@ -76,19 +76,19 @@ def squidwardstv(avatar):
 
 def waifu(avatar):
     cnv = Image.new(mode='RGB', size=(450, 344), color=(0, 0, 0))
-    img = Image.open(r'/app/assets/pics/waifu.png')
+    img = Image.open(r'/home/runner/hosting601/assets/pics/waifu.png')
     ava = imagefromURL(avatar).resize((131, 162))
     cnv.paste(ava.rotate(-20), (112, 182))
     cnv.paste(img, (0, 0), img)
     return compile(cnv)
 
 def ifunny(avatar):
-    avatar, watermark = imagefromURL(avatar).resize((545, 481)), Image.open(r'/app/assets/pics/ifunny.png')
+    avatar, watermark = imagefromURL(avatar).resize((545, 481)), Image.open(r'/home/runner/hosting601/assets/pics/ifunny.png')
     avatar.paste(watermark, (0, 0), watermark)
     return compile(avatar)
     
 def wasted(avatar):
-    avatar, wasted = imagefromURL(avatar).resize((240, 240), Image.ANTIALIAS), Image.open(r'/app/assets/pics/wasted.png').resize((240, 240))
+    avatar, wasted = imagefromURL(avatar).resize((240, 240), Image.ANTIALIAS), Image.open(r'/home/runner/hosting601/assets/pics/wasted.png').resize((240, 240))
     try:
         red = Image.new(mode='RGB', size=(240, 240), color=(255, 0, 0))
         avatar = Image.blend(avatar, red, alpha=0.4)
@@ -100,7 +100,7 @@ def wasted(avatar):
 def ifearnoman(url, url2):
     avpic = imagefromURL(url)
     avpic2 = imagefromURL(url2)
-    template = Image.open(r'/app/assets/pics/ifearnoman.jpg')
+    template = Image.open(r'/home/runner/hosting601/assets/pics/ifearnoman.jpg')
     template.paste(avpic.resize((173, 159), Image.ANTIALIAS), (98, 28))
     template.paste(avpic.resize((114, 109), Image.ANTIALIAS), (60, 536))
     template.paste(avpic.resize((139, 145), Image.ANTIALIAS), (598, 549))
@@ -155,7 +155,7 @@ def servercard(link, icon, name, date, author, humans, bots, channels, roles, bo
     return data
 
 def putimage(url, name, resx, resy, posx, posy):
-    image = Image.open('/app/assets/pics/'+name+'.jpg')
+    image = Image.open('/home/runner/hosting601/assets/pics/'+name+'.jpg')
     pic = imagefromURL(url)
     pic = pic.resize((resx, resy), Image.ANTIALIAS)
     image.paste(pic, (posx, posy))
@@ -163,7 +163,7 @@ def putimage(url, name, resx, resy, posx, posy):
     return data
 
 def usercard(this):
-    bg = Image.open('/app/assets/pics/card_{}.png'.format(this.status.value))
+    bg = Image.open('/home/runner/hosting601/assets/pics/card_{}.png'.format(this.status.value))
     canvas = Image.new(mode='RGB', size=bg.size, color=(0,0,0))
     ava = imagefromURL(str(this.avatar_url).replace('.webp?size=1024', '.png?size=512')).resize((189, 190))
     canvas.paste(ava, (299, 12))
@@ -175,7 +175,7 @@ def usercard(this):
     return compile(canvas)
 
 def put_transparent(avatar, name, overallx, overally, avatarw, avatarh, avatarx, avatary):
-    door = Image.open('/app/assets/pics/'+name+'.png')
+    door = Image.open('/home/runner/hosting601/assets/pics/'+name+'.png')
     canvas = Image.new(mode='RGB',size=(overallx, overally) ,color=(0, 0, 0))
     avatar = imagefromURL(avatar)
     avatar = avatar.resize((avatarw, avatarh))
@@ -187,7 +187,7 @@ def put_transparent(avatar, name, overallx, overally, avatarw, avatarh, avatarx,
 def baby(ava):
     avatar = imagefromURL(ava)
     canvas = Image.new(mode='RGB',size=(728, 915) ,color=(0, 0, 0))
-    baby = Image.open("/app/assets/pics/baby.png")
+    baby = Image.open("/home/runner/hosting601/assets/pics/baby.png")
     avatar = avatar.resize((382, 349))
     avatar = avatar.rotate(50)
     canvas.paste(avatar, (203, 309))
@@ -196,7 +196,7 @@ def baby(ava):
     return data
 
 def art(ava):
-    image = Image.open(r'/app/assets/pics/art.png')
+    image = Image.open(r'/home/runner/hosting601/assets/pics/art.png')
     cnv, pic = Image.new(mode='RGB', size=(1364, 1534), color=(0,0,0)), imagefromURL(ava)
     cnv.paste(pic.resize((315, 373)), (927, 94))
     cnv.paste(pic.resize((318, 375)), (925, 861))
@@ -205,7 +205,7 @@ def art(ava):
 
 def f(ava):
     avatar = imagefromURL(ava)
-    bg = Image.open(r'/app/assets/pics/f.png')
+    bg = Image.open(r'/home/runner/hosting601/assets/pics/f.png')
     canvas = Image.new(mode='RGB',size=(960, 540) ,color=(0, 0, 0))
     avatar = avatar.resize((82, 111))
     canvas.paste(avatar, (361, 86))
@@ -241,7 +241,7 @@ class gif:
         image = image.resize((216, 216), Image.ANTIALIAS)
         red = Image.new(mode='RGB', size=(216, 216), color=(255, 0, 0))
         image = Image.blend(image, red, alpha=0.25)
-        text = Image.open('/app/assets/pics/triggered.jpg')
+        text = Image.open('/home/runner/hosting601/assets/pics/triggered.jpg')
 
         canvas = Image.new(mode='RGB',size=image.size ,color=(0, 0, 0))
         images, num = [], 0
@@ -255,7 +255,7 @@ class gif:
         return data
 
     def communist(comrade):
-        flag = Image.open('/app/assets/pics/blyat.jpg')
+        flag = Image.open('/home/runner/hosting601/assets/pics/blyat.jpg')
         user = imagefromURL(comrade)
         images = []
         user = user.resize((216, 216))

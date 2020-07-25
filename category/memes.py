@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import sys
-sys.path.append('/app/modules')
+sys.path.append('/home/runner/hosting601/modules')
 import canvas as Painter
 from io import BytesIO
 import username601 as myself

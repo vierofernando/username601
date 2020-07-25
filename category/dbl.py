@@ -2,7 +2,7 @@ import dbl as topgg
 import discord
 import os
 from sys import path
-path.append('/app/modules')
+path.append('/home/runner/hosting601/modules')
 from username601 import *
 from discord.ext import commands
 

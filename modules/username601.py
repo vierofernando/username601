@@ -31,7 +31,7 @@ class Config:
 prefix = Config.prefix
 
 def getStatus():
-    return jsonify(open("/app/assets/json/status.json", "r").read())
+    return jsonify(open("/home/runner/hosting601/assets/json/status.json", "r").read())
 
 def limit(word):
     total = ''

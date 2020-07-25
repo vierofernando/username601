@@ -1,7 +1,7 @@
 print('Please wait...')
 
 import sys
-sys.path.append('/app/modules')
+sys.path.append('/home/runner/hosting601/modules')
 
 # LOCAL FILES
 from username601 import *

@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import sys
-sys.path.append('/app/modules')
+sys.path.append('/home/runner/hosting601/modules')
 import username601 as myself
 from username601 import *
 from datetime import datetime as t
@@ -142,7 +142,7 @@ class bothelp(commands.Cog):
         embed.add_field(name='Version Info', value='**Bot version: ** '+Config.Version.number+'\n**Changelog: **'+Config.Version.changelog)#+'\n'+str(osinfo))
         embed.add_field(name='Links', value='[Invite this bot to your server!](http://vierofernando.github.io/programs/username601)\n[The support server!]('+str(Config.SupportServer.invite)+')\n[Vote us on top.gg](https://top.gg/bot/'+str(Config.id)+'/vote)\n[Official Website](https://vierofernando.github.io/username601)', inline='False')
         embed.set_thumbnail(url='https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/pfp.png')
-        embed.set_footer(text='© Viero Fernando Programming, 2020. All rights reserved.')
+        embed.set_footer(text='Ã‚Â© Viero Fernando Programming, 2020. All rights reserved.')
         await ctx.send(embed=embed)
 
 def setup(client):

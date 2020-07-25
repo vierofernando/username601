@@ -3,7 +3,7 @@ from discord.ext import commands
 import imdb
 ia = imdb.IMDb()
 import sys
-sys.path.append('/app/modules')
+sys.path.append('/home/runner/hosting601/modules')
 import username601 as myself
 from username601 import *
 import wikipediaapi

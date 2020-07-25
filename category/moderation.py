@@ -3,7 +3,7 @@ from discord.ext import commands
 import sys
 import random
 import asyncio
-sys.path.append('/app/modules')
+sys.path.append('/home/runner/hosting601/modules')
 from username601 import *
 from splashes import num2word
 from datetime import datetime as t
