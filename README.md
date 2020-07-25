@@ -10,7 +10,7 @@ Username601 is a multi-purpose, rich-feature bot with over 200 commands.<br>This
 Everything filled on the details below are automatic.<br>
 
 Category folder is a cogs folder, modules folder is basically "tools" folder. Anything else are misc.<br><br>
-Bot is hosted in [heroku.](https://heroku.com) 24/7. Using [MongoDB](https://mongodb.com/) for database.<br>
+Bot is hosted in [repl.it.](https://repl.it) 24/7. Using [MongoDB](https://mongodb.com/) for database.<br>
 
 *P.S: All commits with the message "Updated Files for public version of Username601" is entirely automatic!*<br>
 
