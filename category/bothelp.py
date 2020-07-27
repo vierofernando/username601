@@ -88,7 +88,7 @@ class bothelp(commands.Cog):
         )
         await ctx.send(embed=embed)
     
-    @commands.command(pass_context=True, aliases=['report', 'suggest'])
+    @commands.command(pass_context=True, aliases=['report', 'suggest', 'bug', 'reportbug', 'bugreport'])
     @commands.cooldown(1, 30, commands.BucketType.user)
     async def feedback(self, ctx, *args):
         if len(list(args))==0:
@@ -123,12 +123,14 @@ class bothelp(commands.Cog):
         embed.set_thumbnail(url='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif')
         await ctx.send(embed=embed)
     
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.command(pass_context=True, aliases=['stats'])
+    @commands.cooldown(1, 15, commands.BucketType.user)
     async def uptime(self, ctx):
         up = selfDB.get_uptime()
+        imageurl = myself.urlify(myself.uptimerobot())
         bot_uptime = up.split('|')[0].split(':')[0]+' Hours, '+up.split('|')[0].split(':')[1]+' minutes, '+up.split('|')[0].split(':')[2]+' seconds.'
         embed = discord.Embed(description='Bot uptime: {}\nOS uptime: {}\nLast downtime: {} UTC'.format(bot_uptime, str(myself.terminal('uptime -p'))[3:], up.split('|')[1]), color=discord.Colour.from_rgb(201, 160, 112))
+        embed.set_image(url='https://quickchart.io/chart?c='+imageurl)
         await ctx.send(embed=embed)
 
     @commands.command(pass_context=True)
@@ -142,7 +144,7 @@ class bothelp(commands.Cog):
         embed.add_field(name='Version Info', value='**Bot version: ** '+Config.Version.number+'\n**Changelog: **'+Config.Version.changelog)#+'\n'+str(osinfo))
         embed.add_field(name='Links', value='[Invite this bot to your server!](http://vierofernando.github.io/programs/username601)\n[The support server!]('+str(Config.SupportServer.invite)+')\n[Vote us on top.gg](https://top.gg/bot/'+str(Config.id)+'/vote)\n[Official Website](https://vierofernando.github.io/username601)', inline='False')
         embed.set_thumbnail(url='https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/pfp.png')
-        embed.set_footer(text='Ã‚Â© Viero Fernando Programming, 2020. All rights reserved.')
+        embed.set_footer(text='© Viero Fernando Programming, 2020. All rights reserved.')
         await ctx.send(embed=embed)
 
 def setup(client):

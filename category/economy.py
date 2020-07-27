@@ -28,20 +28,20 @@ class economy(commands.Cog):
                 await ctx.send('{} | No it is then.'.format(str(self.client.get_emoji(BotEmotes.success))))
             if 'y' in str(waiting.content).lower():
                 Economy.delete_data(ctx.author.id)
-                await ctx.send('{} | Data deleted. Thank\'s for playing.'.format(str(self.client.get_emoji(BotEmotes.success))))
+                await ctx.send('{} | Data deleted. Thanks for playing.'.format(str(self.client.get_emoji(BotEmotes.success))))
             else:
                 await ctx.send('{} | No it is then.'.format(str(self.client.get_emoji(BotEmotes.success))))
     
     @commands.command(pass_context=True)
-    @commands.cooldown(1, 300, commands.BucketType.user)
+    @commands.cooldown(1, 1800, commands.BucketType.user)
     async def work(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait...")
-        data = Economy.get(ctx.message.author.id)
-        if data==None: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+" | You don't have a profile yet! Create a profile using `1new`")
+        data = Economy.get(ctx.author.id)
+        if data==None: await ctx.send("you dont have a profile yet! Create a profile using `1new`")
         else:
             reward = str(random.randint(100, 500))
             new_data = Economy.addbal(ctx.message.author.id, int(reward))
-            job = random.choice(loads(open('/app/assets/json/work.json', 'r').read())['works'])
+            job = random.choice(loads(open('/home/runner/hosting601/assets/json/work.json', 'r').read())['works'])
             if new_data=='success': await wait.edit(content=str(self.client.get_emoji(BotEmotes.success))+f" | {ctx.message.author.name} worked {job} and earned {reward} diamonds!")
             else: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+f" | Oops there was an error... Please report this to the owner using `1feedback.`\n`{new_data}`")
             
@@ -116,7 +116,7 @@ class economy(commands.Cog):
                     if Economy.get(ctx.message.mentions[0].id)==None or Economy.get(ctx.message.author.id)==None:
                         await wait.edit(content=str(self.client.get_emoji(BotEmotes.loading))+' | you/that guy doesn\'t even have a profile!')
                     else:
-                        data = random.choice(loads(open('/app/assets/json/steal.json', 'r').read()))
+                        data = random.choice(loads(open('/home/runner/hosting601/assets/json/steal.json', 'r').read()))
                         if not str(data['amount']).replace('-', '').isnumeric():
                             if data['amount']=='{SAME_AMOUNT}': robamount = -amount2rob
                             elif data['amount']=='{REAL}': robamount = int(amount2rob)

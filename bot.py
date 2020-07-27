@@ -4,6 +4,7 @@ import sys
 sys.path.append('/home/runner/hosting601/modules')
 
 # LOCAL FILES
+from main import keep_alive
 from username601 import *
 from database import Economy, selfDB, Dashboard
 import username601 as myself
@@ -14,7 +15,6 @@ import canvas as Painter
 # EXTERNAL PACKAGES
 import os
 from itertools import cycle
-from os import environ as fetchdata
 import discord
 from discord.ext import commands, tasks
 import random
@@ -30,8 +30,13 @@ async def on_ready():
     selfDB.post_uptime() # update the uptime
     statusChange.start()
     for i in os.listdir('./category'):
+        if not i.endswith('.py'): continue
         print('[BOT] Loaded cog: '+str(i[:-3]))
-        client.load_extension('category.{}'.format(i[:-3]))
+        try:
+            client.load_extension('category.{}'.format(i[:-3]))
+        except Exception as e:
+            print('error on loading cog '+str(i[:-3])+': '+str(e))
+            pass
     print('Bot is online.')
 
 @tasks.loop(seconds=7)
@@ -90,4 +95,5 @@ async def on_message(message):
         await client.process_commands(message) # else bot will not respond to 99% commands
 
 print('Logging in to discord...')
-client.run(fetchdata['DISCORD_TOKEN'])
+keep_alive()
+client.run(os.getenv('DISCORD_TOKEN'))

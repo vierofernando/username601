@@ -8,7 +8,7 @@ path.append('/home/runner/hosting601/modules')
 import username601 as myself
 from username601 import *
 
-database = MongoClient(os.environ['DB_LINK'])['username601']
+database = MongoClient(os.getenv('DB_LINK'))['username601']
 
 class Dashboard:
     def exist(guildid):
@@ -94,7 +94,7 @@ class Economy:
 
     def can_vote(userid):
         data = requests.get('https://api.ksoft.si/webhook/dbl/check?bot={}&user={}'.format(str(Config.id), str(userid)), headers={'authorization':'Bearer '+str(os.environ['KSOFT_TOKEN'])}).json()
-        if not data['voted'] or Economy.get(userid)['voted']==False:
+        if data['voted']==False or Economy.get(userid)['voted']==False:
             return {
                 'bool': True,
                 'time': None

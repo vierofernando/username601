@@ -1,10 +1,12 @@
 import random
 import base64
+from os import getenv
 from subprocess import run, PIPE
-
+from json import dumps
 from urllib.request import urlopen as getapi
 from urllib.parse import quote_plus as urlencode
 from json import loads as jsonify
+from requests import request
 from requests import get as decodeurl
 
 class BotEmotes:
@@ -29,6 +31,17 @@ class Config:
         id = 661200758510977084 # YOUR USER ID
         name = 'Viero Fernando'
 prefix = Config.prefix
+
+def uptimerobot():
+    payload = 'api_key={}&format=json&logs=1'.format(getenv('UPTIMEROBOT_TOKEN'))
+    headers = {
+        'content-type':         "application/x-www-form-urlencoded",
+        'cache-control': "no-cache"
+    }
+    data = request("POST",  'https://api.uptimerobot.com/v2/getMonitors', data=payload, headers=headers).json()
+    data = data['monitors'][0]['logs'][::-1][0:10]
+    parameter = "{type:'line',data:{labels:"+str([str(i['datetime']) for i in data])+", datasets:[{label:'Username601 Latency', data: "+str([i['duration'] for i in data])+", fill:false,borderColor:'blue'}]}}"
+    return parameter
 
 def getStatus():
     return jsonify(open("/home/runner/hosting601/assets/json/status.json", "r").read())

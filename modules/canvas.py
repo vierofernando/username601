@@ -1,5 +1,8 @@
 from PIL import Image, ImageFont, ImageDraw, GifImagePlugin
 import io
+from sys import path
+path.append('/home/runner/hosting601/modules')
+import username601 as myself
 import requests
 import random
 
@@ -57,6 +60,21 @@ def imagefromURL(url):
     response = requests.get(url)
     image = Image.open(io.BytesIO(response.content))
     return image
+
+def serverstats(guild):
+    start = "https://quickchart.io/chart?c="
+    data1 = [
+        str(len([i for i in guild.members if i.status.value.lower()=='online'])),
+        str(len([i for i in guild.members if i.status.value.lower()=='idle'])),
+        str(len([i for i in guild.members if i.status.value.lower()=='dnd'])),
+        str(len([i for i in guild.members if i.status.value.lower()=='offline']))
+    ]
+    img1 = "{type:'pie',data:{labels:['Online', 'Idle', 'Do not Disturb', 'Offline'], datasets:[{data:["+data1[0]+", "+data1[1]+", "+data1[2]+", "+data1[3]+"]}]}}"
+    img = imagefromURL(start+myself.urlify(img1))
+    w, h = img.size
+    cnv = Image.new(mode='RGB', size=(w, h), color=(255, 255, 255))
+    cnv.paste(img, (0, 0), img)
+    return compile(cnv)
 
 def lookatthisgraph(url):
     img = imagefromURL(url).resize((741, 537)).rotate(20)
