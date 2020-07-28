@@ -11,6 +11,45 @@ class image(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    @commands.command(pass_context=True, aliases=['distortion'])
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def distort(self, ctx, *args):
+        try:
+            num = int([i for i in list(args) if i.isnumeric()][0])
+        except:
+            num = 5
+        if num not in range(0, 999):
+            return await ctx.send("{} | damn that level is hella weirdd".format(
+                str(self.client.get_emoji(BotEmotes.error))
+            ))
+        ava = ctx.author.avatar_url if (len(ctx.message.mentions)==0) else ctx.message.mentions[0].avatar_url
+        ava = str(ava).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
+        async with ctx.message.channel.typing():
+            await ctx.send(file=discord.File(
+                Painter.urltoimage('https://nezumiyuiz.glitch.me/api/distort?level={}&image={}'.format(
+                    str(num), str(ava)
+                )), 'distort.png'
+            ))
+
+    @commands.command(pass_context=True)
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def garfield(self, ctx):
+        try:
+            year, month, day = str(random.randint(1979, 2019)), str(random.randint(1, 12)), str(random.randint(1, 28))
+            month = month if (len(month)==2) else "0"+month
+            day = day if (len(day)==2) else "0"+day
+            await ctx.send(file=discord.File(
+                Painter.gif2png(
+                    "https://d1ejxu6vysztl5.cloudfront.net/comics/garfield/{}/{}-{}-{}.gif".format(
+                        year, year, month, day
+                    )
+                ), "garfield.png"
+            ))
+        except:
+            await ctx.send("{} | Ooops! We cannot find the image. Please try again.".format(
+                str(self.client.get_emoji(BotEmotes.error))
+            ))
+
     @commands.command(pass_context=True)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def lucario(self, ctx):
@@ -95,6 +134,9 @@ class image(commands.Cog):
         if len(list(args))!=0:
             videoid = 'dQw4w9WgXcQ'
             async with ctx.message.channel.typing():
+                args = tuple(
+                    ',,'.join(list(args)).replace('<', '').replace('>', '').split(',,')
+                )
                 if list(args)[0].endswith('/'): list(args)[0] = list(args)[0][:-1]
                 if 'https://' in list(args)[0]: list(args)[0] = list(args)[0].replace('https://', '')
                 elif 'http://' in list(args)[0]: list(args)[0] = list(args)[0].replace('http://', '')
@@ -109,7 +151,7 @@ class image(commands.Cog):
     async def dog(self, ctx):
         async with ctx.message.channel.typing():
             links = {
-                "dog": "https://random.dog/woof.json|url",
+                "dog": "https://api.alexflipnote.dev/dogs|file",
                 "cat": "https://api.alexflipnote.dev/cats|file",
                 "sadcat": "https://api.alexflipnote.dev/sadcat|file",
                 "bird": "https://api.alexflipnote.dev/sadcat|file",

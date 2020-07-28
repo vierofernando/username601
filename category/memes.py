@@ -14,6 +14,22 @@ class memes(commands.Cog):
         self.client = client
         self.session = ClientSession()
 
+    @commands.command(pass_context=True)
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def notstonks(self, ctx, *args):
+        text = str(' '.join(list(args))) if (len(list(args))!=0) else "When you forgot to put the args:"
+        if len(ctx.message.mentions)>0:
+            url = "https://nezumiyuiz.glitch.me/api/notstonks?text={}&avatar={}".format(text.replace(ctx.message.mentions[0].mention, ""), str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512'))
+        else:
+            url = "https://nezumiyuiz.glitch.me/api/notstonks?text={}".format(text)
+        try:
+            async with ctx.message.channel.typing():
+                await ctx.send(file=discord.File(
+                    Painter.urltoimage(url), 'nostonks.png'
+                ))
+        except:
+            await ctx.send('erorr')
+
     @commands.command(pass_context=True, aliases=['lookatthisgraph'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def graph(self, ctx, *args):
