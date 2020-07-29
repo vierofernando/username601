@@ -1,5 +1,5 @@
 const prm = new URLSearchParams(window.location.search);
-let message = "Inspect element huh? Nope! Go away! shoo!";
+const message = "Inspect element huh? Nope! Go away! shoo!";
 
 if (document.layers) {
 	document.captureEvents(Event.MOUSEDOWN);
@@ -27,8 +27,8 @@ function loadCommands() {
     fetch('https://vierofernando.github.io/username601/assets/json/commands.json') // decided to use this because client kept giving me 404s
     .then (res => res.json())
     .then (out => {
+		const libs = ["Bot Help", "Moderation", "Economy", "Utilities", "Fun", "Games", "Encoding", "Memes", "Images", "Apps", "Owner"];
         let links = "";
-		let libs = ["Bot Help", "Moderation", "Economy", "Utilities", "Fun", "Games", "Encoding", "Memes", "Images", "Apps", "Owner"];
         let total = links;
         let totalcount = 0;
         let elementCounter = totalcount;
@@ -36,15 +36,18 @@ function loadCommands() {
             let categoryCounter = 0;
             total = total+'<div id="category'+elementCounter.toString()+'"><strong style="font-size:30px;">'+libs[i]+'</strong></div><br><br>';
             let count = 1;
-            for (num = 0; num < out[i][libs[i]].length; num++) {
+            for (let num = 0; num < out[i][libs[i]].length; num++) {
                 let api = 'No API used.';
                 let par = 'No parameters.';
-                if (out[i][libs[i]][num]['a'].length>0) {
+				console.log(num);
+				console.log(out[i][libs[i]][num]);
+				console.log(out[i][libs[i]]);
+                if (out[i][libs[i]][num]['a'].length != 0) {
 					for (n = 0; n < out[i][libs[i]][num]['a'].length; n++) {
 						api = '<a href="'+out[i][libs[i]][num]['a'][n]+'">'+out[i][libs[i]][num]['a'][n]+'</a>';
 					}
 				}
-                if (out[i][libs[i]][num]['p'].length>0) {
+                if (out[i][libs[i]][num]['p'].length != 0) {
                     par = '<br>';
                     let subcount = 1;
                     for (k = 0; k < out[i][libs[i]][num]['p'].length; k++) {
@@ -52,8 +55,8 @@ function loadCommands() {
                         subcount++;
                     }
                 }
-                let name = prefix+out[i][libs[i]][num]['n'].toString();
-                let func = out[i][libs[i]][num]['f'];
+                const name = prefix+out[i][libs[i]][num]['n'].toString();
+                const func = out[i][libs[i]][num]['f'];
                 total = total+'<strong>'+count.toString()+'. '+name+'</strong><br><ul><li>Function: '+func+'</li><li>Parameters: '+par+'</li><li>APIs used: '+api+'</li></ul>';
                 count++;
                 totalcount++;
@@ -69,7 +72,7 @@ function loadCommands() {
 
         // load other stuff
         if (prm.has('category')) {
-            let category = document.getElementById('category'+prm.get('category'));
+            const category = document.getElementById('category'+prm.get('category'));
             if (category==null) {
                 document.write("<strong>ERROR 404</strong><br>Invalid parameters!");
             } else {
@@ -86,7 +89,7 @@ function loadMySanity() {
     fetch('https://vierofernando.github.io/username601/assets/json/webtitle.json') // decided to use this because client kept giving me 404s
     .then (res => res.json())
     .then (out => {
-        let randomTitle = "Username601 | "+out[Math.floor(Math.random() * out.length)];
+        const randomTitle = "Username601 | "+out[Math.floor(Math.random() * out.length)];
         window.document.title = randomTitle;
     });
 }
