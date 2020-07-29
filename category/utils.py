@@ -268,19 +268,15 @@ class utils(commands.Cog):
         await ctx.send('**Feeling bored?**\nWhy don\'t you '+str(data['activity'])+'? :wink::ok_hand:')
 
     @commands.command(pass_context=True)
-    @commands.cooldown(1, 3600, commands.BucketType.user)
+    @commands.cooldown(1, 20, commands.BucketType.user)
     async def googledoodle(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait... This may take a few moments...')
-        data = myself.insp('https://google.com/doodles')
-        byLatest = data.split('<li class="latest-doodle ">')
-        del byLatest[0]
-        byTag = ''.join(byLatest).split('<')
-        doodle_link = 'https://google.com'+str(byTag[3][8:].split('"\n')[0])
-        doodle_img = 'https:'+str(byTag[4][9:].split('" alt="')[0])
-        doodle_name = doodle_link[27:].replace('-', ' ')
-        embed = discord.Embed(title=doodle_name, description=doodle_link, colour=discord.Colour.from_rgb(201, 160, 112))
-        embed.set_image(url=doodle_img)
-        embed.set_footer(text='new doodle will be in a few hours!')
+        data = myself.jsonisp('https://www.google.com/doodles/json/{}/{}'.format(str(t.now().year), str(t.now().month)))[0]
+        embed = discord.Embed(title=data['title'], colour=discord.Colour.from_rgb(201, 160, 112), url='https://www.google.com/doodles/'+data['name'])
+        embed.set_image(url='https:'+data['high_res_url'])
+        embed.set_footer(text='Event date: '+str('/'.join(
+            [str(i) for i in data['run_date_array'][::-1]]
+        )))
         await wait.edit(content='', embed=embed)
 
     @commands.command(pass_context=True)
