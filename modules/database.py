@@ -10,6 +10,31 @@ from username601 import *
 
 database = MongoClient(os.getenv('DB_LINK'))['username601']
 
+class username601Stats:
+    def addCommand():
+        data = database["config"].update_one({
+            "601stats": True}, {
+                "$inc": {
+                    "commandstats.count": 1
+                }
+            }
+        )
+    def clear():
+        data = database["config"].update_one({
+            "601stats": True}, {
+                "$set": {
+                    "commandstats": {
+                        "count": 0,
+                        "lastreset": t.now().timestamp()
+                    }
+                }
+            }
+        )
+    def retrieveData():
+        return database['config'].find_one({
+            "601stats": True
+        })['commandstats']
+
 class Dashboard:
     def exist(guildid):
         data = database["dashboard"].find()
@@ -138,15 +163,13 @@ class Economy:
             return e
     def addbal(userid, bal):
         try:
-            old = database['economy'].find({'userid': userid})
-            database['economy'].update_one({'userid': userid}, { '$set': { 'bal': old[0]['bal']+bal } })
+            database['economy'].update_one({'userid': userid}, { '$inc': { 'bal': bal } })
             return 'success'
         except Exception as e:
             return e
     def delbal(userid, bal):
         try:
-            old = database['economy'].find({'userid': userid})
-            database['economy'].update_one({'userid': userid}, { '$set': { 'bal': old[0]['bal']-bal } })
+            database['economy'].update_one({'userid': userid}, { '$inc': { 'bal': bal } })
             return 'success'
         except Exception as e:
             return e
@@ -154,9 +177,8 @@ class Economy:
     def daily(userid):
         try:
             bal = choice([500, 1000, 1500, 2000, 2500, 3000])
-            old = database['economy'].find_one({'userid': userid})
-            database['economy'].update_one({'userid': userid}, { '$set': {
-                'bal': old['bal']+bal
+            database['economy'].update_one({'userid': userid}, { '$inc': {
+                'bal': bal
             }})
             return bal
         except Exception as e:

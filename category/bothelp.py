@@ -5,7 +5,7 @@ sys.path.append('/home/runner/hosting601/modules')
 import username601 as myself
 from username601 import *
 from datetime import datetime as t
-from database import selfDB
+from database import selfDB, username601Stats
 
 class bothelp(commands.Cog):
     def __init__(self, client):
@@ -126,10 +126,10 @@ class bothelp(commands.Cog):
     @commands.command(pass_context=True, aliases=['stats'])
     @commands.cooldown(1, 15, commands.BucketType.user)
     async def uptime(self, ctx):
-        up = selfDB.get_uptime()
+        up, cmds = selfDB.get_uptime(), username601Stats.retrieveData()
         imageurl = myself.urlify(myself.uptimerobot())
         bot_uptime = up.split('|')[0].split(':')[0]+' Hours, '+up.split('|')[0].split(':')[1]+' minutes, '+up.split('|')[0].split(':')[2]+' seconds.'
-        embed = discord.Embed(description='Bot uptime: {}\nOS uptime: {}\nLast downtime: {} UTC'.format(bot_uptime, str(myself.terminal('uptime -p'))[3:], up.split('|')[1]), color=discord.Colour.from_rgb(201, 160, 112))
+        embed = discord.Embed(description='Bot uptime: {}\nOS uptime: {}\nLast downtime: {} UTC\n\nCommands run in the past {}: {}'.format(bot_uptime, str(myself.terminal('uptime -p'))[3:], up.split('|')[1], myself.time_encode(round(t.now().timestamp()) - round(cmds['lastreset'])), str(cmds['count'])), color=discord.Colour.from_rgb(201, 160, 112))
         embed.set_image(url='https://quickchart.io/chart?c='+imageurl)
         await ctx.send(embed=embed)
 

@@ -89,9 +89,22 @@ class image(commands.Cog):
     @commands.command(pass_context=True)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def httpcat(self, ctx, *args):
-        if len(list(args))==0: code = str(random.randint(200, 550))
-        else: code = str(' '.join(list(args)))
+        code = list(args)[0] if (len(list(args))!=0) else '404'
         await ctx.send(file=discord.File(Painter.urltoimage('https://http.cat/'+str(code)+'.jpg'), 'httpcat.png'))
+    
+    @commands.command(pass_context=True, aliases=['httpduck'])
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def httpdog(self, ctx, *args):
+        code = list(args)[0] if (len(list(args))!=0) else '404'
+        url = 'https://random-d.uk/api/http/ABC.jpg' if ('duck' in ctx.message.content) else 'https://httpstatusdogs.com/img/ABC.jpg'
+        try:
+            await ctx.send(file=discord.File(
+                Painter.urltoimage(url.replace('ABC', code)), 'httpdogduck.png'
+            ))
+        except:
+            await ctx.send('{} | 404'.format(
+                str(self.client.get_emoji(BotEmotes.error))
+            ))
 
     @commands.command(pass_context=True)
     @commands.cooldown(1, 5, commands.BucketType.user)

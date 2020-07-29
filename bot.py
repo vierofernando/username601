@@ -6,7 +6,9 @@ sys.path.append('/home/runner/hosting601/modules')
 # LOCAL FILES
 from main import keep_alive
 from username601 import *
-from database import Economy, selfDB, Dashboard
+from database import (
+    Economy, selfDB, Dashboard, username601Stats
+)
 import username601 as myself
 import discordgames as Games
 import splashes as src
@@ -28,6 +30,7 @@ bot_status = cycle(myself.getStatus())
 @client.event
 async def on_ready():
     selfDB.post_uptime() # update the uptime
+    username601Stats.clear() # clear all cached data on database (reset);
     statusChange.start()
     for i in os.listdir('./category'):
         if not i.endswith('.py'): continue
@@ -46,7 +49,11 @@ async def statusChange():
     elif new_status.startswith('STREAMING:'): await client.change_presence(activity=discord.Streaming(name=new_status.split(':')[1], url='https://bit.ly/username601'))
     elif new_status.startswith('LISTENING:'): await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=new_status.split(':')[1]))
     else: await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=new_status.split(':')[1]))
-    
+
+@client.event
+async def on_command_completion(ctx):
+    username601Stats.addCommand()
+
 @client.event
 async def on_member_join(member):
     welcome_message, welcome_channel = Dashboard.send_welcome(member, discord), Dashboard.get_welcome_channel(member.guild.id)
