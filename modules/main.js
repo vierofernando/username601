@@ -39,9 +39,6 @@ function loadCommands() {
             for (let num = 0; num < out[i][libs[i]].length; num++) {
                 let api = 'No API used.';
                 let par = 'No parameters.';
-				console.log(num);
-				console.log(out[i][libs[i]][num]);
-				console.log(out[i][libs[i]]);
                 if (out[i][libs[i]][num]['a'].length != 0) {
 					for (n = 0; n < out[i][libs[i]][num]['a'].length; n++) {
 						api = '<a href="'+out[i][libs[i]][num]['a'][n]+'">'+out[i][libs[i]][num]['a'][n]+'</a>';
