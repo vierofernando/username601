@@ -20,7 +20,7 @@ class Config:
     cmdtypes = decodeurl("https://vierofernando.github.io/username601/assets/json/categories.json").json()
     class Version:
         number = '2.3.5'
-        changelog = 'Now in python 3.8.5'
+        changelog = 'Fixed several bugs and added some commands. basic stuff'
     class SupportServer:
         id = 688373853889495044 # support server ID
         logging = 694521383908016188 # logging channel ID in support server
@@ -39,8 +39,8 @@ def uptimerobot():
         'cache-control': "no-cache"
     }
     data = request("POST",  'https://api.uptimerobot.com/v2/getMonitors', data=payload, headers=headers).json()
-    data = data['monitors'][0]['logs'][::-1][0:10]
-    parameter = "{type:'line',data:{labels:"+str([str(i['datetime']) for i in data])+", datasets:[{label:'Username601 Latency', data: "+str([i['duration'] for i in data])+", fill:false,borderColor:'blue'}]}}"
+    data = data['monitors'][0]['logs'][0:25][::-1]
+    parameter = "{type:'line',data:{labels:"+str([str(i['datetime']) for i in data])+", datasets:[{label:'Username601 Latency (ms)', data: "+str([i['duration'] for i in data])+", fill:false,borderColor:'blue'}]}}"
     return parameter
 
 def getStatus():

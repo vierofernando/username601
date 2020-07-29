@@ -14,7 +14,7 @@ class memes(commands.Cog):
         self.client = client
         self.session = ClientSession()
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['nostonks', 'notstonk', 'nostonk'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def notstonks(self, ctx, *args):
         text = str(' '.join(list(args))) if (len(list(args))!=0) else "When you forgot to put the args:"

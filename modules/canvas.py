@@ -18,6 +18,7 @@ class Fonts:
     whitney_small =  ImageFont.truetype(r'/home/runner/hosting601/assets/fonts/Whitney-Medium.ttf', 40)
     whitney_medium =  ImageFont.truetype(r'/home/runner/hosting601/assets/fonts/Whitney-Medium.ttf', 50)
     whitney_large =  ImageFont.truetype(r'/home/runner/hosting601/assets/fonts/Whitney-Medium.ttf', 60)
+    roboto_bold_medium = ImageFont.truetype(r'/home/runner/hosting601/assets/fonts/Roboto-Bold.ttf', 32)
 
 # LIMITS THE CHARACTER
 def limitify(raw, linelimit, maxlimit):
@@ -60,6 +61,17 @@ def imagefromURL(url):
     response = requests.get(url)
     image = Image.open(io.BytesIO(response.content))
     return image
+
+def app(src, msg):
+    im, ava = Image.open(r"/home/runner/hosting601/assets/pics/app.png"), imagefromURL(src).resize((159, 161))
+    W, H = im.size
+    draw, myFont = ImageDraw.Draw(im), Fonts.roboto_bold_medium
+    w, h = myFont.getsize(msg)
+    draw.text(((W-w)/2,(H-h)/2+75), msg, font=myFont, fill="white")
+    cnv = Image.new(mode='RGB', size=im.size, color=(0,0,0))
+    cnv.paste(ava, (88, 31))
+    cnv.paste(im, (0, 0), im)
+    return compile(cnv)
 
 def serverstats(guild):
     start = "https://quickchart.io/chart?c="
@@ -315,6 +327,11 @@ def smallURL(url):
     pic = image.resize((round(size[0]/4), round(size[1]/4)), Image.ANTIALIAS)
     data = compile(pic)
     return data
+
+def gif2png(url):
+    img = imagefromURL(url)
+    img.seek(0)
+    return compile(img)
 
 def memegen(url):
     image = imagefromURL(url)

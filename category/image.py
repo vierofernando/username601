@@ -11,6 +11,17 @@ class image(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    @commands.command(pass_context=True, aliases=['application'])
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def app(self, ctx):
+        elem = ctx.author if (len(ctx.message.mentions)==0) else ctx.message.mentions[0]
+        src = str(elem.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
+        async with ctx.message.channel.typing():
+            await ctx.send(file=discord.File(
+                Painter.app(src, elem.name), 'app.exe.png'
+            ))
+
+
     @commands.command(pass_context=True, aliases=['distortion'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def distort(self, ctx, *args):
