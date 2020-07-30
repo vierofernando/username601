@@ -62,6 +62,11 @@ def imagefromURL(url):
     image = Image.open(io.BytesIO(response.content))
     return image
 
+def evol(url):
+    ava, img = imagefromURL(url).resize((77, 69)), Image.open(r"/home/runner/hosting601/assets/pics/evol.jpg")
+    img.paste(ava, (255, 175))
+    return compile(img)
+
 def app(src, msg):
     im, ava = Image.open(r"/home/runner/hosting601/assets/pics/app.png"), imagefromURL(src).resize((159, 161))
     W, H = im.size

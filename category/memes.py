@@ -14,6 +14,15 @@ class memes(commands.Cog):
         self.client = client
         self.session = ClientSession()
 
+    @commands.command(pass_context=True, aliases=['evol', 'trashevol', 'evoltrash', 'evolutiontrash'])
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def trashevolution(self, ctx):
+        url = str(ctx.author.avatar_url) if (len(ctx.message.mentions)==0) else str(ctx.message.mentions[0].avatar_url)
+        async with ctx.message.channel.typing():
+            await ctx.send(file=discord.File(
+                Painter.evol(url.replace('.gif', '.webp').replace('.webp?size=1024', '.webp?size=512')), 'trashhahaha.png'
+            ))
+
     @commands.command(pass_context=True, aliases=['nostonks', 'notstonk', 'nostonk'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def notstonks(self, ctx, *args):
