@@ -102,7 +102,8 @@ class Dashboard:
             'starlimit': data['star_requirements']
         }
     def sendStarboard(discord, message):
-        embed = discord.Embed(title=f':star: {message.channel.name} | {message.author.name}#{message.author.discriminator}', description=message.content, color=discord.Colour.from_rgb(255, 255, 0))
+        embed = discord.Embed(title=f':star: {message.channel.name} | {message.author.name}#{message.author.discriminator}', description=message.content, color=discord.Colour.from_rgb(255, 255, 0), url=f'https://discord.com/channel/{message.guild.id}/{message.channel.id}/{message.id}')
+        embed.set_footer(text='Click on the URL to jump to the message!')
         if len(message.attachments)>0: embed.set_image(url=message.attachments[0].url)
         return embed
     def setStarboardLimit(limit, guild):
