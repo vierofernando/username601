@@ -4,7 +4,6 @@ import sys
 sys.path.append('/home/runner/hosting601/modules')
 
 # LOCAL FILES
-from main import keep_alive
 from username601 import *
 from database import (
     Economy, selfDB, Dashboard, username601Stats
@@ -81,6 +80,9 @@ async def on_member_join(member):
 
 @client.event
 async def on_member_remove(member):
+    # REMOVE ALL WARNS
+    Dashboard.clearWarn(member)
+
     # SEND GOODBYE CHANNEL
     goodbye_message, goodbye_channel = Dashboard.send_goodbye(member, discord), Dashboard.get_welcome_channel(member.guild.id)
     if goodbye_message!=None and goodbye_channel!=None: await member.guild.get_channel(goodbye_channel).send(embed=goodbye_message)
@@ -124,5 +126,6 @@ async def on_message(message):
         if message.content.startswith('<@'+str(client.user.id)+'>') or message.content.startswith('<@!'+str(client.user.id)+'>'): await message.channel.send(f'Hi! My prefix is `{Config.prefix}`.')
         await client.process_commands(message) # else bot will not respond to 99% commands
 
-keep_alive()
-client.run(os.getenv('DISCORD_TOKEN'))
+def Username601():
+    print('Logging in to discord...')
+    client.run(os.getenv('DISCORD_TOKEN'))

@@ -19,8 +19,8 @@ class Config:
     prefix = '1' # your prefix here
     cmdtypes = decodeurl("https://vierofernando.github.io/username601/assets/json/categories.json").json()
     class Version:
-        number = '2.3.5'
-        changelog = 'Fixed several bugs and added some commands. basic stuff'
+        number = '2.4'
+        changelog = 'Added warning system and Starboard!'
     class SupportServer:
         id = 688373853889495044 # support server ID
         logging = 694521383908016188 # logging channel ID in support server
@@ -31,6 +31,15 @@ class Config:
         id = 661200758510977084 # YOUR USER ID
         name = 'Viero Fernando'
 prefix = Config.prefix
+
+def limitto(text, limitcount):
+    a = text
+    if len(a) < limitcount: return text
+    while (len(a) > limitcount):
+        temp = list(a)
+        temp.pop()
+        a = ''.join(temp)
+    return a
 
 def uptimerobot():
     payload = 'api_key={}&format=json&logs=1'.format(getenv('UPTIMEROBOT_TOKEN'))

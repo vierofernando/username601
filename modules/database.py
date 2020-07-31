@@ -132,6 +132,36 @@ class Dashboard:
         database['dashboard'].update_one({'serverid': channel.guild.id}, {'$set': {
             'starboard': None, 'star_requirements': None
         }})
+    def addWarn(user, moderator, reason):
+        try:
+            if not Dashboard.exist(moderator.guild.id): Dashboard.add_guild(moderator.guild.id)
+            database['dashboard'].update_one({'serverid': moderator.guild.id}, {'$push': {'warns': 
+                f'{user.id}.{moderator.id}.{reason}'
+            }}) ; return True
+        except Exception as e:
+            print(e)
+            return False
+    def clearWarn(user):
+        if not Dashboard.exist(user.guild.id): return False
+        try:
+            data = database['dashboard'].find_one({'serverid': user.guild.id})
+            ids = [int(i.split('.')[0]) for i in data]
+            if user.id not in ids: return False
+            warns = [i for i in data if i.startswith(str(user.guild.id))]
+            for i in warns:
+                database['dashboard'].update_one({'serverid': user.guild.id}, {'$pull': {'warns': i}})
+            return True
+        except: return False
+    def getWarns(user):
+        try:
+            data, results = database['dashboard'].find_one({'serverid': user.guild.id})['warns'], []
+            for i in data:
+                results.append({
+                    'moderator': int(i.split('.')[1].split('.')[0]),
+                    'reason': i.split('.')[2]
+                })
+            return results
+        except: return None
 
 class Economy:
     def get(userid):

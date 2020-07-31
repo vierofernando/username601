@@ -58,6 +58,50 @@ class moderation(commands.Cog):
         await ctx.send(file=discord.File(
             data, "serverstats.png"
         ))
+    
+    @commands.command(pass_context=True)
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def warn(self, ctx, *args):
+        if len(ctx.message.mentions)==0:
+            return await ctx.send('{} | Mention someone.'.format(str(self.client.get_emoji(BotEmotes.error))))
+        elif ctx.message.mentions[0].id == ctx.author.id:
+            return await ctx.send(':joy: | Warning yourself? Really?')
+        elif not ctx.author.guild_permissions.manage_messages:
+            return await ctx.send('{} | You need to have manage messages permissions to do this man. Sad.'.format(str(self.client.get_emoji(BotEmotes.error))))
+        reason = 'No reason provided' if (len(list(args))<2) else ' '.join(list(args)[1:len(list(args))])
+        warned = Dashboard.addWarn(ctx.message.mentions[0], ctx.author, reason)
+        if warned:
+            return await ctx.send(f'{str(self.client.get_emoji(BotEmotes.success))} | {ctx.message.mentions[0].name}#{ctx.message.mentions[0].discriminator} was warned by {ctx.author.name}#{ctx.author.discriminator} for the reason *"{reason}"*.')
+        await ctx.send(f'{str(self.client.get_emoji(BotEmotes.error))} | An error occured.')
+    
+    @commands.command(pass_context=True, aliases=['warns', 'warnslist', 'warn-list', 'infractions'])
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def warnlist(self, ctx):
+        source = ctx.author if (len(ctx.message.mentions)==0) else ctx.message.mentions[0]
+        data = Dashboard.getWarns(source)
+        if data==None: return await ctx.send(f'{str(self.client.get_emoji(BotEmotes.error))} | Good news! {source.name} does not have any warns!')
+        warnlist = '\n'.join([
+            '{}. "{}" (warned by <@{}>)'.format(
+                i+1, data[i]['reason'], data[i]['moderator']
+            ) for i in range(0, len(data))
+        ][0:10])
+        await ctx.send(embed=discord.Embed(
+            title=f'Warn list for {source.name}',
+            description=warnlist,
+            color=discord.Colour.red()
+        ))
+    
+    @commands.command(pass_context=True, aliases=['deletewarn', 'clear-all-infractions', 'clear-infractions', 'clearinfractions', 'delinfractions', 'delwarn', 'clearwarn', 'clear-warn'])
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def unwarn(self, ctx):
+        if not ctx.author.guild_permissions.manage_messages:
+            return await ctx.send(f'{str(self.client.get_emoji(BotEmotes.error))} | You need the `Manage messages` permissions to unwarn someone.')
+        if len(list(args))==0: return await ctx.send('{} | Please TAG someone !!!'.format(
+            str(self.client.get_emoji(BotEmotes.error))
+        ))
+        unwarned = Dashboard.clearWarn(ctx.message.mentions[0])
+        if unwarned: return await ctx.send(f'{str(self.client.get_emoji(BotEmotes.success))} | Successfully unwarned {ctx.message.mentions[0].name}.')
+        await ctx.send(f'{str(self.client.get_emoji(BotEmotes.error))} | An error occured.')
 
     @commands.command(pass_context=True, aliases=['welcomelog', 'setwelcome'])
     @commands.cooldown(1, 30, commands.BucketType.user)
