@@ -47,7 +47,9 @@ class Dashboard:
             "serverid": guildid,
             "autorole": kwargs.get('autorole'),
             "welcome": kwargs.get('welcome'),
-            "starboard": kwargs.get('starboard')
+            "starboard": kwargs.get('starboard'),
+            "star_requirements": kwargs.get('starreq'),
+            "warns": []
         })
     def delete_data(guildid):
         if Dashboard.exist(guildid):
@@ -107,7 +109,7 @@ class Dashboard:
         database['dashboard'].update_one({'serverid': guild.id}, {'$set': {'star_requirements': int(limit)}})
     def addStarboardChannel(channel, limit):
         if not Dashboard.exist(channel.guild.id):
-            Dashboard.add_guild(channel.guild.id, starboard=channel.id)
+            Dashboard.add_guild(channel.guild.id, starboard=channel.id, starreq=int(limit))
             return
         database['dashboard'].update_one({'serverid': channel.guild.id}, {'$set': {'starboard': channel.id, 'star_requirements': int(limit)}})
     def removeStarboardChannel(guild):
