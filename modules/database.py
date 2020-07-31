@@ -144,7 +144,7 @@ class Dashboard:
     def clearWarn(user):
         if not Dashboard.exist(user.guild.id): return False
         try:
-            data = database['dashboard'].find_one({'serverid': user.guild.id})
+            data = database['dashboard'].find_one({'serverid': user.guild.id})['warns']
             ids = [int(i.split('.')[0]) for i in data]
             if user.id not in ids: return False
             warns = [i for i in data if i.startswith(str(user.guild.id))]
