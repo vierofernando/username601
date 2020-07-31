@@ -147,7 +147,7 @@ class Dashboard:
             data = database['dashboard'].find_one({'serverid': user.guild.id})['warns']
             ids = [int(i.split('.')[0]) for i in data]
             if user.id not in ids: return False
-            warns = [i for i in data if i.startswith(str(str(user.guild.id)))]
+            warns = [i for i in data if i.startswith(str(user.id))]
             for i in warns:
                 database['dashboard'].update_one({'serverid': user.guild.id}, {'$pull': {'warns': i}})
             return True
