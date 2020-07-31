@@ -37,14 +37,17 @@ class username601Stats:
 
 class Dashboard:
     def exist(guildid):
-        data = database["dashboard"].find()
-        if len([i for i in data if i["serverid"]==guildid])==0: return False
-        return True
+        try:
+            data = database['dashboard'].find_one({'serverid': int(guildid)})
+            return True
+        except:
+            return False
     def add_guild(guildid, **kwargs):
         database["dashboard"].insert_one({
             "serverid": guildid,
             "autorole": kwargs.get('autorole'),
-            "welcome": kwargs.get('welcome')
+            "welcome": kwargs.get('welcome'),
+            "starboard": kwargs.get('starboard')
         })
     def delete_data(guildid):
         if Dashboard.exist(guildid):
@@ -59,9 +62,10 @@ class Dashboard:
     def add_autorole(guildid):
         if not Dashboard.exist(guildid):
             return str(None)
-        return str(database["dashboard"].find_one({
-            "serverid": guildid
-        })["autorole"])
+        try:
+            return str(database["dashboard"].find_one({"serverid": guildid})["autorole"])
+        except:
+            return str(None)
     def set_welcome(guildid, channelid):
         if not Dashboard.exist(guildid): Dashboard.add_guild(guildid, welcome=channelid)
         database["dashboard"].update_one({"serverid": guildid}, {"$set": {
@@ -85,6 +89,50 @@ class Dashboard:
             data = database["dashboard"].find_one({"serverid": guildid})["welcome"]
             return int(data)
         except: return None
+    def getStarboardChannel(guild, **kwargs):
+        guildid = guild.id if (not guild==None) else int(kwargs.get('guildid'))
+        try:
+            data = database['dashboard'].find_one({'serverid': guildid})
+        except:
+            return None
+        return {
+            'channelid': data['starboard'],
+            'starlimit': data['star_requirements']
+        }
+    def sendStarboard(discord, message):
+        embed = discord.Embed(title=f':star: {message.channel.name} | {message.author.name}#{message.author.discriminator}', description=message.content, color=discord.Colour.from_rgb(255, 255, 0))
+        if len(message.attachments)>0: embed.set_image(url=message.attachments[0].url)
+        return embed
+    def setStarboardLimit(limit, guild):
+        database['dashboard'].update_one({'serverid': guild.id}, {'$set': {'star_requirements': int(limit)}})
+    def addStarboardChannel(channel, limit):
+        if not Dashboard.exist(channel.guild.id):
+            Dashboard.add_guild(channel.guild.id, starboard=channel.id)
+            return
+        database['dashboard'].update_one({'serverid': channel.guild.id}, {'$set': {'starboard': channel.id, 'star_requirements': int(limit)}})
+    def removeStarboardChannel(guild):
+        if not Dashboard.exist(channel.guild.id):
+            Dashboard.add_guild(channel.guild.id)
+            return
+        database['dashboard'].update_one({
+            'serverid': guildid
+        }, {'$set': {'starboard': None, 'star_requirements': None}})
+    def databaseDeleteChannel(channel):
+        try:
+            data = database['dashboard'].find_one({'serverid': channel.guild.id})
+            if data==None: return
+        except: return
+        if channel.id not in [data[i] for i in list(data.keys())]: return
+        if data['welcome'] == channel.id:
+            database['dashboard'].update_one({'serverid': channel.guild.id}, {'$set': {
+                'welcome': None
+            }})
+            return
+        elif data['starboard'] != channel.id: return
+        database['dashboard'].update_one({'serverid': channel.guild.id}, {'$set': {
+            'starboard': None, 'star_requirements': None
+        }})
+
 class Economy:
     def get(userid):
         try:

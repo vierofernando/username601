@@ -17,6 +17,42 @@ class moderation(commands.Cog):
 
     @commands.command(pass_context=True)
     @commands.cooldown(1, 15, commands.BucketType.user)
+    async def starboard(self, ctx, *args):
+        wait = await ctx.send('{} | Please wait...'.format(
+            str(self.client.get_emoji(BotEmotes.error))
+        ))
+        if not ctx.author.guild_permissions.manage_channels:
+            return await wait.edit(content='{} | You need the `Manage channels` permission.'.format(
+                str(self.client.get_emoji(BotEmotes.error))
+            ))
+        starboard_channel = Dashboard.getStarboardChannel(ctx.guild)
+        if len(list(args))==0:
+            if starboard_channel['channelid']==None:
+                channel = await ctx.guild.create_text_channel(name='starboard', topic='Server starboard channel. Every funny/cool posts will be here.')
+                Dashboard.addStarboardChannel(channel, 1)
+                return await wait.edit(content=f'{str(self.client.get_emoji(BotEmotes.success))} | OK. Created a channel <#{str(channel.id)}>. Every starboard will be set there.\nTo remove starboard, type `{Config.prefix}starboard remove`.\nBy default, starboard requirements are set to 1 reaction. To increase, type `{Config.prefix}starboard limit <number>`.')
+            return await wait.edit(content='', embed=discord.Embed(
+                title=f'Starboard for {ctx.guild.name}',
+                description='Channel: <#{}>\nStars required to reach: {}'.format(
+                    starboard_channel['channelid'], starboard_channel['starlimit']
+                ), color=discord.Colour.from_rgb(201, 160, 112)
+            ))
+        if starboard_channel['channelid']==None: return
+        elif list(args)[0].lower().startswith('rem'):
+            Dashboard.removeStarboardChannel(ctx.guild)
+            return await wait.edit(content='{} | OK. Starboard for this server is deleted.'.format(str(self.client.get_emoji(BotEmotes.success))))
+        elif list(args)[0].lower()=='limit':
+            try:
+                num = int(list(args)[1])
+                if not num in range(1, 20):
+                    return await wait.edit(content='{} | Invalid number.'.format(str(self.client.get_emoji(BotEmotes.error))))
+                Dashboard.setStarboardLimit(num, ctx.guild)
+                await wait.edit(content='{} | Set the limit to {} reactions.'.format(str(self.client.get_emoji(BotEmotes.success)), str(num)))
+            except:
+                await wait.edit(content='{} | Invalid number.'.format(str(self.client.get_emoji(BotEmotes.error))))
+
+    @commands.command(pass_context=True)
+    @commands.cooldown(1, 15, commands.BucketType.user)
     async def serverstats(self, ctx):
         data = Painter.serverstats(ctx.guild)
         await ctx.send(file=discord.File(
@@ -361,8 +397,7 @@ class moderation(commands.Cog):
     async def _id(self, ctx, *args):
         if '<#' in ''.join(list(args)): total = str('Channel ID: ')+str(''.join(list(args)).split('<#')[1].split('>')[0])
         elif '<@&' in ''.join(list(args)): total = str('Role ID: ')+str(''.join(list(args)).split('<@&')[1].split('>')[0])
-        elif '<@!' in ''.join(list(args)): total = str('User ID: ')+str(''.join(list(args)).split('<@!')[1].split('>')[0])
-        elif '<@' in ''.join(list(args)): total = str('User ID')+str(''.join(list(args)).split('<@')[1].split('>')[0])
+        elif len(ctx.message.mentions)!=0: await ctx.send(ctx.message.mentions[0].id)
         else: total = str(self.client.get_emoji(BotEmotes.error))+' | No ID\'s found.'
         await ctx.send(total)
 
@@ -460,16 +495,15 @@ class moderation(commands.Cog):
     async def reactnum(self, ctx, *args):
         if len(list(args))==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Oops! Not a valid arg!')
         else:
-            num = []
-            for i in list(args):
-                if i.isnumeric(): num.append(int(i))
-            if len(num)!=2: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Oops! Not a valid arg!')
-            elif num[1] or num[0] not in list(range(0, 10)):
+            num = [int(i) for i in list(args) if i.isnumeric()]
+            if len(num)!=2: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Oops! Not a valid arg!\n Do something like'+Config.prefix+'reactnum 0 9')
+            elif len([True for i in num
+            [0:1] if i not in list(range(0, 10))])!=0:
                 await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | The valid range is from 0 to 9!')
             else:
                 if num[1] > num[0]: num = num[::-1]
                 for i in range(num[0], num[1]):
-                    await ctx.message.add_reaction(num2word(i))
+                    await ctx.message.add_reaction(src.num2word(i))
 
     @commands.command(pass_context=True, aliases=['createchannel', 'create-channel', 'mc'])
     @commands.cooldown(1, 10, commands.BucketType.user)

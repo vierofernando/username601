@@ -42,6 +42,21 @@ async def on_ready():
             pass
     print('Bot is online.')
 
+@client.event
+async def on_raw_reaction_add(payload):
+    # IF IS NOT STAR EMOJI, IGNORE
+    if str(payload.emoji)!='⭐': return
+    data = Dashboard.getStarboardChannel(None, guildid=payload.guild_id)
+    if data['channelid']==None: return
+    try:
+        messages = await client.get_channel(data['channelid']).history().flatten()
+        starboards = [int(str(message.content).split(': ')[1]) for message in messages if message.author.id==Config.id]
+        if payload.message_id in starboards: return
+    except: return
+    message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
+    if len(message.reactions) == data['starlimit']:
+        await client.get_channel(data['channelid']).send(content=f'ID: {message.id}', embed=Dashboard.sendStarboard(discord, message))
+
 @tasks.loop(seconds=7)
 async def statusChange():
     new_status = str(next(bot_status)).replace('{MEMBERS}', str(len(client.users))).replace('{SERVERS}', str(len(client.guilds)))
@@ -56,16 +71,24 @@ async def on_command_completion(ctx):
 
 @client.event
 async def on_member_join(member):
+    # SEND WELCOME CHANNEL
     welcome_message, welcome_channel = Dashboard.send_welcome(member, discord), Dashboard.get_welcome_channel(member.guild.id)
     if welcome_message!=None and welcome_channel!=None: await member.guild.get_channel(welcome_channel).send(embed=welcome_message)
     data = Dashboard.add_autorole(member.guild.id)
     if data.isnumeric():
+        # AUTOROLE
         await member.add_roles(member.guild.get_role(int(data)))
 
 @client.event
 async def on_member_remove(member):
+    # SEND GOODBYE CHANNEL
     goodbye_message, goodbye_channel = Dashboard.send_goodbye(member, discord), Dashboard.get_welcome_channel(member.guild.id)
     if goodbye_message!=None and goodbye_channel!=None: await member.guild.get_channel(goodbye_channel).send(embed=goodbye_message)
+
+@client.event
+async def on_guild_channel_delete(channel):
+    # IF CHANNEL MATCHES WITHIN DATABASE, DELETE IT ON DATABASE AS WELL
+    Dashboard.databaseDeleteChannel(channel)
 
 # DELETE THIS @CLIENT.EVENT IF YOU ARE USING THIS CODE
 @client.event
@@ -101,6 +124,5 @@ async def on_message(message):
         if message.content.startswith('<@'+str(client.user.id)+'>') or message.content.startswith('<@!'+str(client.user.id)+'>'): await message.channel.send(f'Hi! My prefix is `{Config.prefix}`.')
         await client.process_commands(message) # else bot will not respond to 99% commands
 
-print('Logging in to discord...')
 keep_alive()
 client.run(os.getenv('DISCORD_TOKEN'))
