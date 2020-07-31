@@ -156,6 +156,7 @@ class Dashboard:
         try:
             data, results = database['dashboard'].find_one({'serverid': user.guild.id})['warns'], []
             data = [i for i in data if i.startswith(str(user.id))]
+            if len(data)==0: return None
             for i in data:
                 results.append({
                     'moderator': int(i.split('.')[1].split('.')[0]),

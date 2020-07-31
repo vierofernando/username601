@@ -69,6 +69,9 @@ class moderation(commands.Cog):
         elif not ctx.author.guild_permissions.manage_messages:
             return await ctx.send('{} | You need to have manage messages permissions to do this man. Sad.'.format(str(self.client.get_emoji(BotEmotes.error))))
         reason = 'No reason provided' if (len(list(args))<2) else ' '.join(list(args)[1:len(list(args))])
+        if len(reason)>100: return await ctx.send('{} | Your reason is toooo longgg!'.format(
+            str(self.client.get_emoji(BotEmotes.error))
+        ))
         warned = Dashboard.addWarn(ctx.message.mentions[0], ctx.author, reason)
         if warned:
             return await ctx.send(f'{str(self.client.get_emoji(BotEmotes.success))} | {ctx.message.mentions[0].name}#{ctx.message.mentions[0].discriminator} was warned by {ctx.author.name}#{ctx.author.discriminator} for the reason *"{reason}"*.')
