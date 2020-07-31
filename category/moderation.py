@@ -96,7 +96,7 @@ class moderation(commands.Cog):
     async def unwarn(self, ctx):
         if not ctx.author.guild_permissions.manage_messages:
             return await ctx.send(f'{str(self.client.get_emoji(BotEmotes.error))} | You need the `Manage messages` permissions to unwarn someone.')
-        if len(list(args))==0: return await ctx.send('{} | Please TAG someone !!!'.format(
+        if len(ctx.message.mentions)==0: return await ctx.send('{} | Please TAG someone !!!'.format(
             str(self.client.get_emoji(BotEmotes.error))
         ))
         unwarned = Dashboard.clearWarn(ctx.message.mentions[0])
