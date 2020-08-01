@@ -4,14 +4,15 @@ import sys
 sys.path.append('/home/runner/hosting601/modules')
 import username601 as myself
 from username601 import *
+from decorators import command, cooldown
 import canvas as Painter
 
 class encoding(commands.Cog):
     def __init__(self, client):
         self.client = client
     
-    @commands.command(pass_context=True, aliases=['fliptext', 'fancy', 'cursive', 'braille'])
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @command('fliptext,fancy,cursive,braille')
+    @cooldown(5)
     async def morse(self, ctx, *args):
         if len(list(args))==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | no arguments? Really?')
         elif len(' '.join(list(args))) > 100:
@@ -25,8 +26,8 @@ class encoding(commands.Cog):
                 elif 'braille' in str(ctx.message.content).split(' ')[0][1:]: data = res['braille']
                 else: data = res['ciphers']['morse']
                 await ctx.send(f'{data}')
-    @commands.command(pass_context=True, aliases=['qr', 'qrcode', 'qr-code'])
-    @commands.cooldown(1, 1, commands.BucketType.user)
+    @command('qr,qrcode,qr-code')
+    @cooldown(1)
     async def barcode(self, ctx, *args):
         if len(list(args))==0:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Please provide a text!')
@@ -38,8 +39,8 @@ class encoding(commands.Cog):
                 else: url= 'http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data='+str(myself.urlify(str(' '.join(list(args)))))
                 await ctx.send(file=discord.File(Painter.urltoimage(url), 'qr_or_barcode.png'))
     
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 1, commands.BucketType.user)
+    @command()
+    @cooldown(1)
     async def binary(self, ctx, *args):
         if len(list(args))==0:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | gimme something.')
@@ -48,8 +49,8 @@ class encoding(commands.Cog):
         else:
             if len(myself.bin(str(' '.join(list(args)))))>4000: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | the result is too long for discord to proccess...')
             else: await ctx.send('```'+str(myself.bin(str(' '.join(list(args)))))+'```')
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 1, commands.BucketType.user)
+    @command()
+    @cooldown(1)
     async def caesar(self, ctx, *args):
         if len(list(args))==0:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | gimme something.')
@@ -63,26 +64,26 @@ class encoding(commands.Cog):
                 await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | No offset?')
             else:
                 await ctx.send(myself.caesar(str(' '.join(list(args)).replace(str(offset), '')), int(offset)))
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 1, commands.BucketType.user)
+    @command()
+    @cooldown(1)
     async def atbash(self, ctx, *args):
         if len(list(args))==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error)) + ' | Invalid. Please give us the word to encode...')
         else: await ctx.send(myself.atbash(' '.join(list(args))))
 
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 1, commands.BucketType.user)
+    @command()
+    @cooldown(1)
     async def reverse(self, ctx, *args):
         if len(list(args))==0: await ctx.send('no arguments? rip'[::-1])
         else: await ctx.send(str(' '.join(list(args)))[::-1])
     
-    @commands.command(pass_context=True, rewrite=['b64'])
-    @commands.cooldown(1, 1, commands.BucketType.user)
+    @command('b64')
+    @cooldown(1)
     async def base64(self, ctx, *args):
         if len(list(args))==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Gimme dat args!')
         else: await ctx.send(myself.encodeb64(' '.join(args)))
     
-    @commands.command(pass_context=True, rewrite=['leetspeak'])
-    @commands.cooldown(1, 1, commands.BucketType.user)
+    @command('leetspeak')
+    @cooldown(1)
     async def leet(self, ctx, *args):
         if len(list(args))==0:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | No arguments? ok then! no service it is!')

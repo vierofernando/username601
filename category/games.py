@@ -4,6 +4,7 @@ import sys
 sys.path.append('/home/runner/hosting601/modules')
 import username601 as myself
 import splashes as src
+from decorators import command, cooldown
 import random
 import canvas as Painter
 from username601 import *
@@ -16,8 +17,8 @@ class games(commands.Cog):
     def __init__(self, client):
         self.client = client
     
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 3, commands.BucketType.user)
+    @command()
+    @cooldown(3)
     async def gdlevel(self, ctx, *args):
         if len(list(args))==0:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Please enter a level ID!')
@@ -44,8 +45,8 @@ class games(commands.Cog):
                     await toEdit.edit(content='', embed=embed)
                 except Exception as e:
                     await toEdit.edit(content=f'```{e}```')
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 3, commands.BucketType.user)
+    @command()
+    @cooldown(3)
     async def gdsearch(self, ctx, *args):
         if len(list(args))==0:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Please input a query!')
@@ -64,8 +65,8 @@ class games(commands.Cog):
             except:
                 await ctx.send(str(self.client.get_emoji(BotEmotes.error)) + ' | Error: Not Found. :four::zero::four:')
 
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 3, commands.BucketType.user)
+    @command()
+    @cooldown(3)
     async def gdprofile(self, ctx, *args):
         if len(list(args))==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Gimme some ARGS!')
         else:
@@ -90,8 +91,8 @@ class games(commands.Cog):
             except:
                 await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Error, user not found.')
     
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 3, commands.BucketType.user)
+    @command()
+    @cooldown(3)
     async def gdlogo(self, ctx, *args):
         if len(list(args))==0:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Please input a text!')
@@ -101,8 +102,8 @@ class games(commands.Cog):
                 url='https://gdcolon.com/tools/gdlogo/img/'+str(text)
                 await ctx.send(file=discord.File(Painter.urltoimage(url), 'gdlogo.png'))
     
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 3, commands.BucketType.user)
+    @command()
+    @cooldown(3)
     async def gdbox(self, ctx, *args):
         if len(list(args))==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Please input a text!')
         else:
@@ -115,8 +116,8 @@ class games(commands.Cog):
                     url='https://gdcolon.com/tools/gdtextbox/img/'+str(text)+'?color='+color+'&name='+str(ctx.message.author.name)+'&url='+str(av).replace('webp', 'png')+'&resize=1'
                     await ctx.send(file=discord.File(Painter.urltoimage(url), 'gdbox.png'))
    
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 3, commands.BucketType.user)
+    @command()
+    @cooldown(3)
     async def gdcomment(self, ctx, *args):
         async with ctx.message.channel.typing():
             try:
@@ -132,8 +133,8 @@ class games(commands.Cog):
             except Exception as e:
                 await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +f' | Invalid!\nThe flow is this: `{Config.prefix}gdcomment text | name | like count`\nExample: `{prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
 
-    @commands.command(pass_context=True, aliases=['gdweekly'])
-    @commands.cooldown(1, 2, commands.BucketType.user)
+    @command('gdweekly')
+    @cooldown(2)
     async def gddaily(self, ctx):
         toEdit = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Retrieving Data...")
         if 'daily' in ctx.message.content: name = 'daily'
@@ -155,8 +156,8 @@ class games(commands.Cog):
         embed.add_field(name='Level Rewards', value=str(data["stars"])+" :star:\n"+str(data["orbs"])+" orbs\n"+str(data["diamonds"])+" :gem:")
         await toEdit.edit(content='', embed=embed)
 
-    @commands.command(pass_context=True, aliases=['rockpaperscissors'])
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @command('rockpaperscissors')
+    @cooldown(5)
     async def rps(self, ctx):
         main = await ctx.send(embed=discord.Embed(title='Rock Paper Scissors game.', description='Click the reaction below. And game will begin.', colour=discord.Colour.from_rgb(201, 160, 112)))
         exp = ['✊', '🖐️', '✌']
@@ -195,8 +196,8 @@ class games(commands.Cog):
                 Economy.addbal(ctx.message.author.id, reward)
                 await ctx.send('thank you for playing! you earned '+str(reward)+' as a prize!')
 
-    @commands.command(pass_context=True, aliases=['dice', 'flipcoin', 'flipdice', 'coinflip', 'diceflip', 'rolldice'])
-    @commands.cooldown(1, 3, commands.BucketType.user)
+    @command('dice,flipcoin,flipdice,coinflip,diceflip,rolldice')
+    @cooldown(3)
     async def coin(self, ctx, *args):
         if 'coin' in ctx.message.content:
             res = random.choice(['***heads!***', '***tails!***'])
@@ -211,8 +212,8 @@ class games(commands.Cog):
                 prize = random.randint(50, 100)
                 Economy.addbal(ctx.message.author.id, prize) ; await ctx.send('your bet was right! you get '+str(prize)+' diamonds.')
 
-    @commands.command(pass_context=True, aliases=['guessav'])
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    @command('guessav,avatarguess,avguess,avatargame,avgame')
+    @cooldown(30)
     async def guessavatar(self, ctx):
         if len(ctx.message.guild.members)>500:
             await ctx.send('Sorry, to protect some people\'s privacy, this command is not available for Large servers. (over 500 members)')
@@ -263,8 +264,8 @@ class games(commands.Cog):
                 else:
                     await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | <@'+str(ctx.message.author.id)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
 
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    @command()
+    @cooldown(30)
     async def geoquiz(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait... generating question...')
         data, topic = myself.api("https://restcountries.eu/rest/v2/"), random.choice(src.getGeoQuiz())
@@ -305,8 +306,8 @@ class games(commands.Cog):
         else:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | <@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr_order)+'.')
 
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 15, commands.BucketType.user)
+    @command()
+    @cooldown(15)
     async def mathquiz(self, ctx):
         arrayId, num1, num2, symArray = random.randint(0, 4), random.randint(1, 100), random.randint(1, 100), ['+', '-', 'x', ':', '^']
         ansArray = [num1+num2, num1-num2, num1*num2, num1/num2, num1**num2]
@@ -328,8 +329,8 @@ class games(commands.Cog):
         else:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | <@'+str(ctx.message.author.id)+'>, Incorrect. The answer is {}.'.format(answer))
 
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 60, commands.BucketType.user)
+    @command()
+    @cooldown(60)
     async def hangman(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait... generating...')
         the_word = myself.api("https://random-word-api.herokuapp.com/word?number=1")
@@ -380,8 +381,8 @@ class games(commands.Cog):
                 level = int(level) + 1
                 wrong_guesses = wrong_guesses + str(trying.content).lower() + ', '
 
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 2, commands.BucketType.user)
+    @command()
+    @cooldown(2)
     async def slot(self, ctx):
         win, jackpot, slots = False, False, []
         for i in range(0, 3):
@@ -407,8 +408,8 @@ class games(commands.Cog):
         embed = discord.Embed(title=msgslot, description=slots[0]+'\n\n'+slots[1]+'\n\n'+slots[2], colour=col)
         await ctx.send(embed=embed)
 
-    @commands.command(pass_context=True, aliases=['defuse', 'boom'])
-    @commands.cooldown(1, 7, commands.BucketType.user)
+    @command('defuse,boom')
+    @cooldown(7)
     async def bomb(self, ctx):
         def embedType(a):
             if a==1: return discord.Embed(title='The bomb exploded!', description='Game OVER!', colour=discord.Colour(000))
@@ -430,8 +431,8 @@ class games(commands.Cog):
         else:
             await main.edit(content='', embed=embedType(2))
 
-    @commands.command(pass_context=True, aliases=['gn', 'guessnumber'])
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    @command('gn,guessnumber')
+    @cooldown(30)
     async def guessnum(self, ctx):
         num = random.randint(5, 100)
         username = ctx.message.author.display_name
@@ -472,8 +473,8 @@ class games(commands.Cog):
                     gameplay = False
                     break
 
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 25, commands.BucketType.user)
+    @command()
+    @cooldown(25)
     async def pokequiz(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait... Generating quiz...')
         num = random.randint(1, 800)
@@ -531,8 +532,8 @@ class games(commands.Cog):
                     await ctx.send('You lose! The pokemon is **'+str(corr)+'**!')
                     gameplay = False ; break
 
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    @command()
+    @cooldown(30)
     async def trivia(self, ctx):
         al = None
         try:

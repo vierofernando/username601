@@ -5,6 +5,8 @@ sys.path.append('/home/runner/hosting601/modules')
 import username601 as myself
 from username601 import *
 from database import *
+from decorators import command, cooldown
+# MAKE SURE OWNER HAS ACCESS TO "EVERYTHING"
 import discordgames as Games
 import canvas as Painter
 import algorithm
@@ -26,7 +28,7 @@ class owner(commands.Cog):
             os.getenv('UPTIMEROBOT_TOKEN')
         ]
     
-    @commands.command(pass_context=True)
+    @command()
     async def setbal(self, ctx, *args):
         if ctx.message.author.id==Config.owner.id:
             await ctx.message.add_reaction(self.client.get_emoji(BotEmotes.loading))
@@ -35,7 +37,7 @@ class owner(commands.Cog):
         else:
             await ctx.send('no u.')
     
-    @commands.command(pass_context=True)
+    @command()
     async def cont(self, ctx):
         if ctx.message.author.id==Config.owner.id:
             owners, c = [i.owner.id for i in self.client.guilds], 0
@@ -46,7 +48,7 @@ class owner(commands.Cog):
                     c += 1
             await ctx.send(f"found {str(c)} new conts!")
 
-    @commands.command(pass_context=True)
+    @command()
     async def rp(self, ctx, *args):
         if ctx.message.author.id==Config.owner.id:
             try:
@@ -59,14 +61,14 @@ class owner(commands.Cog):
         else:
             await ctx.send('You are not the bot owner. Go get a life.')
 
-    @commands.command(pass_context=True)
+    @command()
     async def fban(self, ctx, *args):
         if int(ctx.message.author.id)==Config.owner.id:
             selfDB.feedback_ban(int(list(args)[0]), str(' '.join(list(args)[1:len(list(args))])))
             await ctx.message.add_reaction(self.client.get_emoji(BotEmotes.success))
         else:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | You are not the owner, nerd.')
-    @commands.command(pass_context=True)
+    @command()
     async def funban(self, ctx, *args):
         if int(ctx.message.author.id)==Config.owner.id:
             data = selfDB.feedback_unban(int(list(args)[0]))
@@ -74,7 +76,7 @@ class owner(commands.Cog):
             else: await ctx.message.add_reaction(self.client.get_emoji(BotEmotes.error))
         else:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | Invalid person.')
-    @commands.command(pass_context=True, aliases=['ex', 'eval'])
+    @command('ex,eval')
     async def evaluate(self, ctx, *args):
         unprefixed = ' '.join(list(args))
         if int(ctx.message.author.id)==Config.owner.id:
@@ -93,11 +95,11 @@ class owner(commands.Cog):
             myself.report(ctx.message.author) # reports to the owner
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Are you looking for the bots token? Well here you are: `'+totallyrealtoken+'`')
 
-    @commands.command(pass_context=True)
+    @command()
     async def token(self, ctx):
         await ctx.send(totallyrealtoken)
 
-    @commands.command(pass_context=True, aliases=['sh'])
+    @command('sh')
     async def bash(self, ctx, *args):
         unprefixed = ' '.join(list(args))
         if int(ctx.message.author.id)==Config.owner.id:

@@ -4,6 +4,7 @@ import imdb
 ia = imdb.IMDb()
 import sys
 sys.path.append('/home/runner/hosting601/modules')
+from decorators import command, cooldown
 import username601 as myself
 from username601 import *
 import wikipediaapi
@@ -13,8 +14,8 @@ gtr = Translator()
 class apps(commands.Cog):
     def __init__(self, client):
         self.client = client
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @command()
+    @cooldown(10)
     async def translate(self, ctx, *args):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait...') ; args = list(args)
         if len(args)>0:
@@ -45,8 +46,8 @@ class apps(commands.Cog):
         else:
             await wait.edit(content=f'Please add translations or\nType `{prefix}translate --list` for supported languages.')
     
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @command()
+    @cooldown(10)
     async def wikipedia(self, ctx, *args):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
         if len(list(args))==0:
@@ -82,8 +83,8 @@ class apps(commands.Cog):
                             count = int(count) + 1
                 embed = discord.Embed(title=pageTitle, url=str(page.fullurl), description=str(explain), colour=discord.Colour.from_rgb(201, 160, 112))
                 await wait.edit(content='', embed=embed)
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @command()
+    @cooldown(10)
     async def imdb(self, ctx, *args):
         wait, args = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait...'), list(args)
         if len(args)==0 or args[0].lower()=='help' or args[0].lower()=='--help':

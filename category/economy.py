@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from sys import path
 path.append("/home/runner/hosting601/modules")
+from decorators import command, cooldown
 import random
 from json import loads
 from username601 import *
@@ -12,8 +13,8 @@ class economy(commands.Cog):
     def __init__(self, client):
         self.client = client
     
-    @commands.command(pass_context=True, aliases=['deletedata', 'deldata', 'del-data', 'delete-data'])
-    @commands.cooldown(1, 3600, commands.BucketType.user)
+    @command('deletedata,deldata,del-data,delete-data')
+    @cooldown(3600)
     async def reset(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait...")
         data = Economy.get(ctx.author.id)
@@ -32,8 +33,8 @@ class economy(commands.Cog):
             else:
                 await ctx.send('{} | No it is then.'.format(str(self.client.get_emoji(BotEmotes.success))))
     
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 1800, commands.BucketType.user)
+    @command()
+    @cooldown(1800)
     async def work(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait...")
         data = Economy.get(ctx.author.id)
@@ -45,8 +46,8 @@ class economy(commands.Cog):
             if new_data=='success': await wait.edit(content=str(self.client.get_emoji(BotEmotes.success))+f" | {ctx.message.author.name} worked {job} and earned {reward} diamonds!")
             else: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+f" | Oops there was an error... Please report this to the owner using `1feedback.`\n`{new_data}`")
             
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 15, commands.BucketType.user)
+    @command()
+    @cooldown(15)
     async def daily(self, ctx, *args):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait...")
         if Economy.get(ctx.message.author.id)==None: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+" | You don't have a profile yet! Create a profile using `1new`")
@@ -78,8 +79,8 @@ class economy(commands.Cog):
                         colour=discord.Colour.red()
                     ))
     
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    @command()
+    @cooldown(30)
     async def transfer(self, ctx, *args):
         if len(list(args))==0 or len(ctx.message.mentions)==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | gimme some tag and some amount.')
         else:
@@ -90,14 +91,18 @@ class economy(commands.Cog):
             if amount==None: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+' | Give me some valid amount!')
             elif amount < 1: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+' | Invalid amount!')
             elif Economy.get(ctx.message.author.id)==None or Economy.get(ctx.message.mentions[0].id)==None:
-                await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+' | Neither of them has a profile!')
+                await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+' | One of them doesn\'t have a profile!')
             else:
+                if amount not in range(-2147483648, 2147483648):
+                    return ctx.send('{} | woah lol. the amount is hella crazy!'.format(
+                        str(self.client.get_emoji(BotEmotes.error))
+                    ))
                 Economy.addbal(ctx.message.mentions[0].id, amount)
                 Economy.delbal(ctx.message.author.id, amount) # EFFICIENT CODE LMFAO
                 await wait.edit(content=str(self.client.get_emoji(BotEmotes.success))+f' | Done! Transferred {str(amount)} diamonds to {ctx.message.mentions[0].name}!')
 
-    @commands.command(pass_context=True, aliases=['steal', 'crime'])
-    @commands.cooldown(1, 60, commands.BucketType.user)
+    @command('steal,crime,stole,robs')
+    @cooldown(60)
     async def rob(self, ctx, *args):
         if len(ctx.message.mentions)==0 or len(list(args))==0:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Who?')
@@ -113,9 +118,14 @@ class economy(commands.Cog):
                 elif amount2rob<0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | minus??? HUH?')
                 else:
                     wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+' | *Please wait... robbing...*')
-                    if Economy.get(ctx.message.mentions[0].id)==None or Economy.get(ctx.message.author.id)==None:
+                    victim, stealer = Economy.get(ctx.message.mentions[0].id), Economy.get(ctx.message.author.id)
+                    if victim==None or stealer==None:
                         await wait.edit(content=str(self.client.get_emoji(BotEmotes.loading))+' | you/that guy doesn\'t even have a profile!')
                     else:
+                        if victim['bal'] > stealer['bal']:
+                            return await wait.edit(content='{} | You cannot rob who is richer than you.'.format(
+                                str(self.client.get_emoji(BotEmotes.error))
+                            ))
                         data = random.choice(loads(open('/home/runner/hosting601/assets/json/steal.json', 'r').read()))
                         if not str(data['amount']).replace('-', '').isnumeric():
                             if data['amount']=='{SAME_AMOUNT}': robamount = -amount2rob
@@ -138,8 +148,46 @@ class economy(commands.Cog):
                         embed.set_footer(text=statement)
                         await wait.edit(content='', embed=embed)
     
-    @commands.command(pass_context=True, aliases=['lb', 'leader', 'leaders', 'rich', 'richest'])
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    @command('dep')
+    @cooldown(20)
+    async def deposit(self, ctx, *args):
+        if len(list(args))==0: return await ctx.send('{} | How many money?\nOr use `1dep all` to deposit all of your money.'.format(str(self.client.get_emoji(BotEmotes.error))))
+        data = Economy.get(ctx.author.id)
+        if data==None: return await ctx.send('{} | You don\'t have a profile! Use `{}new`'.format(
+            str(self.client.get_emoji(BotEmotes.error)), Config.prefix
+        ))
+        if list(args)[0].lower()=='all':
+            Economy.deposit(ctx.author.id, data['bal'])
+            return await ctx.send('{} | OK. Deposited all of your diamonds to the username601 bank.'.format(str(self.client.get_emoji(BotEmotes.success))))
+        try:
+            num = int(list(args)[0])
+            if num > data['bal']:
+                return await ctx.send('{} | Your bank has more money than in your balance!'.format(str(self.client.get_emoji(BotEmotes.error))))
+            Economy.deposit(ctx.author.id, num)
+            return await ctx.send('{} | OK. Deposited {} diamonds to your bank.'.format(str(self.client.get_emoji(BotEmotes.success))))
+        except:
+            await ctx.send('{} | Invalid number.'.format(str(self.client.get_emoji(BotEmotes.error))))
+    
+    @command()
+    @cooldown(20)
+    async def withdraw(self, ctx, *args):
+        if len(list(args))==0: return await ctx.send('{} | How many money?\nOr use `1widthdraw all` to get money from the bank.'.format(str(self.client.get_emoji(BotEmotes.error))))
+        data = Economy.get(ctx.author.id)
+        if data==None: return await ctx.send('{} | You don\'t have a profile! Use a `{}new.`'.format(str(self.client.get_emoji(BotEmotes.error)), Config.prefix))
+        if list(args)[0].lower()=='all':
+            Economy.withdraw(ctx.author.id, data['bankbal'])
+            return await ctx.send('{} | OK. Withdrawed all of your diamonds from the username601 bank.'.format(str(self.client.get_emoji(BotEmotes.success))))
+        try:
+            num = int(list(args)[0])
+            if num > data['bankbal']:
+                return await ctx.send('{} | Your number is more than the one in your bank!'.format(str(self.client.get_emoji(BotEmotes.error))))
+            Economy.withdraw(ctx.author.id, num)
+            return await ctx.send('{} | OK. Withdrawed {} diamonds from your bank.'.format(str(self.client.get_emoji(BotEmotes.success))))
+        except:
+            await ctx.send('{} | Invalid number.'.format(str(self.client.get_emoji(BotEmotes.error))))
+
+    @command('lb,leader,leaders,rich,richest,top')
+    @cooldown(30)
     async def leaderboard(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+' | Please wait...')
         data = Economy.leaderboard(ctx.guild.members)
@@ -161,8 +209,8 @@ class economy(commands.Cog):
                 color = discord.Colour.from_rgb(201, 160, 112)
             ))
     
-    @commands.command(pass_context=True, aliases=['desc', 'description'])
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    @command('desc,description')
+    @cooldown(30)
     async def setdesc(self, ctx, *args):
         if len(list(args))==0:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | What is the new description?')
@@ -183,8 +231,8 @@ class economy(commands.Cog):
                         await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+' | Oopsies! There was an error...')
                     else:
                         await wait.edit(content=str(self.client.get_emoji(BotEmotes.success))+' | Updated your description!')
-    @commands.command(pass_context=True, aliases=['balance', 'mybal', 'b', 'profile', 'me', 'myprofile'])
-    @commands.cooldown(1, 15, commands.BucketType.user)
+    @command('balance,mybal,profile,me,myprofile')
+    @cooldown(15)
     async def bal(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait...")
         if len(ctx.message.mentions)==0: src = ctx.message.author
@@ -195,15 +243,15 @@ class economy(commands.Cog):
         else:
             embed = discord.Embed(
                 title = src.name+"'s profile",
-                description = '**Description: **\n'+data['desc']+'\n\n**Balance: **'+str(data["bal"])+' :gem:',
+                description = '**Description: **\n'+data['desc']+'\n\n**Balance: **'+str(data["bal"])+' :gem:\n**Bank balance: **'+str(data['bankbal'])+' :gem:',
                 color = discord.Colour.from_rgb(201, 160, 112)
             )
             embed.set_thumbnail(url=src.avatar_url)
             if data['desc']=='nothing here!': embed.set_footer(text='TIP: Type 1setdesc <text> to customize your description!')
             await wait.edit(content='', embed=embed)
     
-    @commands.command(pass_context=True, aliases=['newprofile'])
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    @command('newprofile')
+    @cooldown(30)
     async def new(self, ctx):
         data = Economy.get(ctx.message.author.id)
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait... creating your profile...")

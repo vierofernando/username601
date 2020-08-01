@@ -199,7 +199,20 @@ class Economy:
             return True
         except:
             return False
-
+    def deposit(userid, amount):
+        database['economy'].update_one({'userid': int(userid)}, {
+            '$inc': {
+                'bal': -amount,
+                'bankbal': amount
+            }
+        })
+    def withdraw(userid, amount):
+        database['economy'].update_one({'userid': int(userid)}, {
+            '$inc': {
+                'bal': amount,
+                'bankbal': -amount
+            }
+        })
     def can_vote(userid):
         data = requests.get('https://api.ksoft.si/webhook/dbl/check?bot={}&user={}'.format(str(Config.id), str(userid)), headers={'authorization':'Bearer '+str(os.environ['KSOFT_TOKEN'])}).json()
         if data['voted']==False or Economy.get(userid)['voted']==False:

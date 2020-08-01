@@ -4,6 +4,7 @@ import sys
 sys.path.append('/home/runner/hosting601/modules')
 import canvas as Painter
 from io import BytesIO
+from decorators import command, cooldown
 import username601 as myself
 from username601 import *
 from requests import get
@@ -14,8 +15,8 @@ class memes(commands.Cog):
         self.client = client
         self.session = ClientSession()
 
-    @commands.command(pass_context=True, aliases=['evol', 'trashevol', 'evoltrash', 'evolutiontrash'])
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @command('evol,trashevol,evoltrash,evolutiontrash')
+    @cooldown(5)
     async def trashevolution(self, ctx):
         url = str(ctx.author.avatar_url) if (len(ctx.message.mentions)==0) else str(ctx.message.mentions[0].avatar_url)
         async with ctx.message.channel.typing():
@@ -23,8 +24,8 @@ class memes(commands.Cog):
                 Painter.evol(url.replace('.gif', '.webp').replace('.webp?size=1024', '.webp?size=512')), 'trashhahaha.png'
             ))
 
-    @commands.command(pass_context=True, aliases=['nostonks', 'notstonk', 'nostonk'])
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @command('nostonks,notstonk,nostonk')
+    @cooldown(5)
     async def notstonks(self, ctx, *args):
         text = str(' '.join(list(args))) if (len(list(args))!=0) else "When you forgot to put the args:"
         if len(ctx.message.mentions)>0:
@@ -39,15 +40,15 @@ class memes(commands.Cog):
         except:
             await ctx.send('erorr')
 
-    @commands.command(pass_context=True, aliases=['lookatthisgraph'])
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @command('lookatthisgraph')
+    @cooldown(5)
     async def graph(self, ctx, *args):
         src = str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512') if (len(ctx.message.mentions)==0) else str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
         async with ctx.message.channel.typing():
             await ctx.send(file=discord.File(Painter.lookatthisgraph(src), 'lookatthisdudelol.png'))
     
-    @commands.command(pass_context=True, aliases=['animegif', 'nj'])
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @command('animegif,nj')
+    @cooldown(10)
     async def nichijou(self, ctx, *args):
         text = 'LAZY PERSON' if (len(list(args))==0) else ' '.join(list(args))
         if len(text) > 22:
@@ -58,8 +59,8 @@ class memes(commands.Cog):
                 res = await r.read()
                 await ctx.send(file=discord.File(fp=BytesIO(res), filename="nichijou.gif"))
     
-    @commands.command(pass_context=True, aliases=['ifunny'])
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @command('ifunny')
+    @cooldown(5)
     async def wasted(self, ctx):
         async with ctx.message.channel.typing():
             if len(ctx.message.mentions)==0: source = ctx.message.author.avatar_url
@@ -68,8 +69,8 @@ class memes(commands.Cog):
             else: data, filename = Painter.ifunny(str(source).replace('.webp?size=1024', '.png?size=512')), 'ifunny.png'
             await ctx.send(file=discord.File(data, filename))
     
-    @commands.command(pass_context=True, aliases=['achieve', 'call'])
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @command('achieve,call')
+    @cooldown(5)
     async def challenge(self, ctx, *args):
         if len(list(args))==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | What is the challenge?')
         else:
@@ -79,8 +80,8 @@ class memes(commands.Cog):
                 elif 'call' in str(ctx.message.content).split(' ')[0][1:]: url='https://api.alexflipnote.dev/calling?text='+str(txt)
                 else: url='https://api.alexflipnote.dev/achievement?text='+str(txt)
                 await ctx.send(file=discord.File(Painter.urltoimage(url), 'minecraft_notice.png'))
-    @commands.command(pass_context=True, aliases=['dym'])
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @command('dym')
+    @cooldown(5)
     async def didyoumean(self, ctx, *args):
         if list(args)[0]=='help' or len(list(args))==0:
             embed = discord.Embed(title='didyoumean command help', description='Type like the following\n'+prefix+'didyoumean [text1] [text2]\n\nFor example:\n'+prefix+'didyoumean [i am gay] [i am guy]', colour=discord.Colour.from_rgb(201, 160, 112))
@@ -93,8 +94,8 @@ class memes(commands.Cog):
                     await ctx.send(file=discord.File(Painter.urltoimage(url), 'didyoumean.png'))
             except IndexError:
                 await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | error! invalid args!')
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @command()
+    @cooldown(5)
     async def drake(self, ctx, *args):
         unprefixed = ' '.join(list(args))
         if list(args)[0]=='help' or len(list(args))==0:
@@ -114,8 +115,8 @@ class memes(commands.Cog):
             except IndexError:
                 await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Please send something like {}drake [test 1] [test2]!".format(Config.prefix))
     
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @command()
+    @cooldown(5)
     async def salty(self, ctx, *args):
         if len(list(args))!=1:
             await ctx.send(str(client.get_emoji(BotEmotes.error)) + ' | Error! Invalid args.')
@@ -126,8 +127,8 @@ class memes(commands.Cog):
                 data = Painter.urltoimage(url)
                 await ctx.send(file=discord.File(data, 'salty.png'))
 
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @command()
+    @cooldown(5)
     async def ifearnoman(self, ctx):
         if len(ctx.message.mentions)==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Gimme some tag!")
         else:
@@ -135,8 +136,8 @@ class memes(commands.Cog):
                 source, by = str(ctx.message.mentions[0].avatar_url).replace('.webp?size=1024', '.png?size=512'), str(ctx.message.author.avatar_url).replace('.webp?size=1024', '.png?size=512')
                 await ctx.send(file=discord.File(Painter.ifearnoman(by, source), 'i_fear_no_man.png'))
 
-    @commands.command(pass_context=True, aliases=['stonks', 'immaheadout', 'homer', 'monkeypuppet', 'tom', 'surprisedpikachu', 'meandtheboys'])
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @command('stonks,immaheadout,homer,monkeypuppet,tom,surprisedpikachu,meandtheboys')
+    @cooldown(5)
     async def pabloescobar(self, ctx, *args):
         if len(list(args))==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Where is the meme's context?")
         else:
@@ -147,8 +148,8 @@ class memes(commands.Cog):
                 except Exception as e:
                     await ctx.send('Oopsies! There was an error on creating your chosen meme;\n'+str(e))
 
-    @commands.command(pass_context=True, aliases=['presentation'])
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @command('presentation')
+    @cooldown(5)
     async def firstwords(self, ctx, *args):
         unprefixed = ' '.join(list(args))
         if len(list(args))==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Where is the meme's context?")
@@ -161,8 +162,8 @@ class memes(commands.Cog):
                 except Exception as e:
                     await ctx.send('Oopsies! There was an error on creating your chosen meme;\n'+str(e))
 
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @command()
+    @cooldown(5)
     async def triggered(self, ctx, *args):
         increment, accept = None, True
         for i in list(args):
@@ -184,8 +185,8 @@ class memes(commands.Cog):
                 data = Painter.gif.triggered(ava, increment)
                 await ctx.send(file=discord.File(data, 'triggered.gif'))
 
-    @commands.command(pass_context=True, aliases=['communism', 'ussr', 'soviet', 'cykablyat', 'cyka-blyat', 'blyat'])
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @command('communism,ussr,soviet,cykablyat,cyka-blyat,blyat')
+    @cooldown(5)
     async def communist(self, ctx):
         async with ctx.message.channel.typing():
             if len(ctx.message.mentions)==0: comrade = str(ctx.message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
@@ -193,8 +194,8 @@ class memes(commands.Cog):
             data = Painter.gif.communist(comrade)
             await ctx.send(file=discord.File(data, 'cyka_blyat.gif'))
 
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @command()
+    @cooldown(5)
     async def trash(self, ctx):
         if len(ctx.message.mentions)==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Please mention someone....')
         else:
@@ -205,8 +206,8 @@ class memes(commands.Cog):
                 data = Painter.urltoimage(url)
                 await ctx.send(file=discord.File(data, 'trashed.png'))
 
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @command()
+    @cooldown(5)
     async def trap(self, ctx):
         if len(ctx.message.mentions)==0:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +f' | Wrong.\nPlease try the correct like following:\n`{prefix}trap [tag]`')
@@ -215,8 +216,8 @@ class memes(commands.Cog):
                 url='http://nekobot.xyz/api/imagegen?type=trap&name='+myself.urlify(str(ctx.message.mentions[0].name))+'&author='+myself.urlify(str(message.author.name))+'&image='+str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')+'&raw=1'
                 await ctx.send(file=discord.File(Painter.urltoimage(url), 'trap.png'))
 
-    @commands.command(pass_context=True, aliases=['winorlose'])
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @command('winorlose')
+    @cooldown(10)
     async def whowouldwin(self, ctx):
         if len(ctx.message.mentions)!=2:
             await ctx.send('Please tag TWO people!')
@@ -225,22 +226,22 @@ class memes(commands.Cog):
                 url='http://nekobot.xyz/api/imagegen?type=whowouldwin&raw=1&user1='+str(ctx.message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')+'&user2='+str(ctx.message.mentions[1].avatar_url).replace('.webp?size=1024', '.png')
                 await ctx.send(file=discord.File(Painter.urltoimage(url), 'whowouldwin.png'))
     # 431, 167, 486, 387, 1088, 720
-    @commands.command(pass_context=True, aliases=['tvsquidward', 'squidstv', 'squidtv', 'tvsquid', 'squidward', 'tv'])
-    @commands.cooldown(1, 8, commands.BucketType.user)
+    @command('tvsquidward,squidstv,squidtv,tvsquid,squidward,tv')
+    @cooldown(8)
     async def squidwardstv(self, ctx):
         if len(ctx.message.mentions)==0: source = str(ctx.message.author.avatar_url).replace('.gif', '.webp')
         else: source = str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp')
         await ctx.send(file=discord.File(Painter.squidwardstv(str(source).replace('.webp?size=1024', '.png?size=512')), 'squidtv.png'))
     
-    @commands.command(pass_context=True, aliases=['mywaifu', 'wf', 'waifuinsult', 'waifu-insult'])
-    @commands.cooldown(1, 7, commands.BucketType.user)
+    @command('mywaifu,wf,waifuinsult,insultwaifu,waifu-insult')
+    @cooldown(7)
     async def waifu(self, ctx):
         if len(ctx.message.mentions)==0: source = str(ctx.message.author.avatar_url).replace('.gif', '.webp')
         else: source = str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp')
         await ctx.send(file=discord.File(Painter.waifu(str(source).replace('.webp?size=1024', '.png?size=512')), 'mywaifu.png'))
 
-    @commands.command(pass_context=True, aliases=['wanted', 'chatroulette', 'sacred', 'coffindance', 'frame', 'window', 'art'])
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @command('wanted,chatroulette,sacred,coffindance,frame,window,art')
+    @cooldown(10)
     async def ferbtv(self, ctx):
         async with ctx.message.channel.typing():
             if len(ctx.message.mentions)<1: ava = str(ctx.message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
@@ -257,8 +258,8 @@ class memes(commands.Cog):
             await ctx.send(file=discord.File(image, str(ctx.message.content)[1:].replace(' ', '')+'.png'))
 
     
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @command()
+    @cooldown(10)
     async def scroll(self, ctx, *args):
         if len(list(args))==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Error! where is your text?")
         else:
@@ -268,8 +269,8 @@ class memes(commands.Cog):
                 url='https://api.alexflipnote.dev/scroll?text='+str(scrolltxt)
                 data = Painter.urltoimage(url)
                 await ctx.send(file=discord.File(data, 'scroll.png'))
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @command()
+    @cooldown(10)
     async def imgcaptcha(self, ctx):
         async with ctx.message.channel.typing():
             if len(ctx.message.mentions)==0: av, nm = str(ctx.message.author.avatar_url).replace('.webp?size=1024', '.png'), myself.urlify(str(ctx.message.author.name))
@@ -278,17 +279,18 @@ class memes(commands.Cog):
             data = Painter.urltoimage(url)
             await ctx.send(file=discord.File(data, 'your_captcha.png'))
     
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @command()
+    @cooldown(10)
     async def captcha(self, ctx, *args):
         async with ctx.message.channel.typing():
             capt = myself.urlify(' '.join(args))
             data = Painter.urltoimage('https://api.alexflipnote.dev/captcha?text='+str(capt))
             await ctx.send(file=discord.File(data, 'captcha.png'))
 
-    @commands.command(pass_context=True, aliases=['baby', 'clint', 'wolverine', 'disgusting', 'f', 'studying', 'starvstheforcesof'])
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @command('baby,clint,wolverine,disgusting,f,studying,starvstheforcesof')
+    @cooldown(10)
     async def door(self, ctx):
+		# yanderedev OwO
         async with ctx.message.channel.typing():
             if len(ctx.message.mentions)==0: ava = str(ctx.message.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
             else: ava = str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
@@ -301,8 +303,8 @@ class memes(commands.Cog):
             elif 'f' in ctx.message.content and len(str(ctx.message.content).split(' ')[0])==2: await ctx.send(file=discord.File(Painter.f(ava), 'f.png'))
             else: await ctx.send(file=discord.File(Painter.baby(ava), 'lolmeme.png'))
 
-    @commands.command(pass_context=True, aliases=['changedmymind'])
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @command('changedmymind')
+    @cooldown(10)
     async def changemymind(self, ctx, *args):
         if len(list(args))==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Error! You need a text...")
         else:
@@ -314,8 +316,8 @@ class memes(commands.Cog):
                 except Exception as e:
                     await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Oops! There was an error on generating your meme; `"+str(e)+"`")
 
-    @commands.command(pass_context=True, aliases=['gimme', 'memz', 'memey'])
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @command('gimme,memz,memey')
+    @cooldown(5)
     async def meme(self, ctx):
         data = myself.api("https://meme-api.herokuapp.com/gimme")
         embed = discord.Embed(colour = discord.Colour.from_rgb(201, 160, 112))
@@ -326,8 +328,8 @@ class memes(commands.Cog):
             embed.set_image(url=data["url"])
         await ctx.send(embed=embed)
 
-    @commands.command(pass_context=True, aliases=['trumptweet', 'kannagen'])
-    @commands.cooldown(1, 12, commands.BucketType.user)
+    @command('trumptweet,kannagen')
+    @cooldown(12)
     async def clyde(self, ctx, *args):
         if len(list(args))==0: await ctx.send('Please input a text...')
         else:
@@ -335,8 +337,8 @@ class memes(commands.Cog):
                 url='https://nekobot.xyz/api/imagegen?type='+str(ctx.message.content).split(' ')[0][1:]+'&text='+myself.urlify(' '.join(list(args)))+'&raw=1'
                 await ctx.send(file=discord.File(Painter.urltoimage(url), 'lawl.png'))
 
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @command()
+    @cooldown(10)
     async def floor(self, ctx, *args):
         if len(list(args))==0: text = 'I forgot to put the arguments, oops'
         else: text = str(' '.join(args))
@@ -348,8 +350,8 @@ class memes(commands.Cog):
                 else: text = 'I forgot to put the arguments, oops'
             await ctx.send(file=discord.File(Painter.urltoimage('https://api.alexflipnote.dev/floor?image='+auth+'&text='+myself.urlify(text)), 'floor.png'))
 
-    @commands.command(pass_context=True, aliases=['bad'])
-    @commands.cooldown(1, 7, commands.BucketType.user)
+    @command('bad')
+    @cooldown(7)
     async def amiajoke(self, ctx, *args):
         if len(ctx.message.content)==0: source = str(ctx.message.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
         else: source = str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
@@ -357,8 +359,8 @@ class memes(commands.Cog):
         else: url = 'https://api.alexflipnote.dev/amiajoke?image='+str(source)
         await ctx.send(file=discord.File(Painter.urltoimage(url), 'maymays.png'))
 
-    @commands.command(pass_context=True, aliases=['avmeme', 'philosoraptor', 'money', 'doge', 'fry'])
-    @commands.cooldown(1, 12, commands.BucketType.user)
+    @command('avmeme,philosoraptor,money,doge,fry')
+    @cooldown(12)
     async def wonka(self, ctx, *args):
         if 'avmeme' in ctx.message.content:
             async with ctx.message.channel.typing():

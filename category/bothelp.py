@@ -3,6 +3,7 @@ from discord.ext import commands
 import sys
 sys.path.append('/home/runner/hosting601/modules')
 import username601 as myself
+from decorators import command, cooldown
 from username601 import *
 from datetime import datetime as t
 from database import selfDB, username601Stats
@@ -11,8 +12,8 @@ class bothelp(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.command(pass_context=True, aliases=['commands', 'yardim'])
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @command('commands,yardim')
+    @cooldown(5)
     async def help(self, ctx, *args):
         data = myself.jsonisp("https://vierofernando.github.io/username601/assets/json/commands.json")
         types = Config.cmdtypes
@@ -66,20 +67,20 @@ class bothelp(commands.Cog):
                     embed = discord.Embed(title='Command help for '+str(source['n'])+':', description='**Function: **'+str(source['f'])+'\n**Parameters:** \n'+str(parameters), colour=discord.Colour.from_rgb(201, 160, 112))
                 await ctx.send(embed=embed)
 
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 1, commands.BucketType.user)
+    @command()
+    @cooldown(1)
     async def vote(self, ctx):
         embed = discord.Embed(title='Support by Voting us at top.gg!', description='Sure thing, mate! [Vote us at top.gg by clicking me!](https://top.gg/bot/'+str(Config.id)+'/vote)', colour=discord.Colour.from_rgb(201, 160, 112))
         await ctx.send(embed=embed)
     
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 1, commands.BucketType.user)
+    @command()
+    @cooldown(1)
     async def github(self, ctx):
         embed = discord.Embed(title="Click me to visit the Bot's github page.", colour=discord.Colour.from_rgb(201, 160, 112), url='https://github.com/vierofernando/username601')
         await ctx.send(embed=embed)
     
-    @commands.command(pass_context=True, aliases=['inviteme', 'invitelink', 'botinvite', 'invitebot', 'addtoserver', 'addbot'])
-    @commands.cooldown(1, 1, commands.BucketType.user)
+    @command('inviteme,invitelink,botinvite,invitebot,addtoserver,addbot')
+    @cooldown(1)
     async def invite(self, ctx):
         embed = discord.Embed(
             title='Sure thing! Invite this bot to your server by clicking me.',
@@ -88,8 +89,8 @@ class bothelp(commands.Cog):
         )
         await ctx.send(embed=embed)
     
-    @commands.command(pass_context=True, aliases=['report', 'suggest', 'bug', 'reportbug', 'bugreport'])
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    @command('report,suggest,bug,reportbug,bugreport')
+    @cooldown(30)
     async def feedback(self, ctx, *args):
         if len(list(args))==0:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Where\'s the feedback? :(')
@@ -115,16 +116,16 @@ class bothelp(commands.Cog):
                     description="**Reason: **```"+str(banned)+"```",
                     color=discord.Colour.red()
                 ))
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @command()
+    @cooldown(5)
     async def ping(self, ctx):
         ping = str(round(self.client.latency*1000))
         embed = discord.Embed(title=f'Pong!', description=f'**Discord\'s Latency:** {ping} ms.\n**Bot\'s Latency:** {str(round(int((t.now()-ctx.message.created_at).microseconds)/1000))} ms.', colour=discord.Colour.from_rgb(201, 160, 112))
         embed.set_thumbnail(url='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif')
         await ctx.send(embed=embed)
     
-    @commands.command(pass_context=True, aliases=['stats'])
-    @commands.cooldown(1, 15, commands.BucketType.user)
+    @command('stats')
+    @cooldown(15)
     async def uptime(self, ctx):
         up, cmds = selfDB.get_uptime(), username601Stats.retrieveData()
         imageurl = myself.urlify(myself.uptimerobot())
@@ -133,8 +134,8 @@ class bothelp(commands.Cog):
         embed.set_image(url='https://quickchart.io/chart?c='+imageurl)
         await ctx.send(embed=embed)
 
-    @commands.command(pass_context=True)
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @command()
+    @cooldown(5)
     async def about(self, ctx):
         if str(self.client.get_guild(Config.SupportServer.id).get_member(Config.owner.id).status)=='offline': devstatus = 'Offline'
         else: devstatus = 'Online'
