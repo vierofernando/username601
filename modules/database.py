@@ -176,7 +176,7 @@ class Economy:
         except Exception as e:
             return None
     def leaderboard(guildMembers):
-        fetched, members, ids = database['economy'].find(), [a.id for i in guildMembers], []
+        fetched, members, ids = database['economy'].find(), [a.id for a in guildMembers], []
         temp = ['{}|{}'.format(
             i['userid'], i['bal']
         ) for i in fetched if i['userid'] in guildMembers]
