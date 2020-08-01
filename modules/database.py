@@ -178,7 +178,8 @@ class Economy:
     def leaderboard(guildMembers):
         fetched, total = database['economy'].find(), []
         for i in fetched:
-            if i['userid'] in [a.id for a in guildMembers]:
+            if len([c for c in total if c.startswith(str(i['userid']))])!=0: continue
+            if (i['userid'] in [a.id for a in guildMembers]):
                 total.append(str(i['userid'])+'|'+str(i['bal']))
             else: continue
         return total
