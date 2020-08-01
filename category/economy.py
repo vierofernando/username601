@@ -194,18 +194,19 @@ class economy(commands.Cog):
         if len(data)==0:
             await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+' | This server doesn\'t have any members with profiles...')
         else:
-            bals, count, total = [], 1, ''
-            for a in data:
-                bals.append(int(a.split('|')[1]))
-            bals = sorted(bals)[::-1][0:20] # reverse because we need TOP 10 SHIT
-            for each in bals:
-                for j in data:
-                    if int(j.split('|')[1])==each:
-                        total += str(count)+'. **'+str(ctx.guild.get_member(int(j.split('|')[0])))+'** - '+str(each)+' :gem:\n'
-                        count += 1
+            total, bals = [], sorted([int(a.split('|')[1]) for a in data])[::-1][0:20]
+            for a in range(0, len(bals)):
+                person = [{
+                    'userid': int(i.split('|')[0]),
+                    'bal': int(i.split('|')[0])
+                } for i in data if int(i.split('|')[1])==bals[a]][0]
+                user = ctx.guild.get_member(person['userid'])
+                total.append('{}. {}#{} - **{}** :gem:'.format(
+                    a+1, user.name, user.discriminator, person['bal'] 
+                ))
             await wait.edit(content='', embed=discord.Embed(
                 title = ctx.guild.name+'\'s leaderboard',
-                description = total,
+                description = '\n'.join(total),
                 color = discord.Colour.from_rgb(201, 160, 112)
             ))
     
