@@ -176,11 +176,14 @@ class Economy:
         except Exception as e:
             return None
     def leaderboard(guildMembers):
-        fetched, members = database['economy'].find(), [a.id for i in guildMembers]
-        total = ['{}|{}'.format(
+        fetched, members, ids = database['economy'].find(), [a.id for i in guildMembers], []
+        temp = ['{}|{}'.format(
             i['userid'], i['bal']
         ) for i in fetched if i['userid'] in guildMembers]
-        return total
+        for people in range(0, len(temp)):
+            if temp[people].split('|')[0] in ids: temp.remove(temp[people]); continue
+            ids.append(temp[people].split('|')[0])
+        return temp
     
     def setdesc(userid, newdesc):
         try:
