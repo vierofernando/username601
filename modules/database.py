@@ -252,7 +252,8 @@ class Economy:
                 'userid': userid,
                 'bal': 0,
                 'desc': 'nothing here!',
-                'voted': False
+                'voted': False,
+                'bankbal': 0
             })
             return 'done'
         except Exception as e:
