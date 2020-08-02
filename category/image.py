@@ -7,10 +7,26 @@ from decorators import command, cooldown
 import random
 import username601 as myself
 from username601 import *
+from requests import get
 
 class image(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.nsfwSites = [i.split('\n')[0] for i in str(get('https://raw.githubusercontent.com/blocklistproject/Lists/master/porn.txt').text).split('\t') if not i.startswith('#') and not i.startswith('0')]
+
+    @command('ss,screenshots')
+    @cooldown(10)
+    async def screenshot(self, ctx, *args):
+        await ctx.message.channel.trigger_typing()
+        if len(list(args))==0: return await ctx.send('{} | Send a website!'.format(str(self.client.get_emoji(BotEmotes.error))))
+        site = list(args)[0].replace('http://', '').replace('https://', '').replace('<', '').replace('>', '')
+        if site.endswith('/'): site = ''.join(site[0:len(site)-2])
+        if site in self.nsfwSites: return await ctx.send('{} | Nope, nope nope. That is a NSFW site. Go away.'.format(str(self.client.get_emoji(BotEmotes.error))))
+        site = 'https://'+site
+        try:
+            await ctx.send(file=discord.File(Painter.urltoimage('https://image.thum.io/get/width/1920/crop/675/noanimate/'+site), 'https://'+site+'.png'))
+        except:
+            await ctx.send('{} | Invalid site.'.format(str(self.client.get_emoji(BotEmotes.error))))
 
     @command('destroy,destroyava,destroyavatar')
     @cooldown(5)
