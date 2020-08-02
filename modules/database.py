@@ -43,13 +43,14 @@ class Dashboard:
         except:
             return False
     def add_guild(guildid, **kwargs):
+        warns = [] if kwargs.get('warns')==None else kwargs.get('warns')
         database["dashboard"].insert_one({
             "serverid": guildid,
             "autorole": kwargs.get('autorole'),
             "welcome": kwargs.get('welcome'),
             "starboard": kwargs.get('starboard'),
             "star_requirements": kwargs.get('starreq'),
-            "warns": []
+            "warns": warns
         })
     def delete_data(guildid):
         if Dashboard.exist(guildid):
@@ -136,11 +137,12 @@ class Dashboard:
             'starboard': None, 'star_requirements': None
         }})
     def addWarn(user, moderator, reason):
+        warn = f'{user.id}.{moderator.id}.{reason}'
         try:
-            if not Dashboard.exist(moderator.guild.id): Dashboard.add_guild(moderator.guild.id)
-            database['dashboard'].update_one({'serverid': moderator.guild.id}, {'$push': {'warns': 
-                f'{user.id}.{moderator.id}.{reason}'
-            }}) ; return True
+            if not Dashboard.exist(moderator.guild.id):
+                Dashboard.add_guild(moderator.guild.id, warns=warn)
+                return True
+            database['dashboard'].update_one({'serverid': moderator.guild.id}, {'$push': {'warns': warn}}) ; return True
         except Exception as e:
             print(e)
             return False
