@@ -23,10 +23,8 @@ class utils(commands.Cog):
         await ctx.message.channel.trigger_typing()
         if len(data['collection']['items'])==0: return await ctx.send('{} | Nothing found.'.format(self.client.get_emoji(BotEmotes.error)))
         img = random.choice(data['collection']['items'])
-        footertext = 'Taken at '+img['data'][0]['location']+' at '+img['data'][0]['date_created'].replace('T', ' ').replace('Z', '')
         em = discord.Embed(title=img['data'][0]['title'], description=img['data'][0]["description"], color=discord.Colour.from_rgb(201, 160, 112))
         em.set_image(url=img['links'][0]['href'])
-        em.set_footer(text=footertext)
         await ctx.send(embed=em)
 
     @command('pokedex,dex,bulbapedia,pokemoninfo,poke-info,poke-dex,pokepedia')
