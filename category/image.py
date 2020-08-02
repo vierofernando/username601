@@ -12,6 +12,16 @@ class image(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    @command('destroy,destroyava,destroyavatar')
+    @cooldown(5)
+    async def destroyimg(self, ctx):
+        elem = ctx.author if (len(ctx.message.mentions)==0) else ctx.message.mentions[0]
+        src = str(elem.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
+        async with ctx.message.channel.typing():
+            await ctx.send(file=discord.File(
+                Painter.ruin(src), 'ruinedavatar.png'
+            ))
+
     @command('application')
     @cooldown(5)
     async def app(self, ctx):

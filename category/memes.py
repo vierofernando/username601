@@ -240,10 +240,21 @@ class memes(commands.Cog):
         else: source = str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp')
         await ctx.send(file=discord.File(Painter.waifu(str(source).replace('.webp?size=1024', '.png?size=512')), 'mywaifu.png'))
 
+    @command('worsethanhitler,worstthanhitler')
+    @cooldown(5)
+    async def hitler(self, ctx):
+        source = str(ctx.author.avatar_url) if len(ctx.message.mentions)==0 else str(ctx.message.mentions[0].avatar_url)
+        source = source.replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
+        async with ctx.message.channel.typing():
+            await ctx.send(file=discord.File(
+                Painter.hitler(source), 'hitler.png'
+            ))
+
     @command('wanted,chatroulette,sacred,coffindance,frame,window,art')
     @cooldown(10)
     async def ferbtv(self, ctx):
         async with ctx.message.channel.typing():
+            filename = str(ctx.message.content).split()[0][1:].lower()
             if len(ctx.message.mentions)<1: ava = str(ctx.message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
             else: ava = str(ctx.message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=512')
             if 'wanted' in ctx.message.content: num1, num2, num3, num4 = 547, 539, 167, 423
@@ -253,7 +264,7 @@ class memes(commands.Cog):
             elif 'coffindance' in ctx.message.content: num1, num2, num3, num4 = 220, 228, 421, 58
             elif 'frame' in ctx.message.content: num1, num2, num3, num4, ava = 1025, 715, 137, 141, str(ava).replace("=512", "=1024")
             elif 'window' in ctx.message.content: num1, num2, num3, num4 = 219, 199, 4, 21
-            if 'art' not in ctx.message.content: image = Painter.putimage(ava, str(ctx.message.content).split()[0][1:], num1, num2, num3, num4)
+            if 'art' not in ctx.message.content: image = Painter.putimage(ava, filename, num1, num2, num3, num4)
             else: image = Painter.art(ava)
             await ctx.send(file=discord.File(image, str(ctx.message.content)[1:].replace(' ', '')+'.png'))
 

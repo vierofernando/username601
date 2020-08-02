@@ -78,6 +78,18 @@ def app(src, msg):
     cnv.paste(im, (0, 0), im)
     return compile(cnv)
 
+def ruin(ava):
+    im = Image.open('/home/runner/hosting601/assets/pics/destroyimg.png')
+    av = imagefromURL(ava)
+    av.paste(im, (0,0), im)
+    return compile(av)
+
+def hitler(ava):
+    ava = imagefromURL(ava).resize((141, 167))
+    im = Image.open('/home/runner/hosting601/assets/pics/worse-than-hitler.png')
+    im.paste(ava, (46, 31))
+    return compile(im)
+
 def serverstats(guild):
     start = "https://quickchart.io/chart?c="
     data1 = [
