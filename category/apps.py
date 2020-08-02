@@ -14,6 +14,35 @@ gtr = Translator()
 class apps(commands.Cog):
     def __init__(self, client):
         self.client = client
+
+    @command('spot,splay,listeningto')
+    @cooldown(5)
+    async def spotify(self, ctx):
+        if len(ctx.message.mentions)==0: source = ctx.message.author.activity
+        else: source = ctx.message.mentions[0].activity
+        if str(source).lower()!='spotify': await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Nope, not listening to spotify.')
+        else:
+            embed = discord.Embed(url='https://open.spotify.com/track/{}'.format(source.track_id), title=source.title, description='Track ID: `'+str(source.track_id)+'`\nStarted listening since '+str(myself.time_encode((t.now() - source.created_at).seconds))+' ago', color=source.color)
+            embed.add_field(name='Artists', value=myself.dearray(source.artists))
+            embed.add_field(name='Album', value=source.album)
+            embed.set_author(name='Spotify', icon_url='https://images-ext-1.discordapp.net/external/myh_a7c2mTDfnh31SP2539AL_a1bhAYpafwZL5gQ99I/https/www.freepnglogos.com/uploads/spotify-logo-png/spotify-download-logo-30.png')
+            embed.set_thumbnail(url=source.album_cover_url)
+            await ctx.send(embed=embed)
+
+    @command()
+    @cooldown(10)
+    async def itunes(self, ctx, *args):
+        if len(list(args))==0: return await ctx.send('{} | Please send a search term!'.format(str(self.client.get_emoji(BotEmotes.error))))
+        data = myself.jsonisp('https://itunes.apple.com/search?term={}&media=music&entity=song&limit=1&explicit=no'.format(myself.urlify(' '.join(list(args)))))
+        if len(data['results'])==0: return await ctx.send('{} | No music found... oop'.format(self.client.get_emoji(BotEmotes.error)))
+        data = data['results'][0]
+        em = discord.Embed(title=data['trackName'], url=data['trackViewUrl'],description='**Artist: **{}\n**Album: **{}\n**Release Date:** {}\n**Genre: **{}'.format(
+            data['artistName'], data['collectionName'], data['releaseDate'].replace('T', ' ').replace('Z', ''), data['primaryGenreName']
+        ), color=discord.Color.from_rgb(201, 160, 112))
+        em.set_thumbnail(url=data['artworkUrl100'])
+        em.set_author(name='iTunes', icon_url='https://i.imgur.com/PR29ow0.jpg', url='https://www.apple.com/itunes/')
+        await ctx.send(embed=em)
+
     @command()
     @cooldown(10)
     async def translate(self, ctx, *args):

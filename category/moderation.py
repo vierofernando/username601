@@ -156,21 +156,7 @@ class moderation(commands.Cog):
                         await ctx.send("{} | Success! set the autorole to **{}!**".format(str(self.client.get_emoji(BotEmotes.success)), ctx.guild.get_role(roleid).name))
                     except:
                         await ctx.send("{} | Invalid arguments!".format(str(self.client.get_emoji(BotEmotes.error))))
-
-    @command('spot,splay,listeningto')
-    @cooldown(5)
-    async def spotify(self, ctx):
-        if len(ctx.message.mentions)==0: source = ctx.message.author.activity
-        else: source = ctx.message.mentions[0].activity
-        if str(source).lower()!='spotify': await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Nope, not listening to spotify.')
-        else:
-            embed = discord.Embed(url='https://open.spotify.com/track/{}'.format(source.track_id), title=source.title, description='Track ID: `'+str(source.track_id)+'`\nStarted listening since '+str(myself.time_encode((t.now() - source.created_at).seconds))+' ago', color=source.color)
-            embed.add_field(name='Artists', value=myself.dearray(source.artists))
-            embed.add_field(name='Album', value=source.album)
-            embed.set_author(name='Spotify', icon_url='https://images-ext-1.discordapp.net/external/myh_a7c2mTDfnh31SP2539AL_a1bhAYpafwZL5gQ99I/https/www.freepnglogos.com/uploads/spotify-logo-png/spotify-download-logo-30.png')
-            embed.set_thumbnail(url=source.album_cover_url)
-            await ctx.send(embed=embed)
-        
+ 
     @command('bigemoji,emojipic,emoji-img')
     @cooldown(3)
     async def emojiimg(self, ctx, *args):
