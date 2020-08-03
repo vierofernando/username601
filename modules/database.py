@@ -96,6 +96,7 @@ class Dashboard:
     def getStarboardChannel(guild, **kwargs):
         guildid = guild.id if (guild!=None) else int(kwargs.get('guildid'))
         if not Dashboard.exist(guildid): return None
+        data = database['dashboard'].find_one({'serverid': guildid})
         return {
             'channelid': data['starboard'],
             'starlimit': data['star_requirements']
