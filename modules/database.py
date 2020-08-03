@@ -97,10 +97,12 @@ class Dashboard:
         guildid = guild.id if (guild!=None) else int(kwargs.get('guildid'))
         if not Dashboard.exist(guildid): return None
         data = database['dashboard'].find_one({'serverid': guildid})
-        return {
-            'channelid': data['starboard'],
-            'starlimit': data['star_requirements']
-        }
+        try:
+            return {
+                'channelid': data['starboard'],
+                'starlimit': data['star_requirements']
+            }
+        except: return None
     def sendStarboard(discord, message):
         embed = discord.Embed(title=f':star: {message.channel.name} | {message.author.name}#{message.author.discriminator}', description=message.content, color=discord.Colour.from_rgb(255, 255, 0), url=f'https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id}')
         embed.set_footer(text='Click on the URL to jump to the message!')

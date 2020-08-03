@@ -30,6 +30,8 @@ DISCORD_TOKEN = Your discord token<br>
 DBL_TOKEN = Your discord bot list (top.gg) token<br>
 DB_LINK = Your Mongo DB database link<br> (With "economy" as a collection)<br>
 UPTIMEROBOT_TOKEN = Your Uptimerobot Monitor token<br>
+BOTSFORDISCORD_TOKEN = Your Botsfordiscord Token.<br>
+DISCORdbotlist_token = your DISCORDBOTLIST.COM token
 
 **DATABASE STRUCTURE:**<br>
 username601 > economy<br>

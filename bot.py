@@ -15,6 +15,7 @@ import canvas as Painter
 
 # EXTERNAL PACKAGES
 import os
+from requests import post
 from itertools import cycle
 import discord
 from discord.ext import commands, tasks
@@ -31,6 +32,7 @@ async def on_ready():
     selfDB.post_uptime() # update the uptime
     username601Stats.clear() # clear all cached data on database (reset);
     statusChange.start()
+    updateStats.start()
     for i in os.listdir('./category'):
         if not i.endswith('.py'): continue
         print('[BOT] Loaded cog: '+str(i[:-3]))
@@ -41,12 +43,26 @@ async def on_ready():
             pass
     print('Bot is online.')
 
+@tasks.loop(seconds=900.0)
+async def updateStats():
+    print(f'Updated stuff [{str(t.now())[:-7]}]')
+    post(f'https://botsfordiscord.com/api/bot/{Config.id}', headers={
+        'Content-Type': 'application/json',
+        'Authorization': os.getenv('BOTSFORDISCORD_TOKEN')
+    }, body={'server_count': len(client.guilds)})
+    post(f'https://discordbotlist.com/api/v1/bots/{Config.id}/stats', headers={
+        'Authorization': os.getenv('DISCORDBOTLIST_TOKEN')
+    }, body={
+        'guilds': len(client.guilds),
+        'users': len(client.users)
+    })
+
 @client.event
 async def on_raw_reaction_add(payload):
     # IF IS NOT STAR EMOJI, IGNORE
     if str(payload.emoji)!='⭐': return
     data = Dashboard.getStarboardChannel(None, guildid=payload.guild_id)
-    if data['channelid']==None: return
+    if data==None: return
     try:
         messages = await client.get_channel(data['channelid']).history().flatten()
         starboards = [int(str(message.content).split(': ')[1]) for message in messages if message.author.id==Config.id]
@@ -85,6 +101,7 @@ async def on_member_join(member):
 @client.event
 async def on_member_update(before, after):
     if before.nick == after.nick: return
+    elif after.nick==None: return
     if after.nick.startswith('!'):
         if not Dashboard.getDehoister(after.guild.id): return
         try: await after.edit(nick='Dehoisted user')
@@ -129,14 +146,15 @@ async def on_command_error(ctx, error):
     else: print("ERROR on [{}]: {}".format(ctx.message.content, str(error)))
 
 @client.event
-async def on_message(message):    
+async def on_message(message):
+    if message.author.bot or message.guild==None: return
+ 
     # THESE TWO IF STATEMENTS ARE JUST FOR ME ON THE SUPPORT SERVER CHANNEL. YOU CAN DELETE THESE TWO.
     if message.channel.id==700040209705861120: await message.author.add_roles(message.guild.get_role(700042707468550184))
     if message.channel.id==724454726908772373: await message.author.add_roles(message.guild.get_role(701586228000325733))
-    
-    if not message.author.bot:
-        if message.content.startswith('<@'+str(client.user.id)+'>') or message.content.startswith('<@!'+str(client.user.id)+'>'): await message.channel.send(f'Hi! My prefix is `{Config.prefix}`.')
-        await client.process_commands(message) # else bot will not respond to 99% commands
+
+    if len(message.mentions)>0 and message.mentions[0].id == Config.id: await message.channel.send(f'Hi, {ctx.author.mention}, my prefix is `{Config.id}`.')
+    await client.process_commands(message) # else bot will not respond to 99% commands
 
 def Username601():
     print('Logging in to discord...')
