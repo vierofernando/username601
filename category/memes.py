@@ -226,7 +226,7 @@ class memes(commands.Cog):
                 url='http://nekobot.xyz/api/imagegen?type=whowouldwin&raw=1&user1='+str(ctx.message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')+'&user2='+str(ctx.message.mentions[1].avatar_url).replace('.webp?size=1024', '.png')
                 await ctx.send(file=discord.File(Painter.urltoimage(url), 'whowouldwin.png'))
     # 431, 167, 486, 387, 1088, 720
-    @command('tvsquidward,squidstv,squidtv,tvsquid,squidward,tv')
+    @command('tvsquidward,squidstv,squidtv,tvsquid,squidward')
     @cooldown(8)
     async def squidwardstv(self, ctx):
         if len(ctx.message.mentions)==0: source = str(ctx.message.author.avatar_url).replace('.gif', '.webp')

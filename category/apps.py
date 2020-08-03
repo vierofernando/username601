@@ -6,6 +6,7 @@ import sys
 sys.path.append('/home/runner/hosting601/modules')
 from decorators import command, cooldown
 import username601 as myself
+from requests import get
 from username601 import *
 import wikipediaapi
 from googletrans import Translator, LANGUAGES
@@ -14,6 +15,26 @@ gtr = Translator()
 class apps(commands.Cog):
     def __init__(self, client):
         self.client = client
+
+    @command('movie')
+    @cooldown(10)
+    async def tv(self, ctx, *args):
+        if len(list(args))==0: return await ctx.send('{} | please gimme args',format(str(self.client.get_emoji(BotEmotes.error))))
+        query = myself.urlify(' '.join(list(args)))
+        data = get(f'http://api.tvmaze.com/singlesearch/shows?q={query}')
+        if data.status_code==404: return await ctx.send('{} | Oops! did not found any movie.'.format(str(self.client.get_emoji(BotEmotes.error))))
+        try:
+            data = data.json()
+            star = str(':star:'*round(data['rating']['average'])) if data['rating']['average']!=None else 'No star rating provided.'
+            em = discord.Embed(title=data['name'], url=data['url'], description=myself.html2discord(data['summary']), color=discord.Colour.from_rgb(201, 160, 112))
+            em.add_field(name='General Information', value='**Status: **'+data['status']+'\n**Premiered at: **'+data['premiered']+'\n**Type: **'+data['type']+'\n**Language: **'+data['language']+'\n**Rating: **'+str(data['rating']['average'] if data['rating']['average']!=None else 'None')+'\n'+star)
+            em.add_field(name='TV Network', value=data['network']['name']+' at '+data['network']['country']['name']+' ('+data['network']['country']['timezone']+')')
+            em.add_field(name='Genre', value=str(myself.dearray(data['genres']) if len(data['genres'])>0 else 'no genre avaliable'))
+            em.add_field(name='Schedule', value=myself.dearray(data['schedule']['days'])+' at '+data['schedule']['time'])
+            em.set_image(url=data['image']['original'])
+            await ctx.send(embed=em)
+        except:
+            await ctx.send('{} | Oops! There was an error...'.format(str(self.client.get_emoji(BotEmotes.error))))
 
     @command('spot,splay,listeningto')
     @cooldown(5)
