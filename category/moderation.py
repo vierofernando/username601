@@ -16,6 +16,21 @@ class moderation(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    @command('dehoist')
+    @cooldown(15)
+    async def dehoister(self, ctx, *args):
+        if not ctx.author.guild_permissions.manage_nicknames: return await ctx.send('{} | You need the `Manage Nicknames` permissions!'.format(str(self.client.get_emoji(BotEmotes.error))))
+        data = Dashboard.getDehoister(ctx.guild.id)
+        if not data: 
+            Dashboard.setDehoister(ctx.guild, True)
+            return await ctx.send(embed=discord.Embed(
+                title='Activated dehoister.',
+                description=f'**What is dehoister?**\nDehoister is an automated part of this bot that automatically renames someone that tries to hoist their name (for example: `!ABC`)\n\n**How do i deactivate this?**\nJust type `{Config.prefix}dehoister`.\n\n**It doesn\'t work for me!**\nMaybe because your role position is higher than me, so i don\'t have the permissions required.',
+                color=discord.Colour.from_rgb(201, 160, 112)
+            ))
+        Dashboard.setDehoister(ctx.guild, False)
+        await ctx.send('{} | Dehoister deactivated.'.format(self.client.get_emoji(BotEmotes.success)))
+
     @command()
     @cooldown(15)
     async def starboard(self, ctx, *args):

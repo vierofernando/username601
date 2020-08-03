@@ -50,7 +50,8 @@ class Dashboard:
             "welcome": kwargs.get('welcome'),
             "starboard": kwargs.get('starboard'),
             "star_requirements": kwargs.get('starreq'),
-            "warns": warns
+            "warns": warns,
+            "dehoister": kwargs.get('dehoister') if kwargs.get('dehoister')!=None else False
         })
     def delete_data(guildid):
         if Dashboard.exist(guildid):
@@ -93,11 +94,8 @@ class Dashboard:
             return int(data)
         except: return None
     def getStarboardChannel(guild, **kwargs):
-        guildid = guild.id if (not guild==None) else int(kwargs.get('guildid'))
-        try:
-            data = database['dashboard'].find_one({'serverid': guildid})
-        except:
-            return None
+        guildid = guild.id if (guild!=None) else int(kwargs.get('guildid'))
+        if not Dashboard.exist(guildid): return None
         return {
             'channelid': data['starboard'],
             'starlimit': data['star_requirements']
@@ -169,6 +167,15 @@ class Dashboard:
                 })
             return results
         except: return None
+    def setDehoister(server, flip):
+        if not Dashboard.exist(server.id):
+            Dashboard.add_guild(server.id, dehoister=flip)
+            return
+        database['dashboard'].update_one({'serverid': server.id}, {'$set': {'dehoister': flip}})
+    def getDehoister(serverid):
+        if not Dashboard.exist(serverid): return False
+        data = database['dashboard'].find_one({'serverid': serverid})
+        return data['dehoister']
 
 class Economy:
     def get(userid):

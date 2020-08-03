@@ -77,6 +77,18 @@ async def on_member_join(member):
     if data.isnumeric():
         # AUTOROLE
         await member.add_roles(member.guild.get_role(int(data)))
+    if member.name.startswith('!'):
+        if not Dashboard.getDehoister(member.guild): return
+        try: await member.edit(nick='Dehoisted user')
+        except: pass
+
+@client.event
+async def on_member_update(before, after):
+    if before.nick == after.nick: return
+    if after.nick.startswith('!'):
+        if not Dashboard.getDehoister(after.guild.id): return
+        try: await after.edit(nick='Dehoisted user')
+        except: pass
 
 @client.event
 async def on_member_remove(member):
