@@ -16,6 +16,51 @@ class moderation(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    @command()
+    @cooldown(5)
+    async def mute(self, ctx):
+        if len(ctx.message.mentions)==0: return await ctx.send('{} | No tag?'.format(self.client.get_emoji(BotEmotes.error)))
+        if not ctx.author.guild_permissions.manage_messages: return await ctx.send('{} | No `manage messages` permission!'.format(self.client.get_emoji(BotEmotes.error)))
+        role = Dashboard.getMuteRole(ctx.guild.id)
+        if role==None:
+            await ctx.send('{} | Please wait... Setting up...\nThis may take a while if your server has a lot of channels.'.format(str(self.client.get_emoji(BotEmotes.loading))))
+            role = await ctx.guild.create_role(name='Muted', color=discord.Colour.from_rgb(0, 0, 1))
+            ratelimit_counter = 0
+            # BEWARE API ABUSE! ADDED SOME STUFF TO REDUCE RATELIMITS
+            for i in ctx.guild.channels:
+                if ratelimit_counter > 10: # take a break for a while
+                    await asyncio.sleep(2)
+                    ratelimit_counter = 0 ; continue
+                if str(i.type)=='text':
+                    await i.set_permissions(role, send_messages=False)
+                    ratelimit_counter += 1
+                elif str(i.type)=='voice':
+                    await i.set_permissions(role, connect=False)
+                    ratelimit_counter += 1
+            Dashboard.editMuteRole(ctx.guild.id, role.id)
+            role = role.id
+        role = ctx.guild.get_role(role)
+        try:
+            await ctx.message.mentions[0].add_roles(role)
+            await ctx.send('{} | Muted. Ductaped {}\'s mouth.'.format(str(self.client.get_emoji(BotEmotes.success)), ctx.message.mentions[0].name))
+        except Exception as e:
+            print(e)
+            await ctx.send('{} | I cannot mute him... maybe i has less permissions than him.\nHis mouth is too powerful.'.format(str(self.client.get_emoji(BotEmotes.error))))
+    
+    @command()
+    @cooldown(5)
+    async def unmute(self, ctx):
+        if len(ctx.message.mentions)==0: return await ctx.send('{} | Please tag someone.'.format(self.client.get_emoji(BotEmotes.error)))
+        roleid = Dashboard.getMuteRole(ctx.guild.id)
+        if roleid==None: return await ctx.send('{} | He is not muted!\nOr maybe you muted this on other bot... which is not compatible.'.format(self.client.get_emoji(BotEmote.error)))
+        elif roleid not in [i.id for i in ctx.message.mentions[0].roles]:
+            return await ctx.send('{} | That guy is not muted.'.format(self.client.get_emoji(BotEmotes.error)))
+        try:
+            await ctx.message.mentions[0].remove_roles(ctx.guild.get_role(roleid))
+            await ctx.send('{} | {} unmuted.'.format(self.client.get_emoji(BotEmotes.success), ctx.message.mentions[0].name))
+        except:
+            await ctx.send('{} | I cannot unmute {}!'.format(self.client.get_emoji(BotEmotes.error), ctx.message.mentions[0].name))
+
     @command('dehoist')
     @cooldown(15)
     async def dehoister(self, ctx, *args):

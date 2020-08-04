@@ -51,7 +51,8 @@ class Dashboard:
             "starboard": kwargs.get('starboard'),
             "star_requirements": kwargs.get('starreq'),
             "warns": warns,
-            "dehoister": kwargs.get('dehoister') if kwargs.get('dehoister')!=None else False
+            "dehoister": kwargs.get('dehoister') if kwargs.get('dehoister')!=None else False,
+            "mute": kwargs.get('muterole')
         })
     def delete_data(guildid):
         if Dashboard.exist(guildid):
@@ -179,6 +180,17 @@ class Dashboard:
         if not Dashboard.exist(serverid): return False
         data = database['dashboard'].find_one({'serverid': serverid})
         return data['dehoister']
+    def getMuteRole(serverid):
+        if not Dashboard.exist(serverid):
+            Dashboard.add_guild(serverid)
+            return None
+        data = database['dashboard'].find_one({'serverid': serverid})
+        if data==None: return None
+        return data['mute']
+    def editMuteRole(serverid, roleid):
+        database['dashboard'].update_one({'serverid': serverid}, {'$set': {
+            'mute': int(roleid)
+        }})
 
 class Economy:
     def get(userid):
@@ -197,11 +209,6 @@ class Economy:
     def setdesc(userid, newdesc):
         try:
             database['economy'].update_one({'userid': userid}, { '$set': { 'desc': str(newdesc) } })
-        except:
-            return 'error'
-    def vote(userid, bl):
-        try:
-            database['economy'].update_one({'userid': userid}, { '$set': { 'voted': bl } })
         except:
             return 'error'
     def delete_data(userid):
@@ -226,7 +233,7 @@ class Economy:
         })
     def can_vote(userid):
         data = requests.get('https://api.ksoft.si/webhook/dbl/check?bot={}&user={}'.format(str(Config.id), str(userid)), headers={'authorization':'Bearer '+str(os.environ['KSOFT_TOKEN'])}).json()
-        if data['voted']==False or Economy.get(userid)['voted']==False:
+        if data['voted']==False:
             return {
                 'bool': True,
                 'time': None

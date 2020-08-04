@@ -15,6 +15,7 @@ import canvas as Painter
 
 # EXTERNAL PACKAGES
 import os
+from datetime import datetime as t
 from requests import post
 from itertools import cycle
 import discord
@@ -117,9 +118,22 @@ async def on_member_remove(member):
     if goodbye_message!=None and goodbye_channel!=None: await member.guild.get_channel(goodbye_channel).send(embed=goodbye_message)
 
 @client.event
+async def on_guild_channel_create(channel):
+    if str(channel.type) not in ['text', 'voice']: return
+    data = Dashboard.getMuteRole(channel.guild.id)
+    if data==None: return
+    if str(channel.type)=='text': return await channel.set_permissions(ctx.guild.get_role(data), send_messages=False)
+    await channel.set_permissions(ctx.guild.get_role(data), connect=False)
+
+@client.event
 async def on_guild_channel_delete(channel):
     # IF CHANNEL MATCHES WITHIN DATABASE, DELETE IT ON DATABASE AS WELL
     Dashboard.databaseDeleteChannel(channel)
+
+@client.event
+async def on_guild_role_delete(role):
+    if Dashboard.getMuteRole(role.guild.id)==None: return
+    Dashboard.editMuteRole(role.guild.id, None)
 
 # DELETE THIS @CLIENT.EVENT IF YOU ARE USING THIS CODE
 @client.event
@@ -153,7 +167,7 @@ async def on_message(message):
     if message.channel.id==700040209705861120: await message.author.add_roles(message.guild.get_role(700042707468550184))
     if message.channel.id==724454726908772373: await message.author.add_roles(message.guild.get_role(701586228000325733))
 
-    if len(message.mentions)>0 and message.mentions[0].id == Config.id: await message.channel.send(f'Hi, {ctx.author.mention}, my prefix is `{Config.id}`.')
+    if len(message.mentions)>0 and message.mentions[0].id == Config.id: await message.channel.send(f'Hi, {message.author.mention}, my prefix is `{Config.prefix}`.')
     await client.process_commands(message) # else bot will not respond to 99% commands
 
 def Username601():
