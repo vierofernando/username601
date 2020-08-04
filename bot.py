@@ -19,7 +19,6 @@ from datetime import datetime as t
 from requests import post
 from itertools import cycle
 import discord
-from datetime import datetime as t
 from discord.ext import commands, tasks
 import random
 import asyncio
@@ -133,7 +132,9 @@ async def on_guild_channel_delete(channel):
 
 @client.event
 async def on_guild_role_delete(role):
-    if Dashboard.getMuteRole(role.guild.id)==None: return
+    muterole = Dashboard.getMuteRole(role.guild.id)
+    if muterole==None: return
+    if muterole!=role.id: return
     Dashboard.editMuteRole(role.guild.id, None)
 
 # DELETE THIS @CLIENT.EVENT IF YOU ARE USING THIS CODE
