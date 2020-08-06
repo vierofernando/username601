@@ -356,7 +356,7 @@ class moderation(commands.Cog):
                     await ctx.message.guild.ban(ctx.message.mentions[0])
                     await ctx.send(str(self.client.get_emoji(BotEmotes.success))+" | Successfully banned "+ctx.message.mentions[0].name+".")
     @command('purge')
-    @cooldown(10)
+    @cooldown(5)
     async def clear(self, ctx, *args):
         if not ctx.message.author.guild_permissions.manage_channels:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | You need the manage channel permission!")
@@ -463,6 +463,7 @@ class moderation(commands.Cog):
     async def botmembers(self, ctx):
         botmembers, off, on, warning = "", 0, 0, 'Down triangles means that the bot is down. And up triangles mean the bot is well... up.'
         for i in range(0, int(len(ctx.message.guild.members))):
+            if i > 20: break
             if len(botmembers)>1900:
                 warning = str(self.client.get_emoji(BotEmotes.error)) + ' | Error: Too many bots, some bot are not listed above.'
                 break

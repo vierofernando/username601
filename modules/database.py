@@ -179,6 +179,7 @@ class Dashboard:
     def getDehoister(serverid):
         if not Dashboard.exist(serverid): return False
         data = database['dashboard'].find_one({'serverid': serverid})
+        if data==None: return False
         return data['dehoister']
     def getMuteRole(serverid):
         if not Dashboard.exist(serverid):
@@ -195,10 +196,26 @@ class Dashboard:
 class Economy:
     def get(userid):
         try:
-            data = database['economy'].find({'userid': userid})[0]
+            data = database['economy'].find_one({'userid': userid})
             return data
         except Exception as e:
             return None
+    def getProfile(userid, guildMembersId):
+        data = database['economy'].find_one({'userid': int(userid)})
+        alldata = [i for i in database['economy'].find()]
+        bal_global_list = sorted([i['bal'] for i in alldata])[::-1]
+        bal_guild_list = sorted([i['bal'] for i in alldata if i['userid'] in guildMembersId])[::-1]
+        time_join_list = sorted([i['joinDate'] for i in alldata])
+        return {
+            'rank': str([i+1 for i in range(len(bal_guild_list)) if bal_guild_list[i]==data['bal']][0]),
+            'global': str([i+1 for i in range(len(bal_global_list)) if bal_global_list[i]==data['bal']][0]),
+            'desc': data['desc'],
+            'wallet': str(data['bal']),
+            'bank': str(data['bankbal']),
+            'joined': str(t.fromtimestamp(data['joinDate']))[:-7],
+            'number': str([i+1 for i in range(len(time_join_list)) if time_join_list[i]==data['joinDate']][0])
+        }
+        
     def leaderboard(guildMembers):
         fetched, members = database['economy'].find(), [a.id for a in guildMembers]
         temp = ['{}|{}'.format(
@@ -270,8 +287,8 @@ class Economy:
                 'userid': userid,
                 'bal': 0,
                 'desc': 'nothing here!',
-                'voted': False,
-                'bankbal': 0
+                'bankbal': 0,
+                'joinDate': t.now().timestamp()
             })
             return 'done'
         except Exception as e:

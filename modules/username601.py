@@ -19,8 +19,8 @@ class Config:
     prefix = '1' # your prefix here
     cmdtypes = decodeurl("https://vierofernando.github.io/username601/assets/json/categories.json").json()
     class Version:
-        number = '2.4'
-        changelog = 'Added warning system and Starboard!'
+        number = '2.4.5'
+        changelog = 'Updated to discord.py version 1.4'
     class SupportServer:
         id = 688373853889495044 # support server ID
         logging = 694521383908016188 # logging channel ID in support server
@@ -40,6 +40,10 @@ def limitto(text, limitcount):
         temp.pop()
         a = ''.join(temp)
     return a
+
+def html2discord(text):
+    res = text.replace('<p>', '').replace('</p>', '').replace('<b>', '**').replace('</b>', '**').replace('<i>', '*').replace('</i>', '*').replace('<br />', '\n')
+    return res
 
 def uptimerobot():
     payload = 'api_key={}&format=json&logs=1'.format(getenv('UPTIMEROBOT_TOKEN'))
@@ -180,14 +184,14 @@ def dearray(arr):
     return str(', '.join(arr))+'.'
 
 def tohex(integer):
-    return str(hex(integer)).upper()[2:]
+    return str(hex(int(integer))).upper()[2:]
 
 def toint(hex):
     return int(hex, 16)
 
 def convertrgb(hexCode, typ):
-    uselessArray = list(hexCode)
-    part1, part2, part3 = str(uselessArray[0])+str(uselessArray[1]), str(uselessArray[2])+str(uselessArray[3]), str(uselessArray[4])+str(uselessArray[5])
+    uselessArray = list(str(hexCode))
+    part1, part2, part3 = ''.join(uselessArray[0:1]), ''.join(uselessArray[2:3]), ''.join(uselessArray[4:5])
     partsArray, rgb, percentageRgb = [part1, part2, part3], [], []
     for i in range(0, 3):
         toConvert = partsArray[i]

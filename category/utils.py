@@ -376,9 +376,9 @@ class utils(commands.Cog):
         else:
             if len(args)!=1: await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | Invalid arguments.')
             elif args[0].startswith('#'): hexCode = args[0][1:] ; continuing = True
-            elif args[0] in list('0123456789ABCDEF') and len(args[1])==6: hexCode = args[0] ; continuing = True
-            elif args[0].isnumeric()==True: hexCode = str(myself.tohex(args[1])) ; continuing = True
-            elif len(args[0])!=6: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+'We only accept `HEX CODES` and `INTEGER VALUES` as inputs!')
+            elif args[0] in list('0123456789ABCDEF') and len(args[0])==6: hexCode = args[0] ; continuing = True
+            elif args[0].isnumeric(): hexCode = str(myself.tohex(args[0])) ; continuing = True
+            elif len(args[0])!=6: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | We only accept `HEX CODES` and `INTEGER VALUES` as inputs!')
             else: hexCode = args[0] ; continuing = True
         if continuing:
             rgb = myself.convertrgb(hexCode, '0')

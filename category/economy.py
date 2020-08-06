@@ -6,6 +6,7 @@ from decorators import command, cooldown
 import random
 from json import loads
 from username601 import *
+import canvas as Painter
 from database import Economy
 from datetime import datetime
 
@@ -34,7 +35,7 @@ class economy(commands.Cog):
                 await ctx.send('{} | No it is then.'.format(str(self.client.get_emoji(BotEmotes.success))))
     
     @command()
-    @cooldown(1800)
+    @cooldown(900)
     async def work(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait...")
         data = Economy.get(ctx.author.id)
@@ -53,31 +54,17 @@ class economy(commands.Cog):
         if Economy.get(ctx.message.author.id)==None: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+" | You don't have a profile yet! Create a profile using `1new`")
         else:
             obj = Economy.can_vote(ctx.message.author.id)
-            if '--claim' in ''.join(list(args)).lower():
-                if not obj['bool']:
-                    await wait.edit(content='', embed=discord.Embed(title='You have not voted yet!', color=discord.Color.red()))
-                else:
-                    dt = Economy.daily(ctx.message.author.id)
-                    Economy.vote(ctx.message.author.id, True)
-                    if str(dt).isnumeric():
-                        await wait.edit(content='', embed=discord.Embed(title='You claimed your daily for {} diamonds!'.format(str(dt)), color=discord.Color.green()))
-                    else:
-                        await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+' | ERROR: `'+str(dt)+'`')
+            if obj['bool']:
+                await wait.edit(content='', embed=discord.Embed(
+                    title='Vote us at top.gg!',
+                    description='**[VOTE HERE](https://top.gg/bot/'+str(Config.id)+'/vote)**\nBy voting, we will give you rewards such as ***LOTS of diamonds!***',
+                    color = discord.Colour.green()
+                ))
             else:
-                if obj['bool']:
-                    Economy.vote(ctx.message.author.id, False)
-                    em = embed=discord.Embed(
-                        title='Vote us at top.gg!',
-                        description='**[VOTE HERE](https://top.gg/bot/'+str(Config.id)+'/vote)**\nBy voting, we will give you rewards such as ***LOTS of diamonds!***',
-                        color = discord.Colour.green()
-                    )
-                    em.set_footer(text='Type '+str(Config.prefix)+'daily --claim to claim rewards!')
-                    await wait.edit(content='', embed=em)
-                else:
-                    await wait.edit(content='', embed=discord.Embed(
-                        title='You can vote us again in '+str(obj['time'])+'!',
-                        colour=discord.Colour.red()
-                    ))
+                await wait.edit(content='', embed=discord.Embed(
+                    title='You can vote us again in '+str(obj['time'])+'!',
+                    colour=discord.Colour.red()
+                ))
     
     @command()
     @cooldown(30)
@@ -212,12 +199,12 @@ class economy(commands.Cog):
             ))
     
     @command('desc,description')
-    @cooldown(30)
+    @cooldown(5)
     async def setdesc(self, ctx, *args):
         if len(list(args))==0:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | What is the new description?')
         else:
-            if len(list(args))>100:
+            if len(list(args))>50:
                 await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Your description is too long!')
             elif '://' in str(' '.join(list(args))):
                 await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Please don\'t use links in the description! We don\'t allow that!')
@@ -237,20 +224,13 @@ class economy(commands.Cog):
     @cooldown(15)
     async def bal(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait...")
-        if len(ctx.message.mentions)==0: src = ctx.message.author
-        else: src = ctx.message.mentions[0]
-        data = Economy.get(src.id)
-        if data==None:
+        src = ctx.message.author if len(ctx.message.mentions)==0 else ctx.message.mentions[0]
+        if Economy.get(src.id)==None:
             await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+" | You don't have a profile yet! Create a profile using `1new`")
         else:
-            embed = discord.Embed(
-                title = src.name+"'s profile",
-                description = '**Description: **\n'+data['desc']+'\n\n**Balance: **'+str(data["bal"])+' :gem:\n**Bank balance: **'+str(data['bankbal'])+' :gem:',
-                color = discord.Colour.from_rgb(201, 160, 112)
-            )
-            embed.set_thumbnail(url=src.avatar_url)
-            if data['desc']=='nothing here!': embed.set_footer(text='TIP: Type 1setdesc <text> to customize your description!')
-            await wait.edit(content='', embed=embed)
+            img = Painter.profile(str(src.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512'), src, Economy.getProfile(src.id, [i.id for i in ctx.guild.members if not i.bot]))
+            await wait.delete()
+            await ctx.send(file=discord.File(img, 'profile.png'))
     
     @command('newprofile')
     @cooldown(30)

@@ -62,6 +62,29 @@ def imagefromURL(url):
     image = Image.open(io.BytesIO(response.content))
     return image
 
+def Helvetica(size):
+    return ImageFont.truetype(r'/home/runner/hosting601/assets/fonts/Helvetica.ttf', int(size))
+
+def profile(url, user, details):
+    avatar = imagefromURL(url).resize((253, 250))
+    template = Image.open(r'/home/runner/hosting601/assets/pics/template.png')
+    draw = ImageDraw.Draw(template)
+    draw.text((295,60), user.name, fill='white', font=Helvetica(80), align ="left")
+    draw.text((295,140), f"ID: {user.id}", fill='white', font=Helvetica(30), align ="left")
+    draw.text((295,180), "Rank: "+details['rank'], fill='white', font=Helvetica(30), align ="left")
+    draw.text((295,220), "Global Rank: "+details['global'], fill='white', font=Helvetica(30), align ="left")
+
+    draw.text((156,348), "Joined since "+details['joined'], fill='white', font=Helvetica(30), align ="left")
+    draw.text((156,388), "User number "+details['number'], fill='white', font=Helvetica(30), align ="left")
+
+    draw.text((156,477), "Wallet balance: "+details['wallet']+" Diamonds", fill='white', font=Helvetica(30), align ="left")
+    draw.text((156,517), "Bank balance: "+details['bank']+" Diamonds", fill='white', font=Helvetica(30), align ="left")
+    draw.text((156,608), details['desc'], fill='white', font=Helvetica(54), align ="left")
+    canvas = Image.new(mode='RGB', size=template.size, color=(0,0,0))
+    canvas.paste(avatar, (32, 42))
+    canvas.paste(template, (0, 0), template)
+    return compile(canvas)
+
 def evol(url):
     ava, img = imagefromURL(url).resize((77, 69)), Image.open(r"/home/runner/hosting601/assets/pics/evol.jpg")
     img.paste(ava, (255, 175))
