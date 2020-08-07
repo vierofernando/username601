@@ -31,25 +31,28 @@ class fun(commands.Cog):
     
     @command()
     @cooldown(30)
-    async def hack(self, ctx):
-        if len(ctx.message.mentions)<1:
+    async def hack(self, ctx, *args):
+        foundArgs, tohack = False, None
+        try:
+            tohack = ctx.guild.get_member(int(list(args)[0]))
+            assert tohack!=None
+            foundArgs = True
+        except: pass
+        if len(ctx.message.mentions)<1 and not foundArgs:
             await ctx.send(f'Please tag someone!\nExample: {Config.prefix}hack <@'+str(ctx.message.author.id)+'>')
         else:
-            tohack = ctx.message.mentions[0]
-            console = 'C:\\Users\\Anonymous601>'
-            if len(ctx.message.mentions)>0:
-                main = await ctx.send('Opening Console...')
+            if tohack==None: tohack = ctx.message.mentions[0]
+            console = 'username601@HACKERMAN:/$ '
+            if len(ctx.message.mentions)>0 or foundArgs:
+                main = await ctx.send('Opening Console...\n```bash\nloading...```')
                 flow = src.hackflow(tohack)
                 for i in range(0, len(flow)):
                     console = console + flow[i][1:]
-                    newembed = discord.Embed(title='Anonymous601 Hacking Console', description=f'```{console}```',colour=discord.Colour.from_rgb(201, 160, 112))
-                    newembed.set_thumbnail(url=myself.hackfind(flow[i], tohack.avatar_url))
-                    await main.edit(content='', embed=newembed)
+                    await main.edit(content=f"```bash\n{console}```")
                     await asyncio.sleep(random.randint(2, 4))
             else:
-                console = console + 'hack.exe -u '+str(ctx.message.author.name)+'ERROR: INVALID TAG.\nACCESS DENIED.\n\nHash encoded base64 cipher code:\n'+myself.bin(ctx.message.author.name)+ '\n' + console
-                embed = discord.Embed(title='Anonymous601 Hacking Console', description=f'```{console}```',colour=discord.Colour.from_rgb(201, 160, 112))
-                await ctx.send(embed=embed)
+                console += 'ERROR: INVALID TAG.\nACCESS DENIED.\n\nHash encoded base64 cipher code:\n'+myself.bin(ctx.message.author.name)+ '\n' + console
+                await ctx.send(f'```bash\n{console}```')
     
     @command()
     @cooldown(11)
