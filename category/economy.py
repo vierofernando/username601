@@ -24,6 +24,7 @@ class economy(commands.Cog):
             extra = '' if price in range(5, 1000000) else 'Invalid price. Setting price to default: 1000'
             if extra.endswith('1000'): price = 1000
             productName = '<product name undefined>' if len(list(args))<2 else ' '.join(list(args)[1:len(list(args))])
+            if len(productName)>50: productName = ''.join(list(productName)[0:50])
             a = Shop.add_value(productName, price, ctx.guild)
             assert a['error']==False, a['ctx']
             return await ctx.send('{} | {}!\n{}'.format(self.client.get_emoji(BotEmotes.success), a['ctx'], extra))
