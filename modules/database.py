@@ -52,7 +52,8 @@ class Dashboard:
             "star_requirements": kwargs.get('starreq'),
             "warns": warns,
             "dehoister": kwargs.get('dehoister') if kwargs.get('dehoister')!=None else False,
-            "mute": kwargs.get('muterole')
+            "mute": kwargs.get('muterole'),
+            "shop": []
         })
     def delete_data(guildid):
         if Dashboard.exist(guildid):
@@ -326,6 +327,52 @@ class Economy:
                 return 'success'
         except Exception as e:
             return 'e'
+
+class Shop:
+    def get_shop(server):
+        if not Dashboard.exist(server.id):
+            Dashboard.add_guild(server.id)
+            return {'error': True, 'ctx': 'This server does not have any shops!'}
+        data = database['dashboard'].find_one({'serverid': server.id})['shop']
+        if len(data)==0:
+            return {'error': True, 'ctx': 'This server does not have any shops!'}
+        return {'error': False, 'ctx': [{
+            'price': int(i.split('.')[0]),
+            'name': ' '.join(i.split('.')[1:len(i)])
+        } for i in data]}
+    def delete_shop(server):
+        if not Dashboard.exist(server.id):
+            Dashboard.add_guild(server.id)
+        database['dashboard'].update_one({'serverid': server.id}, {'$set': {'shop': []}})
+    def add_value(name, price, server):
+        data = Shop.get_shop(server)
+        if not data['error']:
+            if len(data['ctx'])>=20:
+                return {'error': True, 'ctx': 'Bypassed the limit of 20 products!'}
+        if not Dashboard.exist(server.id): Dashboard.add_guild(server.id)
+        database['dashboard'].update_one({'serverid': server.id}, {'$push': {'shop': f'{price}.{name}'}})
+        return {'error': False, 'ctx': 'Successfully added {} with the price of {} diamonds'.format(
+            name, price
+        )}
+    def remove_value(name, server):
+        if not Dashboard.exist(server.id): Dashboard.add_guild(server.id)
+        shop, product = database['dashboard'].find_one({'serverid': server.id})['shop'], None
+        if len(shop)==0: return {'error': True, 'ctx': 'This server has no product left'}
+        for i in shop:
+            if name.lower() in i['name'].lower(): product = i; break
+        if product==None: return {'error': True, 'ctx': 'Product not found'}
+        database['dashboard'].update_one({'serverid': server.id}, {'$pull': {'shop': product['price']+'.'+product['name']}})
+        return {'error': False, 'ctx': '{} deleted from shop'.format(product['name'])}
+    def buy(name, user):
+        element, server_shop, user_data = None, Shop.get_shop(user.guild), Economy.get(user.id)
+        if server_shop['error']: return server_shop
+        for i in server_shop['ctx']:
+            if name.lower() in i['name'].lower(): element = i ; break
+        if element==None: return {'error': True, 'ctx': 'Error product not found'}
+        elif user_data==None: return {'error': True, 'ctx': 'User does not have any profile'}
+        elif user_data['bal'] < element['price']: return {'error': True, 'ctx': 'Money is less than the price.\nPlease have {} more diamonds'.format(element['price']-user_data['bal'])}
+        Economy.delbal(user.id, element['price'])
+        return {'error': False, 'ctx': 'Successfully bought '+element['name']}
 
 class selfDB:
     def post_uptime():

@@ -7,14 +7,69 @@ import random
 from json import loads
 from username601 import *
 import canvas as Painter
-from database import Economy
+from database import Economy, Shop
 from datetime import datetime
 
 class economy(commands.Cog):
     def __init__(self, client):
         self.client = client
     
-    @command('deletedata,deldata,del-data,delete-data')
+    @command('addshop')
+    @cooldown(5)
+    async def addproduct(self, ctx, *args):
+        if len(list(args))==0: return await ctx.send('{} | Please use the following parameters:\n`{}addshop <price> <name>`'.format(self.client.get_emoji(BotEmotes.error), Config.prefix))
+        if not ctx.author.guild_permissions.manage_guild: return await ctx.send('{} | You do not have the correct permissions to modify the server\'s shop.'.format(self.client.get_emoji(BotEmotes.error)))
+        try:
+            price = int(list(args)[0])
+            extra = '' if price in range(5, 1000000) else 'Invalid price. Setting price to default: 1000'
+            if extra.endswith('1000'): price = 1000
+            productName = '<product name undefined>' if len(list(args))<2 else ' '.join(list(args)[1:len(list(args))])
+            a = Shop.add_value(productName, price, ctx.guild)
+            assert a['error']==False, a['ctx']
+            return await ctx.send('{} | {}!\n{}'.format(self.client.get_emoji(BotEmotes.success), a['ctx'], extra))
+        except Exception as e:
+            await ctx.send('{} | {}!'.format(self.client.get_emoji(BotEmotes.error), str(e)))
+    
+    @command('remshop,delshop')
+    @cooldown(5)
+    async def delproduct(self, ctx, *args):
+        if len(list(args))==0: return await ctx.send('{} | Please use the following parameters:\n`{}delproduct <name>` or to delete all stored in the shop, use `{}delproduct all`'.format(self.client.get_emoji(BotEmotes.error), Config.prefix, Config.prefix))
+        if not ctx.author.guild_permissions.manage_guild: return await ctx.send('{} | You do not have the correct permissions to modify the server\'s shop.'.format(self.client.get_emoji(BotEmotes.error)))
+        if list(args)[0].lower()=='all':
+            Shop.delete_shop(ctx.guild)
+            return await ctx.send('{} | OK. All data for the shop is deleted.'.format(self.client.get_emoji(BotEmotes.success)))
+        try:
+            data = Shop.remove_element(' '.join(list(args)), ctx.guild)
+            assert data['error']==False, data['ctx']
+            return await ctx.send('{} | {}!'.format(self.client.get_emoji(BotEmotes.success), data['ctx']))
+        except Exception as e:
+            await ctx.send('{} | {}!'.format(self.client.get_emoji(BotEmotes.error), str(e)))
+    
+    @command('bought')
+    @cooldown(10)
+    async def buy(self, ctx, *args):
+        if len(list(args))==0: return await ctx.send('{} | Please use the following parameters:\n`{}buy <name>`'.format(self.client.get_emoji(BotEmotes.error), Config.prefix))
+        try:
+            data = Shop.buy(' '.join(list(args)), ctx.author)
+            assert data['error']==False, data['ctx']
+            return await ctx.send('{} | {}!'.format(self.client.get_emoji(BotEmotes.success), data['ctx']))
+        except Exception as e:
+            await ctx.send('{} | {}!'.format(self.client.get_emoji(BotEmotes.error), str(e)))
+    
+    @command('servershop,store,serverstore')
+    @cooldown(5)
+    async def shop(self, ctx):
+        try:
+            data = Shop.get_shop(ctx.guild)
+            assert data['error']==False, data['ctx']
+            em = discord.Embed(title='{}\'s shop', description='\n'.join(
+                [str(i+1)+'. **'+str(data['ctx'][i]['name'])+'** (price: '+str(data['ctx'][i]['price'])+' :gem:)' for i in range(len(data['ctx']))]
+            ), color=discord.Colour.from_rgb(201, 160, 112))
+            return await ctx.send(embed=em)
+        except Exception as e:
+            await ctx.send('{} | {}!\nYou can always add a value using `{}addproduct <price> <name>`'.format(self.client.get_emoji(BotEmotes.error), str(e), Config.prefix))
+
+    @command('delete,deletedata,deldata,del-data,delete-data')
     @cooldown(3600)
     async def reset(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait...")

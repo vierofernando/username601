@@ -19,8 +19,8 @@ class Config:
     prefix = '1' # your prefix here
     cmdtypes = decodeurl("https://vierofernando.github.io/username601/assets/json/categories.json").json()
     class Version:
-        number = '2.4.5'
-        changelog = 'Updated to discord.py version 1.4'
+        number = '2.5'
+        changelog = 'Implemented server shops! (local)'
     class SupportServer:
         id = 688373853889495044 # support server ID
         logging = 694521383908016188 # logging channel ID in support server
