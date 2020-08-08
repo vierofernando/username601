@@ -62,7 +62,7 @@ class economy(commands.Cog):
         try:
             data = Shop.get_shop(ctx.guild)
             assert data['error']==False, data['ctx']
-            em = discord.Embed(title='{}\'s shop', description='\n'.join(
+            em = discord.Embed(title='{}\'s shop'.format(ctx.guild.name), description='\n'.join(
                 [str(i+1)+'. **'+str(data['ctx'][i]['name'])+'** (price: '+str(data['ctx'][i]['price'])+' :gem:)' for i in range(len(data['ctx']))]
             ), color=discord.Colour.from_rgb(201, 160, 112))
             return await ctx.send(embed=em)
