@@ -235,7 +235,7 @@ class moderation(commands.Cog):
     async def rolecolor(self, ctx, *args):
         unprefixed = ' '.join(list(args))
         if len(unprefixed.split('#'))==1:
-            await ctx.send(f'Please provide a hex!\nExample: {Config.prefix}rolecolor {random.choice(ctx.message.guild.roles).name} #ff0000')
+            await ctx.send(f'Please provide a hex!\nExample: `{Config.prefix}rolecolor {random.choice(ctx.message.guild.roles).name}` #ff0000')
         else:
             if ctx.message.author.guild_permissions.manage_roles==False:
                 await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | You need the `MANAGE ROLES` permission to change role colors!')
@@ -507,7 +507,7 @@ class moderation(commands.Cog):
                 data = ctx.message.guild.get_role(int(str(ctx.message.content).split('<@&')[1].split('>')[0]))
             else:
                 for i in ctx.message.guild.roles:
-                    if ' '.join(list(args)).lower()==str(i.name).lower(): data = i
+                    if ' '.join(list(args)).lower()==str(i.name).lower(): data = i ; break
             if data==None:
                 await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Role not found!')
             else:
@@ -515,8 +515,10 @@ class moderation(commands.Cog):
                 else: perm = ':x: Server Administrator'
                 if data.mentionable==True: men = ':warning: You can mention this role and they can get pinged.'
                 else: men = ':v: You can mention this role and they will not get pinged! ;)'
-                embedrole = discord.Embed(title='Role info for role: '+str(data.name), description='**Role ID: **'+str(data.id)+'\n**Role created at: **'+myself.time_encode((t.now()-data.created_at).seconds)+' ago\n**Role position: **'+str(data.position)+'\n**Members having this role: **'+str(len(data.members))+'\n'+str(men)+'\nPermissions Value: '+str(data.permissions.value)+'\n'+str(perm), colour=data.colour)
-                embedrole.add_field(name='Role Colour', value='**Color hex: **#'+str(myself.tohex(data.color.value))+'\n**Color integer: **'+str(data.color.value)+'\n**Color RGB: **'+str(myself.dearray(list(data.color.to_rgb()))))
+                embedrole = discord.Embed(title='Role info for role: '+str(data.name), description='**Role ID: **'+str(data.id)+'\n**Role created at: **'+myself.time_encode(round(t.now().timestamp()-data.created_at.timestamp()))+' ago\n**Role position: **'+str(data.position)+'\n**Members having this role: **'+str(len(data.members))+'\n'+str(men)+'\nPermissions Value: '+str(data.permissions.value)+'\n'+str(perm), colour=data.colour)
+                embedrole.add_field(name='Role Colour', value='**Color hex: **#'+str(myself.tohex(data.color.value))+'\n**Color integer: **'+str(data.color.value)+'\n**Color RGB: **'+str(myself.dearray(
+                    [str(i) for i in list(data.color.to_rgb())]
+                )))
                 await ctx.send(embed=embedrole)
 
     @command('perms,perm,permission,permfor,permsfor,perms-for,perm-for')
