@@ -27,7 +27,7 @@ class fun(commands.Cog):
     @cooldown(10)
     async def say(self, ctx, *args):
         if '--h' in ''.join(list(args)): await ctx.message.delete()
-        await ctx.send(' '.join(list(args)).replace('--h', ''))
+        await ctx.send(' '.join(list(args)).replace('--h', '').replace('@everyone', '<everyone>').replace('@here', '<here>'))
     
     @command()
     @cooldown(30)
