@@ -302,7 +302,7 @@ class Economy:
             return e
     def delbal(userid, bal):
         try:
-            database['economy'].update_one({'userid': userid}, { '$inc': { 'bal': bal } })
+            database['economy'].update_one({'userid': userid}, { '$inc': { 'bal': -bal } })
             return 'success'
         except Exception as e:
             return e
