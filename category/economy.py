@@ -14,6 +14,17 @@ class economy(commands.Cog):
     def __init__(self, client):
         self.client = client
     
+    @command()
+    @cooldown(7)
+    async def buylist(self, ctx):
+        source = ctx.author if len(ctx.message.mentions)==0 else ctx.message.mentions[0]
+        try:
+            data = Economy.getBuyList(source)
+            assert data['error']==False, data['ctx']
+            return await ctx.send(embed=discord.Embed(title='{}\'s buy list'.format(source.name), description=data['ctx'], color=discord.Colour.from_rgb(201, 160, 112)))
+        except Exception as e:
+            return await ctx.send('{} | {}!'.format(self.client.get_emoji(BotEmotes.error), str(e)))
+
     @command('addshop')
     @cooldown(5)
     async def addproduct(self, ctx, *args):
@@ -24,7 +35,7 @@ class economy(commands.Cog):
             extra = '' if price in range(5, 1000000) else 'Invalid price. Setting price to default: 1000'
             if extra.endswith('1000'): price = 1000
             productName = '<product name undefined>' if len(list(args))<2 else ' '.join(list(args)[1:len(list(args))])
-            if len(productName)>50: productName = ''.join(list(productName)[0:50])
+            if len(productName)>30: productName = ''.join(list(productName)[0:30])
             a = Shop.add_value(productName, price, ctx.guild)
             assert a['error']==False, a['ctx']
             return await ctx.send('{} | {}!\n{}'.format(self.client.get_emoji(BotEmotes.success), a['ctx'], extra))

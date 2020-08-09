@@ -289,7 +289,8 @@ class Economy:
                 'bal': 0,
                 'desc': 'nothing here!',
                 'bankbal': 0,
-                'joinDate': t.now().timestamp()
+                'joinDate': t.now().timestamp(),
+                'buyList': []
             })
             return 'done'
         except Exception as e:
@@ -316,7 +317,12 @@ class Economy:
             return bal
         except Exception as e:
             return e
-    
+    def getBuyList(author, raw=False):
+        data = Economy.get(author.id)
+        if data==None: return {'error': True, 'ctx': f'{author.name} has no profile'}
+        elif len(data['buyList'])==0: return {'error': True, 'ctx': 'No buylist found'}
+        if raw: return {'error': False, 'ctx': data['buyList']}
+        return {'error': False, 'ctx': '\n'.join([str(i+1)+'. "'+' '.join(data['buyList'][i].split('.')[3:60])+'" (Price: '+str(data['buyList'][i].split('.')[2])+' :gem:)' for i in range(len(data['buyList']))])}
     def changedesc(userid, newdesc):
         try:
             data = database['economy'].find({'userid': userid})
@@ -354,7 +360,7 @@ class Shop:
         return {'error': False, 'ctx': 'Successfully added {} with the price of {} diamonds'.format(
             name, price
         )}
-    def remove_value(name, server):
+    def remove_element(name, server):
         if not Dashboard.exist(server.id): Dashboard.add_guild(server.id)
         shop, product = database['dashboard'].find_one({'serverid': server.id})['shop'], None
         if len(shop)==0: return {'error': True, 'ctx': 'This server has no product left'}
@@ -372,6 +378,13 @@ class Shop:
         elif user_data==None: return {'error': True, 'ctx': 'User does not have any profile'}
         elif user_data['bal'] < element['price']: return {'error': True, 'ctx': 'Money is less than the price.\nPlease have {} more diamonds'.format(element['price']-user_data['bal'])}
         Economy.delbal(user.id, element['price'])
+        if element['name'] not in [' '.join(i.split('.')[3:len(i.split('.'))]) for i in user_data['buyList']]:
+            database['economy'].update_one({'userid': user.id}, {'$push': {'buyList': '{}.{}.{}.{}'.format(
+                user.guild.id, round(t.now().timestamp()), element['price'], element['name']
+            )}})
+            buyList = Economy.getBuyList(user, raw=True)
+            if len(buyList)>20:
+                database['economy'].update_one({'userid': user.id}, {'$pull': {'buyList': buyList[0]}})
         return {'error': False, 'ctx': 'Successfully bought '+element['name']}
 
 class selfDB:

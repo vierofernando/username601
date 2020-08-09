@@ -6,7 +6,7 @@ sys.path.append('/home/runner/hosting601/modules')
 # LOCAL FILES
 from username601 import *
 from database import (
-    Economy, selfDB, Dashboard, username601Stats
+    Economy, selfDB, Dashboard, username601Stats, Shop
 )
 import username601 as myself
 import discordgames as Games
@@ -160,8 +160,22 @@ async def on_command_error(ctx, error):
     elif 'missing permissions' in str(error).lower(): await ctx.send("I don't have the permission required to use that command!")
     elif 'cannot identify image file' in str(error).lower(): await ctx.send(str(client.get_emoji(BotEmotes.error))+' | Error, it seemed i can\'t load/send the image! Check your arguments and try again. Else, report this to the bot owner using `'+Config.prefix+'feedback.`')
     else: print("ERROR on [{}]: {}".format(ctx.message.content, str(error)))
+
+def isdblvote(author):
+    if not author.bot: return False
+    elif author.id==479688142908162059: return False
+    return True
+
 @client.event
 async def on_message(message):
+    if isdblvote(message.author) or message.guild==None: return
+
+    if message.guild.id==Config.SupportServer.id and message.author.id==479688142908162059:
+        data = int(str(message.embeds[0].description).split('(id:')[1].split(')')[0])
+        if Economy.get(data)==None: return
+        rewards = Economy.daily(data)
+        await client.get_user(data).send(f'Thanks for voting! **You received {rewards} diamonds!**')
+ 
     # THESE TWO IF STATEMENTS ARE JUST FOR ME ON THE SUPPORT SERVER CHANNEL. YOU CAN DELETE THESE TWO.
     if message.channel.id==700040209705861120: await message.author.add_roles(message.guild.get_role(700042707468550184))
     if message.channel.id==724454726908772373: await message.author.add_roles(message.guild.get_role(701586228000325733))
