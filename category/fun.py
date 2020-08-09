@@ -120,6 +120,12 @@ class fun(commands.Cog):
             img = myself.insp('https://inspirobot.me/api?generate=true')
             await ctx.send(file=discord.File(Painter.urltoimage(img), 'inspirobot.png'))
     
+    @command('randomcase')
+    @cooldown(1)
+    async def mock(self, ctx, *args):
+        text = 'i am a dumbass that forgot to put the arguments' if len(list(args))==0 else str(' '.join(list(args)))
+        return await ctx.send(''.join([random.choice([i.upper(), i.lower()]) for i in list(text)]))
+
     @command('8ball,8b')
     @cooldown(3)
     async def _8ball(self, ctx):
