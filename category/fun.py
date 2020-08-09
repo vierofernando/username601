@@ -7,6 +7,8 @@ from username601 import *
 import random
 from decorators import command, cooldown
 import splashes as src
+from aiohttp import ClientSession
+from io import BytesIO
 import asyncio
 import algorithm
 import canvas as Painter
@@ -14,6 +16,7 @@ import canvas as Painter
 class fun(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.session = ClientSession()
     
     @command('howlove,friendship,fs')
     @cooldown(2)
@@ -122,9 +125,9 @@ class fun(commands.Cog):
     async def _8ball(self, ctx):
         async with ctx.message.channel.typing():
             data = myself.api("https://yesno.wtf/api")
-            if data["image"].endswith('.gif'): img, filename = Painter.gif.giffromURL(data["image"], True), 'answer.gif'
-            else: img, filename = Painter.urltoimage(data["image"]), 'answer.png'
-            await ctx.send(content=data['answer'], file=discord.File(img, filename))
+            async with self.session.get(data['image']) as r:
+                res = await r.read()
+                await ctx.send(content='**'+data['answer'].upper()+'**', file=discord.File(fp=BytesIO(res), filename=data['answer'].upper()+".gif"))
 
     @command('serverdeathnote,dn')
     @cooldown(20)
