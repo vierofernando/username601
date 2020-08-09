@@ -260,6 +260,7 @@ class games(commands.Cog):
                     if Economy.get(ctx.message.author.id)!=None:
                         reward = random.randint(5, 100)
                         Economy.addbal(ctx.message.author.id, reward)
+            
                         await ctx.send('thanks for playing! You received '+str(reward)+' extra diamonds!')
                 else:
                     await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | <@'+str(ctx.message.author.id)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
@@ -476,14 +477,14 @@ class games(commands.Cog):
     @command()
     @cooldown(25)
     async def pokequiz(self, ctx):
+        return await ctx.send('sorry! this command is temporarily closed.')
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait... Generating quiz...')
         num = random.randint(1, 800)
         try:
             corr = pb.pokemon(str(num)).name
         except Exception as e:
             await wait.edit(content=str(self.client.get_emoji(BotEmotes.error)) + f' | An error occured! ```{e}```')
-        hint = 2
-        attempt = 10
+        hint, attempt = 2, 10
         gameplay = True
         guy = ctx.message.author
         while gameplay==True:
@@ -560,7 +561,7 @@ class games(commands.Cog):
         try:
             reaction, user = await self.client.wait_for('reaction_add', timeout=60.0, check=check)
         except asyncio.TimeoutError:
-            await main.add_reaction('😔')
+            await wait.add_reaction('😔')
         if str(reaction.emoji)==str(corr):
             await ctx.send(str(self.client.get_emoji(BotEmotes.success)) +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
             if Economy.get(ctx.author.id)!=None:
