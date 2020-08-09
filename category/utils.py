@@ -7,6 +7,7 @@ import canvas as Painter
 from username601 import *
 from decorators import command, cooldown
 import random
+from requests import post
 import splashes as src
 from json import loads
 from datetime import datetime as t
@@ -14,6 +15,16 @@ from datetime import datetime as t
 class utils(commands.Cog):
     def __init__(self, client):
         self.client = client
+    
+    @command('hb,haste,bin')
+    @cooldown(10)
+    async def hastebin(self, ctx, *args):
+        if len(list(args))==0: return await ctx.send("{} | Please send something to put to <https://hastebin.com/>".format(self.client.get_emoji(BotEmotes.error)))
+        text = str(' '.join(list(args)))
+        if len(text)<10: return await ctx.send("{} | That text is too short! Are you sure you want to put it to <https://hastebin.com/>?".format(self.client.get_emoji(BotEmotes.error)))
+        data = post("https://hastebin.com/documents", data=text)
+        if data.status_code!=200: return await ctx.send("{} | Oops! there was an error on posting it there.".format(self.client.get_emoji(BotEmotes.error)))
+        return await ctx.send('{} | https://hastebin.com/{}'.format(self.client.get_emoji(BotEmotes.success), data.json()['key']))
     
     @command()
     @cooldown(15)
