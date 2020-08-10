@@ -14,9 +14,8 @@ class image(commands.Cog):
 
     @command('destroy,destroyava,destroyavatar')
     @cooldown(5)
-    async def destroyimg(self, ctx):
-        elem = ctx.author if (len(ctx.message.mentions)==0) else ctx.message.mentions[0]
-        src = str(elem.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
+    async def destroyimg(self, ctx, *args):
+        src = myself.getUserAvatar(ctx, args, size=512)
         async with ctx.message.channel.typing():
             await ctx.send(file=discord.File(
                 Painter.ruin(src), 'ruinedavatar.png'
@@ -24,9 +23,9 @@ class image(commands.Cog):
 
     @command('application')
     @cooldown(5)
-    async def app(self, ctx):
-        elem = ctx.author if (len(ctx.message.mentions)==0) else ctx.message.mentions[0]
-        src = str(elem.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
+    async def app(self, ctx, *args):
+        src = myself.getUserAvatar(ctx, args, size=512)
+        elem = myself.getUser(ctx, args)
         async with ctx.message.channel.typing():
             await ctx.send(file=discord.File(
                 Painter.app(src, elem.name), 'app.exe.png'
@@ -35,17 +34,19 @@ class image(commands.Cog):
 
     @command('distortion')
     @cooldown(5)
-    async def distort(self, ctx, *args):
+    async def distort(self, ctx, *args, blacklist=None):
         try:
-            num = int([i for i in list(args) if i.isnumeric()][0])
-        except:
-            num = 5
+            for i in range(len(list(args))):
+                if list(args)[i].isnumeric():
+                    num, blacklist = int(list(args)[i]), i
+                    break
+            if blacklist!=None: del list(args)[blacklist]
+        except: num = 5
         if num not in range(0, 999):
             return await ctx.send("{} | damn that level is hella weirdd".format(
                 str(self.client.get_emoji(BotEmotes.error))
             ))
-        ava = ctx.author.avatar_url if (len(ctx.message.mentions)==0) else ctx.message.mentions[0].avatar_url
-        ava = str(ava).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
+        ava = myself.getUserAvatar(ctx, args)
         async with ctx.message.channel.typing():
             await ctx.send(file=discord.File(
                 Painter.urltoimage('https://nezumiyuiz.glitch.me/api/distort?level={}&image={}'.format(
@@ -124,10 +125,9 @@ class image(commands.Cog):
 
     @command()
     @cooldown(5)
-    async def rotate(self, ctx):
+    async def rotate(self, ctx, *args):
         async with ctx.message.channel.typing():
-            if len(ctx.message.mentions)==0: ava = str(ctx.message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
-            else: ava = str(ctx.message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=512')
+            ava = myself.getUserAvatar(ctx, args, size=512)
             data = Painter.gif.rotate(ava)
             await ctx.send(file=discord.File(data, 'rotate.gif'))
 
@@ -141,8 +141,7 @@ class image(commands.Cog):
                 wh.append(int(i))
         async with ctx.message.channel.typing():
             if correct=='yy':
-                if len(ctx.message.mentions)<1: ava = str(ctx.message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
-                else: ava = str(ctx.message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=512')
+                ava = myself.getUserAvatar(ctx, args, size=512)
                 if wh[0]>2000 or wh[1]>2000: await ctx.send(str(self.client.get_emoji(BotEmotes.error)) + " | Your image is too big!")
                 elif wh[0]<300 or wh[1]<300: await ctx.send(str(self.client.get_emoji(BotEmotes.error)) + " | Your image is too small!")
                 else:
@@ -247,22 +246,26 @@ class image(commands.Cog):
         if len(ctx.message.mentions)==0:
             await ctx.send('Please tag someone!')
         else:
-            if len(list(args))==1:
-                async with ctx.message.channel.typing():
-                    if 'threat' in ctx.message.content: inputtype = 'url'
-                    else: inputtype = 'image'
-                    av = ctx.message.mentions[0].avatar_url
-                    url='https://nekobot.xyz/api/imagegen?type='+str(str(ctx.message.content).split()[0])[1:]+'&'+inputtype+'='+str(av)[:-15]+'&raw=1'
-                    await ctx.send(file=discord.File(Painter.urltoimage(url), 'lol.png'))
-            else:
-                await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | We do not accept more than 1 arguments!')
+            async with ctx.message.channel.typing():
+                inputtype = 'url' if ('threat' in ctx.message.content) else 'image'
+                av = myself.getUserAvatar(ctx, args)
+                url='https://nekobot.xyz/api/imagegen?type='+str(str(ctx.message.content).split()[0])[1:]+'&'+inputtype+'='+str(av)[:-15]+'&raw=1'
+                await ctx.send(file=discord.File(Painter.urltoimage(url), 'lol.png'))
 
-    @command('invert,magik,pixelate,b&w')
+    @command()
     @cooldown(5)
-    async def jpeg(self, ctx):
+    async def magik(self, ctx, *args):
+        source = myself.getUserAvatar(ctx, args)
+        await ctx.message.channel.trigger_typing()
+        await ctx.send(file=discord.File(
+            Painter.urltoimage(f'https://nekobot.xyz/api/imagegen?type=magik&image={source}&raw=1&intensity={random.randint(5, 10)}'), 'magik.png'
+        ))
+
+    @command('invert,pixelate,b&w')
+    @cooldown(5)
+    async def jpeg(self, ctx, *args):
         com = str(ctx.message.content).split()[0].replace('jpeg', 'jpegify')[1:]
-        if len(ctx.message.mentions)==0: avatar = str(ctx.message.author.avatar_url).replace('webp', 'png')
-        else: avatar = str(ctx.message.mentions[0].avatar_url).replace('.webp', '.png')
+        avatar = myself.getUserAvatar(ctx, args)
         await ctx.send(file=discord.File(Painter.urltoimage(f'https://api.alexflipnote.dev/filter/{com}?image={avatar}'), 'filtered.png'))
 def setup(client):
     client.add_cog(image(client))

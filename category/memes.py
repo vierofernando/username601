@@ -17,11 +17,11 @@ class memes(commands.Cog):
 
     @command('evol,trashevol,evoltrash,evolutiontrash')
     @cooldown(5)
-    async def trashevolution(self, ctx):
-        url = str(ctx.author.avatar_url) if (len(ctx.message.mentions)==0) else str(ctx.message.mentions[0].avatar_url)
+    async def trashevolution(self, ctx, *args):
+        url = myself.getUserAvatar(ctx, args)
         async with ctx.message.channel.typing():
             await ctx.send(file=discord.File(
-                Painter.evol(url.replace('.gif', '.webp').replace('.webp?size=1024', '.webp?size=512')), 'trashhahaha.png'
+                Painter.evol(url), 'trashhahaha.png'
             ))
 
     @command('nostonks,notstonk,nostonk')
@@ -43,7 +43,7 @@ class memes(commands.Cog):
     @command('lookatthisgraph')
     @cooldown(5)
     async def graph(self, ctx, *args):
-        src = str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512') if (len(ctx.message.mentions)==0) else str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
+        src = myself.getUserAvatar(ctx, args)
         async with ctx.message.channel.typing():
             await ctx.send(file=discord.File(Painter.lookatthisgraph(src), 'lookatthisdudelol.png'))
     
@@ -116,25 +116,20 @@ class memes(commands.Cog):
                 await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Please send something like {}drake [test 1] [test2]!".format(Config.prefix))
     
     @command()
-    @cooldown(5)
+    @cooldown(1)
     async def salty(self, ctx, *args):
-        if len(list(args))!=1:
-            await ctx.send(str(client.get_emoji(BotEmotes.error)) + ' | Error! Invalid args.')
-        else:
-            async with ctx.message.channel.typing():
-                av = str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp').replace('.webp', '.png')
-                url = 'https://api.alexflipnote.dev/salty?image='+str(av)
-                data = Painter.urltoimage(url)
-                await ctx.send(file=discord.File(data, 'salty.png'))
+        async with ctx.message.channel.typing():
+            av = myself.getUserAvatar(ctx, args)
+            url = 'https://api.alexflipnote.dev/salty?image='+str(av)
+            data = Painter.urltoimage(url)
+            await ctx.send(file=discord.File(data, 'salty.png'))
 
     @command()
     @cooldown(5)
-    async def ifearnoman(self, ctx):
-        if len(ctx.message.mentions)==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Gimme some tag!")
-        else:
-            async with ctx.message.channel.typing():
-                source, by = str(ctx.message.mentions[0].avatar_url).replace('.webp?size=1024', '.png?size=512'), str(ctx.message.author.avatar_url).replace('.webp?size=1024', '.png?size=512')
-                await ctx.send(file=discord.File(Painter.ifearnoman(by, source), 'i_fear_no_man.png'))
+    async def ifearnoman(self, ctx, *args):
+        async with ctx.message.channel.typing():
+            source, by = myself.getUserAvatar(ctx, args), str(ctx.author.avatar_url).replace('.webp?size=1024', '.png?size=512')
+            await ctx.send(file=discord.File(Painter.ifearnoman(by, source), 'i_fear_no_man.png'))
 
     @command('stonks,immaheadout,homer,monkeypuppet,tom,surprisedpikachu,meandtheboys')
     @cooldown(5)
@@ -187,10 +182,9 @@ class memes(commands.Cog):
 
     @command('communism,ussr,soviet,cykablyat,cyka-blyat,blyat')
     @cooldown(5)
-    async def communist(self, ctx):
+    async def communist(self, ctx, *args):
         async with ctx.message.channel.typing():
-            if len(ctx.message.mentions)==0: comrade = str(ctx.message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
-            else: comrade = str(ctx.message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=512')
+            comrade = myself.getUserAvatar(ctx, args)
             data = Painter.gif.communist(comrade)
             await ctx.send(file=discord.File(data, 'cyka_blyat.gif'))
 
@@ -208,12 +202,14 @@ class memes(commands.Cog):
 
     @command()
     @cooldown(5)
-    async def trap(self, ctx):
+    async def trap(self, ctx, *args):
         if len(ctx.message.mentions)==0:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +f' | Wrong.\nPlease try the correct like following:\n`{prefix}trap [tag]`')
         else:
             async with ctx.message.channel.typing():
-                url='http://nekobot.xyz/api/imagegen?type=trap&name='+myself.urlify(str(ctx.message.mentions[0].name))+'&author='+myself.urlify(str(message.author.name))+'&image='+str(message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')+'&raw=1'
+                guy = myself.getUser(ctx, args)
+                ava = myself.getUserAvatar(ctx, args)
+                url='http://nekobot.xyz/api/imagegen?type=trap&name='+myself.urlify(guy.name)+'&author='+myself.urlify(ctx.author.name)+'&image='+ava+'&raw=1'
                 await ctx.send(file=discord.File(Painter.urltoimage(url), 'trap.png'))
 
     @command('winorlose')
@@ -228,23 +224,20 @@ class memes(commands.Cog):
 
     @command()
     @cooldown(8)
-    async def squidwardstv(self, ctx):
-        if len(ctx.message.mentions)==0: source = str(ctx.message.author.avatar_url).replace('.gif', '.webp')
-        else: source = str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp')
-        await ctx.send(file=discord.File(Painter.squidwardstv(str(source).replace('.webp?size=1024', '.png?size=512')), 'squidtv.png'))
+    async def squidwardstv(self, ctx, *args):
+        source = myself.getUserAvatar(ctx, *args)
+        await ctx.send(file=discord.File(Painter.squidwardstv(source), 'squidtv.png'))
     
     @command('mywaifu,wf,waifuinsult,insultwaifu,waifu-insult')
     @cooldown(7)
-    async def waifu(self, ctx):
-        if len(ctx.message.mentions)==0: source = str(ctx.message.author.avatar_url).replace('.gif', '.webp')
-        else: source = str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp')
-        await ctx.send(file=discord.File(Painter.waifu(str(source).replace('.webp?size=1024', '.png?size=512')), 'mywaifu.png'))
+    async def waifu(self, ctx, *args):
+        source = myself.getUserAvatar(ctx, args)
+        await ctx.send(file=discord.File(Painter.waifu(source), 'mywaifu.png'))
 
     @command('worsethanhitler,worstthanhitler')
     @cooldown(5)
-    async def hitler(self, ctx):
-        source = str(ctx.author.avatar_url) if len(ctx.message.mentions)==0 else str(ctx.message.mentions[0].avatar_url)
-        source = source.replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
+    async def hitler(self, ctx, *args):
+        source = myself.getUserAvatar(ctx, args)
         async with ctx.message.channel.typing():
             await ctx.send(file=discord.File(
                 Painter.hitler(source), 'hitler.png'
@@ -252,11 +245,10 @@ class memes(commands.Cog):
 
     @command('wanted,chatroulette,sacred,coffindance,frame,window,art')
     @cooldown(10)
-    async def ferbtv(self, ctx):
+    async def ferbtv(self, ctx, *args):
         async with ctx.message.channel.typing():
             filename = str(ctx.message.content).split()[0][1:].lower()
-            if len(ctx.message.mentions)<1: ava = str(ctx.message.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
-            else: ava = str(ctx.message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=512')
+            ava = myself.getUserAvatar(ctx, args)
             if 'wanted' in ctx.message.content: num1, num2, num3, num4 = 547, 539, 167, 423
             elif 'ferbtv' in ctx.message.content: num1, num2, num3, num4 = 362, 278, 363, 187
             elif 'chatroulette' in ctx.message.content: num1, num2, num3, num4 = 324, 243, 14, 345
@@ -282,10 +274,9 @@ class memes(commands.Cog):
                 await ctx.send(file=discord.File(data, 'scroll.png'))
     @command()
     @cooldown(10)
-    async def imgcaptcha(self, ctx):
+    async def imgcaptcha(self, ctx, *args):
         async with ctx.message.channel.typing():
-            if len(ctx.message.mentions)==0: av, nm = str(ctx.message.author.avatar_url).replace('.webp?size=1024', '.png'), myself.urlify(str(ctx.message.author.name))
-            else: av, nm = str(ctx.message.mentions[0].avatar_url).replace('.webp?size=1024', '.png'), myself.urlify(str(ctx.message.mentions[0].name))
+            av, nm = myself.getUserAvatar(ctx, args), myself.getUser(ctx, args).name
             url = 'http://nekobot.xyz/api/imagegen?type=captcha&username='+nm+'&url='+av+'&raw=1'
             data = Painter.urltoimage(url)
             await ctx.send(file=discord.File(data, 'your_captcha.png'))
@@ -300,11 +291,10 @@ class memes(commands.Cog):
 
     @command('baby,clint,wolverine,disgusting,f,studying,starvstheforcesof')
     @cooldown(10)
-    async def door(self, ctx):
+    async def door(self, ctx, *args):
 		# yanderedev OwO
         async with ctx.message.channel.typing():
-            if len(ctx.message.mentions)==0: ava = str(ctx.message.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
-            else: ava = str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
+            ava = myself.getUserAvatar(ctx, args)
             if 'door' in ctx.message.content: await ctx.send(file=discord.File(Painter.put_transparent(ava, "door", 1000, 479, 496, 483, 247, 9), 'door.png'))
             elif 'studying' in ctx.message.content: await ctx.send(file=discord.File(Painter.put_transparent(ava, "studying", 563, 999, 290, 315, 85, 160), "studying.png")) 
             elif 'clint' in ctx.message.content: await ctx.send(file=discord.File(Painter.put_transparent(ava, "clint", 1200, 675, 339, 629, 777, 29), 'clintclint.png'))
@@ -364,8 +354,7 @@ class memes(commands.Cog):
     @command('bad')
     @cooldown(7)
     async def amiajoke(self, ctx, *args):
-        if len(ctx.message.content)==0: source = str(ctx.message.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
-        else: source = str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512')
+        source = myself.getUserAvatar(ctx, args)
         if 'bad' in ctx.message.content: url = 'https://api.alexflipnote.dev/bad?image='+str(source)
         else: url = 'https://api.alexflipnote.dev/amiajoke?image='+str(source)
         await ctx.send(file=discord.File(Painter.urltoimage(url), 'maymays.png'))

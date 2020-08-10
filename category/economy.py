@@ -5,6 +5,7 @@ path.append("/home/runner/hosting601/modules")
 from decorators import command, cooldown
 import random
 from json import loads
+import username601 as myself
 from username601 import *
 import canvas as Painter
 from database import Economy, Shop
@@ -289,13 +290,13 @@ class economy(commands.Cog):
                         await wait.edit(content=str(self.client.get_emoji(BotEmotes.success))+' | Updated your description!')
     @command('balance,mybal,profile,me,myprofile')
     @cooldown(15)
-    async def bal(self, ctx):
+    async def bal(self, ctx, *args):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait...")
-        src = ctx.message.author if len(ctx.message.mentions)==0 else ctx.message.mentions[0]
+        src, ava = myself.getUser(ctx, args), myself.getUserAvatar(ctx, args)
         if Economy.get(src.id)==None:
             await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+" | You don't have a profile yet! Create a profile using `1new`")
         else:
-            img = Painter.profile(str(src.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512'), src, Economy.getProfile(src.id, [i.id for i in ctx.guild.members if not i.bot]))
+            img = Painter.profile(ava, src, Economy.getProfile(src.id, [i.id for i in ctx.guild.members if not i.bot]))
             await wait.delete()
             await ctx.send(file=discord.File(img, 'profile.png'))
     

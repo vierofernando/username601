@@ -18,8 +18,8 @@ class moderation(commands.Cog):
 
     @command()
     @cooldown(5)
-    async def mute(self, ctx):
-        if len(ctx.message.mentions)==0: return await ctx.send('{} | No tag?'.format(self.client.get_emoji(BotEmotes.error)))
+    async def mute(self, ctx, *args):
+        toMute = myself.getUser(ctx, args)
         if not ctx.author.guild_permissions.manage_messages: return await ctx.send('{} | No `manage messages` permission!'.format(self.client.get_emoji(BotEmotes.error)))
         role = Dashboard.getMuteRole(ctx.guild.id)
         if role==None:
@@ -41,8 +41,8 @@ class moderation(commands.Cog):
             role = role.id
         role = ctx.guild.get_role(role)
         try:
-            await ctx.message.mentions[0].add_roles(role)
-            await ctx.send('{} | Muted. Ductaped {}\'s mouth.'.format(str(self.client.get_emoji(BotEmotes.success)), ctx.message.mentions[0].name))
+            await toMute.add_roles(role)
+            await ctx.send('{} | Muted. Ductaped {}\'s mouth.'.format(str(self.client.get_emoji(BotEmotes.success)), toMute.name))
         except Exception as e:
             print(e)
             await ctx.send('{} | I cannot mute him... maybe i has less permissions than him.\nHis mouth is too powerful.'.format(str(self.client.get_emoji(BotEmotes.error))))
@@ -50,14 +50,14 @@ class moderation(commands.Cog):
     @command()
     @cooldown(5)
     async def unmute(self, ctx):
-        if len(ctx.message.mentions)==0: return await ctx.send('{} | Please tag someone.'.format(self.client.get_emoji(BotEmotes.error)))
+        toUnmute = myself.getUser(ctx, args)
         roleid = Dashboard.getMuteRole(ctx.guild.id)
         if roleid==None: return await ctx.send('{} | He is not muted!\nOr maybe you muted this on other bot... which is not compatible.'.format(self.client.get_emoji(BotEmote.error)))
         elif roleid not in [i.id for i in ctx.message.mentions[0].roles]:
             return await ctx.send('{} | That guy is not muted.'.format(self.client.get_emoji(BotEmotes.error)))
         try:
-            await ctx.message.mentions[0].remove_roles(ctx.guild.get_role(roleid))
-            await ctx.send('{} | {} unmuted.'.format(self.client.get_emoji(BotEmotes.success), ctx.message.mentions[0].name))
+            await toUnmute.remove_roles(ctx.guild.get_role(roleid))
+            await ctx.send('{} | {} unmuted.'.format(self.client.get_emoji(BotEmotes.success), toUnmute.name))
         except:
             await ctx.send('{} | I cannot unmute {}!'.format(self.client.get_emoji(BotEmotes.error), ctx.message.mentions[0].name))
 
@@ -115,9 +115,8 @@ class moderation(commands.Cog):
     @command()
     @cooldown(15)
     async def serverstats(self, ctx):
-        data = Painter.serverstats(ctx.guild)
         await ctx.send(file=discord.File(
-            data, "serverstats.png"
+            Painter.serverstats(ctx.guild), "serverstats.png"
         ))
     
     @command()
@@ -417,18 +416,17 @@ class moderation(commands.Cog):
 
     @command('user,usercard,user-info,user-card')
     @cooldown(5)
-    async def userinfo(self, ctx):
-        if len(ctx.message.mentions)==0: guy = ctx.message.author
-        else: guy = ctx.message.mentions[0]
+    async def userinfo(self, ctx, *args):
+        guy = myself.getUser(ctx, args)
         data = Painter.usercard(guy)
         await ctx.send(file=discord.File(data, str(guy.discriminator)+'.png'))
 
     @command('av,ava')
     @cooldown(1)
-    async def avatar(self, ctx):
+    async def avatar(self, ctx, *args):
+        url = myself.getUserAvatar(ctx, args)
         embed = discord.Embed(title='look at dis avatar', color=discord.Colour.from_rgb(201, 160, 112))
-        if len(ctx.message.mentions)==0: embed.set_image(url=ctx.message.author.avatar_url)
-        else: embed.set_image(url=ctx.message.mentions[0].avatar_url)
+        embed.set_image(url=url)
         await ctx.send(embed=embed)
 
     @command('serveremotes,emotelist,emojilist,emotes,serveremoji')
@@ -600,7 +598,7 @@ class moderation(commands.Cog):
             else:
                 if num[1] > num[0]: num = num[::-1]
                 for i in range(num[0], num[1]):
-                    await ctx.message.add_reaction(src.num2word(i))
+                    await ctx.message.add_reaction(num2word(i))
 
     @command('createchannel,create-channel,mc')
     @cooldown(10)
