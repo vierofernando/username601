@@ -325,13 +325,11 @@ class gif:
         return data
 
     def communist(comrade):
-        flag = Image.open('/home/runner/hosting601/assets/pics/blyat.jpg')
-        user = imagefromURL(comrade)
+        flag = Image.open('/home/runner/hosting601/assets/pics/blyat.jpg').convert('RGB')
+        user = imagefromURL(comrade).resize((216, 216)).convert('RGB')
         images = []
-        user = user.resize((216, 216))
         opacity = float(0)
         while int(opacity)!=1:
-            print(opacity)
             newimage = Image.blend(user, flag, opacity)
             images.append(newimage)
             opacity += 0.05

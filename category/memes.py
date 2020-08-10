@@ -61,12 +61,11 @@ class memes(commands.Cog):
     
     @command('ifunny')
     @cooldown(5)
-    async def wasted(self, ctx):
+    async def wasted(self, ctx, *args):
         async with ctx.message.channel.typing():
-            if len(ctx.message.mentions)==0: source = ctx.message.author.avatar_url
-            else: source = ctx.message.mentions[0].avatar_url
-            if 'wasted' in ctx.message.content: data, filename = Painter.wasted(str(source).replace('.webp?size=1024', '.png?size=512')), 'wasted.png'
-            else: data, filename = Painter.ifunny(str(source).replace('.webp?size=1024', '.png?size=512')), 'ifunny.png'
+            source = myself.getUserAvatar(ctx, args, size=512)
+            if 'wasted' in ctx.message.content: data, filename = Painter.wasted(source), 'wasted.png'
+            else: data, filename = Painter.ifunny(source), 'ifunny.png'
             await ctx.send(file=discord.File(data, filename))
     
     @command('achieve,call')
@@ -184,7 +183,7 @@ class memes(commands.Cog):
     @cooldown(5)
     async def communist(self, ctx, *args):
         async with ctx.message.channel.typing():
-            comrade = myself.getUserAvatar(ctx, args)
+            comrade = myself.getUserAvatar(ctx, args, size=512)
             data = Painter.gif.communist(comrade)
             await ctx.send(file=discord.File(data, 'cyka_blyat.gif'))
 
