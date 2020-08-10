@@ -40,7 +40,7 @@ class apps(commands.Cog):
     @command('spot,splay,listeningto')
     @cooldown(5)
     async def spotify(self, ctx, *args):
-        source = myself.getUser(ctx, args)
+        source = myself.getUser(ctx, args).activity
         if str(source).lower()!='spotify': await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Nope, not listening to spotify.')
         else:
             embed = discord.Embed(url='https://open.spotify.com/track/{}'.format(source.track_id), title=source.title, description='Track ID: `'+str(source.track_id)+'`\nStarted listening since '+str(myself.time_encode((t.now() - source.created_at).seconds))+' ago', color=source.color)
