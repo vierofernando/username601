@@ -325,11 +325,22 @@ def resize(url, x, y):
     return data
 
 class gif:
-    def compilegif(images, duration):
+    def compilegif(images, duration, optimize=False):
         arr = io.BytesIO()
-        images[0].save(arr, "GIF", save_all=True, append_images=images[1:], optimize=False, duration=duration, loop=0)
+        images[0].save(arr, "GIF", save_all=True, append_images=images[1:], optimize=optimize, duration=duration, loop=0)
         arr.seek(0)
         return arr
+
+    def death_star(pic):
+        gif_template = Image.open(r'/home/runner/hosting601/assets/pics/explosion.gif')
+        ava, images, size = imagefromURL(pic).resize((61, 62)), [], gif_template.size
+        for i in range(gif_template.n_frames):
+            canvas = Image.new(mode='RGB', color=(0,0,0), size=size)
+            canvas.paste(gif_template, (0,0))
+            gif_template.seek(i)
+            if i < 7: canvas.paste(ava, (183, 143))
+            images.append(canvas)
+        return gif.compilegif(images, 3)
 
     def rotate(pic):
         image = imagefromURL(pic)

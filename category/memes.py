@@ -15,6 +15,14 @@ class memes(commands.Cog):
         self.client = client
         self.session = ClientSession()
 
+    @command('blowup,blow,death-star')
+    @cooldown(10)
+    async def deathstar(self, ctx, *args):
+        ava = myself.getUserAvatar(ctx, args, size=128)
+        async with ctx.message.channel.typing():
+            gif = Painter.gif.death_star(ava)
+            await ctx.send(file=discord.File(fp=gif, filename='boom.gif'))
+
     @command('evol,trashevol,evoltrash,evolutiontrash')
     @cooldown(5)
     async def trashevolution(self, ctx, *args):
