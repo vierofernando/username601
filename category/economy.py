@@ -219,7 +219,7 @@ class economy(commands.Cog):
             if num > data['bal']:
                 return await ctx.send('{} | Your bank has more money than in your balance!'.format(str(self.client.get_emoji(BotEmotes.error))))
             Economy.deposit(ctx.author.id, num)
-            return await ctx.send('{} | OK. Deposited {} diamonds to your bank.'.format(str(self.client.get_emoji(BotEmotes.success))))
+            return await ctx.send('{} | OK. Deposited {} diamonds to your bank.'.format(str(self.client.get_emoji(BotEmotes.success)), num))
         except:
             await ctx.send('{} | Invalid number.'.format(str(self.client.get_emoji(BotEmotes.error))))
     
@@ -237,7 +237,7 @@ class economy(commands.Cog):
             if num > data['bankbal']:
                 return await ctx.send('{} | Your number is more than the one in your bank!'.format(str(self.client.get_emoji(BotEmotes.error))))
             Economy.withdraw(ctx.author.id, num)
-            return await ctx.send('{} | OK. Withdrawed {} diamonds from your bank.'.format(str(self.client.get_emoji(BotEmotes.success))))
+            return await ctx.send('{} | OK. Withdrawed {} diamonds from your bank.'.format(str(self.client.get_emoji(BotEmotes.success)), num))
         except:
             await ctx.send('{} | Invalid number.'.format(str(self.client.get_emoji(BotEmotes.error))))
 
