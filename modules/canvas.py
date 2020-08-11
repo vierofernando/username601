@@ -2,6 +2,7 @@ from PIL import Image, ImageFont, ImageDraw, GifImagePlugin
 import io
 from sys import path
 path.append('/home/runner/hosting601/modules')
+from datetime import datetime as t
 import username601 as myself
 import requests
 import random
@@ -64,6 +65,40 @@ def imagefromURL(url):
 
 def Helvetica(size):
     return ImageFont.truetype(r'/home/runner/hosting601/assets/fonts/Helvetica.ttf', int(size))
+
+def Gotham(size, bold=False):
+    if not bold: return ImageFont.truetype(r'/home/runner/hosting601/assets/fonts/GothamBook.ttf', size)
+    return ImageFont.truetype(r'/home/runner/hosting601/assets/fonts/GothamBold.ttf', size)
+
+def drawProgressBar(draw, percent):
+    data = round(percent/100*485)
+    if data<2: return
+    draw.rectangle(((15, 459), (data, 469)), fill=(0, 255, 0))
+
+def getSongString(thetime, now):
+    i = round((now - thetime).total_seconds())
+    minute = '0' if (i%60==0) else str(int(i/60))
+    if i > 60:
+        while i > 60:
+            i -= 60
+    if len(minute)==1: minute = '0'+minute
+    return minute+':'+str(i)
+
+def spotify(person, message):
+    spt, template = person.activity, Image.open(r'/home/runner/hosting601/assets/pics/spotify-template.png')
+    draw = ImageDraw.Draw(template)
+    ava, start = imagefromURL(spt.album_cover_url).resize((275, 276)), getSongString(spt.created_at, t.now())
+    template.paste(ava, (0, 62))
+    percentage = round(round((t.now() - spt.created_at).total_seconds())/round(spt.duration.total_seconds())*100)
+    duration = ':'.join(str(spt.duration).split(':')[1:10])[:-7]
+    drawProgressBar(draw, percentage)
+    draw.text((15, 20), f'{person.name} is listening to', fill="white", font = Gotham(30), align ="left")
+    draw.text((15, 350), spt.title, fill="white", font = Gotham(30, bold=True), align ="left")
+    draw.text((15, 395), spt.album, fill="white", font = Gotham(15), align ="left")
+    draw.text((15, 378), 'by '+myself.dearray(spt.artists), fill="white", font = Gotham(15), align ="left")
+    draw.text((15, 439), start, fill="white", font = Gotham(15), align ="left")
+    draw.text((485-Gotham(15).getsize(duration)[0], 439), duration, fill="white", font = Gotham(15), align="right")
+    return compile(template)
 
 def profile(url, user, details):
     avatar = imagefromURL(url).resize((253, 250))

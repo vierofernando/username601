@@ -8,6 +8,7 @@ sys.path.append('/home/runner/hosting601/modules')
 from decorators import command, cooldown
 import username601 as myself
 from requests import get
+import canvas as Painter
 from username601 import *
 import wikipediaapi
 from googletrans import Translator, LANGUAGES
@@ -40,15 +41,11 @@ class apps(commands.Cog):
     @command('spot,splay,listeningto')
     @cooldown(5)
     async def spotify(self, ctx, *args):
-        source = myself.getUser(ctx, args).activity
-        if str(source).lower()!='spotify': await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Nope, not listening to spotify.')
+        source = myself.getUser(ctx, args)
+        if str(source.activity).lower()!='spotify': await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Nope, not listening to spotify.')
         else:
-            embed = discord.Embed(url='https://open.spotify.com/track/{}'.format(source.track_id), title=source.title, description='Track ID: `'+str(source.track_id)+'`\nStarted listening since '+str(myself.time_encode((t.now() - source.created_at).seconds))+' ago', color=source.color)
-            embed.add_field(name='Artists', value=myself.dearray(source.artists))
-            embed.add_field(name='Album', value=source.album)
-            embed.set_author(name='Spotify', icon_url='https://images-ext-1.discordapp.net/external/myh_a7c2mTDfnh31SP2539AL_a1bhAYpafwZL5gQ99I/https/www.freepnglogos.com/uploads/spotify-logo-png/spotify-download-logo-30.png')
-            embed.set_thumbnail(url=source.album_cover_url)
-            await ctx.send(embed=embed)
+            async with ctx.message.channel.typing():
+                await ctx.send(file=discord.File(Painter.spotify(source, ctx.message), 'spotify.png'))
 
     @command()
     @cooldown(10)
