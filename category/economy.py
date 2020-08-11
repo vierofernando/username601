@@ -103,7 +103,7 @@ class economy(commands.Cog):
                 await ctx.send('{} | No it is then.'.format(str(self.client.get_emoji(BotEmotes.success))))
     
     @command()
-    @cooldown(900)
+    @cooldown(450)
     async def work(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait...")
         data = Economy.get(ctx.author.id)
@@ -135,7 +135,7 @@ class economy(commands.Cog):
                 ))
     
     @command()
-    @cooldown(30)
+    @cooldown(10)
     async def transfer(self, ctx, *args):
         if len(list(args))==0 or len(ctx.message.mentions)==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | gimme some tag and some amount.')
         else:
@@ -204,7 +204,7 @@ class economy(commands.Cog):
                         await wait.edit(content='', embed=embed)
     
     @command('dep')
-    @cooldown(20)
+    @cooldown(10)
     async def deposit(self, ctx, *args):
         if len(list(args))==0: return await ctx.send('{} | How many money?\nOr use `1dep all` to deposit all of your money.'.format(str(self.client.get_emoji(BotEmotes.error))))
         data = Economy.get(ctx.author.id)
@@ -224,7 +224,7 @@ class economy(commands.Cog):
             await ctx.send('{} | Invalid number.'.format(str(self.client.get_emoji(BotEmotes.error))))
     
     @command()
-    @cooldown(20)
+    @cooldown(10)
     async def withdraw(self, ctx, *args):
         if len(list(args))==0: return await ctx.send('{} | How many money?\nOr use `1widthdraw all` to get money from the bank.'.format(str(self.client.get_emoji(BotEmotes.error))))
         data = Economy.get(ctx.author.id)
@@ -242,7 +242,7 @@ class economy(commands.Cog):
             await ctx.send('{} | Invalid number.'.format(str(self.client.get_emoji(BotEmotes.error))))
 
     @command('lb,leader,leaders,rich,richest,top')
-    @cooldown(30)
+    @cooldown(10)
     async def leaderboard(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+' | Please wait...')
         data = Economy.leaderboard(ctx.guild.members)
@@ -289,7 +289,7 @@ class economy(commands.Cog):
                     else:
                         await wait.edit(content=str(self.client.get_emoji(BotEmotes.success))+' | Updated your description!')
     @command('balance,mybal,profile,me,myprofile')
-    @cooldown(15)
+    @cooldown(6)
     async def bal(self, ctx, *args):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait...")
         src, ava = myself.getUser(ctx, args), myself.getUserAvatar(ctx, args)

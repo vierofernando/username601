@@ -156,7 +156,7 @@ async def on_guild_remove(guild):
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown): return await ctx.send("You are on cooldown. You can do the command again in {}.".format(myself.time_encode(round(error.retry_after))))
     elif isinstance(error, commands.CommandNotFound): return
-    elif 'noarguments' in str(error).lower(): return await ctx.send('{} | Please insert arguments!'.format(client.get_emoji(BotEmotes.error)))
+    elif 'noarguments' in str(error).lower(): return await ctx.send('{} | Please insert arguments! `Like insert your name as a parameter.`'.format(client.get_emoji(BotEmotes.error)))
     elif 'nouserfound' in str(error).lower(): return await ctx.send('{} | No user found.'.format(client.get_emoji(BotEmotes.error)))
     elif 'missing permissions' in str(error).lower(): return await ctx.send("I don't have the permission required to use that command!")
     elif 'cannot identify image file' in str(error).lower(): return await ctx.send(str(client.get_emoji(BotEmotes.error))+' | Error, it seemed i can\'t load/send the image! Check your arguments and try again. Else, report this to the bot owner using `'+Config.prefix+'feedback.`')
