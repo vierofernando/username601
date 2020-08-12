@@ -11,6 +11,17 @@ class encoding(commands.Cog):
     def __init__(self, client):
         self.client = client
     
+    @command()
+    @cooldown(2)
+    async def ascii(self, ctx, *args):
+        text = myself.urlify(' '.join(list(args))) if len(list(args))>0 else 'ascii%20text'
+        try:
+            await ctx.send('```{}```'.format(
+                myself.insp('http://artii.herokuapp.com/make?text={}'.format(text))
+            ))
+        except:
+            await ctx.send('{} | Your text is too long to be processed!'.format(self.client.get_emoji(BotEmotes.error)))
+
     @command('fliptext,fancy,cursive,braille')
     @cooldown(5)
     async def morse(self, ctx, *args):

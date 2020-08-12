@@ -18,6 +18,14 @@ class fun(commands.Cog):
         self.client = client
         self.session = ClientSession()
     
+    @command('edit')
+    @cooldown(2)
+    async def edited(self, ctx, *args):
+        msg = await ctx.send('...')
+        if len(list(args))==0 or '|' not in ' '.join(list(args)):
+            return await msg.edit(content='Please use | to place where the \u202b will be. \u202b')
+        await msg.edit(content=' '.join(list(args)).replace('|', '\u202b')+' \u202b')
+
     @command('howlove,friendship,fs')
     @cooldown(2)
     async def lovelevel(self, ctx):
