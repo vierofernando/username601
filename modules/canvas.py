@@ -42,14 +42,6 @@ def compile(data):
     arr.seek(0)
     return arr
 
-def simpleTopMeme(text, src, linelimit, maxlimit):
-    image = Image.open(r'{}'.format(src))
-    draw = ImageDraw.Draw(image)
-    text = limitify(text, linelimit-4, maxlimit)
-    draw.text((5, 5), text, fill ="black", font = Fonts.helvetica_large, align ="left") 
-    data = compile(image)
-    return data
-
 def presentationMeme(text, link):
     image = Image.open(r'{}'.format(link))
     text = limitify(text, 20, 5)

@@ -138,18 +138,6 @@ class memes(commands.Cog):
             source, by = myself.getUserAvatar(ctx, args), str(ctx.author.avatar_url).replace('.webp?size=1024', '.png?size=512')
             await ctx.send(file=discord.File(Painter.ifearnoman(by, source), 'i_fear_no_man.png'))
 
-    @command('stonks,immaheadout,homer,monkeypuppet,tom,surprisedpikachu,meandtheboys')
-    @cooldown(5)
-    async def pabloescobar(self, ctx, *args):
-        if len(list(args))==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Where is the meme's context?")
-        else:
-            async with ctx.message.channel.typing():
-                try:
-                    data = Painter.simpleTopMeme(' '.join(list(args)), './assets/pics/'+str(ctx.message.content).split(' ')[0][1:]+'.jpg', 40, 3)
-                    await ctx.send(file=discord.File(data, 'top_meme.png'))
-                except Exception as e:
-                    await ctx.send('Oopsies! There was an error on creating your chosen meme;\n'+str(e))
-
     @command('presentation')
     @cooldown(5)
     async def firstwords(self, ctx, *args):
@@ -250,7 +238,7 @@ class memes(commands.Cog):
                 Painter.hitler(source), 'hitler.png'
             ))
 
-    @command('wanted,chatroulette,sacred,coffindance,frame,window,art')
+    @command('wanted,chatroulette,frame,art')
     @cooldown(10)
     async def ferbtv(self, ctx, *args):
         async with ctx.message.channel.typing():
@@ -259,10 +247,7 @@ class memes(commands.Cog):
             if 'wanted' in ctx.message.content: num1, num2, num3, num4 = 547, 539, 167, 423
             elif 'ferbtv' in ctx.message.content: num1, num2, num3, num4 = 362, 278, 363, 187
             elif 'chatroulette' in ctx.message.content: num1, num2, num3, num4 = 324, 243, 14, 345
-            elif 'sacred' in ctx.message.content: num1, num2, num3, num4 = 454, 498, 1210, 986
-            elif 'coffindance' in ctx.message.content: num1, num2, num3, num4 = 220, 228, 421, 58
             elif 'frame' in ctx.message.content: num1, num2, num3, num4, ava = 1025, 715, 137, 141, str(ava).replace("=512", "=1024")
-            elif 'window' in ctx.message.content: num1, num2, num3, num4 = 219, 199, 4, 21
             if 'art' not in ctx.message.content: image = Painter.putimage(ava, filename, num1, num2, num3, num4)
             else: image = Painter.art(ava)
             await ctx.send(file=discord.File(image, str(ctx.message.content)[1:].replace(' ', '')+'.png'))
