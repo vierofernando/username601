@@ -34,8 +34,6 @@ def limitify(raw, linelimit, maxlimit):
         text += list(raw)[i]
     return text
 
-# COMPILES ALL OF THAT TO THE DISCORD.FILE THINGY
-#273
 def compile(data):
     arr = io.BytesIO()
     data.save(arr, format='PNG')
@@ -54,6 +52,21 @@ def imagefromURL(url):
     response = requests.get(url)
     image = Image.open(io.BytesIO(response.content))
     return image
+
+def imagetoASCII(url):
+    im = imagefromURL(url).resize((300, 300)).rotate(270).convert('RGB')
+    im = im.resize((int(list(im.size)[0]/3)-60, int(list(im.size)[1]/3)))
+    total_str = ""
+    for i in range(im.width):
+        for j in range(im.height):
+            br = round(sum(im.getpixel((i, j)))/3)
+            if br in range(0, 50): total_str += '.'
+            elif br in range(50, 100): total_str += '/'
+            elif br in range(100, 150): total_str += '$'
+            elif br in range(150, 200): total_str += '#'
+            else: total_str += '@'
+        total_str += '\n'
+    return total_str
 
 def Helvetica(size):
     return ImageFont.truetype(r'/home/runner/hosting601/assets/fonts/Helvetica.ttf', int(size))
