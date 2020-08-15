@@ -1,4 +1,4 @@
-from PIL import Image, ImageFont, ImageDraw, GifImagePlugin, ImageOps
+from PIL import Image, ImageFont, ImageDraw, GifImagePlugin, ImageOps, ImageFilter
 import io
 from sys import path
 path.append('/home/runner/hosting601/modules')
@@ -52,6 +52,10 @@ def imagefromURL(url):
     response = requests.get(url)
     image = Image.open(io.BytesIO(response.content))
     return image
+
+def blur(url):
+    im = imagefromURL(url).filter(ImageFilter.BLUR)
+    return compile(im)
 
 def glitch(url):
     img = imagefromURL(url).resize((200, 200))

@@ -12,6 +12,14 @@ class image(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    @command()
+    @cooldown(5)
+    async def blur(self, ctx, *args):
+        ava = myself.getUserAvatar(ctx, args, size=512)
+        async with ctx.message.channel.typing():
+            im = Painter.blur(ava)
+            await ctx.send(file=discord.File(im, 'blur.png'))
+
     @command('glitchify,matrix')
     @cooldown(5)
     async def glitch(self, ctx, *args):
