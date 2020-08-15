@@ -34,7 +34,9 @@ class economy(commands.Cog):
     @cooldown(30)
     async def fish(self, ctx):
         if Economy.get(ctx.author.id)==None: raise myself.noProfile()
-        wait = await ctx.send('{} | You started fishing...'.format(self.client.get_emoji(BotEmotes.loading)))
+        wait = await ctx.send('{} | {}...'.format(self.client.get_emoji(BotEmotes.loading), random.choice(
+            loads(open('/home/runner/hosting601/assets/json/fish.json', 'r').read())['waiting']
+        )))
         await sleep(random.randint(3, 10))
         res = self.randomfish()
         if res['catched']:
