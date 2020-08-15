@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from sys import path
 path.append("/home/runner/hosting601/modules")
+path.append("/home/runner/hosting601/assets/json")
 from decorators import command, cooldown
 import random
 from json import loads
@@ -10,15 +11,43 @@ from username601 import *
 import canvas as Painter
 from database import Economy, Shop
 from datetime import datetime
+from algorithm import getfish
+from asyncio import sleep
 
 class economy(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.randomfish = getfish
     
+    @command()
+    @cooldown(60)
+    async def beg(self, ctx):
+        c = random.randint(1, 4)
+        if Economy.get(ctx.author.id)==None: raise myself.noProfile()
+        if c==1:
+            award = random.randint(100, 500)
+            Economy.addbal(ctx.author.id, award)
+            return await ctx.send('{} | You begged and got {} diamonds!'.format(self.client.get_emoji(BotEmotes.success), award))
+        await ctx.send('{} | Stop begging! Try again later.'.format(self.client.get_emoji(BotEmotes.error)))
+
+    @command('fishing')
+    @cooldown(30)
+    async def fish(self, ctx):
+        if Economy.get(ctx.author.id)==None: raise myself.noProfile()
+        wait = await ctx.send('{} | You started fishing...'.format(self.client.get_emoji(BotEmotes.loading)))
+        await sleep(random.randint(3, 10))
+        res = self.randomfish()
+        if res['catched']:
+            awards = random.randint(res['ctx']['worth']['min'], res['ctx']['worth']['max'])
+            Economy.addbal(ctx.author.id, awards)
+            return await wait.edit(content='{} | Congratulations! You caught a {} and sell it worth for {} diamonds!'.format(res['ctx']['emote'], res['ctx']['name'], awards))
+        return await wait.edit(content='{} | You only caught {}...'.format(self.client.get_emoji(BotEmotes.error), res['ctx']))
+
     @command()
     @cooldown(7)
     async def buylist(self, ctx):
         source = ctx.author if len(ctx.message.mentions)==0 else ctx.message.mentions[0]
+        if Economy.get(ctx.author.id)==None: raise myself.noProfile()
         try:
             data = Economy.getBuyList(source)
             assert data['error']==False, data['ctx']
@@ -62,6 +91,7 @@ class economy(commands.Cog):
     @cooldown(10)
     async def buy(self, ctx, *args):
         if len(list(args))==0: return await ctx.send('{} | Please use the following parameters:\n`{}buy <name>`'.format(self.client.get_emoji(BotEmotes.error), Config.prefix))
+        if Economy.get(ctx.author.id)==None: raise myself.noProfile()
         try:
             data = Shop.buy(' '.join(list(args)), ctx.author)
             assert data['error']==False, data['ctx']
@@ -87,7 +117,7 @@ class economy(commands.Cog):
     async def reset(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait...")
         data = Economy.get(ctx.author.id)
-        if data==None: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+" | You don't have a profile yet! Create a profile using `1new`")
+        if data==None: raise myself.noProfile()
         else:
             await wait.edit(content=':thinking: | Are you sure? This action is irreversible!\n(Reply with yes/no)')
             def check_is_auth(m):
@@ -107,7 +137,7 @@ class economy(commands.Cog):
     async def work(self, ctx):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait...")
         data = Economy.get(ctx.author.id)
-        if data==None: await ctx.send("you dont have a profile yet! Create a profile using `1new`")
+        if data==None: raise myself.noProfile()
         else:
             reward = str(random.randint(100, 500))
             new_data = Economy.addbal(ctx.message.author.id, int(reward))
@@ -119,7 +149,7 @@ class economy(commands.Cog):
     @cooldown(15)
     async def daily(self, ctx, *args):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait...")
-        if Economy.get(ctx.message.author.id)==None: await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+" | You don't have a profile yet! Create a profile using `1new`")
+        if Economy.get(ctx.message.author.id)==None: raise myself.noProfile()
         else:
             obj = Economy.can_vote(ctx.message.author.id)
             if obj['bool']:
@@ -208,9 +238,7 @@ class economy(commands.Cog):
     async def deposit(self, ctx, *args):
         if len(list(args))==0: return await ctx.send('{} | How many money?\nOr use `1dep all` to deposit all of your money.'.format(str(self.client.get_emoji(BotEmotes.error))))
         data = Economy.get(ctx.author.id)
-        if data==None: return await ctx.send('{} | You don\'t have a profile! Use `{}new`'.format(
-            str(self.client.get_emoji(BotEmotes.error)), Config.prefix
-        ))
+        if data==None: raise myself.noProfile()
         if list(args)[0].lower()=='all':
             Economy.deposit(ctx.author.id, data['bal'])
             return await ctx.send('{} | OK. Deposited all of your diamonds to the username601 bank.'.format(str(self.client.get_emoji(BotEmotes.success))))
@@ -228,7 +256,7 @@ class economy(commands.Cog):
     async def withdraw(self, ctx, *args):
         if len(list(args))==0: return await ctx.send('{} | How many money?\nOr use `1widthdraw all` to get money from the bank.'.format(str(self.client.get_emoji(BotEmotes.error))))
         data = Economy.get(ctx.author.id)
-        if data==None: return await ctx.send('{} | You don\'t have a profile! Use a `{}new.`'.format(str(self.client.get_emoji(BotEmotes.error)), Config.prefix))
+        if data==None: raise myself.noProfile()
         if list(args)[0].lower()=='all':
             Economy.withdraw(ctx.author.id, data['bankbal'])
             return await ctx.send('{} | OK. Withdrawed all of your diamonds from the username601 bank.'.format(str(self.client.get_emoji(BotEmotes.success))))
@@ -281,7 +309,7 @@ class economy(commands.Cog):
             else:
                 wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+' | Please wait...')
                 if Economy.get(ctx.message.author.id)==None:
-                    await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+' | You haven\'t created a profile yet! use `1new`!')
+                    raise myself.noProfile()
                 else:
                     data = Economy.setdesc(ctx.message.author.id, str(' '.join(list(args))))
                     if data=='error':
@@ -294,7 +322,7 @@ class economy(commands.Cog):
         wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading))+" | Please wait...")
         src, ava = myself.getUser(ctx, args), myself.getUserAvatar(ctx, args)
         if Economy.get(src.id)==None:
-            await wait.edit(content=str(self.client.get_emoji(BotEmotes.error))+" | You don't have a profile yet! Create a profile using `1new`")
+            raise myself.noProfile()
         else:
             img = Painter.profile(ava, src, Economy.getProfile(src.id, [i.id for i in ctx.guild.members if not i.bot]))
             await wait.delete()

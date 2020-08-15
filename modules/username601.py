@@ -34,21 +34,28 @@ class Config:
 # EXCEPTIONS
 class noArguments(Exception): pass
 class noUserFound(Exception): pass
+class noProfile(Exception): pass
 
-def getUserAvatar(ctx, args, size=1024, user=None):
+def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
     if len(list(args))==0: raise noArguments()
-    if len(ctx.message.mentions)>0: return str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', f'.png?size={size}')
+    if len(ctx.message.mentions)>0:
+        if not allowgif: return str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', f'.png?size={size}')
+        return str(ctx.message.mentions[0].avatar_url).replace('?size=1024', f'?size={size}')
     name = str(' '.join(list(args))).lower().split('#')[0] # disable discriminator if found
     for i in ctx.guild.members:
         if name in str(i.name).lower():
             user = i; break
         elif name in str(i.nick).lower():
             user = i; break
-    if user!=None: return str(user.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', f'.png?size={size}')
+    if user!=None:
+        if not allowgif: return str(user.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', f'.png?size={size}')
+        return str(user.avatar_url).replace('?size=1024', f'?size={size}')
     elif list(args)[0].isnumeric():
         if int(list(args)[0]) not in [i.id for i in ctx.guild.members]: raise noUserFound()
-        return str(ctx.guild.get_member(int(list(args)[0])).avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', f'.png?size={size}')
-    return str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', f'.png?size={size}')
+        if not allowgif: return str(ctx.guild.get_member(int(list(args)[0])).avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', f'.png?size={size}')
+        return str(ctx.guild.get_member(int(list(args)[0])).avatar_url).replace('?size=1024', f'?size={size}')
+    if not allowgif: return str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', f'.png?size={size}')
+    return str(ctx.author.avatar_url).replace('?size=1024', f'?size={size}')
 
 def getUser(ctx, args, user=None):
     if len(list(args))==0: raise noArguments()

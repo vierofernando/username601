@@ -1,0 +1,57 @@
+{
+    "results": {
+        "overall": [
+            {
+                "chance": 2,
+                "name": "Regular Fish",
+                "emote": "🐟",
+                "worth": {
+                    "min": 75,
+                    "max": 200
+                }
+            },
+            {
+                "chance": 5,
+                "name": "Tropical Fish",
+                "emote": "🐠",
+                "worth": {
+                    "min": 75,
+                    "max": 200
+                }
+            },
+            {
+                "chance": 20,
+                "name": "Shark",
+                "emote": "🦈",
+                "worth": {
+                    "min": 100,
+                    "max": 300
+                }
+            },
+            {
+                "chance": 50,
+                "name": "Octopus",
+                "emote": "🦈",
+                "worth": {
+                    "min": 250,
+                    "max": 500
+                }
+            }
+        ],
+        "else": [
+            "nothing",
+            "undefined",
+            "trash",
+            "junk",
+            "poop"
+        ]
+    },
+    "waiting": [
+        "You started fishing...",
+        "You threw the fishing line to the water...",
+        "Waiting for a fish...",
+        "You decided to fish. Waiting for results..",
+        "Fishing may take patience.. please wait..",
+        "Waiting for a catch.."
+    ]
+}

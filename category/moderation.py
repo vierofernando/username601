@@ -355,7 +355,7 @@ class moderation(commands.Cog):
                     await ctx.message.guild.ban(ctx.message.mentions[0])
                     await ctx.send(str(self.client.get_emoji(BotEmotes.success))+" | Successfully banned "+ctx.message.mentions[0].name+".")
     @command('purge')
-    @cooldown(5)
+    @cooldown(2)
     async def clear(self, ctx, *args):
         if not ctx.message.author.guild_permissions.manage_channels:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | You need the manage channel permission!")
@@ -424,7 +424,7 @@ class moderation(commands.Cog):
     @command('av,ava')
     @cooldown(1)
     async def avatar(self, ctx, *args):
-        url = myself.getUserAvatar(ctx, args)
+        url = myself.getUserAvatar(ctx, args, allowgif=True)
         embed = discord.Embed(title='look at dis avatar', color=discord.Colour.from_rgb(201, 160, 112))
         embed.set_image(url=url)
         await ctx.send(embed=embed)
