@@ -7,7 +7,7 @@ import canvas as Painter
 from username601 import *
 from decorators import command, cooldown
 import random
-from requests import post
+from requests import post, get
 import splashes as src
 from json import loads
 from datetime import datetime as t
@@ -15,6 +15,21 @@ from datetime import datetime as t
 class utils(commands.Cog):
     def __init__(self, client):
         self.client = client
+    
+    @command('isitup,webstatus')
+    @cooldown(2)
+    async def isitdown(self, ctx, *args):
+        if len(list(args))==0: return await ctx.send('{} | Please send a website link...'.format(self.client.get_emoji(BotEmotes.error)))
+        wait = await ctx.send('{} | Pinging...'.format(self.client.get_emoji(BotEmotes.loading)))
+        web = list(args)[0].replace('<', '').replace('>', '')
+        if not web.startswith('http'): web = 'http://' + web
+        try:
+            a = t.now()
+            ping = get(web)
+            pingtime = round((t.now()-a).total_seconds())*1000
+            await wait.edit(content='{} | That website is up.\nPing: {} ms\nStatus code: {}'.format(self.client.get_emoji(BotEmotes.success), pingtime, ping.status_code))
+        except:
+            await wait.edit(content='{} | Yes. that website is down.'.format(self.client.get_emoji(BotEmotes.error)))
     
     @command('img2ascii,imagetoascii,avascii,avatarascii,avatar2ascii,av2ascii')
     @cooldown(10)
