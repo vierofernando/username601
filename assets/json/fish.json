@@ -31,7 +31,7 @@
             {
                 "chance": 50,
                 "name": "Octopus",
-                "emote": "🦈",
+                "emote": "🐙",
                 "worth": {
                     "min": 250,
                     "max": 500
