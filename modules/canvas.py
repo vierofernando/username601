@@ -1,4 +1,4 @@
-from PIL import Image, ImageFont, ImageDraw, GifImagePlugin
+from PIL import Image, ImageFont, ImageDraw, GifImagePlugin, ImageOps
 import io
 from sys import path
 path.append('/home/runner/hosting601/modules')
@@ -53,8 +53,19 @@ def imagefromURL(url):
     image = Image.open(io.BytesIO(response.content))
     return image
 
+def glitch(url):
+    img = imagefromURL(url).resize((200, 200))
+    p = img.load()
+    for i in range(img.width):
+        if random.randint(0, 1)==1:
+            size = random.randint(0, img.height)
+            for j in range(img.height):
+                getloc = i+size
+                if getloc >= img.width: getloc -= img.width
+                p[i, j] = img.getpixel((getloc, j))
+    return compile(img)
 def imagetoASCII(url):
-    im = imagefromURL(url).resize((300, 300)).rotate(270).convert('RGB')
+    im = imagefromURL(url).resize((300, 300)).rotate(90).convert('RGB')
     im = im.resize((int(list(im.size)[0]/3)-60, int(list(im.size)[1]/3)))
     total_str = ""
     for i in range(im.width):
@@ -335,7 +346,18 @@ class gif:
         images[0].save(arr, "GIF", save_all=True, append_images=images[1:], optimize=optimize, duration=duration, loop=0)
         arr.seek(0)
         return arr
-
+    def flip(pic):
+        im = imagefromURL(pic).resize((400,400))
+        inv_im = ImageOps.flip(im)
+        speed, images = [3,6,13,25,50,100,200,399], []
+        for i in range(len(speed)*2):
+            stretch = speed[i] if i < len(speed) else speed[::-1][i-len(speed)]
+            image = im if i < len(speed) else inv_im
+            cnv = Image.new(mode='RGB', size=(400, 400), color=(0,0,0))
+            cnv.paste(image.resize((400, 400-stretch)), (0, round(stretch/2)))
+            images.append(cnv)
+        images += images[::-1]
+        return gif.compilegif(images, 5)
     def death_star(pic):
         gif_template = Image.open(r'/home/runner/hosting601/assets/pics/explosion.gif')
         ava, images, size = imagefromURL(pic).resize((61, 62)), [], gif_template.size

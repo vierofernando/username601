@@ -12,6 +12,14 @@ class image(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    @command('glitchify,matrix')
+    @cooldown(5)
+    async def glitch(self, ctx, *args):
+        ava = myself.getUserAvatar(ctx, args, size=512)
+        async with ctx.message.channel.typing():
+            im = Painter.glitch(ava)
+            await ctx.send(file=discord.File(im, 'glitch.png'))
+
     @command('destroy,destroyava,destroyavatar')
     @cooldown(5)
     async def destroyimg(self, ctx, *args):
