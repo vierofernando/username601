@@ -145,6 +145,14 @@ def evol(url):
     img.paste(ava, (255, 175))
     return compile(img)
 
+def disconnected(msg):
+    im = Image.open(r'/home/runner/hosting601/assets/pics/disconnected.png')
+    draw, myFont = ImageDraw.Draw(im), ImageFont.truetype(r'/home/runner/hosting601/assets/fonts/Minecraftia-Regular.ttf', 16)
+    w, h = myFont.getsize(msg)
+    W, H = im.size
+    draw.text(((W-w)/2,336), msg, font=myFont, fill="white")
+    return compile(im)
+
 def app(src, msg):
     im, ava = Image.open(r"/home/runner/hosting601/assets/pics/app.png"), imagefromURL(src).resize((159, 161))
     W, H = im.size

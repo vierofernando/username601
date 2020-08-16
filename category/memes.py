@@ -15,6 +15,14 @@ class memes(commands.Cog):
         self.client = client
         self.session = ClientSession()
 
+    @command('disconnect')
+    @cooldown(3)
+    async def disconnected(self, ctx, *args):
+        text = 'Forgotting to put the arguments' if len(list(args))==0 else ' '.join(list(args))
+        async with ctx.message.channel.typing():
+            im = Painter.disconnected(text)
+            await ctx.send(file=discord.File(im, 'disconnected.png'))
+
     @command('blowup,blow,death-star')
     @cooldown(10)
     async def deathstar(self, ctx, *args):
