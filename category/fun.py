@@ -11,6 +11,7 @@ from aiohttp import ClientSession
 from io import BytesIO
 import asyncio
 import algorithm
+from gtts import gTTS
 import canvas as Painter
 
 class fun(commands.Cog):
@@ -18,6 +19,24 @@ class fun(commands.Cog):
         self.client = client
         self.session = ClientSession()
     
+    @command('talk,gtts,texttospeech,text-to-speech')
+    @cooldown(5)
+    async def tts(self, ctx, *args):
+        if len(list(args))==0: raise myself.noArguments()
+        res = BytesIO()
+        tts = gTTS(text=' '.join(list(args)), lang='en', slow=False)
+        tts.write_to_fp(res)
+        res.seek(0)
+        await ctx.send(file=discord.File(fp=res, filename='tts.mp3'))
+
+    @command()
+    @cooldown(6)
+    async def flip(self, ctx, *args):
+        av = myself.getUserAvatar(ctx, args)
+        async with ctx.message.channel.typing():
+            im = Painter.gif.flip(av)
+            return await ctx.send(file=discord.File(im, 'flip.gif'))
+
     @command('edit')
     @cooldown(2)
     async def edited(self, ctx, *args):
@@ -25,6 +44,7 @@ class fun(commands.Cog):
         if len(list(args))==0 or '|' not in ' '.join(list(args)):
             return await msg.edit(content='Please use | to place where the \u202b will be. \u202b')
         await msg.edit(content=' '.join(list(args)).replace('|', '\u202b')+' \u202b')
+        # test\u202bhi \u202b
 
     @command('howlove,friendship,fs')
     @cooldown(2)
@@ -64,14 +84,6 @@ class fun(commands.Cog):
             else:
                 console += 'ERROR: INVALID TAG.\nACCESS DENIED.\n\nHash encoded base64 cipher code:\n'+myself.bin(ctx.message.author.name)+ '\n' + console
                 await ctx.send(f'```bash\n{console}```')
-    
-    @command()
-    @cooldown(11)
-    async def tts(self, ctx, *args):
-        if len(list(args))==0:
-            await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +' | Invalid.')
-        else:
-            await ctx.send(content=str(' '.join(list(args))), tts=True)
     
     @command()
     @cooldown(10)

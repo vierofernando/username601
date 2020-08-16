@@ -51,5 +51,6 @@ Pillow==7.1.1<br>
 pymongo==3.10.1<br>
 dnspython==1.16.0<br>
 PyNaCl==1.30<br>
+gtts==2.1.1<br>
 
 (c) Viero Fernando Programming 2020. All rights reserved.
