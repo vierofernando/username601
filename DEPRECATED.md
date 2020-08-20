@@ -47,4 +47,10 @@ I also decided to abandon the "`Voice/Music Bots TM` platform"<br>
 because my bot **is not fully 24/7.** also [repl.it](https://repl.it) doesn't<br>
 like music bots somehow soo, moving on from that.<br>
 
-#### P.S: If you wanna give the commands back, you can pull out an issue and send me your workaround!
+### Setting Birthday / Reminders<br>
+This one is discontinued because my bot again, is not fully 24/7.<br>
+sometimes repl.it randomly shuts down my bot, so<br>
+`await asyncio.sleep(6969)` or `if datetime.datetime.now().timestamp() > database.gettimestamp()`<br>
+is not to be added soon.<br>
+
+#### P.S: If you wanna have the commands back or you have ideas, you can pull out an issue and send me your workaround!
