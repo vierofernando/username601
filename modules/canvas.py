@@ -372,7 +372,7 @@ class gif:
         return gif.compilegif(images, 5)
     def destroy_computer(pic, metadata):
         data = Image.open(r'/home/runner/hosting601/assets/pics/rage.gif')
-        ava = imagefromURL(images).resize((40, 40))
+        ava = imagefromURL(pic).resize((40, 40))
         imsize = data.size
         images = []
         for i in range(data.n_frames):
