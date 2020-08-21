@@ -14,8 +14,17 @@ class memes(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.session = ClientSession()
-        self.rawMetadata = open(r'/home/runner/hosting601/modules/Animation.dat', 'r').read().split(';')
-        self.rageMetadata = [tuple([int(a) for a in i.split(',')]) for i in self.rawMetadata]
+        self.rawMetadata = open(r'/home/runner/hosting601/modules/Animation.dat', 'r').read().split('\n')
+        self.rageMetadata = [tuple([int(a) for a in i.split(',')]) for i in self.rawMetadata[0].split(';')]
+        self.frogMetadata = self.rawMetadata[1].split(':')
+
+    @command('crazy-frog,crazyfrogdance,dance,crazy-dance,kiddance,kid-dance')
+    @cooldown(8)
+    async def crazyfrog(self, ctx, *args):
+        im = myself.getUserAvatar(ctx, args, size=64)
+        async with ctx.message.channel.typing():
+            res = Painter.gif.crazy_frog_dance(im, self.frogMetadata)
+            await ctx.send(file=discord.File(res, 'crazyfrog.gif'))
 
     @command('destroycomputer,smash')
     @cooldown(5)

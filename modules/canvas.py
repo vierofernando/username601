@@ -370,6 +370,20 @@ class gif:
             images.append(cnv)
         images += images[::-1]
         return gif.compilegif(images, 5)
+    def crazy_frog_dance(pic, metadata):
+        im = Image.open(r'/home/runner/hosting601/assets/pics/crazyfrog.gif')
+        ava = imagefromURL(pic)
+        size, images = im.size, []
+        for i in range(im.n_frames):
+            im.seek(i)
+            ava_size = tuple([int(a) for a in metadata[i].split(';')[0].split(',')])
+            placement = tuple([int(a) for a in metadata[i].split(';')[1].split(',')])
+            cnv = Image.new(mode='RGB', size=size, color=(0,0,0))
+            cnv.paste(im.convert('RGB'), (0,0))
+            cnv.paste(ava.resize(placement), ava_size)
+            images.append(cnv)
+        return gif.compilegif(images, 5)
+
     def destroy_computer(pic, metadata):
         data = Image.open(r'/home/runner/hosting601/assets/pics/rage.gif')
         ava = imagefromURL(pic).resize((40, 40))
