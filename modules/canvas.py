@@ -370,6 +370,19 @@ class gif:
             images.append(cnv)
         images += images[::-1]
         return gif.compilegif(images, 5)
+    def destroy_computer(pic, metadata):
+        data = Image.open(r'/home/runner/hosting601/assets/pics/rage.gif')
+        ava = imagefromURL(images).resize((40, 40))
+        imsize = data.size
+        images = []
+        for i in range(data.n_frames):
+            data.seek(i)
+            cnv = Image.new(mode='RGB', size=imsize, color=(0,0,0))
+            cnv.paste(data.convert('RGB'), (0,0))
+            cnv.paste(ava, metadata[i])
+            images.append(cnv)
+        return gif.compilegif(images, 4.3)
+
     def death_star(pic):
         gif_template = Image.open(r'/home/runner/hosting601/assets/pics/explosion.gif')
         ava, images, size = imagefromURL(pic).resize((61, 62)), [], gif_template.size

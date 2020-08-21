@@ -25,8 +25,8 @@ class utils(commands.Cog):
         if not web.startswith('http'): web = 'http://' + web
         try:
             a = t.now()
-            ping = get(web)
-            pingtime = round((t.now()-a).total_seconds())*1000
+            ping = get(web, timeout=5)
+            pingtime = round((t.now()-a).total_seconds()*1000)
             await wait.edit(content='{} | That website is up.\nPing: {} ms\nStatus code: {}'.format(self.client.get_emoji(BotEmotes.success), pingtime, ping.status_code))
         except:
             await wait.edit(content='{} | Yes. that website is down.'.format(self.client.get_emoji(BotEmotes.error)))
@@ -173,7 +173,7 @@ class utils(commands.Cog):
     @command('rhymes')
     @cooldown(7)
     async def rhyme(self, ctx, *args):
-        if len(list(args))==0: await message.channel.send('Please input a word! And we will try to find the word that best rhymes with it.')
+        if len(list(args))==0: await ctx.send('Please input a word! And we will try to find the word that best rhymes with it.')
         else:
             wait, words = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait... Searching...'), []
             data = myself.api('https://rhymebrain.com/talk?function=getRhymes&word='+str(myself.urlify(' '.join(list(args)))))
@@ -344,16 +344,7 @@ class utils(commands.Cog):
         if 'cat' in str(ctx.message.content).lower(): await ctx.send('**Did you know?**\n'+str(myself.jsonisp("https://catfact.ninja/fact")['fact']))
         elif 'dog' in str(ctx.message.content).lower(): await ctx.send('**Did you know?**\n'+str(myself.jsonisp("https://dog-api.kinduff.com/api/facts")['facts'][0]))
         else:
-            wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
-            data = myself.insp('https://bestlifeonline.com/random-fun-facts/')
-            byFact = data.split('<div class="title ">')
-            accepted, facts = False, []
-            for a in byFact:
-                if a.split('</div')[0].startswith('Superman'): accepted = True
-                if accepted:
-                    facts.append(a.split('</div>')[0])
-                else: continue
-            await wait.edit(content='**Did you know?**\n'+str(random.choice(facts)))
+            await ctx.send('**Did you know?**\n'+str(myself.jsonisp("https://useless-api--vierofernando.repl.co/randomfact")['fact']))
 
     @command('em')
     @cooldown(2)

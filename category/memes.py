@@ -14,6 +14,16 @@ class memes(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.session = ClientSession()
+        self.rawMetadata = open(r'/home/runner/hosting601/modules/Animation.dat', 'r').read().split(';')
+        self.rageMetadata = [tuple([int(a) for a in i.split(',')]) for i in self.rawMetadata]
+
+    @command('destroycomputer,smash')
+    @cooldown(5)
+    async def rage(self, ctx, *args):
+        im = myself.getUserAvatar(ctx, args, size=64)
+        async with ctx.message.channel.typing():
+            res = Painter.gif.destroy_computer(im, self.rageMetadata)
+            await ctx.send(file=discord.File(res, 'rage.gif'))
 
     @command('disconnect')
     @cooldown(3)
