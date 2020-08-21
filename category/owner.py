@@ -15,7 +15,7 @@ from inspect import isawaitable
 from asyncio import sleep
 import os
 
-totallyrealtoken = 'Njk3Mjg5NzU3MTYzNTIwMDUx.Xv6Isw.TwGn2C98fh7WBUQuh7lK6T9q_7c'
+totallyrealtoken = 'asdoaskdokasdokasodkasodkasodkasdkasodkaosdkoaskdoadk'
 
 class owner(commands.Cog):
     def __init__(self, client):
@@ -25,9 +25,11 @@ class owner(commands.Cog):
             os.getenv('DBL_TOKEN'),
             os.getenv('DB_LINK'),
             os.getenv('KSOFT_TOKEN'),
-            os.getenv('UPTIMEROBOT_TOKEN')
+            os.getenv('UPTIMEROBOT_TOKEN'),
+            os.getenv('BOTSFORDISCORD_TOKEN'),
+            os.getenv('DISCORDBOTLIST_TOKEN')
         ]
-    
+
     @command()
     async def setbal(self, ctx, *args):
         if ctx.message.author.id==Config.owner.id:
@@ -90,7 +92,7 @@ class owner(commands.Cog):
                 else: await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```**Output:**```py\n'+str(res)+'```Return type:```py\n'+str(type(res))+'```', color=discord.Color.green()))
             except Exception as e:
                 if 'cannot reuse already awaited coroutine' in str(e): return
-                await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+unprefixed+'```\nException:```py\n'+str(e)+'```', color=discord.Colour.red()))
+                await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+unprefixed+'```\nException:```py\n'+str(e)+'```', color=discord.Colour.red()), delete_after=5)
         else:
             myself.report(ctx.message.author) # reports to the owner
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Are you looking for the bots token? Well here you are: `'+totallyrealtoken+'`')
