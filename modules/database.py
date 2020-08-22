@@ -36,6 +36,11 @@ class username601Stats:
         })['commandstats']
 
 class Dashboard:
+    def getData(guildid):
+        try:
+            data = database['dashboard'].find_one({'serverid': guildid})
+            return data
+        except: return None
     def exist(guildid):
         try:
             data = database['dashboard'].find_one({'serverid': int(guildid)})
@@ -388,6 +393,10 @@ class Shop:
         return {'error': False, 'ctx': 'Successfully bought '+element['name']}
 
 class selfDB:
+    def ping():
+        a = t.now()
+        temp = [i for i in database['dashboard'].find()]
+        return round((t.now()-a).total_seconds()*1000)
     def post_uptime():
         for i in database['config'].find():
             if 'uptime' in list(i.keys()):
