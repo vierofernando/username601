@@ -12,8 +12,8 @@ class bothelp(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @command('commands,yardim')
-    @cooldown(5)
+    @command('commands,yardim,yardım')
+    @cooldown(1)
     async def help(self, ctx, *args):
         data = myself.jsonisp("https://vierofernando.github.io/username601/assets/json/commands.json")
         types = Config.cmdtypes
@@ -21,7 +21,7 @@ class bothelp(commands.Cog):
         if len(args)<1:
             cate = ''
             for i in range(0, len(types)):
-                cate += f'**{str(i+1)}. **{Config.prefix}help {str(types[i])}\n'
+                cate += f'**{str(i+1)}. **[{Config.prefix}help {str(types[i])}](https://vierofernando.github.io/username601/commands?category={i})\n'
             embed = discord.Embed(
                 title='Username601\'s commands',
                 description='[Join the support server]('+str(Config.SupportServer.invite)+') | [Vote us on top.gg](https://top.gg/bot/'+str(Config.id)+'/vote)\n\n**[More information on our website here.](https://vierofernando.github.io/username601/commands)**\n**Command Categories:** \n'+str(cate),
@@ -119,8 +119,9 @@ class bothelp(commands.Cog):
     @command()
     @cooldown(5)
     async def ping(self, ctx):
+        dbping = selfDB.ping()
         ping = str(round(self.client.latency*1000))
-        embed = discord.Embed(title=f'Pong!', description=f'**Discord\'s Latency:** {ping} ms.\n**Bot\'s Latency:** {str(round(int((t.now()-ctx.message.created_at).microseconds)/1000))} ms.', colour=discord.Colour.from_rgb(201, 160, 112))
+        embed = discord.Embed(title=f'Pong!', description=f'**Client Latency:** {ping} ms.\n**Message Latency:** {str(round(int((t.now()-ctx.message.created_at).microseconds)/1000))} ms.\n**Database latency:** {dbping} ms.', colour=discord.Colour.from_rgb(201, 160, 112))
         embed.set_thumbnail(url='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif')
         await ctx.send(embed=embed)
     
@@ -130,7 +131,7 @@ class bothelp(commands.Cog):
         up, cmds = selfDB.get_uptime(), username601Stats.retrieveData()
         imageurl = myself.urlify(myself.uptimerobot())
         bot_uptime = up.split('|')[0].split(':')[0]+' Hours, '+up.split('|')[0].split(':')[1]+' minutes, '+up.split('|')[0].split(':')[2]+' seconds.'
-        embed = discord.Embed(description='Bot uptime: {}\nOS uptime: {}\nLast downtime: {} UTC\n\nCommands run in the past {}: {}'.format(bot_uptime, str(myself.terminal('uptime -p'))[3:], up.split('|')[1], myself.time_encode(round(t.now().timestamp()) - round(cmds['lastreset'])), str(cmds['count'])), color=discord.Colour.from_rgb(201, 160, 112))
+        embed = discord.Embed(description='This bot is in {} servers.\nWith {} users\n\nBot uptime: {}\nOS uptime: {}\nLast downtime: {} UTC\n\nCommands run in the past {}: {}'.format(len(self.client.guilds), len(self.client.users), bot_uptime, str(myself.terminal('uptime -p'))[3:], up.split('|')[1], myself.time_encode(round(t.now().timestamp()) - round(cmds['lastreset'])), str(cmds['count'])), color=discord.Colour.from_rgb(201, 160, 112))
         embed.set_image(url='https://quickchart.io/chart?c='+imageurl)
         await ctx.send(embed=embed)
 
