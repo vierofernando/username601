@@ -195,8 +195,9 @@ class Dashboard:
         if data==None: return None
         return data['mute']
     def editMuteRole(serverid, roleid):
+        new = int(roleid) if roleid!=None else None
         database['dashboard'].update_one({'serverid': serverid}, {'$set': {
-            'mute': int(roleid)
+            'mute': new
         }})
 
 class Economy:
