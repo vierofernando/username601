@@ -8,7 +8,7 @@ from database import *
 from decorators import command, cooldown
 # MAKE SURE OWNER HAS ACCESS TO "EVERYTHING"
 import discordgames as Games
-import canvas as Painter
+from canvas import *
 import algorithm
 from subprocess import run, PIPE
 from inspect import isawaitable
@@ -29,6 +29,14 @@ class owner(commands.Cog):
             os.getenv('BOTSFORDISCORD_TOKEN'),
             os.getenv('DISCORDBOTLIST_TOKEN')
         ]
+        self.canvas = Painter(
+            r'/home/runner/hosting601/assets/pics/',
+            r'/home/runner/hosting601/assets/fonts/'
+        )
+        self.gif = GifGenerator(
+            r'/home/runner/hosting601/assets/pics/',
+            r'/home/runner/hosting601/assets/fonts/'
+        )
 
     @command()
     async def setbal(self, ctx, *args):

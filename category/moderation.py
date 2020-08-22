@@ -9,12 +9,20 @@ from splashes import num2word
 from decorators import command, cooldown
 from datetime import datetime as t
 from database import Dashboard
-import canvas as Painter
+from canvas import Painter, GifGenerator
 import username601 as myself
 
 class moderation(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.canvas = Painter(
+            r'/home/runner/hosting601/assets/pics/',
+            r'/home/runner/hosting601/assets/fonts/'
+        )
+        self.gif = GifGenerator(
+            r'/home/runner/hosting601/assets/pics/',
+            r'/home/runner/hosting601/assets/fonts/'
+        )
 
     @command()
     @cooldown(5)
@@ -116,7 +124,7 @@ class moderation(commands.Cog):
     @cooldown(15)
     async def serverstats(self, ctx):
         await ctx.send(file=discord.File(
-            Painter.serverstats(ctx.guild), "serverstats.png"
+            self.canvas.serverstats(ctx.guild), "serverstats.png"
         ))
     
     @command()
@@ -223,8 +231,8 @@ class moderation(commands.Cog):
             em = list(args)[0].lower()
             if em.startswith('<:a:'): _id, an = em.split(':')[3].split('>')[0], True
             else: _id, an = em.split(':')[2].split('>')[0], False
-            if an: await ctx.send(file=discord.File(Painter.gif.giffromURL('https://cdn.discordapp.com/emojis/{}.gif'.format(_id)), 'emoji.gif'))
-            else: await ctx.send(file=discord.File(Painter.urltoimage('https://cdn.discordapp.com/emojis/{}.png'.format(_id)), 'emoji.png'))
+            if an: await ctx.send(file=discord.File(self.gif.giffromURL('https://cdn.discordapp.com/emojis/{}.gif'.format(_id)), 'emoji.gif'))
+            else: await ctx.send(file=discord.File(self.canvas.urltoimage('https://cdn.discordapp.com/emojis/{}.png'.format(_id)), 'emoji.png'))
         except:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Invalid emoji.')
             
@@ -418,7 +426,7 @@ class moderation(commands.Cog):
     @cooldown(5)
     async def userinfo(self, ctx, *args):
         guy = myself.getUser(ctx, args)
-        data = Painter.usercard(guy)
+        data = self.canvas.usercard(guy)
         await ctx.send(file=discord.File(data, str(guy.discriminator)+'.png'))
 
     @command('av,ava')
@@ -453,7 +461,7 @@ class moderation(commands.Cog):
             bots = len([i for i in ctx.guild.members if i.bot])
             online = len([i for i in ctx.guild.members if i.status.value!='offline'])
             date = myself.time_encode(round(t.now().timestamp() - ctx.guild.created_at.timestamp()))
-            image = Painter.servercard("/home/runner/hosting601/assets/pics/card.jpg", str(ctx.message.guild.icon_url).replace('.gif', '.webp').replace(".webp?size=1024", ".jpg?size=128"), ctx.message.guild.name, date+' ago', ctx.message.guild.owner.name, str(humans), str(bots), str(len(ctx.message.guild.channels)), str(len(ctx.message.guild.roles)), str(ctx.message.guild.premium_subscription_count), str(ctx.message.guild.premium_tier), str(online))
+            image = self.canvas.servercard("/home/runner/hosting601/assets/pics/card.jpg", str(ctx.message.guild.icon_url).replace('.gif', '.webp').replace(".webp?size=1024", ".jpg?size=128"), ctx.message.guild.name, date+' ago', ctx.message.guild.owner.name, str(humans), str(bots), str(len(ctx.message.guild.channels)), str(len(ctx.message.guild.roles)), str(ctx.message.guild.premium_subscription_count), str(ctx.message.guild.premium_tier), str(online))
             await ctx.send(content='Here is the '+ctx.message.guild.name+'\'s server card.', file=discord.File(image, ctx.message.guild.name+'.png'))
     
     @command('bots,serverbots,server-bots')

@@ -8,7 +8,7 @@ import random
 from json import loads
 import username601 as myself
 from username601 import *
-import canvas as Painter
+from canvas import Painter
 from database import Economy, Shop
 from datetime import datetime
 from algorithm import getfish
@@ -18,6 +18,10 @@ class economy(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.randomfish = getfish
+        self.canvas = Painter(
+            r'/home/runner/hosting601/assets/pics/',
+            r'/home/runner/hosting601/assets/fonts/'
+        )
     
     @command()
     @cooldown(60)
@@ -326,7 +330,7 @@ class economy(commands.Cog):
         if Economy.get(src.id)==None:
             raise myself.noProfile()
         else:
-            img = Painter.profile(ava, src, Economy.getProfile(src.id, [i.id for i in ctx.guild.members if not i.bot]))
+            img = self.canvas.profile(ava, src, Economy.getProfile(src.id, [i.id for i in ctx.guild.members if not i.bot]))
             await wait.delete()
             await ctx.send(file=discord.File(img, 'profile.png'))
     

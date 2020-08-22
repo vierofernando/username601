@@ -8,7 +8,7 @@ sys.path.append('/home/runner/hosting601/modules')
 from decorators import command, cooldown
 import username601 as myself
 from requests import get
-import canvas as Painter
+from canvas import Painter
 from username601 import *
 import wikipediaapi
 from googletrans import Translator, LANGUAGES
@@ -17,6 +17,10 @@ gtr = Translator()
 class apps(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.canvas = Painter(
+            r'/home/runner/hosting601/assets/pics/',
+            r'/home/runner/hosting601/assets/fonts/'
+        )
 
     @command('movie')
     @cooldown(10)
@@ -45,7 +49,7 @@ class apps(commands.Cog):
         if str(source.activity).lower()!='spotify': await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Nope, not listening to spotify.')
         else:
             async with ctx.message.channel.typing():
-                await ctx.send(file=discord.File(Painter.spotify(source, ctx.message), 'spotify.png'))
+                await ctx.send(file=discord.File(self.canvas.spotify(source, ctx.message), 'spotify.png'))
 
     @command()
     @cooldown(10)

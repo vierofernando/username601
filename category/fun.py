@@ -12,13 +12,28 @@ from io import BytesIO
 import asyncio
 import algorithm
 from gtts import gTTS
-import canvas as Painter
+from canvas import Painter, GifGenerator
 
 class fun(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.session = ClientSession()
+        self.canvas = Painter(
+            r'/home/runner/hosting601/assets/pics/',
+            r'/home/runner/hosting601/assets/fonts/'
+        )
+        self.gif = GifGenerator(
+            r'/home/runner/hosting601/assets/pics/',
+            r'/home/runner/hosting601/assets/fonts/'
+        )
     
+    @command('nsfw,porn,pornhub,rule34,rule-34,ass')
+    @cooldown(1)
+    async def hentai(self, ctx):
+        return await ctx.send(file=discord.File(
+            self.canvas.urltoimage(src.randomtroll()), 'SPOILER_nsfw.png'
+        ))
+
     @command('talk,gtts,texttospeech,text-to-speech')
     @cooldown(5)
     async def tts(self, ctx, *args):
@@ -34,7 +49,7 @@ class fun(commands.Cog):
     async def flip(self, ctx, *args):
         av = myself.getUserAvatar(ctx, args)
         async with ctx.message.channel.typing():
-            im = Painter.gif.flip(av)
+            im = self.gif.flip(av)
             return await ctx.send(file=discord.File(im, 'flip.gif'))
 
     @command('edit')
@@ -80,7 +95,7 @@ class fun(commands.Cog):
                 for i in range(0, len(flow)):
                     console = console + flow[i][1:]
                     await main.edit(content=f"```bash\n{console}```")
-                    await asyncio.sleep(random.randint(2, 4))
+                    await asyncio.sleep(random.randint(5, 6))
             else:
                 console += 'ERROR: INVALID TAG.\nACCESS DENIED.\n\nHash encoded base64 cipher code:\n'+myself.bin(ctx.message.author.name)+ '\n' + console
                 await ctx.send(f'```bash\n{console}```')
@@ -114,9 +129,11 @@ class fun(commands.Cog):
 
     @command("howgay")
     @cooldown(5)
-    async def gaylevel(self, ctx):
-        if len(ctx.message.mentions)<1: await ctx.send('Your gay level is {}%!'.format(str(algorithm.gay_finder(ctx.message.author.id))))
-        else: await ctx.send('<@{}>\'s gay level is currently {}%!'.format(ctx.message.mentions[0].id, str(algorithm.gay_finder(ctx.message.mentions[0].id))))
+    async def gaylevel(self, ctx, *args):
+        try: data = myself.getUser(ctx, args)
+        except: data = ctx.author
+        name = data.name+'\'s' if data!=ctx.author else 'Your'
+        await ctx.send('{} gay level is currently {}%!'.format(name, str(algorithm.gay_finder(data.id))))
 
     @command()
     @cooldown(5)
@@ -124,7 +141,7 @@ class fun(commands.Cog):
         if len(list(args))<1: name = src.randomhash()
         else: name = ' '.join(list(args))
         url= 'https://api.adorable.io/avatars/285/{}.png'.format(name)
-        await ctx.send(file=discord.File(Painter.urltoimage(url), 'random_avatar.png'))
+        await ctx.send(file=discord.File(self.canvas.urltoimage(url), 'random_avatar.png'))
 
     @command()
     @cooldown(5)
@@ -138,7 +155,7 @@ class fun(commands.Cog):
     async def inspirobot(self, ctx):
         async with ctx.message.channel.typing():
             img = myself.insp('https://inspirobot.me/api?generate=true')
-            await ctx.send(file=discord.File(Painter.urltoimage(img), 'inspirobot.png'))
+            await ctx.send(file=discord.File(self.canvas.urltoimage(img), 'inspirobot.png'))
     
     @command('randomcase')
     @cooldown(1)

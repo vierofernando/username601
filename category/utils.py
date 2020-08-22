@@ -3,7 +3,7 @@ from discord.ext import commands
 import sys
 sys.path.append('/home/runner/hosting601/modules')
 import username601 as myself
-import canvas as Painter
+from canvas import Painter
 from username601 import *
 from decorators import command, cooldown
 import random
@@ -15,6 +15,10 @@ from datetime import datetime as t
 class utils(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.canvas = Painter(
+            r'/home/runner/hosting601/assets/pics/',
+            r'/home/runner/hosting601/assets/fonts/'
+        )
     
     @command('isitup,webstatus')
     @cooldown(2)
@@ -36,7 +40,7 @@ class utils(commands.Cog):
     async def imgascii(self, ctx, *args):
         url = myself.getUserAvatar(ctx, args)
         wait = await ctx.send('{} | Please wait...'.format(self.client.get_emoji(BotEmotes.loading)))
-        text = Painter.imagetoASCII(url)
+        text = self.canvas.imagetoASCII(url)
         data = post("https://hastebin.com/documents", data=text)
         if data.status_code!=200: return await wait.edit(content="{} | Oops! there was an error on posting it there.".format(self.client.get_emoji(BotEmotes.error)))
         return await wait.edit(content='{} | You can see the results at **https://hastebin.com/{}**!'.format(self.client.get_emoji(BotEmotes.success), data.json()['key']))
@@ -149,13 +153,13 @@ class utils(commands.Cog):
     async def robohash(self, ctx, *args):
         if len(list(args))==0: url='https://robohash.org/'+str(src.randomhash())
         else: url = 'https://robohash.org/'+str(myself.urlify(' '.join(list(args))))
-        await ctx.send(file=discord.File(Painter.urltoimage(url), 'robohash.png'))
+        await ctx.send(file=discord.File(self.canvas.urltoimage(url), 'robohash.png'))
 
     @command()
     @cooldown(10)
     async def weather(self, ctx, *args):
         if len(list(args))==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Please send a location or a city!")
-        else: await ctx.send(file=discord.File(Painter.urltoimage('https://wttr.in/'+str(myself.urlify(' '.join(list(args))))+'.png?m'), 'weather.png'))
+        else: await ctx.send(file=discord.File(self.canvas.urltoimage('https://wttr.in/'+str(myself.urlify(' '.join(list(args))))+'.png?m'), 'weather.png'))
 
     @command()
     @cooldown(10)
@@ -412,7 +416,7 @@ class utils(commands.Cog):
         async with ctx.message.channel.typing():
             data = myself.api("https://random-word-api.herokuapp.com/word?number=5")
             text, guy, first = myself.arrspace(data), ctx.message.author, t.now()
-            main = await ctx.send(content='**Type the text on the image.**\nYou have 2 minutes.\n', file=discord.File(Painter.simpletext(text), 'test.png'))
+            main = await ctx.send(content='**Type the text on the image.**\nYou have 2 minutes.\n', file=discord.File(self.canvas.simpletext(text), 'test.png'))
         def check(m):
             return m.author == guy
         try:

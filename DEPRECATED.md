@@ -8,6 +8,10 @@ This is a screenshot command that lets you screenshot websites,<br>
 however the website filter eats the RAM usage causing for the bot to crash.<br>
 Since i am planning for this bot to be NSFW-free, this command is deprecated.<br>
 
+### 1firstwords, 1presentation<br>
+This is a meme generation command that is deprecated<br>
+because positioning the text is HELLA hard.<br>
+
 ### 1randombot<br>
 This is an *old* bot command that generates random bot<br>
 by scraping [the Discord Bot List website.](https://top.gg)<br>

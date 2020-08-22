@@ -5,11 +5,15 @@ sys.path.append('/home/runner/hosting601/modules')
 import username601 as myself
 from username601 import *
 from decorators import command, cooldown
-import canvas as Painter
+from canvas import Painter
 
 class encoding(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.canvas = Painter(
+            r'/home/runner/hosting601/assets/pics/',
+            r'/home/runner/hosting601/assets/fonts/'
+        )
     
     @command()
     @cooldown(2)
@@ -48,7 +52,7 @@ class encoding(commands.Cog):
             async with ctx.message.channel.typing():
                 if 'qr' in str(ctx.message.content).split(' ')[0][1:]: url = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+str(myself.urlify(str(' '.join(list(args)))))
                 else: url= 'http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data='+str(myself.urlify(str(' '.join(list(args)))))
-                await ctx.send(file=discord.File(Painter.urltoimage(url), 'qr_or_barcode.png'))
+                await ctx.send(file=discord.File(self.canvas.urltoimage(url), 'qr_or_barcode.png'))
     
     @command()
     @cooldown(1)
