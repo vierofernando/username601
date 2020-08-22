@@ -29,10 +29,10 @@ class moderation(commands.Cog):
     async def config(self, ctx):
         data = Dashboard.getData(ctx.guild.id)
         if data==None: return await ctx.send('{} | This server does not have any configuration for this bot.'.format(self.client.get_emoji(BotEmotes.error)))
-        autorole = 'Set to {} (<@&{}>)'.format(ctx.guild.get_role(data['autorole']).name, data['autorole']) if data['autorole']!=None else '<Not set>'
+        autorole = 'Set to <@&{}>'.format(data['autorole']) if data['autorole']!=None else '<Not set>'
         welcome = 'Set to <#{}>'.format(data['welcome']) if data['welcome']!=None else '<Not set>'
         starboard = 'Set to <#{}> (with {} reactions required)'.format(data['starboard'], data['star_requirements']) if data['starboard']!=None else '<Not set>'
-        mute = 'Set to {} (<@&{}>)'.format(ctx.guild.get_role(data['mute']).name, data['mute']) if data['mute']!=None else '<Not set>'
+        mute = 'Set to <@&{}>'.format(data['mute']) if data['mute']!=None else '<Not set>'
         extras = [len(data['shop']), len(data['warns'])]
         dehoister = 'Enabled :white_check_mark:' if data['dehoister'] else 'Disabled :x:'
         await ctx.send(embed=discord.Embed(title=f'{ctx.guild.name}\'s configuration', description=f'**Auto role:** {autorole}\n**Welcome channel:** {welcome}\n**Starboard channel: **{starboard}\n**Name/nick dehoister: **{dehoister}\n**Mute role: **{mute}\n**Members warned: **{extras[1]}\n**Shop products sold: **{extras[0]}', color=discord.Colour.from_rgb(201, 160, 112)).set_thumbnail(url=ctx.guild.icon_url))
