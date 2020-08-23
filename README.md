@@ -26,12 +26,14 @@ Bot is hosted in [repl.it.](https://repl.it) 24/7. Using [MongoDB](https://mongo
 
 # Configuration
 **ENVIRONMENT VARIABLES:**<br>
+```
 DISCORD_TOKEN = Your discord token<br>
 DBL_TOKEN = Your discord bot list (top.gg) token<br>
 DB_LINK = Your Mongo DB database link<br> (With "economy" as a collection)<br>
 UPTIMEROBOT_TOKEN = Your Uptimerobot Monitor token<br>
 BOTSFORDISCORD_TOKEN = Your Botsfordiscord Token.<br>
-DISCORdbotlist_token = your DISCORDBOTLIST.COM token
+DISCORDBOTLISK_TOKEN = your DISCORDBOTLIST.COM token
+```
 
 **DATABASE STRUCTURE:**<br>
 username601 > economy<br>
@@ -39,18 +41,20 @@ username601 > config<br>
 username601 > dashboard<br>
 
 **REQUIREMENTS:**<br>
-Flask==1.1.2<br>
-discord.py==1.3.3<br>
-IMDbPY==6.8<br>
-requests==2.23.0<br>
-googletrans==2.4.0<br>
-Wikipedia-API==0.5.4<br>
-pokebase==1.2.0<br>
-dblpy==0.3.4<br>
-Pillow==7.1.1<br>
-pymongo==3.10.1<br>
-dnspython==1.16.0<br>
-PyNaCl==1.30<br>
-gtts==2.1.1<br>
+```
+Flask==1.1.2
+discord.py==1.3.3
+IMDbPY==6.8
+requests==2.23.0
+googletrans==2.4.0
+Wikipedia-API==0.5.4
+pokebase==1.2.0
+dblpy==0.3.4
+Pillow==7.1.1
+pymongo==3.10.1
+dnspython==1.16.0
+PyNaCl==1.30
+gtts==2.1.1
+```
 
 (c) Viero Fernando Programming 2020. All rights reserved.
