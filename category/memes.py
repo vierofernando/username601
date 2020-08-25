@@ -289,7 +289,7 @@ class memes(commands.Cog):
             elif 'chatroulette' in ctx.message.content: size, pos = (324, 243), (14, 345)
             elif 'frame' in ctx.message.content: size, pos, ava = (1025, 715), (137, 141), str(ava).replace("=512", "=1024")
             if 'art' not in ctx.message.content: image = self.canvas.merge({
-                'filename': ctx.message.content.split()[0][1:],
+                'filename': ctx.message.content.split()[0][1:]+'.jpg',
                 'url': ava,
                 'size': size,
                 'pos': pos
