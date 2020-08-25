@@ -26,6 +26,14 @@ class memes(commands.Cog):
             r'/home/runner/hosting601/assets/fonts/'
         )
 
+    @command('worships,worshipping')
+    @cooldown(3)
+    async def worship(self, ctx, *args):
+        av = myself.getUserAvatar(ctx, args)
+        async with ctx.message.channel.typing():
+            im = self.gif.worship(av)
+            await ctx.send(file=discord.File(im, 'worship.gif'))
+
     @command('crazy-frog,crazyfrogdance,dance,crazy-dance,kiddance,kid-dance')
     @cooldown(8)
     async def crazyfrog(self, ctx, *args):
@@ -220,7 +228,7 @@ class memes(commands.Cog):
     @cooldown(5)
     async def trap(self, ctx, *args):
         if len(ctx.message.mentions)==0:
-            await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +f' | Wrong.\nPlease try the correct like following:\n`{prefix}trap [tag]`')
+            await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +f' | Wrong.\nPlease try the correct like following:\n`{Config.prefix}trap [tag]`')
         else:
             async with ctx.message.channel.typing():
                 guy = myself.getUser(ctx, args)
@@ -387,7 +395,7 @@ class memes(commands.Cog):
                     url='https://memegen.link/'+str(name)+'/'+str(top)+'/'+str(bott)+'.jpg'+str(extr)
                     await ctx.send(file=discord.File(self.canvas.memegen(url), 'avmeme.png'))
                 except Exception as e:
-                    await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +f' | Error!\n```{e}```Invalid parameters. Example: `{prefix}avmeme <tag someone> [top text] [bottom text]`')
+                    await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +f' | Error!\n```{e}```Invalid parameters. Example: `{Config.prefix}avmeme <tag someone> [top text] [bottom text]`')
         else:
             async with ctx.message.channel.typing():
                 try:

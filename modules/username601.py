@@ -10,9 +10,9 @@ from requests import request
 from requests import get as decodeurl
 
 class BotEmotes:
-    loading = 704242088425816085
-    error = 704242063725559868
-    success = 704264842709565490
+    loading = 639020919402135571
+    error = 585885410257928194
+    success = 585885430545907744
 
 class Config:
     id = 696973408000409626 # BOT ID
@@ -37,7 +37,9 @@ class noUserFound(Exception): pass
 class noProfile(Exception): pass
 
 def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
-    if len(list(args))==0: raise noArguments()
+    if len(list(args))==0:
+        if allowgif: return str(ctx.author.avatar_url).replace('.webp?size=1024', '.png?size'+str(size))
+        else: return str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size'+str(size))
     if len(ctx.message.mentions)>0:
         if not allowgif: return str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', f'.png?size={size}')
         return str(ctx.message.mentions[0].avatar_url).replace('?size=1024', f'?size={size}')
@@ -58,7 +60,7 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
     return str(ctx.author.avatar_url).replace('?size=1024', f'?size={size}')
 
 def getUser(ctx, args, user=None):
-    if len(list(args))==0: raise noArguments()
+    if len(list(args))==0: return ctx.author
     if len(ctx.message.mentions)>0: return ctx.message.mentions[0]
     name = str(' '.join(list(args))).lower().split('#')[0] # disable discriminator if found
     for i in ctx.guild.members:

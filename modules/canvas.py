@@ -97,7 +97,7 @@ class Painter:
         template = self.getImage(self.assetpath, 'template.png')
         draw = ImageDraw.Draw(template)
         draw.text((295,60), user.name, fill='white', font=self.getFont(self.fontpath, 'Helvetica', 80), align ="left")
-        draw.text((295,140), f"ID: {user.id}", fill='white', font=self.getFont(self.fontpath, 'Helvetica', 80), align ="left")
+        draw.text((295,140), f"ID: {user.id}", fill='white', font=self.getFont(self.fontpath, 'Helvetica', 30), align ="left")
         draw.text((295,180), "Rank: "+details['rank'], fill='white', font=self.getFont(self.fontpath, 'Helvetica', 30), align ="left")
         draw.text((295,220), "Global Rank: "+details['global'], fill='white', font=self.getFont(self.fontpath, 'Helvetica', 30), align ="left")
     
@@ -330,6 +330,18 @@ class GifGenerator:
         self.assetpath = assetpath
         self.fontpath = fontpath
     
+    def worship(self, pic):
+        im = self.imagefromURL(pic).resize((127, 160))
+        gi = self.getImage(self.assetpath, 'worship.gif')
+        images = []
+        for i in range(gi.n_frames):
+            gi.seek(i)
+            cnv = Image.new(mode='RGB', color=(0,0,0), size=gi.size)
+            cnv.paste(gi, (0,0))
+            cnv.paste(im, (303, 7))
+            images.append(cnv)
+        return self.bufferGIF(images, 5)
+
     def flip(self, pic):
         im = self.imagefromURL(pic).resize((400,400))
         inv_im = ImageOps.flip(im)

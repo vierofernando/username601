@@ -12,6 +12,7 @@ import username601 as myself
 import discordgames as Games
 import splashes as src
 import canvas as Painter
+from uselessapi import UselessAPI
 
 # EXTERNAL PACKAGES
 import os
@@ -25,8 +26,9 @@ import asyncio
 
 # DECLARATION AND STUFF
 client = commands.Bot(command_prefix=(
-    Config.prefix, f'<@{Config.id}> ', f'<@!{Config.id}> ', '\!'
+    Config.prefix, f'<@{Config.id}> ', f'<@!{Config.id}> ', f'<@{Config.id}>', f'<@!{Config.id}>'
 ))
+client.api = UselessAPI()
 client.remove_command('help')
 bot_status = cycle(myself.getStatus())
 
@@ -165,15 +167,17 @@ async def on_command_error(ctx, error):
     elif 'cannot identify image file' in str(error).lower(): return await ctx.send(str(client.get_emoji(BotEmotes.error))+' | Error, it seemed i can\'t load/send the image! Check your arguments and try again. Else, report this to the bot owner using `'+Config.prefix+'feedback.`')
     elif 'cannot send messages to this user' in str(error).lower():
         return await ctx.send(str(client.get_emoji(BotEmotes.error))+' | Oops! Your DMs are disabled!')
-    else: print("ERROR on [{}]: {}".format(ctx.message.content, str(error)))
+    else:
+        await client.get_channel(Config.SupportServer.feedback).send(content=f'<@{Config.owner.id}> there was an error!', embed=discord.Embed(
+            title='Error', color=discord.Colour.red(), description=f'Content:\n```{ctx.message.content}```\n\nError:\n```{str(error)}```'
+        ).set_footer(text='Bug made by user: {} (ID of {})'.format(str(ctx.author), ctx.author.id)))
+        await ctx.send('There was an error. Error reported to the developer! sorry for the inconvinience...')
 
 @client.event
 async def on_message(message):
     # THESE TWO IF STATEMENTS ARE JUST FOR ME ON THE SUPPORT SERVER CHANNEL. YOU CAN DELETE THESE TWO.
     if message.channel.id==700040209705861120: await message.author.add_roles(message.guild.get_role(700042707468550184))
     if message.channel.id==724454726908772373: await message.author.add_roles(message.guild.get_role(701586228000325733))
-
-    if len(message.mentions)>0 and message.mentions[0].id == Config.id: await message.channel.send(f'Hi, {message.author.mention}, my prefix is `{Config.prefix}`.')
     await client.process_commands(message) # else bot will not respond to 99% commands
 
 def Username601():

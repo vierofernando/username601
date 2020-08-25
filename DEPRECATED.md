@@ -3,6 +3,10 @@
 ## DEPRECATED COMMANDS<br>
 these are commands i decided to delete with the reasons.
 
+### 1newemote<br>
+The last command with scraping to be deprecated, the reason is:<br>
+1. scraping is not that good, and 2. sometimes discordemojis.com gives NSFW emojis, yuck.<br>
+
 ### 1ss<br>
 This is a screenshot command that lets you screenshot websites,<br>
 however the website filter eats the RAM usage causing for the bot to crash.<br>

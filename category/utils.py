@@ -97,18 +97,6 @@ class utils(commands.Cog):
                 embed.set_image(url=total['thumbnail'])
                 await ctx.send(embed=embed)
 
-    @command('randomemote,customemote')
-    @cooldown(10)
-    async def newemote(self, ctx):
-        data = myself.insp('https://discordemoji.com/')
-        byEmote = data.split('<div class="float-right"><a href="')
-        del byEmote[0]
-        alls = []
-        for i in range(0, len(byEmote)):
-            if byEmote[i].startswith('http'): alls.append(byEmote[i].split('"')[0])
-        embed = discord.Embed(colour=discord.Colour.from_rgb(201, 160, 112))
-        embed.set_image(url=random.choice(alls))
-        await ctx.send(embed=embed)
     @command()
     @cooldown(5)
     async def time(self, ctx):
@@ -410,13 +398,13 @@ class utils(commands.Cog):
             embed.set_image(url='https://api.alexflipnote.dev/colour/image/gradient/'+str(hexCode))
             await ctx.send(embed=embed)
     
-    @command()
+    @command('fast')
     @cooldown(10)
     async def typingtest(self, ctx):
         async with ctx.message.channel.typing():
             data = myself.api("https://random-word-api.herokuapp.com/word?number=5")
-            text, guy, first = myself.arrspace(data), ctx.message.author, t.now()
-            main = await ctx.send(content='**Type the text on the image.**\nYou have 2 minutes.\n', file=discord.File(self.canvas.simpletext(text), 'test.png'))
+            text, guy, first = myself.arrspace(data), ctx.message.author, t.now().timestamp()
+            main = await ctx.send(content='**Type the text on the image. (Only command invoker can play)**\nYou have 2 minutes.\n', file=discord.File(self.canvas.simpletext(text), 'test.png'))
         def check(m):
             return m.author == guy
         try:
@@ -424,20 +412,14 @@ class utils(commands.Cog):
         except:
             await main.edit(content='Time is up.')
         if str(trying.content)!=None:
-            offset = t.now()-first
+            offset = t.now().timestamp()-first
             asked, answered, wrong = text.lower(), str(trying.content).lower(), 0
-            if len(str(trying.content))!=len(text):
-                while len(answered)!=len(asked):
-                    if len(answered)>len(asked): asked += ' '
-                    else: answered += ' '
-            for i in range(0, len(asked)):
-                if answered[i]!=asked[i]: wrong += 1
-            accuracy, err = round((len(text)-wrong)/len(text)*100), False
-            try: sec = offset.seconds
-            except AttributeError: err = True
-            if not err: wpm = round(len(str(trying.content))/round(sec))
-            else: wpm = '`Error while calculating CPS. Maybe you are typing too fast.`'
-            await ctx.send(embed=discord.Embed(title='TYPING TEST RESULTS', description='**Your time: **'+str(offset)[:-7]+'\n**Your accuracy: **'+str(accuracy)+'%\n**Your speed: **'+str(wpm)+' cps (characters per second).', colour=discord.Colour.from_rgb(201, 160, 112)))
+            for i in range(len(asked)):
+                try:
+                    if asked[i]!=answered[i]: wrong += 1
+                except: break
+            accuracy, cps = round((len(asked)-wrong)/offset*100)
+            await ctx.send(embed=discord.Embed(title='TYPING TEST RESULTS', description='**Your time: **'+str(round(offset))+' seconds.\n**Your accuracy: **'+str(accuracy)+'%\n**Your speed: **'+str(cps)+' Characters per second.', colour=discord.Colour.from_rgb(201, 160, 112)))
 
 def setup(client):
     client.add_cog(utils(client))
