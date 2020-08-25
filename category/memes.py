@@ -26,6 +26,18 @@ class memes(commands.Cog):
             r'/home/runner/hosting601/assets/fonts/'
         )
 
+    @command('ihavefailedyou,fail')
+    @cooldown(1)
+    async def failed(self, ctx, *args):
+        av = myself.getUserAvatar(ctx, args)
+        res = self.canvas.trans_merge({
+            'url': av,
+            'filename': 'failed.png',
+            'size': (155, 241),
+            'pos': (254, 18)
+        })
+        await ctx.send(file=discord.File(res, 'failed.png'))
+
     @command('worships,worshipping')
     @cooldown(3)
     async def worship(self, ctx, *args):
@@ -271,15 +283,19 @@ class memes(commands.Cog):
     @cooldown(10)
     async def ferbtv(self, ctx, *args):
         async with ctx.message.channel.typing():
-            filename = str(ctx.message.content).split()[0][1:].lower()
             ava = myself.getUserAvatar(ctx, args)
-            if 'wanted' in ctx.message.content: num1, num2, num3, num4 = 547, 539, 167, 423
-            elif 'ferbtv' in ctx.message.content: num1, num2, num3, num4 = 362, 278, 363, 187
-            elif 'chatroulette' in ctx.message.content: num1, num2, num3, num4 = 324, 243, 14, 345
-            elif 'frame' in ctx.message.content: num1, num2, num3, num4, ava = 1025, 715, 137, 141, str(ava).replace("=512", "=1024")
-            if 'art' not in ctx.message.content: image = self.canvas.putimage(ava, filename, num1, num2, num3, num4)
+            if 'wanted' in ctx.message.content: size, pos = (547, 539), (167, 423)
+            elif 'ferbtv' in ctx.message.content: size, pos = (362, 278), (63, 187)
+            elif 'chatroulette' in ctx.message.content: size, pos = (324, 243), (14, 345)
+            elif 'frame' in ctx.message.content: size, pos, ava = (1025, 715), (137, 141), str(ava).replace("=512", "=1024")
+            if 'art' not in ctx.message.content: image = self.canvas.merge({
+                'filename': ctx.message.content.split()[0][1:],
+                'url': ava,
+                'size': size,
+                'pos': pos
+            })
             else: image = self.canvas.art(ava)
-            await ctx.send(file=discord.File(image, str(ctx.message.content)[1:].replace(' ', '')+'.png'))
+            await ctx.send(file=discord.File(image, 'memey.png'))
 
     
     @command()
@@ -316,14 +332,20 @@ class memes(commands.Cog):
 		# yanderedev OwO
         async with ctx.message.channel.typing():
             ava = myself.getUserAvatar(ctx, args)
-            if 'door' in ctx.message.content: await ctx.send(file=discord.File(self.canvas.put_transparent(ava, "door", 1000, 479, 496, 483, 247, 9), 'door.png'))
-            elif 'studying' in ctx.message.content: await ctx.send(file=discord.File(self.canvas.put_transparent(ava, "studying", 563, 999, 290, 315, 85, 160), "studying.png")) 
-            elif 'clint' in ctx.message.content: await ctx.send(file=discord.File(self.canvas.put_transparent(ava, "clint", 1200, 675, 339, 629, 777, 29), 'clintclint.png'))
-            elif 'starvstheforcesof' in ctx.message.content: await ctx.send(file=discord.File(self.canvas.put_transparent(ava, "starvstheforcesof", 1920, 1080, 995, 1079, 925, 0), "starvstheforcesof.png")) 
-            elif 'wolverine' in ctx.message.content: await ctx.send(file=discord.File(self.canvas.put_transparent(ava, "wolverine", 450, 698, 368, 316, 85, 373), 'wolverine.png'))
-            elif 'disgusting' in ctx.message.content: await ctx.send(file=discord.File(self.canvas.put_transparent(ava, "disgusting", 1024, 1080, 614, 407, 179, 24), 'disgusting.png'))
-            elif 'f' in ctx.message.content and len(str(ctx.message.content).split(' ')[0])==2: await ctx.send(file=discord.File(self.canvas.f(ava), 'f.png'))
-            else: await ctx.send(file=discord.File(self.canvas.baby(ava), 'lolmeme.png'))
+            if 'door' in ctx.message.content: size, pos = (496, 483), (247, 9)
+            elif 'studying' in ctx.message.content: size, pos = (290, 315), (85, 160)
+            elif 'clint' in ctx.message.content: size, pos = (339, 629), (777, 29)
+            elif 'starvstheforcesof' in ctx.message.content: size, pos = (995, 1079), (925, 0)
+            elif 'wolverine' in ctx.message.content: size, pos = (368, 316), (85, 373)
+            elif 'disgusting' in ctx.message.content: size, pos = (614, 407), (179, 24)
+            elif 'f' in ctx.message.content and len(str(ctx.message.content).split(' ')[0])==2: size, pos = (82, 111), (361, 86)
+            else: return await ctx.send(file=discord.File(self.canvas.baby(ava), 'lolmeme.png'))
+            return await ctx.send(file=discord.File(Painter.trans_merge({
+                'url': ava,
+                'filename': ctx.message.content.split()[0][1:]+'.png',
+                'size': size,
+                'pos': pos
+            }), 'meme.png'))
 
     @command('changedmymind')
     @cooldown(10)

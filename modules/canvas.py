@@ -46,6 +46,20 @@ class Painter:
         self.getSongString = getSongString
         self.drawtext = drawtext
     
+    def trans_merge(self, obj):
+        av = self.imagefromURL(obj['url']).resize(obj['size'])
+        bg = self.getImage(self.assetpath, obj['filename'].lower())
+        cnv = Image.new(mode='RGB', color=(0,0,0), size=bg.size)
+        cnv.paste(av, obj['pos'])
+        cnv.paste(bg, (0,0), bg)
+        return self.buffer(cnv)
+    
+    def merge(self, obj):
+        av = self.imagefromURL(obj['url']).resize(obj['size'])
+        bg = self.getImage(self.assetpath, obj['filename'].lower())
+        bg.paste(av, obj['pos'])
+        return self.buffer(bg)
+
     def blur(self, url):
         im = self.imagefromURL(url).filter(ImageFilter.BLUR)
         return self.buffer(im)
@@ -234,13 +248,6 @@ class Painter:
         self.drawtext(draw, self.getFont(self.fontpath, 'Whitney-Medium', 50), online+' online', 90, 360, 'black')
         return self.buffer(image)
     
-    def putimage(self, url, name, resx, resy, posx, posy):
-        image = self.getImage(self.assetpath, name+'.jpg')
-        pic = self.imagefromURL(url)
-        pic = pic.resize((resx, resy))
-        image.paste(pic, (posx, posy))
-        return self.buffer(image)
-    
     def usercard(self, this):
         bg = self.getImage(self.assetpath, 'card_{}.png'.format(this.status.value))
         canvas = Image.new(mode='RGB', size=bg.size, color=(0,0,0))
@@ -252,16 +259,6 @@ class Painter:
         self.drawtext(ImageDraw.Draw(canvas), self.getFont(self.fontpath, 'consola', 25), str(this.id), 13, 66, 'black')
         self.drawtext(ImageDraw.Draw(canvas), self.getFont(self.fontpath, 'Whitney-Medium', 20), 'Hoist role: '+str(this.roles[::-1][0].name), 14, 168, 'black')
         return self.buffer(canvas)
-    
-    def put_transparent(self, avatar, name, overallx, overally, avatarw, avatarh, avatarx, avatary):
-        door = self.getImage(self.assetpath, name+'.png')
-        canvas = Image.new(mode='RGB',size=(overallx, overally) ,color=(0, 0, 0))
-        avatar = self.imagefromURL(avatar)
-        avatar = avatar.resize((avatarw, avatarh))
-        canvas.paste(avatar, (avatarx, avatary))
-        canvas.paste(door, (0, 0), door)
-        data = self.buffer(canvas)
-        return data
     
     def baby(self, ava):
         avatar = self.imagefromURL(ava)
@@ -281,16 +278,6 @@ class Painter:
         cnv.paste(pic.resize((318, 375)), (925, 861))
         cnv.paste(image, (0, 0), image)
         return self.buffer(cnv)
-    
-    def f(self, ava):
-        avatar = self.imagefromURL(ava)
-        bg = self.getImage(self.assetpath, 'f.png')
-        canvas = Image.new(mode='RGB',size=(960, 540) ,color=(0, 0, 0))
-        avatar = avatar.resize((82, 111))
-        canvas.paste(avatar, (361, 86))
-        canvas.paste(bg, (0, 0), bg)
-        data = self.buffer(canvas)
-        return data
     
     def resize(self, url, x, y):
         pic = self.imagefromURL(url)
