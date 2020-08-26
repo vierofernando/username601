@@ -5,7 +5,9 @@ sys.path.append('/home/runner/hosting601/modules')
 from canvas import Painter, GifGenerator
 from decorators import command, cooldown
 import random
+from io import BytesIO
 import username601 as myself
+from aiohttp import ClientSession
 from username601 import *
 
 class image(commands.Cog):
@@ -19,6 +21,15 @@ class image(commands.Cog):
             r'/home/runner/hosting601/assets/pics/',
             r'/home/runner/hosting601/assets/fonts/'
         )
+        self.session = ClientSession()
+
+    @command('pika')
+    @cooldown(2)
+    async def pikachu(self, ctx):
+        async with ctx.message.channel.typing():
+            async with self.session.get(myself.jsonisp('https://some-random-api.ml/img/pikachu')['link']) as r:
+                res = await r.read()
+                await ctx.send(file=discord.File(fp=BytesIO(res), filename="pikachu.gif"))
 
     @command()
     @cooldown(5)
@@ -289,7 +300,7 @@ class image(commands.Cog):
     @cooldown(5)
     async def jpeg(self, ctx, *args):
         com = str(ctx.message.content).split()[0].replace('jpeg', 'jpegify')[1:]
-        avatar = mysef.getUserAvatar(ctx, args)
+        source = myself.getUserAvatar(ctx, args)
         await ctx.message.channel.trigger_typing()
         await ctx.send(file=discord.File(
             self.canvas.urltoimage(f'https://nekobot.xyz/api/imagegen?type=magik&image={source}&raw=1&intensity={random.randint(5, 10)}'), 'magik.png'
