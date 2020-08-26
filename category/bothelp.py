@@ -137,7 +137,7 @@ class bothelp(commands.Cog):
         up, cmds, commandLength = selfDB.get_uptime(), username601Stats.retrieveData(), myself.getCommandLength()
         imageurl = myself.urlify(myself.uptimerobot())
         bot_uptime = up.split('|')[0].split(':')[0]+' Hours, '+up.split('|')[0].split(':')[1]+' minutes, '+up.split('|')[0].split(':')[2]+' seconds.'
-        embed = discord.Embed(description='This bot is in {} servers.\nWith {} users\n\nBot uptime: {}\nOS uptime: {}\nLast downtime: {} UTC\n\nCommands run in the past {}: {}'.format(len(self.client.guilds), len(self.client.users), bot_uptime, str(myself.terminal('uptime -p'))[3:], up.split('|')[1], myself.time_encode(round(t.now().timestamp()) - round(cmds['lastreset'])), str(cmds['count'])), color=discord.Colour.from_rgb(201, 160, 112))
+        embed = discord.Embed(description='This bot is in {} servers.\nWith {} users\nBot uptime: {}\nOS uptime: {}\nLast downtime: {} UTC\nCommands run in the past {}: {}\nTotal commands: {}'.format(len(self.client.guilds), len(self.client.users), bot_uptime, str(myself.terminal('uptime -p'))[3:], up.split('|')[1], myself.time_encode(round(t.now().timestamp()) - round(cmds['lastreset'])), str(cmds['count']), str(commandLength)), color=discord.Colour.from_rgb(201, 160, 112))
         embed.set_image(url='https://quickchart.io/chart?c='+imageurl)
         await ctx.send(embed=embed)
 
