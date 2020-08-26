@@ -317,6 +317,7 @@ class GifGenerator:
         self.assetpath = assetpath
         self.fontpath = fontpath
         self.drawtext = drawtext
+        self.getFont = getFont
     
     def worship(self, pic):
         im = self.imagefromURL(pic).resize((127, 160))
