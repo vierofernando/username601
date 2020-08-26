@@ -395,9 +395,9 @@ class Shop:
 
 class selfDB:
     def ping():
-        a = t.now()
+        a = t.now().timestamp()
         temp = [i for i in database['dashboard'].find()]
-        return round((t.now()-a).total_seconds()*1000)
+        return round((t.now().timestamp()-a)*1000)
     def post_uptime():
         for i in database['config'].find():
             if 'uptime' in list(i.keys()):

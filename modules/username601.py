@@ -8,6 +8,7 @@ from urllib.parse import quote_plus as urlencode
 from json import loads as jsonify
 from requests import request
 from requests import get as decodeurl
+from datetime import datetime as t
 
 class BotEmotes:
     loading = 639020919402135571
@@ -36,6 +37,11 @@ class noArguments(Exception): pass
 class noUserFound(Exception): pass
 class noProfile(Exception): pass
 
+def ping():
+    a = t.now().timestamp()
+    decodeurl('https://hosting601.vierofernando.repl.co')
+    return round((t.now().timestamp()-a)*1000)
+
 def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
     if len(list(args))==0:
         if allowgif: return str(ctx.author.avatar_url).replace('.webp?size=1024', '.png?size'+str(size))
@@ -59,8 +65,10 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
     if not allowgif: return str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', f'.png?size={size}')
     return str(ctx.author.avatar_url).replace('?size=1024', f'?size={size}')
 
-def getUser(ctx, args, user=None):
-    if len(list(args))==0: return ctx.author
+def getUser(ctx, args, user=None, allownoargs=False):
+    if len(list(args))==0:
+        if allownoargs: raise noArguments()
+        return ctx.author
     if len(ctx.message.mentions)>0: return ctx.message.mentions[0]
     name = str(' '.join(list(args))).lower().split('#')[0] # disable discriminator if found
     for i in ctx.guild.members:
