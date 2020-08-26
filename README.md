@@ -27,11 +27,11 @@ Bot is hosted in [repl.it.](https://repl.it) 24/7. Using [MongoDB](https://mongo
 # Configuration
 **ENVIRONMENT VARIABLES:**<br>
 ```
-DISCORD_TOKEN = Your discord token<br>
-DBL_TOKEN = Your discord bot list (top.gg) token<br>
-DB_LINK = Your Mongo DB database link<br> (With "economy" as a collection)<br>
-UPTIMEROBOT_TOKEN = Your Uptimerobot Monitor token<br>
-BOTSFORDISCORD_TOKEN = Your Botsfordiscord Token.<br>
+DISCORD_TOKEN = Your discord token
+DBL_TOKEN = Your discord bot list (top.gg) token
+DB_LINK = Your Mongo DB database link<br> (With "economy" as a collection)
+UPTIMEROBOT_TOKEN = Your Uptimerobot Monitor token
+BOTSFORDISCORD_TOKEN = Your Botsfordiscord Token.
 DISCORDBOTLISK_TOKEN = your DISCORDBOTLIST.COM token
 ```
 
