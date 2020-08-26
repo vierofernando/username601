@@ -20,8 +20,8 @@ class Config:
     prefix = '1' # your prefix here
     cmdtypes = decodeurl("https://vierofernando.github.io/username601/assets/json/categories.json").json()
     class Version:
-        number = '2.5'
-        changelog = 'Implemented server shops! (local)'
+        number = '2.6'
+        changelog = 'More GIF commands, and deleted some buggy/non-functional commands, fixed typos, improved code, and more.'
     class SupportServer:
         id = 688373853889495044 # support server ID
         logging = 694521383908016188 # logging channel ID in support server

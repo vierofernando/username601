@@ -7,6 +7,13 @@ these are commands i decided to delete with the reasons.
 The last command with scraping to be deprecated, the reason is:<br>
 1. scraping is not that good, and 2. sometimes discordemojis.com gives NSFW emojis, yuck.<br>
 
+### 1trap, 1trumptweet, 1deepfry, 1blurpify, 1threats, 1whowouldwin<br>
+My bot seemed to cannot have a GET request with the API, so since they are<br>
+not functional, i will delete then.<br>
+
+### 1notstonks<br>
+The API owner said they moved to a different URL.<br>
+
 ### 1ss<br>
 This is a screenshot command that lets you screenshot websites,<br>
 however the website filter eats the RAM usage causing for the bot to crash.<br>

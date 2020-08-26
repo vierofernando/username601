@@ -70,6 +70,7 @@ class image(commands.Cog):
     @command('distortion')
     @cooldown(5)
     async def distort(self, ctx, *args, blacklist=None):
+        num = 5
         try:
             for i in range(len(list(args))):
                 if list(args)[i].isnumeric():
@@ -274,18 +275,6 @@ class image(commands.Cog):
             async with ctx.message.channel.typing():
                 data = self.canvas.urltoimage(link.replace('\/', '/'))
                 await ctx.send(file=discord.File(data, ctx.message.content[1:]+'.png'))
-
-    @command('blurpify,threats')
-    @cooldown(5)
-    async def deepfry(self, ctx, *args):
-        if len(ctx.message.mentions)==0:
-            await ctx.send('Please tag someone!')
-        else:
-            async with ctx.message.channel.typing():
-                inputtype = 'url' if ('threat' in ctx.message.content) else 'image'
-                av = myself.getUserAvatar(ctx, args)
-                url='https://nekobot.xyz/api/imagegen?type='+str(str(ctx.message.content).split()[0])[1:]+'&'+inputtype+'='+str(av)[:-15]+'&raw=1'
-                await ctx.send(file=discord.File(self.canvas.urltoimage(url), 'lol.png'))
 
     @command()
     @cooldown(5)

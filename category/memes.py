@@ -101,22 +101,6 @@ class memes(commands.Cog):
                 self.canvas.evol(url), 'trashhahaha.png'
             ))
 
-    @command('nostonks,notstonk,nostonk')
-    @cooldown(5)
-    async def notstonks(self, ctx, *args):
-        text = str(' '.join(list(args))) if (len(list(args))!=0) else "When you forgot to put the args:"
-        if len(ctx.message.mentions)>0:
-            url = "https://nezumiyuiz.glitch.me/api/notstonks?text={}&avatar={}".format(text.replace(ctx.message.mentions[0].mention, ""), str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size=512'))
-        else:
-            url = "https://nezumiyuiz.glitch.me/api/notstonks?text={}".format(text)
-        try:
-            async with ctx.message.channel.typing():
-                await ctx.send(file=discord.File(
-                    self.canvas.urltoimage(url), 'nostonks.png'
-                ))
-        except:
-            await ctx.send('erorr')
-
     @command('lookatthisgraph')
     @cooldown(5)
     async def graph(self, ctx, *args):
@@ -240,37 +224,13 @@ class memes(commands.Cog):
 
     @command()
     @cooldown(5)
-    async def trash(self, ctx):
-        if len(ctx.message.mentions)==0: await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Please mention someone....')
-        else:
-            async with ctx.message.channel.typing():
-                av = ctx.message.author.avatar_url
-                toTrash = ctx.message.mentions[0].avatar_url
-                url='https://api.alexflipnote.dev/trash?face='+str(av).replace('webp', 'png')+'&trash='+str(toTrash).replace('webp', 'png')
-                data = self.canvas.urltoimage(url)
-                await ctx.send(file=discord.File(data, 'trashed.png'))
-
-    @command()
-    @cooldown(5)
-    async def trap(self, ctx, *args):
-        if len(ctx.message.mentions)==0:
-            await ctx.send(str(self.client.get_emoji(BotEmotes.error)) +f' | Wrong.\nPlease try the correct like following:\n`{Config.prefix}trap [tag]`')
-        else:
-            async with ctx.message.channel.typing():
-                guy = myself.getUser(ctx, args)
-                ava = myself.getUserAvatar(ctx, args)
-                url='http://nekobot.xyz/api/imagegen?type=trap&name='+myself.urlify(guy.name)+'&author='+myself.urlify(ctx.author.name)+'&image='+ava+'&raw=1'
-                await ctx.send(file=discord.File(self.canvas.urltoimage(url), 'trap.png'))
-
-    @command('winorlose')
-    @cooldown(10)
-    async def whowouldwin(self, ctx):
-        if len(ctx.message.mentions)!=2:
-            await ctx.send('Please tag TWO people!')
-        else:
-            async with ctx.message.channel.typing():
-                url='http://nekobot.xyz/api/imagegen?type=whowouldwin&raw=1&user1='+str(ctx.message.mentions[0].avatar_url).replace('.webp?size=1024', '.png')+'&user2='+str(ctx.message.mentions[1].avatar_url).replace('.webp?size=1024', '.png')
-                await ctx.send(file=discord.File(self.canvas.urltoimage(url), 'whowouldwin.png'))
+    async def trash(self, ctx, *args):
+        async with ctx.message.channel.typing():
+            av = ctx.message.author.avatar_url
+            toTrash = myself.getUserAvatar(ctx, args)
+            url='https://api.alexflipnote.dev/trash?face='+str(av).replace('webp', 'png')+'&trash='+str(toTrash).replace('webp', 'png')
+            data = self.canvas.urltoimage(url)
+            await ctx.send(file=discord.File(data, 'trashed.png'))
 
     @command()
     @cooldown(8)
@@ -386,14 +346,14 @@ class memes(commands.Cog):
             embed.set_image(url=data["url"])
         await ctx.send(embed=embed)
 
-    @command('trumptweet,kannagen')
+    @command('kannagen')
     @cooldown(12)
     async def clyde(self, ctx, *args):
         if len(list(args))==0: await ctx.send('Please input a text...')
         else:
             async with ctx.message.channel.typing():
                 url='https://nekobot.xyz/api/imagegen?type='+str(ctx.message.content).split(' ')[0][1:]+'&text='+myself.urlify(' '.join(list(args)))+'&raw=1'
-                await ctx.send(file=discord.File(self.canvas.urltoimage(url), 'lawl.png'))
+                await ctx.send(file=discord.File(self.canvas.urltoimage(url, stream=True), 'yolo.png'))
 
     @command()
     @cooldown(10)
