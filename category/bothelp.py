@@ -141,7 +141,7 @@ class bothelp(commands.Cog):
         embed.set_image(url='https://quickchart.io/chart?c='+imageurl)
         await ctx.send(embed=embed)
 
-    @command('botinfo,aboutbot,bot,bots,username601')
+    @command('botinfo,aboutbot,bot,username601')
     @cooldown(5)
     async def about(self, ctx):
         if str(self.client.get_guild(Config.SupportServer.id).get_member(Config.owner.id).status)=='offline': devstatus = 'Offline'
