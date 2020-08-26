@@ -319,11 +319,11 @@ class memes(commands.Cog):
             data = self.canvas.urltoimage(url)
             await ctx.send(file=discord.File(data, 'your_captcha.png'))
 
-    @command('captchatext,captchatxt')
+    @command('captchatext,captchatxt,generatecaptcha,gen-captcha,gencaptcha,capt')
     @cooldown(10)
     async def captcha(self, ctx, *args):
         async with ctx.message.channel.typing():
-            capt = 'username601' if len(list(args))==0 else myself.urlify(' '.join(args))
+            capt = 'username601' if len(list(args))==0 else ' '.join(list(args))
             data = self.client.api.captcha({ 'text': capt })
             await ctx.send(file=discord.File(data, 'captcha.png'))
 
