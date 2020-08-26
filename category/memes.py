@@ -318,13 +318,19 @@ class memes(commands.Cog):
             data = self.canvas.urltoimage(url)
             await ctx.send(file=discord.File(data, 'your_captcha.png'))
     
+    @command('fail')
+    @cooldown(3)
+    async def failed(self, ctx, *args):
+        av = myself.getUserAvatar(ctx, args)
+        data = self.client.api.failed({'image': av})
+        await ctx.send(file=discord.File(data, 'failed.png'))
+
     @command()
     @cooldown(10)
     async def captcha(self, ctx, *args):
-        async with ctx.message.channel.typing():
-            capt = myself.urlify(' '.join(args))
-            data = self.canvas.urltoimage('https://api.alexflipnote.dev/captcha?text='+str(capt))
-            await ctx.send(file=discord.File(data, 'captcha.png'))
+        capt = 'username601' if len(list(args))==0 else myself.urlify(' '.join(args))
+        data = self.client.api.captcha({ 'text': capt })
+        await ctx.send(file=discord.File(data, 'captcha.png'))
 
     @command('baby,clint,wolverine,disgusting,f,studying,starvstheforcesof')
     @cooldown(10)
