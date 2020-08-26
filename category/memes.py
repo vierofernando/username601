@@ -26,6 +26,19 @@ class memes(commands.Cog):
             r'/home/runner/hosting601/assets/fonts/'
         )
 
+    @command('shred,burn,spongebobpaper,paper,spongepaper,sponge-paper,spongebob-paper,spongebob')
+    @cooldown(1)
+    async def sponge(self, ctx, *args):
+        async with ctx.message.channel.typing():
+            av = myself.getUserAvatar(ctx, args, size=512)
+            im = self.canvas.trans_merge({
+                'url': av,
+                'filename': 'spongebobpaper.png',
+                'pos': (29, 58),
+                'size': (224, 259)
+            })
+            return await ctx.send(file=discord.File(im, 'haha-you-got-burned.png'))
+
     @command('ihavefailedyou,fail')
     @cooldown(1)
     async def failed(self, ctx, *args):
