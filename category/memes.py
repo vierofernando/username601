@@ -26,6 +26,12 @@ class memes(commands.Cog):
             r'/home/runner/hosting601/assets/fonts/'
         )
 
+    @command('programmerhumor,programmermeme,programming,programmer')
+    @cooldown(2)
+    async def programmingmeme(self, ctx):
+        data = myself.jsonisp('https://useless-api.vierofernando.repl.co/programmermeme')['url']
+        return await ctx.send(embed=discord.Embed(title='Programmer meme', color=discord.Colour.from_rgb(201, 160, 112)).set_image(url=data))
+
     @command('shred,burn,spongebobpaper,paper,spongepaper,sponge-paper,spongebob-paper,spongebob')
     @cooldown(1)
     async def sponge(self, ctx, *args):
@@ -235,7 +241,7 @@ class memes(commands.Cog):
     @command()
     @cooldown(8)
     async def squidwardstv(self, ctx, *args):
-        source = myself.getUserAvatar(ctx, *args)
+        source = myself.getUserAvatar(ctx, args)
         await ctx.send(file=discord.File(self.canvas.squidwardstv(source), 'squidtv.png'))
     
     @command('mywaifu,wf,waifuinsult,insultwaifu,waifu-insult')
@@ -314,7 +320,7 @@ class memes(commands.Cog):
             elif 'disgusting' in ctx.message.content: size, pos = (614, 407), (179, 24)
             elif 'f' in ctx.message.content and len(str(ctx.message.content).split(' ')[0])==2: size, pos = (82, 111), (361, 86)
             else: return await ctx.send(file=discord.File(self.canvas.baby(ava), 'lolmeme.png'))
-            return await ctx.send(file=discord.File(Painter.trans_merge({
+            return await ctx.send(file=discord.File(self.canvas.trans_merge({
                 'url': ava,
                 'filename': ctx.message.content.split()[0][1:]+'.png',
                 'size': size,

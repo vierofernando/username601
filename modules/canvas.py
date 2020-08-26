@@ -7,7 +7,7 @@ import random
 
 def getFont(fontpath, fontname, size): return ImageFont.truetype(f'{fontpath}{fontname}.ttf', size)
 def getImage(assetpath, imageName): return Image.open(f'{assetpath}{imageName}')
-def imagefromURL(url): return Image.open(BytesIO(get(url).content))
+def imagefromURL(url, stream=False): return Image.open(BytesIO(get(url, stream=stream).content))
 def bufferGIF(images, duration, optimize=False):
     arr = BytesIO()
     images[0].save(arr, "GIF", save_all=True, append_images=images[1:], optimize=optimize, duration=duration, loop=0)
@@ -285,8 +285,8 @@ class Painter:
         data = self.buffer(pic)
         return data
     
-    def urltoimage(self, url):
-        image = self.imagefromURL(url)
+    def urltoimage(self, url, stream=False):
+        image = self.imagefromURL(url, stream=stream)
         return self.buffer(image)
     
     def smallURL(self, url):
@@ -316,6 +316,7 @@ class GifGenerator:
         self.bufferGIF = bufferGIF
         self.assetpath = assetpath
         self.fontpath = fontpath
+        self.drawtext = drawtext
     
     def worship(self, pic):
         im = self.imagefromURL(pic).resize((127, 160))
