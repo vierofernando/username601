@@ -29,14 +29,15 @@ class memes(commands.Cog):
     @command('ihavefailedyou,fail')
     @cooldown(1)
     async def failed(self, ctx, *args):
-        av = myself.getUserAvatar(ctx, args)
-        res = self.canvas.trans_merge({
-            'url': av,
-            'filename': 'failed.png',
-            'size': (155, 241),
-            'pos': (254, 18)
-        })
-        await ctx.send(file=discord.File(res, 'failed.png'))
+        async with ctx.message.channel.typing():
+            av = myself.getUserAvatar(ctx, args)
+            res = self.canvas.trans_merge({
+                'url': av,
+                'filename': 'failed.png',
+                'size': (155, 241),
+                'pos': (254, 18)
+            })
+            await ctx.send(file=discord.File(res, 'failed.png'))
 
     @command('worships,worshipping')
     @cooldown(3)
@@ -317,20 +318,14 @@ class memes(commands.Cog):
             url = 'http://nekobot.xyz/api/imagegen?type=captcha&username='+nm+'&url='+av+'&raw=1'
             data = self.canvas.urltoimage(url)
             await ctx.send(file=discord.File(data, 'your_captcha.png'))
-    
-    @command('fail')
-    @cooldown(3)
-    async def failed(self, ctx, *args):
-        av = myself.getUserAvatar(ctx, args)
-        data = self.client.api.failed({'image': av})
-        await ctx.send(file=discord.File(data, 'failed.png'))
 
-    @command()
+    @command('captchatext,captchatxt')
     @cooldown(10)
     async def captcha(self, ctx, *args):
-        capt = 'username601' if len(list(args))==0 else myself.urlify(' '.join(args))
-        data = self.client.api.captcha({ 'text': capt })
-        await ctx.send(file=discord.File(data, 'captcha.png'))
+        async with ctx.message.channel.typing():
+            capt = 'username601' if len(list(args))==0 else myself.urlify(' '.join(args))
+            data = self.client.api.captcha({ 'text': capt })
+            await ctx.send(file=discord.File(data, 'captcha.png'))
 
     @command('baby,clint,wolverine,disgusting,f,studying,starvstheforcesof')
     @cooldown(10)
