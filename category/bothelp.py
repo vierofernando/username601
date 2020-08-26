@@ -12,6 +12,11 @@ class bothelp(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    @command('supportserver,support-server,botserver,bot-server')
+    @cooldown(1)
+    async def support(self, ctx):
+        return await ctx.send(Config.SupportServer.invite)
+
     @command('commands,yardim,yardım')
     @cooldown(1)
     async def help(self, ctx, *args):
@@ -126,26 +131,26 @@ class bothelp(commands.Cog):
         embed.set_thumbnail(url='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif')
         await ctx.send(embed=embed)
     
-    @command('stats')
+    @command('botstats,meta')
     @cooldown(15)
-    async def uptime(self, ctx):
-        up, cmds = selfDB.get_uptime(), username601Stats.retrieveData()
+    async def stats(self, ctx):
+        up, cmds, commandLength = selfDB.get_uptime(), username601Stats.retrieveData(), myself.getCommandLength()
         imageurl = myself.urlify(myself.uptimerobot())
         bot_uptime = up.split('|')[0].split(':')[0]+' Hours, '+up.split('|')[0].split(':')[1]+' minutes, '+up.split('|')[0].split(':')[2]+' seconds.'
         embed = discord.Embed(description='This bot is in {} servers.\nWith {} users\n\nBot uptime: {}\nOS uptime: {}\nLast downtime: {} UTC\n\nCommands run in the past {}: {}'.format(len(self.client.guilds), len(self.client.users), bot_uptime, str(myself.terminal('uptime -p'))[3:], up.split('|')[1], myself.time_encode(round(t.now().timestamp()) - round(cmds['lastreset'])), str(cmds['count'])), color=discord.Colour.from_rgb(201, 160, 112))
         embed.set_image(url='https://quickchart.io/chart?c='+imageurl)
         await ctx.send(embed=embed)
 
-    @command()
+    @command('botinfo,aboutbot,bot,bots,username601')
     @cooldown(5)
     async def about(self, ctx):
         if str(self.client.get_guild(Config.SupportServer.id).get_member(Config.owner.id).status)=='offline': devstatus = 'Offline'
         else: devstatus = 'Online'
         embed = discord.Embed(title = 'About '+str(ctx.message.guild.get_member(Config.id).display_name), colour = discord.Colour.from_rgb(201, 160, 112))
-        embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Library: **Discord.py\n**Default prefix: **'+str(Config.prefix), inline='True')
-        embed.add_field(name='Programmer info', value='**Programmed by: **'+Config.owner.name+'. ('+self.client.get_user(Config.owner.id).name+'#'+str(self.client.get_user(Config.owner.id).discriminator)+')\n(Indie developed)\n**Current Discord Status:** '+devstatus, inline='True')
+        embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Library: **Discord.py\n**Default prefix: **'+str(Config.prefix))
+        embed.add_field(name='Programmer info', value='**Programmed by: **'+str(self.client.get_user(Config.owner.id))+'\n(Indie developed)\n**Current Discord Status:** '+devstatus)
         embed.add_field(name='Version Info', value='**Bot version: ** '+Config.Version.number+'\n**Changelog: **'+Config.Version.changelog)#+'\n'+str(osinfo))
-        embed.add_field(name='Links', value='[Invite this bot to your server!](http://vierofernando.github.io/programs/username601)\n[The support server!]('+str(Config.SupportServer.invite)+')\n[Vote us on top.gg](https://top.gg/bot/'+str(Config.id)+'/vote)\n[Official Website](https://vierofernando.github.io/username601)', inline='False')
+        embed.add_field(name='Links', value='[Invite this bot to your server!](http://vierofernando.github.io/programs/username601)\n[The support server!]('+str(Config.SupportServer.invite)+')\n[Vote us on top.gg](https://top.gg/bot/'+str(Config.id)+'/vote)\n[Official Website](https://vierofernando.github.io/username601)')
         embed.set_thumbnail(url='https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/pfp.png')
         embed.set_footer(text='© Viero Fernando Programming, 2020. All rights reserved.')
         await ctx.send(embed=embed)

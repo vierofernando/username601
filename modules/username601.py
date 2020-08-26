@@ -30,12 +30,17 @@ class Config:
         invite = 'https://discord.gg/HhAPkD8' # your support server invite link
     class owner:
         id = 661200758510977084 # YOUR USER ID
-        name = 'Viero Fernando'
 
 # EXCEPTIONS
 class noArguments(Exception): pass
 class noUserFound(Exception): pass
 class noProfile(Exception): pass
+
+def getCommandLength():
+    data, count = decodeurl('https://vierofernando.github.io/username601/assets/json/commands.json').json(), 0
+    for i in range(len(data)):
+        count += len(data[i][list(data[i].keys())[0]])
+    return count
 
 def ping():
     a = t.now().timestamp()
