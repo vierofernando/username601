@@ -20,6 +20,18 @@ class utils(commands.Cog):
             r'/home/runner/hosting601/assets/fonts/'
         )
     
+    @command('colorthief,getcolor,accent,accentcolor,accent-color,colorpalette,color-palette')
+    @cooldown(3)
+    async def palette(self, ctx, *args):
+        url, person = myself.getUserAvatar(ctx, args), myself.getUser(ctx, args)
+        async with ctx.message.channel.typing():
+            data = myself.jsonisp(f'https://useless-api.vierofernando.repl.co/accent?image={url}')
+            file = discord.File(self.canvas.get_palette(data), 'palette.png')
+            em = discord.Embed(title=f'{person.name}\'s avatar color palette', color=discord.Colour.from_rgb(
+                data[0]['r'], data[0]['g'], data[0]['b']
+            )).set_thumbnail(url=url).set_image(url='attachment://palette.png')
+            return await ctx.send(file=file, embed=em)
+
     @command('isitup,webstatus')
     @cooldown(2)
     async def isitdown(self, ctx, *args):

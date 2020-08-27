@@ -18,6 +18,10 @@ def buffer(data):
     data.save(arr, format='PNG')
     arr.seek(0)
     return arr
+def invert(tupl):
+    x,y,z = tupl
+    x,y,z = abs(x-255), abs(y-255), abs(z-255)
+    return (x,y,z)
 def drawtext(draw, thefont, text, x, y, col):
     draw.text((x, y), text, fill =col, font=thefont, align ="left")
 def drawProgressBar(draw, percent):
@@ -45,7 +49,22 @@ class Painter:
         self.drawProgressBar = drawProgressBar
         self.getSongString = getSongString
         self.drawtext = drawtext
+        self.invert = invert
     
+    def get_palette(self, data):
+        font = self.getFont(self.fontpath, 'Minecraftia-Regular', 30) 
+        main = Image.new(mode='RGB', size=(1800, 500), color=(0, 0, 0))
+        draw, loc = ImageDraw.Draw(main), 0
+        for i in data:
+            rgb = (i['r'], i['g'], i['b'])
+            content = '#%02x%02x%02x' % rgb
+            draw.rectangle([
+                (loc, 0), (loc+200, 500)
+            ], fill=rgb)
+            draw.text((loc, 0), content, font=font, align="left", fill=self.invert(rgb))
+            loc += 200
+        return self.buffer(main)
+
     def trans_merge(self, obj):
         av = self.imagefromURL(obj['url']).resize(obj['size'])
         bg = self.getImage(self.assetpath, obj['filename'].lower())
