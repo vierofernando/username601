@@ -18,10 +18,6 @@ def buffer(data):
     data.save(arr, format='PNG')
     arr.seek(0)
     return arr
-def invert(tupl):
-    x,y,z = tupl
-    x,y,z = abs(x-255), abs(y-255), abs(z-255)
-    return (x,y,z)
 def drawtext(draw, thefont, text, x, y, col):
     draw.text((x, y), text, fill =col, font=thefont, align ="left")
 def drawProgressBar(draw, percent):
@@ -36,6 +32,10 @@ def getSongString(thetime, now):
             i -= 60
     if len(minute)==1: minute = '0'+minute
     return minute+':'+str(i)
+def brightness_text(tupl):
+    if (sum(tupl)/3) < 127.5: return (255, 255, 255)
+    return (0, 0, 0)
+
 
 class Painter:
 
@@ -49,8 +49,32 @@ class Painter:
         self.drawProgressBar = drawProgressBar
         self.getSongString = getSongString
         self.drawtext = drawtext
-        self.invert = invert
+        self.invert = brightness_text # lmao
     
+    def usercard(self, roles, user, ava, bg):
+        name = user.name
+        foreground_col = self.invert(bg)
+        avatar = self.imagefromURL(ava).resize((100, 100))
+        details_text = 'Created account at {}\nJoined server at {}'.format(myself.time_encode(t.now().timestamp()-user.created_at.timestamp())+' ago', myself.time_encode(t.now().timestamp()-user.joined_at.timestamp())+' ago')
+        rect_y_pos = 180 + ((self.getFont(self.fontpath, "Ubuntu-M", 50).getsize(details_text)[1]+20))
+        canvas_height = rect_y_pos + len(roles * 50) + 30
+        if self.getFont(self.fontpath, "Ubuntu-M", 50).getsize(name)[0] > 600: main = Image.new(mode='RGB', color=bg, size=(self.getFont(self.fontpath, 'Ubuntu-M', 50).getsize(name)[0]+200, canvas_height))
+        else: main = Image.new(mode='RGB', color=bg, size=(600, canvas_height))
+        draw = ImageDraw.Draw(main)
+        margin_right, margin_left = main.width - 40, 40
+        draw.text((170, 30), name, fill=foreground_col, font=self.getFont(self.fontpath, "Ubuntu-M", 50))
+        draw.text((170, 80), f'ID: {user.id}', fill=foreground_col, font=self.getFont(self.fontpath, "Ubuntu-M", 25))
+        draw.text((40, 150), details_text, fill=foreground_col, font=self.getFont(self.fontpath, "Ubuntu-M", 25))
+        for i in roles:
+            draw.rectangle([
+                (margin_left, rect_y_pos), (margin_right, rect_y_pos+50)
+            ], fill=i['color'])
+            draw.text((margin_left+10, rect_y_pos+10), i['name'], fill=self.invert(i['color']), font=self.getFont(self.fontpath, "Ubuntu-M", 25))
+            rect_y_pos += 50
+        try: main.paste(avatar, (40, 30), avatar)
+        except: main.paste(avatar, (40, 30))
+        return self.buffer(main)
+
     def get_palette(self, data):
         font = self.getFont(self.fontpath, 'Minecraftia-Regular', 30) 
         main = Image.new(mode='RGB', size=(1800, 500), color=(0, 0, 0))
@@ -266,18 +290,6 @@ class Painter:
         self.drawtext(draw, self.getFont(self.fontpath, 'Whitney-Medium', 60), 'Level '+tier, 1000, 340, 'black')
         self.drawtext(draw, self.getFont(self.fontpath, 'Whitney-Medium', 50), online+' online', 90, 360, 'black')
         return self.buffer(image)
-    
-    def usercard(self, this):
-        bg = self.getImage(self.assetpath, 'card_{}.png'.format(this.status.value))
-        canvas = Image.new(mode='RGB', size=bg.size, color=(0,0,0))
-        ava = self.imagefromURL(str(this.avatar_url).replace('.webp?size=1024', '.png?size=512')).resize((189, 190))
-        canvas.paste(ava, (299, 12))
-        canvas.paste(bg, (0, 0), bg)
-        self.drawtext(ImageDraw.Draw(canvas), self.getFont(self.fontpath, 'Whitney-Medium', 50), this.name, 13, 13, 'black')
-        self.drawtext(ImageDraw.Draw(canvas), self.getFont(self.fontpath, 'Whitney-Medium', 30), '#'+str(this.discriminator), 203, 111, 'black')
-        self.drawtext(ImageDraw.Draw(canvas), self.getFont(self.fontpath, 'consola', 25), str(this.id), 13, 66, 'black')
-        self.drawtext(ImageDraw.Draw(canvas), self.getFont(self.fontpath, 'Whitney-Medium', 20), 'Hoist role: '+str(this.roles[::-1][0].name), 14, 168, 'black')
-        return self.buffer(canvas)
     
     def baby(self, ava):
         avatar = self.imagefromURL(ava)

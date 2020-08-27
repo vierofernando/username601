@@ -24,6 +24,33 @@ class moderation(commands.Cog):
             r'/home/runner/hosting601/assets/fonts/'
         )
 
+    @command('jp,joinpos,joindate,jd')
+    @cooldown(5)
+    async def joinposition(self, ctx, *args):
+        current_time = t.now().timestamp()
+        user = myself.getUser(ctx, args)
+        wait = await ctx.send('{} | Iterating through {} members...'.format(self.client.get_emoji(BotEmotes.loading), len(ctx.guild.members)))
+        sortedJoins = sorted([current_time-i.joined_at.timestamp() for i in ctx.guild.members])[::-1]
+        num, users = [i for i in range(len(sortedJoins)) if (current_time-user.joined_at.timestamp())==sortedJoins[i]][0], []
+        for i in range(-10, 11):
+            try:
+                placement = (num + i) + 1
+                if placement < 1: continue
+                locate = sortedJoins[num + i]
+                username = [str(i) for i in ctx.guild.members if (current_time-i.joined_at.timestamp())==locate][0]
+                if i == 0: username = f'**{username}**'
+                users.append({
+                    'user': username,
+                    'time': locate,
+                    'order': str(placement)
+                })
+            except IndexError:
+                pass
+        em = discord.Embed(title='Your join position', description='\n'.join([
+            '{}. {} ({} ago)'.format(i['order'], i['user'], myself.time_encode(round(i['time']))) for i in users
+        ]), color=discord.Colour.from_rgb(201, 160, 112))
+        await wait.edit(content='', embed=em)
+
     @command('serverconfig,configuration,serversettings,settings')
     @cooldown(1)
     async def config(self, ctx):
@@ -40,7 +67,7 @@ class moderation(commands.Cog):
     @command()
     @cooldown(5)
     async def mute(self, ctx, *args):
-        toMute = myself.getUser(ctx, args)
+        toMute = myself.getUser(ctx, args, allownoargs=False)
         if not ctx.author.guild_permissions.manage_messages: return await ctx.send('{} | No `manage messages` permission!'.format(self.client.get_emoji(BotEmotes.error)))
         role = Dashboard.getMuteRole(ctx.guild.id)
         if role==None:
@@ -71,7 +98,7 @@ class moderation(commands.Cog):
     @command()
     @cooldown(5)
     async def unmute(self, ctx):
-        toUnmute = myself.getUser(ctx, args)
+        toUnmute = myself.getUser(ctx, args, allownoargs=False)
         roleid = Dashboard.getMuteRole(ctx.guild.id)
         if roleid==None: return await ctx.send('{} | He is not muted!\nOr maybe you muted this on other bot... which is not compatible.'.format(self.client.get_emoji(BotEmote.error)))
         elif roleid not in [i.id for i in ctx.message.mentions[0].roles]:
@@ -435,12 +462,16 @@ class moderation(commands.Cog):
             for i in ctx.message.guild.roles: total.append('<@&'+str(i.id)+'>')
         await ctx.send(embed=discord.Embed(description=myself.dearray(total), color=discord.Color.from_rgb(201, 160, 112)))
 
-    @command('user,usercard,user-info,user-card')
-    @cooldown(5)
+    @command('ui,user,usercard,user-info,user-card')
+    @cooldown(5) # roles user ava bg
     async def userinfo(self, ctx, *args):
-        guy = myself.getUser(ctx, args)
-        data = self.canvas.usercard(guy)
-        await ctx.send(file=discord.File(data, str(guy.discriminator)+'.png'))
+        guy, ava = myself.getUser(ctx, args), myself.getUserAvatar(ctx, args)
+        async with ctx.message.channel.typing():
+            bg_col = tuple(myself.jsonisp(f'https://useless-api.vierofernando.repl.co/colorfromimage?image={ava}'))
+            data = self.canvas.usercard([{
+                'name': i.name, 'color': i.color.to_rgb()
+            } for i in guy.roles][::-1][0:5], guy, ava, bg_col)
+            await ctx.send(file=discord.File(data, str(guy.discriminator)+'.png'))
 
     @command('av,ava')
     @cooldown(1)
