@@ -36,6 +36,9 @@ class noArguments(Exception): pass
 class noUserFound(Exception): pass
 class noProfile(Exception): pass
 
+def limitify(text):
+    return text[0:1900]
+
 def getCommandLength():
     data, count = decodeurl('https://vierofernando.github.io/username601/assets/json/commands.json').json(), 0
     for i in range(len(data)):
