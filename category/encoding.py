@@ -67,8 +67,8 @@ class encoding(commands.Cog):
     @command()
     @cooldown(1)
     async def caesar(self, ctx, *args):
-        if len(list(args))==0:
-            await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | gimme something.')
+        if len(list(args))<2:
+            await ctx.send(str(self.client.get_emoji(BotEmotes.error))+f' | Try something like `{Config.prefix}caesar 3 hello world`')
         else:
             offset = None
             for i in args:
@@ -105,12 +105,12 @@ class encoding(commands.Cog):
         else:
             data = myself.jsonisp("https://vierofernando.github.io/username601/assets/json/leet.json")
             total = ''
-            for i in range(0, len(' '.join(list(args)))):
-                for j in list(data.keys()):
-                    if str(' '.join(list(args)))[i].lower()==j.lower():
-                        total += data[list(data.keys())[i]]
-                        break
-                if len(total)==i: total += str(' '.join(list(args)))[i]
+            text = ' '.join(list(args))
+            for i in list(text):
+                if i.lower() in list('abcdefghijklmnopqrstuvwxyz'):
+                    total += data[i]
+                    continue
+                total += i
             await ctx.send(total)
     
 

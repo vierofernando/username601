@@ -30,8 +30,8 @@ class Config:
         invite = 'https://discord.gg/HhAPkD8' # your support server invite link
     class owner:
         id = 661200758510977084 # YOUR USER ID
+prefix = Config.prefix
 
-# EXCEPTIONS
 class noArguments(Exception): pass
 class noUserFound(Exception): pass
 class noProfile(Exception): pass
