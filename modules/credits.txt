@@ -19,8 +19,6 @@ Danny/Rapptz - Creator of the discord.py library
 Mike Drolf - Creator of Pymongo library
 Fredrik Lundh - Creator of PIL/pillow Library
 
-BETA TESTERS:
-VeguiIzumi (also creator of Nezumi Yui Bot)
-nefomemes (frequent feedbacks)
-Jovantri (also creator of Todoroki Shouto Bot)
-WillolzCitron (partnership and amateur discord bot developer)
+CONTRIBUTORS:
+VeguiIzumi, nefomemes, Jovantri, WillolzCitron (Beta-testers)
+Norizon, 14ROVI (providing and helping with some parts of code)
