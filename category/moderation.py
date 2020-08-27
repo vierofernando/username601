@@ -467,7 +467,7 @@ class moderation(commands.Cog):
     async def userinfo(self, ctx, *args):
         guy, ava = myself.getUser(ctx, args), myself.getUserAvatar(ctx, args)
         async with ctx.message.channel.typing():
-            bg_col = tuple(myself.jsonisp(f'https://useless-api.vierofernando.repl.co/colorfromimage?image={ava}'))
+            bg_col = tuple(self.canvas.get_accent(ava))
             data = self.canvas.usercard([{
                 'name': i.name, 'color': i.color.to_rgb()
             } for i in guy.roles][::-1][0:5], guy, ava, bg_col)

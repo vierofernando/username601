@@ -55,7 +55,7 @@ pymongo==3.10.1
 dnspython==1.16.0
 PyNaCl==1.30
 gtts==2.1.1
-uselessapi==1.0.1
+colorthief==0.2
 ```
 
 (c) Viero Fernando Programming 2020. All rights reserved.

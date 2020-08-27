@@ -25,7 +25,7 @@ class utils(commands.Cog):
     async def palette(self, ctx, *args):
         url, person = myself.getUserAvatar(ctx, args), myself.getUser(ctx, args)
         async with ctx.message.channel.typing():
-            data = myself.jsonisp(f'https://useless-api.vierofernando.repl.co/accent?image={url}')
+            data = self.canvas.get_multiple_accents(url)
             file = discord.File(self.canvas.get_palette(data), 'palette.png')
             em = discord.Embed(title=f'{person.name}\'s avatar color palette', color=discord.Colour.from_rgb(
                 data[0]['r'], data[0]['g'], data[0]['b']

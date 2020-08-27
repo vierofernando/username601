@@ -4,6 +4,7 @@ from datetime import datetime as t
 import username601 as myself
 from requests import get
 import random
+from colorthief import ColorThief
 
 def getFont(fontpath, fontname, size): return ImageFont.truetype(f'{fontpath}{fontname}.ttf', size)
 def getImage(assetpath, imageName): return Image.open(f'{assetpath}{imageName}')
@@ -35,7 +36,17 @@ def getSongString(thetime, now):
 def brightness_text(tupl):
     if (sum(tupl)/3) < 127.5: return (255, 255, 255)
     return (0, 0, 0)
-
+def add_corners(im, rad):
+    circle = Image.new('L', (rad * 2, rad * 2), 0)
+    draw = ImageDraw.Draw(circle)
+    draw.ellipse((0, 0, rad * 2, rad * 2), fill=255)
+    alpha = Image.new('L', im.size, 255)
+    w, h = im.size
+    alpha.paste(circle.crop((0, 0, rad, rad)), (0, 0))
+    alpha.paste(circle.crop((0, rad, rad, rad * 2)), (0, h-rad))
+    alpha.paste(circle.crop((rad, 0, rad * 2, rad)), (w-rad, 0))
+    alpha.paste(circle.crop((rad, rad, rad * 2, rad * 2)), (w-rad, h-rad))
+    im.putalpha(alpha)
 
 class Painter:
 
@@ -49,13 +60,27 @@ class Painter:
         self.drawProgressBar = drawProgressBar
         self.getSongString = getSongString
         self.drawtext = drawtext
+        self.thief = ColorThief
+        self.add_corners = add_corners
         self.invert = brightness_text # lmao
     
+    def get_accent(self, image):
+        data = BytesIO(get(image).content)
+        return self.thief(data).get_color()
+
+    def get_multiple_accents(self, image):
+        b = BytesIO(get(image).content)
+        thief = self.thief(b).get_palette(color_count=10)
+        return [{
+            'r': i[0], 'g': i[1], 'b': i[2]
+        } for i in thief]
+
     def usercard(self, roles, user, ava, bg):
         name = user.name
         foreground_col = self.invert(bg)
         avatar = self.imagefromURL(ava).resize((100, 100))
-        details_text = 'Created account at {}\nJoined server at {}'.format(myself.time_encode(t.now().timestamp()-user.created_at.timestamp())+' ago', myself.time_encode(t.now().timestamp()-user.joined_at.timestamp())+' ago')
+        self.add_corners(avatar, round(avatar.width/2))
+        details_text = 'Created account {}\nJoined server {}'.format(myself.time_encode(t.now().timestamp()-user.created_at.timestamp())+' ago', myself.time_encode(t.now().timestamp()-user.joined_at.timestamp())+' ago')
         rect_y_pos = 180 + ((self.getFont(self.fontpath, "Ubuntu-M", 50).getsize(details_text)[1]+20))
         canvas_height = rect_y_pos + len(roles * 50) + 30
         if self.getFont(self.fontpath, "Ubuntu-M", 50).getsize(name)[0] > 600: main = Image.new(mode='RGB', color=bg, size=(self.getFont(self.fontpath, 'Ubuntu-M', 50).getsize(name)[0]+200, canvas_height))
