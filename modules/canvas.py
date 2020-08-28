@@ -94,6 +94,7 @@ class Painter:
         self.thief = ColorThief
         self.add_corners = add_corners
         self.flags = json.loads(open(r'/home/runner/hosting601/assets/json/flags.json', 'r').read())
+        self.region = json.loads(open(r'/home/runner/hosting601/assets/json/regions.json', 'r').read())
         self.get_multiple_color_accents = get_multiple_color_accents
         self.invert = brightness_text # lmao
     
@@ -105,13 +106,15 @@ class Painter:
         title_width = self.getFont(self.fontpath, 'Ubuntu-M', 50).getsize(server_title)[0]
         ava = self.imagefromURL(guild.icon_url).resize((100, 100))
         bg_arr = [(i['r'], i['g'], i['b']) for i in self.get_multiple_accents(guild.icon_url)]
+        desc_width = self.getFont(self.fontpath, 'Ubuntu-M', 20).getsize('Created {} ago by {}'.format(myself.time_encode(t.now().timestamp() - guild.created_at.timestamp()), str(guild.owner)))[0]
+        if desc_width > title_width: title_width = desc_width # :^)
         main_bg = bg_arr[0]
         margin_left, margin_right, rect_y_cursor = 25, title_width+225, 150
         main = Image.new(mode='RGB', color=main_bg, size=(title_width+250, 480))
         draw, a_third_width = ImageDraw.Draw(main), round((margin_right - margin_left)/3)
         main.paste(ava, (25, 25))
         draw.text((135, 25), server_title, fill=self.invert(main_bg), font=self.getFont(self.fontpath, 'Ubuntu-M', 50))
-        draw.text((135, 75), 'Created {} ago by {}'.format(myself.time_encode(t.now().timestamp() - guild.created_at.timestamp()), guild.owner.name), fill=self.invert(main_bg), font=self.getFont(self.fontpath, 'Ubuntu-M', 20))
+        draw.text((135, 80), 'Created {} ago by {}'.format(myself.time_encode(t.now().timestamp() - guild.created_at.timestamp()), str(guild.owner)), fill=self.invert(main_bg), font=self.getFont(self.fontpath, 'Ubuntu-M', 20))
         online, total = 200, 1000
         green_width = round(online/total*margin_right)
         rect_y_cursor = self.draw_status_stats(draw, {
@@ -128,11 +131,15 @@ class Painter:
             (main.width/2, rect_y_cursor), (margin_right, rect_y_cursor + 120)
         ], fill=bg_arr[3])
         afkname = "???" if guild.afk_channel==None else guild.afk_channel.name
+        main.paste(
+            self.imagefromURL(self.region[str(guild.region)]).resize((35, 23)),
+            (round(main.width/2) + 10, round(rect_y_cursor + 23 + (18 * 3)))
+        )
         draw.text((margin_left + 10, rect_y_cursor + 10), "Channels: {}\nRoles: {}\nLevel {}\n{} boosters".format(
             len(guild.channels), len(guild.roles), guild.premium_tier, guild.premium_subscription_count
         ), fill=self.invert(bg_arr[2]), font=self.getFont(self.fontpath, 'Ubuntu-M', 20))
         draw.text(((main.width/2) + 10, rect_y_cursor + 10), "Region: {}\nAFK: {}\nAFK time: {}".format(
-            guild.region, afkname, myself.time_encode(guild.afk_timeout).replace('minute', 'min')
+            str(guild.region).replace('-', ''), afkname, myself.time_encode(guild.afk_timeout).replace('minute', 'min')
         ), fill=self.invert(bg_arr[3]), font=self.getFont(self.fontpath, 'Ubuntu-M', 20))
         rect_y_cursor += 120
         draw.rectangle([
