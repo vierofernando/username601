@@ -12,7 +12,6 @@ import username601 as myself
 import discordgames as Games
 import splashes as src
 import canvas as Painter
-from uselessapi import UselessAPI
 
 # EXTERNAL PACKAGES
 import os
@@ -28,7 +27,6 @@ import asyncio
 client = commands.Bot(command_prefix=(
     Config.prefix, f'<@{Config.id}> ', f'<@!{Config.id}> ', f'<@{Config.id}>', f'<@!{Config.id}>'
 ))
-client.api = UselessAPI()
 client.remove_command('help')
 bot_status = cycle(myself.getStatus())
 
