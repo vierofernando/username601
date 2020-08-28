@@ -491,8 +491,8 @@ class moderation(commands.Cog):
             except:
                 await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | This server probably has too many emojis to be listed!')
 
-    @command('serverinfo,server,servericon')
-    @cooldown(7)
+    @command('serverinfo,server,servericon,si,server-info')
+    @cooldown(10)
     async def servercard(self, ctx):
         if 'servericon' in ctx.message.content:
             if ctx.message.guild.is_icon_animated(): link = 'https://cdn.discordapp.com/icons/'+str(ctx.message.guild.id)+'/'+str(ctx.message.guild.icon)+'.gif?size=1024'
@@ -501,12 +501,14 @@ class moderation(commands.Cog):
             theEm.set_image(url=link)
             await ctx.send(embed=theEm)
         else:
-            humans = len([i for i in ctx.guild.members if not i.bot])
-            bots = len([i for i in ctx.guild.members if i.bot])
-            online = len([i for i in ctx.guild.members if i.status.value!='offline'])
-            date = myself.time_encode(round(t.now().timestamp() - ctx.guild.created_at.timestamp()))
-            image = self.canvas.servercard("/home/runner/hosting601/assets/pics/card.jpg", str(ctx.message.guild.icon_url).replace('.gif', '.webp').replace(".webp?size=1024", ".jpg?size=128"), ctx.message.guild.name, date+' ago', ctx.message.guild.owner.name, str(humans), str(bots), str(len(ctx.message.guild.channels)), str(len(ctx.message.guild.roles)), str(ctx.message.guild.premium_subscription_count), str(ctx.message.guild.premium_tier), str(online))
-            await ctx.send(content='Here is the '+ctx.message.guild.name+'\'s server card.', file=discord.File(image, ctx.message.guild.name+'.png'))
+            if len(ctx.guild.members)>100:
+                wait = await ctx.send('{} | Fetching guild data... please wait...'.format(self.client.get_emoji(BotEmotes.loading)))
+                im = self.canvas.server(ctx.guild)
+                await wait.delete()
+            else:
+                await ctx.channel.trigger_typing()
+                im = self.canvas.server(ctx.guild)
+            await ctx.send(file=discord.File(im, 'server.png'))
     
     @command('bots,serverbots,server-bots')
     @cooldown(5)

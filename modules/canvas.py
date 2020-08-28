@@ -51,6 +51,31 @@ def add_corners(im, rad, top_only=False, bottom_only=False):
 def get_accent(thief, image):
     data = BytesIO(get(image).content)
     return thief(data).get_color()
+def draw_status_stats(draw, obj, rect_y_cursor, font, margin_left, margin_right, bg_arr):
+    x_pos, colors = margin_left, [(63, 232, 0), (244, 208, 63), (225, 0, 0), (124, 0, 211), (127, 127, 127)]
+    total = sum([obj[i] for i in list(obj.keys())])
+    draw.rectangle([
+        (margin_left, rect_y_cursor), (margin_right, rect_y_cursor + 25)
+    ], fill=bg_arr[1])
+    draw.text((margin_left + 3, rect_y_cursor + 2), "Member status graph:", fill=brightness_text(bg_arr[1]), font=font)
+    rect_y_cursor += 25
+    draw.rectangle([
+        (margin_left, rect_y_cursor), (margin_right, rect_y_cursor + 50)
+    ], fill=(50, 50, 50))
+    for i in range(len(list(obj.keys()))):
+        percentage = round(obj[list(obj.keys())[i]]/total*(margin_right - margin_left))
+        draw.rectangle([
+            (x_pos, rect_y_cursor), (x_pos + percentage, rect_y_cursor + 50)
+        ], fill=colors[i])
+        x_pos += percentage
+    rect_y_cursor += 70
+    return rect_y_cursor
+def get_multiple_color_accents(thief, image):
+    b = BytesIO(get(image).content)
+    thief = thief(b).get_palette(color_count=10)
+    return [{
+        'r': i[0], 'g': i[1], 'b': i[2]
+    } for i in thief]
 
 class Painter:
 
@@ -65,19 +90,59 @@ class Painter:
         self.getSongString = getSongString
         self.get_color_accent = get_accent
         self.drawtext = drawtext
+        self.draw_status_stats = draw_status_stats
         self.thief = ColorThief
         self.add_corners = add_corners
         self.flags = json.loads(open(r'/home/runner/hosting601/assets/json/flags.json', 'r').read())
+        self.get_multiple_color_accents = get_multiple_color_accents
         self.invert = brightness_text # lmao
     
     def get_accent(self, image): return self.get_color_accent(self.thief, image)
+    def get_multiple_accents(self, image): return self.get_multiple_color_accents(self.thief, image)
 
-    def get_multiple_accents(self, image):
-        b = BytesIO(get(image).content)
-        thief = self.thief(b).get_palette(color_count=10)
-        return [{
-            'r': i[0], 'g': i[1], 'b': i[2]
-        } for i in thief]
+    def server(self, guild):
+        server_title, members = guild.name, guild.members
+        title_width = self.getFont(self.fontpath, 'Ubuntu-M', 50).getsize(server_title)[0]
+        ava = self.imagefromURL(guild.icon_url).resize((100, 100))
+        bg_arr = [(i['r'], i['g'], i['b']) for i in self.get_multiple_accents(guild.icon_url)]
+        main_bg = bg_arr[0]
+        margin_left, margin_right, rect_y_cursor = 25, title_width+225, 150
+        main = Image.new(mode='RGB', color=main_bg, size=(title_width+250, 480))
+        draw, a_third_width = ImageDraw.Draw(main), round((margin_right - margin_left)/3)
+        main.paste(ava, (25, 25))
+        draw.text((135, 25), server_title, fill=self.invert(main_bg), font=self.getFont(self.fontpath, 'Ubuntu-M', 50))
+        draw.text((135, 75), 'Created {} ago by {}'.format(myself.time_encode(t.now().timestamp() - guild.created_at.timestamp()), guild.owner.name), fill=self.invert(main_bg), font=self.getFont(self.fontpath, 'Ubuntu-M', 20))
+        online, total = 200, 1000
+        green_width = round(online/total*margin_right)
+        rect_y_cursor = self.draw_status_stats(draw, {
+            "online": len([i for i in members if i.status.value.lower()=='online']),
+            "idle": len([i for i in members if i.status.value.lower()=='idle']),
+            "do not disturb": len([i for i in members if i.status.value.lower()=='dnd']),
+            "streaming": len([i for i in members if i.status.value.lower()=='streaming']),
+            "offline": len([i for i in members if i.status.value.lower()=='offline'])
+        }, rect_y_cursor, self.getFont(self.fontpath, 'Ubuntu-M', 15), margin_left, margin_right, bg_arr)
+        draw.rectangle([
+            (margin_left, rect_y_cursor), (main.width/2, rect_y_cursor + 120)
+        ], fill=bg_arr[2])
+        draw.rectangle([
+            (main.width/2, rect_y_cursor), (margin_right, rect_y_cursor + 120)
+        ], fill=bg_arr[3])
+        afkname = "???" if guild.afk_channel==None else guild.afk_channel.name
+        draw.text((margin_left + 10, rect_y_cursor + 10), "Channels: {}\nRoles: {}\nLevel {}\n{} boosters".format(
+            len(guild.channels), len(guild.roles), guild.premium_tier, guild.premium_subscription_count
+        ), fill=self.invert(bg_arr[2]), font=self.getFont(self.fontpath, 'Ubuntu-M', 20))
+        draw.text(((main.width/2) + 10, rect_y_cursor + 10), "Region: {}\nAFK: {}\nAFK time: {}".format(
+            guild.region, afkname, myself.time_encode(guild.afk_timeout).replace('minute', 'min')
+        ), fill=self.invert(bg_arr[3]), font=self.getFont(self.fontpath, 'Ubuntu-M', 20))
+        rect_y_cursor += 120
+        draw.rectangle([
+            (margin_left, rect_y_cursor), (margin_right, rect_y_cursor + 90)
+        ], fill=bg_arr[4])
+        draw.text((margin_left + 10, rect_y_cursor + 10), "{} Humans\n{} Bots\n{} Members in total".format(
+            len([i for i in members if not i.bot]), len([i for i in members if i.bot]), len(members)
+        ), fill=self.invert(bg_arr[4]), font=self.getFont(self.fontpath, 'Ubuntu-M', 20))
+        self.add_corners(main, 25)
+        return self.buffer(main)
 
     def usercard(self, roles, user, ava, bg):
         name, flags, flag_x = user.name, [], 170
@@ -323,21 +388,6 @@ class Painter:
         self.drawtext(ImageDraw.Draw(image), self.getFont(self.fontpath, 'consola', 60), text, 10, 10, "black")
         data = self.buffer(image)
         return data
-    
-    def servercard(self, link, icon, name, date, author, humans, bots, channels, roles, boosters, tier, online):
-        image = self.getImage(self.assetpath, 'card.jpg')
-        servericon, draw = self.imagefromURL(icon), ImageDraw.Draw(image)
-        image.paste(servericon, (1195, 115))
-        self.drawtext(draw, self.getFont(self.fontpath, 'Whitney-Medium', 60), name, 30, 100, 'white')
-        self.drawtext(draw, self.getFont(self.fontpath, 'Whitney-Medium', 40), 'Created in '+date+' by '+author, 30, 170, 'white')
-        self.drawtext(draw, self.getFont(self.fontpath, 'Whitney-Medium', 60), humans, 130, 265, 'white')
-        self.drawtext(draw, self.getFont(self.fontpath, 'Whitney-Medium', 60), bots, 480, 265, 'white')
-        self.drawtext(draw, self.getFont(self.fontpath, 'Whitney-Medium', 60), channels+' Channels', 650, 265, 'black')
-        self.drawtext(draw, self.getFont(self.fontpath, 'Whitney-Medium', 60), roles+' Roles', 650, 340, 'black')
-        self.drawtext(draw, self.getFont(self.fontpath, 'Whitney-Medium', 60), boosters+' boosters', 1000, 265, 'black')
-        self.drawtext(draw, self.getFont(self.fontpath, 'Whitney-Medium', 60), 'Level '+tier, 1000, 340, 'black')
-        self.drawtext(draw, self.getFont(self.fontpath, 'Whitney-Medium', 50), online+' online', 90, 360, 'black')
-        return self.buffer(image)
     
     def baby(self, ava):
         avatar = self.imagefromURL(ava)
