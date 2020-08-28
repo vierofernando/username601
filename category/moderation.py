@@ -183,7 +183,7 @@ class moderation(commands.Cog):
         warned = Dashboard.addWarn(ctx.message.mentions[0], ctx.author, reason)
         if warned:
             return await ctx.send(f'{str(self.client.get_emoji(BotEmotes.success))} | {ctx.message.mentions[0].name}#{ctx.message.mentions[0].discriminator} was warned by {ctx.author.name}#{ctx.author.discriminator} for the reason *"{reason}"*.')
-        await ctx.send(f'{str(self.client.get_emoji(BotEmotes.error))} | An error occured.')
+        await ctx.send(f'{str(self.client.get_emoji(BotEmotes.error))} | An error occurred.')
     
     @command('warns,warnslist,warn-list,infractions')
     @cooldown(5)
@@ -212,7 +212,7 @@ class moderation(commands.Cog):
         ))
         unwarned = Dashboard.clearWarn(ctx.message.mentions[0])
         if unwarned: return await ctx.send(f'{str(self.client.get_emoji(BotEmotes.success))} | Successfully unwarned {ctx.message.mentions[0].name}.')
-        await ctx.send(f'{str(self.client.get_emoji(BotEmotes.error))} | An error occured.')
+        await ctx.send(f'{str(self.client.get_emoji(BotEmotes.error))} | An error occurred.')
 
     @command('welcomelog,setwelcome')
     @cooldown(30)
@@ -301,7 +301,7 @@ class moderation(commands.Cog):
                         await role.edit(colour=discord.Colour(colint))
                         await ctx.send('Color of '+role.name+' role has been changed.', delete_after=5)
                     except Exception as e:
-                        await ctx.send(str(self.client.get_emoji(BotEmotes.error)) + f' | An error occured while editing role:```{e}```')
+                        await ctx.send(str(self.client.get_emoji(BotEmotes.error)) + f' | An error occurred while editing role:```{e}```')
     
     @command()
     @cooldown(15)
