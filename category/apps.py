@@ -46,10 +46,15 @@ class apps(commands.Cog):
     @cooldown(5)
     async def spotify(self, ctx, *args):
         source = myself.getUser(ctx, args)
-        if str(source.activity).lower()!='spotify': await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Nope, not listening to spotify.')
+        if str(source.activity).lower()!='spotify': await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Nope, not listening to spotify. Please show spotify as your presence\nor turn off your custom status if you have it.')
         else:
             async with ctx.message.channel.typing():
-                await ctx.send(file=discord.File(self.canvas.spotify(source, ctx.message), 'spotify.png'))
+                await ctx.send(file=discord.File(self.canvas.spotify({
+                    'name': source.activity.title,
+                    'artist': myself.dearray(source.activity.artists),
+                    'album': source.activity.album,
+                    'url': source.activity.album_cover_url
+                }), 'spotify.png'))
 
     @command()
     @cooldown(10)

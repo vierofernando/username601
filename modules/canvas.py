@@ -48,6 +48,9 @@ def add_corners(im, rad, top_only=False, bottom_only=False):
     alpha.paste(circle.crop((rad, 0, rad * 2, rad)), (w-rad, 0))
     alpha.paste(circle.crop((rad, rad, rad * 2, rad * 2)), (w-rad, h-rad))
     im.putalpha(alpha)
+def get_accent(thief, image):
+    data = BytesIO(get(image).content)
+    return thief(data).get_color()
 
 class Painter:
 
@@ -60,15 +63,14 @@ class Painter:
         self.buffer = buffer
         self.drawProgressBar = drawProgressBar
         self.getSongString = getSongString
+        self.get_color_accent = get_accent
         self.drawtext = drawtext
         self.thief = ColorThief
         self.add_corners = add_corners
         self.flags = json.loads(open(r'/home/runner/hosting601/assets/json/flags.json', 'r').read())
         self.invert = brightness_text # lmao
     
-    def get_accent(self, image):
-        data = BytesIO(get(image).content)
-        return self.thief(data).get_color()
+    def get_accent(self, image): return self.get_color_accent(self.thief, image)
 
     def get_multiple_accents(self, image):
         b = BytesIO(get(image).content)
@@ -174,21 +176,26 @@ class Painter:
             total_str += '\n'
         return total_str
     
-    def spotify(self, person, message):
-        spt, template = person.activity, self.getImage(self.assetpath, 'spotify-template.png')
-        draw = ImageDraw.Draw(template)
-        ava, start = self.imagefromURL(spt.album_cover_url).resize((275, 276)), self.getSongString(spt.created_at, t.now())
-        template.paste(ava, (0, 62))
-        percentage = round(round((t.now() - spt.created_at).total_seconds())/round(spt.duration.total_seconds())*100)
-        duration = ':'.join(str(spt.duration).split(':')[1:10])[:-7]
-        self.drawProgressBar(draw, percentage)
-        draw.text((15, 20), f'{person.name} is listening to', fill="white", font = self.getFont(self.fontpath, 'GothamBook', 30), align ="left")
-        draw.text((15, 350), spt.title, fill="white", font = self.getFont(self.fontpath, 'GothamBold', 30), align ="left")
-        draw.text((15, 395), spt.album, fill="white", font = self.getFont(self.fontpath, 'GothamBook', 15), align ="left")
-        draw.text((15, 378), 'by '+myself.dearray(spt.artists), fill="white", font = self.getFont(self.fontpath, 'GothamBook', 15), align ="left")
-        draw.text((15, 439), start, fill="white", font = self.getFont(self.fontpath, 'GothamBook', 15), align ="left")
-        draw.text((485-self.getFont(self.fontpath, 'GothamBook', 15).getsize(duration)[0], 439), duration, fill="white", font = self.getFont(self.fontpath, 'GothamBook', 15), align="right")
-        return self.buffer(template)
+    def spotify(self, details):
+        url = details['url']
+        del details['url']
+        longest_word = [details[i] for i in list(details.keys()) if len(details[i])==sorted([
+            len(details[a]) for a in list(details.keys())
+        ])[::-1][0]][0]
+        ava, bg = self.imagefromURL(url).resize((100, 100)), self.get_color_accent(self.thief, url)
+        fg = self.invert(bg)
+        big_font, smol_font = self.getFont(self.fontpath, "Ubuntu-M", 50), self.getFont(self.fontpath, "Ubuntu-M", 17)
+        longest_font_width = smol_font.getsize(longest_word)[0] if longest_word!=details['name'] else big_font.getsize(details['name'])[0]   
+        if longest_font_width < 300: longest_font_width = 300
+        main = Image.new(mode='RGB', color=bg, size=(longest_font_width+275, 140))
+        self.add_corners(ava, 50)
+        main.paste(ava, (20, 20))
+        draw = ImageDraw.Draw(main)
+        draw.text((145, 15), details['name'], fill=fg, font=big_font)
+        draw.text((145, 70), details['artist'], fill=fg, font=smol_font)
+        draw.text((145, 92), details['album'], fill=fg, font=smol_font)
+        self.add_corners(main, 25)
+        return self.buffer(main)
     
     def profile(self, url, user, details):
         avatar = self.imagefromURL(url).resize((253, 250))
