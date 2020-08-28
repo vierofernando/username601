@@ -3,6 +3,7 @@ from io import BytesIO
 from datetime import datetime as t
 import username601 as myself
 from requests import get
+import json
 import random
 from colorthief import ColorThief
 
@@ -36,7 +37,7 @@ def getSongString(thetime, now):
 def brightness_text(tupl):
     if (sum(tupl)/3) < 127.5: return (255, 255, 255)
     return (0, 0, 0)
-def add_corners(im, rad):
+def add_corners(im, rad, top_only=False, bottom_only=False):
     circle = Image.new('L', (rad * 2, rad * 2), 0)
     draw = ImageDraw.Draw(circle)
     draw.ellipse((0, 0, rad * 2, rad * 2), fill=255)
@@ -62,6 +63,7 @@ class Painter:
         self.drawtext = drawtext
         self.thief = ColorThief
         self.add_corners = add_corners
+        self.flags = json.loads(open(r'/home/runner/hosting601/assets/json/flags.json', 'r').read())
         self.invert = brightness_text # lmao
     
     def get_accent(self, image):
@@ -76,7 +78,10 @@ class Painter:
         } for i in thief]
 
     def usercard(self, roles, user, ava, bg):
-        name = user.name
+        name, flags, flag_x = user.name, [], 170
+        if user.premium_since!=None: flags.append(self.flags['nitro'])
+        for i in list(self.flags['badges'].keys()):
+            if getattr(user.public_flags, i): flags.append(self.flags['badges'][i])
         foreground_col = self.invert(bg)
         avatar = self.imagefromURL(ava).resize((100, 100))
         self.add_corners(avatar, round(avatar.width/2))
@@ -89,6 +94,10 @@ class Painter:
         margin_right, margin_left = main.width - 40, 40
         draw.text((170, 30), name, fill=foreground_col, font=self.getFont(self.fontpath, "Ubuntu-M", 50))
         draw.text((170, 80), f'ID: {user.id}', fill=foreground_col, font=self.getFont(self.fontpath, "Ubuntu-M", 25))
+        for i in flags:
+            temp_im = self.imagefromURL(i).resize((25, 25))
+            main.paste(temp_im, (flag_x, 115), temp_im)
+            flag_x += 30
         draw.text((40, 150), details_text, fill=foreground_col, font=self.getFont(self.fontpath, "Ubuntu-M", 25))
         for i in roles:
             draw.rectangle([
@@ -98,6 +107,7 @@ class Painter:
             rect_y_pos += 50
         try: main.paste(avatar, (40, 30), avatar)
         except: main.paste(avatar, (40, 30))
+        self.add_corners(main, 25)
         return self.buffer(main)
 
     def get_palette(self, data):
