@@ -110,10 +110,16 @@ class Painter:
         self.add_corners(main, 25)
         return self.buffer(main)
 
-    def get_palette(self, data):
+    def get_palette(self, temp_data):
         font = self.getFont(self.fontpath, 'Minecraftia-Regular', 30) 
         main = Image.new(mode='RGB', size=(1800, 500), color=(0, 0, 0))
         draw, loc = ImageDraw.Draw(main), 0
+        temp = sorted([round(sum((i['r'], i['g'], i['b']))/3) for i in temp_data])
+        data = []
+        for i in range(len(temp)):
+            for j in range(len(temp_data)):
+                calculation = round(sum((temp_data[j]['r'], temp_data[j]['g'], temp_data[j]['b']))/3)
+                if calculation==temp[i]: data.append(temp_data[j])
         for i in data:
             rgb = (i['r'], i['g'], i['b'])
             content = '#%02x%02x%02x' % rgb
