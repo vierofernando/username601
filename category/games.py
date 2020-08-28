@@ -483,7 +483,7 @@ class games(commands.Cog):
         try:
             corr = pb.pokemon(str(num)).name
         except Exception as e:
-            await wait.edit(content=str(self.client.get_emoji(BotEmotes.error)) + f' | An error occured! ```{e}```')
+            await wait.edit(content=str(self.client.get_emoji(BotEmotes.error)) + f' | An error occurred! ```{e}```')
         hint, attempt = 2, 10
         gameplay = True
         guy = ctx.message.author
@@ -554,7 +554,7 @@ class games(commands.Cog):
             for i in range(0, len(al)):
                 await wait.add_reaction(al[i])
         except Exception as e:
-            await wait.edit(content=str(self.client.get_emoji(BotEmotes.error)) + f' | An error occured!\nReport this using {prefix}feedback.\n```{e}```')
+            await wait.edit(content=str(self.client.get_emoji(BotEmotes.error)) + f' | An error occurred!\nReport this using {prefix}feedback.\n```{e}```')
         guy = ctx.message.author
         def check(reaction, user):
             return user == guy

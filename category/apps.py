@@ -88,7 +88,7 @@ class apps(commands.Cog):
                     embed.set_footer(text=f'Translated {LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}.')
                     await wait.edit(content='', embed=embed)
                 except Exception as e:
-                    await wait.edit(content=str(self.client.get_emoji(BotEmotes.error)) + f' | An error occured! ```py\n{e}```')
+                    await wait.edit(content=str(self.client.get_emoji(BotEmotes.error)) + f' | An error occurred! ```py\n{e}```')
             else:
                 await wait.edit(content=f'Please add a language! To have the list and their id, type\n`{prefix}translate --list`.')
         else:
@@ -181,7 +181,7 @@ class apps(commands.Cog):
                 embed.set_image(url=ia.get_movie_main(str(theID))['data']['cover url'])
                 await wait.edit(content='', embed=embed)
             except KeyError:
-                await wait.edit(content=str(self.client.get_emoji(BotEmotes.error)) + ' | An error occured!\n**Good news, we *may* fix it.**')
+                await wait.edit(content=str(self.client.get_emoji(BotEmotes.error)) + ' | An error occurred!\n**Good news, we *may* fix it.**')
                 errorQuick = discord.Embed(title=data['title'], colour=discord.Colour.from_rgb(201, 160, 112))
                 errorQuick.add_field(name='General Information', value=f'**IMDb URL: **{imdb_url}\n**Upload date: **{upload_date}')
 
