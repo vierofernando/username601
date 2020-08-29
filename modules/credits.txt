@@ -21,4 +21,5 @@ Fredrik Lundh - Creator of PIL/pillow Library
 
 CONTRIBUTORS:
 VeguiIzumi, nefomemes, Jovantri, WillolzCitron (Beta-testers)
-Norizon, 14ROVI (providing and helping with some parts of code)
+Norizon (providing and helping with some parts of code)
+flazepe (suggestions)
