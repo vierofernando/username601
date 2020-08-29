@@ -208,20 +208,43 @@ class Economy:
         except Exception as e:
             return None
     def getProfile(userid, guildMembersId):
-        data = database['economy'].find_one({'userid': int(userid)})
-        alldata = [i for i in database['economy'].find()]
-        bal_global_list = sorted([i['bal'] for i in alldata])[::-1]
-        bal_guild_list = sorted([i['bal'] for i in alldata if i['userid'] in guildMembersId])[::-1]
-        time_join_list = sorted([i['joinDate'] for i in alldata])
-        return {
-            'rank': str([i+1 for i in range(len(bal_guild_list)) if bal_guild_list[i]==data['bal']][0]),
-            'global': str([i+1 for i in range(len(bal_global_list)) if bal_global_list[i]==data['bal']][0]),
-            'desc': data['desc'],
-            'wallet': str(data['bal']),
-            'bank': str(data['bankbal']),
-            'joined': str(t.fromtimestamp(data['joinDate']))[:-7],
-            'number': str([i+1 for i in range(len(time_join_list)) if time_join_list[i]==data['joinDate']][0])
-        }
+        try:
+            data = database['economy'].find_one({'userid': int(userid)})
+            alldata = [i for i in database['economy'].find()]
+            bal_global_list = sorted([i['bal'] for i in alldata])[::-1]
+            bal_guild_list = sorted([i['bal'] for i in alldata if i['userid'] in guildMembersId])[::-1]
+            time_join_list = sorted([i['joinDate'] for i in alldata])
+            global_rank = str([i+1 for i in range(len(bal_global_list)) if bal_global_list[i]==data['bal']][0])
+            after_bal = [i for i in bal_global_list[::-1] if i > data['bal']][0]
+            return {
+                'main': {
+                    'rank': str([i+1 for i in range(len(bal_guild_list)) if bal_guild_list[i]==data['bal']][0]),
+                    'global': str(global_rank),
+                    'desc': data['desc'],
+                    'wallet': str(data['bal']),
+                    'bank': str(data['bankbal']),
+                    'joined': str(t.fromtimestamp(data['joinDate']))[:-7],
+                    'number': str([i+1 for i in range(len(time_join_list)) if time_join_list[i]==data['joinDate']][0])
+                },
+                'after': {
+                    'bal': str(after_bal),
+                    'delta': str(int(after_bal) - data['bal']),
+                    'nextrank': str(int(global_rank) - 1)
+                }
+            }
+        except:
+            return {
+                'main': {
+                    'rank': str([i+1 for i in range(len(bal_guild_list)) if bal_guild_list[i]==data['bal']][0]),
+                    'global': str(global_rank),
+                    'desc': data['desc'],
+                    'wallet': str(data['bal']),
+                    'bank': str(data['bankbal']),
+                    'joined': str(t.fromtimestamp(data['joinDate']))[:-7],
+                    'number': str([i+1 for i in range(len(time_join_list)) if time_join_list[i]==data['joinDate']][0])
+                },
+                'after': None
+            }
         
     def leaderboard(guildMembers):
         fetched, members = database['economy'].find(), [a.id for a in guildMembers]

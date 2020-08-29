@@ -76,6 +76,18 @@ def get_multiple_color_accents(thief, image):
     return [{
         'r': i[0], 'g': i[1], 'b': i[2]
     } for i in thief]
+def process(text, font, width):
+    res, temp = [], []
+    for i in text.split():
+        data = font.getsize(' '.join(temp))[0]
+        if data < width:
+            temp.append(i)
+            continue
+        res.append(' '.join(temp))
+        temp = []
+    if res==[]: res = [text]
+    return '\n'.join(res)
+
 
 class Painter:
 
@@ -92,6 +104,7 @@ class Painter:
         self.drawtext = drawtext
         self.draw_status_stats = draw_status_stats
         self.thief = ColorThief
+        self.process_text = process
         self.add_corners = add_corners
         self.flags = json.loads(open(r'/home/runner/hosting601/assets/json/flags.json', 'r').read())
         self.region = json.loads(open(r'/home/runner/hosting601/assets/json/regions.json', 'r').read())
@@ -102,19 +115,22 @@ class Painter:
     def get_multiple_accents(self, image): return self.get_multiple_color_accents(self.thief, image)
 
     def server(self, guild):
+        bigfont = self.getFont(self.fontpath, 'Ubuntu-M', 50)
+        medium = self.getFont(self.fontpath, 'Ubuntu-M', 20)
+        smolerfont = self.getFont(self.fontpath, 'Ubuntu-M', 15)
         server_title, members = guild.name, guild.members
-        title_width = self.getFont(self.fontpath, 'Ubuntu-M', 50).getsize(server_title)[0]
+        title_width = bigfont.getsize(server_title)[0]
         ava = self.imagefromURL(guild.icon_url).resize((100, 100))
         bg_arr = [(i['r'], i['g'], i['b']) for i in self.get_multiple_accents(guild.icon_url)]
-        desc_width = self.getFont(self.fontpath, 'Ubuntu-M', 20).getsize('Created {} ago by {}'.format(myself.time_encode(t.now().timestamp() - guild.created_at.timestamp()), str(guild.owner)))[0]
+        desc_width = medium.getsize('Created {} ago by {}'.format(myself.time_encode(t.now().timestamp() - guild.created_at.timestamp()), str(guild.owner)))[0]
         if desc_width > title_width: title_width = desc_width # :^)
         main_bg = bg_arr[0]
         margin_left, margin_right, rect_y_cursor = 25, title_width+225, 150
         main = Image.new(mode='RGB', color=main_bg, size=(title_width+250, 480))
         draw, a_third_width = ImageDraw.Draw(main), round((margin_right - margin_left)/3)
         main.paste(ava, (25, 25))
-        draw.text((135, 25), server_title, fill=self.invert(main_bg), font=self.getFont(self.fontpath, 'Ubuntu-M', 50))
-        draw.text((135, 80), 'Created {} ago by {}'.format(myself.time_encode(t.now().timestamp() - guild.created_at.timestamp()), str(guild.owner)), fill=self.invert(main_bg), font=self.getFont(self.fontpath, 'Ubuntu-M', 20))
+        draw.text((135, 25), server_title, fill=self.invert(main_bg), font=bigfont)
+        draw.text((135, 80), 'Created {} ago by {}'.format(myself.time_encode(t.now().timestamp() - guild.created_at.timestamp()), str(guild.owner)), fill=self.invert(main_bg), font=medium)
         online, total = 200, 1000
         green_width = round(online/total*margin_right)
         rect_y_cursor = self.draw_status_stats(draw, {
@@ -123,7 +139,7 @@ class Painter:
             "do not disturb": len([i for i in members if i.status.value.lower()=='dnd']),
             "streaming": len([i for i in members if i.status.value.lower()=='streaming']),
             "offline": len([i for i in members if i.status.value.lower()=='offline'])
-        }, rect_y_cursor, self.getFont(self.fontpath, 'Ubuntu-M', 15), margin_left, margin_right, bg_arr)
+        }, rect_y_cursor, smolerfont, margin_left, margin_right, bg_arr)
         draw.rectangle([
             (margin_left, rect_y_cursor), (main.width/2, rect_y_cursor + 120)
         ], fill=bg_arr[2])
@@ -137,17 +153,17 @@ class Painter:
         )
         draw.text((margin_left + 10, rect_y_cursor + 10), "Channels: {}\nRoles: {}\nLevel {}\n{} boosters".format(
             len(guild.channels), len(guild.roles), guild.premium_tier, guild.premium_subscription_count
-        ), fill=self.invert(bg_arr[2]), font=self.getFont(self.fontpath, 'Ubuntu-M', 20))
+        ), fill=self.invert(bg_arr[2]), font=medium)
         draw.text(((main.width/2) + 10, rect_y_cursor + 10), "Region: {}\nAFK: {}\nAFK time: {}".format(
             str(guild.region).replace('-', ''), afkname, myself.time_encode(guild.afk_timeout).replace('minute', 'min')
-        ), fill=self.invert(bg_arr[3]), font=self.getFont(self.fontpath, 'Ubuntu-M', 20))
+        ), fill=self.invert(bg_arr[3]), font=medium)
         rect_y_cursor += 120
         draw.rectangle([
             (margin_left, rect_y_cursor), (margin_right, rect_y_cursor + 90)
         ], fill=bg_arr[4])
         draw.text((margin_left + 10, rect_y_cursor + 10), "{} Humans\n{} Bots\n{} Members in total".format(
             len([i for i in members if not i.bot]), len([i for i in members if i.bot]), len(members)
-        ), fill=self.invert(bg_arr[4]), font=self.getFont(self.fontpath, 'Ubuntu-M', 20))
+        ), fill=self.invert(bg_arr[4]), font=medium)
         self.add_corners(main, 25)
         return self.buffer(main)
 
@@ -269,25 +285,46 @@ class Painter:
         self.add_corners(main, 25)
         return self.buffer(main)
     
-    def profile(self, url, user, details):
-        avatar = self.imagefromURL(url).resize((253, 250))
-        template = self.getImage(self.assetpath, 'template.png')
-        draw = ImageDraw.Draw(template)
-        draw.text((295,60), user.name, fill='white', font=self.getFont(self.fontpath, 'Helvetica', 80), align ="left")
-        draw.text((295,140), f"ID: {user.id}", fill='white', font=self.getFont(self.fontpath, 'Helvetica', 30), align ="left")
-        draw.text((295,180), "Rank: "+details['rank'], fill='white', font=self.getFont(self.fontpath, 'Helvetica', 30), align ="left")
-        draw.text((295,220), "Global Rank: "+details['global'], fill='white', font=self.getFont(self.fontpath, 'Helvetica', 30), align ="left")
-    
-        draw.text((156,348), "Joined since "+details['joined'], fill='white', font=self.getFont(self.fontpath, 'Helvetica', 30), align ="left")
-        draw.text((156,388), "User number "+details['number'], fill='white', font=self.getFont(self.fontpath, 'Helvetica', 30), align ="left")
-    
-        draw.text((156,477), "Wallet balance: "+details['wallet']+" Diamonds", fill='white', font=self.getFont(self.fontpath, 'Helvetica', 30), align ="left")
-        draw.text((156,517), "Bank balance: "+details['bank']+" Diamonds", fill='white', font=self.getFont(self.fontpath, 'Helvetica', 30), align ="left")
-        draw.text((156,608), details['desc'], fill='white', font=self.getFont(self.fontpath, 'Helvetica', 54), align ="left")
-        canvas = Image.new(mode='RGB', size=template.size, color=(0,0,0))
-        canvas.paste(avatar, (32, 42))
-        canvas.paste(template, (0, 0), template)
-        return self.buffer(canvas)
+    def profile(self, username, avatar, details, after):
+        # yanderedev was here
+        ava, ava_col = self.imagefromURL(avatar).resize((100, 100)), [(i['r'], i['g'], i['b']) for i in self.get_multiple_accents(avatar)]
+        font, smolfont, smolerfont = self.getFont(self.fontpath, "Ubuntu-M", 50), self.getFont(self.fontpath, "Ubuntu-M", 20), self.getFont(self.fontpath, "Ubuntu-M", 15)
+        name = username
+        data = font.getsize(name)[0]
+        if data < 324: data = 324
+        margin_left, margin_right = 50, data + 200
+        bg, fg = ava_col[0], self.invert(ava_col[0])
+        main = Image.new(mode='RGB', color=bg, size=(margin_right+50, 450))
+        main.paste(ava, (50, 50))
+        draw = ImageDraw.Draw(main)
+        draw.text((170, 45), name, font=font, fill=fg)
+        draw.text((170, 100), 'Joined since {}\n(order {})'.format(details['joined'], details['number']), fill=fg, font=smolfont)
+        bal = str(int(details['wallet'])+int(details['bank']))+" Diamonds"
+        draw.rectangle([(margin_left, 180), (margin_right, 240)], fill=ava_col[8])
+        res_text = self.process_text(details['desc'], smolfont, (margin_right - 180) - 2)
+        draw.rectangle([(margin_left, 240), (margin_right, 270)], fill=ava_col[3])
+        draw.text((round((main.width - smolfont.getsize(bal)[0])/2), 243), bal, fill=self.invert(ava_col[3]), font=smolfont)
+        draw.rectangle([(margin_left, 270), (round(main.width/2), 310)], fill=ava_col[1])
+        draw.rectangle([(round(main.width/2), 270), (margin_right, 310)], fill=ava_col[2])
+        draw.text((margin_left + 7, 277), details['wallet']+" at wallet", font=smolfont, fill=self.invert(ava_col[1]))
+        draw.text((round(main.width/2) + 7, 277), details['bank']+" at bank", font=smolfont, fill=self.invert(ava_col[2]))
+        draw.rectangle([(round(main.width/2), 310), (margin_right, 350)], fill=ava_col[4])
+        draw.rectangle([(margin_left, 310), (round(main.width/2), 350)], fill=ava_col[5])
+        draw.text((margin_left + 7, 317), "Local Rank #"+details['rank'], font=smolfont, fill=self.invert(ava_col[4]))
+        draw.text((round(main.width/2) + 7, 317), "Global Rank #"+details['global'], font=smolfont, fill=self.invert(ava_col[5]))
+        draw.text((margin_left + 3, 183), res_text, fill=self.invert(ava_col[8]), font=smolfont)
+        if after!=None:
+            draw.rectangle([(margin_left, 350), (margin_right, 370)], fill=ava_col[6])
+            draw.rectangle([(margin_left, 370), (margin_right, 400)], fill=(100, 100, 100))
+            try:
+                now, next = int(details['wallet']), int(after['bal'])
+                percentage = round(now/next*margin_right)
+            except ZeroDivisionError:
+                percentage = margin_right
+            draw.rectangle([(margin_left, 370), (percentage, 400)], fill=(0, 255, 0))
+            draw.text((margin_left + 2, 352), after['delta']+" Diamonds left before reaching next rank ("+after['nextrank']+")", font=smolerfont, fill=self.invert(ava_col[6]))
+        self.add_corners(main, 25)
+        return self.buffer(main)
     
     def evol(self, url):
         ava, img = self.imagefromURL(url).resize((77, 69)), self.getImage(self.assetpath, "evol.jpg")

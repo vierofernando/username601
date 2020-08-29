@@ -330,7 +330,9 @@ class economy(commands.Cog):
         if Economy.get(src.id)==None:
             raise myself.noProfile()
         else:
-            img = self.canvas.profile(ava, src, Economy.getProfile(src.id, [i.id for i in ctx.guild.members if not i.bot]))
+            data = Economy.getProfile(src.id, [i.id for i in ctx.guild.members if not i.bot])
+            bfr, aft = data['main'], data['after']
+            img = self.canvas.profile(src.name, ava, bfr, aft)
             await wait.delete()
             await ctx.send(file=discord.File(img, 'profile.png'))
     
