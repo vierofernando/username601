@@ -129,8 +129,8 @@ class Painter:
         main = Image.new(mode='RGB', color=main_bg, size=(title_width+250, 480))
         draw, a_third_width = ImageDraw.Draw(main), round((margin_right - margin_left)/3)
         main.paste(ava, (25, 25))
-        draw.text((135, 25), server_title, fill=self.invert(main_bg), font=bigfont)
-        draw.text((135, 80), 'Created {} ago by {}'.format(myself.time_encode(t.now().timestamp() - guild.created_at.timestamp()), str(guild.owner)), fill=self.invert(main_bg), font=medium)
+        draw.text((135, 20), server_title, fill=self.invert(main_bg), font=bigfont)
+        draw.text((135, 90), 'Created {} ago by {}'.format(myself.time_encode(t.now().timestamp() - guild.created_at.timestamp()), str(guild.owner)), fill=self.invert(main_bg), font=medium)
         online, total = 200, 1000
         green_width = round(online/total*margin_right)
         rect_y_cursor = self.draw_status_stats(draw, {
@@ -149,7 +149,7 @@ class Painter:
         afkname = "???" if guild.afk_channel==None else guild.afk_channel.name
         main.paste(
             self.imagefromURL(self.region[str(guild.region)]).resize((35, 23)),
-            (round(main.width/2) + 10, round(rect_y_cursor + 23 + (18 * 3)))
+            (margin_right - 45, round(rect_y_cursor + 25 + (18 * 3)))
         )
         draw.text((margin_left + 10, rect_y_cursor + 10), "Channels: {}\nRoles: {}\nLevel {}\n{} boosters".format(
             len(guild.channels), len(guild.roles), guild.premium_tier, guild.premium_subscription_count
@@ -167,9 +167,9 @@ class Painter:
         self.add_corners(main, 25)
         return self.buffer(main)
 
-    def usercard(self, roles, user, ava, bg):
+    def usercard(self, roles, user, ava, bg, nitro):
         name, flags, flag_x = user.name, [], 170
-        if user.premium_since!=None: flags.append(self.flags['nitro'])
+        if nitro: flags.append(self.flags['nitro'])
         for i in list(self.flags['badges'].keys()):
             if getattr(user.public_flags, i): flags.append(self.flags['badges'][i])
         foreground_col = self.invert(bg)
@@ -182,7 +182,7 @@ class Painter:
         else: main = Image.new(mode='RGB', color=bg, size=(600, canvas_height))
         draw = ImageDraw.Draw(main)
         margin_right, margin_left = main.width - 40, 40
-        draw.text((170, 30), name, fill=foreground_col, font=self.getFont(self.fontpath, "Ubuntu-M", 50))
+        draw.text((170, 20), name, fill=foreground_col, font=self.getFont(self.fontpath, "Ubuntu-M", 50))
         draw.text((170, 80), f'ID: {user.id}', fill=foreground_col, font=self.getFont(self.fontpath, "Ubuntu-M", 25))
         for i in flags:
             temp_im = self.imagefromURL(i).resize((25, 25))
@@ -224,7 +224,8 @@ class Painter:
         av = self.imagefromURL(obj['url']).resize(obj['size'])
         bg = self.getImage(self.assetpath, obj['filename'].lower())
         cnv = Image.new(mode='RGB', color=(0,0,0), size=bg.size)
-        cnv.paste(av, obj['pos'])
+        try: cnv.paste(av, obj['pos'], av)
+        except: cnv.paste(av, obj['pos'])
         cnv.paste(bg, (0,0), bg)
         return self.buffer(cnv)
     
@@ -500,7 +501,8 @@ class GifGenerator:
             gi.seek(i)
             cnv = Image.new(mode='RGB', color=(0,0,0), size=gi.size)
             cnv.paste(gi, (0,0))
-            cnv.paste(im, (303, 7))
+            try: cnv.paste(im, (303, 7), im)
+            except: cnv.paste(im, (303, 7))
             images.append(cnv)
         return self.bufferGIF(images, 5)
 

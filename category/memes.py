@@ -265,7 +265,7 @@ class memes(commands.Cog):
         async with ctx.message.channel.typing():
             ava = myself.getUserAvatar(ctx, args)
             if 'wanted' in ctx.message.content: size, pos = (547, 539), (167, 423)
-            elif 'ferbtv' in ctx.message.content: size, pos = (362, 278), (63, 187)
+            elif 'ferbtv' in ctx.message.content: size, pos = (362, 278), (364, 189)
             elif 'chatroulette' in ctx.message.content: size, pos = (324, 243), (14, 345)
             elif 'frame' in ctx.message.content: size, pos, ava = (1025, 715), (137, 141), str(ava).replace("=512", "=1024")
             if 'art' not in ctx.message.content: image = self.canvas.merge({
@@ -303,8 +303,7 @@ class memes(commands.Cog):
     async def captcha(self, ctx, *args):
         async with ctx.message.channel.typing():
             capt = 'username601' if len(list(args))==0 else ' '.join(list(args))
-            data = self.client.api.captcha({ 'text': capt })
-            await ctx.send(file=discord.File(data, 'captcha.png'))
+            await ctx.send(file=discord.File(self.canvas.urltoimage('https://useless-api.vierofernando.repl.co/captcha?text={}'.format(capt)), 'captcha.png'))
 
     @command('baby,clint,wolverine,disgusting,f,studying,starvstheforcesof')
     @cooldown(10)

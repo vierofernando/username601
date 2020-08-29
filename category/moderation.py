@@ -465,12 +465,14 @@ class moderation(commands.Cog):
     @command('ui,user,usercard,user-info,user-card')
     @cooldown(5) # roles user ava bg
     async def userinfo(self, ctx, *args):
-        guy, ava = myself.getUser(ctx, args), myself.getUserAvatar(ctx, args)
+        guy, ava, nitro = myself.getUser(ctx, args), myself.getUserAvatar(ctx, args), False
         async with ctx.message.channel.typing():
+            if guy.id in [i.id for i in ctx.guild.premium_subscribers]: nitro = True
+            elif guy.is_avatar_animated(): nitro = True
             bg_col = tuple(self.canvas.get_accent(ava))
             data = self.canvas.usercard([{
                 'name': i.name, 'color': i.color.to_rgb()
-            } for i in guy.roles][::-1][0:5], guy, ava, bg_col)
+            } for i in guy.roles][::-1][0:5], guy, ava, bg_col, nitro)
             await ctx.send(file=discord.File(data, str(guy.discriminator)+'.png'))
 
     @command('av,ava')
