@@ -7,7 +7,9 @@ import json
 import random
 from colorthief import ColorThief
 
-def getFont(fontpath, fontname, size): return ImageFont.truetype(f'{fontpath}{fontname}.ttf', size)
+def getFont(fontpath, fontname, size, otf=False):
+    ext = 'ttf' if not otf else 'otf'
+    return ImageFont.truetype(f'{fontpath}{fontname}.{ext}', size)
 def getImage(assetpath, imageName): return Image.open(f'{assetpath}{imageName}')
 def imagefromURL(url, stream=False): return Image.open(BytesIO(get(url, stream=stream).content))
 def bufferGIF(images, duration, optimize=False):
@@ -115,9 +117,9 @@ class Painter:
     def get_multiple_accents(self, image): return self.get_multiple_color_accents(self.thief, image)
 
     def server(self, guild):
-        bigfont = self.getFont(self.fontpath, 'Ubuntu-M', 50)
-        medium = self.getFont(self.fontpath, 'Ubuntu-M', 20)
-        smolerfont = self.getFont(self.fontpath, 'Ubuntu-M', 15)
+        bigfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 50, otf=True)
+        medium = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 20, otf=True)
+        smolerfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 15, otf=True)
         server_title, members = guild.name, guild.members
         title_width = bigfont.getsize(server_title)[0]
         ava = self.imagefromURL(guild.icon_url).resize((100, 100))
@@ -151,17 +153,17 @@ class Painter:
             self.imagefromURL(self.region[str(guild.region)]).resize((35, 23)),
             (margin_right - 45, round(rect_y_cursor + 25 + (18 * 3)))
         )
-        draw.text((margin_left + 10, rect_y_cursor + 10), "Channels: {}\nRoles: {}\nLevel {}\n{} boosters".format(
+        draw.text((margin_left + 5, rect_y_cursor + 5), "Channels: {}\nRoles: {}\nLevel {}\n{} boosters".format(
             len(guild.channels), len(guild.roles), guild.premium_tier, guild.premium_subscription_count
         ), fill=self.invert(bg_arr[2]), font=medium)
-        draw.text(((main.width/2) + 10, rect_y_cursor + 10), "Region: {}\nAFK: {}\nAFK time: {}".format(
+        draw.text(((main.width/2) + 5, rect_y_cursor + 5), "Region: {}\nAFK: {}\nAFK time: {}".format(
             str(guild.region).replace('-', ''), afkname, myself.time_encode(guild.afk_timeout).replace('minute', 'min')
         ), fill=self.invert(bg_arr[3]), font=medium)
         rect_y_cursor += 120
         draw.rectangle([
             (margin_left, rect_y_cursor), (margin_right, rect_y_cursor + 90)
         ], fill=bg_arr[4])
-        draw.text((margin_left + 10, rect_y_cursor + 10), "{} Humans\n{} Bots\n{} Members in total".format(
+        draw.text((margin_left + 5, rect_y_cursor + 5), "{} Humans\n{} Bots\n{} Members in total".format(
             len([i for i in members if not i.bot]), len([i for i in members if i.bot]), len(members)
         ), fill=self.invert(bg_arr[4]), font=medium)
         self.add_corners(main, 25)
@@ -169,6 +171,8 @@ class Painter:
 
     def usercard(self, roles, user, ava, bg, nitro):
         name, flags, flag_x = user.name, [], 170
+        bigfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 50, otf=True)
+        mediumfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 25, otf=True)
         if nitro: flags.append(self.flags['nitro'])
         for i in list(self.flags['badges'].keys()):
             if getattr(user.public_flags, i): flags.append(self.flags['badges'][i])
@@ -176,24 +180,24 @@ class Painter:
         avatar = self.imagefromURL(ava).resize((100, 100))
         self.add_corners(avatar, round(avatar.width/2))
         details_text = 'Created account {}\nJoined server {}'.format(myself.time_encode(t.now().timestamp()-user.created_at.timestamp())+' ago', myself.time_encode(t.now().timestamp()-user.joined_at.timestamp())+' ago')
-        rect_y_pos = 180 + ((self.getFont(self.fontpath, "Ubuntu-M", 50).getsize(details_text)[1]+20))
+        rect_y_pos = 180 + ((bigfont.getsize(details_text)[1]+20))
         canvas_height = rect_y_pos + len(roles * 50) + 30
-        if self.getFont(self.fontpath, "Ubuntu-M", 50).getsize(name)[0] > 600: main = Image.new(mode='RGB', color=bg, size=(self.getFont(self.fontpath, 'Ubuntu-M', 50).getsize(name)[0]+200, canvas_height))
+        if bigfont.getsize(name)[0] > 600: main = Image.new(mode='RGB', color=bg, size=(bigfont.getsize(name)[0]+200, canvas_height))
         else: main = Image.new(mode='RGB', color=bg, size=(600, canvas_height))
         draw = ImageDraw.Draw(main)
         margin_right, margin_left = main.width - 40, 40
-        draw.text((170, 20), name, fill=foreground_col, font=self.getFont(self.fontpath, "Ubuntu-M", 50))
-        draw.text((170, 80), f'ID: {user.id}', fill=foreground_col, font=self.getFont(self.fontpath, "Ubuntu-M", 25))
+        draw.text((170, 20), name, fill=foreground_col, font=bigfont)
+        draw.text((170, 80), f'ID: {user.id}', fill=foreground_col, font=mediumfont)
         for i in flags:
             temp_im = self.imagefromURL(i).resize((25, 25))
             main.paste(temp_im, (flag_x, 115), temp_im)
             flag_x += 30
-        draw.text((40, 150), details_text, fill=foreground_col, font=self.getFont(self.fontpath, "Ubuntu-M", 25))
+        draw.text((40, 150), details_text, fill=foreground_col, font=mediumfont)
         for i in roles:
             draw.rectangle([
                 (margin_left, rect_y_pos), (margin_right, rect_y_pos+50)
             ], fill=i['color'])
-            draw.text((margin_left+10, rect_y_pos+10), i['name'], fill=self.invert(i['color']), font=self.getFont(self.fontpath, "Ubuntu-M", 25))
+            draw.text((margin_left+10, rect_y_pos+10), i['name'], fill=self.invert(i['color']), font=mediumfont)
             rect_y_pos += 50
         try: main.paste(avatar, (40, 30), avatar)
         except: main.paste(avatar, (40, 30))
@@ -273,14 +277,14 @@ class Painter:
         ])[::-1][0]][0]
         ava, bg = self.imagefromURL(url).resize((100, 100)), self.get_color_accent(self.thief, url)
         fg = self.invert(bg)
-        big_font, smol_font = self.getFont(self.fontpath, "Ubuntu-M", 50), self.getFont(self.fontpath, "Ubuntu-M", 17)
+        big_font, smol_font = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 50, otf=True), self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 17, otf=True)
         longest_font_width = smol_font.getsize(longest_word)[0] if longest_word!=details['name'] else big_font.getsize(details['name'])[0]   
         if longest_font_width < 300: longest_font_width = 300
         main = Image.new(mode='RGB', color=bg, size=(longest_font_width+275, 140))
         self.add_corners(ava, 50)
         main.paste(ava, (20, 20))
         draw = ImageDraw.Draw(main)
-        draw.text((145, 15), details['name'], fill=fg, font=big_font)
+        draw.text((145, 9), details['name'], fill=fg, font=big_font)
         draw.text((145, 70), details['artist'], fill=fg, font=smol_font)
         draw.text((145, 92), details['album'], fill=fg, font=smol_font)
         self.add_corners(main, 25)
@@ -289,7 +293,7 @@ class Painter:
     def profile(self, username, avatar, details, after):
         # yanderedev was here
         ava, ava_col = self.imagefromURL(avatar).resize((100, 100)), [(i['r'], i['g'], i['b']) for i in self.get_multiple_accents(avatar)]
-        font, smolfont, smolerfont = self.getFont(self.fontpath, "Ubuntu-M", 50), self.getFont(self.fontpath, "Ubuntu-M", 20), self.getFont(self.fontpath, "Ubuntu-M", 15)
+        font, smolfont, smolerfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 50, otf=True), self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 20, otf=True), self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 15, otf=True)
         name = username
         data = font.getsize(name)[0]
         if data < 324: data = 324
@@ -298,13 +302,13 @@ class Painter:
         main = Image.new(mode='RGB', color=bg, size=(margin_right+50, 450))
         main.paste(ava, (50, 50))
         draw = ImageDraw.Draw(main)
-        draw.text((170, 45), name, font=font, fill=fg)
+        draw.text((170, 33), name, font=font, fill=fg)
         draw.text((170, 100), 'Joined since {}\n(order {})'.format(details['joined'], details['number']), fill=fg, font=smolfont)
         bal = str(int(details['wallet'])+int(details['bank']))+" Diamonds"
         draw.rectangle([(margin_left, 180), (margin_right, 240)], fill=ava_col[8])
         res_text = self.process_text(details['desc'], smolfont, (margin_right - 180) - 2)
         draw.rectangle([(margin_left, 240), (margin_right, 270)], fill=ava_col[3])
-        draw.text((round((main.width - smolfont.getsize(bal)[0])/2), 243), bal, fill=self.invert(ava_col[3]), font=smolfont)
+        draw.text((round((main.width - smolfont.getsize(bal)[0])/2), 239), bal, fill=self.invert(ava_col[3]), font=smolfont)
         draw.rectangle([(margin_left, 270), (round(main.width/2), 310)], fill=ava_col[1])
         draw.rectangle([(round(main.width/2), 270), (margin_right, 310)], fill=ava_col[2])
         draw.text((margin_left + 7, 277), details['wallet']+" at wallet", font=smolfont, fill=self.invert(ava_col[1]))
@@ -323,7 +327,7 @@ class Painter:
             except ZeroDivisionError:
                 percentage = margin_right
             draw.rectangle([(margin_left, 370), (percentage, 400)], fill=(0, 255, 0))
-            draw.text((margin_left + 2, 352), after['delta']+" Diamonds left before reaching next rank ("+after['nextrank']+")", font=smolerfont, fill=self.invert(ava_col[6]))
+            draw.text((margin_left + 2, 349), after['delta']+" Diamonds left before reaching next rank ("+after['nextrank']+")", font=smolerfont, fill=self.invert(ava_col[6]))
         self.add_corners(main, 25)
         return self.buffer(main)
     
