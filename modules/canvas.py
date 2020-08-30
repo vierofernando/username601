@@ -304,7 +304,7 @@ class Painter:
         draw = ImageDraw.Draw(main)
         draw.text((170, 33), name, font=font, fill=fg)
         draw.text((170, 100), 'Joined since {}\n(order {})'.format(details['joined'], details['number']), fill=fg, font=smolfont)
-        bal = str(int(details['wallet'])+int(details['bank']))+" Diamonds"
+        bal = details['wallet']+" Diamonds"
         draw.rectangle([(margin_left, 180), (margin_right, 240)], fill=ava_col[8])
         res_text = self.process_text(details['desc'], smolfont, (margin_right - 180) - 2)
         draw.rectangle([(margin_left, 240), (margin_right, 270)], fill=ava_col[3])
@@ -324,6 +324,7 @@ class Painter:
             try:
                 now, next = int(details['wallet']), int(after['bal'])
                 percentage = round(now/next*margin_right)
+                if percentage < margin_left: percentage = margin_left
             except ZeroDivisionError:
                 percentage = margin_right
             draw.rectangle([(margin_left, 370), (percentage, 400)], fill=(0, 255, 0))
