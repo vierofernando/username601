@@ -287,7 +287,7 @@ class utils(commands.Cog):
             embed.set_thumbnail(url=data['image'])
             embed.set_image(url='attachment://country.png')
             return await ctx.send(file=file, embed=embed)
-        except
+        except:
             return await ctx.send('{} | Country not found!'.format(self.client.get_emoji(BotEmotes.error)))
 
     @command()
