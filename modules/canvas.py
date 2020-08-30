@@ -89,7 +89,30 @@ def process(text, font, width):
         temp = []
     if res==[]: res = [text]
     return '\n'.join(res)
-
+def char_process(text, width, font):
+    res = []
+    temp = ""
+    for i in list(text):
+        temp += i
+        if font.getsize(temp)[0] < width:
+            continue
+        res.append(temp)
+        temp = ""
+    if len(''.join(res)) != len(text):
+        res.append(temp)
+    if res ==[]: return ''.join(temp)
+    return '\n'.join(res)
+def toLocaleString(a): # sike javascriptors ;)
+    res = ''
+    num = 0
+    for i in list(a)[::-1]:
+        res += i
+        if num > 1:
+            num = -1
+            res += ','
+        num += 1
+    if res[::-1].startswith(','): res = res[:-1]
+    return res[::-1]
 
 class Painter:
 
@@ -108,6 +131,8 @@ class Painter:
         self.thief = ColorThief
         self.process_text = process
         self.add_corners = add_corners
+        self.char_process = char_process
+        self.toLocaleString = toLocaleString
         self.flags = json.loads(open(r'/home/runner/hosting601/assets/json/flags.json', 'r').read())
         self.region = json.loads(open(r'/home/runner/hosting601/assets/json/regions.json', 'r').read())
         self.get_multiple_color_accents = get_multiple_color_accents
@@ -115,6 +140,47 @@ class Painter:
     
     def get_accent(self, image): return self.get_color_accent(self.thief, image)
     def get_multiple_accents(self, image): return self.get_multiple_color_accents(self.thief, image)
+
+    def country(self, query):
+        bigfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 35, otf=True)
+        smolfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 25, otf=True)
+        smolerfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 20, otf=True)
+        data = get('https://restcountries.eu/rest/v2/name/'+query).json()[0]
+        length = bigfont.getsize(data['name'])[0] + 200
+        flagid, flagnotfound = data['alpha2Code'].lower(), False
+        try: cf = [(
+            i['r'], i['g'], i['b']
+        ) for i in self.get_multiple_accents("https://www.worldometers.info/img/flags/"+flagid+"-flag.gif")]
+        except: flagnotfound = True
+        size = (length, 400)
+        if flagnotfound:
+            cf = [(0,0,0) for i in range(5)]
+        main = Image.new('RGB', color=(0,0,0), size=size)
+        draw = ImageDraw.Draw(main)
+        margin_right, margin_left = main.width, 0
+        draw.rectangle([
+            (margin_left, 0), (margin_right, 50) # nice.
+        ], fill=cf[0])
+        draw.text((margin_left+5, 0), data['name'], font=bigfont, fill=self.invert(cf[0]))
+        draw.rectangle([
+            (margin_left, 50), (margin_right, 81)
+        ], fill=cf[1])
+        draw.text((margin_left+5, 45), data['nativeName'], font=smolfont, fill=self.invert(cf[1]))
+        draw.rectangle([
+            (margin_left, 81), (main.width, 400)
+        ], fill=cf[2])
+        capital = '<not avaliable>' if data['capital']=='' else data['capital']
+        draw.text((margin_left+5, 78), self.char_process('Capital: '+capital, main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
+        draw.text((margin_left+5, 103), self.char_process('Region: '+data['region'], main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
+        draw.text((margin_left+5, 128), self.char_process('Subregion: '+data['subregion'], main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
+        draw.text((margin_left+5, 153), self.char_process('Population: '+self.toLocaleString(str(data['population'])), main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
+        draw.text((margin_left+5, 178), self.char_process('Area: '+self.toLocaleString(str(round(data['area'])))+' km', main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
+        draw.text((margin_left+5, 203), self.char_process('Timezones: '+', '.join(data['timezones']), main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
+        return {
+            'buffer': self.buffer(main),
+            'color': cf[0],
+            'image': "https://google.com/" if flagnotfound else "https://www.worldometers.info/img/flags/"+flagid+"-flag.gif"
+        }
 
     def server(self, guild):
         bigfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 50, otf=True)

@@ -274,20 +274,21 @@ class utils(commands.Cog):
         except:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Error; profile not found!")
 
-    @command()
+    @command('nation')
     @cooldown(5)
     async def country(self, ctx, *args):
-        country = myself.urlify(' '.join(list(args)))
-        c = myself.api("https://restcountries.eu/rest/v2/name/"+str(country.lower()))
-        if len(c[0]['borders'])==0: borderz = 'No borders.'
-        else: borderz = myself.dearray(c[0]['borders'])
-        embed = discord.Embed(
-            title = c[0]['nativeName'],
-            description = '**Capital:** '+str(c[0]['capital'])+'\n**Region: **'+str(c[0]['region'])+'\n**Sub Region: **'+str(c[0]['subregion'])+"\n**Population: **"+str(c[0]['population'])+"\n**Area: **"+str(c[0]['area'])+' km²\n**Time Zones:** '+str(myself.dearray(c[0]['timezones']))+'\n**Borders: **'+str(borderz),
-            colour = discord.Colour.from_rgb(201, 160, 112)
-        )
-        embed.set_author(name=c[0]['name'])
-        await ctx.send(embed=embed)
+        try:
+            country = myself.urlify(' '.join(list(args)))
+            data = self.canvas.country(country)
+            file = discord.File(data['buffer'], 'country.png')
+            embed = discord.Embed(title=' '.join(list(args)), color=discord.Color.from_rgb(
+                data['color'][0], data['color'][1], data['color'][2]
+            ))
+            embed.set_thumbnail(url=data['image'])
+            embed.set_image(url='attachment://country.png')
+            return await ctx.send(file=file, embed=embed)
+        except
+            return await ctx.send('{} | Country not found!'.format(self.client.get_emoji(BotEmotes.error)))
 
     @command()
     @cooldown(1)
