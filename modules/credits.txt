@@ -23,3 +23,4 @@ CONTRIBUTORS:
 VeguiIzumi, nefomemes, Jovantri, WillolzCitron (Beta-testers)
 Norizon (providing and helping with some parts of code)
 flazepe (suggestions)
+14ROVI (providing the font that supports unicode and doesn't look shit)
