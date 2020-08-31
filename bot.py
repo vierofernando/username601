@@ -24,9 +24,7 @@ import random
 import asyncio
 
 # DECLARATION AND STUFF
-client = commands.Bot(command_prefix=(
-    Config.prefix, f'<@{Config.id}> ', f'<@!{Config.id}> ', f'<@{Config.id}>', f'<@!{Config.id}>'
-))
+client = commands.Bot(command_prefix=Config.prefix)
 client.remove_command('help')
 bot_status = cycle(myself.getStatus())
 
@@ -169,13 +167,13 @@ async def on_command_error(ctx, error):
         await client.get_channel(Config.SupportServer.feedback).send(content=f'<@{Config.owner.id}> there was an error!', embed=discord.Embed(
             title='Error', color=discord.Colour.red(), description=f'Content:\n```{ctx.message.content}```\n\nError:\n```{str(error)}```'
         ).set_footer(text='Bug made by user: {} (ID of {})'.format(str(ctx.author), ctx.author.id)))
-        await ctx.send('There was an error. Error reported to the developer! sorry for the inconvenience...')
+        await ctx.send('There was an error. Error reported to the developer! sorry for the inconvenience...', delete_after=3)
 
 @client.event
 async def on_message(message):
-    # THESE TWO IF STATEMENTS ARE JUST FOR ME ON THE SUPPORT SERVER CHANNEL. YOU CAN DELETE THESE TWO.
-    if message.channel.id==700040209705861120: await message.author.add_roles(message.guild.get_role(700042707468550184))
-    if message.channel.id==724454726908772373: await message.author.add_roles(message.guild.get_role(701586228000325733))
+    if isdblvote(message.author) or message.guild==None: return
+    if message.content.startswith(f'<@{Config.id}>') or message.content.startswith(f'<@!{Config.id}>'): return  await message.channel.send(f'Hello, {message.author.name}! My prefix is `1`. use `1help` for help')
+
     await client.process_commands(message) # else bot will not respond to 99% commands
 
 def Username601():
