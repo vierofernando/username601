@@ -124,12 +124,13 @@ class bothelp(commands.Cog):
     @command()
     @cooldown(5)
     async def ping(self, ctx):
+        wait = await ctx.send('pinging...')
         dbping = selfDB.ping()
         webping = myself.ping()
         ping = str(round(self.client.latency*1000))
-        embed = discord.Embed(title=f'Pong!', description=f'**Client Latency:** {ping} ms.\n**Message Latency:** {str(round(int((t.now()-ctx.message.created_at).microseconds)/1000))} ms.\n**Database latency:** {dbping} ms.\n**Hosting latency: **{webping} ms.', colour=discord.Colour.from_rgb(201, 160, 112))
+        embed = discord.Embed(title=f'Pong!', description=f'**Client Latency:** {ping} ms.\n**Database latency:** {dbping} ms.\n**Hosting latency: **{webping} ms.', colour=discord.Colour.from_rgb(201, 160, 112))
         embed.set_thumbnail(url='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif')
-        await ctx.send(embed=embed)
+        await wait.edit(content='', embed=embed)
     
     @command('botstats,meta')
     @cooldown(15)
@@ -141,7 +142,7 @@ class bothelp(commands.Cog):
         embed.set_image(url='https://quickchart.io/chart?c='+imageurl)
         await ctx.send(embed=embed)
 
-    @command('botinfo,aboutbot,bot,username601')
+    @command('botinfo,aboutbot,bot')
     @cooldown(5)
     async def about(self, ctx):
         if str(self.client.get_guild(Config.SupportServer.id).get_member(Config.owner.id).status)=='offline': devstatus = 'Offline'
