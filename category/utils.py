@@ -431,7 +431,7 @@ class utils(commands.Cog):
                 try:
                     if asked[i]!=answered[i]: wrong += 1
                 except: break
-            try: accuracy, cps = round((len(asked)-wrong)/offset*100), round(len(answered)/offset)
+            try: accuracy, cps = round((len(asked)-wrong)/len(asked)*100), round(len(answered)/offset)
             except: accuracy, cps = "???", "???"
             await ctx.send(embed=discord.Embed(title='TYPING TEST RESULTS', description='**Your time: **'+str(round(offset))+' seconds.\n**Your accuracy: **'+str(accuracy)+'%\n**Your speed: **'+str(cps)+' Characters per second.', colour=discord.Colour.from_rgb(201, 160, 112)))
 
