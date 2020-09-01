@@ -141,6 +141,15 @@ class Painter:
     def get_accent(self, image): return self.get_color_accent(self.thief, image)
     def get_multiple_accents(self, image): return self.get_multiple_color_accents(self.thief, image)
 
+    def invert(self, im):
+        ava = self.imagefromURL(im)
+        im_invert = ImageOps.invert(im)
+        return self.buffer(im_invert)
+    
+    def grayscale(self, im):
+        res = self.imagefromURL(im).convert('L')
+        return self.buffer(res)
+
     def country(self, query):
         bigfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 35, otf=True)
         smolfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 25, otf=True)

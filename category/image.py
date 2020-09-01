@@ -285,14 +285,26 @@ class image(commands.Cog):
             self.canvas.urltoimage(f'https://nekobot.xyz/api/imagegen?type=magik&image={source}&raw=1&intensity={random.randint(5, 10)}'), 'magik.png'
         ))
 
-    @command('invert,pixelate,b&w')
+    @command()
+    @cooldown(1)
+    async def invert(self, ctx, *args):
+        av = myself.getUserAvatar(ctx, args)
+        return await ctx.send(file=discord.File(self.canvas.invert(av), 'invert.png'))
+        
+    @command('grayscale,b&w,bw,classic')
+    @cooldown(1)
+    async def blackandwhite(self, ctx, *args):
+        av = myself.getUserAvatar(ctx, args)
+        return await ctx.send(file=discord.File(self.canvas.grayscale(av), 'invert.png'))
+
+    @command('pixelate')
     @cooldown(5)
     async def jpeg(self, ctx, *args):
         com = str(ctx.message.content).split()[0].replace('jpeg', 'jpegify')[1:]
         source = myself.getUserAvatar(ctx, args)
         await ctx.message.channel.trigger_typing()
         await ctx.send(file=discord.File(
-            self.canvas.urltoimage(f'https://nekobot.xyz/api/imagegen?type=magik&image={source}&raw=1&intensity={random.randint(5, 10)}'), 'magik.png'
+            self.canvas.urltoimage(f'https://nekobot.xyz/api/imagegen?type={com.lower()}&image={source}&raw=1'), 'lmao-nice.png'
         ))
 def setup(client):
     client.add_cog(image(client))
