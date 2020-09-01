@@ -11,7 +11,7 @@ def getFont(fontpath, fontname, size, otf=False):
     ext = 'ttf' if not otf else 'otf'
     return ImageFont.truetype(f'{fontpath}{fontname}.{ext}', size)
 def getImage(assetpath, imageName): return Image.open(f'{assetpath}{imageName}')
-def imagefromURL(url, stream=False): return Image.open(BytesIO(get(url, stream=stream).content))
+def imagefromURL(url): return Image.open(BytesIO(get(url).content))
 def bufferGIF(images, duration, optimize=False):
     arr = BytesIO()
     images[0].save(arr, "GIF", save_all=True, append_images=images[1:], optimize=optimize, duration=duration, loop=0)
@@ -141,8 +141,8 @@ class Painter:
     def get_accent(self, image): return self.get_color_accent(self.thief, image)
     def get_multiple_accents(self, image): return self.get_multiple_color_accents(self.thief, image)
 
-    def invert(self, im):
-        ava = self.imagefromURL(im)
+    def invert_image(self, im):
+        ava = self.imagefromURL(im).convert('RGB')
         im_invert = ImageOps.invert(ava)
         return self.buffer(im_invert)
     

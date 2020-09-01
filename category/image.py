@@ -289,7 +289,7 @@ class image(commands.Cog):
     @cooldown(1)
     async def invert(self, ctx, *args):
         av = myself.getUserAvatar(ctx, args)
-        return await ctx.send(file=discord.File(self.canvas.invert(av), 'invert.png'))
+        return await ctx.send(file=discord.File(self.canvas.invert_image(av), 'invert.png'))
         
     @command('grayscale,b&w,bw,classic')
     @cooldown(1)

@@ -296,7 +296,7 @@ class utils(commands.Cog):
         if len(list(args))==0:
             await ctx.send(str(self.client.get_emoji(BotEmotes.error))+" | Please send something to search for......")
         else:
-            data = loads(open("/app/assets/json/search.json", "r").read())
+            data = loads(open("/home/runner/hosting601/assets/json/search.json", "r").read())
             await ctx.send(embed=discord.Embed(title='Internet searches for '+str(' '.join(list(args)), description=str('\n'.join(data)).replace('{QUERY}', myself.urlify(' '.join(list(args))), color=discord.Colour.from_rgb(201, 160, 112)))))
 
     @command()
@@ -415,7 +415,7 @@ class utils(commands.Cog):
     @cooldown(10)
     async def typingtest(self, ctx):
         async with ctx.message.channel.typing():
-            data = myself.api("https://random-word-api.herokuapp.com/word?number=5")
+            data = myself.jsonisp("https://random-word-api.herokuapp.com/word?number=5")
             text, guy, first = myself.arrspace(data), ctx.message.author, t.now().timestamp()
             main = await ctx.send(content='**Type the text on the image. (Only command invoker can play)**\nYou have 2 minutes.\n', file=discord.File(self.canvas.simpletext(text), 'test.png'))
         def check(m):
@@ -431,7 +431,8 @@ class utils(commands.Cog):
                 try:
                     if asked[i]!=answered[i]: wrong += 1
                 except: break
-            accuracy, cps = round((len(asked)-wrong)/offset*100)
+            try: accuracy, cps = round((len(asked)-wrong)/offset*100), round(len(answered)/offset)
+            except: accuracy, cps = "???", "???"
             await ctx.send(embed=discord.Embed(title='TYPING TEST RESULTS', description='**Your time: **'+str(round(offset))+' seconds.\n**Your accuracy: **'+str(accuracy)+'%\n**Your speed: **'+str(cps)+' Characters per second.', colour=discord.Colour.from_rgb(201, 160, 112)))
 
 def setup(client):
