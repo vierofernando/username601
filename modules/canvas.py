@@ -143,7 +143,7 @@ class Painter:
 
     def invert(self, im):
         ava = self.imagefromURL(im)
-        im_invert = ImageOps.invert(im)
+        im_invert = ImageOps.invert(ava)
         return self.buffer(im_invert)
     
     def grayscale(self, im):
