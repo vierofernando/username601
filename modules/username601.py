@@ -175,8 +175,6 @@ def terminal(command):
 
 def jsonisp(url):
     return requests.get(url).json()
-def jsonisp(url):
-    return jsonify(getjsonisp(url).read())
 def insp(url):
     return requests.get(url).text
 def getPrefix():
