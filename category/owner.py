@@ -31,11 +31,11 @@ class owner(commands.Cog):
             os.environ['USELESSAPI']
         ]
         self.canvas = Painter(
-            cfg('ASSETS_DIR')
+            cfg('ASSETS_DIR'),
             cfg('FONTS_DIR')
         )
         self.gif = GifGenerator(
-            cfg('ASSETS_DIR')
+            cfg('ASSETS_DIR'),
             cfg('FONTS_DIR')
         )
 

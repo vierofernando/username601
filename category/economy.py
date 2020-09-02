@@ -1,6 +1,10 @@
 import discord
 from discord.ext import commands
 from sys import path
+from os import getcwd, name
+dirname = getcwd()+'\\..' if name=='nt' else getcwd()+'/..'
+path.append(dirname)
+del dirname
 from username601 import *
 path.append(cfg('MODULES_DIR'))
 path.append(cfg('JSON_DIR'))

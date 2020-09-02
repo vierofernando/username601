@@ -1,10 +1,14 @@
 import discord
 from discord.ext import commands
+import sys
+from os import getcwd, name
+dirname = getcwd()+'\\..' if name=='nt' else getcwd()+'/..'
+sys.path.append(dirname)
+del dirname
 from username601 import *
 import imdb
 ia = imdb.IMDb()
 from datetime import datetime as t
-import sys
 sys.path.append(cfg('MODULES_DIR'))
 from decorators import command, cooldown
 from requests import get

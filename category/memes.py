@@ -1,6 +1,10 @@
 import discord
 from discord.ext import commands
 import sys
+from os import getcwd, name
+dirname = getcwd()+'\\..' if name=='nt' else getcwd()+'/..'
+sys.path.append(dirname)
+del dirname
 from username601 import *
 sys.path.append(cfg('MODULES_DIR'))
 from canvas import Painter, GifGenerator

@@ -3,6 +3,10 @@ from discord.ext import commands
 import sys
 import random
 import asyncio
+from os import getcwd, name
+dirname = getcwd()+'\\..' if name=='nt' else getcwd()+'/..'
+sys.path.append(dirname)
+del dirname
 from username601 import *
 sys.path.append(cfg('MODULES_DIR'))
 from splashes import num2word
