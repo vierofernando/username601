@@ -1,6 +1,6 @@
 import random
 import base64
-from os import getenv
+from os import environ, isfile
 from subprocess import run, PIPE
 from json import dumps
 from urllib.request import urlopen as getapi
@@ -9,14 +9,13 @@ from json import loads as jsonify
 import requests
 from configparser import ConfigParser
 from datetime import datetime as t
-
-class BotEmotes:
-    loading = 639020919402135571
-    error = 585885410257928194
-    success = 585885430545907744
+class noArguments(Exception): pass
+class noUserFound(Exception): pass
+class noProfile(Exception): pass
 
 main_cfg = ConfigParser()
-main_cfg.read('../config.ini')
+if isfile('config.ini'): main_cfg.read('config.ini')
+else: main_cfg.read('../config.ini')
 
 def cfg(param, int=False):
     if int: return int(main_cfg.get('bot', param.lower()))
@@ -31,10 +30,6 @@ def get_embed_color(discord):
     return discord.Colour.from_rgb(
         int(color[0]), int(color[1]), int(color[2])
     )
-
-class noArguments(Exception): pass
-class noUserFound(Exception): pass
-class noProfile(Exception): pass
 
 def limitify(text):
     return text[0:1900]
@@ -106,7 +101,7 @@ def html2discord(text):
     return res
 
 def uptimerobot():
-    payload = 'api_key={}&format=json&logs=1'.format(getenv('UPTIMEROBOT_TOKEN'))
+    payload = 'api_key={}&format=json&logs=1'.format(environ['UPTIMEROBOT_TOKEN'])
     headers = {
         'content-type':         "application/x-www-form-urlencoded",
         'cache-control': "no-cache"
