@@ -24,6 +24,8 @@ class username601Stats:
                         "count": 0,
                         "lastreset": t.now().timestamp()
                     }
+                }
+            })
 
 database = MongoClient(os.getenv('DB_LINK'))['username601']
 
