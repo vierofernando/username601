@@ -2,14 +2,14 @@ import dbl as topgg
 import discord
 import os
 from sys import path
-path.append('/home/runner/hosting601/modules')
 from username601 import *
+path.append(cfg('MODULES_DIR'))
 from discord.ext import commands, tasks
 
 class dbl(commands.Cog):
     def __init__(self, client):
         self.client = client
-        self.token = os.getenv('DBL_TOKEN')
+        self.token = os.environ['DBL_TOKEN']
         self.dblpy = topgg.DBLClient(self.client, self.token, autopost=True)
     
     async def on_guild_post():

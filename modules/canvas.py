@@ -133,8 +133,8 @@ class Painter:
         self.add_corners = add_corners
         self.char_process = char_process
         self.toLocaleString = toLocaleString
-        self.flags = json.loads(open(r'/home/runner/hosting601/assets/json/flags.json', 'r').read())
-        self.region = json.loads(open(r'/home/runner/hosting601/assets/json/regions.json', 'r').read())
+        self.flags = json.loads(open(cfg('JSON_DIR')+'/flags.json', 'r').read())
+        self.region = json.loads(open(cfg('JSON_DIR')+'/regions.json', 'r').read())
         self.get_multiple_color_accents = get_multiple_color_accents
         self.invert = brightness_text # lmao
     

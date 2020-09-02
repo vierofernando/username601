@@ -1,10 +1,11 @@
 print('Please wait...')
+from username601 import *
 
 import sys
-sys.path.append('/home/runner/hosting601/modules')
+sys.path.append(cfg('MODULES_DIR'))
 
 # LOCAL FILES
-from username601 import *
+
 from database import (
     Economy, selfDB, Dashboard, username601Stats, Shop
 )
@@ -24,7 +25,7 @@ import random
 import asyncio
 
 # DECLARATION AND STUFF
-client = commands.Bot(command_prefix=Config.prefix)
+client = commands.Bot(command_prefix=prefix)
 client.remove_command('help')
 bot_status = cycle(myself.getStatus())
 
@@ -47,12 +48,12 @@ async def on_ready():
 #@tasks.loop(seconds=900.0)
 #async def updateStats():
 #    print(f'Updated stuff [{str(t.now())[:-7]}]')
-#    post(f'https://botsfordiscord.com/api/bot/{Config.id}', headers={
+#    post(f'https://botsfordiscord.com/api/bot/{cfg('BOT_ID')}', headers={
 #        'Content-Type': 'application/json',
-#        'Authorization': os.getenv('BOTSFORDISCORD_TOKEN')
+#        'Authorization': os.environ['BOTSFORDISCORD_TOKEN')
 #    }, body={'server_count': len(client.guilds)})
-#    post(f'https://discordbotlist.com/api/v1/bots/{Config.id}/stats', headers={
-#        'Authorization': os.getenv('DISCORDBOTLIST_TOKEN')
+#    post(f'https://discordbotlist.com/api/v1/bots/{cfg('BOT_ID')}/stats', headers={
+#        'Authorization': os.environ['DISCORDBOTLIST_TOKEN')
 #    }, body={
 #        'guilds': len(client.guilds),
 #        'users': len(client.users)
@@ -66,12 +67,11 @@ async def on_raw_reaction_add(payload):
     if data==None: return
     try:
         messages = await client.get_channel(data['channelid']).history().flatten()
-        starboards = [int(str(message.content).split(': ')[1]) for message in messages if message.author.id==Config.id]
+        starboards = [int(str(message.content).split(': ')[1]) for message in messages if message.author.id==cfg('BOT_ID')]
         if payload.message_id in starboards: return
     except: return
     message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
     if len(message.reactions) == data['starlimit']:
-        await client.get_channel(data['channelid']).send(content=f'ID: {message.id}', embed=Dashboard.sendStarboard(discord, message))
 
 @tasks.loop(seconds=7)
 async def statusChange():
@@ -107,7 +107,6 @@ async def on_member_update(before, after):
         if not Dashboard.getDehoister(after.guild.id): return
         try: await after.edit(nick='Dehoisted user')
         except: pass
-
 @client.event
 async def on_member_remove(member):
     # REMOVE ALL WARNS
@@ -140,42 +139,57 @@ async def on_guild_role_delete(role):
 # DELETE THIS @CLIENT.EVENT IF YOU ARE USING THIS CODE
 @client.event
 async def on_guild_join(guild):
-    if guild.owner.id in [a.id for a in client.get_guild(Config.SupportServer.id).members]:
-        userinsupp = client.get_guild(Config.SupportServer.id).get_member(guild.owner.id)
-        await userinsupp.add_roles(client.get_guild(Config.SupportServer.id).get_role(727667048645394492))
+    if guild.owner.id in [a.id for a in client.get_guild(cfg('SERVER_ID')).members]:
+        userinsupp = client.get_guild(cfg('SERVER_ID')).get_member(cfg('OWNER_ID'))
+        await userinsupp.add_roles(client.get_guild(cfg('SERVER_ID')).get_role(727667048645394492))
 
 @client.event
 async def on_guild_remove(guild):
     Dashboard.delete_data(guild.id)
     # DELETE THE IF-STATEMENT BELOW IF YOU ARE USING THIS CODE
-    if guild.owner.id in [a.id for a in client.get_guild(Config.SupportServer.id).members]:
-        userinsupp = client.get_guild(Config.SupportServer.id).get_member(guild.owner.id)
-        await userinsupp.remove_roles(client.get_guild(Config.SupportServer.id).get_role(727667048645394492))
+    if guild.owner.id in [a.id for a in client.get_guild(cfg('SERVER_ID')).members]:
+        userinsupp = client.get_guild(cfg('SERVER_ID')).get_member(guild.owner.id)
+        await userinsupp.remove_roles(client.get_guild(cfg('SERVER_ID')).get_role(727667048645394492))
 
 @client.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown): return await ctx.send("You are on cooldown. You can do the command again in {}.".format(myself.time_encode(round(error.retry_after))))
     elif isinstance(error, commands.CommandNotFound): return
-    elif 'noarguments' in str(error).lower(): return await ctx.send('{} | Please insert arguments! `Like insert your name as a parameter.`'.format(client.get_emoji(BotEmotes.error)))
-    elif 'nouserfound' in str(error).lower(): return await ctx.send('{} | No user found.'.format(client.get_emoji(BotEmotes.error)))
-    elif 'noprofile' in str(error).lower(): return await ctx.send('{} | You do not have any profile...\nYou can create one with `{}new`.'.format(client.get_emoji(BotEmotes.error), Config.prefix))
+    elif 'noarguments' in str(error).lower(): return await ctx.send('{} | Please insert arguments! `Like insert your name as a parameter.`'.format(emote(client, 'error')))
+    elif 'nouserfound' in str(error).lower(): return await ctx.send('{} | No user found.'.format(emote(client, 'error')))
+    elif 'noprofile' in str(error).lower(): return await ctx.send('{} | You do not have any profile...\nYou can create one with `{}new`.'.format(emote(client, 'error'), prefix))
     elif 'missing permissions' in str(error).lower(): return await ctx.send("I don't have the permission required to use that command!")
-    elif 'cannot identify image file' in str(error).lower(): return await ctx.send(str(client.get_emoji(BotEmotes.error))+' | Error, it seemed i can\'t load/send the image! Check your arguments and try again. Else, report this to the bot owner using `'+Config.prefix+'feedback.`')
+    elif 'cannot identify image file' in str(error).lower(): return await ctx.send(str(emote(client, 'error'))+' | Error, it seemed i can\'t load/send the image! Check your arguments and try again. Else, report this to the bot owner using `'+prefix+'feedback.`')
     elif 'cannot send messages to this user' in str(error).lower():
-        return await ctx.send(str(client.get_emoji(BotEmotes.error))+' | Oops! Your DMs are disabled!')
+        return await ctx.send(str(emote(client, 'error'))+' | Oops! Your DMs are disabled!')
     else:
-        await client.get_channel(Config.SupportServer.feedback).send(content=f'<@{Config.owner.id}> there was an error!', embed=discord.Embed(
+        await client.get_channel(cfg('FEEDBACK_CHANNEL', int=True)).send(content='<@{}> there was an error!'.format(cfg('OWNER_ID')), embed=discord.Embed(
             title='Error', color=discord.Colour.red(), description=f'Content:\n```{ctx.message.content}```\n\nError:\n```{str(error)}```'
         ).set_footer(text='Bug made by user: {} (ID of {})'.format(str(ctx.author), ctx.author.id)))
         await ctx.send('There was an error. Error reported to the developer! sorry for the inconvenience...', delete_after=3)
 
+def isdblvote(author):
+    if not author.bot: return False
+    elif author.id==479688142908162059: return False
+    return True
+
 @client.event
 async def on_message(message):
     if isdblvote(message.author) or message.guild==None: return
-    if message.content.startswith(f'<@{Config.id}>') or message.content.startswith(f'<@!{Config.id}>'): return  await message.channel.send(f'Hello, {message.author.name}! My prefix is `1`. use `1help` for help')
+    if message.content.startswith('<@{}>'.format(cfg('BOT_ID'))) or message.content.startswith('<@!{}>'.format(cfg('BOT_ID'))): return  await message.channel.send(f'Hello, {message.author.name}! My prefix is `1`. use `1help` for help')
 
+    if message.guild.id==cfg('SERVER_ID') and message.author.id==479688142908162059:
+        data = int(str(message.embeds[0].description).split('(id:')[1].split(')')[0])
+        if Economy.get(data)==None: return
+        rewards = Economy.daily(data)
+        await client.get_user(data).send(f'Thanks for voting! **You received {rewards} diamonds!**')
+ 
+    # THESE TWO IF STATEMENTS ARE JUST FOR ME ON THE SUPPORT SERVER CHANNEL. YOU CAN DELETE THESE TWO.
+    if message.channel.id==700040209705861120: await message.author.add_roles(message.guild.get_role(700042707468550184))
+    if message.channel.id==724454726908772373: await message.author.add_roles(message.guild.get_role(701586228000325733))
     await client.process_commands(message) # else bot will not respond to 99% commands
 
 def Username601():
     print('Logging in to discord...')
-    client.run(os.getenv('DISCORD_TOKEN'))
+    client.run(os.environ['DISCORD_TOKEN'])
+if __name__=='__main__': Username601()

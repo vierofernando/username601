@@ -4,13 +4,9 @@ from sys import path
 from datetime import datetime as t
 from random import choice
 import requests
-path.append('/home/runner/hosting601/modules')
+path.append('/app/modules')
 import username601 as myself
 from username601 import *
-
-database = MongoClient(os.getenv('DB_LINK'))['username601']
-
-class username601Stats:
     def addCommand():
         data = database["config"].update_one({
             "601stats": True}, {
@@ -27,6 +23,10 @@ class username601Stats:
                         "count": 0,
                         "lastreset": t.now().timestamp()
                     }
+
+database = MongoClient(os.getenv('DB_LINK'))['username601']
+
+class username601Stats:
                 }
             }
         )

@@ -6,8 +6,8 @@ from json import dumps
 from urllib.request import urlopen as getapi
 from urllib.parse import quote_plus as urlencode
 from json import loads as jsonify
-from requests import request
-from requests import get as decodeurl
+import requests
+from configparser import ConfigParser
 from datetime import datetime as t
 
 class BotEmotes:
@@ -15,22 +15,20 @@ class BotEmotes:
     error = 585885410257928194
     success = 585885430545907744
 
-class Config:
-    id = 696973408000409626 # BOT ID
-    prefix = '1' # your prefix here
-    cmdtypes = decodeurl("https://vierofernando.github.io/username601/assets/json/categories.json").json()
-    class Version:
-        number = '2.6'
-        changelog = 'More GIF commands, and deleted some buggy/non-functional commands, fixed typos, improved code, and more.'
-    class SupportServer:
-        id = 688373853889495044 # support server ID
-        logging = 694521383908016188 # logging channel ID in support server
-        Announcements = 722752725267382323 # announcements channel
-        feedback = 706459051034279956 # feedback channel
-        invite = 'https://discord.gg/HhAPkD8' # your support server invite link
-    class owner:
-        id = 661200758510977084 # YOUR USER ID
-prefix = Config.prefix
+main_cfg = ConfigParser().read('../config.ini')
+def cfg(param, int=False):
+    if int: return int(main_cfg['bot'][param])
+    return main_cfg['bot'][param]
+prefix = cfg('PREFIX')
+
+def emote(client, type):
+    return str(client.get_emoji(cfg('EMOJI_'+type.upper(), int=True)))
+
+def get_embed_color(discord):
+    color = cfg('MAIN_COLOR').split(',')
+    return discord.Colour.from_rgb(
+        int(color[0]), int(color[1]), int(color[2])
+    )
 
 class noArguments(Exception): pass
 class noUserFound(Exception): pass
@@ -40,14 +38,16 @@ def limitify(text):
     return text[0:1900]
 
 def getCommandLength():
-    data, count = decodeurl('https://vierofernando.github.io/username601/assets/json/commands.json').json(), 0
+    data, count = requests.get(cfg('WEBSITE_MAIN')+'/assets/json/commands.json'), 0
     for i in range(len(data)):
         count += len(data[i][list(data[i].keys())[0]])
     return count
 
 def ping():
+    url = cfg('HOST_URL')
+    if url.lower()=='none': return None
     a = t.now().timestamp()
-    decodeurl('https://hosting601.vierofernando.repl.co')
+    requests.get(url)
     return round((t.now().timestamp()-a)*1000)
 
 def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
@@ -115,7 +115,7 @@ def uptimerobot():
     return parameter
 
 def getStatus():
-    return jsonify(open("/home/runner/hosting601/assets/json/status.json", "r").read())
+    return jsonify(open(cfg('JSON_DIR')+"/status.json", "r").read())
 
 def limit(word):
     total = ''
@@ -176,11 +176,11 @@ def terminal(command):
     return data
 
 def jsonisp(url):
-    return decodeurl(url).json()
-def api(url):
-    return jsonify(getapi(url).read())
+    return requests.get(url).json()
+def jsonisp(url):
+    return jsonify(getjsonisp(url).read())
 def insp(url):
-    return decodeurl(url).text
+    return requests.get(url).text
 def getPrefix():
     return prefix
 

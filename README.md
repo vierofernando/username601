@@ -21,6 +21,8 @@ Category folder is a cogs folder, modules folder is basically "tools" folder. An
 ![Example 3](https://vierofernando.github.io/username601/assets/screenshots/3.png)<br>
 
 # Configuration
+## Please edit the config.ini file to your settings.
+
 **ENVIRONMENT VARIABLES:**<br>
 ```
 DISCORD_TOKEN = Your discord token

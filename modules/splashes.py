@@ -1,5 +1,11 @@
 import random
 import requests
+from sys import path
+from username601 import *
+path.append(cfg('JSON_DIR'))
+from json import loads
+def randomtroll():
+    return random.choice(loads(open(cfg('JSON_DIR')+'/troll.json', 'r').read()))
 def randomhash():
     hashh = ''
     for i in range(0, random.randint(13, 21)):
@@ -108,9 +114,8 @@ def getHackFlow(tohack):
         '1\n[hack.exe] GETTING SENSITIVE PERSONAL INFORMATION...',
         '4done.\nLAST MESSAGE: "'+lastmsg(tohack.name)+'"\nLAST BROWSING HISTORY: "'+history(tohack.name)+'"\n[hack.exe] DISTRIBUTING INFO TO FBI AND NSA...',
         '3done.',
-        '0\n[hack.exe] HACK COMPLETE.',
-        '0\n\nC:\\Users\\Anonymous601>'
-    ] # basically every batch file a scammer would use
+        '0\n[hack.exe] HACK COMPLETE.'
+    ]
     return flow
 def gifslap():
     gifArr = ["https://tenor.com/vEDn.gif ", "https://tenor.com/QZpI.gif", "https://tenor.com/6i12.gif", "https://tenor.com/RTqL.gif", "https://tenor.com/rhrz.gif", "https://giphy.com/gifs/mary-steenburgen-vxvNnIYFcYqEE", "https://giphy.com/gifs/sweet-penguin-penguins-mEtSQlxqBtWWA", "https://giphy.com/gifs/sherlock-snape-gif-kTBjwh6IWbLPy", "https://giphy.com/gifs/slap-dog-slapping-lX03hULhgCYQ8", "https://tenor.com/QklT.gif", "https://tenor.com/1jyY.gif", "https://tenor.com/6zwG.gif"]
