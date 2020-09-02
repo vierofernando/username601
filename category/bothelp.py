@@ -151,7 +151,7 @@ class bothelp(commands.Cog):
     @command('botinfo,aboutbot,bot')
     @cooldown(5)
     async def about(self, ctx):
-        if str(self.client.get_guild(cfg('SERVER_ID')).get_member(cfg('OWNER_ID')).status)=='offline': devstatus = 'Offline'
+        if str(self.client.get_guild(cfg('SERVER_ID', integer=True)).get_member(cfg('OWNER_ID')).status)=='offline': devstatus = 'Offline'
         else: devstatus = 'Online'
         embed = discord.Embed(title = 'About '+str(ctx.guild.me.display_name), colour = get_embed_color(discord))
         embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Library: **Discord.py\n**Default prefix: **'+prefix)

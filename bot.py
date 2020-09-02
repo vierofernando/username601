@@ -138,17 +138,17 @@ async def on_guild_role_delete(role):
 # DELETE THIS @CLIENT.EVENT IF YOU ARE USING THIS CODE
 @client.event
 async def on_guild_join(guild):
-    if guild.owner.id in [a.id for a in client.get_guild(cfg('SERVER_ID')).members]:
-        userinsupp = client.get_guild(cfg('SERVER_ID')).get_member(cfg('OWNER_ID'))
-        await userinsupp.add_roles(client.get_guild(cfg('SERVER_ID')).get_role(727667048645394492))
+    if guild.owner.id in [a.id for a in client.get_guild(cfg('SERVER_ID', integer=True)).members]:
+        userinsupp = client.get_guild(cfg('SERVER_ID', integer=True)).get_member(cfg('OWNER_ID'))
+        await userinsupp.add_roles(client.get_guild(cfg('SERVER_ID', integer=True)).get_role(727667048645394492))
 
 @client.event
 async def on_guild_remove(guild):
     Dashboard.delete_data(guild.id)
     # DELETE THE IF-STATEMENT BELOW IF YOU ARE USING THIS CODE
-    if guild.owner.id in [a.id for a in client.get_guild(cfg('SERVER_ID')).members]:
-        userinsupp = client.get_guild(cfg('SERVER_ID')).get_member(guild.owner.id)
-        await userinsupp.remove_roles(client.get_guild(cfg('SERVER_ID')).get_role(727667048645394492))
+    if guild.owner.id in [a.id for a in client.get_guild(cfg('SERVER_ID', integer=True)).members]:
+        userinsupp = client.get_guild(cfg('SERVER_ID', integer=True)).get_member(guild.owner.id)
+        await userinsupp.remove_roles(client.get_guild(cfg('SERVER_ID', integer=True)).get_role(727667048645394492))
 
 @client.event
 async def on_command_error(ctx, error):

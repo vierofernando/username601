@@ -70,9 +70,9 @@ class owner(commands.Cog):
     async def cont(self, ctx):
         if ctx.author.id==cfg('OWNER_ID', integer=True):
             owners, c = [i.owner.id for i in self.client.guilds], 0
-            for i in self.client.get_guild(cfg('SERVER_ID')).members:
+            for i in self.client.get_guild(cfg('SERVER_ID', integer=True)).members:
                 if i.id in owners:
-                    await self.client.get_guild(cfg('SERVER_ID')).get_member(i.id).add_roles(self.client.get_guild(cfg('SERVER_ID')).get_role(727667048645394492))
+                    await self.client.get_guild(cfg('SERVER_ID', integer=True)).get_member(i.id).add_roles(self.client.get_guild(cfg('SERVER_ID', integer=True)).get_role(727667048645394492))
                     await sleep(1)
                     c += 1
             await ctx.send(f"found {str(c)} new conts!")
