@@ -1,5 +1,5 @@
 print('Please wait...')
-from username601 import *
+from modules.username601 import *
 
 import sys
 sys.path.append(cfg('MODULES_DIR'))
@@ -9,7 +9,6 @@ sys.path.append(cfg('MODULES_DIR'))
 from database import (
     Economy, selfDB, Dashboard, username601Stats, Shop
 )
-import username601 as myself
 import discordgames as Games
 import splashes as src
 import canvas as Painter
