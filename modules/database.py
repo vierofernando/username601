@@ -4,10 +4,15 @@ from sys import path
 from datetime import datetime as t
 from random import choice
 import requests
-path.append('/app/modules')
-import username601 as myself
-from username601 import *
+from username601 import time_encode
+database = MongoClient(os.getenv('DB_LINK'))['username601']
+
 class username601Stats:
+    def retrieveData():
+        return database['config'].find_one({
+            "601stats": True
+        })['commandstats']
+        
     def addCommand():
         data = database["config"].update_one({
             "601stats": True}, {
@@ -26,14 +31,6 @@ class username601Stats:
                     }
                 }
             })
-
-database = MongoClient(os.getenv('DB_LINK'))['username601']
-
-class username601Stats:
-    def retrieveData():
-        return database['config'].find_one({
-            "601stats": True
-        })['commandstats']
 
 class Dashboard:
     def getData(guildid):
@@ -298,7 +295,7 @@ class Economy:
             time = t(raw[0], raw[1], raw[2], raw[3], raw[4], raw[5])
             return {
                 'bool': False,
-                'time': myself.time_encode((time-t.now()).seconds)
+                'time': time_encode((time-t.now()).seconds)
             }
     
     def setbal(userid, newbal):
