@@ -1,6 +1,7 @@
 import random
 import base64
-from os import environ, isfile
+from os import environ
+from os.path import isfile
 from subprocess import run, PIPE
 from json import dumps
 from urllib.request import urlopen as getapi
