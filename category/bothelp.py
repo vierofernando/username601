@@ -125,10 +125,12 @@ class bothelp(commands.Cog):
     @cooldown(5)
     async def ping(self, ctx):
         wait = await ctx.send('pinging...')
-        dbping = selfDB.ping()
-        #webping = ping()
+        dbping, extras = selfDB.ping(), ''
+        if cfg('HOST_URL').lower()!='none':
+            webping = ping()
+            extras = f'\n**Hosting latency: **{webping} ms.'
         ping = str(round(self.client.latency*1000))
-        embed = discord.Embed(title=f'Pong!', description=f'**Client Latency:** {ping} ms.\n**Database latency:** {dbping} ms.', colour=get_embed_color(discord))
+        embed = discord.Embed(title=f'Pong!', description=f'**Client Latency:** {ping} ms.\n**Database latency:** {dbping} ms.{extras}', colour=get_embed_color(discord))
         embed.set_thumbnail(url='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif')
         await wait.edit(content='', embed=embed)
     
