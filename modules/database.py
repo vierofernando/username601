@@ -30,9 +30,6 @@ class username601Stats:
 database = MongoClient(os.getenv('DB_LINK'))['username601']
 
 class username601Stats:
-                }
-            }
-        )
     def retrieveData():
         return database['config'].find_one({
             "601stats": True
