@@ -41,7 +41,7 @@ class owner(commands.Cog):
 
     @command()
     async def setbal(self, ctx, *args):
-        if ctx.author.id==cfg('OWNER_ID', int=True):
+        if ctx.author.id==cfg('OWNER_ID', integer=True):
             await ctx.message.add_reaction(emote(self.client, 'loadng'))
             resp = Economy.setbal(int(list(args)[0]), int(list(args)[1]))
             await ctx.send(resp)
@@ -50,7 +50,7 @@ class owner(commands.Cog):
     
     @command('pm')
     async def postmeme(self, ctx, *args):
-        if ctx.author.id!=cfg('OWNER_ID', int=True):
+        if ctx.author.id!=cfg('OWNER_ID', integer=True):
             return await ctx.message.add_reaction(emote(self.client, 'error'))
         url = ''.join(list(args))
         if url.startswith('<'): url = url[1:]
@@ -68,7 +68,7 @@ class owner(commands.Cog):
 
     @command()
     async def cont(self, ctx):
-        if ctx.author.id==cfg('OWNER_ID', int=True):
+        if ctx.author.id==cfg('OWNER_ID', integer=True):
             owners, c = [i.owner.id for i in self.client.guilds], 0
             for i in self.client.get_guild(cfg('SERVER_ID')).members:
                 if i.id in owners:
@@ -79,7 +79,7 @@ class owner(commands.Cog):
 
     @command()
     async def rp(self, ctx, *args):
-        if ctx.author.id==cfg('OWNER_ID', int=True):
+        if ctx.author.id==cfg('OWNER_ID', integer=True):
             try:
                 user_to_send = self.client.get_user(int(args[0]))
                 em = discord.Embed(title="Hi, "+user_to_send.name+"! the bot owner sent a response for your feedback.", description=' '.join(list(args)[1:len(list(args))]), colour=get_embed_color(discord))
@@ -92,14 +92,14 @@ class owner(commands.Cog):
 
     @command()
     async def fban(self, ctx, *args):
-        if int(ctx.author.id)==cfg('OWNER_ID', int=True):
+        if int(ctx.author.id)==cfg('OWNER_ID', integer=True):
             selfDB.feedback_ban(int(list(args)[0]), str(' '.join(list(args)[1:len(list(args))])))
             await ctx.message.add_reaction(emote(self.client, 'success'))
         else:
             await ctx.send(str(emote(self.client, 'error')) +' | You are not the owner, nerd.')
     @command()
     async def funban(self, ctx, *args):
-        if int(ctx.author.id)==cfg('OWNER_ID', int=True):
+        if int(ctx.author.id)==cfg('OWNER_ID', integer=True):
             data = selfDB.feedback_unban(int(list(args)[0]))
             if data=='200': await ctx.message.add_reaction(emote(self.client, 'success'))
             else: await ctx.message.add_reaction(emote(self.client, 'error'))
@@ -108,7 +108,7 @@ class owner(commands.Cog):
     @command('ex,eval')
     async def evaluate(self, ctx, *args):
         unprefixed = ' '.join(list(args))
-        if int(ctx.author.id)==cfg('OWNER_ID', int=True):
+        if int(ctx.author.id)==cfg('OWNER_ID', integer=True):
             try:
                 res = eval(unprefixed.replace('"', "'"))
                 for i in self.protected_files:
@@ -133,7 +133,7 @@ class owner(commands.Cog):
     async def bash(self, ctx, *args):
         unprefixed = ' '.join(list(args))
         if unprefixed == ' ': unprefixed = 'undefined'
-        if int(ctx.author.id)==cfg('OWNER_ID', int=True):
+        if int(ctx.author.id)==cfg('OWNER_ID', integer=True):
             try:
                 if len(list(args))==0: raise OSError('you are gay')
                 if len(unprefixed.split())==1: data = run([unprefixed], stdout=PIPE).stdout.decode('utf-8')

@@ -18,13 +18,13 @@ main_cfg = ConfigParser()
 if isfile('config.ini'): main_cfg.read('config.ini')
 else: main_cfg.read('../config.ini')
 
-def cfg(param, int=False):
-    if int: return int(main_cfg.get('bot', param.lower()))
+def cfg(param, integer=False):
+    if integer: return int(main_cfg.get('bot', param.lower()))
     return main_cfg.get('bot', param.lower())
 prefix = cfg('PREFIX')
 
 def emote(client, type):
-    return str(client.get_emoji(cfg('EMOJI_'+type.upper(), int=True)))
+    return str(client.get_emoji(cfg('EMOJI_'+type.upper(), integer=True)))
 
 def get_embed_color(discord):
     color = cfg('MAIN_COLOR').split(',')

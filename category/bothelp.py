@@ -113,7 +113,7 @@ class bothelp(commands.Cog):
             if not banned:
                 try:
                     fb = ' '.join(list(args))
-                    feedbackCh = self.client.get_channel(cfg('FEEDBACK_CHANNEL'), int=True)
+                    feedbackCh = self.client.get_channel(cfg('FEEDBACK_CHANNEL'), integer=True)
                     await feedbackCh.send('<@'+cfg('OWNER_ID')+'>, User with ID: '+str(ctx.author.id)+' sent a feedback: **"'+str(fb)+'"**')
                     embed = discord.Embed(title='Feedback Successful', description=str(self.client.get_emoji(BotEmotes.success)) + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+cfg('SERVER_INVITE')+')',colour=get_embed_color(discord))
                     await wait.edit(content='', embed=embed)
@@ -159,7 +159,7 @@ class bothelp(commands.Cog):
         embed.add_field(name='Version Info', value='**Bot version: ** '+cfg('VERSION')+'\n**Changelog: **'+cfg('CHANGELOG'))#+'\n'+str(osinfo))
         embed.add_field(name='Links', value='[Invite this bot to your server!]('+cfg('BOT_INVITE')+')\n[The support server!]('+cfg('SERVER_INVITE')+')\n[Vote us on top.gg](https://top.gg/bot/'+str(self.client.user.id)+'/vote)\n[Official Website]('+cfg('WEBSITE_MAIN')+')')
         embed.set_thumbnail(url=cfg('WEBSITE_MAIN')+'/assets/pics/pfp.png')
-        embed.set_footer(text='© '+str(self.client.get_user(cfg('OWNER_ID', int=True)))+' Programming, 2020. All rights reserved.')
+        embed.set_footer(text='© '+str(self.client.get_user(cfg('OWNER_ID', integer=True)))+' Programming, 2020. All rights reserved.')
         await ctx.send(embed=embed)
 
 def setup(client):

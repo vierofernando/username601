@@ -162,7 +162,7 @@ async def on_command_error(ctx, error):
     elif 'cannot send messages to this user' in str(error).lower():
         return await ctx.send(str(emote(client, 'error'))+' | Oops! Your DMs are disabled!')
     else:
-        await client.get_channel(cfg('FEEDBACK_CHANNEL', int=True)).send(content='<@{}> there was an error!'.format(cfg('OWNER_ID')), embed=discord.Embed(
+        await client.get_channel(cfg('FEEDBACK_CHANNEL', integer=True)).send(content='<@{}> there was an error!'.format(cfg('OWNER_ID')), embed=discord.Embed(
             title='Error', color=discord.Colour.red(), description=f'Content:\n```{ctx.message.content}```\n\nError:\n```{str(error)}```'
         ).set_footer(text='Bug made by user: {} (ID of {})'.format(str(ctx.author), ctx.author.id)))
         await ctx.send('There was an error. Error reported to the developer! sorry for the inconvenience...', delete_after=3)
