@@ -15,10 +15,13 @@ class BotEmotes:
     error = 585885410257928194
     success = 585885430545907744
 
-main_cfg = ConfigParser().read('../config.ini')
+global main_cfg
+main_cfg = ConfigParser()
+main_cfg.read('../config.ini')
+
 def cfg(param, int=False):
-    if int: return int(main_cfg['bot'][param])
-    return main_cfg['bot'][param]
+    if int: return int(main_cfg['bot'][param.lower()])
+    return main_cfg['bot'][param.lower()]
 prefix = cfg('PREFIX')
 
 def emote(client, type):
