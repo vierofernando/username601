@@ -139,7 +139,7 @@ async def on_guild_role_delete(role):
 @client.event
 async def on_guild_join(guild):
     if guild.owner.id in [a.id for a in client.get_guild(cfg('SERVER_ID', integer=True)).members]:
-        userinsupp = client.get_guild(cfg('SERVER_ID', integer=True)).get_member(cfg('OWNER_ID'))
+        userinsupp = client.get_guild(cfg('SERVER_ID', integer=True)).get_member(guild.owner.id)
         await userinsupp.add_roles(client.get_guild(cfg('SERVER_ID', integer=True)).get_role(727667048645394492))
 
 @client.event
@@ -166,10 +166,19 @@ async def on_command_error(ctx, error):
             title='Error', color=discord.Colour.red(), description=f'Content:\n```{ctx.message.content}```\n\nError:\n```{str(error)}```'
         ).set_footer(text='Bug made by user: {} (ID of {})'.format(str(ctx.author), ctx.author.id)))
         await ctx.send('There was an error. Error reported to the developer! sorry for the inconvenience...', delete_after=3)
-
+def isdblvote(author):
+    if not author.bot: return False
+    elif author.id==479688142908162059: return False
 @client.event
 async def on_message(message):
+    if isdblvote(message.author) or message.guild==None: return
     if message.content.startswith('<@{}>'.format(cfg('BOT_ID'))) or message.content.startswith('<@!{}>'.format(cfg('BOT_ID'))): return await message.channel.send(f'Hello, {message.author.name}! My prefix is `1`. use `1help` for help')
+    if message.guild.id==cfg('SERVER_ID', integer=True) and message.author.id==479688142908162059:
+        data = int(str(message.embeds[0].description).split('(id:')[1].split(')')[0])
+        if Economy.get(data)==None: return
+        rewards = Economy.daily(data)
+        await client.get_user(data).send(f'Thanks for voting! **You received {rewards} diamonds!**')
+    
     # THESE TWO IF STATEMENTS ARE JUST FOR ME ON THE SUPPORT SERVER CHANNEL. YOU CAN DELETE THESE TWO.
     if message.channel.id==700040209705861120: await message.author.add_roles(message.guild.get_role(700042707468550184))
     if message.channel.id==724454726908772373: await message.author.add_roles(message.guild.get_role(701586228000325733))
