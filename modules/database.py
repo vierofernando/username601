@@ -7,6 +7,7 @@ import requests
 path.append('/app/modules')
 import username601 as myself
 from username601 import *
+class username601Stats:
     def addCommand():
         data = database["config"].update_one({
             "601stats": True}, {
