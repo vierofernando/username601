@@ -5,7 +5,6 @@ import sys
 sys.path.append(cfg('MODULES_DIR'))
 
 # LOCAL FILES
-
 from database import (
     Economy, selfDB, Dashboard, username601Stats, Shop
 )
@@ -26,7 +25,7 @@ import asyncio
 # DECLARATION AND STUFF
 client = commands.Bot(command_prefix=prefix)
 client.remove_command('help')
-bot_status = cycle(myself.getStatus())
+bot_status = cycle(getStatus())
 
 @client.event
 async def on_ready():
@@ -153,7 +152,7 @@ async def on_guild_remove(guild):
 
 @client.event
 async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandOnCooldown): return await ctx.send("You are on cooldown. You can do the command again in {}.".format(myself.time_encode(round(error.retry_after))))
+    if isinstance(error, commands.CommandOnCooldown): return await ctx.send("You are on cooldown. You can do the command again in {}.".format(time_encode(round(error.retry_after))))
     elif isinstance(error, commands.CommandNotFound): return
     elif 'noarguments' in str(error).lower(): return await ctx.send('{} | Please insert arguments! `Like insert your name as a parameter.`'.format(emote(client, 'error')))
     elif 'nouserfound' in str(error).lower(): return await ctx.send('{} | No user found.'.format(emote(client, 'error')))
