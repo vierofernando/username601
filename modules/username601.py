@@ -36,7 +36,7 @@ def limitify(text):
     return text[0:1900]
 
 def getCommandLength():
-    data, count = requests.get(cfg('WEBSITE_MAIN')+'/assets/json/commands.json'), 0
+    data, count = requests.get(cfg('WEBSITE_MAIN')+'/assets/json/commands.json').json(), 0
     for i in range(len(data)):
         count += len(data[i][list(data[i].keys())[0]])
     return count
