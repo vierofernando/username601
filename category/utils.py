@@ -19,7 +19,7 @@ class utils(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.canvas = Painter(
-            cfg('ASSETS_DIR')
+            cfg('ASSETS_DIR'),
             cfg('FONTS_DIR')
         )
     

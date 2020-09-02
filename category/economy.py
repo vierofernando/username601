@@ -68,7 +68,7 @@ class economy(commands.Cog):
     @cooldown(5)
     async def addproduct(self, ctx, *args):
         if len(list(args))==0: return await ctx.send('{} | Please use the following parameters:\n`{}addshop <price> <name>`'.format(emote(self.client, 'error'), prefix))
-        if not ctx.author.guild_permissions.manage_guild: return await ctx.send('{} | You do not have the correct permissions to modify the server\'s shop.'.format(emote(self.client, 'error'))))
+        if not ctx.author.guild_permissions.manage_guild: return await ctx.send('{} | You do not have the correct permissions to modify the server\'s shop.'.format(emote(self.client, 'error')))
         try:
             price = int(list(args)[0])
             extra = '' if price in range(5, 1000000) else 'Invalid price. Setting price to default: 1000'

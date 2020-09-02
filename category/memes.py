@@ -139,7 +139,7 @@ class memes(commands.Cog):
     @command('achieve,call')
     @cooldown(5)
     async def challenge(self, ctx, *args):
-        if len(list(args))==0: await ctx.send(str(emote(self.client, 'error')+' | What is the challenge?')
+        if len(list(args))==0: await ctx.send(str(emote(self.client, 'error')+' | What is the challenge?'))
         else:
             async with ctx.channel.typing():
                 txt = urlify(' '.join(args))
@@ -160,7 +160,7 @@ class memes(commands.Cog):
                     url='https://api.alexflipnote.dev/didyoumean?top='+str(txt1)+'&bottom='+str(txt2)
                     await ctx.send(file=discord.File(self.canvas.urltoimage(url), 'didyoumean.png'))
             except IndexError:
-                await ctx.send(str(emote(self.client, 'error')+' | error! invalid args!')
+                await ctx.send(str(emote(self.client, 'error')+' | error! invalid args!'))
     @command()
     @cooldown(5)
     async def drake(self, ctx, *args):
@@ -180,7 +180,7 @@ class memes(commands.Cog):
                     data = self.canvas.urltoimage(url)
                     await ctx.send(file=discord.File(data, 'drake.png'))
             except IndexError:
-                await ctx.send(str(emote(self.client, 'error')+" | Please send something like {}drake [test 1] [test2]!".format(prefix))
+                await ctx.send(str(emote(self.client, 'error')+" | Please send something like {}drake [test 1] [test2]!".format(prefix)))
     
     @command()
     @cooldown(1)

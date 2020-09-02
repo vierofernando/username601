@@ -5,6 +5,7 @@ import username601 as myself
 from requests import get
 import json
 import random
+from username601 import *
 from colorthief import ColorThief
 
 def getFont(fontpath, fontname, size, otf=False):

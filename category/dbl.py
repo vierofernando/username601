@@ -1,12 +1,5 @@
 import dbl as topgg
 import discord
-from sys import path
-from os import getcwd, name, environ
-dirname = getcwd()+'\\..' if name=='nt' else getcwd()+'/..'
-sys.path.append(dirname)
-del dirname
-from username601 import *
-path.append(cfg('MODULES_DIR'))
 from discord.ext import commands, tasks
 
 class dbl(commands.Cog):
