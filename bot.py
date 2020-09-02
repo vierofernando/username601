@@ -72,6 +72,7 @@ async def on_raw_reaction_add(payload):
     except: return
     message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
     if len(message.reactions) == data['starlimit']:
+        await client.get_channel(data['channelid']).send(content=f'ID: {message.id}', embed=Dashboard.sendStarboard(discord, message))
 
 @tasks.loop(seconds=7)
 async def statusChange():
