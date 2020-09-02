@@ -23,11 +23,11 @@ class fun(commands.Cog):
         self.session = ClientSession()
         self.canvas = Painter(
             cfg('ASSETS_DIR'),
-            cfg('FONTS_DIR')'
+            cfg('FONTS_DIR')
         )
         self.gif = GifGenerator(
             cfg('ASSETS_DIR'),
-            cfg('FONTS_DIR')'
+            cfg('FONTS_DIR')
         )
     
     @command('nsfw,porn,pornhub,rule34,rule-34,ass')
@@ -67,7 +67,7 @@ class fun(commands.Cog):
     @command('howlove,friendship,fs')
     @cooldown(2)
     async def lovelevel(self, ctx):
-        if len(ctx.message.mentions)!=2: await ctx.send(emote(self.client, 'error'))+' | Error: Please give me 2 tags!')
+        if len(ctx.message.mentions)!=2: await ctx.send(emote(self.client, 'error')+' | Error: Please give me 2 tags!')
         else:
             result = algorithm.love_finder(ctx.message.mentions[0].id, ctx.message.mentions[1].id)
             await ctx.send('Love level of {} and {} is **{}%!**'.format(ctx.message.mentions[0].name, ctx.message.mentions[1].name, str(result)))
@@ -93,7 +93,7 @@ class fun(commands.Cog):
     @cooldown(5)
     async def slap(self, ctx):
         if len(ctx.message.mentions)<1:
-            await ctx.send(emote(self.client, 'error'))+" | Slap who? Tag someone!")
+            await ctx.send(emote(self.client, 'error')+" | Slap who? Tag someone!")
         else:
             await ctx.send(src.slap('msg')+', '+ctx.message.mentions[0].name+'!\n'+src.slap('gif'))
 
@@ -101,7 +101,7 @@ class fun(commands.Cog):
     @cooldown(5)
     async def hbd(self, ctx):
         if len(ctx.message.mentions)<1:
-            await ctx.send(emote(self.client, 'error'))+" | who is having their birthday today?")
+            await ctx.send(emote(self.client, 'error')+" | who is having their birthday today?")
         else:
             await ctx.send("Happy birthday, "+ctx.message.mentions[0].name+"!\n"+src.hbd())
 
@@ -183,7 +183,7 @@ class fun(commands.Cog):
     @command()
     @cooldown(5)
     async def temmie(self, ctx, *args):
-        if len(list(args))==0: await ctx.send(emote(self.client, 'error'))+' | Please send something to be encoded.')
+        if len(list(args))==0: await ctx.send(emote(self.client, 'error')+' | Please send something to be encoded.')
         else:
             link, num = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/temmie.json', 1
             data = jsonisp(link)

@@ -36,11 +36,11 @@ async def on_ready():
     for i in os.listdir('./category'):
         if not i.endswith('.py'): continue
         print('[BOT] Loaded cog: '+str(i[:-3]))
-        #try:
-        client.load_extension('category.{}'.format(i[:-3]))
-        #except Exception as e:
-        #    print('error on loading cog '+str(i[:-3])+': '+str(e))
-        #    pass
+        try:
+            client.load_extension('category.{}'.format(i[:-3]))
+        except Exception as e:
+            print('error on loading cog '+str(i[:-3])+': '+str(e))
+            pass
     print('Bot is online.')
 
 #@tasks.loop(seconds=900.0)

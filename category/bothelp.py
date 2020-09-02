@@ -26,7 +26,7 @@ class bothelp(commands.Cog):
     @cooldown(1)
     async def help(self, ctx, *args):
         data = get(cfg("WEBSITE_MAIN")+"/assets/json/commands.json").json()
-        types, args = loads(cfg("JSON_DIR")+'/categories.json'), list(args)
+        types, args = loads(open(cfg("JSON_DIR")+'/categories.json').read()), list(args)
         if len(args)<1:
             cate, web_commands_list = '', cfg('WEBSITE_COMMANDS')
             for i in range(0, len(types)):

@@ -1,5 +1,6 @@
 import dbl as topgg
 import discord
+from os import environ
 from discord.ext import commands, tasks
 
 class dbl(commands.Cog):

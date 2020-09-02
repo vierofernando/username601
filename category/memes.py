@@ -210,10 +210,10 @@ class memes(commands.Cog):
         if increment!=5:
             if increment<1: 
                 accept = False
-                await ctx.send(str(emote(self.client, 'error') + " | Increment to small!")
+                await ctx.send(str(emote(self.client, 'error') + " | Increment to small!"))
             elif increment>50:
                 accept = False
-                await ctx.send(str(emote(self.client, 'error') + " | Increment to big!")
+                await ctx.send(str(emote(self.client, 'error') + " | Increment too big!"))
         if accept:
             if len(ctx.message.mentions)==0: ava = str(ctx.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
             else: ava = str(ctx.message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=512')
@@ -282,7 +282,7 @@ class memes(commands.Cog):
     @command()
     @cooldown(10)
     async def scroll(self, ctx, *args):
-        if len(list(args))==0: await ctx.send(str(emote(self.client, 'error')+" | Error! where is your text?")
+        if len(list(args))==0: await ctx.send(emote(self.client, 'error')+" | Error! where is your text?")
         else:
             async with ctx.channel.typing():
                 scrolltxt = urlify(' '.join(list(args)))
@@ -330,7 +330,7 @@ class memes(commands.Cog):
     @command('changedmymind')
     @cooldown(10)
     async def changemymind(self, ctx, *args):
-        if len(list(args))==0: await ctx.send(str(emote(self.client, 'error')+" | Error! You need a text...")
+        if len(list(args))==0: await ctx.send(emote(self.client, 'error')+" | Error! You need a text...")
         else:
             await ctx.message.add_reaction(emote(self.client, 'loading'))
             async with ctx.channel.typing():
@@ -338,7 +338,7 @@ class memes(commands.Cog):
                     data = self.canvas.urltoimage('https://nekobot.xyz/api/imagegen?type=changemymind&text='+urlify(' '.join(list(args)))+'&raw=1')
                     await ctx.send(file=discord.File(data, 'changemymind.png'))
                 except Exception as e:
-                    await ctx.send(str(emote(self.client, 'error')+" | Oops! There was an error on generating your meme; `"+str(e)+"`")
+                    await ctx.send(emote(self.client, 'error')+" | Oops! There was an error on generating your meme; `"+str(e)+"`")
 
     @command('gimme,memz,memey')
     @cooldown(5)
@@ -397,7 +397,7 @@ class memes(commands.Cog):
                     url='https://memegen.link/'+str(name)+'/'+str(top)+'/'+str(bott)+'.jpg'+str(extr)
                     await ctx.send(file=discord.File(self.canvas.memegen(url), 'avmeme.png'))
                 except Exception as e:
-                    await ctx.send(str(emote(self.client, 'error') +f' | Error!\n```{e}```Invalid parameters. Example: `{prefix}avmeme <tag someone> [top text] [bottom text]`')
+                    await ctx.send(emote(self.client, 'error') +f' | Error!\n```{e}```Invalid parameters. Example: `{prefix}avmeme <tag someone> [top text] [bottom text]`')
         else:
             async with ctx.channel.typing():
                 try:
@@ -407,6 +407,6 @@ class memes(commands.Cog):
                     url='https://memegen.link/'+str(name)+'/'+str(top)+'/'+str(bott)+'.jpg?watermark=none'
                     await ctx.send(file=discord.File(self.canvas.memegen(url), args[0][1:]+'.png'))
                 except Exception as e:
-                    await ctx.send(str(emote(self.client, 'error') +f' | Error!\n```{e}```Invalid parameters.')
+                    await ctx.send(emote(self.client, 'error') +f' | Error!\n```{e}```Invalid parameters.')
 def setup(client):
     client.add_cog(memes(client))
