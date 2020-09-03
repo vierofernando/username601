@@ -113,7 +113,7 @@ class bothelp(commands.Cog):
             if not banned:
                 try:
                     fb = ' '.join(list(args))
-                    feedbackCh = self.client.get_channel(cfg('FEEDBACK_CHANNEL'), integer=True)
+                    feedbackCh = self.client.get_channel(cfg('FEEDBACK_CHANNEL', integer=True))
                     await feedbackCh.send('<@'+cfg('OWNER_ID')+'>, User with ID: '+str(ctx.author.id)+' sent a feedback: **"'+str(fb)+'"**')
                     embed = discord.Embed(title='Feedback Successful', description=emote(self.client, 'success') + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+cfg('SERVER_INVITE')+')',colour=get_embed_color(discord))
                     await wait.edit(content='', embed=embed)
