@@ -90,7 +90,7 @@ def process(text, font, width):
         temp = []
     if res==[]: res = [text]
     return '\n'.join(res)
-def char_process(text, width, font):
+def char_process(text, width, font, array=False):
     res = []
     temp = ""
     for i in list(text):
@@ -102,6 +102,7 @@ def char_process(text, width, font):
     if len(''.join(res)) != len(text):
         res.append(temp)
     if res ==[]: return ''.join(temp)
+    if array: return res
     return '\n'.join(res)
 def toLocaleString(a): # sike javascriptors ;)
     res = ''
@@ -137,10 +138,68 @@ class Painter:
         self.flags = json.loads(open(cfg('JSON_DIR')+'/flags.json', 'r').read())
         self.region = json.loads(open(cfg('JSON_DIR')+'/regions.json', 'r').read())
         self.get_multiple_color_accents = get_multiple_color_accents
+        self.gd_assets = json.loads(open(cfg('JSON_DIR')+'/gd.json', 'r').read())
         self.invert = brightness_text # lmao
     
     def get_accent(self, image): return self.get_color_accent(self.thief, image)
     def get_multiple_accents(self, image): return self.get_multiple_color_accents(self.thief, image)
+
+    def geometry_dash_level(self, levelid, daily=False, weekly=False):
+        # a shit ton of declarations first xd
+        if daily: query = 'daily'
+        elif weekly: query = 'weekly'
+        else: query = str(levelid)
+        data = get('https://gdbrowser.com/api/level/'+query).json()
+        pusab_big = self.getFont(self.fontpath, 'PUSAB__', 40, otf=True)
+        pusab_smol = self.getFont(self.fontpath, 'PUSAB__', 30, otf=True)
+        pusab_smoler = self.getFont(self.fontpath, 'PUSAB__', 20, otf=True)
+        pusab_tiny = self.getFont(self.fontpath, 'PUSAB__', 20, otf=True)
+        aller = self.getFont(self.fontpath, 'Aller', 20)
+        levelName = data['name']
+        levelAuth = "by "+data['author']
+        levelDesc = data['description']
+        levelDiff = data['difficulty']
+        levelStars = str(data['stars'])+" stars"
+        main = Image.new('RGB', color=(4,75,196), size=(500, 400))
+        draw = ImageDraw.Draw(main)
+
+        w, h = pusab_big.getsize(levelName)
+        W, H = main.size
+        draw.text(((W-w)/2,15), levelName, font=pusab_big, stroke_width=2, stroke_fill="black", fill="white")
+        w, h = pusab_smol.getsize(levelAuth)
+        draw.text(((W-w)/2,50), levelAuth, font=pusab_smol, stroke_width=2, stroke_fill="black", fill=(255, 200, 0))
+        width, desc_cursor = (w, h), 300
+        texts, sym_cursor = char_process(levelDesc, 445, aller, array=True), 100
+
+        for i in texts:
+            w, h = aller.getsize(i)
+            draw.text(((W-w)/2, desc_cursor), i, font=aller, fill='white')
+            desc_cursor += 25
+        del desc_cursor, width, texts
+
+        difficulty = self.imagefromURL("https://gdbrowser.com/difficulty/"+data['difficultyFace']+".png").convert('RGBA').resize((75, 75))
+        main.paste(difficulty, (round((W - 75)/2) - 100, 100), difficulty)
+        w, h = pusab_tiny.getsize(levelDiff)
+        draw.text(((W - w)/2 - 100, 180), levelDiff, font=pusab_tiny, stroke_width=2, stroke_fill="black")
+        w, h = pusab_tiny.getsize(levelStars)
+        draw.text(((W - w)/2 - 100, 200), levelStars, font=pusab_tiny, stroke_width=2, stroke_fill="black")
+
+        for i in list(self.gd_assets['main'].keys()):
+            if self.gd_assets['main'][i]==None:
+                if data['disliked']: sym = self.imagefromURL(self.gd_assets['dislike']).convert('RGBA').resize((25, 25))
+                else: sym = self.imagefromURL(self.gd_assets['like']).convert('RGBA').resize((25, 25))
+                main.paste(sym, (round((W-25)/2) + 75, sym_cursor), sym)
+                draw.text((round((W-25)/2)+105, sym_cursor+5), data['likes'], font=pusab_smoler, stroke_width=2, stroke_fill="black")
+                sym_cursor += 30
+                continue
+            if i not in list(data.keys()): continue
+            sym = imagefromURL(self.gd_assets['main'][i]).convert('RGBA').resize((25, 25))
+            main.paste(sym, (round((W-25)/2) + 75, sym_cursor), sym)
+            draw.text((round((W-25)/2)+105, sym_cursor+5), str(data[i]), font=pusab_smoler, stroke_width=2, stroke_fill="black")
+            sym_cursor += 30
+        
+        self.add_corners(main, 20)
+        return self.buffer(main)
 
     def invert_image(self, im):
         ava = self.imagefromURL(im).convert('RGB')

@@ -27,31 +27,15 @@ class games(commands.Cog):
     @command()
     @cooldown(3)
     async def gdlevel(self, ctx, *args):
-        if len(list(args))==0:
-            await ctx.send(emote(self.client, 'error')+' | Please enter a level ID!')
-        else:
-            if not args[0].isnumeric():
-                await ctx.send(emote(self.client, 'error')+' | That is not a level ID!')
-            else:
-                try:
-                    levelid = str(args[0])
-                    toEdit = await ctx.send(str(emote(self.client, 'loading'))+" | Retrieving Data...")
-                    data = jsonisp("https://gdbrowser.com/api/level/"+str(levelid))
-                    image = 'https://gdbrowser.com/icon/'+data["author"]
-                    embed = discord.Embed(
-                        title = data["name"]+' ('+str(data["id"])+')',
-                        description = data["description"],
-                        colour = get_embed_color(discord)
-                    )
-                    embed.set_author(name=data["author"], icon_url=image)
-                    embed.add_field(name='Difficulty', value=data["difficulty"])
-                    gesture = ':+1:'
-                    if data['disliked']: gesture = ':-1:'
-                    embed.add_field(name='Level Stats', value=str(data["likes"])+' '+gesture+'\n'+str(data["downloads"])+" :arrow_down:", inline='False')
-                    embed.add_field(name='Level Rewards', value=str(data["stars"])+" :star:\n"+str(data["orbs"])+" orbs\n"+str(data["diamonds"])+" :gem:")
-                    await toEdit.edit(content='', embed=embed)
-                except Exception as e:
-                    await toEdit.edit(content=f'```{e}```')
+        if len(list(args))==0: return await ctx.send(emote(self.client, 'error')+' | Please enter a level ID!')
+        if not args[0].isnumeric(): return await ctx.send(emote(self.client, 'error')+' | That is not a level ID!')
+        toEdit = await ctx.send(emote(self.client, 'loading')+' | Fetching data from the Geometry Dash servers...')
+        try:
+            data = self.canvas.geometry_dash_level(int(list(args)[0]))
+            await toEdit.delete()
+            await ctx.send(file=discord.File(data, 'gdlevel.png'))
+        except:
+            await toEdit.edit(content=emote(self.client, 'error')+ ' | Level not found!\nPlease make sure you put the correct **Level ID.** as the parameter.')
     @command()
     @cooldown(3)
     async def gdsearch(self, ctx, *args):
@@ -143,25 +127,13 @@ class games(commands.Cog):
     @command('gdweekly')
     @cooldown(2)
     async def gddaily(self, ctx):
-        toEdit = await ctx.send(str(emote(self.client, 'loading'))+" | Retrieving Data...")
-        if 'daily' in ctx.message.content: name = 'daily'
-        else: name = 'weekly'
-        data = jsonisp("https://gdbrowser.com/api/level/"+name)
-        image = 'https://gdbrowser.com/icon/'+data["author"]
-        embed = discord.Embed(
-            title = data["name"]+' ('+str(data["id"])+')',
-            description = data["description"],
-            colour = get_embed_color(discord)
-        )
-        embed.set_author(name=data["author"], icon_url=image)
-        embed.add_field(name='Uploaded at', value=data["uploaded"], inline='True')
-        embed.add_field(name='Updated at', value=data["updated"]+" (Version "+data["version"]+")", inline='True')
-        embed.add_field(name='Difficulty', value=data["difficulty"])
-        gesture = ':+1:'
-        if data['disliked']: gesture = ':-1:'
-        embed.add_field(name='Level Stats', value=str(data["likes"])+' '+gesture+'\n'+str(data["downloads"])+" :arrow_down:", inline='False')
-        embed.add_field(name='Level Rewards', value=str(data["stars"])+" :star:\n"+str(data["orbs"])+" orbs\n"+str(data["diamonds"])+" :gem:")
-        await toEdit.edit(content='', embed=embed)
+        toEdit = await ctx.send(emote(self.client, 'loading')+' | Fetching data from the Geometry Dash servers...')
+        try:
+            data = self.canvas.geometry_dash_level(None, daily=True) if 'daily' in ctx.message.content.lower() else self.canvas.geometry_dash_level(None, weekly=True)
+            await toEdit.delete()
+            await ctx.send(file=discord.File(data, 'gdnivel.png'))
+        except:
+            await toEdit.edit(content=emote(self.client, 'error')+ ' | Level not found!\nPlease make sure you put the correct **Level ID.** as the parameter.')
 
     @command('rockpaperscissors')
     @cooldown(5)

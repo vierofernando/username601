@@ -1,0 +1,11 @@
+{
+	"main": {
+		"downloads": "https://gdbrowser.com/assets/download.png",
+		"CHECKLIKE": null,
+		"length": "https://gdbrowser.com/assets/time.png",
+		"orbs": "https://gdbrowser.com/assets/orbs.png",
+		"diamonds": "https://gdbrowser.com/assets/diamond.png"
+	},
+	"like": "https://gdbrowser.com/assets/like.png",
+	"dislike": "https://gdbrowser.com/assets/dislike.png"
+}
