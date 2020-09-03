@@ -102,23 +102,23 @@ class bothelp(commands.Cog):
     @cooldown(30)
     async def feedback(self, ctx, *args):
         if len(list(args))==0:
-            await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Where\'s the feedback? :(')
+            await ctx.send(emote(self.client, 'error')+' | Where\'s the feedback? :(')
         elif len(list(args))>1000:
-            await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | That\'s too long! Please provide a simpler description.')
+            await ctx.send(emote(self.client, 'error')+' | That\'s too long! Please provide a simpler description.')
         elif 'discord.gg/' in ' '.join(list(args)):
-            await ctx.send(str(self.client.get_emoji(BotEmotes.error))+' | Do NOT send discord invites through feedback! Use the advertising channel in our support server instead!')
+            await ctx.send(emote(self.client, 'error')+' | Do NOT send discord invites through feedback! Use the advertising channel in our support server instead!')
         else:
-            wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait... Transmitting data to owner...')
+            wait = await ctx.send(emote(self.client, 'loading') + ' | Please wait... Transmitting data to owner...')
             banned = selfDB.is_banned(ctx.author.id)
             if not banned:
                 try:
                     fb = ' '.join(list(args))
                     feedbackCh = self.client.get_channel(cfg('FEEDBACK_CHANNEL'), integer=True)
                     await feedbackCh.send('<@'+cfg('OWNER_ID')+'>, User with ID: '+str(ctx.author.id)+' sent a feedback: **"'+str(fb)+'"**')
-                    embed = discord.Embed(title='Feedback Successful', description=str(self.client.get_emoji(BotEmotes.success)) + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+cfg('SERVER_INVITE')+')',colour=get_embed_color(discord))
+                    embed = discord.Embed(title='Feedback Successful', description=emote(self.client, 'success') + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+cfg('SERVER_INVITE')+')',colour=get_embed_color(discord))
                     await wait.edit(content='', embed=embed)
                 except:
-                    await wait.edit(content=str(self.client.get_emoji(BotEmotes.error)) + ' | Error: There was an error while sending your feedback. Sorry! :(')
+                    await wait.edit(content=emote(self.client, 'error') + ' | Error: There was an error while sending your feedback. Sorry! :(')
             else:
                 await wait.edit(content='', embed=discord.Embed(
                     title="You have been banned from using the Feedback command.",

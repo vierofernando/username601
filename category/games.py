@@ -263,7 +263,7 @@ class games(commands.Cog):
                 except asyncio.TimeoutError:
                     return await ctx.send(':pensive: No one? Okay then, the answer is: '+str(corr_order)+'. '+str(corr_name))
                 if str(reaction.emoji)==str(corr_order):
-                    await ctx.send(str(self.client.get_emoji(BotEmotes.success)) +' | <@'+str(ctx.author.id)+'>, You are correct! :tada:')
+                    await ctx.send(emote(self.client, 'success') +' | <@'+str(ctx.author.id)+'>, You are correct! :tada:')
                     if Economy.get(ctx.author.id)!=None:
                         reward = random.randint(5, 100)
                         Economy.addbal(ctx.author.id, reward)
@@ -306,7 +306,7 @@ class games(commands.Cog):
         except asyncio.TimeoutError:
             await main.add_reaction('😔')
         if str(reaction.emoji)==str(corr_order):
-            await ctx.send(str(self.client.get_emoji(BotEmotes.success)) +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
+            await ctx.send(emote(self.client, 'success') +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
             if Economy.get(ctx.author.id)!=None:
                 reward = random.randint(5, 150)
                 Economy.addbal(ctx.author.id, reward)
@@ -329,7 +329,7 @@ class games(commands.Cog):
         except asyncio.TimeoutError:
             return await ctx.send(':pensive: No one? Okay then, the answer is: {}.'.format(answer))
         if str(trying.content)==str(answer):
-            await ctx.send(str(self.client.get_emoji(BotEmotes.success)) +' | <@'+str(ctx.author.id)+'>, You are correct! :tada:')
+            await ctx.send(emote(self.client, 'success') +' | <@'+str(ctx.author.id)+'>, You are correct! :tada:')
             if Economy.get(ctx.author.id)!=None:
                 reward = random.randint(5, 50)
                 Economy.addbal(ctx.author.id, reward)
@@ -340,7 +340,7 @@ class games(commands.Cog):
     @command()
     @cooldown(60)
     async def hangman(self, ctx):
-        wait = await ctx.send(str(emote(self.client, 'loading')) + ' | Please wait... generating...')
+        wait = await ctx.send(emote(self.client, 'loading') + ' | Please wait... generating...')
         the_word = jsonisp("https://random-word-api.herokuapp.com/word?number=1")
         main_guess_cor, main_guess_hid = list(the_word[0]), []
         server_id, wrong_guesses = ctx.message.guild.id, ''
@@ -473,7 +473,7 @@ class games(commands.Cog):
                     await ctx.send('Lower!')
                     attempts = int(attempts) - 1
                 if int(trying.content)==num:
-                    await ctx.send(str(self.client.get_emoji(BotEmotes.success)) +' | You are correct!\n**The answer is '+str(num)+'!**')
+                    await ctx.send(emote(self.client, 'success') +' | You are correct!\n**The answer is '+str(num)+'!**')
                     if Economy.get(ctx.author.id)!=None:
                         reward = random.randint(5, 50)
                         Economy.addbal(ctx.author.id, reward)
@@ -514,7 +514,7 @@ class games(commands.Cog):
             if str(guessing.content).lower()==corr:
                 currentmsg = guessing
                 await currentmsg.add_reaction('✅')
-                await ctx.send(str(self.client.get_emoji(BotEmotes.success)) +' | You are correct! The pokemon is **'+str(corr)+'**')
+                await ctx.send(emote(self.client, 'success') +' | You are correct! The pokemon is **'+str(corr)+'**')
                 if Economy.get(ctx.author.id)!=None:
                     reward = random.randint(50, 250)
                     Economy.addbal(ctx.author.id, reward)
@@ -570,7 +570,7 @@ class games(commands.Cog):
         except asyncio.TimeoutError:
             await wait.add_reaction('😔')
         if str(reaction.emoji)==str(corr):
-            await ctx.send(str(self.client.get_emoji(BotEmotes.success)) +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
+            await ctx.send(emote(self.client, 'success') +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
             if Economy.get(ctx.author.id)!=None:
                 reward = random.randint(250, 400)
                 Economy.addbal(ctx.author.id, reward)

@@ -76,7 +76,7 @@ class apps(commands.Cog):
     @command()
     @cooldown(10)
     async def translate(self, ctx, *args):
-        wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait...') ; args = list(args)
+        wait = await ctx.send(emote(self.client, 'loading') + ' | Please wait...') ; args = list(args)
         if len(args)>0:
             if args[0]=='--list':
                 lang = ''
@@ -105,7 +105,7 @@ class apps(commands.Cog):
     @command()
     @cooldown(10)
     async def wikipedia(self, ctx, *args):
-        wait = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait...')
+        wait = await ctx.send(emote(self.client, 'loading') + ' | Please wait...')
         if len(list(args))==0:
             await wait.edit(content='Please input a page name!')
         else:
@@ -142,7 +142,7 @@ class apps(commands.Cog):
     @command()
     @cooldown(10)
     async def imdb(self, ctx, *args):
-        wait, args = await ctx.send(str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait...'), list(args)
+        wait, args = await ctx.send(emote(self.client, 'loading') + ' | Please wait...'), list(args)
         if len(args)==0 or args[0].lower()=='help' or args[0].lower()=='--help':
             embed = discord.Embed(title='IMDb command help', description='Searches through the IMDb Movie database.\n{} are Parameters that is **REQUIRED** to get the info.\n\n', colour=discord.Colour.from_rgb(201, 160, 112))
             embed.add_field(name='Commands', value=prefix+'imdb --top {NUMBER}\n'+prefix+'imdb help\n'+prefix+'imdb --movie {MOVIE_ID or MOVIE_NAME}', inline='False')
@@ -177,13 +177,13 @@ class apps(commands.Cog):
                 data = ia.get_movie(str(movieId))
             try:
                 embed = discord.Embed(title=data['title'], colour=discord.Colour.from_rgb(201, 160, 112))
-                await wait.edit(content=str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait... Retrieving data...')
+                await wait.edit(content=emote(self.client, 'loading') + ' | Please wait... Retrieving data...')
                 emoteStar = ''
                 for i in range(0, round(int(ia.get_movie_main(theID)['data']['rating']))):
                     emoteStar = emoteStar + ' :star:'
                 upload_date = ia.get_movie_release_info(str(theID))['data']['raw release dates'][0]['date']
                 imdb_url = ia.get_imdbURL(data)
-                await wait.edit(content=str(self.client.get_emoji(BotEmotes.loading)) + ' | Please wait... Creating result...')
+                await wait.edit(content=emote(self.client, 'loading') + ' | Please wait... Creating result...')
                 embed.add_field(name='General Information', value=f'**IMDb URL: **{imdb_url}\n**Upload date: **{upload_date}\n**Written by: **'+ia.get_movie_main(str(theID))['data']['writer'][0]['name']+'\n**Directed by: **'+ia.get_movie_main(str(theID))['data']['director'][0]['name'])
                 embed.add_field(name='Ratings', value=emoteStar+'\n**Overall rating: **'+str(ia.get_movie_main(str(theID))['data']['rating'])+'\n**Rated by '+str(ia.get_movie_main(str(theID))['data']['votes'])+' people**')
                 embed.set_image(url=ia.get_movie_main(str(theID))['data']['cover url'])

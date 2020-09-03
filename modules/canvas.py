@@ -10,8 +10,8 @@ from colorthief import ColorThief
 
 def getFont(fontpath, fontname, size, otf=False):
     ext = 'ttf' if not otf else 'otf'
-    return ImageFont.truetype(f'{fontpath}{fontname}.{ext}', size)
-def getImage(assetpath, imageName): return Image.open(f'{assetpath}{imageName}')
+    return ImageFont.truetype(f'{fontpath}/{fontname}.{ext}', size)
+def getImage(assetpath, imageName): return Image.open(f'{assetpath}/{imageName}')
 def imagefromURL(url, *args, **kwargs): return Image.open(BytesIO(get(url).content))
 def bufferGIF(images, duration, optimize=False):
     arr = BytesIO()
