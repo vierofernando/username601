@@ -290,7 +290,7 @@ class Economy:
         else:
             return {
                 'bool': False,
-                'time': time_encode(round(t.now().timestamp() - data))
+                'time': time_encode(round((data+43200) - t.now().timestamp()))
             }
     
     def setbal(userid, newbal):
