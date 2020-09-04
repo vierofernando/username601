@@ -460,6 +460,7 @@ class Painter:
                 now, next = int(details['wallet']), int(after['bal'])
                 percentage = round(now/next*margin_right)
                 if percentage < margin_left: percentage = margin_left
+                if percentage > margin_right: percentage = margin_right
             except ZeroDivisionError:
                 percentage = margin_right
             draw.rectangle([(margin_left, 370), (percentage, 400)], fill=(0, 255, 0))
