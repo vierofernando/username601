@@ -65,7 +65,7 @@ async def on_raw_reaction_add(payload):
     if data==None: return
     try:
         messages = await client.get_channel(data['channelid']).history().flatten()
-        starboards = [int(str(message.content).split(': ')[1]) for message in messages if message.author.id==cfg('BOT_ID')]
+        starboards = [int(str(message.content).split(': ')[1]) for message in messages if message.author.id==cfg('BOT_ID', integer=True)]
         if payload.message_id in starboards: return
     except: return
     message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
@@ -166,6 +166,7 @@ async def on_command_error(ctx, error):
             title='Error', color=discord.Colour.red(), description=f'Content:\n```{ctx.message.content}```\n\nError:\n```{str(error)}```'
         ).set_footer(text='Bug made by user: {} (ID of {})'.format(str(ctx.author), ctx.author.id)))
         await ctx.send('There was an error. Error reported to the developer! sorry for the inconvenience...', delete_after=3)
+
 def isdblvote(author):
     if not author.bot: return False
     elif author.id==479688142908162059: return False
