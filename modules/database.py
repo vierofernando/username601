@@ -290,7 +290,7 @@ class Economy:
         else:
             return {
                 'bool': False,
-                'time': time_encode(round(data))
+                'time': time_encode(round(t.now().timestamp() - data))
             }
     
     def setbal(userid, newbal):
@@ -337,7 +337,7 @@ class Economy:
                 'bal': bal
             }})
             database['economy'].update_one({'userid': userid}, { '$set': {
-                'joinDate': t.now().timestamp()
+                'lastDaily': t.now().timestamp()
             }})
             return bal
         except Exception as e:
