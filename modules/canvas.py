@@ -146,7 +146,7 @@ class Painter:
     def get_accent(self, image): return self.get_color_accent(self.thief, image)
     def get_multiple_accents(self, image): return self.get_multiple_color_accents(self.thief, image)
 
-    def password(self, word1, word2):
+    def password(self, bad_pass, good_pass):
         im = self.getImage(self.assetpath, 'pass.png')
         font = self.getFont(self.fontpath, 'Helvetica', 25)
         draw = ImageDraw.Draw(im)

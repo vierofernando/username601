@@ -35,7 +35,8 @@ class memes(commands.Cog):
         param = ' '.join(list(args))
         async with ctx.channel.typing():
             if '|' in param: text1, text2 = param.split('|')[0], param.split('|')[1:len(param.split('|'))]
-            elif ',' in param: text1, text2 = param.split(',')[0], param.split(',')[1:len(param.split('|'))]
+            elif ', ' in param: text1, text2 = param.split(', ')[0], param.split(', ')[1:len(param.split(', '))]
+            elif ',' in param: text1, text2 = param.split(',')[0], param.split(',')[1:len(param.split(','))]
             elif ' ' in param and len(param.split())==2: text1, text2 = param.split()[0], param.split()[1]
             else: text1, text2 = 'use the correct', 'parameters smh'
             i = self.canvas.password(text1, text2)
