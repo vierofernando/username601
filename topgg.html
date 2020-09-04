@@ -1,0 +1,1895 @@
+<!--
+
+Main source code of the long description
+in the bot's top.gg page
+      
+-->
+
+<!DOCTYPE html>
+<html>
+  <title>UsernameBOT</title>
+  <link rel='stylesheet' href="https://fonts.googleapis.com/css?family=Roboto">
+  <style>
+    body {
+    	background-image: url('https://id-static.z-dn.net/files/d93/d299c2fa6770e3061e085cbb931e689d.jpg');
+  		background-repeat: no-repeat;
+  		background-attachment: fixed;  
+  		background-size: cover;
+    	color: white;
+    }
+    .bot-name {
+    	color: white;
+        font-family: "Roboto", sans-serif;
+    }
+    #menu {
+    	background-color: black;
+    	color: white;
+    	font-family: "Roboto", sans-serif;
+    }
+    .columns .bot-img {
+    	border-radius: 50%;
+    	border: 5px solid white;
+    }
+    .columns .bot-img:hover {
+    	transition: 0.5s;
+    	transform: scale(1.05);
+    	cursor: pointer;
+    	border: 5px solid red;
+    }
+    .atag::after {
+    	display: none;
+    }
+    .votebutton , #websitelink , #support , #github , .atag {
+    	background-color: red;
+    	color: white;
+    	border-radius: 15px;
+    }
+    #report {
+    	background-color: black;
+    	color: white;
+    }
+    .votebutton:hover , #websitelink:hover , #support:hover , #github:hover , .atag:hover {
+    	transition: 0.5s;
+    	transform: scale(1.03);
+        background-color: green;
+    }
+    #report:hover {
+    	background-color: red;
+    	color: white;
+    }
+    #upvotebutton {
+    	background-color: white;
+    	border: 2px solid white;
+    }
+    a {
+    	color: #46CAFF;
+    	text-decoration: underline;
+    }
+    a:hover {
+    	transition:0.3s;
+    	color: red;
+    }
+    p , h1 , strong {
+    	color: white;
+    	font-family: "Roboto", sans-serif;
+    }
+    .bot-description {
+    	color: white;
+    	font-family: "Roboto", sans-serif;
+    	padding: 25px;
+    	background-color: rgba(0, 0, 0, 0.5);
+    	border-radius: 20px;
+    }
+    code {
+    	background-color: black;
+    	color: red;
+    	font-weight: bold;
+    	font-family: monospace;
+    }
+    .longdescription .content {
+    	background-color: rgba(0, 0, 0, 0.5);
+    	color: white;
+    	font-family: "Roboto", sans-serif;
+    }
+    
+  </style>
+</html>
+
+<style>
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+</style>
+
+<br>
+Commands<br>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Category</th>
+        <th>Description</th>
+        <th>Parameters</th>
+        <th>API Used</th>
+    </tr>
+<tr>
+            <td>help</td>
+            <td>Bot Help</td>
+            <td>Shows bot commands.</td>
+            <td>OPTIONAL: help [command name]<br>
+OPTIONAL: help [category name]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>vote</td>
+            <td>Bot Help</td>
+            <td>Gives the link to vote the bot.</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>support</td>
+            <td>Bot Help</td>
+            <td>Shows the support server link</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>feedback</td>
+            <td>Bot Help</td>
+            <td>Sends a feedback to the Support server.</td>
+            <td>REQUIRED: feedback [text]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>about</td>
+            <td>Bot Help</td>
+            <td>Sends a lot of information about the bot itself, and the author.</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>github</td>
+            <td>Bot Help</td>
+            <td>Sends a github link to the bot's source code.</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>inviteme</td>
+            <td>Bot Help</td>
+            <td>Sends an invite link for the bot. (and the support server)</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>ping</td>
+            <td>Bot Help</td>
+            <td>Sends the current bot latency in milliseconds.</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>stats</td>
+            <td>Bot Help</td>
+            <td>Shows the bot's stats!</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>warn</td>
+            <td>Moderation</td>
+            <td>Warns someone.</td>
+            <td>REQUIRED: warn [tag]<br>
+OPTIONAL: warn [tag] [reason]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>unwarn</td>
+            <td>Moderation</td>
+            <td>Clears all warn of a person.</td>
+            <td>REQUIRED: unwarn [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>warnlist</td>
+            <td>Moderation</td>
+            <td>Shows you the warn list!</td>
+            <td>OPTIONAL: warnlist [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>mute</td>
+            <td>Moderation</td>
+            <td>mutes someone. disallowing them from chatting or connecting to voice channels.</td>
+            <td>REQUIRED: mute [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>unmute</td>
+            <td>Moderation</td>
+            <td>Unmutes someone.</td>
+            <td>REQUIRED: unmute [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>dehoister</td>
+            <td>Moderation</td>
+            <td>Dehoists some automatically if they changed their nickname to something starts with '!'</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>starboard</td>
+            <td>Moderation</td>
+            <td>Sets up a starboard for you!</td>
+            <td>OPTIONAL: starboard limit [number]<br>
+OPTIONAL: starboard remove</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>joinposition</td>
+            <td>Moderation</td>
+            <td>shows the current join position</td>
+            <td>OPTIONAL: joinposition [tag/name/user id]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>serverstats</td>
+            <td>Moderation</td>
+            <td>Shows the server stats!</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>config</td>
+            <td>Moderation</td>
+            <td>Shows the server configuration for username601!</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>rolecolor</td>
+            <td>Moderation</td>
+            <td>Changes the role color of a specific role.</td>
+            <td>OPTIONAL: rolecolor [role name] [color in hex]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>slowmode</td>
+            <td>Moderation</td>
+            <td>Sets the slowmode of a channel to [this] seconds.</td>
+            <td>REQUIRED: slowmode [seconds]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>ar</td>
+            <td>Moderation</td>
+            <td>Adds a role to a specific user.</td>
+            <td>REQUIRED: ar [user tag] [role name]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>rr</td>
+            <td>Moderation</td>
+            <td>Removes a role from a specific user.</td>
+            <td>REQUIRED: rr [user tag] [role name]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>clear</td>
+            <td>Moderation</td>
+            <td>Clears the channel message.</td>
+            <td>REQUIRED: clear [count]<br>
+REQUIRED: clear [user tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>kick</td>
+            <td>Moderation</td>
+            <td>Kicks the user from the server.</td>
+            <td>REQUIRED: kick [user tag]<br>
+OPTIONAL: kick [user tag] [reason]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>ban</td>
+            <td>Moderation</td>
+            <td>Bans the user from the server.</td>
+            <td>REQUIRED: ban [user tag]<br>
+OPTIONAL: ban [user tag] [reason]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>nick</td>
+            <td>Moderation</td>
+            <td>Changes the nickname of a user.</td>
+            <td>REQUIRED: nick [user tag] [new name]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>makechannel</td>
+            <td>Moderation</td>
+            <td>Creates a channel.</td>
+            <td>REQUIRED: makechannel text [name]<br>
+REQUIRED: makechannel voice [name]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>emojiinfo</td>
+            <td>Moderation</td>
+            <td>Shows the info of a (custom) emoji.</td>
+            <td>REQUIRED: emojiinfo [emoji]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>permissions</td>
+            <td>Moderation</td>
+            <td>Shows the (key) permission of a user.</td>
+            <td>REQUIRED: permissions [user tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>roleinfo</td>
+            <td>Moderation</td>
+            <td>Shows the role information of a role.</td>
+            <td>REQUIRED: roleinfo [role name]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>id</td>
+            <td>Moderation</td>
+            <td>Shows the id.</td>
+            <td>REQUIRED: id [user tag]<br>
+REQUIRED: id [channel tag]<br>
+REQUIRED: id [role tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>getinvite</td>
+            <td>Moderation</td>
+            <td>Creates a permanent, infinite invite for the server.</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>botmembers</td>
+            <td>Moderation</td>
+            <td>Lists the bots in the server.</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>serverinfo</td>
+            <td>Moderation</td>
+            <td>Shows the detailed information about the server.</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>servericon</td>
+            <td>Moderation</td>
+            <td>Shows the server icon. In high resolution!</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>avatar</td>
+            <td>Moderation</td>
+            <td>Displays the avatar of a user.</td>
+            <td>REQUIRED: avatar [user tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>userinfo</td>
+            <td>Moderation</td>
+            <td>Shows the detailed information about a user/bot.</td>
+            <td>REQUIRED: userinfo [user tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>roles</td>
+            <td>Moderation</td>
+            <td>Lists the role names in the guild.</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>channels</td>
+            <td>Moderation</td>
+            <td>Lists all the server (text) channels.</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>serveremojis</td>
+            <td>Moderation</td>
+            <td>Shows the list of the server custom emojis.</td>
+            <td>OPTIONAL: serveremojis --short</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>reactnum</td>
+            <td>Moderation</td>
+            <td>Reacts with the number order. MAX: 9</td>
+            <td>REQUIRED: reactnum [lower number] [greater number]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>lockdown</td>
+            <td>Moderation</td>
+            <td>Locks the channel. (requires admin)</td>
+            <td>REQUIRED: lockdown enable<br>
+REQUIRED: lockdown disable</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>hidechannel</td>
+            <td>Moderation</td>
+            <td>Hides the channel for people that doesn't have the admin permission.</td>
+            <td>REQUIRED: hidechannel enable<br>
+REQUIRED: hidechannel disable</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>welcome</td>
+            <td>Moderation</td>
+            <td>Sets the welcome channel!</td>
+            <td>OPTIONAL: welcome [channel]<br>
+OPTIONAL: welcome disable</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>autorole</td>
+            <td>Moderation</td>
+            <td>Sets the autorole when someone joins the server.</td>
+            <td>OPTIONAL: autorole [role name/mention]<br>
+OPTIONAL: autorole disable</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>new</td>
+            <td>Economy</td>
+            <td>Generates a new profile!</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>bal</td>
+            <td>Economy</td>
+            <td>Shows the player's bal!</td>
+            <td>OPTIONAL: bal [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>beg</td>
+            <td>Economy</td>
+            <td>GIMME MOAR DIAMONDS !!!</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>fish</td>
+            <td>Economy</td>
+            <td>Go fishing and get some profit!</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>deposit</td>
+            <td>Economy</td>
+            <td>Deposits your money to your bank!</td>
+            <td>REQUIRED: dep [number]<br>
+OPTIONAL: dep all</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>withdraw</td>
+            <td>Economy</td>
+            <td>withdraws your money from your bank!</td>
+            <td>REQUIRED: withdraw [number]<br>
+OPTIONAL: withdraw all</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>daily</td>
+            <td>Economy</td>
+            <td>Gets your daily reward!</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>shop</td>
+            <td>Economy</td>
+            <td>Shows the local server shop!</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>buy</td>
+            <td>Economy</td>
+            <td>Buys something out of the local server shop!</td>
+            <td>REQUIRED: buy [name]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>addproduct</td>
+            <td>Economy</td>
+            <td>Adds a product to the custom server shop!</td>
+            <td>REQUIRED: addproduct [price] [name]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>delproduct</td>
+            <td>Economy</td>
+            <td>Deletes a certain/all product from the shop!</td>
+            <td>REQUIRED: delproduct [name]<br>
+OPTIONAL: delproduct all</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>work</td>
+            <td>Economy</td>
+            <td>Works and gets moneys</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>leaderboard</td>
+            <td>Economy</td>
+            <td>shows the leaderboard of the server.</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>setdesc</td>
+            <td>Economy</td>
+            <td>Changes your description</td>
+            <td>REQUIRED: setdesc [text]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>transfer</td>
+            <td>Economy</td>
+            <td>transfer someonr your money! Good for giveaways.</td>
+            <td>REQUIRED: transfer [tag] [amount]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>rob</td>
+            <td>Economy</td>
+            <td>Robs someone.</td>
+            <td>REQUIRED: rob [tag] [amount]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>reset</td>
+            <td>Economy</td>
+            <td>Deletes your profile (irreversible!)</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>palette</td>
+            <td>Utilities</td>
+            <td>Shows the color palette of a person's avatar</td>
+            <td>REQUIRED: palette [tag/name/user id]</td>
+            <td><a href="https://useless-api.vierofernando.repl.co/">https://useless-api.vierofernando.repl.co/</a></td>
+        </tr>
+        <tr>
+            <td>isitdown</td>
+            <td>Utilities</td>
+            <td>Pings a website to show if it is down or not.</td>
+            <td>REQUIRED: isitdown [weblink]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>pokedex</td>
+            <td>Utilities</td>
+            <td>Shows the pokedex of a certain pokemon!</td>
+            <td>REQUIRED: pokedex [name]</td>
+            <td><a href="https://bulbapedia.bulbagarden.net/">https://bulbapedia.bulbagarden.net/</a></td>
+        </tr>
+        <tr>
+            <td>imgascii</td>
+            <td>Utilities</td>
+            <td>Convert someone's avatar to a good ol' ascii!</td>
+            <td>REQUIRED: imgascii [tag/name/user id]</td>
+            <td><a href="https://hastebin.com/">https://hastebin.com/</a></td>
+        </tr>
+        <tr>
+            <td>nasa</td>
+            <td>Utilities</td>
+            <td>shows some nasa pics and descriptions</td>
+            <td>OPTIONAL: nasa [query]</td>
+            <td><a href="https://nasa.gov/">https://nasa.gov/</a></td>
+        </tr>
+        <tr>
+            <td>calc</td>
+            <td>Utilities</td>
+            <td>Does a little calculation for your math problemos!</td>
+            <td>REQUIRED: calc [equation]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>quote</td>
+            <td>Utilities</td>
+            <td>Displays an inspirational quote.</td>
+            <td>No parameters required.</td>
+            <td><a href="https://quotes.herokuapp.com/libraries/math/random">https://quotes.herokuapp.com/libraries/math/random</a></td>
+        </tr>
+        <tr>
+            <td>typingtest</td>
+            <td>Utilities</td>
+            <td>Plays a little typing test. Test how fast you can type! (don't copy and paste)</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>robohash</td>
+            <td>Utilities</td>
+            <td>Displays the robohash.</td>
+            <td>OPTIONAL: robohash [text]</td>
+            <td><a href="https://robohash.org/">https://robohash.org/</a></td>
+        </tr>
+        <tr>
+            <td>weather</td>
+            <td>Utilities</td>
+            <td>Displays the weather forecast of a city.</td>
+            <td>REQUIRED: weather [city name]</td>
+            <td><a href="https://wttr.in/">https://wttr.in/</a></td>
+        </tr>
+        <tr>
+            <td>ufo</td>
+            <td>Utilities</td>
+            <td>Displays a random UFO case.</td>
+            <td>No parameters required.</td>
+            <td><a href="http://ufo-api.herokuapp.com/">http://ufo-api.herokuapp.com/</a></td>
+        </tr>
+        <tr>
+            <td>colorinfo</td>
+            <td>Utilities</td>
+            <td>Displays a detailed info of a hex or color value.</td>
+            <td>REQUIRED: colorinfo [hex]<br>
+REQUIRED: colorinfo [integer value]</td>
+            <td><a href="http://api.alexflipnote.dev/">http://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>rhyme</td>
+            <td>Utilities</td>
+            <td>Displays a list of words that rhymes with [word].</td>
+            <td>REQUIRED: rhyme [word]</td>
+            <td><a href="https://rhymebrain.com/">https://rhymebrain.com/</a></td>
+        </tr>
+        <tr>
+            <td>embed</td>
+            <td>Utilities</td>
+            <td>Sends an embed. Very customizable. (no json input!)</td>
+            <td>REQUIRED: embed (title:[title]) (desc:[description])<br>
+OPTIONAL: embed (title:[title]) (desc:[description]) (color:[hex])<br>
+OPTIONAL: embed (title:[title]) (desc:[description]) (footer:[text])<br>
+OPTIONAL: embed (title:[title]) (desc:[description]) (author:[name])<br>
+OPTIONAL: embed --help</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>catfact</td>
+            <td>Utilities</td>
+            <td>Sends the fact of a cat.</td>
+            <td>No parameters required.</td>
+            <td><a href="https://catfact.ninja/fact">https://catfact.ninja/fact</a></td>
+        </tr>
+        <tr>
+            <td>dogfact</td>
+            <td>Utilities</td>
+            <td>Sends the fact of a dog.</td>
+            <td>No parameters required.</td>
+            <td><a href="https://dog-api.kinduff.com/api/facts">https://dog-api.kinduff.com/api/facts</a></td>
+        </tr>
+        <tr>
+            <td>funfact</td>
+            <td>Utilities</td>
+            <td>Sends a fun fact.</td>
+            <td>No parameters required.</td>
+            <td><a href="https://bestlifeonline.com/random-fun-facts/">https://bestlifeonline.com/random-fun-facts/</a></td>
+        </tr>
+        <tr>
+            <td>steamprofile</td>
+            <td>Utilities</td>
+            <td>Sends a steam profile information.</td>
+            <td>REQUIRED: steamprofile [username]</td>
+            <td><a href="https://api.alexflipnote.dev/">https://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>steamapp</td>
+            <td>Utilities</td>
+            <td>Sends a steam app information.</td>
+            <td>REQUIRED: steamgame [app name]</td>
+            <td><a href="https://store.steampowered.com/">https://store.steampowered.com/</a></td>
+        </tr>
+        <tr>
+            <td>googledoodle</td>
+            <td>Utilities</td>
+            <td>Sends the current google doodle.</td>
+            <td>No parameters required.</td>
+            <td><a href="https://google.com/doodles">https://google.com/doodles</a></td>
+        </tr>
+        <tr>
+            <td>bored</td>
+            <td>Utilities</td>
+            <td>Sends a suggestion for bored people like you.</td>
+            <td>No parameters required.</td>
+            <td><a href="https://www.boredapi.com/api/activity?participants=1">https://www.boredapi.com/api/activity?participants=1</a></td>
+        </tr>
+        <tr>
+            <td>search</td>
+            <td>Utilities</td>
+            <td>Sends a search link for a few popular websites.</td>
+            <td>REQUIRED: search [query]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>randomcolor</td>
+            <td>Utilities</td>
+            <td>Sends a random color with some detailed information about it.</td>
+            <td>No parameters required.</td>
+            <td><a href="https://api.alexflipnote.dev/">https://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>randomword</td>
+            <td>Utilities</td>
+            <td>Sends a random word.</td>
+            <td>No parameters required.</td>
+            <td><a href="https://random-word-api.herokuapp.com/">https://random-word-api.herokuapp.com/</a></td>
+        </tr>
+        <tr>
+            <td>country</td>
+            <td>Utilities</td>
+            <td>Sends a detailed information about a country.</td>
+            <td>REQUIRED: country [name]</td>
+            <td><a href="https://restcountries.eu/">https://restcountries.eu/</a></td>
+        </tr>
+        <tr>
+            <td>time</td>
+            <td>Utilities</td>
+            <td>Sends the current time (and system time) in UTC+0 time zone.</td>
+            <td>No parameters required.</td>
+            <td><a href="http://worldtimeapi.org/">http://worldtimeapi.org/</a></td>
+        </tr>
+        <tr>
+            <td>ghiblifilms</td>
+            <td>Utilities</td>
+            <td>Sends a random custom emote.</td>
+            <td>OPTIONAL: ghiblifilms [number]</td>
+            <td><a href="https://ghibliapi.herokuapp.com/films">https://ghibliapi.herokuapp.com/films</a></td>
+        </tr>
+        <tr>
+            <td>ytthumbnail</td>
+            <td>Utilities</td>
+            <td>Sends a the thumbnail of a youtube video.</td>
+            <td>REQUIRED: ytthumbnail [youtube video link]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>qotd</td>
+            <td>Utilities</td>
+            <td>Generates the quote of the day!</td>
+            <td>No parameters required.</td>
+            <td><a href="https://quotes.rest/qod">https://quotes.rest/qod</a></td>
+        </tr>
+        <tr>
+            <td>iss</td>
+            <td>Utilities</td>
+            <td>Gives an information about the current ISS location and all of the people currently in space.</td>
+            <td>No parameters required.</td>
+            <td><a href="i forgot sorry">i forgot sorry</a></td>
+        </tr>
+        <tr>
+            <td>pandafact</td>
+            <td>Utilities</td>
+            <td>sends a random fact about pandas.</td>
+            <td>No parameters required.</td>
+            <td><a href="some random api">some random api</a></td>
+        </tr>
+        <tr>
+            <td>birdfact</td>
+            <td>Utilities</td>
+            <td>Sends a random fact about birds!</td>
+            <td>No parameters required.</td>
+            <td><a href="some random api">some random api</a></td>
+        </tr>
+        <tr>
+            <td>sof</td>
+            <td>Utilities</td>
+            <td>Does a stackoverflow search!</td>
+            <td>sof [query]</td>
+            <td><a href="https://stackoverflow.com/">https://stackoverflow.com/</a></td>
+        </tr>
+        <tr>
+            <td>recipe</td>
+            <td>Utilities</td>
+            <td>Finds the recipe of a certain food!</td>
+            <td>REQUIRED: recipe [food]</td>
+            <td><a href="http://www.recipepuppy.com/">http://www.recipepuppy.com/</a></td>
+        </tr>
+        <tr>
+            <td>edit</td>
+            <td>Fun</td>
+            <td>Creates a cool discord edit (glitch?)</td>
+            <td>REQUIRED: edit [text with | in it]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>mock</td>
+            <td>Fun</td>
+            <td>Mocks or randomcases a text to make it funny</td>
+            <td>OPTIONAL: mock [text]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>hack</td>
+            <td>Fun</td>
+            <td>Hacks a user.</td>
+            <td>REQUIRED: hack [user tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>tts</td>
+            <td>Fun</td>
+            <td>Sends the message as text-to-speeched.</td>
+            <td>REQUIRED: tts [text]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>joke</td>
+            <td>Fun</td>
+            <td>Sends a random joke with a random pun.</td>
+            <td>No parameters required.</td>
+            <td><a href="https://official-joke-api.appspot.com/">https://official-joke-api.appspot.com/</a></td>
+        </tr>
+        <tr>
+            <td>slap</td>
+            <td>Fun</td>
+            <td>Slaps a user.</td>
+            <td>REQUIRED: slap [user tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>hbd</td>
+            <td>Fun</td>
+            <td>Celebrates a user's birthday.</td>
+            <td>REQUIRED: hbd [user tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>gaylevel</td>
+            <td>Fun</td>
+            <td>Checks how gay a user is.</td>
+            <td>REQUIRED: gaylevel [user tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>lovelevel</td>
+            <td>Fun</td>
+            <td>Checks how strong the love the [user] with you.</td>
+            <td>REQUIRED: lovelevel [user tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>randomavatar</td>
+            <td>Fun</td>
+            <td>Sends a random avatar. (not the member's avatar)</td>
+            <td>No parameters required.</td>
+            <td><a href="https://api.adorable.io/">https://api.adorable.io/</a></td>
+        </tr>
+        <tr>
+            <td>secret</td>
+            <td>Fun</td>
+            <td>DMs a random secret! :eyes:</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>inspirobot</td>
+            <td>Fun</td>
+            <td>An AI will try it's best to create a quote. Who knows what will appear?</td>
+            <td>No parameters required.</td>
+            <td><a href="https://inspirobot.me/">https://inspirobot.me/</a></td>
+        </tr>
+        <tr>
+            <td>8ball</td>
+            <td>Fun</td>
+            <td>The magic 8BALL will answer your deepest questions!</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>deathnote</td>
+            <td>Fun</td>
+            <td>Lists the death note of the random people in the server!</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>choose</td>
+            <td>Fun</td>
+            <td>The bot will choose...</td>
+            <td>REQUIRED: choose [text1] [text2] [text3... etc]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>temmie</td>
+            <td>Fun</td>
+            <td>Changes a word to the temmie language.</td>
+            <td>REQUIRED: temmie [word]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>factcore</td>
+            <td>Fun</td>
+            <td>Generates random fact core (from portal) quotes!</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>say</td>
+            <td>Fun</td>
+            <td>Says something [add '--h' to hide your message]</td>
+            <td>REQUIRED: say [something]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>trivia</td>
+            <td>Games</td>
+            <td>Generates a single trivia! For nerds :v</td>
+            <td>No parameters required.</td>
+            <td><a href="https://wiki-quiz.herokuapp.com/">https://wiki-quiz.herokuapp.com/</a></td>
+        </tr>
+        <tr>
+            <td>pokequiz</td>
+            <td>Games</td>
+            <td>Who's that pokemon?!</td>
+            <td>No parameters required.</td>
+            <td><a href="https://pokeapi.co/">https://pokeapi.co/</a></td>
+        </tr>
+        <tr>
+            <td>guessnum</td>
+            <td>Games</td>
+            <td>Go guess my number!</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>bomb</td>
+            <td>Games</td>
+            <td>Defuse the bomb! cut the correct wire!</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>slot</td>
+            <td>Games</td>
+            <td>Plays a slot game! Will you get the jackpot?</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>hangman</td>
+            <td>Games</td>
+            <td>Plays a little hangman game!</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>mathquiz</td>
+            <td>Games</td>
+            <td>Plays a math quiz!</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>geoquiz</td>
+            <td>Games</td>
+            <td>Plays a geography quiz!</td>
+            <td>No parameters required.</td>
+            <td><a href="https://restcountries.eu/">https://restcountries.eu/</a></td>
+        </tr>
+        <tr>
+            <td>guessavatar</td>
+            <td>Games</td>
+            <td>Guess! Who is that avatar? :eyes:
+(Server less than 500 members only)</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>rps</td>
+            <td>Games</td>
+            <td>Rock, paper, scissors!</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>gddaily</td>
+            <td>Games</td>
+            <td>Shows the current Geometry dash Daily level!</td>
+            <td>No parameters required.</td>
+            <td><a href="http://gdbrowser.com/">http://gdbrowser.com/</a></td>
+        </tr>
+        <tr>
+            <td>gdweekly</td>
+            <td>Games</td>
+            <td>Shows the current Geometry dash Weekly level!</td>
+            <td>No parameters required.</td>
+            <td><a href="http://gdbrowser.com/">http://gdbrowser.com/</a></td>
+        </tr>
+        <tr>
+            <td>gdcomment</td>
+            <td>Games</td>
+            <td>Creates a geometry dash comment!</td>
+            <td>REQUIRED: gdcomment [comment text] | [comment author] | [comment likes]</td>
+            <td><a href="http://gdcolon.com/">http://gdcolon.com/</a></td>
+        </tr>
+        <tr>
+            <td>gdbox</td>
+            <td>Games</td>
+            <td>Generates a custom Geometry dash dialogue Box!</td>
+            <td>REQUIRED: gdbox [text]</td>
+            <td><a href="http://gdcolon.com/">http://gdcolon.com/</a></td>
+        </tr>
+        <tr>
+            <td>gdlogo</td>
+            <td>Games</td>
+            <td>Generates a custom Geometry Dash Logo!</td>
+            <td>REQUIRED: gdlogo [text]</td>
+            <td><a href="http://gdcolon.com/">http://gdcolon.com/</a></td>
+        </tr>
+        <tr>
+            <td>gdprofile</td>
+            <td>Games</td>
+            <td>Shows the information of a Geometry Dash account!</td>
+            <td>REQUIRED: gdprofile [username]</td>
+            <td><a href="http://gdbrowser.com/">http://gdbrowser.com/</a></td>
+        </tr>
+        <tr>
+            <td>gdsearch</td>
+            <td>Games</td>
+            <td>Searches for a certain Geometry Dash Level.</td>
+            <td>REQUIRED: gdsearch [level name]</td>
+            <td><a href="http://gdbrowser.com/">http://gdbrowser.com/</a></td>
+        </tr>
+        <tr>
+            <td>gdlevel</td>
+            <td>Games</td>
+            <td>Shows a detailed info of a geometry dash level!</td>
+            <td>REQUIRED: gdlevel [level id]</td>
+            <td><a href="http://gdbrowser.com/">http://gdbrowser.com/</a></td>
+        </tr>
+        <tr>
+            <td>dice</td>
+            <td>Games</td>
+            <td>Rolls a dice!</td>
+            <td>OPTIONAL: dice [number]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>coin</td>
+            <td>Games</td>
+            <td>Flips a coin!</td>
+            <td>OPTIONAL: coin [heads/tails]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>atbash</td>
+            <td>Encoding</td>
+            <td>Encodes a text to atbash cipher!</td>
+            <td>REQUIRED: atbash [text]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>caesar</td>
+            <td>Encoding</td>
+            <td>Encodes a text to caesar cipher!</td>
+            <td>REQUIRED: caesar [offset] [text]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>base64</td>
+            <td>Encoding</td>
+            <td>Encodes a text in base64!</td>
+            <td>REQUIRED: base64 [text]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>barcode</td>
+            <td>Encoding</td>
+            <td>Encodes a text to barcode!</td>
+            <td>REQUIRED: barcode [text]</td>
+            <td><a href="http://www.barcode-generator.org/">http://www.barcode-generator.org/</a></td>
+        </tr>
+        <tr>
+            <td>ascii</td>
+            <td>Encoding</td>
+            <td>Encodes a text in cool ascii fonts!</td>
+            <td>REQUIRED: ascii [text]<br>
+OPTIONAL: ascii --randomfont [text]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>binary</td>
+            <td>Encoding</td>
+            <td>Encodes a text in binary! felt like a hacker!</td>
+            <td>REQUIRED: binary [text]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>supreme</td>
+            <td>Encoding</td>
+            <td>Converts a text in supreme font!</td>
+            <td>REQUIRED: supreme [text]</td>
+            <td><a href="http://api.alexflipnote.dev/">http://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>reverse</td>
+            <td>Encoding</td>
+            <td>Reverses a text to desreveR version!</td>
+            <td>REQUIRED: reverse [text]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>qr</td>
+            <td>Encoding</td>
+            <td>Encodes a text in QR code!</td>
+            <td>REQUIRED: qr [text]</td>
+            <td><a href="https://api.qrserver.com/">https://api.qrserver.com/</a></td>
+        </tr>
+        <tr>
+            <td>morse</td>
+            <td>Encoding</td>
+            <td>Encodes a message to morse.</td>
+            <td>morse [word]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>cursive</td>
+            <td>Encoding</td>
+            <td>Changes your text into a cursive font!</td>
+            <td>REQUIRED: cursive [text]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>fancy</td>
+            <td>Encoding</td>
+            <td>Converts your text into a fancy version!</td>
+            <td>REQUIRED: fancy [text]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>braille</td>
+            <td>Encoding</td>
+            <td>Converts your text into braille!</td>
+            <td>REQUIRED: braille [text]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>fliptext</td>
+            <td>Encoding</td>
+            <td>Flips your text upside down!</td>
+            <td>REQUIRED: fliptext [text]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>programmerhumor</td>
+            <td>Memes</td>
+            <td>Generates random *relatable and funny* programming-related memes.</td>
+            <td>No parameters required.</td>
+            <td><a href="https://useless-api.vierofernando.repl.co/">https://useless-api.vierofernando.repl.co/</a></td>
+        </tr>
+        <tr>
+            <td>failed</td>
+            <td>Memes</td>
+            <td>i have failed you!</td>
+            <td>REQUIRED: failed [tag/name/userid]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>worship</td>
+            <td>Memes</td>
+            <td>worships someone (lol no pls)</td>
+            <td>REQUIRED: worship [tag/name/userid]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>rage</td>
+            <td>Memes</td>
+            <td>some one raged and destroys a computer.</td>
+            <td>REQUIRED: rage [tag/name/userid]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>disconnected</td>
+            <td>Memes</td>
+            <td>Disconnected from a minecraft server...</td>
+            <td>OPTIONAL: disconnected [text]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>death-star</td>
+            <td>Memes</td>
+            <td>Blows up an avatar like a death star explosion!</td>
+            <td>REQUIRED: death-star [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>hitler</td>
+            <td>Memes</td>
+            <td>WORSE THAN HITLER !!!</td>
+            <td>OPTIONAL: hitler [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>crazyfrog</td>
+            <td>Memes</td>
+            <td>ding ding</td>
+            <td>REQUIRED: crazyfrog [tag/name/userid]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>trashevol</td>
+            <td>Memes</td>
+            <td>The evolution of trash.</td>
+            <td>OPTIONAL: trashevol [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>pass</td>
+            <td>Memes</td>
+            <td>wrong password, secure password</td>
+            <td>REQUIRED: pass [text1] [text2]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>meme</td>
+            <td>Memes</td>
+            <td>Generates a meme from r/memes, r/dankmemes, or r/me_irl</td>
+            <td>No parameters required.</td>
+            <td><a href="https://meme-api.herokuapp.com/gimme/">https://meme-api.herokuapp.com/gimme/</a></td>
+        </tr>
+        <tr>
+            <td>imgcaptcha</td>
+            <td>Memes</td>
+            <td>Beep boop. please select the images with [this] in it.</td>
+            <td>No parameters required.</td>
+            <td><a href="https://nekobot.xyz/">https://nekobot.xyz/</a></td>
+        </tr>
+        <tr>
+            <td>threats</td>
+            <td>Memes</td>
+            <td>These are the biggest threats to the world. [this].</td>
+            <td>REQUIRED: threats [user tag]</td>
+            <td><a href="https://nekobot.xyz/">https://nekobot.xyz/</a></td>
+        </tr>
+        <tr>
+            <td>phcomment</td>
+            <td>Memes</td>
+            <td>Comments in a 'ph' submission.</td>
+            <td>REQUIRED: phcomment [text]<br>
+REQUIRED: phcomment [user tag] [text]</td>
+            <td><a href="https://nekobot.xyz/">https://nekobot.xyz/</a></td>
+        </tr>
+        <tr>
+            <td>drake</td>
+            <td>Memes</td>
+            <td>Creates a meme in a drake format.</td>
+            <td>REQUIRED: drake [[top text]] [[bottom text]]<br>
+OPTIONAL: drake help</td>
+            <td><a href="https://api.alexflipnote.dev/">https://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>scroll</td>
+            <td>Memes</td>
+            <td>Finally i found this (literally) scroll!</td>
+            <td>REQUIRED: scroll [text]</td>
+            <td><a href="https://api.alexflipnote.dev/">https://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>call</td>
+            <td>Memes</td>
+            <td>Tom calls a number. Top text: [this].</td>
+            <td>REQUIRED: call [text]</td>
+            <td><a href="https://api.alexflipnote.dev/">https://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>challenge</td>
+            <td>Memes</td>
+            <td>Challenge complete; [this]!</td>
+            <td>REQUIRED: challenge [text]</td>
+            <td><a href="https://api.alexflipnote.dev/">https://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>didyoumean</td>
+            <td>Memes</td>
+            <td>Did you mean; [this]?</td>
+            <td>REQUIRED: didyoumean [[text]] [[another text]]<br>
+OPTIONAL: didyoumean help</td>
+            <td><a href="https://api.alexflipnote.dev/">https://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>clyde</td>
+            <td>Memes</td>
+            <td>Generates a fake clyde (discord bot) message</td>
+            <td>REQUIRED: clyde [text]</td>
+            <td><a href="https://nekobot.xyz/">https://nekobot.xyz/</a></td>
+        </tr>
+        <tr>
+            <td>burn</td>
+            <td>Memes</td>
+            <td>Burns someone! HAHAHAHA!</td>
+            <td>REQUIRED: burn [tag/name/userid]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>trash</td>
+            <td>Memes</td>
+            <td>Throws [this guy] to the trash! OwO</td>
+            <td>REQUIRED: trash [user tag]</td>
+            <td><a href="https://api.alexflipnote.dev/">https://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>avmeme</td>
+            <td>Memes</td>
+            <td>Creates a meme with a background image of somebody's avatar!</td>
+            <td>REQUIRED: avmeme [user tag] [[top text]] [[bottom text]]</td>
+            <td><a href="https://memegen.link/">https://memegen.link/</a></td>
+        </tr>
+        <tr>
+            <td>kannagen</td>
+            <td>Memes</td>
+            <td>Kannagennify a message uwu owo</td>
+            <td>REQUIRED: kannagen [text]</td>
+            <td><a href="https://nekobot.xyz/">https://nekobot.xyz/</a></td>
+        </tr>
+        <tr>
+            <td>facts</td>
+            <td>Memes</td>
+            <td>LOOK! HERE IS A BOOK OF FACTS!</td>
+            <td>REQUIRED: facts [text]</td>
+            <td><a href="https://api.alexflipnote.dev/">https://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>wonka</td>
+            <td>Memes</td>
+            <td>Generates a wonka meme!</td>
+            <td>REQUIRED: wonka [[top text]] [[bottom text]]</td>
+            <td><a href="https://memegen.link/">https://memegen.link/</a></td>
+        </tr>
+        <tr>
+            <td>buzz</td>
+            <td>Memes</td>
+            <td>Look, [this] everywhere..!</td>
+            <td>REQUIRED: buzz [[top text]] [[bottom text]]</td>
+            <td><a href="https://memegen.link/">https://memegen.link/</a></td>
+        </tr>
+        <tr>
+            <td>doge</td>
+            <td>Memes</td>
+            <td>Generates a doge meme. Very much cool</td>
+            <td>REQUIRED: doge [[top text]] [[bottom text]]</td>
+            <td><a href="https://memegen.link/">https://memegen.link/</a></td>
+        </tr>
+        <tr>
+            <td>fry</td>
+            <td>Memes</td>
+            <td>Generates a fry meme</td>
+            <td>REQUIRED: fry [[top text]] [[bottom text]]</td>
+            <td><a href="https://memegen.link/">https://memegen.link/</a></td>
+        </tr>
+        <tr>
+            <td>philosoraptor</td>
+            <td>Memes</td>
+            <td>Generates a philosoraptor meme. Ah, a classic.</td>
+            <td>REQUIRED: philosoraptor [[top text]] [[bottom text]]</td>
+            <td><a href="https://memegen.link/">https://memegen.link/</a></td>
+        </tr>
+        <tr>
+            <td>money</td>
+            <td>Memes</td>
+            <td>Shut up and take my money!</td>
+            <td>REQUIRED: money [[top text]] [[bottom text]]</td>
+            <td><a href="https://memegen.link/">https://memegen.link/</a></td>
+        </tr>
+        <tr>
+            <td>ph</td>
+            <td>Memes</td>
+            <td>Generates a ph text!</td>
+            <td>REQUIRED: ph [[white text]] [[orange text]]</td>
+            <td><a href="https://api.alexflipnote.dev/">https://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>philosoraptor</td>
+            <td>Memes</td>
+            <td>Generates a philosoraptor meme. Ah, a classic.</td>
+            <td>REQUIRED: philosoraptor [[top text]] [[bottom text]]</td>
+            <td><a href="https://memegen.link/">https://memegen.link/</a></td>
+        </tr>
+        <tr>
+            <td>salty</td>
+            <td>Memes</td>
+            <td>This [user] is salty! Let's add more salt.</td>
+            <td>REQUIRED: salty [user tag]</td>
+            <td><a href="https://api.alexflipnote.dev/">https://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>captcha</td>
+            <td>Memes</td>
+            <td>Generates a captcha text.</td>
+            <td>REQUIRED: captcha [text]</td>
+            <td><a href="https://useless-api.vierofernando.repl.co/">https://useless-api.vierofernando.repl.co/</a></td>
+        </tr>
+        <tr>
+            <td>wooosh</td>
+            <td>Memes</td>
+            <td>The joke flew over [guy]'s head!</td>
+            <td>REQUIRED: woosh [user tag]<br>
+REQUIRED: wooosh [user tag]<br>
+REQUIRED: wooosh [user tag]</td>
+            <td><a href="https://api.alexflipnote.dev/">https://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>achieve</td>
+            <td>Memes</td>
+            <td>We achieved something!</td>
+            <td>REQUIRED: achieve [text]</td>
+            <td><a href="https://api.alexflipnote.dev/">https://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>wanted</td>
+            <td>Memes</td>
+            <td>Wanted image generator!</td>
+            <td>OPTIONAL: wanted [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>ferbtv</td>
+            <td>Memes</td>
+            <td>Your profile pic is on the Ferb TV!</td>
+            <td>OPTIONAL: ferbtv [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>chatroulette</td>
+            <td>Memes</td>
+            <td>Generates a chatroulette meme.</td>
+            <td>OPTIONAL: chatroulette [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>art</td>
+            <td>Memes</td>
+            <td>Oh this, this is beautiful.</td>
+            <td>OPTIONAL: art [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>triggered</td>
+            <td>Memes</td>
+            <td>Triggers someone with this triggered meme generator!</td>
+            <td>OPTIONAL: triggered [tag]<br>
+OPTIONAL: triggered [tag] [increment]<br>
+OPTIONAL: triggered [increment]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>changemymind</td>
+            <td>Memes</td>
+            <td>Changes my mind!</td>
+            <td>REQUIRED: changemymind [text]</td>
+            <td><a href="https://nekobot.xyz/">https://nekobot.xyz/</a></td>
+        </tr>
+        <tr>
+            <td>communist</td>
+            <td>Memes</td>
+            <td>COMMUNIST CONFIRMED!</td>
+            <td>OPTIONAL: communist [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>floor</td>
+            <td>Memes</td>
+            <td>Generates a floor meme!</td>
+            <td>REQUIRED: floor [text]<br>
+OPTIONAL: floor [tag] [text]</td>
+            <td><a href="https://alexflipnote.dev">https://alexflipnote.dev</a></td>
+        </tr>
+        <tr>
+            <td>door</td>
+            <td>Memes</td>
+            <td>Creates a door meme!</td>
+            <td>OPTIONAL: door [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>baby</td>
+            <td>Memes</td>
+            <td>Generates a baby screaming meme from Wreck It Ralph 2!</td>
+            <td>OPTIONAL: baby [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>wolverine</td>
+            <td>Memes</td>
+            <td>Create a wolverine meme!</td>
+            <td>OPTIONAL: wolverine [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>disgusting</td>
+            <td>Memes</td>
+            <td>This is disgusting!</td>
+            <td>OPTIONAL: disgusting [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>f</td>
+            <td>Memes</td>
+            <td>Press f to pay respects.</td>
+            <td>OPTIONAL: f [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>ifearnoman</td>
+            <td>Memes</td>
+            <td>I fear no man, but that thing, it scares me...</td>
+            <td>REQUIRED: ifearnoman [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>wasted</td>
+            <td>Memes</td>
+            <td>creates a wasted GTA 5 meme.</td>
+            <td>OPTIONAL: wasted [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>ifunny</td>
+            <td>Memes</td>
+            <td>Don't you hate it when your meme gets the ifunny watermark?</td>
+            <td>OPTIONAL: ifunny [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>studying</td>
+            <td>Memes</td>
+            <td>Yes, i am studying.</td>
+            <td>OPTIONAL: studying [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>starvstheforcesof</td>
+            <td>Memes</td>
+            <td>Star vs the forces of???</td>
+            <td>OPTIONAL: starvstheforcesof [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>waifu</td>
+            <td>Memes</td>
+            <td>This is my waifu, nerd! Your waifu is ENTRY LEVEL GARBAGE!</td>
+            <td>OPTIONAL: waifu [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>squidwardstv</td>
+            <td>Memes</td>
+            <td>Your/someone's avatar appeared in squidward's TV!</td>
+            <td>OPTIONAL: squidwardstv [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>clint</td>
+            <td>Memes</td>
+            <td>clint.</td>
+            <td>OPTIONAL: clint [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>amiajoke</td>
+            <td>Memes</td>
+            <td>Am i a joke to you?</td>
+            <td>OPTIONAL: amiajoke [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>bad</td>
+            <td>Memes</td>
+            <td>BAD.</td>
+            <td>OPTIONAL: bad [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>nichijou</td>
+            <td>Memes</td>
+            <td>YOU ARE A [text]</td>
+            <td>REQUIRED: nichijou [text]</td>
+            <td><a href="https://i.ode.bz/">https://i.ode.bz/</a></td>
+        </tr>
+        <tr>
+            <td>graph</td>
+            <td>Memes</td>
+            <td>Look at this graph!</td>
+            <td>OPTIONAL: graph [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>destroy</td>
+            <td>Images</td>
+            <td>destroys someone's avatar!</td>
+            <td>OPTIONAL: destroy [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>httpdog</td>
+            <td>Images</td>
+            <td>Shows the HTTP status in dog language</td>
+            <td>REQUIRED: httpdog [code]</td>
+            <td><a href="https://httpstatusdogs.com/">https://httpstatusdogs.com/</a></td>
+        </tr>
+        <tr>
+            <td>httpduck</td>
+            <td>Images</td>
+            <td>Shows the HTTP code in duck language</td>
+            <td>REQUIRED: httpduck [code]</td>
+            <td><a href="https://random-d.uk/">https://random-d.uk/</a></td>
+        </tr>
+        <tr>
+            <td>app</td>
+            <td>Images</td>
+            <td>You are on an app on mobile!</td>
+            <td>OPTIONAL: app [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>distort</td>
+            <td>Images</td>
+            <td>Distorts something.</td>
+            <td>OPTIONAL: distort [tag]<br>
+OPTIONAL: distort [tag] [increment]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>garfield</td>
+            <td>Images</td>
+            <td>sends a random garfield comic from 1979 to 2019!</td>
+            <td>No parameters required.</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>ship</td>
+            <td>Images</td>
+            <td>Ships random people (without parameters) or ships two people! (with parameters)</td>
+            <td>OPTIONAL: ship [user tag] [another user tag]</td>
+            <td><a href="https://api.alexflipnote.dev/">https://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>food</td>
+            <td>Images</td>
+            <td>Feeling hungry?</td>
+            <td>No parameters required.</td>
+            <td><a href="https://nekobot.xyz/">https://nekobot.xyz/</a></td>
+        </tr>
+        <tr>
+            <td>coffee</td>
+            <td>Images</td>
+            <td>Random caffeinated picz</td>
+            <td>No parameters required.</td>
+            <td><a href="https://nekobot.xyz/">https://nekobot.xyz/</a> <a href="https://www.alexflipnote.dev">https://www.alexflipnote.dev</a></td>
+        </tr>
+        <tr>
+            <td>jpeg</td>
+            <td>Images</td>
+            <td>Compress the image to jpeg... maybe too intense.</td>
+            <td>REQUIRED: jpeg [user tag]</td>
+            <td><a href="https://api.alexflipnote.dev/">https://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>cat</td>
+            <td>Images</td>
+            <td>Cats OwO</td>
+            <td>No parameters required.</td>
+            <td><a href="https://aws.random.cat/meow">https://aws.random.cat/meow</a></td>
+        </tr>
+        <tr>
+            <td>sadcat</td>
+            <td>Images</td>
+            <td>Sad cats... :pensive:</td>
+            <td>No parameters required.</td>
+            <td><a href="https://api.alexflipnote.dev/">https://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>dog</td>
+            <td>Images</td>
+            <td>Woof woof!</td>
+            <td>No parameters required.</td>
+            <td><a href="https://random.dog/">https://random.dog/</a></td>
+        </tr>
+        <tr>
+            <td>fox</td>
+            <td>Images</td>
+            <td>Real life cute 'furries'!</td>
+            <td>No parameters required.</td>
+            <td><a href="https://randomfox.ca/floof/">https://randomfox.ca/floof/</a></td>
+        </tr>
+        <tr>
+            <td>bird</td>
+            <td>Images</td>
+            <td>Cute birdies! chirp chirp</td>
+            <td>No parameters required.</td>
+            <td><a href="https://api.alexflipnote.dev/">https://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>magik</td>
+            <td>Images</td>
+            <td>Magikify an avatar image! Really funny :D</td>
+            <td>REQUIRED: magik [user tag]</td>
+            <td><a href="https://api.alexflipnote.dev/">https://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>invert</td>
+            <td>Images</td>
+            <td>Inverts the colors of an image.</td>
+            <td>REQUIRED: magik [user tag]</td>
+            <td><a href="https://api.alexflipnote.dev/">https://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>pixelate</td>
+            <td>Images</td>
+            <td>Lowers the quality of an avatar by pixelating it.</td>
+            <td>REQUIRED: pixelate [user tag]</td>
+            <td><a href="https://api.alexflipnote.dev/">https://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>b&w</td>
+            <td>Images</td>
+            <td>Makes an avatar looks from the past.</td>
+            <td>REQUIRED: b&w [user tag]</td>
+            <td><a href="https://api.alexflipnote.dev/">https://api.alexflipnote.dev/</a></td>
+        </tr>
+        <tr>
+            <td>pikachu</td>
+            <td>Images</td>
+            <td>Generates random images of pikachu! Pika!</td>
+            <td>No parameters required.</td>
+            <td><a href="https://imgur.com/">https://imgur.com/</a></td>
+        </tr>
+        <tr>
+            <td>frame</td>
+            <td>Images</td>
+            <td>Frames your pic!</td>
+            <td>OPTIONAL: frame [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>resize</td>
+            <td>Images</td>
+            <td>Resizes your avatar/somebody else's avatar!</td>
+            <td>REQUIRED: resize [width] [height]<br>
+OPTIONAL: resize [width] [height] [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>rotate</td>
+            <td>Images</td>
+            <td>Rotates your image! (avatars only)</td>
+            <td>OPTIONAL: rotate [tag]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>panda</td>
+            <td>Images</td>
+            <td>Gives a random image of a panda!</td>
+            <td>No parameters required.</td>
+            <td><a href="random api">random api</a> <a href="another random api">another random api</a></td>
+        </tr>
+        <tr>
+            <td>shibe</td>
+            <td>Images</td>
+            <td>Generates a random image of a shibe!</td>
+            <td>No parameters required.</td>
+            <td><a href="https://shibe.online">https://shibe.online</a></td>
+        </tr>
+        <tr>
+            <td>blur</td>
+            <td>Images</td>
+            <td>Blurs the image!</td>
+            <td>OPTIONAL: blur [tag]</td>
+            <td><a href="https://neko-love.xyz/">https://neko-love.xyz/</a></td>
+        </tr>
+        <tr>
+            <td>glitch</td>
+            <td>Images</td>
+            <td>Glitches the image!</td>
+            <td>OPTIONAL: glitch [tag]</td>
+            <td><a href="https://neko-love.xyz/">https://neko-love.xyz/</a></td>
+        </tr>
+        <tr>
+            <td>space</td>
+            <td>Images</td>
+            <td>shows the vastness of space</td>
+            <td>No parameters required.</td>
+            <td><a href="https://unsplash.com/">https://unsplash.com/</a></td>
+        </tr>
+        <tr>
+            <td>imdb</td>
+            <td>Apps</td>
+            <td>Searches through the IMDb database.</td>
+            <td>REQUIRED: imdb --top [number]<br>
+REQUIRED: imdb --movie [movie id]<br>
+REQUIRED: imdb --movie [movie name]<br>
+OPTIONAL: imdb help</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>tv</td>
+            <td>Apps</td>
+            <td>Shows the current/previously aired TV!</td>
+            <td>REQUIRED: tv [show name]</td>
+            <td><a href="https://tvmaze.com/">https://tvmaze.com/</a></td>
+        </tr>
+        <tr>
+            <td>spotify</td>
+            <td>Apps</td>
+            <td>Shows the spotify detailed info about a user who is listening to spotify</td>
+            <td>OPTIONAL:</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>itunes</td>
+            <td>Apps</td>
+            <td>shows the detailed info of a itunes song</td>
+            <td>REQUIRED: itunes [term]</td>
+            <td><a href="https://apple.com/itunes/">https://apple.com/itunes/</a></td>
+        </tr>
+        <tr>
+            <td>translate</td>
+            <td>Apps</td>
+            <td>Translates a text using the Google Translate (TM)</td>
+            <td>REQUIRED: translate [language id] [text]<br>
+OPTIONAL: translate --list</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>wikipedia</td>
+            <td>Apps</td>
+            <td>Searches the wikipedia article.</td>
+            <td>REQUIRED: wikipedia [article name]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>eval</td>
+            <td>Owner</td>
+            <td>Evaluates a python syntax.</td>
+            <td>REQUIRED: eval [syntax]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>rp</td>
+            <td>Owner</td>
+            <td>DMs a user as a reply to a feedback.</td>
+            <td>REQUIRED: rp [user id] [message]</td>
+            <td>No API used.</td>
+        </tr>
+        <tr>
+            <td>bash</td>
+            <td>Owner</td>
+            <td>Evaluates a bash syntax!</td>
+            <td>REQUIRED: bash [syntax]</td>
+            <td>No API used.</td>
+        </tr>
+        
+</table>
