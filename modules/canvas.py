@@ -101,7 +101,9 @@ def char_process(text, width, font, array=False):
         temp = ""
     if len(''.join(res)) != len(text):
         res.append(temp)
-    if res ==[]: return ''.join(temp)
+    if res ==[]:
+        if array: return [''.join(temp)]
+        return ''.join(temp)
     if array: return res
     return '\n'.join(res)
 def toLocaleString(a): # sike javascriptors ;)
@@ -143,6 +145,14 @@ class Painter:
     
     def get_accent(self, image): return self.get_color_accent(self.thief, image)
     def get_multiple_accents(self, image): return self.get_multiple_color_accents(self.thief, image)
+
+    def password(self, word1, word2):
+        im = self.getImage(self.assetpath, 'pass.png')
+        font = self.getFont(self.fontpath, 'Helvetica', 25)
+        draw = ImageDraw.Draw(im)
+        draw.text((42, 80), self.char_process(bad_pass, 396, font, array=True)[0], font=font, fill='black')
+        draw.text((42, 311), self.char_process(good_pass, 396, font, array=True)[0], font=font, fill='black')
+        return self.buffer(im)
 
     def geometry_dash_level(self, levelid, daily=False, weekly=False):
         # a shit ton of declarations first xd

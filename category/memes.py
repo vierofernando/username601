@@ -29,6 +29,18 @@ class memes(commands.Cog):
             cfg('FONTS_DIR')
         )
 
+    @command('pass')
+    @cooldown(1)
+    async def password(self, ctx, *args):
+        param = ' '.join(list(args))
+        async with ctx.channel.typing():
+            if '|' in param: text1, text2 = param.split('|')[0], param.split('|')[1:len(param.split('|'))]
+            elif ',' in param: text1, text2 = param.split(',')[0], param.split(',')[1:len(param.split('|'))]
+            elif ' ' in param and len(param.split())==2: text1, text2 = param.split()[0], param.split()[1]
+            else: text1, text2 = 'use the correct', 'parameters smh'
+            i = self.canvas.password(text1, text2)
+            await ctx.send(file=discord.File(i, 'password.png'))
+
     @command('programmerhumor,programmermeme,programming,programmer')
     @cooldown(2)
     async def programmingmeme(self, ctx):
