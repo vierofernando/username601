@@ -276,26 +276,21 @@ class Economy:
             }
         })
     def can_vote(userid):
-        data = requests.get('https://api.ksoft.si/webhook/dbl/check?bot={}&user={}'.format(str(Config.id), str(userid)), headers={'authorization':'Bearer '+str(os.environ['KSOFT_TOKEN'])}).json()
-        if data['voted']==False:
+        data = database['economy'].find_one({'userid': int(userid)})['lastDaily']
+        if data==0:
+            return {
+                'bool': True,
+                'time': None
+            }
+        elif (t.now().timestamp() - data) > 43200:
             return {
                 'bool': True,
                 'time': None
             }
         else:
-            raw = data['data']['expiry'].replace('T', ' ')
-            raw = [
-                int(raw.split('-')[0]),
-                int(raw.split('-')[1].split('-')[0]),
-                int(raw.split('-')[2].split(' ')[0]),
-                int(raw.split(' ')[1].split(':')[0]),
-                int(raw.split(':')[1].split(':')[0]),
-                int(raw.split(':')[2].split('.')[0])
-            ]
-            time = t(raw[0], raw[1], raw[2], raw[3], raw[4], raw[5])
             return {
                 'bool': False,
-                'time': time_encode((time-t.now()).seconds)
+                'time': time_encode(round(data))
             }
     
     def setbal(userid, newbal):
@@ -316,6 +311,7 @@ class Economy:
                 'desc': 'nothing here!',
                 'bankbal': 0,
                 'joinDate': t.now().timestamp(),
+                'lastDaily': 0,
                 'buyList': []
             })
             return 'done'
@@ -336,9 +332,12 @@ class Economy:
     
     def daily(userid):
         try:
-            bal = choice([500, 1000, 1500, 2000, 2500, 3000])
+            bal = choice([1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6001, 6969, 4200, 69420])
             database['economy'].update_one({'userid': userid}, { '$inc': {
                 'bal': bal
+            }})
+            database['economy'].update_one({'userid': userid}, { '$set': {
+                'joinDate': t.now().timestamp()
             }})
             return bal
         except Exception as e:
