@@ -45,19 +45,20 @@ class apps(commands.Cog):
         except:
             await ctx.send('{} | Oops! There was an error...'.format(emote(self.client, 'error')))
 
-    @command('spot,splay,listeningto')
+    @command('spot,splay,listeningto,sp')
     @cooldown(5)
     async def spotify(self, ctx, *args):
-        source = getUser(ctx, args)
-        if str(source.activity).lower()!='spotify': await ctx.send(emote(self.client, 'error')+' | Nope, not listening to spotify. Please show spotify as your presence\nor turn off your custom status if you have it.')
-        else:
-            async with ctx.message.channel.typing():
-                await ctx.send(file=discord.File(self.canvas.spotify({
-                    'name': source.activity.title,
-                    'artist': dearray(source.activity.artists),
-                    'album': source.activity.album,
-                    'url': source.activity.album_cover_url
-                }), 'spotify.png'))
+        source, act = getUser(ctx, args), None
+        for i in source.activities:
+            if isinstance(i, discord.Spotify): act = i
+        if act==None: return await ctx.send(emote(self.client, 'error')+' | Nope, not listening to spotify.')
+        async with ctx.message.channel.typing():
+            await ctx.send(file=discord.File(self.canvas.spotify({
+                'name': act.title,
+                'artist': dearray(act.artists),
+                'album': act.album,
+                'url': act.album_cover_url
+            }), 'spotify.png'))
 
     @command()
     @cooldown(10)
