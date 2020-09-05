@@ -157,7 +157,7 @@ async def on_command_error(ctx, error):
     elif 'noarguments' in str(error).lower(): return await ctx.send('{} | Please insert arguments! `Like insert your name as a parameter.`'.format(emote(client, 'error')))
     elif 'nouserfound' in str(error).lower(): return await ctx.send('{} | No user found.'.format(emote(client, 'error')))
     elif 'noprofile' in str(error).lower(): return await ctx.send('{} | You do not have any profile...\nYou can create one with `{}new`.'.format(emote(client, 'error'), prefix))
-    elif 'missing permissions' in str(error).lower(): return await ctx.send("I don't have the permission required to use that command!")
+    elif 'missing permissions' in str(error).lower() or 'Missing Access' in str(error): return await ctx.send("I don't have the permission required to use that command!")
     elif 'cannot identify image file' in str(error).lower(): return await ctx.send(str(emote(client, 'error'))+' | Error, it seemed i can\'t load/send the image! Check your arguments and try again. Else, report this to the bot owner using `'+prefix+'feedback.`')
     elif 'cannot send messages to this user' in str(error).lower():
         return await ctx.send(str(emote(client, 'error'))+' | Oops! Your DMs are disabled!')
