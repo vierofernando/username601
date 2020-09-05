@@ -29,6 +29,14 @@ class memes(commands.Cog):
             cfg('FONTS_DIR')
         )
 
+    @command('petition')
+    @cooldown(2)
+    async def presentation(self, ctx, *args):
+        async with ctx.channel.typing():
+            text = f'Petition for {ctx.author.name} to insert parameters' if len(list(args))==0 else ' '.join(list(args))
+            im = self.canvas.presentation(text)
+            await ctx.send(file=discord.File(im, 'presentation.png'))
+
     @command('pass')
     @cooldown(1)
     async def password(self, ctx, *args):
