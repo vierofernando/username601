@@ -458,7 +458,7 @@ class Painter:
         draw = ImageDraw.Draw(main)
         draw.text((170, 33), name, font=font, fill=fg)
         draw.text((170, 100), 'Joined since {}\n(order {})'.format(details['joined'], details['number']), fill=fg, font=smolfont)
-        bal = details['wallet']+" Diamonds"
+        bal = details['wallet']+" bobux"
         draw.rectangle([(margin_left, 180), (margin_right, 240)], fill=ava_col[8])
         res_text = self.process_text(details['desc'], smolfont, (margin_right - 180) - 2)
         draw.rectangle([(margin_left, 240), (margin_right, 270)], fill=ava_col[3])
@@ -483,7 +483,7 @@ class Painter:
             except ZeroDivisionError:
                 percentage = margin_right
             draw.rectangle([(margin_left, 370), (percentage, 400)], fill=(0, 255, 0))
-            draw.text((margin_left + 2, 349), after['delta']+" Diamonds left before reaching next rank ("+after['nextrank']+")", font=smolerfont, fill=self.invert(ava_col[6]))
+            draw.text((margin_left + 2, 349), after['delta']+" bobux left before reaching next rank ("+after['nextrank']+")", font=smolerfont, fill=self.invert(ava_col[6]))
         self.add_corners(main, 25)
         return self.buffer(main)
     
@@ -516,12 +516,6 @@ class Painter:
         av = self.imagefromURL(ava)
         av.paste(im, (0,0), im)
         return self.buffer(av)
-    
-    def hitler(self, ava):
-        ava = self.imagefromURL(ava).resize((141, 167))
-        im = self.getImage(self.assetpath, 'worse-than-hitler.png')
-        im.paste(ava, (46, 31))
-        return self.buffer(im)
     
     def serverstats(self, guild):
         start = "https://quickchart.io/chart?c="
@@ -652,6 +646,24 @@ class GifGenerator:
         self.fontpath = fontpath
         self.drawtext = drawtext
         self.getFont = getFont
+    
+    def hitler(self, pic):
+        thegif = self.getImage(self.assetpath, "hitler.gif")
+        av, images = self.imagefromURL(pic).resize((79, 103)), []
+        size = thegif.size
+        for i in range(thegif.n_frames):
+            cnv = Image.new('RGB', size=size, color=(0,0,0))
+            thegif.seek(i)
+            cnv.paste(thegif, (0,0))
+            if i > 29:
+                images.append(cnv)
+                continue
+            try:
+                trans = av.convert('RGBA')
+                cnv.paste(trans, (206, 30), trans)
+            except: cnv.paste(av, (206, 30))
+            images.append(cnv)
+        return self.bufferGIF(images, 1.2)
     
     def worship(self, pic):
         im = self.imagefromURL(pic).resize((127, 160))

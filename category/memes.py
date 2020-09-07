@@ -275,10 +275,11 @@ class memes(commands.Cog):
     @command('worsethanhitler,worstthanhitler')
     @cooldown(5)
     async def hitler(self, ctx, *args):
-        source = getUserAvatar(ctx, args)
         async with ctx.channel.typing():
+            source = getUserAvatar(ctx, args)
+            im = self.gif.hitler(source)
             await ctx.send(file=discord.File(
-                self.canvas.hitler(source), 'hitler.png'
+                im, 'hitler.gif'
             ))
 
     @command('wanted,chatroulette,frame,art')

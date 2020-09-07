@@ -382,7 +382,7 @@ class Shop:
                 return {'error': True, 'ctx': 'Bypassed the limit of 20 products!'}
         if not Dashboard.exist(server.id): Dashboard.add_guild(server.id)
         database['dashboard'].update_one({'serverid': server.id}, {'$push': {'shop': f'{price}.{name}'}})
-        return {'error': False, 'ctx': 'Successfully added {} with the price of {} diamonds'.format(
+        return {'error': False, 'ctx': 'Successfully added {} with the price of {} bobux'.format(
             name, price
         )}
     def remove_element(name, server):
@@ -401,7 +401,7 @@ class Shop:
             if name.lower() in i['name'].lower(): element = i ; break
         if element==None: return {'error': True, 'ctx': 'Error product not found'}
         elif user_data==None: return {'error': True, 'ctx': 'User does not have any profile'}
-        elif user_data['bal'] < element['price']: return {'error': True, 'ctx': 'Money is less than the price.\nPlease have {} more diamonds'.format(element['price']-user_data['bal'])}
+        elif user_data['bal'] < element['price']: return {'error': True, 'ctx': 'Money is less than the price.\nPlease have {} more bobux'.format(element['price']-user_data['bal'])}
         Economy.delbal(user.id, element['price'])
         if element['name'] not in [' '.join(i.split('.')[3:len(i.split('.'))]) for i in user_data['buyList']]:
             database['economy'].update_one({'userid': user.id}, {'$push': {'buyList': '{}.{}.{}.{}'.format(

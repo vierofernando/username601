@@ -27,21 +27,27 @@ class moderation(commands.Cog):
             cfg('FONTS_DIR')
         )
 
-    @command('jp,joinpos,joindate,jd')
+    @command('jp,joinpos,joindate,jd,createpos,createdat,howold')
     @cooldown(5)
     async def joinposition(self, ctx, *args):
         current_time = t.now().timestamp()
-        user = getUser(ctx, args)
+        user = getUser(ctx, tuple([
+            a for a in args if 'created' not in a.lower()
+        ]))
+        attr = 'created_at' if ('created' in ' '.join(list(args)).lower()) else 'joined_at' 
         wait = await ctx.send('{} | Iterating through {} members...'.format(emote(self.client, 'loading'), len(ctx.guild.members)))
-        sortedJoins = sorted([current_time-i.joined_at.timestamp() for i in ctx.guild.members])[::-1]
-        num, users = [i for i in range(len(sortedJoins)) if (current_time-user.joined_at.timestamp())==sortedJoins[i]][0], []
+        sortedJoins = sorted([current_time-getattr(i, attr).timestamp() for i in ctx.guild.members])[::-1]
+        num, users = [i for i in range(len(sortedJoins)) if (current_time-getattr(user, attr).timestamp())==sortedJoins[i]][0], []
         for i in range(-10, 11):
             try:
                 placement = (num + i) + 1
                 if placement < 1: continue
                 locate = sortedJoins[num + i]
-                username = [str(i) for i in ctx.guild.members if (current_time-i.joined_at.timestamp())==locate][0]
-                if i == 0: username = f'**{username}**'
+                username = [str(i) for i in ctx.guild.members if (current_time-getattr(i, attr).timestamp())==locate][0].replace('`', '\`').replace('_', '\_').replace('*', '\*').replace('|', '\|')
+                if i == 0:
+                    username = f'__**{username}**__'
+                    locate = f'__**{locate}**__'
+                    placement = f'__**{str(placement)}**__'
                 users.append({
                     'user': username,
                     'time': locate,
@@ -49,7 +55,7 @@ class moderation(commands.Cog):
                 })
             except IndexError:
                 pass
-        em = discord.Embed(title='Your join position', description='\n'.join([
+        em = discord.Embed(title='{} {} position'.format(user.name, attr.split('_')[0]), description='\n'.join([
             '{}. {} ({} ago)'.format(i['order'], i['user'], time_encode(round(i['time']))) for i in users
         ]), color=get_embed_color(discord))
         await wait.edit(content='', embed=em)
@@ -548,15 +554,6 @@ class moderation(commands.Cog):
         else:
             serverinvite = await ctx.channel.create_invite(reason='Requested by '+str(ctx.author.name))
             await ctx.send(str(emote(self.client, 'success'))+' | New invite created! Link: **'+str(serverinvite)+'**')
-
-    @command('id')
-    @cooldown(2)
-    async def _id(self, ctx, *args):
-        if '<#' in ''.join(list(args)): total = str('Channel ID: ')+str(''.join(list(args)).split('<#')[1].split('>')[0])
-        elif '<@&' in ''.join(list(args)): total = str('Role ID: ')+str(''.join(list(args)).split('<@&')[1].split('>')[0])
-        elif len(ctx.message.mentions)!=0: await ctx.send(ctx.message.mentions[0].id)
-        else: total = str(emote(self.client, 'error'))+' | No ID\'s found.'
-        await ctx.send(total)
 
     @command()
     @cooldown(7)

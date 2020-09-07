@@ -75,7 +75,7 @@ class games(commands.Cog):
                 else: cp = data["cp"]
                 embed.add_field(name='ID Stuff', value='Player ID: '+str(data["playerID"])+'\nAccount ID: '+str(data["accountID"]), inline='True')
                 embed.add_field(name='Rank', value=rank, inline='True')
-                embed.add_field(name='Stats', value=str(data["stars"])+" Stars"+"\n"+str(data["diamonds"])+" Diamonds\n"+str(data["coins"])+" Secret Coins\n"+str(data["userCoins"])+" User Coins\n"+str(data["demons"])+" Demons beaten", inline='False')
+                embed.add_field(name='Stats', value=str(data["stars"])+" Stars"+"\n"+str(data["bobux"])+" bobux\n"+str(data["coins"])+" Secret Coins\n"+str(data["userCoins"])+" User Coins\n"+str(data["demons"])+" Demons beaten", inline='False')
                 embed.add_field(name='Creator Points', value=cp)
                 embed.set_author(name='Display User Information', icon_url="https://gdbrowser.com/icon/"+url)
                 await ctx.send(embed=embed)
@@ -183,13 +183,13 @@ class games(commands.Cog):
             await ctx.send(res)
             if len(list(args))>0 and args[0].lower()==res.replace('*', '').replace('!', '') and Economy.get(ctx.author.id)!=None:
                 prize = random.randint(50, 200)
-                Economy.addbal(ctx.author.id, prize) ; await ctx.send('your bet was right! you get '+str(prize)+' diamonds.')
+                Economy.addbal(ctx.author.id, prize) ; await ctx.send('your bet was right! you get '+str(prize)+' bobux.')
         else:
             res = random.randint(1, 6)
             await ctx.send(':'+src.num2word(res)+':')
             if len(list(args))>0 and args[0]==str(res) and Economy.get(ctx.author.id)!=None:
                 prize = random.randint(50, 100)
-                Economy.addbal(ctx.author.id, prize) ; await ctx.send('your bet was right! you get '+str(prize)+' diamonds.')
+                Economy.addbal(ctx.author.id, prize) ; await ctx.send('your bet was right! you get '+str(prize)+' bobux.')
 
     @command('guessav,avatarguess,avguess,avatargame,avgame')
     @cooldown(30)
@@ -240,7 +240,7 @@ class games(commands.Cog):
                         reward = random.randint(5, 100)
                         Economy.addbal(ctx.author.id, reward)
             
-                        await ctx.send('thanks for playing! You received '+str(reward)+' extra diamonds!')
+                        await ctx.send('thanks for playing! You received '+str(reward)+' extra bobux!')
                 else:
                     await ctx.send(emote(self.client, 'error') +' | <@'+str(ctx.author.id)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
 
@@ -282,7 +282,7 @@ class games(commands.Cog):
             if Economy.get(ctx.author.id)!=None:
                 reward = random.randint(5, 150)
                 Economy.addbal(ctx.author.id, reward)
-                await ctx.send('thanks for playing! You obtained '+str(reward)+' diamonds in total!')
+                await ctx.send('thanks for playing! You obtained '+str(reward)+' bobux in total!')
         else:
             await ctx.send(emote(self.client, 'error') +' | <@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr_order)+'.')
 
@@ -305,7 +305,7 @@ class games(commands.Cog):
             if Economy.get(ctx.author.id)!=None:
                 reward = random.randint(5, 50)
                 Economy.addbal(ctx.author.id, reward)
-                await ctx.send('thanks for playing! we added an extra '+str(reward)+' diamonds to your profile.')
+                await ctx.send('thanks for playing! we added an extra '+str(reward)+' bobux to your profile.')
         else:
             await ctx.send(emote(self.client, 'error') +' | <@'+str(ctx.author.id)+'>, Incorrect. The answer is {}.'.format(answer))
 
@@ -331,7 +331,7 @@ class games(commands.Cog):
                 if Economy.get(ctx.author.id)!=None:
                     reward = random.randint(5, 500)
                     Economy.addbal(ctx.author.id, reward)
-                    await ctx.send('thanks for playing! you get an extra '+str(reward)+' diamonds!')
+                    await ctx.send('thanks for playing! you get an extra '+str(reward)+' bobux!')
                 gameplay = False ; break
             if level>7:
                 await ctx.send(f'<@{str(playing_with_id)}> lost! :(\nThe answer is actually "'+str(''.join(main_guess_cor))+'".')
@@ -381,7 +381,7 @@ class games(commands.Cog):
             if Economy.get(ctx.author.id)!=None:
                 reward = random.randint(500, 1000)
                 Economy.addbal(ctx.author.id, reward)
-                await ctx.send('thanks for playing! you received a whopping '+str(reward)+' diamonds!')
+                await ctx.send('thanks for playing! you received a whopping '+str(reward)+' bobux!')
         else:
             msgslot = 'You lose... Try again!'
             col = get_embed_color(discord)
@@ -449,7 +449,7 @@ class games(commands.Cog):
                     if Economy.get(ctx.author.id)!=None:
                         reward = random.randint(5, 50)
                         Economy.addbal(ctx.author.id, reward)
-                        await ctx.send('thanks for playing! You get an extra '+str(reward)+' diamonds!')
+                        await ctx.send('thanks for playing! You get an extra '+str(reward)+' bobux!')
                     gameplay = False
                     break
 
@@ -490,7 +490,7 @@ class games(commands.Cog):
                 if Economy.get(ctx.author.id)!=None:
                     reward = random.randint(50, 250)
                     Economy.addbal(ctx.author.id, reward)
-                    await ctx.send('thanks for playing! You get also a '+str(reward)+' diamonds as a prize!')
+                    await ctx.send('thanks for playing! You get also a '+str(reward)+' bobux as a prize!')
                 gameplay = False
                 break
             elif str(guessing.content).lower()=='hint':
@@ -546,7 +546,7 @@ class games(commands.Cog):
             if Economy.get(ctx.author.id)!=None:
                 reward = random.randint(250, 400)
                 Economy.addbal(ctx.author.id, reward)
-                await ctx.send('thanks for playing! You get also a '+str(reward)+' diamonds as a prize!')
+                await ctx.send('thanks for playing! You get also a '+str(reward)+' bobux as a prize!')
         else:
             await ctx.send(emote(self.client, 'error') +' | <@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr)+'.')
 

@@ -178,7 +178,7 @@ async def on_message(message):
         data = int(str(message.embeds[0].description).split('(id:')[1].split(')')[0])
         if Economy.get(data)==None: return
         rewards = Economy.daily(data)
-        await client.get_user(data).send(f'Thanks for voting! **You received {rewards} diamonds!**')
+        await client.get_user(data).send(f'Thanks for voting! **You received {rewards} bobux!**')
     
     # THESE TWO IF STATEMENTS ARE JUST FOR ME ON THE SUPPORT SERVER CHANNEL. YOU CAN DELETE THESE TWO.
     if message.channel.id==700040209705861120: await message.author.add_roles(message.guild.get_role(700042707468550184))

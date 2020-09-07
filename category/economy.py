@@ -34,7 +34,7 @@ class economy(commands.Cog):
         if c==1:
             award = random.randint(100, 500)
             Economy.addbal(ctx.author.id, award)
-            return await ctx.send('{} | You begged and got {} diamonds!'.format(emote(self.client, 'success'), award))
+            return await ctx.send('{} | You begged and got {} bobux!'.format(emote(self.client, 'success'), award))
         await ctx.send('{} | Stop begging! Try again later.'.format(emote(self.client, 'error')))
 
     @command('fishing')
@@ -49,7 +49,7 @@ class economy(commands.Cog):
         if res['catched']:
             awards = random.randint(res['ctx']['worth']['min'], res['ctx']['worth']['max'])
             Economy.addbal(ctx.author.id, awards)
-            return await wait.edit(content='{} | Congratulations! You caught a {} and sell it worth for {} diamonds!'.format(res['ctx']['emote'], res['ctx']['name'], awards))
+            return await wait.edit(content='{} | Congratulations! You caught a {} and sell it worth for {} bobux!'.format(res['ctx']['emote'], res['ctx']['name'], awards))
         return await wait.edit(content='{} | You only caught {}...'.format(emote(self.client, 'error'), res['ctx']))
 
     @command()
@@ -151,7 +151,7 @@ class economy(commands.Cog):
             reward = str(random.randint(100, 500))
             new_data = Economy.addbal(ctx.author.id, int(reward))
             job = random.choice(loads(open('/app/assets/json/work.json', 'r').read())['works'])
-            if new_data=='success': await wait.edit(content=emote(self.client, 'success')+f" | {ctx.author.name} worked {job} and earned {reward} diamonds!")
+            if new_data=='success': await wait.edit(content=emote(self.client, 'success')+f" | {ctx.author.name} worked {job} and earned {reward} bobux!")
             else: await wait.edit(content=emote(self.client, 'error')+f" | Oops there was an error... Please report this to the owner using `1feedback.`\n`{new_data}`")
             
     @command()
@@ -164,7 +164,7 @@ class economy(commands.Cog):
             if obj['bool']:
                 await wait.edit(content='', embed=discord.Embed(
                     title='Vote us at top.gg!',
-                    description='**[VOTE HERE](https://top.gg/bot/'+str(self.client.user.id)+'/vote)**\nBy voting, we will give you rewards such as ***LOTS of diamonds!***',
+                    description='**[VOTE HERE](https://top.gg/bot/'+str(self.client.user.id)+'/vote)**\nBy voting, we will give you rewards such as ***LOTS of bobux!***',
                     color = discord.Colour.green()
                 ))
             else:
@@ -193,7 +193,7 @@ class economy(commands.Cog):
                     ))
                 Economy.addbal(ctx.message.mentions[0].id, amount)
                 Economy.delbal(ctx.author.id, amount) # EFFICIENT CODE LMFAO
-                await wait.edit(content=emote(self.client, 'success')+f' | Done! Transferred {str(amount)} diamonds to {ctx.message.mentions[0].name}!')
+                await wait.edit(content=emote(self.client, 'success')+f' | Done! Transferred {str(amount)} bobux to {ctx.message.mentions[0].name}!')
 
     @command('steal,crime,stole,robs')
     @cooldown(60)
@@ -207,8 +207,8 @@ class economy(commands.Cog):
                 amount2rob = None
                 for i in list(args):
                     if i.isnumeric(): amount2rob = int(i) ; break
-                if amount2rob==None: await ctx.send(emote(self.client, 'error')+' | How many diamonds shall be robbed?')
-                elif amount2rob>9999: await ctx.send(emote(self.client, 'error')+' | Dude, you must be crazy. That\'s too many diamonds!')
+                if amount2rob==None: await ctx.send(emote(self.client, 'error')+' | How many bobux shall be robbed?')
+                elif amount2rob>9999: await ctx.send(emote(self.client, 'error')+' | Dude, you must be crazy. That\'s too many bobux!')
                 elif amount2rob<0: await ctx.send(emote(self.client, 'error')+' | minus??? HUH?')
                 else:
                     wait = await ctx.send(emote(self.client, 'loading')+' | *Please wait... robbing...*')
@@ -229,7 +229,7 @@ class economy(commands.Cog):
                             statement = f'You left empty-handed.'
                         else:
                             Economy.delbal(ctx.author.id, robamount*-1) ; Economy.addbal(ctx.message.mentions[0].id, robamount*-1)
-                            statement = f'You lost {str(robamount)} diamonds.'
+                            statement = f'You lost {str(robamount)} bobux.'
                         embed = discord.Embed(
                             title = f'{ctx.author.name} robbing {ctx.message.mentions[0].name} scene be like',
                             description = data['statement'].replace('{NL}', '\n').replace('{D1}', ctx.author.name).replace('{D2}', ctx.message.mentions[0].name),
@@ -246,13 +246,13 @@ class economy(commands.Cog):
         if data==None: raise noProfile()
         if list(args)[0].lower()=='all':
             Economy.deposit(ctx.author.id, data['bal'])
-            return await ctx.send('{} | OK. Deposited all of your diamonds to the username601 bank.'.format(emote(self.client, 'success')))
+            return await ctx.send('{} | OK. Deposited all of your bobux to the username601 bank.'.format(emote(self.client, 'success')))
         try:
             num = int(list(args)[0])
             if num > data['bal']:
                 return await ctx.send('{} | Your bank has more money than in your balance!'.format(emote(self.client, 'error')))
             Economy.deposit(ctx.author.id, num)
-            return await ctx.send('{} | OK. Deposited {} diamonds to your bank.'.format(emote(self.client, 'success'), num))
+            return await ctx.send('{} | OK. Deposited {} bobux to your bank.'.format(emote(self.client, 'success'), num))
         except:
             await ctx.send('{} | Invalid number.'.format(emote(self.client, 'error')))
     
@@ -264,13 +264,13 @@ class economy(commands.Cog):
         if data==None: raise noProfile()
         if list(args)[0].lower()=='all':
             Economy.withdraw(ctx.author.id, data['bankbal'])
-            return await ctx.send('{} | OK. Withdrawed all of your diamonds from the username601 bank.'.format(emote(self.client, 'success')))
+            return await ctx.send('{} | OK. Withdrawed all of your bobux from the username601 bank.'.format(emote(self.client, 'success')))
         try:
             num = int(list(args)[0])
             if num > data['bankbal']:
                 return await ctx.send('{} | Your number is more than the one in your bank!'.format(emote(self.client, 'error')))
             Economy.withdraw(ctx.author.id, num)
-            return await ctx.send('{} | OK. Withdrawed {} diamonds from your bank.'.format(emote(self.client, 'success'), num))
+            return await ctx.send('{} | OK. Withdrawed {} bobux from your bank.'.format(emote(self.client, 'success'), num))
         except:
             await ctx.send('{} | Invalid number.'.format(emote(self.client, 'error')))
 
