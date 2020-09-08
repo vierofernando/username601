@@ -93,13 +93,13 @@ class bothelp(commands.Cog):
     async def invite(self, ctx):
         embed = discord.Embed(
             title='Sure thing! Invite this bot to your server by clicking me.',
-            description='[Invite link](https://discord.com/api/oauth2/authorize?client_id='+str(self.client.user.id)+'&permissions=8&scope=bot) | [Support Server]('+cfg('SERVER_INVITE')+')',
+            url='https://discord.com/api/oauth2/authorize?client_id='+str(self.client.user.id)+'&permissions=8&scope=bot',
             colour=get_embed_color(discord)
         )
         await ctx.send(embed=embed)
     
     @command('report,suggest,bug,reportbug,bugreport')
-    @cooldown(30)
+    @cooldown(15)
     async def feedback(self, ctx, *args):
         if len(list(args))==0:
             await ctx.send(emote(self.client, 'error')+' | Where\'s the feedback? :(')
@@ -126,20 +126,21 @@ class bothelp(commands.Cog):
                     color=discord.Colour.red()
                 ))
     @command()
-    @cooldown(5)
+    @cooldown(2)
     async def ping(self, ctx):
+        msgping = str(round((t.now().timestamp() - ctx.message.created_at.timestamp())*1000))
         wait = await ctx.send('pinging...')
         dbping, extras = selfDB.ping(), ''
         if cfg('HOST_URL').lower()!='none':
             webping = ping()
             extras = f'\n**Hosting latency: **{webping} ms.'
-        ping = str(round(self.client.latency*1000))
-        embed = discord.Embed(title=f'Pong!', description=f'**Client Latency:** {ping} ms.\n**Database latency:** {dbping} ms.{extras}', colour=get_embed_color(discord))
+        wsping = str(round(self.client.ws.latency*1000))
+        embed = discord.Embed(title=f'Pong!', description=f'**Message latency: **{msgping} ms.\n**Client Latency:** {wsping} ms.\n**Database latency:** {dbping} ms.{extras}', colour=get_embed_color(discord))
         embed.set_thumbnail(url='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif')
         await wait.edit(content='', embed=embed)
     
     @command('botstats,meta')
-    @cooldown(15)
+    @cooldown(10)
     async def stats(self, ctx):
         up, cmds, commandLength = selfDB.get_uptime(), username601Stats.retrieveData(), getCommandLength()
         #imageurl = urlify(uptimerobot())
@@ -149,7 +150,7 @@ class bothelp(commands.Cog):
         await ctx.send(embed=embed)
 
     @command('botinfo,aboutbot,bot')
-    @cooldown(5)
+    @cooldown(2)
     async def about(self, ctx):
         if str(self.client.get_guild(cfg('SERVER_ID', integer=True)).get_member(cfg('OWNER_ID', integer=True)).status)=='offline': devstatus = 'Offline'
         else: devstatus = 'Online'

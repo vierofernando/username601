@@ -146,6 +146,25 @@ class Painter:
     def get_accent(self, image): return self.get_color_accent(self.thief, image)
     def get_multiple_accents(self, image): return self.get_multiple_color_accents(self.thief, image)
 
+    def gru(self, text1, text2, text3):
+        main = self.getImage(self.assetpath, "gru.png")
+        draw = ImageDraw.Draw(main)
+        font = self.getFont(self.fontpath, "Helvetica", 15)
+        curs = 60
+        for i in self.char_process(text1, 125, font, array=True)[0:10]:
+            draw.text((212, curs), i, font=font, fill='black')
+            curs += 15
+        curs = 60
+        for i in self.char_process(text2, 125, font, array=True)[0:10]:
+            draw.text((558, curs), i, font=font, fill='black')
+            curs += 15
+        curs = 283
+        for i in self.char_process(text3, 125, font, array=True)[0:10]:
+            draw.text((214, curs), i, font=font, fill='black')
+            draw.text((561, curs), i, font=font, fill='black')
+            curs += 15
+        return self.buffer(main)
+
     def presentation(self, text):
         im = self.getImage(self.assetpath, 'presentation.jpg')
         font = self.getFont(self.fontpath, 'Helvetica', 25)
@@ -411,6 +430,7 @@ class Painter:
     def imagetoASCII(self, url):
         im = self.imagefromURL(url).resize((300, 300)).rotate(90).convert('RGB')
         im = im.resize((int(list(im.size)[0]/3)-60, int(list(im.size)[1]/3)))
+        im = ImageOps.mirror(im)
         total_str = ""
         for i in range(im.width):
             for j in range(im.height):

@@ -82,6 +82,18 @@ class memes(commands.Cog):
             })
             await ctx.send(file=discord.File(res, 'failed.png'))
 
+    @command('gruplan,plan')
+    @cooldown(4)
+    async def gru(self, ctx, *args):
+        if '; ' not in ' '.join(list(args)): return await ctx.send(emote(self.client, 'error')+' | Please send something like:\n`'+cfg('PREFIX')+'gru test word 1; test word 2; test word 3` (with semicolons)')
+        try:
+            text1, text2, text3 = tuple(' '.join(list(args)).split('; '))
+        except:
+            return await ctx.send("Invalid arguments. use something like\n`"+cfg('PREFIX')+"gru text 1; text2; text3` (with semicolons)")
+        async with ctx.channel.typing():
+            im = self.canvas.gru(text1, text2, text3)
+            return await ctx.send(file=discord.File(im, 'gru.png'))
+
     @command('worships,worshipping')
     @cooldown(3)
     async def worship(self, ctx, *args):
@@ -91,7 +103,7 @@ class memes(commands.Cog):
             await ctx.send(file=discord.File(im, 'worship.gif'))
 
     @command('crazy-frog,crazyfrogdance,dance,crazy-dance,kiddance,kid-dance')
-    @cooldown(8)
+    @cooldown(7)
     async def crazyfrog(self, ctx, *args):
         im = getUserAvatar(ctx, args, size=64)
         async with ctx.channel.typing():

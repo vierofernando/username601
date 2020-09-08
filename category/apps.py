@@ -26,7 +26,7 @@ class apps(commands.Cog):
         )
 
     @command('movie')
-    @cooldown(10)
+    @cooldown(5)
     async def tv(self, ctx, *args):
         if len(list(args))==0: return await ctx.send('{} | please gimme args',format(emote(self.client, 'error')))
         query = urlify(' '.join(list(args)))
@@ -46,7 +46,7 @@ class apps(commands.Cog):
             await ctx.send('{} | Oops! There was an error...'.format(emote(self.client, 'error')))
 
     @command('spot,splay,listeningto,sp')
-    @cooldown(5)
+    @cooldown(2)
     async def spotify(self, ctx, *args):
         source, act = getUser(ctx, args), None
         for i in source.activities:
@@ -61,7 +61,7 @@ class apps(commands.Cog):
             }), 'spotify.png'))
 
     @command()
-    @cooldown(10)
+    @cooldown(5)
     async def itunes(self, ctx, *args):
         if len(list(args))==0: return await ctx.send('{} | Please send a search term!'.format(emote(self.client, 'error')))
         data = jsonisp('https://itunes.apple.com/search?term={}&media=music&entity=song&limit=1&explicit=no'.format(urlify(' '.join(list(args)))))
@@ -75,7 +75,7 @@ class apps(commands.Cog):
         await ctx.send(embed=em)
 
     @command()
-    @cooldown(10)
+    @cooldown(5)
     async def translate(self, ctx, *args):
         wait = await ctx.send(emote(self.client, 'loading') + ' | Please wait...') ; args = list(args)
         if len(args)>0:
@@ -104,7 +104,7 @@ class apps(commands.Cog):
             await wait.edit(content=f'Please add translations or\nType `{prefix}translate --list` for supported languages.')
     
     @command()
-    @cooldown(10)
+    @cooldown(5)
     async def wikipedia(self, ctx, *args):
         wait = await ctx.send(emote(self.client, 'loading') + ' | Please wait...')
         if len(list(args))==0:
@@ -141,7 +141,7 @@ class apps(commands.Cog):
                 embed = discord.Embed(title=pageTitle, url=str(page.fullurl), description=str(explain), colour=discord.Colour.from_rgb(201, 160, 112))
                 await wait.edit(content='', embed=embed)
     @command()
-    @cooldown(10)
+    @cooldown(5)
     async def imdb(self, ctx, *args):
         wait, args = await ctx.send(emote(self.client, 'loading') + ' | Please wait...'), list(args)
         if len(args)==0 or args[0].lower()=='help' or args[0].lower()=='--help':

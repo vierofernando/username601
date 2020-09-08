@@ -29,7 +29,7 @@ class economy(commands.Cog):
     @command()
     @cooldown(60)
     async def beg(self, ctx):
-        c = random.randint(1, 4)
+        c = random.randint(1, 3)
         if Economy.get(ctx.author.id)==None: raise noProfile()
         if c==1:
             award = random.randint(100, 500)
@@ -97,7 +97,7 @@ class economy(commands.Cog):
             await ctx.send('{} | {}!'.format(emote(self.client, 'error'), str(e)))
     
     @command('bought')
-    @cooldown(10)
+    @cooldown(3)
     async def buy(self, ctx, *args):
         if len(list(args))==0: return await ctx.send('{} | Please use the following parameters:\n`{}buy <name>`'.format(emote(self.client, 'error'), prefix))
         if Economy.get(ctx.author.id)==None: raise noProfile()
@@ -109,7 +109,7 @@ class economy(commands.Cog):
             await ctx.send('{} | {}!'.format(emote(self.client, 'error'), str(e)))
     
     @command('servershop,store,serverstore')
-    @cooldown(5)
+    @cooldown(2)
     async def shop(self, ctx):
         try:
             data = Shop.get_shop(ctx.guild)
@@ -275,7 +275,7 @@ class economy(commands.Cog):
             await ctx.send('{} | Invalid number.'.format(emote(self.client, 'error')))
 
     @command('lb,leader,leaders,rich,richest,top')
-    @cooldown(10)
+    @cooldown(6)
     async def leaderboard(self, ctx):
         wait = await ctx.send(emote(self.client, 'loading')+' | Please wait...')
         data = Economy.leaderboard(ctx.guild.members)
@@ -300,12 +300,12 @@ class economy(commands.Cog):
             ))
     
     @command('desc,description')
-    @cooldown(5)
+    @cooldown(2)
     async def setdesc(self, ctx, *args):
         if len(list(args))==0:
             await ctx.send(emote(self.client, 'error')+' | What is the new description?')
         else:
-            if len(list(args))>50:
+            if len(list(args))>120:
                 await ctx.send(emote(self.client, 'error')+' | Your description is too long!')
             elif '://' in str(' '.join(list(args))):
                 await ctx.send(emote(self.client, 'error')+' | Please don\'t use links in the description! We don\'t allow that!')
@@ -322,7 +322,7 @@ class economy(commands.Cog):
                     else:
                         await wait.edit(content=emote(self.client, 'success')+' | Updated your description!')
     @command('balance,mybal,profile,me,myprofile')
-    @cooldown(6)
+    @cooldown(2)
     async def bal(self, ctx, *args):
         wait = await ctx.send(emote(self.client, 'loading')+" | Please wait...")
         src, ava = getUser(ctx, args), getUserAvatar(ctx, args)
@@ -336,7 +336,7 @@ class economy(commands.Cog):
             await ctx.send(file=discord.File(img, 'profile.png'))
     
     @command('newprofile')
-    @cooldown(30)
+    @cooldown(10)
     async def new(self, ctx):
         data = Economy.get(ctx.author.id)
         wait = await ctx.send(emote(self.client, 'loading')+" | Please wait... creating your profile...")

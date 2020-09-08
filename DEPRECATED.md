@@ -3,6 +3,9 @@
 ## DEPRECATED COMMANDS<br>
 these are commands i decided to delete with the reasons.
 
+### 1hbd, 1slap, 1botmembers<br>
+completely useless and barely anyone ever uses it<br>
+
 ### 1newemote<br>
 The last command with scraping to be deprecated, the reason is:<br>
 1. scraping is not that good, and 2. sometimes discordemojis.com gives NSFW emojis, yuck.<br>

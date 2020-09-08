@@ -35,7 +35,7 @@ class games(commands.Cog):
             await toEdit.delete()
             await ctx.send(file=discord.File(data, 'gdlevel.png'))
         except:
-            await toEdit.edit(content=emote(self.client, 'error')+ ' | Level not found!\nPlease make sure you put the correct **Level ID.** as the parameter.')
+            await toEdit.edit(content=emote(self.client, 'error')+ ' | Sorry! there is an error with the GD servers.')
     @command()
     @cooldown(3)
     async def gdsearch(self, ctx, *args):
@@ -133,7 +133,7 @@ class games(commands.Cog):
             await toEdit.delete()
             await ctx.send(file=discord.File(data, 'gdnivel.png'))
         except:
-            await toEdit.edit(content=emote(self.client, 'error')+ ' | Level not found!\nPlease make sure you put the correct **Level ID.** as the parameter.')
+            await toEdit.edit(content=emote(self.client, 'error')+ ' | Sorry! Geometry dash servers seems to doing... something wrong.')
 
     @command('rockpaperscissors')
     @cooldown(5)
@@ -194,58 +194,55 @@ class games(commands.Cog):
     @command('guessav,avatarguess,avguess,avatargame,avgame')
     @cooldown(30)
     async def guessavatar(self, ctx):
-        if len(ctx.message.guild.members)>500:
-            await ctx.send('Sorry, to protect some people\'s privacy, this command is not available for Large servers. (over 500 members)')
+        wait = await ctx.send(str(emote(self.client, 'loading')) + ' | Please wait... generating question...\nThis process may take longer if your server has more members.')
+        avatarAll, nameAll = [], []
+        for ppl in ctx.guild.members:
+            if ctx.guild.get_member(int(ppl.id)).status.name!='offline':
+                avatarAll.append(str(ppl.avatar_url).replace('webp', 'png'))
+                nameAll.append(ppl.display_name)
+        if len(avatarAll)<=4:
+            await ctx.send(emote(self.client, 'error') +' | Need more online members! :x:')
         else:
-            wait = await ctx.send(str(emote(self.client, 'loading')) + ' | Please wait... generating question...\nThis process may take longer if your server has more members.')
-            avatarAll, nameAll = [], []
-            for ppl in ctx.guild.members:
-                if ctx.guild.get_member(int(ppl.id)).status.name!='offline':
-                    avatarAll.append(str(ppl.avatar_url).replace('webp', 'png'))
-                    nameAll.append(ppl.display_name)
-            if len(avatarAll)<=4:
-                await ctx.send(emote(self.client, 'error') +' | Need more online members! :x:')
-            else:
-                numCorrect = random.randint(0, len(avatarAll)-1)
-                corr_avatar, corr_name = avatarAll[numCorrect], nameAll[numCorrect]
-                nameAll.remove(corr_name)
-                wrongArr = []
-                for i in range(0, 3):
-                    wrongArr.append(random.choice(nameAll))
-                abcs, emots = list('🇦🇧🇨🇩'), list('🇦🇧🇨🇩')
-                randomInt = random.randint(0, 3)
-                corr_order = random.choice(abcs[randomInt])
-                abcs[randomInt] = '0'
-                question, chooseCount = '', 0
-                for assign in abcs:
-                    if assign!='0':
-                        question += '**'+ str(assign) + '.** '+str(wrongArr[chooseCount])+ '\n'
-                        chooseCount += 1
-                    else:
-                        question += '**'+ str(corr_order) + '.** '+str(corr_name)+ '\n'
-                embed = discord.Embed(title='What does the avatar below belongs to?', description=':eyes: Click the reactions! **You have 20 seconds.**\n\n'+str(question), colour=get_embed_color(discord))
-                embed.set_footer(text='For privacy reasons, the people displayed above are online users.')
-                embed.set_image(url=corr_avatar)
-                main = await ctx.send(embed=embed)
-                for i in emots: await main.add_reaction(i)
-                def is_correct(reaction, user):
-                    return user == ctx.author
-                try:
-                    reaction, user = await self.client.wait_for('reaction_add', check=is_correct, timeout=20.0)
-                except asyncio.TimeoutError:
-                    return await ctx.send(':pensive: No one? Okay then, the answer is: '+str(corr_order)+'. '+str(corr_name))
-                if str(reaction.emoji)==str(corr_order):
-                    await ctx.send(emote(self.client, 'success') +' | <@'+str(ctx.author.id)+'>, You are correct! :tada:')
-                    if Economy.get(ctx.author.id)!=None:
-                        reward = random.randint(5, 100)
-                        Economy.addbal(ctx.author.id, reward)
-            
-                        await ctx.send('thanks for playing! You received '+str(reward)+' extra bobux!')
+            numCorrect = random.randint(0, len(avatarAll)-1)
+            corr_avatar, corr_name = avatarAll[numCorrect], nameAll[numCorrect]
+            nameAll.remove(corr_name)
+            wrongArr = []
+            for i in range(0, 3):
+                wrongArr.append(random.choice(nameAll))
+            abcs, emots = list('🇦🇧🇨🇩'), list('🇦🇧🇨🇩')
+            randomInt = random.randint(0, 3)
+            corr_order = random.choice(abcs[randomInt])
+            abcs[randomInt] = '0'
+            question, chooseCount = '', 0
+            for assign in abcs:
+                if assign!='0':
+                    question += '**'+ str(assign) + '.** '+str(wrongArr[chooseCount])+ '\n'
+                    chooseCount += 1
                 else:
-                    await ctx.send(emote(self.client, 'error') +' | <@'+str(ctx.author.id)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
+                    question += '**'+ str(corr_order) + '.** '+str(corr_name)+ '\n'
+            embed = discord.Embed(title='What does the avatar below belongs to?', description=':eyes: Click the reactions! **You have 20 seconds.**\n\n'+str(question), colour=get_embed_color(discord))
+            embed.set_footer(text='For privacy reasons, the people displayed above are online users.')
+            embed.set_image(url=corr_avatar)
+            main = await ctx.send(embed=embed)
+            for i in emots: await main.add_reaction(i)
+            def is_correct(reaction, user):
+                return user == ctx.author
+            try:
+                reaction, user = await self.client.wait_for('reaction_add', check=is_correct, timeout=20.0)
+            except asyncio.TimeoutError:
+                return await ctx.send(':pensive: No one? Okay then, the answer is: '+str(corr_order)+'. '+str(corr_name))
+            if str(reaction.emoji)==str(corr_order):
+                await ctx.send(emote(self.client, 'success') +' | <@'+str(ctx.author.id)+'>, You are correct! :tada:')
+                if Economy.get(ctx.author.id)!=None:
+                    reward = random.randint(5, 100)
+                    Economy.addbal(ctx.author.id, reward)
+        
+                    await ctx.send('thanks for playing! You received '+str(reward)+' extra bobux!')
+            else:
+                await ctx.send(emote(self.client, 'error') +' | <@'+str(ctx.author.id)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
 
     @command()
-    @cooldown(30)
+    @cooldown(15)
     async def geoquiz(self, ctx):
         wait = await ctx.send(str(emote(self.client, 'loading')) + ' | Please wait... generating question...')
         data, topic = jsonisp("https://restcountries.eu/rest/v2/"), random.choice(src.getGeoQuiz())
@@ -287,7 +284,7 @@ class games(commands.Cog):
             await ctx.send(emote(self.client, 'error') +' | <@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr_order)+'.')
 
     @command()
-    @cooldown(15)
+    @cooldown(4)
     async def mathquiz(self, ctx):
         arrayId, num1, num2, symArray = random.randint(0, 4), random.randint(1, 100), random.randint(1, 100), ['+', '-', 'x', ':', '^']
         ansArray = [num1+num2, num1-num2, num1*num2, num1/num2, num1**num2]
@@ -315,12 +312,12 @@ class games(commands.Cog):
         wait = await ctx.send(emote(self.client, 'loading') + ' | Please wait... generating...')
         the_word = jsonisp("https://random-word-api.herokuapp.com/word?number=1")
         main_guess_cor, main_guess_hid = list(the_word[0]), []
-        server_id, wrong_guesses = ctx.message.guild.id, ''
+        server_id, wrong_guesses = ctx.guild.id, ''
         for i in range(0, len(main_guess_cor)):
             main_guess_hid.append('\_ ')
         guessed, gameplay, playing_with, playing_with_id, level = [], True, ctx.author, int(ctx.author.id), 0
         while gameplay:
-            if ctx.message.content==prefix+'hangman' and ctx.author.id!=int(playing_with_id) and ctx.message.guild.id==server_id:
+            if ctx.message.content==prefix+'hangman' and ctx.author.id!=int(playing_with_id) and ctx.guild.id==server_id:
                 await ctx.send('<@'+str(ctx.author.id)+'>, cannot play hangman when a game is currently playing!')
             newembed = discord.Embed(title=''.join(main_guess_hid), description='Wrong guesses: '+str(wrong_guesses), colour=get_embed_color(discord))
             newembed.set_image(url=f'https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{str(level)}.png')
@@ -452,65 +449,6 @@ class games(commands.Cog):
                         await ctx.send('thanks for playing! You get an extra '+str(reward)+' bobux!')
                     gameplay = False
                     break
-
-    @command()
-    @cooldown(25)
-    async def pokequiz(self, ctx):
-        return await ctx.send('sorry! this command is temporarily closed.')
-        wait = await ctx.send(str(emote(self.client, 'loading')) + ' | Please wait... Generating quiz...')
-        num = random.randint(1, 800)
-        try:
-            corr = pb.pokemon(str(num)).name
-        except Exception as e:
-            await wait.edit(content=emote(self.client, 'error') + f' | An error occurred! ```{e}```')
-        hint, attempt = 2, 10
-        gameplay = True
-        guy = ctx.author
-        while gameplay==True:
-            newembed = discord.Embed(title='Pokemon Quiz!', description=f'Guess the pokemon\'s name!\nTimeout: 45 seconds.\nHint left: **{str(hint)}** | Attempts left: **{str(attempt)}**', colour=get_embed_color(discord))
-            newembed.set_image(url=f'https://assets.pokemon.com/assets/cms2/img/pokedex/full/{str(num)}.png')
-            newembed.set_footer(text='Type "hint" to give.. uh... the HINT! :D')
-            newembed.set_thumbnail(url=f'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{str(num)}.png')
-            await wait.edit(content='', embed=newembed)
-            if int(attempt)<1:
-                await ctx.send('You lose! The pokemon is **'+str(corr)+'**!')
-                gameplay = False
-                break
-            def checking(m):
-                return m.author == guy
-            try:
-                guessing = await self.client.wait_for('message', check=checking, timeout=45.0)
-            except asyncio.TimeoutError:
-                await ctx.send('Too late! Game ended... :pensive:')
-                gameplay = False ; break
-            if str(guessing.content).lower()==corr:
-                currentmsg = guessing
-                await currentmsg.add_reaction('✅')
-                await ctx.send(emote(self.client, 'success') +' | You are correct! The pokemon is **'+str(corr)+'**')
-                if Economy.get(ctx.author.id)!=None:
-                    reward = random.randint(50, 250)
-                    Economy.addbal(ctx.author.id, reward)
-                    await ctx.send('thanks for playing! You get also a '+str(reward)+' bobux as a prize!')
-                gameplay = False
-                break
-            elif str(guessing.content).lower()=='hint':
-                currentmsg = guessing
-                if hint<1:
-                    await currentmsg.add_reaction('❌')
-                    attempt -= - 1
-                else:
-                    await currentmsg.add_reaction('✅')
-                    thehint = random.choice([hintify(corr), 'Pokemon name starts with "'+str(list(corr)[0])+'"', 'Pokemon name has '+str(len(corr))+' letters!', 'Pokemon name ends with "'+str(list(corr)[len(corr)-1])+'"'])
-                    await ctx.send('Hint: '+thehint+'!')
-                    hint -= 1 ; attempt -= 1
-            else:
-                if attempt!=0:
-                    await guessing.add_reaction('❌')
-                    attempt -= 1
-                else:
-                    await guessing.add_reaction('❌')
-                    await ctx.send('You lose! The pokemon is **'+str(corr)+'**!')
-                    gameplay = False ; break
 
     @command()
     @cooldown(30)

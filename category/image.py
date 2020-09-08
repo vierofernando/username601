@@ -35,7 +35,7 @@ class image(commands.Cog):
                 await ctx.send(file=discord.File(fp=BytesIO(res), filename="pikachu.gif"))
 
     @command()
-    @cooldown(5)
+    @cooldown(1)
     async def blur(self, ctx, *args):
         ava = getUserAvatar(ctx, args, size=512)
         async with ctx.channel.typing():
@@ -43,7 +43,7 @@ class image(commands.Cog):
             await ctx.send(file=discord.File(im, 'blur.png'))
 
     @command('glitchify,matrix')
-    @cooldown(5)
+    @cooldown(1)
     async def glitch(self, ctx, *args):
         ava = getUserAvatar(ctx, args, size=512)
         async with ctx.channel.typing():
@@ -51,7 +51,7 @@ class image(commands.Cog):
             await ctx.send(file=discord.File(im, 'glitch.png'))
 
     @command('destroy,destroyava,destroyavatar')
-    @cooldown(5)
+    @cooldown(1)
     async def destroyimg(self, ctx, *args):
         src = getUserAvatar(ctx, args, size=512)
         async with ctx.channel.typing():
@@ -60,7 +60,7 @@ class image(commands.Cog):
             ))
 
     @command('application')
-    @cooldown(5)
+    @cooldown(1)
     async def app(self, ctx, *args):
         src = getUserAvatar(ctx, args, size=512)
         elem = getUser(ctx, args)
@@ -71,7 +71,7 @@ class image(commands.Cog):
 
 
     @command('distortion')
-    @cooldown(5)
+    @cooldown(1)
     async def distort(self, ctx, *args, blacklist=None):
         num = 5
         try:
@@ -94,7 +94,7 @@ class image(commands.Cog):
             ))
 
     @command()
-    @cooldown(5)
+    @cooldown(1)
     async def garfield(self, ctx):
         try:
             year, month, day = str(random.randint(1979, 2019)), str(random.randint(1, 12)), str(random.randint(1, 28))
@@ -113,19 +113,19 @@ class image(commands.Cog):
             ))
 
     @command()
-    @cooldown(5)
+    @cooldown(1)
     async def lucario(self, ctx):
         embed = discord.Embed(title='Lucario!', color=get_embed_color(discord))
         embed.set_image(url=jsonisp('http://pics.floofybot.moe/image?token=lucario&category=sfw')['image'])
         await ctx.send(embed=embed)
     
     @command('ducks,quack,duk')
-    @cooldown(5)
+    @cooldown(1)
     async def duck(self, ctx):
         await ctx.send(file=discord.File(self.canvas.urltoimage(jsonisp('https://random-d.uk/api/v2/random?format=json')['url']), 'duck.png'))
 
     @command('snek,snakes,python,py')
-    @cooldown(5)
+    @cooldown(1)
     async def snake(self, ctx):
         await ctx.send(file=discord.File(self.canvas.urltoimage('https://fur.im/snek/i/'+str(random.randint(1, 874))+'.png'), 'snek.png'))
 
@@ -138,13 +138,13 @@ class image(commands.Cog):
         await ctx.send(embed=embed)
 
     @command()
-    @cooldown(5)
+    @cooldown(1)
     async def httpcat(self, ctx, *args):
         code = list(args)[0] if (len(list(args))!=0) else '404'
         await ctx.send(file=discord.File(self.canvas.urltoimage('https://http.cat/'+str(code)+'.jpg'), 'httpcat.png'))
     
     @command('httpduck')
-    @cooldown(5)
+    @cooldown(1)
     async def httpdog(self, ctx, *args):
         code = list(args)[0] if (len(list(args))!=0) else '404'
         url = 'https://random-d.uk/api/http/ABC.jpg' if ('duck' in ctx.message.content) else 'https://httpstatusdogs.com/img/ABC.jpg'
@@ -158,12 +158,12 @@ class image(commands.Cog):
             ))
 
     @command()
-    @cooldown(5)
+    @cooldown(1)
     async def goat(self, ctx):
         await ctx.send(file=discord.File(self.canvas.urltoimage('https://placegoat.com/'+str(random.randint(500, 700))), 'goat.png'))
 
     @command()
-    @cooldown(5)
+    @cooldown(1)
     async def rotate(self, ctx, *args):
         async with ctx.channel.typing():
             ava = getUserAvatar(ctx, args, size=512)
@@ -171,7 +171,7 @@ class image(commands.Cog):
             await ctx.send(file=discord.File(data, 'rotate.gif'))
 
     @command()
-    @cooldown(5)
+    @cooldown(1)
     async def resize(self, ctx, *args):
         correct, wh = '', []
         for i in list(args):
@@ -202,7 +202,7 @@ class image(commands.Cog):
             await ctx.send(file=discord.File(self.canvas.urltoimage('https://source.unsplash.com./1600x900/?{}'.format(random.choice(['earth', 'moon', 'space']))), 'space.png'))
 
     @command()
-    @cooldown(5)
+    @cooldown(1)
     async def ytthumbnail(self, ctx, *args):
         if len(list(args))!=0:
             videoid = 'dQw4w9WgXcQ'
@@ -220,7 +220,7 @@ class image(commands.Cog):
                 await ctx.send(file=discord.File(data, 'thumbnail.png'))
         else: await ctx.send(emote(self.client, 'error')+' | gimme something to work with! Like a youtube url!')
     @command('cat,fox,sadcat,bird')
-    @cooldown(5)
+    @cooldown(1)
     async def dog(self, ctx):
         async with ctx.channel.typing():
             links = {
@@ -237,7 +237,7 @@ class image(commands.Cog):
             await ctx.send(file=discord.File(data, 'animal.png'))
 
     @command()
-    @cooldown(5)
+    @cooldown(1)
     async def panda(self, ctx):
         link, col, msg = random.choice(["https://some-random-api.ml/img/panda", "https://some-random-api.ml/img/red_panda"]), get_embed_color(discord), 'Here is some cute pics of pandas.'
         data = jsonisp(link)['link']
@@ -246,25 +246,25 @@ class image(commands.Cog):
         await ctx.send(embed=embed)
     
     @command()
-    @cooldown(5)
+    @cooldown(1)
     async def shibe(self, ctx):
         async with ctx.channel.typing():
             data = jsonisp("http://shibe.online/api/shibes?count=1")[0]
             await ctx.send(file=discord.File(self.canvas.smallURL(data), 'shibe.png'))
     
     @command()
-    @cooldown(5)
+    @cooldown(1)
     async def ship(self, ctx):
         async with ctx.channel.typing():
             if len(ctx.message.mentions)!=2:
-                first, second = str(ctx.author.avatar_url).replace('webp', 'png'), str(random.choice(i.avatar_url for i in ctx.message.guild.members).replace('webp', 'png'))
+                first, second = str(ctx.author.avatar_url).replace('webp', 'png'), str(random.choice(i.avatar_url for i in ctx.guild.members).replace('webp', 'png'))
             else:
                 first, second = str(ctx.message.mentions[0].avatar_url).replace('webp', 'png'), str(ctx.message.mentions[1].avatar_url).replace('webp', 'png')
             url = f'https://api.alexflipnote.dev/ship?user={first}&user2={second}'
             await ctx.send(file=discord.File(self.canvas.urltoimage(url), 'ship.png'))
 
     @command('coffee')
-    @cooldown(5)
+    @cooldown(1)
     async def food(self, ctx, *args):
         if len(list(args))==0:
             data = jsonisp('https://nekobot.xyz/api/image?type='+str(ctx.message.content[1:]))
@@ -280,7 +280,7 @@ class image(commands.Cog):
                 await ctx.send(file=discord.File(data, ctx.message.content[1:]+'.png'))
 
     @command()
-    @cooldown(5)
+    @cooldown(1)
     async def magik(self, ctx, *args):
         source = getUserAvatar(ctx, args)
         await ctx.channel.trigger_typing()
@@ -301,7 +301,7 @@ class image(commands.Cog):
         return await ctx.send(file=discord.File(self.canvas.grayscale(av), 'invert.png'))
 
     @command('pixelate')
-    @cooldown(5)
+    @cooldown(1)
     async def jpeg(self, ctx, *args):
         com = str(ctx.message.content).split()[0].replace('jpeg', 'jpegify')[1:]
         source = getUserAvatar(ctx, args)

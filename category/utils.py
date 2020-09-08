@@ -51,7 +51,7 @@ class utils(commands.Cog):
             await wait.edit(content='{} | Yes. that website is down.'.format(emote(self.client, 'error')))
     
     @command('img2ascii,imagetoascii,avascii,avatarascii,avatar2ascii,av2ascii')
-    @cooldown(10)
+    @cooldown(5)
     async def imgascii(self, ctx, *args):
         url = getUserAvatar(ctx, args)
         wait = await ctx.send('{} | Please wait...'.format(emote(self.client, 'loading')))
@@ -61,7 +61,7 @@ class utils(commands.Cog):
         return await wait.edit(content='{} | You can see the results at **https://hastebin.com/{}**!'.format(emote(self.client, 'success'), data.json()['key']))
     
     @command()
-    @cooldown(15)
+    @cooldown(6)
     async def nasa(self, ctx, *args):
         query = 'earth' if len(list(args))==0 else urlify(' '.join(list(args)))
         data = jsonisp(f'https://images-api.nasa.gov/search?q={query}&media_type=image')
@@ -73,7 +73,7 @@ class utils(commands.Cog):
         await ctx.send(embed=em)
 
     @command('pokedex,dex,bulbapedia,pokemoninfo,poke-info,poke-dex,pokepedia')
-    @cooldown(10)
+    @cooldown(5)
     async def pokeinfo(self, ctx, *args):
         query = 'Missingno' if (len(list(args))==0) else urlify(' '.join(list(args)))
         try:
@@ -113,7 +113,7 @@ class utils(commands.Cog):
                 await ctx.send(embed=embed)
 
     @command()
-    @cooldown(5)
+    @cooldown(3)
     async def time(self, ctx):
         data = jsonisp("http://worldtimeapi.org/api/timezone/africa/accra")
         year, time, date = str(data["utc_datetime"])[:-28], str(data["utc_datetime"])[:-22], str(str(data["utc_datetime"])[:-13])[11:]
@@ -143,29 +143,31 @@ class utils(commands.Cog):
                     await ctx.send('`'+str(result)+'`')
                 except:
                     await ctx.send(str(emote(self.client, 'error'))+" | Somehow your calculation returns an error...")             
+            else:
+                return await ctx.message.add_reaction(emote(self.client, 'error'))
     @command()
-    @cooldown(7)
+    @cooldown(3)
     async def quote(self, ctx):
         async with ctx.channel.typing():
             data = insp('https://quotes.herokuapp.com/libraries/math/random')
-            text, quoter = data.split(' -- ')[0], data.split(' -- ')[1]
+            text, quoter = data.split(' -- ')[0].replace('`', ''), data.split(' -- ')[1]
             await ctx.send(embed=discord.Embed(description=f'***{text}***\n\n-- {quoter} --', color=get_embed_color(discord)))
 
     @command()
-    @cooldown(10)
+    @cooldown(5)
     async def robohash(self, ctx, *args):
         if len(list(args))==0: url='https://robohash.org/'+str(src.randomhash())
         else: url = 'https://robohash.org/'+str(urlify(' '.join(list(args))))
         await ctx.send(file=discord.File(self.canvas.urltoimage(url), 'robohash.png'))
 
     @command()
-    @cooldown(10)
+    @cooldown(5)
     async def weather(self, ctx, *args):
         if len(list(args))==0: await ctx.send(str(emote(self.client, 'error'))+" | Please send a location or a city!")
         else: await ctx.send(file=discord.File(self.canvas.urltoimage('https://wttr.in/'+str(urlify(' '.join(list(args))))+'.png?m'), 'weather.png'))
 
     @command()
-    @cooldown(10)
+    @cooldown(5)
     async def ufo(self, ctx):
         num = str(random.randint(50, 100))
         data = jsonisp('http://ufo-api.herokuapp.com/api/sightings/search?limit='+num)
@@ -195,7 +197,7 @@ class utils(commands.Cog):
                 await wait.edit(content='', embed=embed)
 
     @command('sof')
-    @cooldown(12)
+    @cooldown(5)
     async def stackoverflow(self, ctx, *args):
         if len(list(args))==0:
             await ctx.send(str(emote(self.client, 'error'))+' | Hey fellow developer, Try add a question!')
@@ -265,7 +267,7 @@ class utils(commands.Cog):
             except: await wait.edit(content=str(emote(self.client, 'error'))+' | the movie you requested does not exist!?')
 
     @command()
-    @cooldown(10)
+    @cooldown(5)
     async def steamprofile(self, ctx, *args):
         try:
             getprof = urlify(list(args)[0].lower())
@@ -315,7 +317,7 @@ class utils(commands.Cog):
         await ctx.send('**Feeling bored?**\nWhy don\'t you '+str(data['activity'])+'? :wink::ok_hand:')
 
     @command()
-    @cooldown(20)
+    @cooldown(10)
     async def googledoodle(self, ctx):
         wait = await ctx.send(str(emote(self.client, 'loading')) + ' | Please wait... This may take a few moments...')
         data = jsonisp('https://www.google.com/doodles/json/{}/{}'.format(str(t.now().year), str(t.now().month)))[0]
@@ -327,7 +329,7 @@ class utils(commands.Cog):
         await wait.edit(content='', embed=embed)
 
     @command()
-    @cooldown(10)
+    @cooldown(6)
     async def steamapp(self, ctx, *args):
         data = jsonisp('https://store.steampowered.com/api/storesearch?term='+urlify(str(' '.join(list(args))))+'&cc=us&l=en')
         if data['total']==0: await ctx.send(str(emote(self.client, 'error'))+' | Did not found anything. Maybe that app *doesn\'t exist...*')
