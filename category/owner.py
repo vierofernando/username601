@@ -107,10 +107,10 @@ class owner(commands.Cog):
             await ctx.send(str(emote(self.client, 'error')) +' | Invalid person.')
     @command('ex,eval')
     async def evaluate(self, ctx, *args):
-        unprefixed = ' '.join(list(args))
+        unprefixed = ' '.join(list(args)).replace("`", "")
         if int(ctx.author.id)==cfg('OWNER_ID', integer=True):
             try:
-                res = eval(unprefixed.replace('"', "'"))
+                res = eval(unprefixed)
                 for i in self.protected_files:
                     if str(i).lower() in str(res).lower(): res = totallyrealtoken
                     elif str(i).lower() in str(' '.join(list(args))).lower():
@@ -121,8 +121,7 @@ class owner(commands.Cog):
                 if 'cannot reuse already awaited coroutine' in str(e): return
                 await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+unprefixed+'```\nException:```py\n'+str(e)+'```', color=discord.Colour.red()), delete_after=5)
         else:
-            syn = ' '.join(ctx.message.content.split(' ')[1:])
-            fake_err = f"name '{syn}' is not defined"
+            fake_err = f"name '{unprefixed}' is not defined"
             return await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+unprefixed+'```\nException:```py\n'+str(fake_err)+'```', color=discord.Colour.red()))
 
     @command()

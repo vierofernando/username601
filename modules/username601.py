@@ -112,16 +112,9 @@ def uptimerobot():
     parameter = "{type:'line',data:{labels:"+str([str(i['datetime']) for i in data])+", datasets:[{label:'Username601 Latency (ms)', data: "+str([i['duration'] for i in data])+", fill:false,borderColor:'blue'}]}}"
     return parameter
 
-def getStatus():
-    return jsonify(open(cfg('JSON_DIR')+"/status.json", "r").read())
-
 def limit(word):
-    total = ''
-    for i in range(0, len(word)):
-        if i>1990:
-            break
-        total += list(word)[i]
-    return total
+    return word[0:1990]
+
 def urlify(word):
     return urlencode(word).replace('+', '%20')
 

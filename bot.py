@@ -16,7 +16,6 @@ import canvas as Painter
 import os
 from datetime import datetime as t
 from requests import post
-from itertools import cycle
 import discord
 from discord.ext import commands, tasks
 import random
@@ -25,14 +24,12 @@ import asyncio
 # DECLARATION AND STUFF
 client = commands.Bot(command_prefix=prefix)
 client.remove_command('help')
-bot_status = cycle(getStatus())
 
 @client.event
 async def on_ready():
     selfDB.post_uptime() # update the uptime
     username601Stats.clear() # clear all cached data on database (reset);
-    statusChange.start()
-    #updateStats.start()
+    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="👻Botghost.com👻 | Type "+cfg('PREFIX')+"help for command"))
     for i in os.listdir('./category'):
         if not i.endswith('.py'): continue
         print('[BOT] Loaded cog: '+str(i[:-3]))
@@ -42,20 +39,6 @@ async def on_ready():
             print('error on loading cog '+str(i[:-3])+': '+str(e))
             pass
     print('Bot is online.')
-
-#@tasks.loop(seconds=900.0)
-#async def updateStats():
-#    print(f'Updated stuff [{str(t.now())[:-7]}]')
-#    post(f'https://botsfordiscord.com/api/bot/{cfg('BOT_ID')}', headers={
-#        'Content-Type': 'application/json',
-#        'Authorization': os.environ['BOTSFORDISCORD_TOKEN')
-#    }, body={'server_count': len(client.guilds)})
-#    post(f'https://discordbotlist.com/api/v1/bots/{cfg('BOT_ID')}/stats', headers={
-#        'Authorization': os.environ['DISCORDBOTLIST_TOKEN')
-#    }, body={
-#        'guilds': len(client.guilds),
-#        'users': len(client.users)
-#    })
 
 @client.event
 async def on_raw_reaction_add(payload):
@@ -71,14 +54,6 @@ async def on_raw_reaction_add(payload):
     message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
     if len(message.reactions) == data['starlimit']:
         await client.get_channel(data['channelid']).send(content=f'ID: {message.id}', embed=Dashboard.sendStarboard(discord, message))
-
-@tasks.loop(seconds=7)
-async def statusChange():
-    new_status = str(next(bot_status)).replace('{MEMBERS}', str(len(client.users))).replace('{SERVERS}', str(len(client.guilds)))
-    if new_status.startswith('PLAYING:'): await client.change_presence(activity=discord.Game(name=new_status.split(':')[1]))
-    elif new_status.startswith('STREAMING:'): await client.change_presence(activity=discord.Streaming(name=new_status.split(':')[1], url='https://bit.ly/username601'))
-    elif new_status.startswith('LISTENING:'): await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=new_status.split(':')[1]))
-    else: await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=new_status.split(':')[1]))
 
 @client.event
 async def on_command_completion(ctx):
