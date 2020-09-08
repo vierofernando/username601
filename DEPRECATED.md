@@ -3,7 +3,7 @@
 ## DEPRECATED COMMANDS<br>
 these are commands i decided to delete with the reasons.
 
-### 1hbd, 1slap, 1botmembers<br>
+### 1hbd, 1slap, 1botmembers, 1deathnote, 1id<br>
 completely useless and barely anyone ever uses it<br>
 
 ### 1newemote<br>
