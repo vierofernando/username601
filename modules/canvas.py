@@ -97,13 +97,14 @@ def char_process(text, width, font, array=False):
         temp += i
         if font.getsize(temp)[0] < width:
             continue
-        res.append(temp)
+        res.append(temp+'-')
         temp = ""
     if len(''.join(res)) != len(text):
-        res.append(temp)
+        res.append(temp+'-')
     if res ==[]:
-        if array: return [''.join(temp)]
-        return ''.join(temp)
+        if array: return [''.join(temp)[:-1]]
+        return ''.join(temp)[:-1]
+    res[len(res)-1] = res[len(res)-1][:-1]
     if array: return res
     return '\n'.join(res)
 def toLocaleString(a): # sike javascriptors ;)
