@@ -355,7 +355,7 @@ class memes(commands.Cog):
     @command('baby,clint,wolverine,disgusting,f,studying,starvstheforcesof')
     @cooldown(10)
     async def door(self, ctx, *args):
-		# yanderedev OwO
+        # yanderedev OwO
         async with ctx.channel.typing():
             ava = getUserAvatar(ctx, args)
             if 'door' in ctx.message.content: size, pos = (496, 483), (247, 9)
