@@ -2,32 +2,32 @@ const prm = new URLSearchParams(window.location.search);
 const message = "Inspect element huh? Nope! Go away! shoo!";
 
 if (document.layers) {
-	document.captureEvents(Event.MOUSEDOWN);
-	document.onmousedown = function(e) {
-		if (document.layers || document.getElementById && !document.all) {
-			if (e.which==2 || e.which==3){
-				alert(message);
-				return false;
-			}
-		}
-	}
+    document.captureEvents(Event.MOUSEDOWN);
+    document.onmousedown = function(e) {
+        if (document.layers || document.getElementById && !document.all) {
+            if (e.which==2 || e.which==3){
+                alert(message);
+                return false;
+            }
+        }
+    }
 } else if ((document.all)&&(!document.getElementById)){
-	document.onmousedown = function() {
-		if (event.button==2){
-			alert(message);
-			return false;
-		}
-	}
+    document.onmousedown = function() {
+        if (event.button==2){
+            alert(message);
+            return false;
+        }
+    }
 }
 
 document.oncontextmenu = new Function("alert(message);return false")
 
 function loadCommands() {
-	const prefix = (prm.has('prefix')) ? prm.get('prefix') : '1';
+    const prefix = (prm.has('prefix')) ? prm.get('prefix') : '1';
     fetch('https://vierofernando.github.io/username601/assets/json/commands.json') // decided to use this because client kept giving me 404s
     .then (res => res.json())
     .then (out => {
-		const libs = ["Bot Help", "Moderation", "Economy", "Utilities", "Fun", "Games", "Encoding", "Memes", "Images", "Apps", "Owner"];
+        const libs = ["Bot Help", "Moderation", "Economy", "Utilities", "Fun", "Games", "Encoding", "Memes", "Images", "Apps", "Owner"];
         let links = "";
         let total = links;
         let totalcount = 0;
@@ -40,10 +40,10 @@ function loadCommands() {
                 let api = 'No API used.';
                 let par = 'No parameters.';
                 if (out[i][libs[i]][num]['a'].length != 0) {
-					for (n = 0; n < out[i][libs[i]][num]['a'].length; n++) {
-						api = '<a href="'+out[i][libs[i]][num]['a'][n]+'">'+out[i][libs[i]][num]['a'][n]+'</a>';
-					}
-				}
+                    for (n = 0; n < out[i][libs[i]][num]['a'].length; n++) {
+                        api = '<a href="'+out[i][libs[i]][num]['a'][n]+'">'+out[i][libs[i]][num]['a'][n]+'</a>';
+                    }
+                }
                 if (out[i][libs[i]][num]['p'].length != 0) {
                     par = '<br>';
                     let subcount = 1;
@@ -54,7 +54,7 @@ function loadCommands() {
                 }
                 const name = prefix+out[i][libs[i]][num]['n'].toString();
                 const func = out[i][libs[i]][num]['f'];
-                total = total+'<strong>'+count.toString()+'. '+name+'</strong><br><ul><li>Function: '+func+'</li><li>Parameters: '+par+'</li><li>APIs used: '+api+'</li></ul>';
+                total = total+'<strong id="commandName">'+count.toString()+'. '+name+'</strong><br><ul><li>Function: '+func+'</li><li>Parameters: '+par+'</li><li>APIs used: '+api+'</li></ul>';
                 count++;
                 totalcount++;
                 categoryCounter++;
@@ -79,9 +79,9 @@ function loadCommands() {
     });
 }
 function loadMySanity() {
-	if (prm.has('credits')) {
-		window.location.href = 'https://vierofernando.github.io/username601/modules/credits.txt';
-	}
+    if (prm.has('credits')) {
+        window.location.href = 'https://vierofernando.github.io/username601/modules/credits.txt';
+    }
     // very true.
     fetch('https://vierofernando.github.io/username601/assets/json/webtitle.json') // decided to use this because client kept giving me 404s
     .then (res => res.json())
