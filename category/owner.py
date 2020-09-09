@@ -86,7 +86,7 @@ class owner(commands.Cog):
                 await user_to_send.send(embed=em)
                 await ctx.message.add_reaction('✅')
             except Exception as e:
-                await ctx.send(str(emote(self.client, 'error')) + f' | Error: `{e}`')
+                await ctx.send(emote(self.client, 'error') + f' | Error: `{e}`')
         else:
             await ctx.send('You are not the bot owner. Go get a life.')
 
@@ -96,7 +96,7 @@ class owner(commands.Cog):
             selfDB.feedback_ban(int(list(args)[0]), str(' '.join(list(args)[1:len(list(args))])))
             await ctx.message.add_reaction(emote(self.client, 'success'))
         else:
-            await ctx.send(str(emote(self.client, 'error')) +' | You are not the owner, nerd.')
+            await ctx.send(emote(self.client, 'error') +' | You are not the owner, nerd.')
     @command()
     async def funban(self, ctx, *args):
         if int(ctx.author.id)==cfg('OWNER_ID', integer=True):
@@ -104,7 +104,7 @@ class owner(commands.Cog):
             if data=='200': await ctx.message.add_reaction(emote(self.client, 'success'))
             else: await ctx.message.add_reaction(emote(self.client, 'error'))
         else:
-            await ctx.send(str(emote(self.client, 'error')) +' | Invalid person.')
+            await ctx.send(emote(self.client, 'error') +' | Invalid person.')
     @command('ex,eval')
     async def evaluate(self, ctx, *args):
         unprefixed = ' '.join(list(args)).replace("`", "")

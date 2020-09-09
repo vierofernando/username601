@@ -92,7 +92,7 @@ class utils(commands.Cog):
         except Exception as e:
             print(e)
             return await ctx.send("{} | Pokemon not found!".format(
-                str(emote(self.client, 'error'))
+                emote(self.client, 'error')
             ))
 
     @command('recipes,cook')
@@ -103,9 +103,9 @@ class utils(commands.Cog):
         else:
             data = fetchJSON("http://www.recipepuppy.com/api/?q={}".format(urlify(' '.join(list(args)))))
             if len(data['results'])==0: 
-                await ctx.send("{} | Did not find anything.".format(str(emote(self.client, 'error'))))
+                await ctx.send("{} | Did not find anything.".format(emote(self.client, 'error')))
             elif len([i for i in data['results'] if i['thumbnail']!=''])==0:
-                await ctx.send("{} | Did not find anything with a delicious picture.".format(str(emote(self.client, 'error'))))
+                await ctx.send("{} | Did not find anything with a delicious picture.".format(emote(self.client, 'error')))
             else:
                 total = random.choice([i for i in data['results'] if i['thumbnail']!=''])
                 embed = discord.Embed(title=total['title'], url=total['href'], description='Ingredients:\n{}'.format(total['ingredients']), color=get_embed_color(discord))
@@ -130,7 +130,7 @@ class utils(commands.Cog):
     @command()
     @cooldown(3)
     async def calc(self, ctx, *args):
-        if len(list(args))==0: await ctx.send(str(emote(self.client, 'error'))+" | You need something... i smell no args nearby.")
+        if len(list(args))==0: await ctx.send(emote(self.client, 'error')+" | You need something... i smell no args nearby.")
         else:
             start_counting = True
             for i in list('abcdefghijklmnopqrstuvwxyz.'):
@@ -142,7 +142,7 @@ class utils(commands.Cog):
                     result = eval(' '.join(list(args)))
                     await ctx.send('`'+str(result)+'`')
                 except:
-                    await ctx.send(str(emote(self.client, 'error'))+" | Somehow your calculation returns an error...")             
+                    await ctx.send(emote(self.client, 'error')+" | Somehow your calculation returns an error...")             
             else:
                 return await ctx.message.add_reaction(emote(self.client, 'error'))
     @command()
@@ -163,7 +163,7 @@ class utils(commands.Cog):
     @command()
     @cooldown(5)
     async def weather(self, ctx, *args):
-        if len(list(args))==0: await ctx.send(str(emote(self.client, 'error'))+" | Please send a location or a city!")
+        if len(list(args))==0: await ctx.send(emote(self.client, 'error')+" | Please send a location or a city!")
         else: await ctx.send(file=discord.File(self.canvas.urltoimage('https://wttr.in/'+str(urlify(' '.join(list(args))))+'.png?m'), 'weather.png'))
 
     @command()
@@ -172,7 +172,7 @@ class utils(commands.Cog):
         num = str(random.randint(50, 100))
         data = fetchJSON('http://ufo-api.herokuapp.com/api/sightings/search?limit='+num)
         if data['status']!='OK':
-            await ctx.send(str(emote(self.client, 'error'))+' | There was a problem on retrieving the info.\nThe server said: "'+str(data['status'])+'" :eyes:')
+            await ctx.send(emote(self.client, 'error')+' | There was a problem on retrieving the info.\nThe server said: "'+str(data['status'])+'" :eyes:')
         else:
             ufo = random.choice(data['sightings'])
             embed = discord.Embed(title='UFO Sighting in '+str(ufo['city'])+', '+str(ufo['state']), description='**Summary:** '+str(ufo['summary'])+'\n\n**Shape:** '+str(ufo['shape'])+'\n**Sighting Date: **'+str(ufo['date'])[:-8].replace('T', ' ')+'\n**Duration: **'+str(ufo['duration'])+'\n\n[Article Source]('+str(ufo['url'])+')', colour=get_embed_color(discord))
@@ -184,7 +184,7 @@ class utils(commands.Cog):
     async def rhyme(self, ctx, *args):
         if len(list(args))==0: await ctx.send('Please input a word! And we will try to find the word that best rhymes with it.')
         else:
-            wait, words = await ctx.send(str(emote(self.client, 'loading')) + ' | Please wait... Searching...'), []
+            wait, words = await ctx.send(emote(self.client, 'loading') + ' | Please wait... Searching...'), []
             data = fetchJSON('https://rhymebrain.com/talk?function=getRhymes&word='+str(urlify(' '.join(list(args)))))
             if len(data)<1: await wait.edit(content='We did not find any rhyming words corresponding to that letter.')
             else:
@@ -200,7 +200,7 @@ class utils(commands.Cog):
     @cooldown(5)
     async def stackoverflow(self, ctx, *args):
         if len(list(args))==0:
-            await ctx.send(str(emote(self.client, 'error'))+' | Hey fellow developer, Try add a question!')
+            await ctx.send(emote(self.client, 'error')+' | Hey fellow developer, Try add a question!')
         else:
             try:
                 query = urlify(' '.join(list(args)))
@@ -218,7 +218,7 @@ class utils(commands.Cog):
                 embed.set_footer(text='Shown 1 result out of '+str(leng)+' results!')
                 await ctx.send(embed=embed)
             except:
-                await ctx.send(str(emote(self.client, 'error')) + ' | There was an error on searching! Please check your spelling :eyes:')
+                await ctx.send(emote(self.client, 'error') + ' | There was an error on searching! Please check your spelling :eyes:')
 
     @command('birbfact,birdfact')
     @cooldown(7)
@@ -240,7 +240,7 @@ class utils(commands.Cog):
     @command('ghibli')
     @cooldown(5)
     async def ghiblifilms(self, ctx, *args):
-        wait = await ctx.send(str(emote(self.client, 'loading')) + ' | Please wait... Getting data...')
+        wait = await ctx.send(emote(self.client, 'loading') + ' | Please wait... Getting data...')
         data = fetchJSON('https://ghibliapi.herokuapp.com/films')
         if len(list(args))==0:
             films = ""
@@ -264,7 +264,7 @@ class utils(commands.Cog):
                 embed.add_field(name='Directed by', value=data[num]['director'], inline='True')
                 embed.add_field(name='Produced by', value=data[num]['producer'], inline='True')
                 await wait.edit(content='', embed=embed)
-            except: await wait.edit(content=str(emote(self.client, 'error'))+' | the movie you requested does not exist!?')
+            except: await wait.edit(content=emote(self.client, 'error')+' | the movie you requested does not exist!?')
 
     @command()
     @cooldown(5)
@@ -277,7 +277,7 @@ class utils(commands.Cog):
             embed.set_thumbnail(url=avatar)
             await ctx.send(embed=embed)
         except:
-            await ctx.send(str(emote(self.client, 'error'))+" | Error; profile not found!")
+            await ctx.send(emote(self.client, 'error')+" | Error; profile not found!")
 
     @command('nation')
     @cooldown(5)
@@ -299,7 +299,7 @@ class utils(commands.Cog):
     @cooldown(1)
     async def search(self, ctx, *args):
         if len(list(args))==0:
-            await ctx.send(str(emote(self.client, 'error'))+" | Please send something to search for......")
+            await ctx.send(emote(self.client, 'error')+" | Please send something to search for......")
         else:
             data = loads(open("/app/assets/json/search.json", "r").read())
             await ctx.send(embed=discord.Embed(title='Internet searches for '+str(' '.join(list(args)), description=str('\n'.join(data)).replace('{QUERY}', urlify(' '.join(list(args))), color=get_embed_color(discord)))))
@@ -319,7 +319,7 @@ class utils(commands.Cog):
     @command()
     @cooldown(10)
     async def googledoodle(self, ctx):
-        wait = await ctx.send(str(emote(self.client, 'loading')) + ' | Please wait... This may take a few moments...')
+        wait = await ctx.send(emote(self.client, 'loading') + ' | Please wait... This may take a few moments...')
         data = fetchJSON('https://www.google.com/doodles/json/{}/{}'.format(str(t.now().year), str(t.now().month)))[0]
         embed = discord.Embed(title=data['title'], colour=get_embed_color(discord), url='https://www.google.com/doodles/'+data['name'])
         embed.set_image(url='https:'+data['high_res_url'])
@@ -332,7 +332,7 @@ class utils(commands.Cog):
     @cooldown(6)
     async def steamapp(self, ctx, *args):
         data = fetchJSON('https://store.steampowered.com/api/storesearch?term='+urlify(str(' '.join(list(args))))+'&cc=us&l=en')
-        if data['total']==0: await ctx.send(str(emote(self.client, 'error'))+' | Did not found anything. Maybe that app *doesn\'t exist...*')
+        if data['total']==0: await ctx.send(emote(self.client, 'error')+' | Did not found anything. Maybe that app *doesn\'t exist...*')
         else:
             try:
                 prize = data['items'][0]['price']['initial']
@@ -361,14 +361,14 @@ class utils(commands.Cog):
     async def embed(self, ctx, *args):
         if '(title:' not in list(args) or '(desc:' not in list(args):
             if len(list(args))==0:
-                await message.channel.send(str(emote(self.client, 'error'))+' | no args for you.')
+                await message.channel.send(emote(self.client, 'error')+' | no args for you.')
             else:
                 try:
                     await ctx.send(embed=discord.Embed(
                         description=str(' '.join(list(args)))
                     ))
                 except:
-                    await ctx.send(str(emote(self.client, 'error'))+' | that is too long.')
+                    await ctx.send(emote(self.client, 'error')+' | that is too long.')
         else:
             msg = str(' '.join(list(args)))
             try:
@@ -388,7 +388,7 @@ class utils(commands.Cog):
                     embed = discord.Embed(title=title_e, description=desc_e, colour=discord.Colour.from_rgb(arr[0], arr[1], arr[2]))
                 await message.channel.send(embed=embed)
             except Exception as e:
-                await message.channel.send(str(emote(self.client, 'error')) + f' | An error occurd. For programmers: ```{e}```')
+                await message.channel.send(emote(self.client, 'error') + f' | An error occurd. For programmers: ```{e}```')
 
     @command('colourinfo,color-info,randomcolor,randomcolour,colour-info')
     @cooldown(10)
@@ -401,11 +401,11 @@ class utils(commands.Cog):
                 hexCode += ran
             continuing = True
         else:
-            if len(args)!=1: await ctx.send(str(emote(self.client, 'error')) +' | Invalid arguments.')
+            if len(args)!=1: await ctx.send(emote(self.client, 'error') +' | Invalid arguments.')
             elif args[0].startswith('#'): hexCode = args[0][1:] ; continuing = True
             elif args[0] in list('0123456789ABCDEF') and len(args[0])==6: hexCode = args[0] ; continuing = True
             elif args[0].isnumeric(): hexCode = str(tohex(args[0])) ; continuing = True
-            elif len(args[0])!=6: await ctx.send(str(emote(self.client, 'error'))+' | We only accept `HEX CODES` and `INTEGER VALUES` as inputs!')
+            elif len(args[0])!=6: await ctx.send(emote(self.client, 'error')+' | We only accept `HEX CODES` and `INTEGER VALUES` as inputs!')
             else: hexCode = args[0] ; continuing = True
         if continuing:
             rgb = convertrgb(hexCode, '0')

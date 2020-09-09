@@ -11,7 +11,6 @@ import splashes as src
 from decorators import command, cooldown
 import random
 from canvas import Painter
-import pokebase as pb
 import discordgames as Games
 from database import Economy
 import asyncio
@@ -194,7 +193,7 @@ class games(commands.Cog):
     @command('guessav,avatarguess,avguess,avatargame,avgame')
     @cooldown(30)
     async def guessavatar(self, ctx):
-        wait = await ctx.send(str(emote(self.client, 'loading')) + ' | Please wait... generating question...\nThis process may take longer if your server has more members.')
+        wait = await ctx.send(emote(self.client, 'loading') + ' | Please wait... generating question...\nThis process may take longer if your server has more members.')
         avatarAll, nameAll = [], []
         for ppl in ctx.guild.members:
             if ctx.guild.get_member(int(ppl.id)).status.name!='offline':
@@ -244,7 +243,7 @@ class games(commands.Cog):
     @command()
     @cooldown(15)
     async def geoquiz(self, ctx):
-        wait = await ctx.send(str(emote(self.client, 'loading')) + ' | Please wait... generating question...')
+        wait = await ctx.send(emote(self.client, 'loading') + ' | Please wait... generating question...')
         data, topic = fetchJSON("https://restcountries.eu/rest/v2/"), random.choice(src.getGeoQuiz())
         chosen_nation_num = random.randint(0, len(data))
         chosen_nation, wrongs = data[chosen_nation_num], []
@@ -257,10 +256,10 @@ class games(commands.Cog):
         emot, static_emot, corr_order_num = list('🇦🇧🇨🇩'), list('🇦🇧🇨🇩'), random.randint(0, 3)
         corr_order = emot[corr_order_num]
         emot[corr_order_num], question, guy = '0', '', ctx.author
-        for emote in emot:
-            if emote!='0':
+        for each_emote in emot:
+            if each_emote!='0':
                 added = random.choice(wrongs)
-                question += emote + ' ' + added + '\n'
+                question += each_emote + ' ' + added + '\n'
                 wrongs.remove(added)
             else:
                 question += corr_order + ' ' + correct + '\n'
@@ -455,7 +454,7 @@ class games(commands.Cog):
     async def trivia(self, ctx):
         al = None
         try:
-            wait = await ctx.send(str(emote(self.client, 'loading')) + ' | Please wait... generating quiz...')
+            wait = await ctx.send(emote(self.client, 'loading') + ' | Please wait... generating quiz...')
             auth = ctx.author
             data = fetchJSON('https://wiki-quiz.herokuapp.com/v1/quiz?topics=Science')
             q = random.choice(data['quiz'])
