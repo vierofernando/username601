@@ -53,7 +53,7 @@ class memes(commands.Cog):
     @command('programmerhumor,programmermeme,programming,programmer')
     @cooldown(2)
     async def programmingmeme(self, ctx):
-        data = jsonisp('https://useless-api.vierofernando.repl.co/programmermeme')['url']
+        data = fetchJSON('https://useless-api.vierofernando.repl.co/programmermeme')['url']
         return await ctx.send(embed=discord.Embed(title='Programmer meme', color=get_embed_color(discord)).set_image(url=data))
 
     @command('shred,burn,spongebobpaper,paper,spongepaper,sponge-paper,spongebob-paper,spongebob')
@@ -133,6 +133,18 @@ class memes(commands.Cog):
         async with ctx.channel.typing():
             gif = self.gif.death_star(ava)
             await ctx.send(file=discord.File(fp=gif, filename='boom.gif'))
+
+    @command('effect')
+    @cooldown(1)
+    async def affect(self, ctx, *args):
+        url = getUserAvatar(ctx, args)
+        async with ctx.channel.typing():
+            await ctx.send(file=discord.File(self.canvas.trans_merge({
+                'url': url,
+                'filename': 'affect.png',
+                'size': (201, 163),
+                'pos': (165, 352)
+            }), 'affect.png'))
 
     @command('evol,trashevol,evoltrash,evolutiontrash')
     @cooldown(5)
@@ -377,7 +389,7 @@ class memes(commands.Cog):
     @command('gimme,memz,memey')
     @cooldown(5)
     async def meme(self, ctx):
-        data = jsonisp("https://meme-api.herokuapp.com/gimme")
+        data = fetchJSON("https://meme-api.herokuapp.com/gimme")
         embed = discord.Embed(colour = get_embed_color(discord))
         embed.set_author(name=data["title"], url=data["postLink"])
         if data["nsfw"]:

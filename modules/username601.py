@@ -166,7 +166,7 @@ def terminal(command):
         data = run([command], stdout=PIPE).stdout.decode('utf-8')
     return data
 
-def jsonisp(url):
+def fetchJSON(url):
     return requests.get(url).json()
 def insp(url):
     return requests.get(url).text

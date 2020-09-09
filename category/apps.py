@@ -64,7 +64,7 @@ class apps(commands.Cog):
     @cooldown(5)
     async def itunes(self, ctx, *args):
         if len(list(args))==0: return await ctx.send('{} | Please send a search term!'.format(emote(self.client, 'error')))
-        data = jsonisp('https://itunes.apple.com/search?term={}&media=music&entity=song&limit=1&explicit=no'.format(urlify(' '.join(list(args)))))
+        data = fetchJSON('https://itunes.apple.com/search?term={}&media=music&entity=song&limit=1&explicit=no'.format(urlify(' '.join(list(args)))))
         if len(data['results'])==0: return await ctx.send('{} | No music found... oop'.format(emote(self.client, 'error')))
         data = data['results'][0]
         em = discord.Embed(title=data['trackName'], url=data['trackViewUrl'],description='**Artist: **{}\n**Album: **{}\n**Release Date:** {}\n**Genre: **{}'.format(

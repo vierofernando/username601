@@ -37,7 +37,7 @@ class encoding(commands.Cog):
             await ctx.send(emote(self.client, 'error')+' | too long....')
         else:
             async with ctx.channel.typing():
-                res = jsonisp('https://useless-api--vierofernando.repl.co/encode?text='+urlify(' '.join(list(args))))
+                res = fetchJSON('https://useless-api--vierofernando.repl.co/encode?text='+urlify(' '.join(list(args))))
                 if 'fliptext' in str(ctx.message.content).split(' ')[0][1:]: data = res['styles']['upside-down']
                 elif 'cursive' in str(ctx.message.content).split(' ')[0][1:]: data = res['styles']['cursive']
                 elif 'fancy' in str(ctx.message.content).split(' ')[0][1:]: data = res['styles']['fancy']
@@ -106,7 +106,7 @@ class encoding(commands.Cog):
         if len(list(args))==0:
             await ctx.send(emote(self.client, 'error')+' | No arguments? ok then! no service it is!')
         else:
-            data = jsonisp("https://vierofernando.github.io/username601/assets/json/leet.json")
+            data = fetchJSON("https://vierofernando.github.io/username601/assets/json/leet.json")
             total = ''
             text = ' '.join(list(args))
             for i in list(text):

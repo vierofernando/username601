@@ -64,7 +64,7 @@ class utils(commands.Cog):
     @cooldown(6)
     async def nasa(self, ctx, *args):
         query = 'earth' if len(list(args))==0 else urlify(' '.join(list(args)))
-        data = jsonisp(f'https://images-api.nasa.gov/search?q={query}&media_type=image')
+        data = fetchJSON(f'https://images-api.nasa.gov/search?q={query}&media_type=image')
         await ctx.channel.trigger_typing()
         if len(data['collection']['items'])==0: return await ctx.send('{} | Nothing found.'.format(emote(self.client, 'error')))
         img = random.choice(data['collection']['items'])
@@ -77,7 +77,7 @@ class utils(commands.Cog):
     async def pokeinfo(self, ctx, *args):
         query = 'Missingno' if (len(list(args))==0) else urlify(' '.join(list(args)))
         try:
-            data = jsonisp('https://bulbapedia.bulbagarden.net/w/api.php?action=query&titles={}&format=json&formatversion=2&pithumbsize=150&prop=extracts|pageimages&explaintext&redirects&exintro'.format(query))
+            data = fetchJSON('https://bulbapedia.bulbagarden.net/w/api.php?action=query&titles={}&format=json&formatversion=2&pithumbsize=150&prop=extracts|pageimages&explaintext&redirects&exintro'.format(query))
             embed = discord.Embed(
                 url='https://bulbapedia.bulbagarden.net/wiki/{}'.format(query),
                 color=get_embed_color(discord),
@@ -101,7 +101,7 @@ class utils(commands.Cog):
         if len(list(args))==0:
             await ctx.send(embed=discord.Embed(title='Here is a recipe to cook nothing:', description='1. Do nothing\n2. Profit'))
         else:
-            data = jsonisp("http://www.recipepuppy.com/api/?q={}".format(urlify(' '.join(list(args)))))
+            data = fetchJSON("http://www.recipepuppy.com/api/?q={}".format(urlify(' '.join(list(args)))))
             if len(data['results'])==0: 
                 await ctx.send("{} | Did not find anything.".format(str(emote(self.client, 'error'))))
             elif len([i for i in data['results'] if i['thumbnail']!=''])==0:
@@ -115,7 +115,7 @@ class utils(commands.Cog):
     @command()
     @cooldown(3)
     async def time(self, ctx):
-        data = jsonisp("http://worldtimeapi.org/api/timezone/africa/accra")
+        data = fetchJSON("http://worldtimeapi.org/api/timezone/africa/accra")
         year, time, date = str(data["utc_datetime"])[:-28], str(data["utc_datetime"])[:-22], str(str(data["utc_datetime"])[:-13])[11:]
         if int(year)%4==0: yearType, yearLength = 'It is a leap year.', 366
         else: yearType, yearLength = 'It is not a leap year yet.', 365
@@ -170,7 +170,7 @@ class utils(commands.Cog):
     @cooldown(5)
     async def ufo(self, ctx):
         num = str(random.randint(50, 100))
-        data = jsonisp('http://ufo-api.herokuapp.com/api/sightings/search?limit='+num)
+        data = fetchJSON('http://ufo-api.herokuapp.com/api/sightings/search?limit='+num)
         if data['status']!='OK':
             await ctx.send(str(emote(self.client, 'error'))+' | There was a problem on retrieving the info.\nThe server said: "'+str(data['status'])+'" :eyes:')
         else:
@@ -185,7 +185,7 @@ class utils(commands.Cog):
         if len(list(args))==0: await ctx.send('Please input a word! And we will try to find the word that best rhymes with it.')
         else:
             wait, words = await ctx.send(str(emote(self.client, 'loading')) + ' | Please wait... Searching...'), []
-            data = jsonisp('https://rhymebrain.com/talk?function=getRhymes&word='+str(urlify(' '.join(list(args)))))
+            data = fetchJSON('https://rhymebrain.com/talk?function=getRhymes&word='+str(urlify(' '.join(list(args)))))
             if len(data)<1: await wait.edit(content='We did not find any rhyming words corresponding to that letter.')
             else:
                 for i in range(0, len(data)):
@@ -204,7 +204,7 @@ class utils(commands.Cog):
         else:
             try:
                 query = urlify(' '.join(list(args)))
-                data = jsonisp("https://api.stackexchange.com/2.2/search/advanced?q="+str(query)+"&site=stackoverflow&page=1&answers=1&order=asc&sort=relevance")
+                data = fetchJSON("https://api.stackexchange.com/2.2/search/advanced?q="+str(query)+"&site=stackoverflow&page=1&answers=1&order=asc&sort=relevance")
                 leng = len(data['items'])
                 ques = data['items'][0]
                 tags = ''
@@ -225,13 +225,13 @@ class utils(commands.Cog):
     async def pandafact(self, ctx):
         if 'pandafact' in str(ctx.message.content).lower(): link = 'https://some-random-api.ml/facts/panda'
         else: link = 'https://some-random-api.ml/facts/bird'
-        data = jsonisp(link)['fact']
+        data = fetchJSON(link)['fact']
         await ctx.send(embed=discord.Embed(title='Did you know?', description=data, colour=get_embed_color(discord)))
 
     @command()
     @cooldown(2)
     async def iss(self, ctx):
-        iss, ppl, total = jsonisp('https://open-notify-api.herokuapp.com/iss-now.json'), jsonisp('https://open-notify-api.herokuapp.com/astros.json'), '```'
+        iss, ppl, total = fetchJSON('https://open-notify-api.herokuapp.com/iss-now.json'), fetchJSON('https://open-notify-api.herokuapp.com/astros.json'), '```'
         for i in range(0, len(ppl['people'])):
             total += str(i+1) + '. ' + ppl['people'][i]['name'] + ((20-(len(ppl['people'][i]['name'])))*' ') + ppl['people'][i]['craft'] + '\n'
         embed = discord.Embed(title='Position: '+str(iss['iss_position']['latitude'])+' '+str(iss['iss_position']['longitude']), description='**People at craft:**\n\n'+str(total)+'```', colour=get_embed_color(discord))
@@ -241,7 +241,7 @@ class utils(commands.Cog):
     @cooldown(5)
     async def ghiblifilms(self, ctx, *args):
         wait = await ctx.send(str(emote(self.client, 'loading')) + ' | Please wait... Getting data...')
-        data = jsonisp('https://ghibliapi.herokuapp.com/films')
+        data = fetchJSON('https://ghibliapi.herokuapp.com/films')
         if len(list(args))==0:
             films = ""
             for i in range(0, int(len(data))):
@@ -271,7 +271,7 @@ class utils(commands.Cog):
     async def steamprofile(self, ctx, *args):
         try:
             getprof = urlify(list(args)[0].lower())
-            data = jsonisp('https://api.alexflipnote.dev/steam/user/'+str(getprof))
+            data = fetchJSON('https://api.alexflipnote.dev/steam/user/'+str(getprof))
             state, privacy, url, username, avatar, custom_url, steam_id = data["state"], data["privacy"], data["url"], data["username"], data["avatarfull"], data["customurl"], data["steamid64"]
             embed = discord.Embed(title=username, description='**[Profile Link]('+str(url)+')**\n**Current state: **'+str(state)+'\n**Privacy: **'+str(privacy)+'\n**[Profile pic URL]('+str(avatar)+')**', colour = get_embed_color(discord))
             embed.set_thumbnail(url=avatar)
@@ -308,19 +308,19 @@ class utils(commands.Cog):
     @cooldown(5)
     async def randomword(self, ctx):
         async with ctx.channel.typing():
-            await ctx.send(jsonisp("https://random-word-api.herokuapp.com/word?number=1")[0])
+            await ctx.send(fetchJSON("https://random-word-api.herokuapp.com/word?number=1")[0])
 
     @command()
     @cooldown(5)
     async def bored(self, ctx):
-        data = jsonisp("https://www.boredapi.com/api/activity?participants=1")
+        data = fetchJSON("https://www.boredapi.com/api/activity?participants=1")
         await ctx.send('**Feeling bored?**\nWhy don\'t you '+str(data['activity'])+'? :wink::ok_hand:')
 
     @command()
     @cooldown(10)
     async def googledoodle(self, ctx):
         wait = await ctx.send(str(emote(self.client, 'loading')) + ' | Please wait... This may take a few moments...')
-        data = jsonisp('https://www.google.com/doodles/json/{}/{}'.format(str(t.now().year), str(t.now().month)))[0]
+        data = fetchJSON('https://www.google.com/doodles/json/{}/{}'.format(str(t.now().year), str(t.now().month)))[0]
         embed = discord.Embed(title=data['title'], colour=get_embed_color(discord), url='https://www.google.com/doodles/'+data['name'])
         embed.set_image(url='https:'+data['high_res_url'])
         embed.set_footer(text='Event date: '+str('/'.join(
@@ -331,7 +331,7 @@ class utils(commands.Cog):
     @command()
     @cooldown(6)
     async def steamapp(self, ctx, *args):
-        data = jsonisp('https://store.steampowered.com/api/storesearch?term='+urlify(str(' '.join(list(args))))+'&cc=us&l=en')
+        data = fetchJSON('https://store.steampowered.com/api/storesearch?term='+urlify(str(' '.join(list(args))))+'&cc=us&l=en')
         if data['total']==0: await ctx.send(str(emote(self.client, 'error'))+' | Did not found anything. Maybe that app *doesn\'t exist...*')
         else:
             try:
@@ -351,10 +351,10 @@ class utils(commands.Cog):
     @command('dogfact,funfact')
     @cooldown(6)
     async def catfact(self, ctx):
-        if 'cat' in str(ctx.message.content).lower(): await ctx.send('**Did you know?**\n'+str(jsonisp("https://catfact.ninja/fact")['fact']))
-        elif 'dog' in str(ctx.message.content).lower(): await ctx.send('**Did you know?**\n'+str(jsonisp("https://dog-api.kinduff.com/api/facts")['facts'][0]))
+        if 'cat' in str(ctx.message.content).lower(): await ctx.send('**Did you know?**\n'+str(fetchJSON("https://catfact.ninja/fact")['fact']))
+        elif 'dog' in str(ctx.message.content).lower(): await ctx.send('**Did you know?**\n'+str(fetchJSON("https://dog-api.kinduff.com/api/facts")['facts'][0]))
         else:
-            await ctx.send('**Did you know?**\n'+str(jsonisp("https://useless-api--vierofernando.repl.co/randomfact")['fact']))
+            await ctx.send('**Did you know?**\n'+str(fetchJSON("https://useless-api--vierofernando.repl.co/randomfact")['fact']))
 
     @command('em')
     @cooldown(2)
@@ -420,7 +420,7 @@ class utils(commands.Cog):
     @cooldown(10)
     async def typingtest(self, ctx):
         async with ctx.channel.typing():
-            data = jsonisp("https://random-word-api.herokuapp.com/word?number=5")
+            data = fetchJSON("https://random-word-api.herokuapp.com/word?number=5")
             text, guy, first = arrspace(data), ctx.author, t.now().timestamp()
             main = await ctx.send(content='**Type the text on the image. (Only command invoker can play)**\nYou have 2 minutes.\n', file=discord.File(self.canvas.simpletext(text), 'test.png'))
         def check(m):

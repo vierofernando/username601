@@ -81,7 +81,7 @@ class fun(commands.Cog):
     @command()
     @cooldown(1)
     async def joke(self, ctx):
-        data = jsonisp("https://official-joke-api.appspot.com/jokes/general/random")
+        data = fetchJSON("https://official-joke-api.appspot.com/jokes/general/random")
         embed = discord.Embed(
             title = str(data[0]["setup"]),
             description = '||'+str(data[0]["punchline"])+'||',
@@ -122,7 +122,7 @@ class fun(commands.Cog):
     @cooldown(3)
     async def _8ball(self, ctx):
         async with ctx.channel.typing():
-            data = jsonisp("https://yesno.wtf/api")
+            data = fetchJSON("https://yesno.wtf/api")
             async with self.session.get(data['image']) as r:
                 res = await r.read()
                 await ctx.send(content='**'+data['answer'].upper()+'**', file=discord.File(fp=BytesIO(res), filename=data['answer'].upper()+".gif"))
@@ -150,6 +150,15 @@ class fun(commands.Cog):
         )
         await ctx.send(embed=embed)
     
+    @command('useless,uselesssites,uselessweb,uselesswebsites,uselesswebsite')
+    @cooldown(3)
+    async def uselesswebs(self, ctx):
+        try:
+            url = requests.get('https://useless-api.vierofernando.repl.co/useless-sites').json()['url']
+            await ctx.send(emote(self.client, 'success')+f' | **{url}**')
+        except:
+            await ctx.send(emote(self.client, 'error')+' | oops. there is some error, meanwhile look at this useless site: <https://top.gg/bot/{}/vote>'.format(cfg('BOT_ID')))
+    
     @command()
     @cooldown(2)
     async def choose(self, ctx, *args):
@@ -164,7 +173,7 @@ class fun(commands.Cog):
         if len(list(args))==0: await ctx.send(emote(self.client, 'error')+' | Please send something to be encoded.')
         else:
             link, num = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/temmie.json', 1
-            data = jsonisp(link)
+            data = fetchJSON(link)
             keyz = list(data.keys())
             total = ''
             for j in range(num, len(keyz)):
@@ -175,7 +184,7 @@ class fun(commands.Cog):
     @command('fact-core,fact-sphere,factsphere')
     @cooldown(2)
     async def factcore(self, ctx):
-        data = jsonisp('https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fact-core.json')
+        data = fetchJSON('https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fact-core.json')
         embed = discord.Embed(title='Fact Core', description=random.choice(data), colour=get_embed_color(discord))
         embed.set_thumbnail(url='https://i1.theportalwiki.net/img/thumb/5/55/FactCore.png/300px-FactCore.png')
         await ctx.send(embed=embed)

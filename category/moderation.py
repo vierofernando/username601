@@ -509,7 +509,7 @@ class moderation(commands.Cog):
 
     @command('serverinfo,server,servericon,si,server-info')
     @cooldown(10)
-    async def servercard(self, ctx):
+    async def servercard(self, ctx, *args):
         if 'servericon' in ctx.message.content:
             if ctx.guild.is_icon_animated(): link = 'https://cdn.discordapp.com/icons/'+str(ctx.guild.id)+'/'+str(ctx.guild.icon)+'.gif?size=1024'
             else: link = 'https://cdn.discordapp.com/icons/'+str(ctx.guild.id)+'/'+str(ctx.guild.icon)+'.png?size=1024'
@@ -517,14 +517,19 @@ class moderation(commands.Cog):
             theEm.set_image(url=link)
             await ctx.send(embed=theEm)
         else:
-            if len(ctx.guild.members)>100:
-                wait = await ctx.send('{} | Fetching guild data... please wait...'.format(emote(self.client, 'loading')))
-                im = self.canvas.server(ctx.guild)
-                await wait.delete()
+            if len(list(args))==0:
+                if len(ctx.guild.members)>100:
+                    wait = await ctx.send('{} | Fetching guild data... please wait...'.format(emote(self.client, 'loading')))
+                    im = self.canvas.server(ctx.guild)
+                    await wait.delete()
+                else:
+                    await ctx.channel.trigger_typing()
+                    im = self.canvas.server(ctx.guild)
+                await ctx.send(file=discord.File(im, 'server.png'))
             else:
-                await ctx.channel.trigger_typing()
-                im = self.canvas.server(ctx.guild)
-            await ctx.send(file=discord.File(im, 'server.png'))
+                data = fetchJSON(f"https://discord.com/api/v6/invites/{list(args)[0].lower()}?with_counts=true")
+                im = self.canvas.server(None, data=data['guild'], raw=data)
+                await ctx.send(file=discord.File(im, 'server_that_has_some_kewl_vanity_url.png'))
 
     @command('serverinvite,create-invite,createinvite,makeinvite,make-invite,server-invite')
     @cooldown(30)

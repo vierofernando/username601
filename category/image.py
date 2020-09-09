@@ -30,7 +30,7 @@ class image(commands.Cog):
     @cooldown(2)
     async def pikachu(self, ctx):
         async with ctx.channel.typing():
-            async with self.session.get(jsonisp('https://some-random-api.ml/img/pikachu')['link']) as r:
+            async with self.session.get(fetchJSON('https://some-random-api.ml/img/pikachu')['link']) as r:
                 res = await r.read()
                 await ctx.send(file=discord.File(fp=BytesIO(res), filename="pikachu.gif"))
 
@@ -116,13 +116,13 @@ class image(commands.Cog):
     @cooldown(1)
     async def lucario(self, ctx):
         embed = discord.Embed(title='Lucario!', color=get_embed_color(discord))
-        embed.set_image(url=jsonisp('http://pics.floofybot.moe/image?token=lucario&category=sfw')['image'])
+        embed.set_image(url=fetchJSON('http://pics.floofybot.moe/image?token=lucario&category=sfw')['image'])
         await ctx.send(embed=embed)
     
     @command('ducks,quack,duk')
     @cooldown(1)
     async def duck(self, ctx):
-        await ctx.send(file=discord.File(self.canvas.urltoimage(jsonisp('https://random-d.uk/api/v2/random?format=json')['url']), 'duck.png'))
+        await ctx.send(file=discord.File(self.canvas.urltoimage(fetchJSON('https://random-d.uk/api/v2/random?format=json')['url']), 'duck.png'))
 
     @command('snek,snakes,python,py')
     @cooldown(1)
@@ -132,7 +132,7 @@ class image(commands.Cog):
     @command('imageoftheday')
     @cooldown(21600)
     async def iotd(self, ctx):
-        data = jsonisp('https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=en-US')['images'][0]
+        data = fetchJSON('https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=en-US')['images'][0]
         embed = discord.Embed( title=data['copyright'], url=data['copyrightlink'], color=get_embed_color(discord))
         embed.set_image(url='https://bing.com'+data['url'])
         await ctx.send(embed=embed)
@@ -232,7 +232,7 @@ class image(commands.Cog):
             }
             for i in list(links.keys()):
                 if str(ctx.message.content[1:]).lower().replace(' ', '')==i: link = links[i] ; break
-            apiied = jsonisp(link.split('|')[0])[link.split('|')[1]]
+            apiied = fetchJSON(link.split('|')[0])[link.split('|')[1]]
             data = self.canvas.urltoimage(apiied)
             await ctx.send(file=discord.File(data, 'animal.png'))
 
@@ -240,7 +240,7 @@ class image(commands.Cog):
     @cooldown(1)
     async def panda(self, ctx):
         link, col, msg = random.choice(["https://some-random-api.ml/img/panda", "https://some-random-api.ml/img/red_panda"]), get_embed_color(discord), 'Here is some cute pics of pandas.'
-        data = jsonisp(link)['link']
+        data = fetchJSON(link)['link']
         embed = discord.Embed(title=msg, color=col)
         embed.set_image(url=data)
         await ctx.send(embed=embed)
@@ -249,7 +249,7 @@ class image(commands.Cog):
     @cooldown(1)
     async def shibe(self, ctx):
         async with ctx.channel.typing():
-            data = jsonisp("http://shibe.online/api/shibes?count=1")[0]
+            data = fetchJSON("http://shibe.online/api/shibes?count=1")[0]
             await ctx.send(file=discord.File(self.canvas.smallURL(data), 'shibe.png'))
     
     @command()
@@ -267,14 +267,14 @@ class image(commands.Cog):
     @cooldown(1)
     async def food(self, ctx, *args):
         if len(list(args))==0:
-            data = jsonisp('https://nekobot.xyz/api/image?type='+str(ctx.message.content[1:]))
+            data = fetchJSON('https://nekobot.xyz/api/image?type='+str(ctx.message.content[1:]))
             link = data['message'].replace('\/', '/')
             if 'food' in ctx.message.content:
                 col = int(data['color'])
             elif 'coffee' in ctx.message.content:
                 col, num = int(data['color']), random.randint(0, 1)
-                if num==0: link = jsonisp('https://coffee.alexflipnote.dev/random.json')['file']
-                else: link = jsonisp('https://nekobot.xyz/api/image?type=coffee')['message'].replace('\/', '/')
+                if num==0: link = fetchJSON('https://coffee.alexflipnote.dev/random.json')['file']
+                else: link = fetchJSON('https://nekobot.xyz/api/image?type=coffee')['message'].replace('\/', '/')
             async with ctx.channel.typing():
                 data = self.canvas.urltoimage(link.replace('\/', '/'))
                 await ctx.send(file=discord.File(data, ctx.message.content[1:]+'.png'))

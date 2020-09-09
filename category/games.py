@@ -44,7 +44,7 @@ class games(commands.Cog):
         else:
             try:
                 query = urlify(' '.join(list(args)))
-                data = jsonisp('https://gdbrowser.com/api/search/'+str(query))
+                data = fetchJSON('https://gdbrowser.com/api/search/'+str(query))
                 levels, count = '', 0
                 for i in range(0, len(data)):
                     if data[count]['disliked']: like = ':-1:'
@@ -63,7 +63,7 @@ class games(commands.Cog):
         else:
             try:
                 url = urlify(str(' '.join(list(args))))
-                data = jsonisp("https://gdbrowser.com/api/profile/"+url)
+                data = fetchJSON("https://gdbrowser.com/api/profile/"+url)
                 embed = discord.Embed(
                     title = data["username"],
                     description = 'Displays user data for '+data["username"]+'.',
@@ -245,7 +245,7 @@ class games(commands.Cog):
     @cooldown(15)
     async def geoquiz(self, ctx):
         wait = await ctx.send(str(emote(self.client, 'loading')) + ' | Please wait... generating question...')
-        data, topic = jsonisp("https://restcountries.eu/rest/v2/"), random.choice(src.getGeoQuiz())
+        data, topic = fetchJSON("https://restcountries.eu/rest/v2/"), random.choice(src.getGeoQuiz())
         chosen_nation_num = random.randint(0, len(data))
         chosen_nation, wrongs = data[chosen_nation_num], []
         data.remove(data[chosen_nation_num])
@@ -310,7 +310,7 @@ class games(commands.Cog):
     @cooldown(60)
     async def hangman(self, ctx):
         wait = await ctx.send(emote(self.client, 'loading') + ' | Please wait... generating...')
-        the_word = jsonisp("https://random-word-api.herokuapp.com/word?number=1")
+        the_word = fetchJSON("https://random-word-api.herokuapp.com/word?number=1")
         main_guess_cor, main_guess_hid = list(the_word[0]), []
         server_id, wrong_guesses = ctx.guild.id, ''
         for i in range(0, len(main_guess_cor)):
@@ -457,7 +457,7 @@ class games(commands.Cog):
         try:
             wait = await ctx.send(str(emote(self.client, 'loading')) + ' | Please wait... generating quiz...')
             auth = ctx.author
-            data = jsonisp('https://wiki-quiz.herokuapp.com/v1/quiz?topics=Science')
+            data = fetchJSON('https://wiki-quiz.herokuapp.com/v1/quiz?topics=Science')
             q = random.choice(data['quiz'])
             choices = ''
             for i in range(0, len(q['options'])):
