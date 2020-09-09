@@ -55,12 +55,12 @@ function loadCommands() {
                 }
                 const name = prefix+out[i][libs[i]][num]['n'].toString();
                 const func = out[i][libs[i]][num]['f'];
-                total = total+'<strong id="commandName">'+count.toString()+'. '+name+'</strong><br><ul><li>Function: '+func+'</li><li>Parameters: '+par+'</li><li>APIs used: '+api+'</li></ul>';
+                total = total+'<strong>'+count.toString()+'. '+name+'</strong><br><ul><li>Function: '+func+'</li><li>Parameters: '+par+'</li><li>APIs used: '+api+'</li></ul>';
                 count++;
                 totalcount++;
                 categoryCounter++;
             }
-			delete count;
+            delete count;
             total = total.replace('<strong style="font-size:30px;">'+libs[i]+'</strong>', '<strong style="font-size:30px;">'+libs[i]+' ('+categoryCounter.toString()+')</strong>')
             links = links + '<button id="linkz" onclick="fastScroll('+elementCounter.toString()+');">'+libs[i]+'</button>   ';
             elementCounter++;
@@ -79,7 +79,7 @@ function loadCommands() {
             }
         }
     });
-	delete prefix;
+    delete prefix;
 }
 function loadMySanity() {
     if (prm.has('credits')) {
