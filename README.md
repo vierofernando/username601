@@ -46,7 +46,6 @@ IMDbPY==6.8
 requests==2.23.0
 googletrans==2.4.0
 Wikipedia-API==0.5.4
-pokebase==1.2.0
 dblpy==0.3.4
 Pillow==7.1.1
 pymongo==3.10.1
