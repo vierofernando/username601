@@ -20,7 +20,8 @@ if (document.layers) {
     }
 }
 
-document.oncontextmenu = new Function("alert(message);return false")
+document.oncontextmenu = new Function("alert(message);return false");
+delete message;
 
 function loadCommands() {
     const prefix = (prm.has('prefix')) ? prm.get('prefix') : '1';
@@ -39,12 +40,12 @@ function loadCommands() {
             for (let num = 0; num < out[i][libs[i]].length; num++) {
                 let api = 'No API used.';
                 let par = 'No parameters.';
-                if (out[i][libs[i]][num]['a'].length != 0) {
+                if (out[i][libs[i]][num]['a'].length) {
                     for (n = 0; n < out[i][libs[i]][num]['a'].length; n++) {
                         api = '<a href="'+out[i][libs[i]][num]['a'][n]+'">'+out[i][libs[i]][num]['a'][n]+'</a>';
                     }
                 }
-                if (out[i][libs[i]][num]['p'].length != 0) {
+                if (out[i][libs[i]][num]['p'].length) {
                     par = '<br>';
                     let subcount = 1;
                     for (k = 0; k < out[i][libs[i]][num]['p'].length; k++) {
@@ -59,6 +60,7 @@ function loadCommands() {
                 totalcount++;
                 categoryCounter++;
             }
+			delete count;
             total = total.replace('<strong style="font-size:30px;">'+libs[i]+'</strong>', '<strong style="font-size:30px;">'+libs[i]+' ('+categoryCounter.toString()+')</strong>')
             links = links + '<button id="linkz" onclick="fastScroll('+elementCounter.toString()+');">'+libs[i]+'</button>   ';
             elementCounter++;
@@ -77,6 +79,7 @@ function loadCommands() {
             }
         }
     });
+	delete prefix;
 }
 function loadMySanity() {
     if (prm.has('credits')) {
@@ -90,3 +93,4 @@ function loadMySanity() {
         window.document.title = randomTitle;
     });
 }
+delete prm;
