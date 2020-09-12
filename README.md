@@ -27,10 +27,7 @@ Category folder is a cogs folder, modules folder is basically "tools" folder. An
 ```
 DISCORD_TOKEN = Your discord token
 DBL_TOKEN = Your discord bot list (top.gg) token
-DB_LINK = Your Mongo DB database link<br> (With "economy" as a collection)
-UPTIMEROBOT_TOKEN = Your Uptimerobot Monitor token
-BOTSFORDISCORD_TOKEN = Your Botsfordiscord Token.
-DISCORDBOTLISK_TOKEN = your DISCORDBOTLIST.COM token
+DB_LINK = Your MongoDB database link<br>
 ```
 
 **DATABASE STRUCTURE:**<br>
