@@ -105,7 +105,7 @@ class moderation(commands.Cog):
     
     @command()
     @cooldown(5)
-    async def unmute(self, ctx):
+    async def unmute(self, ctx, *args):
         toUnmute = getUser(ctx, args, allownoargs=False)
         roleid = Dashboard.getMuteRole(ctx.guild.id)
         if roleid==None: return await ctx.send('{} | He is not muted!\nOr maybe you muted this on other bot... which is not compatible.'.format(self.client.get_emoji(BotEmote.error)))
@@ -482,10 +482,11 @@ class moderation(commands.Cog):
         async with ctx.channel.typing():
             if guy.id in [i.id for i in ctx.guild.premium_subscribers]: nitro = True
             elif guy.is_avatar_animated(): nitro = True
+            booster = True if (guy in ctx.guild.members) else False
             bg_col = tuple(self.canvas.get_accent(ava))
             data = self.canvas.usercard([{
                 'name': i.name, 'color': i.color.to_rgb()
-            } for i in guy.roles][::-1][0:5], guy, ava, bg_col, nitro)
+            } for i in guy.roles][::-1][0:5], guy, ava, bg_col, nitro, booster)
             await ctx.send(file=discord.File(data, str(guy.discriminator)+'.png'))
 
     @command('av,ava')

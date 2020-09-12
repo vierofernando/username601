@@ -295,8 +295,7 @@ class Painter:
         medium = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 20, otf=True)
         smolerfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 15, otf=True)
         if data == None:
-            server_title, members = guild.name, guild.members
-            icon = icon
+            server_title, members, icon = guild.name, guild.members, guild.icon_url
             subtitle = 'Created {} ago by {}'.format(myself.time_encode(t.now().timestamp() - guild.created_at.timestamp()), str(guild.owner))
         else:
             server_title, icon = data['name'], "https://cdn.discordapp.com/icons/{}/{}.png?size=1024".format(data['id'], data['icon'])
@@ -357,11 +356,12 @@ class Painter:
         self.add_corners(main, 25)
         return self.buffer(main)
 
-    def usercard(self, roles, user, ava, bg, nitro):
+    def usercard(self, roles, user, ava, bg, nitro, booster):
         name, flags, flag_x = user.name, [], 170
         bigfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 50, otf=True)
         mediumfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 25, otf=True)
         if nitro: flags.append(self.flags['nitro'])
+        if booster: flags.append(self.flags['booster'])
         for i in list(self.flags['badges'].keys()):
             if getattr(user.public_flags, i): flags.append(self.flags['badges'][i])
         foreground_col = self.invert(bg)

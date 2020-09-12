@@ -1,8 +1,6 @@
 {
-    "idk": [
-        "bug_hunter_level_2", "verified_bot"
-    ],
     "nitro": "https://discordia.me/uploads/badges/nitro_badge.png",
+	"booster": "https://erisly.com/assets/img/premium/boost.cb45e94.png",
     "badges": {
         "bug_hunter": "https://discordia.me/uploads/badges/bug_hunter_badge.png",
         "early_supporter": "https://discordia.me/uploads/badges/early_supporter_badge.png",
