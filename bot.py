@@ -10,7 +10,7 @@ from database import (
 )
 import discordgames as Games
 import splashes as src
-import canvas as Painter
+from canvas import Painter, GifGenerator
 
 # EXTERNAL PACKAGES
 import os
