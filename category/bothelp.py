@@ -42,8 +42,8 @@ class bothelp(commands.Cog):
         self.db.subscribe(url, ctx.guild.id)
         await ctx.message.add_reaction(emote(self.client, 'success'))
         web.send(
-            embed=discord.Embed(title=f'Congratulations, {str(ctx.author)}!', description='Your webhook is now set! ;)\nNow every development updates will be set here.\n\nIf you change your mind, you can do `{}sub reset` to remove the webhook from the database.\n[Join our support server if you still have any questions.]({})'.format(prefix, cfg('SERVER_INVITE')), color=discord.Color.green()),
-            username='Username601 Updates',
+            embed=discord.Embed(title=f'Congratulations, {str(ctx.author)}!', description='Your webhook is now set! ;)\nNow every development updates or username601 events will be set here.\n\nIf you change your mind, you can do `{}sub reset` to remove the webhook from the database.\n[Join our support server if you still have any questions.]({})'.format(prefix, cfg('SERVER_INVITE')), color=discord.Color.green()),
+            username='Username601 News',
             avatar_url=self.client.user.avatar_url
         )
 
