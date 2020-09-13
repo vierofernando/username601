@@ -108,7 +108,7 @@ class moderation(commands.Cog):
     async def unmute(self, ctx, *args):
         toUnmute = getUser(ctx, args, allownoargs=False)
         roleid = Dashboard.getMuteRole(ctx.guild.id)
-        if roleid==None: return await ctx.send('{} | He is not muted!\nOr maybe you muted this on other bot... which is not compatible.'.format(self.client.get_emoji(BotEmote.error)))
+        if roleid==None: return await ctx.send('{} | He is not muted!\nOr maybe you muted this on other bot... which is not compatible.'.format(emote(self.client, 'error')))
         elif roleid not in [i.id for i in ctx.message.mentions[0].roles]:
             return await ctx.send('{} | That guy is not muted.'.format(emote(self.client, 'error')))
         try:

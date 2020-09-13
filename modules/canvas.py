@@ -332,20 +332,20 @@ class Painter:
                 self.imagefromURL(self.region[str(guild.region)]).resize((35, 23)),
                 (margin_right - 45, round(rect_y_cursor + 25 + (18 * 3)))
             )
-            draw.text((margin_left + 5, rect_y_cursor + 5), "Channels: {}\nRoles: {}\nLevel {}\n{} boosters".format(
+            draw.text((margin_left + 5, rect_y_cursor + 3), "Channels: {}\nRoles: {}\nLevel {}\n{} boosters".format(
                 len(guild.channels), len(guild.roles), guild.premium_tier, guild.premium_subscription_count
             ), fill=self.invert(bg_arr[2]), font=medium)
-            draw.text(((main.width/2) + 5, rect_y_cursor + 5), "Region: {}\nAFK: {}\nAFK time: {}".format(
+            draw.text(((main.width/2) + 5, rect_y_cursor + 3), "Region: {}\nAFK: {}\nAFK time: {}".format(
                 str(guild.region).replace('-', ''), afkname, myself.time_encode(guild.afk_timeout).replace('minute', 'min')
             ), fill=self.invert(bg_arr[3]), font=medium)
         else:
-            draw.text((margin_left + 5, rect_y_cursor + 5), "Approx. Members: {}\nApprox. Presence: {}".format(raw['approximate_member_count'], raw['approximate_presence_count']), fill=self.invert(bg_arr[2]), font=medium)
+            draw.text((margin_left + 5, rect_y_cursor + 3), "Approx. Members: {}\nApprox. Presence: {}".format(raw['approximate_member_count'], raw['approximate_presence_count']), fill=self.invert(bg_arr[2]), font=medium)
         rect_y_cursor += 120
         draw.rectangle([
             (margin_left, rect_y_cursor), (margin_right, rect_y_cursor + 90)
         ], fill=bg_arr[4])
         if data == None:
-            draw.text((margin_left + 5, rect_y_cursor + 5), "{} Humans\n{} Bots\n{} Members in total".format(
+            draw.text((margin_left + 5, rect_y_cursor + 3), "{} Humans\n{} Bots\n{} Members in total".format(
                 len([i for i in members if not i.bot]), len([i for i in members if i.bot]), len(members)
             ), fill=self.invert(bg_arr[4]), font=medium)
         else:
@@ -385,7 +385,7 @@ class Painter:
             draw.rectangle([
                 (margin_left, rect_y_pos), (margin_right, rect_y_pos+50)
             ], fill=i['color'])
-            draw.text((margin_left+10, rect_y_pos+10), i['name'], fill=self.invert(i['color']), font=mediumfont)
+            draw.text((margin_left+10, rect_y_pos+7), i['name'], fill=self.invert(i['color']), font=mediumfont)
             rect_y_pos += 50
         try: main.paste(avatar, (40, 30), avatar)
         except: main.paste(avatar, (40, 30))
