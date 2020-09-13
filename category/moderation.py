@@ -62,7 +62,8 @@ class moderation(commands.Cog):
         mute = 'Set to <@&{}>'.format(data['mute']) if data['mute']!=None else '<Not set>'
         extras = [len(data['shop']), len(data['warns'])]
         dehoister = 'Enabled :white_check_mark:' if data['dehoister'] else 'Disabled :x:'
-        await ctx.send(embed=discord.Embed(title=f'{ctx.guild.name}\'s configuration', description=f'**Auto role:** {autorole}\n**Welcome channel:** {welcome}\n**Starboard channel: **{starboard}\n**Name/nick dehoister: **{dehoister}\n**Mute role: **{mute}\n**Members warned: **{extras[1]}\n**Shop products sold: **{extras[0]}', color=get_embed_color(discord)).set_thumbnail(url=ctx.guild.icon_url))
+        subs = 'Enabled :white_check_mark:' if data['subscription']!=None else 'Disabled :x:'
+        await ctx.send(embed=discord.Embed(title=f'{ctx.guild.name}\'s configuration', description=f'**Auto role:** {autorole}\n**Welcome channel:** {welcome}\n**Starboard channel: **{starboard}\n**Name/nick dehoister: **{dehoister}\n**Mute role: **{mute}\n**Members warned: **{extras[1]}\n**Shop products sold: **{extras[0]}\n**Development updates/Events subscription: {subs}**', color=get_embed_color(discord)).set_thumbnail(url=ctx.guild.icon_url))
 
     @command()
     @cooldown(5)

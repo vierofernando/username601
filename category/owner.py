@@ -10,6 +10,7 @@ import discordgames as Games
 import requests
 from canvas import *
 import algorithm
+from datetime import datetime as t
 from subprocess import run, PIPE
 from inspect import isawaitable
 from asyncio import sleep
@@ -24,21 +25,30 @@ class owner(commands.Cog):
             os.environ['DISCORD_TOKEN'],
             os.environ['DBL_TOKEN'],
             os.environ['DB_LINK'],
-            os.environ['KSOFT_TOKEN'],
-            os.environ['UPTIMEROBOT_TOKEN'],
-            os.environ['BOTSFORDISCORD_TOKEN'],
-            os.environ['DISCORDBOTLIST_TOKEN'],
             os.environ['USELESSAPI']
         ]
-
-    @command()
-    async def setbal(self, ctx, *args):
-        if ctx.author.id==cfg('OWNER_ID', integer=True):
-            await ctx.message.add_reaction(emote(self.client, 'loadng'))
-            resp = Economy.setbal(int(list(args)[0]), int(list(args)[1]))
-            await ctx.send(resp)
-        else:
-            await ctx.send('no u.')
+    
+    @command('ann,announcement')
+    @cooldown(2)
+    async def announce(self, ctx, *args):
+        if ctx.author.id != cfg('OWNER_ID', integer=True): return
+        data, wr, sc = Dashboard.get_subscribers(), 0, 0
+        for i in data:
+            try:
+                web = discord.Webhook.from_url(
+                    i['url'], adapter=discord.RequestsWebhookAdapter()
+                )
+                web.send(
+                    embed=discord.Embed(title=f'Username601 Update: {str(t.now())[:-7]}', description=' '.join(list(args)).replace('\\n', '\n'), color=discord.Color.green()),
+                    username='Username601 Updates',
+                    avatar_url=self.client.user.avatar_url
+                )
+                sc += 1
+            except:
+                wr += 1
+                Dashboard.subscribe(None, i['serverid'], reset=True)
+            await asyncio.sleep(1)
+        await ctx.send(f'Done with {sc} success and {wr} fails')
     
     @command('pm')
     async def postmeme(self, ctx, *args):

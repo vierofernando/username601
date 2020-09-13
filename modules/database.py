@@ -55,7 +55,8 @@ class Dashboard:
             "warns": warns,
             "dehoister": kwargs.get('dehoister') if kwargs.get('dehoister')!=None else False,
             "mute": kwargs.get('muterole'),
-            "shop": []
+            "shop": [],
+            "subscription": kwargs.get('sub')
         })
     def delete_data(guildid):
         if Dashboard.exist(guildid):
@@ -67,6 +68,18 @@ class Dashboard:
             database["dashboard"].update_one({"serverid": guildid}, {"$set": {
                 "autorole": roleid
             }})
+    def get_subscribers():
+        return [{
+            'url': i['subscription'], 'serverid': int(i['serverid'])
+        } for i in database['dashboard'].find() if i['subscription']!=None]
+    def subscribe(url, guildid, reset=False):
+        if reset:
+            if Dashboard.exist(guildid):
+                database['dashboard'].update_one({'serverid': guildid}, {'$set': {'subscription': None}})
+            return
+        if not Dashboard.exist(guildid):
+            Dashboard.add_guild(guildid, sub=url); return
+        database['dashboard'].update_one({'serverid': guildid}, {'$set': {'subscription': url}}); return
     def add_autorole(guildid):
         if not Dashboard.exist(guildid):
             return str(None)

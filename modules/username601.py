@@ -68,9 +68,9 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
     if not allowgif: return str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', f'.png?size={size}')
     return str(ctx.author.avatar_url).replace('?size=1024', f'?size={size}')
 
-def getUser(ctx, args, user=None, allownoargs=False):
+def getUser(ctx, args, user=None, allownoargs=True):
     if len(list(args))==0:
-        if allownoargs: raise noArguments()
+        if not allownoargs: raise noArguments()
         return ctx.author
     if len(ctx.message.mentions)>0: return ctx.message.mentions[0]
     name = str(' '.join(list(args))).lower().split('#')[0] # disable discriminator if found

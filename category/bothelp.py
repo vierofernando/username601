@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import sys
+import requests
 from json import loads
 from os import getcwd, name
 dirname = getcwd()+'\\..' if name=='nt' else getcwd()+'/..'
@@ -9,23 +10,48 @@ del dirname
 from username601 import *
 sys.path.append(cfg('MODULES_DIR'))
 from decorators import command, cooldown
-from requests import get
 from datetime import datetime as t
-from database import selfDB, username601Stats
+from database import selfDB, username601Stats, Dashboard
 
 class bothelp(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.db = Dashboard
 
     @command('supportserver,support-server,botserver,bot-server')
     @cooldown(1)
     async def support(self, ctx):
         return await ctx.send(cfg('SERVER_INVITE'))
 
+    @command('subscribe,dev,development,devupdates,dev-updates,development-updates')
+    @cooldown(5)
+    async def sub(self, ctx, *args):
+        if len(list(args))==0 or 'help' in ''.join(list(args)).lower():
+            embed = discord.Embed(title='Get development updates and/or events in your server!', description='Want to get up-to-date development updates? either it is bugfixes, cool events, etc.\nHow do you set up? Use `{}sub <discord webhook url>`.\nIf you still do not understand, please watch the tutorial video below.'.format(prefix), color=get_embed_color(discord))
+            embed.video(url='https://vierofernando.is-inside.me/fEhT86EE.mp4')
+            return await ctx.send(embed=embed)
+        elif 'reset' in ''.join(list(args)).lower():
+            self.db.subscribe(None, ctx.guild.id, reset=True)
+            return await ctx.send('{} | Subscription has been deleted.'.format(emote(self.client, 'success')))
+        url = list(args)[0].replace('<', '').replace('>', '')
+        try:
+            web = discord.Webhook.from_url(
+                url,
+                adapter=discord.RequestsWebhookAdapter()
+            )
+        except: return await ctx.send("{} | Invalid url! Please follow the tutorial.".format(emote(self.client, 'error')))
+        self.db.subscribe(url, ctx.guild.id)
+        await ctx.message.add_reaction(emote(self.client, 'success'))
+        web.send(
+            embed=discord.Embed(title=f'Congratulations, {str(ctx.author)}!', description='Your webhook is now set! ;)\nNow every development updates will be set here.\n\nIf you change your mind, you can do `{}sub reset` to remove the webhook from the database.\n[Join our support server if you still have any questions.]({})'.format(prefix, cfg('SERVER_INVITE')), color=discord.Color.green()),
+            username='Username601 Updates',
+            avatar_url=self.client.user.avatar_url
+        )
+
     @command('commands,yardim,yardım')
     @cooldown(1)
     async def help(self, ctx, *args):
-        data = get(cfg("WEBSITE_MAIN")+"/assets/json/commands.json").json()
+        data = requests.get(cfg("WEBSITE_MAIN")+"/assets/json/commands.json").json()
         types, args = loads(open(cfg("JSON_DIR")+'/categories.json').read()), list(args)
         if len(args)<1:
             cate, web_commands_list = '', cfg('WEBSITE_COMMANDS')
