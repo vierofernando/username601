@@ -27,8 +27,7 @@ class bothelp(commands.Cog):
     @cooldown(5)
     async def sub(self, ctx, *args):
         if len(list(args))==0 or 'help' in ''.join(list(args)).lower():
-            embed = discord.Embed(title='Get development updates and/or events in your server!', description='Want to get up-to-date development updates? either it is bugfixes, cool events, etc.\nHow do you set up? Use `{}sub <discord webhook url>`.\nIf you still do not understand, please watch the tutorial video below.'.format(prefix), color=get_embed_color(discord))
-            embed.video(url='https://vierofernando.is-inside.me/fEhT86EE.mp4')
+            embed = discord.Embed(title='Get development updates and/or events in your server!', description='Want to get up-to-date development updates? either it is bugfixes, cool events, etc.\nHow do you set up? Use `{}sub <discord webhook url>`.\nIf you still do not understand, [please watch the tutorial video here.](https://vierofernando.is-inside.me/fEhT86EE.mp4)'.format(prefix), color=get_embed_color(discord))
             return await ctx.send(embed=embed)
         elif 'reset' in ''.join(list(args)).lower():
             self.db.subscribe(None, ctx.guild.id, reset=True)

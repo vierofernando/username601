@@ -39,8 +39,8 @@ class owner(commands.Cog):
                     i['url'], adapter=discord.RequestsWebhookAdapter()
                 )
                 web.send(
-                    embed=discord.Embed(title=f'Username601 Update: {str(t.now())[:-7]}', description=' '.join(list(args)).replace('\\n', '\n'), color=discord.Color.green()),
-                    username='Username601 Updates',
+                    embed=discord.Embed(title=f'Username601 News: {str(t.now())[:-7]}', description=' '.join(list(args)).replace('\\n', '\n'), color=discord.Color.green()),
+                    username='Username601 News',
                     avatar_url=self.client.user.avatar_url
                 )
                 sc += 1
