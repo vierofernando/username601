@@ -47,7 +47,7 @@ class owner(commands.Cog):
             except:
                 wr += 1
                 Dashboard.subscribe(None, i['serverid'], reset=True)
-            await asyncio.sleep(1)
+            await sleep(1)
         await ctx.send(f'Done with {sc} success and {wr} fails')
     
     @command('pm')
