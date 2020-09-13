@@ -32,9 +32,6 @@ def get_embed_color(discord):
         int(color[0]), int(color[1]), int(color[2])
     )
 
-def limitify(text):
-    return text[0:1900]
-
 def getCommandLength():
     data, count = requests.get(cfg('WEBSITE_MAIN')+'/assets/json/commands.json').json(), 0
     for i in range(len(data)):
@@ -101,51 +98,11 @@ def html2discord(text):
     res = text.replace('<p>', '').replace('</p>', '').replace('<b>', '**').replace('</b>', '**').replace('<i>', '*').replace('</i>', '*').replace('<br />', '\n')
     return res
 
-def uptimerobot():
-    payload = 'api_key={}&format=json&logs=1'.format(environ['UPTIMEROBOT_TOKEN'])
-    headers = {
-        'content-type':         "application/x-www-form-urlencoded",
-        'cache-control': "no-cache"
-    }
-    data = request("POST",  'https://api.uptimerobot.com/v2/getMonitors', data=payload, headers=headers).json()
-    data = data['monitors'][0]['logs'][0:25][::-1]
-    parameter = "{type:'line',data:{labels:"+str([str(i['datetime']) for i in data])+", datasets:[{label:'Username601 Latency (ms)', data: "+str([i['duration'] for i in data])+", fill:false,borderColor:'blue'}]}}"
-    return parameter
-
-def limit(word):
-    return word[0:1990]
-
 def urlify(word):
     return urlencode(word).replace('+', '%20')
 
-def findNum(word, arr):
-    for i in range(0, len(arr)):
-        if arr[i]==word:
-            return i
-            break
-
-def hackfind(data, avatar):
-    links = [
-        'https://i.imgur.com/msmvE09.gif',
-        avatar,
-        'https://seeklogo.com/images/F/FBI_SHIELD-logo-2D02BDDAC8-seeklogo.com.png',
-        'https://images-ext-1.discordapp.net/external/ByHvJcnlhVe42B9bjwf9umFHeEA5pk1oebLdxeWYY0g/%3Fv'
-    ]
-    if int(list(data)[0]) not in range(1, 5):
-        return 'https://upload.wikimedia.org/wikipedia/commons/5/50/Black_colour.jpg'
-    else:
-        return links[int(list(data)[0])+1]
-
-def arrspace(arr):
-    return str(' '.join(arr))[:-1]
-
-def report(auth):
-    # NEVER GONNA GIVE YOU UP, NEVER GONNA LET YOU DOWN...
-    return 'lol'
-
 def time_encode(sec):
-    time_type = 'seconds'
-    newsec = int(sec)
+    time_type, newsec = 'seconds', int(sec)
     # YANDEREDEV.EXE
     if sec>60:
         newsec, time_type = round(sec/60), 'minutes'
@@ -166,12 +123,8 @@ def terminal(command):
         data = run([command], stdout=PIPE).stdout.decode('utf-8')
     return data
 
-def fetchJSON(url):
-    return requests.get(url).json()
-def insp(url):
-    return requests.get(url).text
-def getPrefix():
-    return prefix
+def fetchJSON(url): return requests.get(url).json()
+def insp(url): return requests.get(url).text
 
 def atbash(text):
     temp = list(text.lower())
@@ -209,26 +162,6 @@ def caesar(text, num):
         else:
             result += temp[i]
     return result
-
-def hintify(word):
-    alph = list(word.lower())
-    for i in range(0, len(arr)):
-        if arr[i] not in alph:
-            alph.append(arr[i])
-    temp, removed, amount = list(word), [], random.randint(1, len(alph)-1)
-    for i in range(0, amount):
-        toBlacklistNum = random.randint(0, len(alph)-1)
-        toBlacklist = alph[toBlacklistNum]
-        for i in range(0, len(temp)):
-            if temp[i]==toBlacklist:
-                temp[i] = '\_'
-        removed.append(toBlacklist)
-        del alph[toBlacklistNum]
-    result = ''.join(temp)
-    return result
-
-def dearray(arr):
-    return str(', '.join(arr))+'.'
 
 def tohex(integer):
     return str(hex(int(integer))).upper()[2:]

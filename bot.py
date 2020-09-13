@@ -24,6 +24,8 @@ import asyncio
 # DECLARATION AND STUFF
 client = commands.Bot(command_prefix=prefix)
 client.remove_command('help')
+setattr(client, 'canvas', Painter(cfg('ASSETS_DIR'), cfg('FONTS_DIR')))
+setattr(client, 'gif', GifGenerator(cfg('ASSETS_DIR'), cfg('FONTS_DIR')))
 
 @client.event
 async def on_ready():

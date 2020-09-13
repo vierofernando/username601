@@ -16,14 +16,6 @@ from aiohttp import ClientSession
 class image(commands.Cog):
     def __init__(self, client):
         self.client = client
-        self.canvas = Painter(
-            cfg('ASSETS_DIR'),
-            cfg('FONTS_DIR')
-        )
-        self.gif = GifGenerator(
-            cfg('ASSETS_DIR'),
-            cfg('FONTS_DIR')
-        )
         self.session = ClientSession()
 
     @command('pika')
@@ -39,7 +31,7 @@ class image(commands.Cog):
     async def blur(self, ctx, *args):
         ava = getUserAvatar(ctx, args, size=512)
         async with ctx.channel.typing():
-            im = self.canvas.blur(ava)
+            im = self.client.canvas.blur(ava)
             await ctx.send(file=discord.File(im, 'blur.png'))
 
     @command('glitchify,matrix')
@@ -47,7 +39,7 @@ class image(commands.Cog):
     async def glitch(self, ctx, *args):
         ava = getUserAvatar(ctx, args, size=512)
         async with ctx.channel.typing():
-            im = self.canvas.glitch(ava)
+            im = self.client.canvas.glitch(ava)
             await ctx.send(file=discord.File(im, 'glitch.png'))
 
     @command('destroy,destroyava,destroyavatar')
@@ -56,7 +48,7 @@ class image(commands.Cog):
         src = getUserAvatar(ctx, args, size=512)
         async with ctx.channel.typing():
             await ctx.send(file=discord.File(
-                self.canvas.ruin(src), 'ruinedavatar.png'
+                self.client.canvas.ruin(src), 'ruinedavatar.png'
             ))
 
     @command('application')
@@ -66,7 +58,7 @@ class image(commands.Cog):
         elem = getUser(ctx, args)
         async with ctx.channel.typing():
             await ctx.send(file=discord.File(
-                self.canvas.app(src, elem.name), 'app.exe.png'
+                self.client.canvas.app(src, elem.name), 'app.exe.png'
             ))
 
 
@@ -88,7 +80,7 @@ class image(commands.Cog):
         ava = getUserAvatar(ctx, args)
         async with ctx.channel.typing():
             await ctx.send(file=discord.File(
-                self.canvas.urltoimage('https://nezumiyuiz.glitch.me/api/distort?level={}&image={}'.format(
+                self.client.canvas.urltoimage('https://nezumiyuiz.glitch.me/api/distort?level={}&image={}'.format(
                     str(num), str(ava)
                 )), 'distort.png'
             ))
@@ -101,7 +93,7 @@ class image(commands.Cog):
             month = month if (len(month)==2) else "0"+month
             day = day if (len(day)==2) else "0"+day
             await ctx.send(file=discord.File(
-                self.canvas.gif2png(
+                self.client.canvas.gif2png(
                     "https://d1ejxu6vysztl5.cloudfront.net/comics/garfield/{}/{}-{}-{}.gif".format(
                         year, year, month, day
                     )
@@ -122,12 +114,12 @@ class image(commands.Cog):
     @command('ducks,quack,duk')
     @cooldown(1)
     async def duck(self, ctx):
-        await ctx.send(file=discord.File(self.canvas.urltoimage(fetchJSON('https://random-d.uk/api/v2/random?format=json')['url']), 'duck.png'))
+        await ctx.send(file=discord.File(self.client.canvas.urltoimage(fetchJSON('https://random-d.uk/api/v2/random?format=json')['url']), 'duck.png'))
 
     @command('snek,snakes,python,py')
     @cooldown(1)
     async def snake(self, ctx):
-        await ctx.send(file=discord.File(self.canvas.urltoimage('https://fur.im/snek/i/'+str(random.randint(1, 874))+'.png'), 'snek.png'))
+        await ctx.send(file=discord.File(self.client.canvas.urltoimage('https://fur.im/snek/i/'+str(random.randint(1, 874))+'.png'), 'snek.png'))
 
     @command('imageoftheday')
     @cooldown(21600)
@@ -141,7 +133,7 @@ class image(commands.Cog):
     @cooldown(1)
     async def httpcat(self, ctx, *args):
         code = list(args)[0] if (len(list(args))!=0) else '404'
-        await ctx.send(file=discord.File(self.canvas.urltoimage('https://http.cat/'+str(code)+'.jpg'), 'httpcat.png'))
+        await ctx.send(file=discord.File(self.client.canvas.urltoimage('https://http.cat/'+str(code)+'.jpg'), 'httpcat.png'))
     
     @command('httpduck')
     @cooldown(1)
@@ -150,7 +142,7 @@ class image(commands.Cog):
         url = 'https://random-d.uk/api/http/ABC.jpg' if ('duck' in ctx.message.content) else 'https://httpstatusdogs.com/img/ABC.jpg'
         try:
             await ctx.send(file=discord.File(
-                self.canvas.urltoimage(url.replace('ABC', code)), 'httpdogduck.png'
+                self.client.canvas.urltoimage(url.replace('ABC', code)), 'httpdogduck.png'
             ))
         except:
             await ctx.send('{} | 404'.format(
@@ -160,14 +152,14 @@ class image(commands.Cog):
     @command()
     @cooldown(1)
     async def goat(self, ctx):
-        await ctx.send(file=discord.File(self.canvas.urltoimage('https://placegoat.com/'+str(random.randint(500, 700))), 'goat.png'))
+        await ctx.send(file=discord.File(self.client.canvas.urltoimage('https://placegoat.com/'+str(random.randint(500, 700))), 'goat.png'))
 
     @command()
     @cooldown(1)
     async def rotate(self, ctx, *args):
         async with ctx.channel.typing():
             ava = getUserAvatar(ctx, args, size=512)
-            data = self.gif.rotate(ava)
+            data = self.client.gif.rotate(ava)
             await ctx.send(file=discord.File(data, 'rotate.gif'))
 
     @command()
@@ -184,7 +176,7 @@ class image(commands.Cog):
                 if wh[0]>2000 or wh[1]>2000: await ctx.send(emote(self.client, 'error') + " | Your image is too big!")
                 elif wh[0]<300 or wh[1]<300: await ctx.send(emote(self.client, 'error') + " | Your image is too small!")
                 else:
-                    data = self.canvas.resize(ava, wh[0], wh[1])
+                    data = self.client.canvas.resize(ava, wh[0], wh[1])
                     await ctx.send(file=discord.File(data, 'resize.png'))
             else:
                 await ctx.send(emote(self.client, 'error') + " | Where are the parameters?")
@@ -193,13 +185,13 @@ class image(commands.Cog):
     @cooldown(10)
     async def nature(self, ctx):
         async with ctx.channel.typing():
-            await ctx.send(file=discord.File(self.canvas.urltoimage('https://source.unsplash.com./1600x900/?nature'), 'nature.png'))
+            await ctx.send(file=discord.File(self.client.canvas.urltoimage('https://source.unsplash.com./1600x900/?nature'), 'nature.png'))
 
     @command('earth,moon')
     @cooldown(10)
     async def space(self, ctx):
         async with ctx.channel.typing():
-            await ctx.send(file=discord.File(self.canvas.urltoimage('https://source.unsplash.com./1600x900/?{}'.format(random.choice(['earth', 'moon', 'space']))), 'space.png'))
+            await ctx.send(file=discord.File(self.client.canvas.urltoimage('https://source.unsplash.com./1600x900/?{}'.format(random.choice(['earth', 'moon', 'space']))), 'space.png'))
 
     @command()
     @cooldown(1)
@@ -216,7 +208,7 @@ class image(commands.Cog):
                 if '/watch?v=' in list(args)[0]: videoid = list(args)[0].split('/watch?v=')[1]
                 else: videoid = list(args)[0].split('/')[1]
                 url = 'https://img.youtube.com/vi/'+str(videoid)+'/mqdefault.jpg'
-                data = self.canvas.urltoimage(url)
+                data = self.client.canvas.urltoimage(url)
                 await ctx.send(file=discord.File(data, 'thumbnail.png'))
         else: await ctx.send(emote(self.client, 'error')+' | gimme something to work with! Like a youtube url!')
     @command('cat,fox,sadcat,bird')
@@ -233,7 +225,7 @@ class image(commands.Cog):
             for i in list(links.keys()):
                 if str(ctx.message.content[1:]).lower().replace(' ', '')==i: link = links[i] ; break
             apiied = fetchJSON(link.split('|')[0])[link.split('|')[1]]
-            data = self.canvas.urltoimage(apiied)
+            data = self.client.canvas.urltoimage(apiied)
             await ctx.send(file=discord.File(data, 'animal.png'))
 
     @command()
@@ -250,7 +242,7 @@ class image(commands.Cog):
     async def shibe(self, ctx):
         async with ctx.channel.typing():
             data = fetchJSON("http://shibe.online/api/shibes?count=1")[0]
-            await ctx.send(file=discord.File(self.canvas.smallURL(data), 'shibe.png'))
+            await ctx.send(file=discord.File(self.client.canvas.smallURL(data), 'shibe.png'))
     
     @command()
     @cooldown(1)
@@ -261,7 +253,7 @@ class image(commands.Cog):
             else:
                 first, second = str(ctx.message.mentions[0].avatar_url).replace('webp', 'png'), str(ctx.message.mentions[1].avatar_url).replace('webp', 'png')
             url = f'https://api.alexflipnote.dev/ship?user={first}&user2={second}'
-            await ctx.send(file=discord.File(self.canvas.urltoimage(url), 'ship.png'))
+            await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'ship.png'))
 
     @command('coffee')
     @cooldown(1)
@@ -276,7 +268,7 @@ class image(commands.Cog):
                 if num==0: link = fetchJSON('https://coffee.alexflipnote.dev/random.json')['file']
                 else: link = fetchJSON('https://nekobot.xyz/api/image?type=coffee')['message'].replace('\/', '/')
             async with ctx.channel.typing():
-                data = self.canvas.urltoimage(link.replace('\/', '/'))
+                data = self.client.canvas.urltoimage(link.replace('\/', '/'))
                 await ctx.send(file=discord.File(data, ctx.message.content[1:]+'.png'))
 
     @command()
@@ -285,20 +277,20 @@ class image(commands.Cog):
         source = getUserAvatar(ctx, args)
         await ctx.channel.trigger_typing()
         await ctx.send(file=discord.File(
-            self.canvas.urltoimage(f'https://nekobot.xyz/api/imagegen?type=magik&image={source}&raw=1&intensity={random.randint(5, 10)}'), 'magik.png'
+            self.client.canvas.urltoimage(f'https://nekobot.xyz/api/imagegen?type=magik&image={source}&raw=1&intensity={random.randint(5, 10)}'), 'magik.png'
         ))
 
     @command()
     @cooldown(1)
     async def invert(self, ctx, *args):
         av = getUserAvatar(ctx, args)
-        return await ctx.send(file=discord.File(self.canvas.invert_image(av), 'invert.png'))
+        return await ctx.send(file=discord.File(self.client.canvas.invert_image(av), 'invert.png'))
         
     @command('grayscale,b&w,bw,classic')
     @cooldown(1)
     async def blackandwhite(self, ctx, *args):
         av = getUserAvatar(ctx, args)
-        return await ctx.send(file=discord.File(self.canvas.grayscale(av), 'invert.png'))
+        return await ctx.send(file=discord.File(self.client.canvas.grayscale(av), 'invert.png'))
 
     @command('pixelate')
     @cooldown(1)
@@ -307,7 +299,7 @@ class image(commands.Cog):
         source = getUserAvatar(ctx, args)
         await ctx.channel.trigger_typing()
         await ctx.send(file=discord.File(
-            self.canvas.urltoimage(f'https://nekobot.xyz/api/imagegen?type={com.lower()}&image={source}&raw=1'), 'lmao-nice.png'
+            self.client.canvas.urltoimage(f'https://nekobot.xyz/api/imagegen?type={com.lower()}&image={source}&raw=1'), 'lmao-nice.png'
         ))
 def setup(client):
     client.add_cog(image(client))

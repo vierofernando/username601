@@ -65,7 +65,7 @@ class bothelp(commands.Cog):
                     cmds = []
                     for i in range(0, len(source)):
                         cmds.append(source[i]['n'])
-                    cmds = dearray(cmds)
+                    cmds = ', '.join(cmds)
                     embed = discord.Embed(title='Category help for '+str(category_name)+':', description='**Commands:** \n```'+str(cmds)+'```', colour=get_embed_color(discord))
                 if typ=='Command':
                     parameters = 'No parameters required.'

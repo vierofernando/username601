@@ -30,14 +30,6 @@ class owner(commands.Cog):
             os.environ['DISCORDBOTLIST_TOKEN'],
             os.environ['USELESSAPI']
         ]
-        self.canvas = Painter(
-            cfg('ASSETS_DIR'),
-            cfg('FONTS_DIR')
-        )
-        self.gif = GifGenerator(
-            cfg('ASSETS_DIR'),
-            cfg('FONTS_DIR')
-        )
 
     @command()
     async def setbal(self, ctx, *args):
@@ -107,7 +99,7 @@ class owner(commands.Cog):
             await ctx.send(emote(self.client, 'error') +' | Invalid person.')
     @command('ex,eval')
     async def evaluate(self, ctx, *args):
-        unprefixed = ' '.join(list(args)).replace("`", "")
+        unprefixed = ' '.join(list(args)).replace("`", "").replace('"', "'") if len(list(args))!=0 else 'undefined'
         if int(ctx.author.id)==cfg('OWNER_ID', integer=True):
             try:
                 res = eval(unprefixed)

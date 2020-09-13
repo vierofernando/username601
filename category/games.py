@@ -18,10 +18,6 @@ import asyncio
 class games(commands.Cog):
     def __init__(self, client):
         self.client = client
-        self.canvas = Painter(
-            cfg('ASSETS_DIR'),
-            cfg('FONTS_DIR')
-        )
     
     @command()
     @cooldown(3)
@@ -30,7 +26,7 @@ class games(commands.Cog):
         if not args[0].isnumeric(): return await ctx.send(emote(self.client, 'error')+' | That is not a level ID!')
         toEdit = await ctx.send(emote(self.client, 'loading')+' | Fetching data from the Geometry Dash servers...')
         try:
-            data = self.canvas.geometry_dash_level(int(list(args)[0]))
+            data = self.client.canvas.geometry_dash_level(int(list(args)[0]))
             await toEdit.delete()
             await ctx.send(file=discord.File(data, 'gdlevel.png'))
         except:
@@ -90,7 +86,7 @@ class games(commands.Cog):
             async with ctx.channel.typing():
                 text = urlify(' '.join(list(args)))
                 url='https://gdcolon.com/tools/gdlogo/img/'+str(text)
-                await ctx.send(file=discord.File(self.canvas.urltoimage(url), 'gdlogo.png'))
+                await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'gdlogo.png'))
     
     @command()
     @cooldown(3)
@@ -104,7 +100,7 @@ class games(commands.Cog):
                     if not ctx.author.guild_permissions.manage_guild: color = 'brown'
                     else: color = 'blue'
                     url='https://gdcolon.com/tools/gdtextbox/img/'+str(text)+'?color='+color+'&name='+str(ctx.author.name)+'&url='+str(av).replace('webp', 'png')+'&resize=1'
-                    await ctx.send(file=discord.File(self.canvas.urltoimage(url), 'gdbox.png'))
+                    await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'gdbox.png'))
    
     @command()
     @cooldown(3)
@@ -119,7 +115,7 @@ class games(commands.Cog):
                 gdprof = urlify(byI[1])
                 if ctx.author.guild_permissions.manage_guild: url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&mod=mod&days=1-second'
                 else: url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&days=1-second'
-                await ctx.send(file=discord.File(self.canvas.urltoimage(url), 'gdcomment.png'))
+                await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'gdcomment.png'))
             except Exception as e:
                 await ctx.send(emote(self.client, 'error') +f' | Invalid!\nThe flow is this: `{prefix}gdcomment text | name | like count`\nExample: `{prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
 
@@ -128,7 +124,7 @@ class games(commands.Cog):
     async def gddaily(self, ctx):
         toEdit = await ctx.send(emote(self.client, 'loading')+' | Fetching data from the Geometry Dash servers...')
         try:
-            data = self.canvas.geometry_dash_level(None, daily=True) if 'daily' in ctx.message.content.lower() else self.canvas.geometry_dash_level(None, weekly=True)
+            data = self.client.canvas.geometry_dash_level(None, daily=True) if 'daily' in ctx.message.content.lower() else self.client.canvas.geometry_dash_level(None, weekly=True)
             await toEdit.delete()
             await ctx.send(file=discord.File(data, 'gdnivel.png'))
         except:
@@ -244,7 +240,7 @@ class games(commands.Cog):
     @cooldown(15)
     async def geoquiz(self, ctx):
         wait = await ctx.send(emote(self.client, 'loading') + ' | Please wait... generating question...')
-        data, topic = fetchJSON("https://restcountries.eu/rest/v2/"), random.choice(src.getGeoQuiz())
+        data, topic = fetchJSON("https://restcountries.eu/rest/v2/"), random.choice(['capital', 'region', 'subregion', 'population', 'demonym', 'nativeName'])
         chosen_nation_num = random.randint(0, len(data))
         chosen_nation, wrongs = data[chosen_nation_num], []
         data.remove(data[chosen_nation_num])

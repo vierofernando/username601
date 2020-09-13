@@ -21,20 +21,12 @@ class fun(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.session = ClientSession()
-        self.canvas = Painter(
-            cfg('ASSETS_DIR'),
-            cfg('FONTS_DIR')
-        )
-        self.gif = GifGenerator(
-            cfg('ASSETS_DIR'),
-            cfg('FONTS_DIR')
-        )
     
     @command('nsfw,porn,pornhub,rule34,rule-34,ass')
     @cooldown(1)
     async def hentai(self, ctx):
         return await ctx.send(file=discord.File(
-            self.canvas.urltoimage(src.randomtroll()), 'SPOILER_nsfw.png'
+            self.client.canvas.urltoimage(src.randomtroll()), 'SPOILER_nsfw.png'
         ))
 
     @command('talk,gtts,texttospeech,text-to-speech')
@@ -52,7 +44,7 @@ class fun(commands.Cog):
     async def flip(self, ctx, *args):
         av = getUserAvatar(ctx, args)
         async with ctx.channel.typing():
-            im = self.gif.flip(av)
+            im = self.client.gif.flip(av)
             return await ctx.send(file=discord.File(im, 'flip.gif'))
 
     @command('edit')
@@ -103,14 +95,14 @@ class fun(commands.Cog):
         if len(list(args))<1: name = src.randomhash()
         else: name = ' '.join(list(args))
         url= 'https://api.adorable.io/avatars/285/{}.png'.format(name)
-        await ctx.send(file=discord.File(self.canvas.urltoimage(url), 'random_avatar.png'))
+        await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'random_avatar.png'))
 
     @command('inspiringquotes,lolquote,aiquote,imagequote,imgquote')
     @cooldown(10)
     async def inspirobot(self, ctx):
         async with ctx.channel.typing():
             img = insp('https://inspirobot.me/api?generate=true')
-            await ctx.send(file=discord.File(self.canvas.urltoimage(img), 'inspirobot.png'))
+            await ctx.send(file=discord.File(self.client.canvas.urltoimage(img), 'inspirobot.png'))
     
     @command('randomcase')
     @cooldown(1)

@@ -18,14 +18,6 @@ from canvas import Painter, GifGenerator
 class moderation(commands.Cog):
     def __init__(self, client):
         self.client = client
-        self.canvas = Painter(
-            cfg('ASSETS_DIR'),
-            cfg('FONTS_DIR')
-        )
-        self.gif = GifGenerator(
-            cfg('ASSETS_DIR'),
-            cfg('FONTS_DIR')
-        )
 
     @command('jp,joinpos,joindate,jd,createpos,createdat,howold')
     @cooldown(5)
@@ -173,7 +165,7 @@ class moderation(commands.Cog):
     @cooldown(10)
     async def serverstats(self, ctx):
         await ctx.send(file=discord.File(
-            self.canvas.serverstats(ctx.guild), "serverstats.png"
+            self.client.canvas.serverstats(ctx.guild), "serverstats.png"
         ))
     
     @command()
@@ -284,8 +276,8 @@ class moderation(commands.Cog):
             em = list(args)[0].lower()
             if em.startswith('<:a:'): _id, an = em.split(':')[3].split('>')[0], True
             else: _id, an = em.split(':')[2].split('>')[0], False
-            if an: await ctx.send(file=discord.File(self.gif.giffromURL('https://cdn.discordapp.com/emojis/{}.gif'.format(_id)), 'emoji.gif'))
-            else: await ctx.send(file=discord.File(self.canvas.urltoimage('https://cdn.discordapp.com/emojis/{}.png'.format(_id)), 'emoji.png'))
+            if an: await ctx.send(file=discord.File(self.client.gif.giffromURL('https://cdn.discordapp.com/emojis/{}.gif'.format(_id)), 'emoji.gif'))
+            else: await ctx.send(file=discord.File(self.client.canvas.urltoimage('https://cdn.discordapp.com/emojis/{}.png'.format(_id)), 'emoji.png'))
         except:
             await ctx.send(emote(self.client, 'error')+' | Invalid emoji.')
             
@@ -473,7 +465,7 @@ class moderation(commands.Cog):
             for i in ctx.guild.channels: total.append('<#'+str(i.id)+'>')
         else:
             for i in ctx.guild.roles: total.append('<@&'+str(i.id)+'>')
-        await ctx.send(embed=discord.Embed(description=dearray(total), color=get_embed_color(discord)))
+        await ctx.send(embed=discord.Embed(description=', '.join(total), color=get_embed_color(discord)))
 
     @command('ui,user,usercard,user-info,user-card')
     @cooldown(5) # roles user ava bg
@@ -482,9 +474,9 @@ class moderation(commands.Cog):
         async with ctx.channel.typing():
             if guy.id in [i.id for i in ctx.guild.premium_subscribers]: nitro = True
             elif guy.is_avatar_animated(): nitro = True
-            booster = True if (guy in ctx.guild.members) else False
-            bg_col = tuple(self.canvas.get_accent(ava))
-            data = self.canvas.usercard([{
+            booster = True if guy in ctx.guild.premium_subscribers else False
+            bg_col = tuple(self.client.canvas.get_accent(ava))
+            data = self.client.canvas.usercard([{
                 'name': i.name, 'color': i.color.to_rgb()
             } for i in guy.roles][::-1][0:5], guy, ava, bg_col, nitro, booster)
             await ctx.send(file=discord.File(data, str(guy.discriminator)+'.png'))
@@ -503,7 +495,7 @@ class moderation(commands.Cog):
         if len(ctx.guild.emojis)==0: await ctx.send(emote(self.client, 'error')+' | This server has no emojis!')
         else:
             try:
-                await ctx.send(dearray([str(i) for i in ctx.guild.emojis]))
+                await ctx.send(', '.join([str(i) for i in ctx.guild.emojis]))
             except:
                 await ctx.send(emote(self.client, 'error')+' | This server probably has too many emojis to be listed!')
 
@@ -520,15 +512,15 @@ class moderation(commands.Cog):
             if len(list(args))==0:
                 if len(ctx.guild.members)>100:
                     wait = await ctx.send('{} | Fetching guild data... please wait...'.format(emote(self.client, 'loading')))
-                    im = self.canvas.server(ctx.guild)
+                    im = self.client.canvas.server(ctx.guild)
                     await wait.delete()
                 else:
                     await ctx.channel.trigger_typing()
-                    im = self.canvas.server(ctx.guild)
+                    im = self.client.canvas.server(ctx.guild)
                 await ctx.send(file=discord.File(im, 'server.png'))
             else:
                 data = fetchJSON(f"https://discord.com/api/v6/invites/{list(args)[0].lower()}?with_counts=true")
-                im = self.canvas.server(None, data=data['guild'], raw=data)
+                im = self.client.canvas.server(None, data=data['guild'], raw=data)
                 await ctx.send(file=discord.File(im, 'server_that_has_some_kewl_vanity_url.png'))
 
     @command('serverinvite,create-invite,createinvite,makeinvite,make-invite,server-invite')
@@ -560,7 +552,7 @@ class moderation(commands.Cog):
                 if data.mentionable==True: men = ':warning: You can mention this role and they can get pinged.'
                 else: men = ':v: You can mention this role and they will not get pinged! ;)'
                 embedrole = discord.Embed(title='Role info for role: '+str(data.name), description='**Role ID: **'+str(data.id)+'\n**Role created at: **'+time_encode(round(t.now().timestamp()-data.created_at.timestamp()))+' ago\n**Role position: **'+str(data.position)+'\n**Members having this role: **'+str(len(data.members))+'\n'+str(men)+'\nPermissions Value: '+str(data.permissions.value)+'\n'+str(perm), colour=data.colour)
-                embedrole.add_field(name='Role Colour', value='**Color hex: **#'+str(tohex(data.color.value))+'\n**Color integer: **'+str(data.color.value)+'\n**Color RGB: **'+str(dearray(
+                embedrole.add_field(name='Role Colour', value='**Color hex: **#'+str(tohex(data.color.value))+'\n**Color integer: **'+str(data.color.value)+'\n**Color RGB: **'+str(', '.join(
                     [str(i) for i in list(data.color.to_rgb())]
                 )))
                 await ctx.send(embed=embedrole)

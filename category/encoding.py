@@ -13,10 +13,6 @@ from canvas import Painter
 class encoding(commands.Cog):
     def __init__(self, client):
         self.client = client
-        self.canvas = Painter(
-            cfg('ASSETS_DIR'),
-            cfg('FONTS_DIR')
-        )
     
     @command()
     @cooldown(2)
@@ -55,7 +51,7 @@ class encoding(commands.Cog):
             async with ctx.channel.typing():
                 if 'qr' in str(ctx.message.content).split(' ')[0][1:]: url = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+str(urlify(str(' '.join(list(args)))))
                 else: url= 'http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data='+str(urlify(str(' '.join(list(args)))))
-                await ctx.send(file=discord.File(self.canvas.urltoimage(url), 'qr_or_barcode.png'))
+                await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'qr_or_barcode.png'))
     
     @command()
     @cooldown(1)

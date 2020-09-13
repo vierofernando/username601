@@ -12,7 +12,9 @@ def getFont(fontpath, fontname, size, otf=False):
     ext = 'ttf' if not otf else 'otf'
     return ImageFont.truetype(f'{fontpath}/{fontname}.{ext}', size)
 def getImage(assetpath, imageName): return Image.open(f'{assetpath}/{imageName}')
-def imagefromURL(url, *args, **kwargs): return Image.open(BytesIO(get(url).content))
+def imagefromURL(url, *args, **kwargs):
+    try: return Image.open(BytesIO(get(url).content))
+    except: return Image.new(mode='RGB', size=(500, 500), color=(0, 0, 0))
 def bufferGIF(images, duration, optimize=False):
     arr = BytesIO()
     images[0].save(arr, "GIF", save_all=True, append_images=images[1:], optimize=optimize, duration=duration, loop=0)

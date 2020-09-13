@@ -18,18 +18,14 @@ from datetime import datetime as t
 class utils(commands.Cog):
     def __init__(self, client):
         self.client = client
-        self.canvas = Painter(
-            cfg('ASSETS_DIR'),
-            cfg('FONTS_DIR')
-        )
     
     @command('colorthief,getcolor,accent,accentcolor,accent-color,colorpalette,color-palette')
     @cooldown(3)
     async def palette(self, ctx, *args):
         url, person = getUserAvatar(ctx, args), getUser(ctx, args)
         async with ctx.channel.typing():
-            data = self.canvas.get_multiple_accents(url)
-            file = discord.File(self.canvas.get_palette(data), 'palette.png')
+            data = self.client.canvas.get_multiple_accents(url)
+            file = discord.File(self.client.canvas.get_palette(data), 'palette.png')
             em = discord.Embed(title=f'{person.name}\'s avatar color palette', color=discord.Colour.from_rgb(
                 data[0]['r'], data[0]['g'], data[0]['b']
             )).set_thumbnail(url=url).set_image(url='attachment://palette.png')
@@ -55,7 +51,7 @@ class utils(commands.Cog):
     async def imgascii(self, ctx, *args):
         url = getUserAvatar(ctx, args)
         wait = await ctx.send('{} | Please wait...'.format(emote(self.client, 'loading')))
-        text = self.canvas.imagetoASCII(url)
+        text = self.client.canvas.imagetoASCII(url)
         data = post("https://hastebin.com/documents", data=text)
         if data.status_code!=200: return await wait.edit(content="{} | Oops! there was an error on posting it there.".format(emote(self.client, 'error')))
         return await wait.edit(content='{} | You can see the results at **https://hastebin.com/{}**!'.format(emote(self.client, 'success'), data.json()['key']))
@@ -158,13 +154,13 @@ class utils(commands.Cog):
     async def robohash(self, ctx, *args):
         if len(list(args))==0: url='https://robohash.org/'+str(src.randomhash())
         else: url = 'https://robohash.org/'+str(urlify(' '.join(list(args))))
-        await ctx.send(file=discord.File(self.canvas.urltoimage(url), 'robohash.png'))
+        await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'robohash.png'))
 
     @command()
     @cooldown(5)
     async def weather(self, ctx, *args):
         if len(list(args))==0: await ctx.send(emote(self.client, 'error')+" | Please send a location or a city!")
-        else: await ctx.send(file=discord.File(self.canvas.urltoimage('https://wttr.in/'+str(urlify(' '.join(list(args))))+'.png?m'), 'weather.png'))
+        else: await ctx.send(file=discord.File(self.client.canvas.urltoimage('https://wttr.in/'+str(urlify(' '.join(list(args))))+'.png?m'), 'weather.png'))
 
     @command()
     @cooldown(5)
@@ -190,9 +186,7 @@ class utils(commands.Cog):
             else:
                 for i in range(0, len(data)):
                     if data[i]['flags']=='bc': words.append(data[i]['word'])
-                words = dearray(words)
-                if len(words)>1950:
-                    words = limitify(words)
+                words = ', '.join(words)[0:1950]
                 embed = discord.Embed(title='Words that rhymes with '+str(' '.join(list(args)))+':', description=words, colour=get_embed_color(discord))
                 await wait.edit(content='', embed=embed)
 
@@ -284,7 +278,7 @@ class utils(commands.Cog):
     async def country(self, ctx, *args):
         try:
             country = urlify(' '.join(list(args)))
-            data = self.canvas.country(country)
+            data = self.client.canvas.country(country)
             file = discord.File(data['buffer'], 'country.png')
             embed = discord.Embed(title=' '.join(list(args)), color=discord.Color.from_rgb(
                 data['color'][0], data['color'][1], data['color'][2]
@@ -344,7 +338,7 @@ class utils(commands.Cog):
             for i in range(0, len(data['items'][0]['platforms'])):
                 if data['items'][0]['platforms'][str(list(data['items'][0]['platforms'].keys())[i])]==True:
                     oss_raw.append(str(list(data['items'][0]['platforms'].keys())[i]))
-            embed = discord.Embed(title=data['items'][0]['name'], url='https://store.steampowered.com/'+str(data['items'][0]['type'])+'/'+str(data['items'][0]['id']), description='**Price tag:** '+str(prize)+'\n**Metascore: **'+str(rate)+'\n**This app supports the following OSs: **'+str(dearray(oss_raw)), colour=get_embed_color(discord))
+            embed = discord.Embed(title=data['items'][0]['name'], url='https://store.steampowered.com/'+str(data['items'][0]['type'])+'/'+str(data['items'][0]['id']), description='**Price tag:** '+str(prize)+'\n**Metascore: **'+str(rate)+'\n**This app supports the following OSs: **'+str(', '.join(oss_raw)), colour=get_embed_color(discord))
             embed.set_image(url=data['items'][0]['tiny_image'])
             await ctx.send(embed=embed)
 
@@ -421,8 +415,8 @@ class utils(commands.Cog):
     async def typingtest(self, ctx):
         async with ctx.channel.typing():
             data = fetchJSON("https://random-word-api.herokuapp.com/word?number=5")
-            text, guy, first = arrspace(data), ctx.author, t.now().timestamp()
-            main = await ctx.send(content='**Type the text on the image. (Only command invoker can play)**\nYou have 2 minutes.\n', file=discord.File(self.canvas.simpletext(text), 'test.png'))
+            text, guy, first = ' '.join(data), ctx.author, t.now().timestamp()
+            main = await ctx.send(content='**Type the text on the image. (Only command invoker can play)**\nYou have 2 minutes.\n', file=discord.File(self.client.canvas.simpletext(text), 'test.png'))
         def check(m):
             return m.author == guy
         try:

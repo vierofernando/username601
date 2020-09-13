@@ -20,10 +20,6 @@ gtr = Translator()
 class apps(commands.Cog):
     def __init__(self, client):
         self.client = client
-        self.canvas = Painter(
-            cfg('ASSETS_DIR'),
-            cfg('FONTS_DIR')
-        )
 
     @command('movie')
     @cooldown(5)
@@ -38,8 +34,8 @@ class apps(commands.Cog):
             em = discord.Embed(title=data['name'], url=data['url'], description=html2discord(data['summary']), color=discord.Colour.from_rgb(201, 160, 112))
             em.add_field(name='General Information', value='**Status: **'+data['status']+'\n**Premiered at: **'+data['premiered']+'\n**Type: **'+data['type']+'\n**Language: **'+data['language']+'\n**Rating: **'+str(data['rating']['average'] if data['rating']['average']!=None else 'None')+'\n'+star)
             em.add_field(name='TV Network', value=data['network']['name']+' at '+data['network']['country']['name']+' ('+data['network']['country']['timezone']+')')
-            em.add_field(name='Genre', value=str(dearray(data['genres']) if len(data['genres'])>0 else 'no genre avaliable'))
-            em.add_field(name='Schedule', value=dearray(data['schedule']['days'])+' at '+data['schedule']['time'])
+            em.add_field(name='Genre', value=str(', '.join(data['genres']) if len(data['genres'])>0 else 'no genre avaliable'))
+            em.add_field(name='Schedule', value=', '.join(data['schedule']['days'])+' at '+data['schedule']['time'])
             em.set_image(url=data['image']['original'])
             await ctx.send(embed=em)
         except:
@@ -53,9 +49,9 @@ class apps(commands.Cog):
             if isinstance(i, discord.Spotify): act = i
         if act==None: return await ctx.send(emote(self.client, 'error')+' | Nope, not listening to spotify.')
         async with ctx.message.channel.typing():
-            await ctx.send(file=discord.File(self.canvas.spotify({
+            await ctx.send(file=discord.File(self.client.canvas.spotify({
                 'name': act.title,
-                'artist': dearray(act.artists),
+                'artist': ', '.join(act.artists),
                 'album': act.album,
                 'url': act.album_cover_url
             }), 'spotify.png'))

@@ -21,10 +21,6 @@ class economy(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.randomfish = getfish
-        self.canvas = Painter(
-            cfg('ASSETS_DIR'),
-            cfg('FONTS_DIR')
-        )
     
     @command()
     @cooldown(60)
@@ -331,7 +327,7 @@ class economy(commands.Cog):
         else:
             data = Economy.getProfile(src.id, [i.id for i in ctx.guild.members if not i.bot])
             bfr, aft = data['main'], data['after']
-            img = self.canvas.profile(src.name, ava, bfr, aft)
+            img = self.client.canvas.profile(src.name, ava, bfr, aft)
             await wait.delete()
             await ctx.send(file=discord.File(img, 'profile.png'))
     
