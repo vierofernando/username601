@@ -114,6 +114,7 @@ def time_encode(sec):
                     newsec, time_type = round(sec/2592000), 'months'
                     if sec>31536000:
                         newsec, time_type = round(sec/31536000), 'years'
+    if int(newsec).endswith('1'): return str(str(newsec)+' '+time_type[:-1])
     return str(str(newsec)+' '+time_type)
 
 def terminal(command):
