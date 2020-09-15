@@ -41,6 +41,7 @@ class Dashboard:
     def exist(guildid):
         try:
             data = database['dashboard'].find_one({'serverid': int(guildid)})
+            assert data != None
             return True
         except:
             return False
