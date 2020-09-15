@@ -468,18 +468,19 @@ class moderation(commands.Cog):
             for i in ctx.guild.roles: total.append('<@&'+str(i.id)+'>')
         await ctx.send(embed=discord.Embed(description=', '.join(total), color=get_embed_color(discord)))
 
-    @command('ui,user,usercard,user-info,user-card')
-    @cooldown(5) # roles user ava bg
+    @command('ui,user,usercard,user-info,user-card,whois')
+    @cooldown(5)
     async def userinfo(self, ctx, *args):
         guy, ava, nitro = getUser(ctx, args), getUserAvatar(ctx, args), False
         async with ctx.channel.typing():
             if guy.id in [i.id for i in ctx.guild.premium_subscribers]: nitro = True
             elif guy.is_avatar_animated(): nitro = True
             booster = True if guy in ctx.guild.premium_subscribers else False
+            booster_since = round(t.now().timestamp() - guy.premium_since.timestamp()) if guy.premium_since != None else False
             bg_col = tuple(self.client.canvas.get_accent(ava))
             data = self.client.canvas.usercard([{
                 'name': i.name, 'color': i.color.to_rgb()
-            } for i in guy.roles][::-1][0:5], guy, ava, bg_col, nitro, booster)
+            } for i in guy.roles][::-1][0:5], guy, ava, bg_col, nitro, booster, booster_since)
             await ctx.send(file=discord.File(data, str(guy.discriminator)+'.png'))
 
     @command('av,ava')
@@ -500,7 +501,7 @@ class moderation(commands.Cog):
             except:
                 await ctx.send(emote(self.client, 'error')+' | This server probably has too many emojis to be listed!')
 
-    @command('serverinfo,server,servericon,si,server-info')
+    @command('serverinfo,server,servericon,si,server-info,guild,guildinfo,guild-info')
     @cooldown(10)
     async def servercard(self, ctx, *args):
         if 'servericon' in ctx.message.content:

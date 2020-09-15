@@ -358,7 +358,7 @@ class Painter:
         self.add_corners(main, 25)
         return self.buffer(main)
 
-    def usercard(self, roles, user, ava, bg, nitro, booster):
+    def usercard(self, roles, user, ava, bg, nitro, booster, booster_since):
         name, flags, flag_x = user.name, [], 170
         bigfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 50, otf=True)
         mediumfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 25, otf=True)
@@ -369,7 +369,8 @@ class Painter:
         foreground_col = self.invert(bg)
         avatar = self.imagefromURL(ava).resize((100, 100))
         self.add_corners(avatar, round(avatar.width/2))
-        details_text = 'Created account {}\nJoined server {}'.format(myself.time_encode(t.now().timestamp()-user.created_at.timestamp())+' ago', myself.time_encode(t.now().timestamp()-user.joined_at.timestamp())+' ago')
+        if not booster_since: details_text = 'Created account {}\nJoined server {}'.format(myself.time_encode(t.now().timestamp()-user.created_at.timestamp())+' ago', myself.time_encode(t.now().timestamp()-user.joined_at.timestamp())+' ago')
+        else: details_text = 'Created account {}\nJoined server {}\nBoosting since {}'.format(myself.time_encode(t.now().timestamp()-user.created_at.timestamp())+' ago', myself.time_encode(t.now().timestamp()-user.joined_at.timestamp())+' ago', myself.time_encode(booster_since)+' ago')
         rect_y_pos = 180 + ((bigfont.getsize(details_text)[1]+20))
         canvas_height = rect_y_pos + len(roles * 50) + 30
         if bigfont.getsize(name)[0] > 600: main = Image.new(mode='RGB', color=bg, size=(bigfont.getsize(name)[0]+200, canvas_height))
