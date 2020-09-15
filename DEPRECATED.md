@@ -3,6 +3,9 @@
 ## DEPRECATED COMMANDS<br>
 these are commands i decided to delete with the reasons.
 
+### 1steamprofile<br>
+API endpoint removed.<br>
+
 ### 1pokequiz<br>
 Quiz was really buggy and API sometimes doesn't work for no reason<br>
 

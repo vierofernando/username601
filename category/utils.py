@@ -260,19 +260,6 @@ class utils(commands.Cog):
                 await wait.edit(content='', embed=embed)
             except: await wait.edit(content=emote(self.client, 'error')+' | the movie you requested does not exist!?')
 
-    @command()
-    @cooldown(5)
-    async def steamprofile(self, ctx, *args):
-        try:
-            getprof = urlify(list(args)[0].lower())
-            data = fetchJSON('https://api.alexflipnote.dev/steam/user/'+str(getprof))
-            state, privacy, url, username, avatar, custom_url, steam_id = data["state"], data["privacy"], data["url"], data["username"], data["avatarfull"], data["customurl"], data["steamid64"]
-            embed = discord.Embed(title=username, description='**[Profile Link]('+str(url)+')**\n**Current state: **'+str(state)+'\n**Privacy: **'+str(privacy)+'\n**[Profile pic URL]('+str(avatar)+')**', colour = get_embed_color(discord))
-            embed.set_thumbnail(url=avatar)
-            await ctx.send(embed=embed)
-        except:
-            await ctx.send(emote(self.client, 'error')+" | Error; profile not found!")
-
     @command('nation')
     @cooldown(5)
     async def country(self, ctx, *args):
