@@ -109,6 +109,7 @@ class owner(commands.Cog):
             await ctx.send(emote(self.client, 'error') +' | Invalid person.')
     @command('ex,eval')
     async def evaluate(self, ctx, *args):
+        iwanttostealsometoken = False
         unprefixed = ' '.join(list(args)).replace("`", "").replace('"', "'") if len(list(args))!=0 else 'undefined'
         if int(ctx.author.id)==cfg('OWNER_ID', integer=True):
             try:
@@ -117,14 +118,22 @@ class owner(commands.Cog):
                     if str(i).lower() in str(res).lower(): res = totallyrealtoken
                     elif str(i).lower() in str(' '.join(list(args))).lower():
                         res = totallyrealtoken
-                if isawaitable(res): await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```**Output:**```py\n'+str(await res)+'```Return type:```py\n'+str(type(await res))+'```', color=discord.Colour.green()))
-                else: await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```**Output:**```py\n'+str(res)+'```Return type:```py\n'+str(type(res))+'```', color=discord.Color.green()))
+                if isawaitable(res): await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```**Output:**```py\n'+str(await res)[0:1990]+'```Return type:```py\n'+str(type(await res))+'```', color=discord.Colour.green()))
+                else: await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```**Output:**```py\n'+str(res)[0:1990]+'```Return type:```py\n'+str(type(res).__name__)+'```', color=discord.Color.green()))
             except Exception as e:
                 if 'cannot reuse already awaited coroutine' in str(e): return
                 await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+unprefixed+'```\nException:```py\n'+str(e)+'```', color=discord.Colour.red()), delete_after=5)
         else:
-            fake_err = f"name '{unprefixed}' is not defined"
-            return await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+unprefixed+'```\nException:```py\n'+str(fake_err)+'```', color=discord.Colour.red()))
+            try:
+                if 'token' in unprefixed.lower(): iwanttostealsometoken = True
+                elif 'secret' in unprefixed.lower(): iwanttostealsometoken = True
+                if iwanttostealsometoken:
+                    return await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed[0:1990]+'```**Output:**```py\n'+totallyrealtoken+'```Return type:```py\n'+str(type(totallyrealtoken).__name__)+'```', color=discord.Color.green()))
+                query = unprefixed[0:1990].split('(')[0].split('[')[0].split('.')[0]
+                fake_err = f"name '{query}' is not defined"
+                return await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+unprefixed+'```\nException:```py\n'+str(fake_err)+'```', color=discord.Colour.red()))
+            except:
+                return await ctx.send('there was an error on evaluating that. please use \' instead of "')
 
     @command()
     async def token(self, ctx):
