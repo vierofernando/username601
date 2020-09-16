@@ -7,31 +7,6 @@ import requests
 from username601 import time_encode
 database = MongoClient(os.getenv('DB_LINK'))['username601']
 
-class username601Stats:
-    def retrieveData():
-        return database['config'].find_one({
-            "601stats": True
-        })['commandstats']
-        
-    def addCommand():
-        data = database["config"].update_one({
-            "601stats": True}, {
-                "$inc": {
-                    "commandstats.count": 1
-                }
-            }
-        )
-    def clear():
-        data = database["config"].update_one({
-            "601stats": True}, {
-                "$set": {
-                    "commandstats": {
-                        "count": 0,
-                        "lastreset": t.now().timestamp()
-                    }
-                }
-            })
-
 class Dashboard:
     def getData(guildid):
         try:
@@ -431,17 +406,6 @@ class selfDB:
         a = t.now().timestamp()
         temp = [i for i in database['dashboard'].find()]
         return round((t.now().timestamp()-a)*1000)
-    def post_uptime():
-        for i in database['config'].find():
-            if 'uptime' in list(i.keys()):
-                old_uptime = i['uptime'] ; break
-        database['config'].update_one({'uptime': old_uptime}, { '$set': { 'uptime': t.now().timestamp() } })
-    def get_uptime():
-        for i in database['config'].find():
-            if 'uptime' in list(i.keys()):
-                uptime = i['uptime'] ; break
-        time = str(t.now() - t.fromtimestamp(uptime))[:-7]
-        return time+'|'+str(t.fromtimestamp(uptime))[:-7]
     def feedback_ban(userid, reason):
         for i in database['config'].find():
             if 'bans' in list(i.keys()):

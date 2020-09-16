@@ -6,7 +6,7 @@ sys.path.append(cfg('MODULES_DIR'))
 
 # LOCAL FILES
 from database import (
-    Economy, selfDB, Dashboard, username601Stats, Shop
+    Economy, selfDB, Dashboard, Shop
 )
 import discordgames as Games
 import splashes as src
@@ -26,11 +26,11 @@ client = commands.Bot(command_prefix=prefix)
 client.remove_command('help')
 setattr(client, 'canvas', Painter(cfg('ASSETS_DIR'), cfg('FONTS_DIR')))
 setattr(client, 'gif', GifGenerator(cfg('ASSETS_DIR'), cfg('FONTS_DIR')))
+setattr(client, 'last_downtime', t.now().timestamp())
+setattr(client, 'command_uses', 0)
 
 @client.event
 async def on_ready():
-    selfDB.post_uptime() # update the uptime
-    username601Stats.clear() # clear all cached data on database (reset);
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="👻Botghost.com👻 | Type "+cfg('PREFIX')+"help for command"))
     for i in os.listdir('./category'):
         if not i.endswith('.py'): continue
@@ -59,7 +59,7 @@ async def on_raw_reaction_add(payload):
 
 @client.event
 async def on_command_completion(ctx):
-    username601Stats.addCommand()
+    client.command_uses += 1
 
 @client.event
 async def on_member_join(member):

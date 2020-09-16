@@ -11,7 +11,7 @@ from username601 import *
 sys.path.append(cfg('MODULES_DIR'))
 from decorators import command, cooldown
 from datetime import datetime as t
-from database import selfDB, username601Stats, Dashboard
+from database import selfDB, Dashboard
 
 class bothelp(commands.Cog):
     def __init__(self, client):
@@ -167,11 +167,18 @@ class bothelp(commands.Cog):
     @command('botstats,meta')
     @cooldown(10)
     async def stats(self, ctx):
-        up, cmds, commandLength = selfDB.get_uptime(), username601Stats.retrieveData(), getCommandLength()
-        #imageurl = urlify(uptimerobot())
-        bot_uptime = up.split('|')[0].split(':')[0]+' Hours, '+up.split('|')[0].split(':')[1]+' minutes, '+up.split('|')[0].split(':')[2]+' seconds.'
-        embed = discord.Embed(description='This bot is in {} servers.\nWith {} users\nBot uptime: {}\nOS uptime: {}\nLast downtime: {} UTC\nCommands run in the past {}: {}\nTotal commands: {}'.format(len(self.client.guilds), len(self.client.users), bot_uptime, str(terminal('uptime -p'))[3:], up.split('|')[1], time_encode(round(t.now().timestamp()) - round(cmds['lastreset'])), str(cmds['count']), str(commandLength)), color=get_embed_color(discord))
-        #embed.set_image(url='https://quickchart.io/chart?c='+imageurl)
+        commandLength = getCommandLength()
+        bot_uptime = time_encode(round(t.now().timestamp() - self.client.last_downtime))
+        embed = discord.Embed(description='This bot is in {} servers.\nWith {} users\nBot uptime: {}\nOS uptime: {}\nLast downtime: {} UTC\nCommands run in the past {}: {}\nTotal commands: {}'.format(
+            len(self.client.guilds),
+            len(self.client.users),
+            bot_uptime,
+            terminal('uptime -p')[3:],
+            t.fromtimestamp(self.client.last_downtime),
+            bot_uptime,
+            self.client.command_uses,
+            commandLength
+        ), color=get_embed_color(discord))
         await ctx.send(embed=embed)
 
     @command('botinfo,aboutbot,bot')
