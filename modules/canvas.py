@@ -151,14 +151,14 @@ class Painter:
 
     def among_us(self, url):
         bg = self.getImage(self.assetpath, 'among_us.png')
-        ava = self.imagefromURL(url).resize((222, 149))
+        ava = self.imagefromURL(url).resize((240, 228))
         col = self.get_accent(url)
         cnv = Image.new(mode='RGBA', size=(512, 512), color=(0,0,0))
         draw = ImageDraw.Draw(cnv)
         draw.rectangle([(0, 0), (512, 512)], fill=col)
         cnv.paste(bg, (0,0), bg)
         anothercnv = Image.new(mode='RGB', size=(512, 512), color=(0,0,0))
-        anothercnv.paste(ava, (58, 165))
+        anothercnv.paste(ava, (47, 129))
         anothercnv.paste(cnv, (0, 0), cnv)
         return self.buffer(anothercnv)
 
