@@ -8,7 +8,6 @@ del dirname
 from username601 import *
 sys.path.append(cfg('MODULES_DIR'))
 from decorators import command, cooldown
-from canvas import Painter
 
 class encoding(commands.Cog):
     def __init__(self, client):

@@ -10,7 +10,6 @@ sys.path.append(cfg('MODULES_DIR'))
 import splashes as src
 from decorators import command, cooldown
 import random
-from canvas import Painter
 import discordgames as Games
 from database import Economy
 import asyncio
@@ -18,6 +17,14 @@ import asyncio
 class games(commands.Cog):
     def __init__(self, client):
         self.client = client
+    
+    @command('imposter,among-us,among_us,impostor')
+    @cooldown(3)
+    async def amongus(self, ctx, *args):
+        async with ctx.channel.typing():
+            url = getUserAvatar(ctx, args)
+            im = self.client.canvas.among_us(url)
+            await ctx.send(file=discord.File(im, 'the_impostor.png'))
     
     @command()
     @cooldown(3)

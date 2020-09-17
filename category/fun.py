@@ -15,7 +15,6 @@ from io import BytesIO
 import asyncio
 import algorithm
 from gtts import gTTS
-from canvas import Painter, GifGenerator
 
 class fun(commands.Cog):
     def __init__(self, client):

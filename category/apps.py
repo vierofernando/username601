@@ -12,7 +12,6 @@ from datetime import datetime as t
 sys.path.append(cfg('MODULES_DIR'))
 from decorators import command, cooldown
 from requests import get
-from canvas import Painter
 import wikipediaapi
 from googletrans import Translator, LANGUAGES
 gtr = Translator()

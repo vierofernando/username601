@@ -8,7 +8,6 @@ from decorators import command, cooldown
 # MAKE SURE OWNER HAS ACCESS TO "EVERYTHING"
 import discordgames as Games
 import requests
-from canvas import *
 import algorithm
 from datetime import datetime as t
 from subprocess import run, PIPE

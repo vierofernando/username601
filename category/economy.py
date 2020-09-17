@@ -11,7 +11,6 @@ path.append(cfg('JSON_DIR'))
 from decorators import command, cooldown
 import random
 from json import loads
-from canvas import Painter
 from database import Economy, Shop
 from datetime import datetime
 from algorithm import getfish

@@ -7,7 +7,6 @@ sys.path.append(dirname)
 del dirname
 from username601 import *
 sys.path.append(cfg('MODULES_DIR'))
-from canvas import Painter
 from decorators import command, cooldown
 import random
 from requests import post, get

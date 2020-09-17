@@ -149,6 +149,19 @@ class Painter:
     def get_accent(self, image): return self.get_color_accent(self.thief, image)
     def get_multiple_accents(self, image): return self.get_multiple_color_accents(self.thief, image)
 
+    def among_us(self, url):
+        bg = self.getImage(self.assetpath, 'among_us.png')
+        ava = self.imagefromURL(url).resize((222, 149))
+        col = self.get_accent(url)
+        cnv = Image.new(mode='RGBA', size=(512, 512), color=(0,0,0))
+        draw = ImageDraw.Draw(cnv)
+        draw.rectangle([(0, 0), (512, 512)], fill=col)
+        cnv.paste(bg, (0,0), bg)
+        anothercnv = Image.new(mode='RGB', size=(512, 512), color=(0,0,0))
+        anothercnv.paste(ava, (58, 165))
+        anothercnv.paste(cnv, (0, 0), cnv)
+        return self.buffer(anothercnv)
+
     def gru(self, text1, text2, text3):
         main = self.getImage(self.assetpath, "gru.png")
         draw = ImageDraw.Draw(main)

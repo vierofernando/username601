@@ -13,7 +13,6 @@ from splashes import num2word
 from decorators import command, cooldown
 from datetime import datetime as t
 from database import Dashboard
-from canvas import Painter, GifGenerator
 
 class moderation(commands.Cog):
     def __init__(self, client):
