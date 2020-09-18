@@ -52,15 +52,14 @@ class utils(commands.Cog):
         if '--file' in [i.lower() for i in list(args)]:
             args = tuple([a for a in list(args) if '--file' not in a.lower()])
             sendfile = True
+        else:
+            wait = await ctx.send('{} | Please wait...'.format(emote(self.client, 'loading')))
         url = getUserAvatar(ctx, args)
-        wait = await ctx.send('{} | Please wait...'.format(emote(self.client, 'loading')))
         text = self.client.canvas.imagetoASCII(url)
-        if sendfile:
-            await wait.delete()
-            return await ctx.send(content='{} | Here is your asciified image.'.format(emote(self.client, 'success')), file=discord.File(BytesIO(bytes(text, 'utf-8')), 'ascii.txt'))
+        if sendfile: return await ctx.send(content='{} | Here is your asciified image.'.format(emote(self.client, 'success')), file=discord.File(BytesIO(bytes(text, 'utf-8')), 'ascii.txt'))
         data = post("https://hastebin.com/documents", data=text)
         if data.status_code!=200: return await wait.edit(content="{} | Oops! there was an error on posting it there.".format(emote(self.client, 'error')))
-        return await wait.edit(content='{} | You can see the results at **https://hastebin.com/{}**!'.format(emote(self.client, 'success'), data.json()['key']))
+        return await wait.edit(content='{} | You can see the results at **https://hastebin.com/{}**!\nP.S: Type `{}imgascii <usertag/userid/username> --file` to send it as a file attachment instead (faster)'.format(emote(self.client, 'success'), data.json()['key']))
     
     @command()
     @cooldown(6)
