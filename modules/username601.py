@@ -46,7 +46,11 @@ def ping():
     return round((t.now().timestamp()-a)*1000)
 
 def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
-    if list(args)[0].startswith('<') and list(args)[0].endswith('>'): args[0] = args[0][:-1][1:]
+    if list(args)[0].startswith('<') and list(args)[0].endswith('>'):
+        res = list(args)[0][:-1][1:]
+        temp = list(args)
+        temp[0] = res
+        args = tuple(temp)
     if len(list(args))==0:
         if len(ctx.message.attachments) > 0:
             if ctx.message.attachments[0].filename.split('.')[::-1][0].lower() in ['webp', 'png', 'jpg', 'jpeg']:
