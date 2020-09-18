@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import sys
+from io import BytesIO
 from os import getcwd, name
 dirname = getcwd()+'\\..' if name=='nt' else getcwd()+'/..'
 sys.path.append(dirname)
@@ -47,10 +48,16 @@ class utils(commands.Cog):
     
     @command('img2ascii,imagetoascii,avascii,avatarascii,avatar2ascii,av2ascii')
     @cooldown(5)
-    async def imgascii(self, ctx, *args):
+    async def imgascii(self, ctx, *args, sendfile=False):
+        if '--file' in [i.lower() for i in list(args)]:
+            args = tuple([a for a in list(args) if '--file' not in a.lower()])
+            sendfile = True
         url = getUserAvatar(ctx, args)
         wait = await ctx.send('{} | Please wait...'.format(emote(self.client, 'loading')))
         text = self.client.canvas.imagetoASCII(url)
+        if sendfile:
+            await wait.delete()
+            return await ctx.send(content='{} | Here is your asciified image.'.format(emote(self.client, 'success')), file=discord.File(BytesIO(bytes(text, 'utf-8')), 'ascii.txt'))
         data = post("https://hastebin.com/documents", data=text)
         if data.status_code!=200: return await wait.edit(content="{} | Oops! there was an error on posting it there.".format(emote(self.client, 'error')))
         return await wait.edit(content='{} | You can see the results at **https://hastebin.com/{}**!'.format(emote(self.client, 'success'), data.json()['key']))
