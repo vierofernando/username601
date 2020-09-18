@@ -57,8 +57,12 @@ class utils(commands.Cog):
         url = getUserAvatar(ctx, args)
         text = self.client.canvas.imagetoASCII(url)
         if sendfile: return await ctx.send(content='{} | Here is your asciified image.'.format(emote(self.client, 'success')), file=discord.File(BytesIO(bytes(text, 'utf-8')), 'ascii.txt'))
-        data = post("https://hastebin.com/documents", data=text)
-        if data.status_code!=200: return await wait.edit(content="{} | Oops! there was an error on posting it there.".format(emote(self.client, 'error')))
+        try:
+            data = post("https://hastebin.com/documents", data=text, timeout=2.5)
+            assert data.status_code == 200
+        except:
+            await wait.delete()
+            return await ctx.send(content='{} | So uhhh the API seems a bit slow so i decided to send it as an attachment here'.format(emote(self.client, 'error')), file=discord.File(BytesIO(bytes(text, 'utf-8')), 'ascii.txt'))
         return await wait.edit(content='{} | You can see the results at **https://hastebin.com/{}**!\nP.S: Type `{}imgascii <usertag/userid/username> --file` to send it as a file attachment instead (faster)'.format(emote(self.client, 'success'), data.json()['key']))
     
     @command()
