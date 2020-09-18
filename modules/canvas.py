@@ -461,7 +461,6 @@ class Painter:
     def imagetoASCII(self, url):
         im = self.imagefromURL(url).resize((300, 300)).rotate(90).convert('RGB')
         im = im.resize((int(list(im.size)[0]/3)-60, int(list(im.size)[1]/3)))
-        im = ImageOps.mirror(im)
         total_str = ""
         for i in range(im.width):
             for j in range(im.height):
@@ -472,7 +471,7 @@ class Painter:
                 elif br in range(150, 200): total_str += '#'
                 else: total_str += '@'
             total_str += '\n'
-        return total_str
+        return '\n'.join([i[::-1] for i in total_str.split('\n')])
     
     def spotify(self, details):
         url = details['url']
