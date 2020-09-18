@@ -18,7 +18,7 @@ class games(commands.Cog):
     def __init__(self, client):
         self.client = client
     
-    @command('imposter,among-us,among_us,impostor')
+    @command('imposter,among-us,among_us,impostor,crew,crewmate,crew-mate')
     @cooldown(3)
     async def amongus(self, ctx, *args):
         async with ctx.channel.typing():
