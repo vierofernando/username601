@@ -46,9 +46,16 @@ def ping():
     return round((t.now().timestamp()-a)*1000)
 
 def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
+    if list(args)[0].startswith('<') and list(args)[0].endswith('>'): args[0] = args[0][:-1][1:]
     if len(list(args))==0:
+        if len(ctx.message.attachments) > 0:
+            if ctx.message.attachments[0].filename.split('.')[::-1][0].lower() in ['webp', 'png', 'jpg', 'jpeg']:
+                return ctx.message.attachments[0].url
         if allowgif: return str(ctx.author.avatar_url).replace('.webp?size=1024', '.png?size'+str(size))
         else: return str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size'+str(size))
+    elif len(list(args))==1 and list(args)[0].startswith('http'):
+        if list(args)[0].split('.')[::-1][0].lower() in ['png', 'webp', 'jpg', 'jpeg']:
+            return list(args)[0]
     if len(ctx.message.mentions)>0:
         if not allowgif: return str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', f'.png?size={size}')
         return str(ctx.message.mentions[0].avatar_url).replace('?size=1024', f'?size={size}')

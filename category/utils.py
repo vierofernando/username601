@@ -22,14 +22,11 @@ class utils(commands.Cog):
     @command('colorthief,getcolor,accent,accentcolor,accent-color,colorpalette,color-palette')
     @cooldown(3)
     async def palette(self, ctx, *args):
-        url, person = getUserAvatar(ctx, args), getUser(ctx, args)
+        url = getUserAvatar(ctx, args)
         async with ctx.channel.typing():
             data = self.client.canvas.get_multiple_accents(url)
             file = discord.File(self.client.canvas.get_palette(data), 'palette.png')
-            em = discord.Embed(title=f'{person.name}\'s avatar color palette', color=discord.Colour.from_rgb(
-                data[0]['r'], data[0]['g'], data[0]['b']
-            )).set_thumbnail(url=url).set_image(url='attachment://palette.png')
-            return await ctx.send(file=file, embed=em)
+            return await ctx.send(file=file)
 
     @command('isitup,webstatus')
     @cooldown(2)
