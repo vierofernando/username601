@@ -4,7 +4,8 @@ from sys import path
 from datetime import datetime as t
 from random import choice
 import requests
-from username601 import time_encode
+try: from modules.username601 import time_encode
+except: from username601 import time_encode
 database = MongoClient(os.getenv('DB_LINK'))['username601']
 
 class Dashboard:

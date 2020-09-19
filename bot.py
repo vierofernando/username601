@@ -5,17 +5,18 @@ import sys
 sys.path.append(cfg('MODULES_DIR'))
 
 # LOCAL FILES
-from database import (
+from modules.database import (
     Economy, selfDB, Dashboard, Shop
 )
-import discordgames as Games
-import splashes as src
-from canvas import Painter, GifGenerator
+import modules.discordgames as Games
+import modules.splashes as src
+import modules.username601 as utils
+import modules.algorithm as algorithm
+from modules.canvas import Painter, GifGenerator
 
 # EXTERNAL PACKAGES
 import os
 from datetime import datetime as t
-from requests import post
 import discord
 from discord.ext import commands, tasks
 import random
@@ -28,15 +29,24 @@ setattr(client, 'canvas', Painter(cfg('ASSETS_DIR'), cfg('FONTS_DIR')))
 setattr(client, 'gif', GifGenerator(cfg('ASSETS_DIR'), cfg('FONTS_DIR')))
 setattr(client, 'last_downtime', t.now().timestamp())
 setattr(client, 'command_uses', 0)
+setattr(client, 'utils', utils)
+setattr(client, 'economy', Economy)
+setattr(client, 'dashboard', Dashboard)
+setattr(client, 'selfDB', selfDB)
+setattr(client, 'shop', Shop)
+setattr(client, 'algorithm', algorithm)
+setattr(client, 'library', src)
+os.environ['BOT_MODULES_DIR'] = cfg('MODULES_DIR')
+os.environ['BOT_JSON_DIR'] = cfg('JSON_DIR')
 
 @client.event
 async def on_ready():
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="👻Botghost.com👻 | Type "+cfg('PREFIX')+"help for command"))
-    for i in os.listdir('./category'):
+    for i in os.listdir('./{}'.format(cfg('COGS_DIRNAME'))):
         if not i.endswith('.py'): continue
         print('[BOT] Loaded cog: '+str(i[:-3]))
         try:
-            client.load_extension('category.{}'.format(i[:-3]))
+            client.load_extension('{}.{}'.format(cfg('COGS_DIRNAME'), i[:-3]))
         except Exception as e:
             print('error on loading cog '+str(i[:-3])+': '+str(e))
             pass

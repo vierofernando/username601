@@ -1,7 +1,8 @@
 import random
 import requests
 from sys import path
-from username601 import *
+try: from modules.username601 import *
+except: from username601 import *
 path.append(cfg('JSON_DIR'))
 from json import loads
 def randomtroll():
