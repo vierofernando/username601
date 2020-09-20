@@ -25,7 +25,7 @@ class fun(commands.Cog):
     @command('talk,gtts,texttospeech,text-to-speech')
     @cooldown(5)
     async def tts(self, ctx, *args):
-        if len(list(args))==0: raise noArguments()
+        if len(list(args))==0: raise self.client.utils.noArguments()
         res = BytesIO()
         tts = gTTS(text=' '.join(list(args)), lang='en', slow=False)
         tts.write_to_fp(res)

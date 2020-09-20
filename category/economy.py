@@ -18,7 +18,7 @@ class economy(commands.Cog):
     @cooldown(60)
     async def beg(self, ctx):
         c = random.randint(1, 3)
-        if self.client.db.Economy.get(ctx.author.id)==None: raise noProfile()
+        if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.noProfile()
         if c==1:
             award = random.randint(100, 500)
             self.client.db.Economy.addbal(ctx.author.id, award)
@@ -28,7 +28,7 @@ class economy(commands.Cog):
     @command('fishing')
     @cooldown(30)
     async def fish(self, ctx):
-        if self.client.db.Economy.get(ctx.author.id)==None: raise noProfile()
+        if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.noProfile()
         wait = await ctx.send('{} | {}'.format(self.client.utils.emote(self.client, 'loading'), random.choice(
             loads(open('/app/assets/json/fish.json', 'r').read())['waiting']
         )))
@@ -44,7 +44,7 @@ class economy(commands.Cog):
     @cooldown(7)
     async def buylist(self, ctx):
         source = ctx.author if len(ctx.message.mentions)==0 else ctx.message.mentions[0]
-        if self.client.db.Economy.get(ctx.author.id)==None: raise noProfile()
+        if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.noProfile()
         try:
             data = self.client.db.Economy.getBuyList(source)
             assert data['error']==False, data['ctx']
@@ -88,7 +88,7 @@ class economy(commands.Cog):
     @cooldown(3)
     async def buy(self, ctx, *args):
         if len(list(args))==0: return await ctx.send('{} | Please use the following parameters:\n`{}buy <name>`'.format(self.client.utils.emote(self.client, 'error'), self.client.utils.prefix))
-        if self.client.db.Economy.get(ctx.author.id)==None: raise noProfile()
+        if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.noProfile()
         try:
             data = self.client.db.Shop.buy(' '.join(list(args)), ctx.author)
             assert data['error']==False, data['ctx']
@@ -114,7 +114,7 @@ class economy(commands.Cog):
     async def reset(self, ctx):
         wait = await ctx.send(self.client.utils.emote(self.client, 'loading')+" | Please wait...")
         data = self.client.db.Economy.get(ctx.author.id)
-        if data==None: raise noProfile()
+        if data==None: raise self.client.utils.noProfile()
         else:
             await wait.edit(content=':thinking: | Are you sure? This action is irreversible!\n(Reply with yes/no)')
             def check_is_auth(m):
@@ -134,7 +134,7 @@ class economy(commands.Cog):
     async def work(self, ctx):
         wait = await ctx.send(self.client.utils.emote(self.client, 'loading')+" | Please wait...")
         data = self.client.db.Economy.get(ctx.author.id)
-        if data==None: raise noProfile()
+        if data==None: raise self.client.utils.noProfile()
         else:
             reward = str(random.randint(100, 500))
             new_data = self.client.db.Economy.addbal(ctx.author.id, int(reward))
@@ -146,7 +146,7 @@ class economy(commands.Cog):
     @cooldown(15)
     async def daily(self, ctx, *args):
         wait = await ctx.send(self.client.utils.emote(self.client, 'loading')+" | Please wait...")
-        if self.client.db.Economy.get(ctx.author.id)==None: raise noProfile()
+        if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.noProfile()
         else:
             obj = self.client.db.Economy.can_vote(ctx.author.id)
             if obj['bool']:
@@ -231,7 +231,7 @@ class economy(commands.Cog):
     async def deposit(self, ctx, *args):
         if len(list(args))==0: return await ctx.send('{} | How many money?\nOr use `1dep all` to deposit all of your money.'.format(self.client.utils.emote(self.client, 'error')))
         data = self.client.db.Economy.get(ctx.author.id)
-        if data==None: raise noProfile()
+        if data==None: raise self.client.utils.noProfile()
         if list(args)[0].lower()=='all':
             self.client.db.Economy.deposit(ctx.author.id, data['bal'])
             return await ctx.send('{} | OK. Deposited all of your bobux to the username601 bank.'.format(self.client.utils.emote(self.client, 'success')))
@@ -249,7 +249,7 @@ class economy(commands.Cog):
     async def withdraw(self, ctx, *args):
         if len(list(args))==0: return await ctx.send('{} | How many money?\nOr use `1widthdraw all` to get money from the bank.'.format(self.client.utils.emote(self.client, 'error')))
         data = self.client.db.Economy.get(ctx.author.id)
-        if data==None: raise noProfile()
+        if data==None: raise self.client.utils.noProfile()
         if list(args)[0].lower()=='all':
             self.client.db.Economy.withdraw(ctx.author.id, data['bankbal'])
             return await ctx.send('{} | OK. Withdrawed all of your bobux from the username601 bank.'.format(self.client.utils.emote(self.client, 'success')))
@@ -302,7 +302,7 @@ class economy(commands.Cog):
             else:
                 wait = await ctx.send(self.client.utils.emote(self.client, 'loading')+' | Please wait...')
                 if self.client.db.Economy.get(ctx.author.id)==None:
-                    raise noProfile()
+                    raise self.client.utils.noProfile()
                 else:
                     data = self.client.db.Economy.setdesc(ctx.author.id, str(' '.join(list(args))))
                     if data=='error':
@@ -315,7 +315,7 @@ class economy(commands.Cog):
         wait = await ctx.send(self.client.utils.emote(self.client, 'loading')+" | Please wait...")
         src, ava = self.client.utils.getUser(ctx, args), self.client.utils.getUserAvatar(ctx, args)
         if self.client.db.Economy.get(src.id)==None:
-            raise noProfile()
+            raise self.client.utils.noProfile()
         else:
             data = self.client.db.Economy.getProfile(src.id, [i.id for i in ctx.guild.members if not i.bot])
             bfr, aft = data['main'], data['after']
