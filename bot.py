@@ -58,7 +58,7 @@ async def on_member_join(member):
     # SEND WELCOME CHANNEL
     welcome_message, welcome_channel = database.Dashboard.send_welcome(member, discord), database.Dashboard.get_welcome_channel(member.guild.id)
     if welcome_message!=None and welcome_channel!=None: await member.guild.get_channel(welcome_channel).send(embed=welcome_message)
-    data = database.database.Dashboard.add_autorole(member.guild.id)
+    data = database.Dashboard.add_autorole(member.guild.id)
     if data.isnumeric():
         # AUTOROLE
         await member.add_roles(member.guild.get_role(int(data)))
