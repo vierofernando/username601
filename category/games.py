@@ -167,9 +167,9 @@ class games(commands.Cog):
             embed.add_field(name=str(ctx.author.name), value=':'+given+':', inline="True")
             embed.add_field(name='Username601', value=':'+str(emojiArray[ran])+':', inline="True")
             await main.edit(embed=embed)
-            if msgId==1 and self.client.db.economy.get(ctx.author.id)!=None:
+            if msgId==1 and self.client.db.Economy.get(ctx.author.id)!=None:
                 reward = random.randint(5, 100)
-                self.client.db.economy.addbal(ctx.author.id, reward)
+                self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thank you for playing! you earned '+str(reward)+' as a prize!')
 
     @command('dice,flipcoin,flipdice,coinflip,diceflip,rolldice')
@@ -178,15 +178,15 @@ class games(commands.Cog):
         if 'coin' in ctx.message.content:
             res = random.choice(['***heads!***', '***tails!***'])
             await ctx.send(res)
-            if len(list(args))>0 and args[0].lower()==res.replace('*', '').replace('!', '') and self.client.db.economy.get(ctx.author.id)!=None:
+            if len(list(args))>0 and args[0].lower()==res.replace('*', '').replace('!', '') and self.client.db.Economy.get(ctx.author.id)!=None:
                 prize = random.randint(50, 200)
-                self.client.db.economy.addbal(ctx.author.id, prize) ; await ctx.send('your bet was right! you get '+str(prize)+' bobux.')
+                self.client.db.Economy.addbal(ctx.author.id, prize) ; await ctx.send('your bet was right! you get '+str(prize)+' bobux.')
         else:
             res = random.randint(1, 6)
             await ctx.send(':'+src.num2word(res)+':')
-            if len(list(args))>0 and args[0]==str(res) and self.client.db.economy.get(ctx.author.id)!=None:
+            if len(list(args))>0 and args[0]==str(res) and self.client.db.Economy.get(ctx.author.id)!=None:
                 prize = random.randint(50, 100)
-                self.client.db.economy.addbal(ctx.author.id, prize) ; await ctx.send('your bet was right! you get '+str(prize)+' bobux.')
+                self.client.db.Economy.addbal(ctx.author.id, prize) ; await ctx.send('your bet was right! you get '+str(prize)+' bobux.')
 
     @command('guessav,avatarguess,avguess,avatargame,avgame')
     @cooldown(30)
@@ -230,9 +230,9 @@ class games(commands.Cog):
                 return await ctx.send(':pensive: No one? Okay then, the answer is: '+str(corr_order)+'. '+str(corr_name))
             if str(reaction.emoji)==str(corr_order):
                 await ctx.send(self.client.utils.emote(self.client, 'success') +' | <@'+str(ctx.author.id)+'>, You are correct! :tada:')
-                if self.client.db.economy.get(ctx.author.id)!=None:
+                if self.client.db.Economy.get(ctx.author.id)!=None:
                     reward = random.randint(5, 100)
-                    self.client.db.economy.addbal(ctx.author.id, reward)
+                    self.client.db.Economy.addbal(ctx.author.id, reward)
         
                     await ctx.send('thanks for playing! You received '+str(reward)+' extra bobux!')
             else:
@@ -273,9 +273,9 @@ class games(commands.Cog):
             await main.add_reaction('😔')
         if str(reaction.emoji)==str(corr_order):
             await ctx.send(self.client.utils.emote(self.client, 'success') +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
-            if self.client.db.economy.get(ctx.author.id)!=None:
+            if self.client.db.Economy.get(ctx.author.id)!=None:
                 reward = random.randint(5, 150)
-                self.client.db.economy.addbal(ctx.author.id, reward)
+                self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! You obtained '+str(reward)+' bobux in total!')
         else:
             await ctx.send(self.client.utils.emote(self.client, 'error') +' | <@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr_order)+'.')
@@ -296,9 +296,9 @@ class games(commands.Cog):
             return await ctx.send(':pensive: No one? Okay then, the answer is: {}.'.format(answer))
         if str(trying.content)==str(answer):
             await ctx.send(self.client.utils.emote(self.client, 'success') +' | <@'+str(ctx.author.id)+'>, You are correct! :tada:')
-            if self.client.db.economy.get(ctx.author.id)!=None:
+            if self.client.db.Economy.get(ctx.author.id)!=None:
                 reward = random.randint(5, 50)
-                self.client.db.economy.addbal(ctx.author.id, reward)
+                self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! we added an extra '+str(reward)+' bobux to your profile.')
         else:
             await ctx.send(self.client.utils.emote(self.client, 'error') +' | <@'+str(ctx.author.id)+'>, Incorrect. The answer is {}.'.format(answer))
@@ -322,9 +322,9 @@ class games(commands.Cog):
             await ctx.send(embed=newembed)
             if '\_ ' not in ''.join(main_guess_hid):
                 await ctx.send(f'Congratulations! <@{str(playing_with_id)}> win! :tada:\nThe answer is "'+str(''.join(main_guess_cor))+'".')
-                if self.client.db.economy.get(ctx.author.id)!=None:
+                if self.client.db.Economy.get(ctx.author.id)!=None:
                     reward = random.randint(5, 500)
-                    self.client.db.economy.addbal(ctx.author.id, reward)
+                    self.client.db.Economy.addbal(ctx.author.id, reward)
                     await ctx.send('thanks for playing! you get an extra '+str(reward)+' bobux!')
                 gameplay = False ; break
             if level>7:
@@ -372,9 +372,9 @@ class games(commands.Cog):
             if jackpot:
                 msgslot = 'JACKPOT!'
                 col = self.client.utils.get_embed_color(discord)
-            if self.client.db.economy.get(ctx.author.id)!=None:
+            if self.client.db.Economy.get(ctx.author.id)!=None:
                 reward = random.randint(500, 1000)
-                self.client.db.economy.addbal(ctx.author.id, reward)
+                self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! you received a whopping '+str(reward)+' bobux!')
         else:
             msgslot = 'You lose... Try again!'
@@ -440,9 +440,9 @@ class games(commands.Cog):
                     attempts = int(attempts) - 1
                 if int(trying.content)==num:
                     await ctx.send(self.client.utils.emote(self.client, 'success') +' | You are correct!\n**The answer is '+str(num)+'!**')
-                    if self.client.db.economy.get(ctx.author.id)!=None:
+                    if self.client.db.Economy.get(ctx.author.id)!=None:
                         reward = random.randint(5, 50)
-                        self.client.db.economy.addbal(ctx.author.id, reward)
+                        self.client.db.Economy.addbal(ctx.author.id, reward)
                         await ctx.send('thanks for playing! You get an extra '+str(reward)+' bobux!')
                     gameplay = False
                     break
@@ -478,9 +478,9 @@ class games(commands.Cog):
             await wait.add_reaction('😔')
         if str(reaction.emoji)==str(corr):
             await ctx.send(self.client.utils.emote(self.client, 'success') +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
-            if self.client.db.economy.get(ctx.author.id)!=None:
+            if self.client.db.Economy.get(ctx.author.id)!=None:
                 reward = random.randint(250, 400)
-                self.client.db.economy.addbal(ctx.author.id, reward)
+                self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! You get also a '+str(reward)+' bobux as a prize!')
         else:
             await ctx.send(self.client.utils.emote(self.client, 'error') +' | <@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr)+'.')
