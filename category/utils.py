@@ -349,7 +349,7 @@ class utils(commands.Cog):
     async def embed(self, ctx, *args):
         if '(title:' not in list(args) or '(desc:' not in list(args):
             if len(list(args))==0:
-                await message.channel.send(str(self.client.utils.emote(self.client, 'error'))+' | no args for you.')
+                await ctx.send(str(self.client.utils.emote(self.client, 'error'))+' | no args for you.')
             else:
                 try:
                     await ctx.send(embed=discord.Embed(
@@ -374,9 +374,9 @@ class utils(commands.Cog):
                     else: hexer = msg.split('(hex:')[1].split(')')[0]
                     arr = convertrgb(hexer, '0')
                     embed = discord.Embed(title=title_e, description=desc_e, colour=discord.Colour.from_rgb(arr[0], arr[1], arr[2]))
-                await message.channel.send(embed=embed)
+                await ctx.send(embed=embed)
             except Exception as e:
-                await message.channel.send(str(self.client.utils.emote(self.client, 'error')) + f' | An error occurd. For programmers: ```{e}```')
+                await ctx.send(str(self.client.utils.emote(self.client, 'error')) + f' | An error occurd. For programmers: ```{e}```')
 
     @command('colourinfo,color-info,randomcolor,randomcolour,colour-info')
     @cooldown(10)
