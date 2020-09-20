@@ -33,7 +33,7 @@ class economy(commands.Cog):
             loads(open('/app/assets/json/fish.json', 'r').read())['waiting']
         )))
         await sleep(random.randint(3, 10))
-        res = self.client.algorithm.randomfish()
+        res = self.client.algorithm.getfish()
         if res['catched']:
             awards = random.randint(res['ctx']['worth']['min'], res['ctx']['worth']['max'])
             self.client.db.Economy.addbal(ctx.author.id, awards)
