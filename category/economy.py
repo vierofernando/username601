@@ -56,7 +56,7 @@ class economy(commands.Cog):
     @cooldown(5)
     async def addproduct(self, ctx, *args):
         if len(list(args))==0: return await ctx.send('{} | Please use the following parameters:\n`{}addshop <price> <name>`'.format(self.client.utils.emote(self.client, 'error'), self.client.utils.prefix))
-        if not ctx.author.guild_permissions.manage_guild: return await ctx.send('{} | You do not have the correct permissions to modify the server\'s self.client.shop.'.format(self.client.utils.emote(self.client, 'error')))
+        if not ctx.author.guild_permissions.manage_guild: return await ctx.send('{} | You do not have the correct permissions to modify the server\'s shop.'.format(self.client.utils.emote(self.client, 'error')))
         try:
             price = int(list(args)[0])
             extra = '' if price in range(5, 1000000) else 'Invalid price. Setting price to default: 1000'
@@ -73,7 +73,7 @@ class economy(commands.Cog):
     @cooldown(5)
     async def delproduct(self, ctx, *args):
         if len(list(args))==0: return await ctx.send('{} | Please use the following parameters:\n`{}delproduct <name>` or to delete all stored in the shop, use `{}delproduct all`'.format(self.client.utils.emote(self.client, 'error'), self.client.utils.prefix, self.client.utils.prefix))
-        if not ctx.author.guild_permissions.manage_guild: return await ctx.send('{} | You do not have the correct permissions to modify the server\'s self.client.shop.'.format(self.client.utils.emote(self.client, 'error')))
+        if not ctx.author.guild_permissions.manage_guild: return await ctx.send('{} | You do not have the correct permissions to modify the server\'s shop.'.format(self.client.utils.emote(self.client, 'error')))
         if list(args)[0].lower()=='all':
             self.client.db.Shop.delete_shop(ctx.guild)
             return await ctx.send('{} | OK. All data for the shop is deleted.'.format(self.client.utils.emote(self.client, 'success')))
