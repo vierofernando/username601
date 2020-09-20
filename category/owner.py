@@ -1,11 +1,10 @@
 import discord
-from discord.ext import commands
 import sys
 import os
+import requests
 sys.path.append(os.environ['BOT_MODULES_DIR'])
 from decorators import command, cooldown
-import requests
-import algorithm
+from discord.ext import commands
 from datetime import datetime as t
 from subprocess import run, PIPE
 from inspect import isawaitable
@@ -55,8 +54,7 @@ class owner(commands.Cog):
         data = requests.post('https://useless-api--vierofernando.repl.co/postprogrammermeme', headers={
             'superdupersecretkey': os.getenv('USELESSAPI'),
             'url': url
-        })
-        data = data.json()
+        }).json()
         try:
             if data['success']: return await ctx.message.add_reaction(self.client.utils.emote(self.client, 'success'))
         except Exception as e:
@@ -90,14 +88,14 @@ class owner(commands.Cog):
     @command()
     async def fban(self, ctx, *args):
         if int(ctx.author.id)==self.client.utils.cfg('OWNER_ID', integer=True):
-            self.client.selfDB.feedback_ban(int(list(args)[0]), str(' '.join(list(args)[1:len(list(args))])))
+            self.client.db.selfDB.feedback_ban(int(list(args)[0]), str(' '.join(list(args)[1:len(list(args))])))
             await ctx.message.add_reaction(self.client.utils.emote(self.client, 'success'))
         else:
             await ctx.send(self.client.utils.emote(self.client, 'error') +' | You are not the owner, nerd.')
     @command()
     async def funban(self, ctx, *args):
         if int(ctx.author.id)==self.client.utils.cfg('OWNER_ID', integer=True):
-            data = self.client.selfDB.feedback_unban(int(list(args)[0]))
+            data = self.client.db.selfDB.feedback_unban(int(list(args)[0]))
             if data=='200': await ctx.message.add_reaction(self.client.utils.emote(self.client, 'success'))
             else: await ctx.message.add_reaction(self.client.utils.emote(self.client, 'error'))
         else:

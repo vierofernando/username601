@@ -5,7 +5,7 @@ from requests import get
 import json
 import random
 try: from modules.username601 import *
-except: from username601 import *
+except: from .username601 import *
 from colorthief import ColorThief
 
 def getFont(fontpath, fontname, size, otf=False):

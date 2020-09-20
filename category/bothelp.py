@@ -129,7 +129,7 @@ class bothelp(commands.Cog):
             await ctx.send(self.client.utils.emote(self.client, 'error')+' | Do NOT send discord invites through feedback! Use the advertising channel in our support server instead!')
         else:
             wait = await ctx.send(self.client.utils.emote(self.client, 'loading') + ' | Please wait... Transmitting data to owner...')
-            banned = self.client.selfDB.is_banned(ctx.author.id)
+            banned = self.client.db.selfDB.is_banned(ctx.author.id)
             if not banned:
                 try:
                     fb = ' '.join(list(args))
@@ -150,7 +150,7 @@ class bothelp(commands.Cog):
     async def ping(self, ctx):
         msgping = str(round((t.now().timestamp() - ctx.message.created_at.timestamp())*1000))
         wait = await ctx.send('pinging...')
-        dbping, extras = self.client.selfDB.ping(), ''
+        dbping, extras = self.client.db.selfDB.ping(), ''
         if self.client.utils.cfg('HOST_URL').lower()!='none':
             webping = ping()
             extras = f'\n**Hosting latency: **{webping} ms.'

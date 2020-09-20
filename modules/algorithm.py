@@ -1,6 +1,6 @@
 from random import choice, randint
 import json
-from username601 import *
+from .username601 import *
 
 def getfish():
     res, found, ctx = json.loads(open(cfg('JSON_DIR')+'/fish.json', 'r').read()), False, None

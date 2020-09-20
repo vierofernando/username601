@@ -1,26 +1,10 @@
 print('Please wait...')
-from modules.username601 import *
 
-import sys
-sys.path.append(cfg('MODULES_DIR'))
-
-# LOCAL FILES
-from modules.database import (
-    Economy, selfDB, Dashboard, Shop
-)
-import modules.discordgames as Games
-import modules.splashes as src
-import modules.username601 as utils
-import modules.algorithm as algorithm
-from modules.canvas import Painter, GifGenerator
-
-# EXTERNAL PACKAGES
-import os
+from modules import *
 from datetime import datetime as t
+from discord.ext import commands
+from os import environ, listdir
 import discord
-from discord.ext import commands, tasks
-import random
-import asyncio
 
 # DECLARATION AND STUFF
 client = commands.Bot(command_prefix=prefix)
@@ -29,20 +13,18 @@ setattr(client, 'canvas', Painter(cfg('ASSETS_DIR'), cfg('FONTS_DIR')))
 setattr(client, 'gif', GifGenerator(cfg('ASSETS_DIR'), cfg('FONTS_DIR')))
 setattr(client, 'last_downtime', t.now().timestamp())
 setattr(client, 'command_uses', 0)
-setattr(client, 'utils', utils)
-setattr(client, 'economy', Economy)
-setattr(client, 'dashboard', Dashboard)
-setattr(client, 'selfDB', selfDB)
-setattr(client, 'shop', Shop)
+setattr(client, 'utils', username601)
+setattr(client, 'db', database)
+setattr(client, 'games', discordgames)
 setattr(client, 'algorithm', algorithm)
-setattr(client, 'library', src)
-os.environ['BOT_MODULES_DIR'] = cfg('MODULES_DIR')
-os.environ['BOT_JSON_DIR'] = cfg('JSON_DIR')
+setattr(client, 'library', splashes)
+environ['BOT_MODULES_DIR'] = cfg('MODULES_DIR')
+environ['BOT_JSON_DIR'] = cfg('JSON_DIR')
 
 @client.event
 async def on_ready():
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="👻Botghost.com👻 | Type "+cfg('PREFIX')+"help for command"))
-    for i in os.listdir('./{}'.format(cfg('COGS_DIRNAME'))):
+    for i in listdir('./{}'.format(cfg('COGS_DIRNAME'))):
         if not i.endswith('.py'): continue
         print('[BOT] Loaded cog: '+str(i[:-3]))
         try:
@@ -56,7 +38,7 @@ async def on_ready():
 async def on_raw_reaction_add(payload):
     # IF IS NOT STAR EMOJI, IGNORE
     if str(payload.emoji)!='⭐': return
-    data = Dashboard.getStarboardChannel(None, guildid=payload.guild_id)
+    data = database.Dashboard.getStarboardChannel(None, guildid=payload.guild_id)
     if data==None: return
     try:
         messages = await client.get_channel(data['channelid']).history().flatten()
@@ -65,7 +47,7 @@ async def on_raw_reaction_add(payload):
     except: return
     message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
     if len(message.reactions) == data['starlimit']:
-        await client.get_channel(data['channelid']).send(content=f'ID: {message.id}', embed=Dashboard.sendStarboard(discord, message))
+        await client.get_channel(data['channelid']).send(content=f'ID: {message.id}', embed=database.Dashboard.sendStarboard(discord, message))
 
 @client.event
 async def on_command_completion(ctx):
@@ -74,14 +56,14 @@ async def on_command_completion(ctx):
 @client.event
 async def on_member_join(member):
     # SEND WELCOME CHANNEL
-    welcome_message, welcome_channel = Dashboard.send_welcome(member, discord), Dashboard.get_welcome_channel(member.guild.id)
+    welcome_message, welcome_channel = database.Dashboard.send_welcome(member, discord), database.Dashboard.get_welcome_channel(member.guild.id)
     if welcome_message!=None and welcome_channel!=None: await member.guild.get_channel(welcome_channel).send(embed=welcome_message)
-    data = Dashboard.add_autorole(member.guild.id)
+    data = database.database.Dashboard.add_autorole(member.guild.id)
     if data.isnumeric():
         # AUTOROLE
         await member.add_roles(member.guild.get_role(int(data)))
     if member.name.startswith('!'):
-        if not Dashboard.getDehoister(member.guild): return
+        if not database.Dashboard.getDehoister(member.guild): return
         try: await member.edit(nick='Dehoisted user')
         except: pass
 
@@ -90,22 +72,19 @@ async def on_member_update(before, after):
     if before.nick == after.nick: return
     elif after.nick==None: return
     if after.nick.startswith('!'):
-        if not Dashboard.getDehoister(after.guild.id): return
+        if not database.Dashboard.getDehoister(after.guild.id): return
         try: await after.edit(nick='Dehoisted user')
         except: pass
 @client.event
 async def on_member_remove(member):
-    # REMOVE ALL WARNS
-    Dashboard.clearWarn(member)
-
-    # SEND GOODBYE CHANNEL
-    goodbye_message, goodbye_channel = Dashboard.send_goodbye(member, discord), Dashboard.get_welcome_channel(member.guild.id)
+    database.Dashboard.clearWarn(member)
+    goodbye_message, goodbye_channel = database.Dashboard.send_goodbye(member, discord), database.Dashboard.get_welcome_channel(member.guild.id)
     if goodbye_message!=None and goodbye_channel!=None: await member.guild.get_channel(goodbye_channel).send(embed=goodbye_message)
 
 @client.event
 async def on_guild_channel_create(channel):
     if str(channel.type) not in ['text', 'voice']: return
-    data = Dashboard.getMuteRole(channel.guild.id)
+    data = database.Dashboard.getMuteRole(channel.guild.id)
     if data==None: return
     if str(channel.type)=='text': return await channel.set_permissions(channel.guild.get_role(data), send_messages=False)
     await channel.set_permissions(channel.guild.get_role(data), connect=False)
@@ -113,14 +92,14 @@ async def on_guild_channel_create(channel):
 @client.event
 async def on_guild_channel_delete(channel):
     # IF CHANNEL MATCHES WITHIN DATABASE, DELETE IT ON DATABASE AS WELL
-    Dashboard.databaseDeleteChannel(channel)
+    database.Dashboard.databaseDeleteChannel(channel)
 
 @client.event
 async def on_guild_role_delete(role):
-    muterole = Dashboard.getMuteRole(role.guild.id)
+    muterole = database.Dashboard.getMuteRole(role.guild.id)
     if muterole==None: return
     if muterole!=role.id: return
-    Dashboard.editMuteRole(role.guild.id, None)
+    database.Dashboard.editMuteRole(role.guild.id, None)
 
 # DELETE THIS @CLIENT.EVENT IF YOU ARE USING THIS CODE
 @client.event
@@ -131,7 +110,7 @@ async def on_guild_join(guild):
 
 @client.event
 async def on_guild_remove(guild):
-    Dashboard.delete_data(guild.id)
+    database.Dashboard.delete_data(guild.id)
     # DELETE THE IF-STATEMENT BELOW IF YOU ARE USING THIS CODE
     if guild.owner.id in [a.id for a in client.get_guild(cfg('SERVER_ID', integer=True)).members]:
         userinsupp = client.get_guild(cfg('SERVER_ID', integer=True)).get_member(guild.owner.id)
@@ -163,9 +142,10 @@ async def on_message(message):
     if message.content.startswith('<@{}>'.format(cfg('BOT_ID'))) or message.content.startswith('<@!{}>'.format(cfg('BOT_ID'))): return await message.channel.send(f'Hello, {message.author.name}! My prefix is `1`. use `1help` for help')
     if message.guild.id==cfg('SERVER_ID', integer=True) and message.author.id==479688142908162059:
         data = int(str(message.embeds[0].description).split('(id:')[1].split(')')[0])
-        if Economy.get(data)==None: return
-        rewards = Economy.daily(data)
-        await client.get_user(data).send(f'Thanks for voting! **You received {rewards} bobux!**')
+        if database.Economy.get(data)==None: return
+        rewards = database.Economy.daily(data)
+        try: await client.get_user(data).send(f'Thanks for voting! **You received {rewards} bobux!**')
+        except: return
     
     # THESE TWO IF STATEMENTS ARE JUST FOR ME ON THE SUPPORT SERVER CHANNEL. YOU CAN DELETE THESE TWO.
     if message.channel.id==700040209705861120: await message.author.add_roles(message.guild.get_role(700042707468550184))
@@ -174,5 +154,5 @@ async def on_message(message):
 
 def Username601():
     print('Logging in to discord...')
-    client.run(os.environ['DISCORD_TOKEN'])
+    client.run(environ['DISCORD_TOKEN'])
 if __name__=='__main__': Username601()

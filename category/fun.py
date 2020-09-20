@@ -1,15 +1,13 @@
 import discord
-from discord.ext import commands
 import sys
+import random
+from discord.ext import commands
 from os import getcwd, name, environ
 sys.path.append(environ['BOT_MODULES_DIR'])
-import random
 from decorators import command, cooldown
-import splashes as src
 from aiohttp import ClientSession
 from io import BytesIO
 import asyncio
-import algorithm
 from gtts import gTTS
 
 class fun(commands.Cog):
@@ -21,7 +19,7 @@ class fun(commands.Cog):
     @cooldown(1)
     async def hentai(self, ctx):
         return await ctx.send(file=discord.File(
-            self.client.canvas.urltoimage(src.randomtroll()), 'SPOILER_nsfw.png'
+            self.client.canvas.urltoimage(self.client.library.randomtroll()), 'SPOILER_nsfw.png'
         ))
 
     @command('talk,gtts,texttospeech,text-to-speech')
@@ -49,7 +47,6 @@ class fun(commands.Cog):
         if len(list(args))==0 or '|' not in ' '.join(list(args)):
             return await msg.edit(content='Please use | to place where the \u202b will be. \u202b')
         await msg.edit(content=' '.join(list(args)).replace('|', '\u202b')+' \u202b')
-        # test\u202bhi \u202b
 
     @command('howlove,friendship,fs')
     @cooldown(2)
@@ -87,7 +84,7 @@ class fun(commands.Cog):
     @command()
     @cooldown(5)
     async def randomavatar(self, ctx, *args):
-        if len(list(args))<1: name = src.randomhash()
+        if len(list(args))<1: name = self.client.library.randomhash()
         else: name = ' '.join(list(args))
         url= 'https://api.adorable.io/avatars/285/{}.png'.format(name)
         await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'random_avatar.png'))
