@@ -19,11 +19,7 @@ class utils(commands.Cog):
         url, person = self.client.utils.getUserAvatar(ctx, args), self.client.utils.getUser(ctx, args)
         async with ctx.channel.typing():
             data = self.client.canvas.get_multiple_accents(url)
-            file = discord.File(self.client.canvas.get_palette(data), 'palette.png')
-            em = discord.Embed(title=f'{person.name}\'s avatar color palette', color=discord.Colour.from_rgb(
-                data[0]['r'], data[0]['g'], data[0]['b']
-            )).set_thumbnail(url=url).set_image(url='attachment://palette.png')
-            return await ctx.send(file=file, embed=em)
+            return await ctx.send(file=discord.File(self.client.canvas.get_palette(data), 'palette.png'))
 
     @command('isitup,webstatus')
     @cooldown(2)
