@@ -4,10 +4,10 @@ from datetime import datetime as t
 from requests import get
 import json
 import random
-try: from modules.username601 import *
-except: from .username601 import *
+from .username601 import *
 from colorthief import ColorThief
 
+def toLocaleString(num): return f'{str(num):,}'
 def getFont(fontpath, fontname, size, otf=False):
     ext = 'ttf' if not otf else 'otf'
     return ImageFont.truetype(f'{fontpath}/{fontname}.{ext}', size)
@@ -109,17 +109,6 @@ def char_process(text, width, font, array=False):
     res[len(res)-1] = res[len(res)-1][:-1]
     if array: return res
     return '\n'.join(res)
-def toLocaleString(a): # sike javascriptors ;)
-    res = ''
-    num = 0
-    for i in list(a)[::-1]:
-        res += i
-        if num > 1:
-            num = -1
-            res += ','
-        num += 1
-    if res[::-1].startswith(','): res = res[:-1]
-    return res[::-1]
 
 class Painter:
 
@@ -129,6 +118,7 @@ class Painter:
         self.imagefromURL = imagefromURL
         self.assetpath = assetpath
         self.fontpath = fontpath
+        self.toLocaleString = toLocaleString
         self.buffer = buffer
         self.drawProgressBar = drawProgressBar
         self.getSongString = getSongString
@@ -139,7 +129,6 @@ class Painter:
         self.process_text = process
         self.add_corners = add_corners
         self.char_process = char_process
-        self.toLocaleString = toLocaleString
         self.flags = json.loads(open(cfg('JSON_DIR')+'/flags.json', 'r').read())
         self.region = json.loads(open(cfg('JSON_DIR')+'/regions.json', 'r').read())
         self.get_multiple_color_accents = get_multiple_color_accents

@@ -16,7 +16,7 @@ class utils(commands.Cog):
     @command('colorthief,getcolor,accent,accentcolor,accent-color,colorpalette,color-palette')
     @cooldown(3)
     async def palette(self, ctx, *args):
-        url, person = getUserAvatar(ctx, args), getUser(ctx, args)
+        url, person = self.client.utils.getUserAvatar(ctx, args), self.client.utils.getUser(ctx, args)
         async with ctx.channel.typing():
             data = self.client.canvas.get_multiple_accents(url)
             file = discord.File(self.client.canvas.get_palette(data), 'palette.png')
@@ -43,7 +43,7 @@ class utils(commands.Cog):
     @command('img2ascii,imagetoascii,avascii,avatarascii,avatar2ascii,av2ascii')
     @cooldown(10)
     async def imgascii(self, ctx, *args):
-        url = getUserAvatar(ctx, args)
+        url = self.client.utils.getUserAvatar(ctx, args)
         wait = await ctx.send('{} | Please wait...'.format(self.client.utils.emote(self.client, 'loading')))
         text = self.client.canvas.imagetoASCII(url)
         data = post("https://hastebin.com/documents", data=text)

@@ -1,15 +1,17 @@
 import random
 import base64
+import requests
 from os import environ
 from os.path import isfile
 from subprocess import run, PIPE
 from json import dumps
+from io import BytesIO
 from urllib.request import urlopen as getapi
 from urllib.parse import quote_plus as urlencode
 from json import loads as jsonify
-import requests
 from configparser import ConfigParser
 from datetime import datetime as t
+from PIL.Image import open as openImage
 class noArguments(Exception): pass
 class noUserFound(Exception): pass
 class noProfile(Exception): pass
@@ -45,10 +47,16 @@ def ping():
     requests.get(url)
     return round((t.now().timestamp()-a)*1000)
 
+# if moment return moment
 def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
     if len(list(args))==0:
         if len(ctx.message.attachments) > 0:
             if ctx.message.attachments[0].filename.split('.')[::-1][0].lower() in ['webp', 'png', 'jpg', 'jpeg']:
+                try:
+                    test = openImage(BytesIO(requests.get(ctx.message.attachments[0].url, timeout=2).content)).size
+                    assert (test[0] < 2048 or test[1] < 2048)
+                except:
+                    return str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size'+str(size))
                 return ctx.message.attachments[0].url
         if allowgif: return str(ctx.author.avatar_url).replace('.webp?size=1024', '.png?size'+str(size))
         else: return str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size'+str(size))
@@ -59,6 +67,11 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
             temp[0] = res
             args = tuple(temp)
         if list(args)[0].split('.')[::-1][0].lower() in ['png', 'webp', 'jpg', 'jpeg']:
+            try:
+                test = openImage(BytesIO(requests.get(list(args)[0], timeout=2).content)).size
+                assert (test[0] < 2048 or test[1] < 2048)
+            except:
+                return str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size'+str(size))
             return list(args)[0]
     if len(ctx.message.mentions)>0:
         if not allowgif: return str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', f'.png?size={size}')
