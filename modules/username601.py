@@ -25,6 +25,14 @@ def cfg(param, integer=False):
     return main_cfg.get('bot', param.lower())
 prefix = cfg('PREFIX')
 
+def randomtroll():
+    return random.choice(loads(open(cfg('JSON_DIR')+'/troll.json', 'r').read()))
+def randomhash():
+    return ''.join([random.choice(list('ABCDEFHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_')) for i in range(random.randint(11, 26))])
+def num2word(num):
+    try: return 'zero,one,two,three,four,five,six,seven,eight,nine'.split(',')[num]
+    except: return None
+
 def emote(client, type):
     return str(client.get_emoji(cfg('EMOJI_'+type.upper(), integer=True)))
 

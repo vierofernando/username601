@@ -19,7 +19,7 @@ class fun(commands.Cog):
     @cooldown(1)
     async def hentai(self, ctx):
         return await ctx.send(file=discord.File(
-            self.client.canvas.urltoimage(self.client.library.randomtroll()), 'SPOILER_nsfw.png'
+            self.client.canvas.urltoimage(self.client.utils.randomtroll()), 'SPOILER_nsfw.png'
         ))
 
     @command('talk,gtts,texttospeech,text-to-speech')
@@ -84,7 +84,7 @@ class fun(commands.Cog):
     @command()
     @cooldown(5)
     async def randomavatar(self, ctx, *args):
-        if len(list(args))<1: name = self.client.library.randomhash()
+        if len(list(args))<1: name = self.client.utils.randomhash()
         else: name = ' '.join(list(args))
         url= 'https://api.adorable.io/avatars/285/{}.png'.format(name)
         await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'random_avatar.png'))

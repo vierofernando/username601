@@ -629,7 +629,7 @@ class moderation(commands.Cog):
             else:
                 if num[1] > num[0]: num = num[::-1]
                 for i in range(num[0], num[1]):
-                    await ctx.message.add_reaction(self.client.library.num2word(i))
+                    await ctx.message.add_reaction(self.client.utils.num2word(i))
 
     @command('createchannel,create-channel,mc')
     @cooldown(10)

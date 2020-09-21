@@ -17,7 +17,6 @@ setattr(client, 'utils', username601)
 setattr(client, 'db', database)
 setattr(client, 'games', discordgames)
 setattr(client, 'algorithm', algorithm)
-setattr(client, 'library', splashes)
 environ['BOT_MODULES_DIR'] = cfg('MODULES_DIR')
 environ['BOT_JSON_DIR'] = cfg('JSON_DIR')
 
