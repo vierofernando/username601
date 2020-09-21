@@ -26,7 +26,7 @@ class owner(commands.Cog):
     @cooldown(2)
     async def announce(self, ctx, *args):
         if ctx.author.id != self.client.utils.cfg('OWNER_ID', integer=True): return
-        data, wr, sc = self.client.dashboard.get_subscribers(), 0, 0
+        data, wr, sc = self.client.db.Dashboard.get_subscribers(), 0, 0
         for i in data:
             try:
                 web = discord.Webhook.from_url(
@@ -40,7 +40,7 @@ class owner(commands.Cog):
                 sc += 1
             except:
                 wr += 1
-                self.client.dashboard.subscribe(None, i['serverid'], reset=True)
+                self.client.db.Dashboard.subscribe(None, i['serverid'], reset=True)
             await sleep(1)
         await ctx.send(f'Done with {sc} success and {wr} fails')
     

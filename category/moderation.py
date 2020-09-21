@@ -28,7 +28,7 @@ class moderation(commands.Cog):
     @command('serverconfig,configuration,serversettings,settings')
     @cooldown(1)
     async def config(self, ctx):
-        data = self.client.dashboard.getData(ctx.guild.id)
+        data = self.client.db.Dashboard.getData(ctx.guild.id)
         if data==None: return await ctx.send('{} | This server does not have any configuration for this bot.'.format(self.client.utils.emote(self.client, 'error')))
         autorole = 'Set to <@&{}>'.format(data['autorole']) if data['autorole']!=None else '<Not set>'
         welcome = 'Set to <#{}>'.format(data['welcome']) if data['welcome']!=None else '<Not set>'
@@ -44,7 +44,7 @@ class moderation(commands.Cog):
     async def mute(self, ctx, *args):
         toMute = self.client.utils.getUser(ctx, args, allownoargs=False)
         if not ctx.author.guild_permissions.manage_messages: return await ctx.send('{} | No `manage messages` permission!'.format(self.client.utils.emote(self.client, 'error')))
-        role = self.client.dashboard.getMuteRole(ctx.guild.id)
+        role = self.client.db.Dashboard.getMuteRole(ctx.guild.id)
         if role==None:
             await ctx.send('{} | Please wait... Setting up...\nThis may take a while if your server has a lot of channels.'.format(self.client.utils.emote(self.client, 'loading')))
             role = await ctx.guild.create_role(name='Muted', color=discord.Colour.from_rgb(0, 0, 1))
@@ -60,7 +60,7 @@ class moderation(commands.Cog):
                 elif str(i.type)=='voice':
                     await i.set_permissions(role, connect=False)
                     ratelimit_counter += 1
-            self.client.dashboard.editMuteRole(ctx.guild.id, role.id)
+            self.client.db.Dashboard.editMuteRole(ctx.guild.id, role.id)
             role = role.id
         role = ctx.guild.get_role(role)
         try:
@@ -74,7 +74,7 @@ class moderation(commands.Cog):
     @cooldown(5)
     async def unmute(self, ctx, *args):
         toUnmute = self.client.utils.getUser(ctx, args, allownoargs=False)
-        roleid = self.client.dashboard.getMuteRole(ctx.guild.id)
+        roleid = self.client.db.Dashboard.getMuteRole(ctx.guild.id)
         if roleid==None: return await ctx.send('{} | He is not muted!\nOr maybe you muted this on other bot... which is not compatible.'.format(self.client.utils.emote(self.client, 'error')))
         elif roleid not in [i.id for i in ctx.message.mentions[0].roles]:
             return await ctx.send('{} | That guy is not muted.'.format(self.client.utils.emote(self.client, 'error')))
@@ -88,15 +88,15 @@ class moderation(commands.Cog):
     @cooldown(10)
     async def dehoister(self, ctx, *args):
         if not ctx.author.guild_permissions.manage_nicknames: return await ctx.send('{} | You need the `Manage Nicknames` permissions!'.format(self.client.utils.emote(self.client, 'error')))
-        data = self.client.dashboard.getDehoister(ctx.guild.id)
+        data = self.client.db.Dashboard.getDehoister(ctx.guild.id)
         if not data: 
-            self.client.dashboard.setDehoister(ctx.guild, True)
+            self.client.db.Dashboard.setDehoister(ctx.guild, True)
             return await ctx.send(embed=discord.Embed(
                 title='Activated dehoister.',
                 description=f'**What is dehoister?**\nDehoister is an automated part of this bot that automatically renames someone that tries to hoist their name (for example: `!ABC`)\n\n**How do i deactivate this?**\nJust type `{self.client.utils.prefix}dehoister`.\n\n**It doesn\'t work for me!**\nMaybe because your role position is higher than me, so i don\'t have the permissions required.',
                 color=self.client.utils.get_embed_color(discord)
             ))
-        self.client.dashboard.setDehoister(ctx.guild, False)
+        self.client.db.Dashboard.setDehoister(ctx.guild, False)
         await ctx.send('{} | Dehoister deactivated.'.format(self.client.utils.emote(self.client, 'success')))
 
     @command()
@@ -109,11 +109,11 @@ class moderation(commands.Cog):
             return await wait.edit(content='{} | You need the `Manage channels` permission.'.format(
                 self.client.utils.emote(self.client, 'error')
             ))
-        starboard_channel = self.client.dashboard.getStarboardChannel(ctx.guild)
+        starboard_channel = self.client.db.Dashboard.getStarboardChannel(ctx.guild)
         if len(list(args))==0:
             if starboard_channel['channelid']==None:
                 channel = await ctx.guild.create_text_channel(name='starboard', topic='Server starboard channel. Every funny/cool posts will be here.')
-                self.client.dashboard.addStarboardChannel(channel, 1)
+                self.client.db.Dashboard.addStarboardChannel(channel, 1)
                 success = self.client.utils.emote(self.client, 'success')
                 return await wait.edit(content=f'{success} | OK. Created a channel <#{str(channel.id)}>. Every starboard will be set there.\nTo remove starboard, type `{self.client.utils.prefix}starboard remove`.\nBy default, starboard requirements are set to 1 reaction. To increase, type `{self.client.utils.prefix}starboard limit <number>`.')
             return await wait.edit(content='', embed=discord.Embed(
@@ -124,14 +124,14 @@ class moderation(commands.Cog):
             ))
         if starboard_channel['channelid']==None: return
         elif list(args)[0].lower().startswith('rem'):
-            self.client.dashboard.removeStarboardChannel(ctx.guild)
+            self.client.db.Dashboard.removeStarboardChannel(ctx.guild)
             return await wait.edit(content='{} | OK. Starboard for this server is deleted.'.format(self.client.utils.emote(self.client, 'success')))
         elif list(args)[0].lower()=='limit':
             try:
                 num = int(list(args)[1])
                 if not num in range(1, 20):
                     return await wait.edit(content='{} | Invalid number.'.format(self.client.utils.emote(self.client, 'error')))
-                self.client.dashboard.setStarboardLimit(num, ctx.guild)
+                self.client.db.Dashboard.setStarboardLimit(num, ctx.guild)
                 await wait.edit(content='{} | Set the limit to {} reactions.'.format(self.client.utils.emote(self.client, 'success'), str(num)))
             except:
                 await wait.edit(content='{} | Invalid number.'.format(self.client.utils.emote(self.client, 'error')))
@@ -156,7 +156,7 @@ class moderation(commands.Cog):
         if len(reason)>100: return await ctx.send('{} | Your reason is toooo longgg!'.format(
             self.client.utils.emote(self.client, 'error')
         ))
-        warned = self.client.dashboard.addWarn(ctx.message.mentions[0], ctx.author, reason)
+        warned = self.client.db.Dashboard.addWarn(ctx.message.mentions[0], ctx.author, reason)
         if warned:
             error = self.client.utils.emote(self.client, 'success')
             return await ctx.send(f'{success} | {ctx.message.mentions[0].name}#{ctx.message.mentions[0].discriminator} was warned by {ctx.author.name}#{ctx.author.discriminator} for the reason *"{reason}"*.')
@@ -167,7 +167,7 @@ class moderation(commands.Cog):
     @cooldown(5)
     async def warnlist(self, ctx):
         source = ctx.author if (len(ctx.message.mentions)==0) else ctx.message.mentions[0]
-        data = self.client.dashboard.getWarns(source)
+        data = self.client.db.Dashboard.getWarns(source)
         if data==None:
             error = self.client.utils.emote(self.client, 'error')
             return await ctx.send(f'{error} | Good news! {source.name} does not have any warns!')
@@ -190,7 +190,7 @@ class moderation(commands.Cog):
         if len(ctx.message.mentions)==0: return await ctx.send('{} | Please TAG someone !!!'.format(
             self.client.utils.emote(self.client, 'error')
         ))
-        unwarned = self.client.dashboard.clearWarn(ctx.message.mentions[0])
+        unwarned = self.client.db.Dashboard.clearWarn(ctx.message.mentions[0])
         if unwarned: return await ctx.send(f'{error} | Successfully unwarned {ctx.message.mentions[0].name}.')
         await ctx.send(f'{error} | An error occurred.')
 
@@ -208,13 +208,13 @@ class moderation(commands.Cog):
                 ))
             else:
                 if list(args)[0].lower()=='disable':
-                    self.client.dashboard.set_welcome(ctx.guild.id, None)
+                    self.client.db.Dashboard.set_welcome(ctx.guild.id, None)
                     await ctx.send("{} | Welcome disabled!".format(self.client.utils.emote(self.client, 'success')))
                 else:
                     try:
                         if list(args)[0].startswith("<#") and list(args)[0].endswith('>'): channelid = int(list(args)[0].split('<#')[1].split('>')[0])
                         else: channelid = int([i.id for i in ctx.guild.channels if str(i.name).lower()==str(''.join(list(args))).lower()][0])
-                        self.client.dashboard.set_welcome(ctx.guild.id, channelid)
+                        self.client.db.Dashboard.set_welcome(ctx.guild.id, channelid)
                         await ctx.send("{} | Success! set the welcome log to <#{}>!".format(self.client.utils.emote(self.client, 'success'), channelid))
                     except Exception as e:
                         await ctx.send("{} | Invalid arguments!".format(self.client.utils.emote(self.client, 'error')))
@@ -233,13 +233,13 @@ class moderation(commands.Cog):
                 ))
             else:
                 if list(args)[0].lower()=='disable':
-                    self.client.dashboard.set_autorole(ctx.guild.id, None)
+                    self.client.db.Dashboard.set_autorole(ctx.guild.id, None)
                     await ctx.send("{} | Autorole disabled!".format(self.client.utils.emote(self.client, 'success')))
                 else:
                     try:
                         if list(args)[0].startswith("<@&") and list(args)[0].endswith('>'): roleid = int(list(args)[0].split('<@&')[1].split('>')[0])
                         else: roleid = int([i.id for i in ctx.guild.roles if str(i.name).lower()==str(' '.join(list(args))).lower()][0])
-                        self.client.dashboard.set_autorole(ctx.guild.id, roleid)
+                        self.client.db.Dashboard.set_autorole(ctx.guild.id, roleid)
                         await ctx.send("{} | Success! set the autorole to **{}!**".format(self.client.utils.emote(self.client, 'success'), ctx.guild.get_role(roleid).name))
                     except:
                         await ctx.send("{} | Invalid arguments!".format(self.client.utils.emote(self.client, 'error')))
