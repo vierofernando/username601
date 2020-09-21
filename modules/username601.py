@@ -68,7 +68,7 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
                 return ctx.message.attachments[0].url
         if allowgif: return str(ctx.author.avatar_url).replace('.webp?size=1024', '.png?size'+str(size))
         else: return str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size'+str(size))
-    elif len(list(args))==1 and list(args)[0].startswith('http'):
+    elif len(list(args))==1 and (list(args)[0].startswith('http') or list(args)[0].startswith('<http')):
         if list(args)[0].startswith('<') and list(args)[0].endswith('>'):
             res = list(args)[0][:-1][1:]
             temp = list(args)

@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import sys
+import time
 import random
 import asyncio
 from os import getcwd, name, environ
@@ -16,31 +17,13 @@ class moderation(commands.Cog):
     @command('jp,joinpos,joindate,jd,howold')
     @cooldown(5)
     async def joinposition(self, ctx, *args):
-        current_time = t.now().timestamp()
-        user = self.client.utils.getUser(ctx, args)
-        wait = await ctx.send('{} | Iterating through {} members...'.format(self.client.utils.emote(self.client, 'loading'), len(ctx.guild.members)))
-        sortedJoins = sorted([current_time - i.joined_at.timestamp() for i in ctx.guild.members])[::-1]
-        num, users = [i for i in range(len(sortedJoins)) if (current_time - user.joined_at.timestamp())==sortedJoins[i]][0], []
-        for i in range(-10, 11):
-            try:
-                placement = (num + i) + 1
-                if placement < 1: continue
-                locate = sortedJoins[num + i]
-                username = [str(i) for i in ctx.guild.members if (current_time- i.joined_at.timestamp())==locate][0].replace('`', '\`').replace('_', '\_').replace('*', '\*').replace('|', '\|')
-                if i == 0:
-                    username = f'__**{username}**__'
-                    placement = f'__**{str(placement)}**__'
-                users.append({
-                    'user': username,
-                    'time': locate,
-                    'order': str(placement)
-                })
-            except IndexError:
-                pass
-        em = discord.Embed(title='{}\' join position'.format(user.name), description='\n'.join([
-            '{}. {} ({} ago)'.format(i['order'], i['user'], self.client.utils.time_encode(round(i['time']))) for i in users
-        ]), color=self.client.utils.get_embed_color(discord))
-        await wait.edit(content='', embed=em)
+
+        start = time.time()
+        members = ctx.guild.members
+        item = ctx.author
+        item_joined = item.joined_at
+        count = len([m for m in members if m.joined_at < item_joined])
+        await ctx.send(embed = discord.Embed(title = str(time.time()-start),description = f"#{count} {item}",colour = bot.colour))
 
     @command('serverconfig,configuration,serversettings,settings')
     @cooldown(1)
