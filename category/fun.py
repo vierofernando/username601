@@ -56,11 +56,13 @@ class fun(commands.Cog):
             result = self.client.algorithm.love_finder(ctx.message.mentions[0].id, ctx.message.mentions[1].id)
             await ctx.send('Love level of {} and {} is **{}%!**'.format(ctx.message.mentions[0].name, ctx.message.mentions[1].name, str(result)))
     
-    @command()
+    @command('echo,reply')
     @cooldown(1)
     async def say(self, ctx, *args):
-        if '--h' in ''.join(list(args)): await ctx.message.delete()
-        await ctx.send(' '.join(list(args)).replace('--h', '').replace('@everyone', '<everyone>').replace('@here', '<here>'))
+        if '--h' in ''.join(list(args)):
+            try: await ctx.message.delete()
+            except: pass
+        await ctx.send(' '.join(list(args)).replace('--h', ''), allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False))
     
     @command()
     @cooldown(1)
