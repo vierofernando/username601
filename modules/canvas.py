@@ -179,7 +179,7 @@ class Painter:
             curs += 30
         return self.buffer(im)
 
-    def scooby(url):
+    def scooby(self, url):
         im = self.imagefromURL(url)
         bg = self.getImage(self.assetpath, 'scooby.png')
         cnv = Image.new(mode='RGB', size=(720, 960), color=(0, 0, 0))
