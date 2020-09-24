@@ -179,6 +179,15 @@ class Painter:
             curs += 30
         return self.buffer(im)
 
+    def scooby(url):
+        im = self.imagefromURL(url)
+        bg = self.getImage(self.assetpath, 'scooby.png')
+        cnv = Image.new(mode='RGB', size=(720, 960), color=(0, 0, 0))
+        cnv.paste(im.resize((100, 93)), (139, 153))
+        cnv.paste(im.resize((194, 213)), (79, 569))
+        cnv.paste(bg, (0, 0), bg)
+        return self.buffer(cnv)
+
     def password(self, bad_pass, good_pass):
         im = self.getImage(self.assetpath, 'pass.png')
         font = self.getFont(self.fontpath, 'Helvetica', 25)
@@ -538,17 +547,6 @@ class Painter:
         W, H = im.size
         draw.text(((W-w)/2,336), msg, font=myFont, fill="white")
         return self.buffer(im)
-    
-    def app(self, src, msg):
-        im, ava = self.getImage(self.assetpath, "app.png"), self.imagefromURL(src).resize((159, 161))
-        W, H = im.size
-        draw, myFont = ImageDraw.Draw(im), self.getFont(self.fontpath, 'Roboto-Bold', 32)
-        w, h = myFont.getsize(msg)
-        draw.text(((W-w)/2,(H-h)/2+75), msg, font=myFont, fill="white")
-        cnv = Image.new(mode='RGB', size=im.size, color=(0,0,0))
-        cnv.paste(ava, (88, 31))
-        cnv.paste(im, (0, 0), im)
-        return self.buffer(cnv)
     
     def ruin(self, ava):
         im = self.getImage(self.assetpath, 'destroyimg.png')

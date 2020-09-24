@@ -16,6 +16,14 @@ class memes(commands.Cog):
         self.rageMetadata = [tuple([int(a) for a in i.split(',')]) for i in self.rawMetadata[0].split(';')]
         self.frogMetadata = self.rawMetadata[1].split(':')
 
+    @command('scoobydoo,reveal,revealed,expose,exposed,scooby-doo')
+    @cooldown(2)
+    async def scooby(self, ctx, *args):
+        url = self.client.utils.getUserAvatar(ctx, args)
+        async with ctx.channel.typing():
+            im = self.client.canvas.scooby(url)
+            return await ctx.send(file=discord.File(im, 'exposed.png'))
+
     @command('petition')
     @cooldown(2)
     async def presentation(self, ctx, *args):
