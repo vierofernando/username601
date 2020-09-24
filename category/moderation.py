@@ -6,6 +6,7 @@ import random
 import asyncio
 from os import getcwd, name, environ
 sys.path.append(environ['BOT_MODULES_DIR'])
+from aiohttp import ClientSession
 from decorators import command, cooldown
 from datetime import datetime as t
 # import Dashboard
@@ -13,6 +14,7 @@ from datetime import datetime as t
 class moderation(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.session = ClientSession()
 
     @command('jp,joinpos,joindate,jd,howold')
     @cooldown(5)
@@ -269,7 +271,13 @@ class moderation(commands.Cog):
             em = list(args)[0].lower()
             if em.startswith('<:a:'): _id, an = em.split(':')[3].split('>')[0], True
             else: _id, an = em.split(':')[2].split('>')[0], False
-            if an: await ctx.send(file=discord.File(self.client.gif.giffromURL('https://cdn.discordapp.com/emojis/{}.gif'.format(_id)), 'emoji.gif'))
+            if an:
+                async with self.session.get('https://cdn.discordapp.com/emojis/{}.gif'.format(_id)) as r:
+                    res = await r.read()
+                    try:
+                        return await ctx.send(file=discord.File(fp=res, filename='emoji.gif'))
+                    except:
+                        return await ctx.send('{} | The emoji file size is too big!'.format(self.client.utils.emotes(self.client, 'error')))
             else: await ctx.send(file=discord.File(self.client.canvas.urltoimage('https://cdn.discordapp.com/emojis/{}.png'.format(_id)), 'emoji.png'))
         except:
             await ctx.send(self.client.utils.emote(self.client, 'error')+' | Invalid emoji.')

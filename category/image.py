@@ -46,17 +46,6 @@ class image(commands.Cog):
                 self.client.canvas.ruin(src), 'ruinedavatar.png'
             ))
 
-    @command('application')
-    @cooldown(1)
-    async def app(self, ctx, *args):
-        src = self.client.utils.getUserAvatar(ctx, args, size=512)
-        elem = self.client.utils.getUser(ctx, args)
-        async with ctx.channel.typing():
-            await ctx.send(file=discord.File(
-                self.client.canvas.app(src, elem.name), 'app.exe.png'
-            ))
-
-
     @command('distortion')
     @cooldown(1)
     async def distort(self, ctx, *args, blacklist=None):

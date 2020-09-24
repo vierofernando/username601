@@ -22,6 +22,27 @@ class owner(commands.Cog):
             os.environ['USELESSAPI']
         ]
     
+    @command()
+    @cooldown(1)
+    async def leave(self, ctx, *args):
+        if ctx.author.id != self.client.utils.cfg('OWNER_ID', integer=True): return
+        server_id = int(list(args)[1])
+        await self.client.get_guild(server_id).leave()
+        return await ctx.send('ok')
+    
+    @command()
+    async def leavehmm(self, ctx, *args):
+        if ctx.author.id != self.client.utils.cfg('OWNER_ID', integer=True): return
+        res = [i for i in self.client.guilds if len([
+            a for a in i.members if a.bot
+        ]) > len([
+            b for b in i.members if not b.bot
+        ])]
+        ttl = "\n".join(str(i.id) + ' - ' + str(i.name) + ' ({}|{}) '.format(
+            len([a for a in i.members if a.bot]), len([b for b in i.members if not b.bot])
+        ) for i in res)
+        return await ctx.send('```'+ttl[0:1990]+'```')
+    
     @command('ann,announcement')
     @cooldown(2)
     async def announce(self, ctx, *args):
