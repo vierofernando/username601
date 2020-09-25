@@ -30,7 +30,7 @@ class economy(commands.Cog):
     async def fish(self, ctx):
         if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.noProfile()
         wait = await ctx.send('{} | {}'.format(self.client.utils.emote(self.client, 'loading'), random.choice(
-            loads(open('/app/assets/json/fish.json', 'r').read())['waiting']
+            loads(open(self.client.utils.cfg("JSON_DIR")+'/fish.json', 'r').read())['waiting']
         )))
         await sleep(random.randint(3, 10))
         res = self.client.algorithm.getfish()
@@ -138,7 +138,7 @@ class economy(commands.Cog):
         else:
             reward = str(random.randint(100, 500))
             new_data = self.client.db.Economy.addbal(ctx.author.id, int(reward))
-            job = random.choice(loads(open('/app/assets/json/work.json', 'r').read())['works'])
+            job = random.choice(loads(open(self.client.utils.cfg('JSON_DIR')+'/work.json', 'r').read())['works'])
             if new_data=='success': await wait.edit(content=self.client.utils.emote(self.client, 'success')+f" | {ctx.author.name} worked {job} and earned {reward} bobux!")
             else: await wait.edit(content=self.client.utils.emote(self.client, 'error')+f" | Oops there was an error... Please report this to the owner using `1feedback.`\n`{new_data}`")
             
@@ -204,7 +204,7 @@ class economy(commands.Cog):
                     if victim==None or stealer==None:
                         await wait.edit(content=self.client.utils.emote(self.client, 'loading')+' | you/that guy doesn\'t even have a profile!')
                     else:
-                        data = random.choice(loads(open('/app/assets/json/steal.json', 'r').read()))
+                        data = random.choice(loads(open(self.client.utils.cfg('JSON_DIR')+'/steal.json', 'r').read()))
                         if not str(data['amount']).replace('-', '').isnumeric():
                             if data['amount']=='{SAME_AMOUNT}': robamount = -amount2rob
                             elif data['amount']=='{REAL}': robamount = int(amount2rob)
