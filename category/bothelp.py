@@ -25,7 +25,7 @@ class bothelp(commands.Cog):
             embed = discord.Embed(title='Get development updates and/or events in your server!', description='Want to get up-to-date development updates? either it is bugfixes, cool events, etc.\nHow do you set up? Use `{}sub <discord webhook url>`.\nIf you still do not understand, [please watch the tutorial video here.](https://vierofernando.is-inside.me/fEhT86EE.mp4)'.format(self.client.utils.prefix), color=self.client.utils.get_embed_color(discord))
             return await ctx.send(embed=embed)
         elif 'reset' in ''.join(list(args)).lower():
-            self.db.subscribe(None, ctx.guild.id, reset=True)
+            self.client.db.Dashboard.subscribe(None, ctx.guild.id, reset=True)
             return await ctx.send('{} | Subscription has been deleted.'.format(self.client.utils.emote(self.client, 'success')))
         url = list(args)[0].replace('<', '').replace('>', '')
         try:
@@ -34,7 +34,7 @@ class bothelp(commands.Cog):
                 adapter=discord.RequestsWebhookAdapter()
             )
         except: return await ctx.send("{} | Invalid url! Please follow the tutorial.".format(self.client.utils.emote(self.client, 'error')))
-        self.db.subscribe(url, ctx.guild.id)
+        self.client.db.Dashboard.subscribe(url, ctx.guild.id)
         await ctx.message.add_reaction(self.client.utils.emote(self.client, 'success'))
         web.send(
             embed=discord.Embed(title=f'Congratulations, {str(ctx.author)}!', description='Your webhook is now set! ;)\nNow every development updates or username601 events will be set here.\n\nIf you change your mind, you can do `{}sub reset` to remove the webhook from the database.\n[Join our support server if you still have any questions.]({})'.format(self.client.utils.prefix, self.client.utils.cfg('SERVER_INVITE')), color=discord.Color.green()),
