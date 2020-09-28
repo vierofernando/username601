@@ -29,7 +29,7 @@ class economy(commands.Cog):
         else:
             self.client.db.Economy.addbal(ctx.author.id, amount)
             say, emote = "Congratulations %M%, you just won %A% bobux!", self.client.utils.emote(self.client, 'success')
-        return await ctx.send(emote + ' | ' + say.replace('%M%', ctx.author.mention).replace('%A%', amount))
+        return await ctx.send(emote + ' | ' + say.replace('%M%', ctx.author.mention).replace('%A%', str(amount)))
 
     @command()
     @cooldown(60)
