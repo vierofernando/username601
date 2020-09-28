@@ -15,6 +15,23 @@ class economy(commands.Cog):
         self.client = client
     
     @command()
+    @cooldown(10)
+    async def gamble(self, ctx, *args):
+        if len(list(args))==0: return await ctx.send('{} | Please input a number.'.format(self.client.utils.emote(self.client, 'error')))
+        lucky = random.choice([False, True])
+        try:
+            amount = int(list(args)[0])
+        except:
+            return await ctx.send('{} | Please make sure you inputted a number!'.format(self.client.utils.emote(self.client, 'error')))
+        if not lucky:
+            self.client.db.Economy.delbal(ctx.author.id, amount)
+            say, emote = "Yikes! %M%, you just lost %A% bobux...", self.client.utils.emote(self.client, 'error')
+        else:
+            self.client.db.Economy.addbal(ctx.author.id, amount)
+            say, emote = "Congratulations %M%, you just won %A% bobux!", self.client.utils.emote(self.client, 'success')
+        return await ctx.send(emote + ' | ' + say.replace('%M%', ctx.author.mention).replace('%A%', amount))
+
+    @command()
     @cooldown(60)
     async def beg(self, ctx):
         c = random.randint(1, 3)
