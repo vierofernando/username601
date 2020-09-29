@@ -5,13 +5,13 @@ from os import environ
 from os.path import isfile
 from subprocess import run, PIPE
 from json import dumps
-from io import BytesIO
+
 from urllib.request import urlopen as getapi
 from urllib.parse import quote_plus as urlencode
 from json import loads as jsonify
 from configparser import ConfigParser
 from datetime import datetime as t
-from PIL.Image import open as openImage
+
 class noArguments(Exception): pass
 class noUserFound(Exception): pass
 class noProfile(Exception): pass
@@ -36,6 +36,15 @@ def num2word(num):
 def emote(client, type):
     return str(client.get_emoji(cfg('EMOJI_'+type.upper(), integer=True)))
 
+def inspect_image_url(url):
+    try:
+        hdrs = requests.get(url, timeout=3).headers
+        assert hdrs['Content-Type'].startswith('image/')
+        assert (int(hdrs['Content-Length'])/1024/1024) < 2
+        return True
+    except:
+        return False
+
 def get_embed_color(discord):
     color = cfg('MAIN_COLOR').split(',')
     return discord.Colour.from_rgb(
@@ -59,12 +68,8 @@ def ping():
 def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
     if len(list(args))==0:
         if len(ctx.message.attachments) > 0:
-            if ctx.message.attachments[0].filename.split('.')[::-1][0].lower() in ['webp', 'png', 'jpg', 'jpeg']:
-                try:
-                    test = openImage(BytesIO(requests.get(ctx.message.attachments[0].url, timeout=2).content)).size
-                    assert (test[0] < 2048 or test[1] < 2048)
-                except:
-                    return str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size'+str(size))
+            Vld = inspect_image_url(ctx.message.attachments[0].url)
+            if Vld:
                 return ctx.message.attachments[0].url
         if allowgif: return str(ctx.author.avatar_url).replace('.webp?size=1024', '.png?size'+str(size))
         else: return str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size'+str(size))
@@ -74,12 +79,7 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
             temp = list(args)
             temp[0] = res
             args = tuple(temp)
-        if list(args)[0].split('.')[::-1][0].lower() in ['png', 'webp', 'jpg', 'jpeg']:
-            try:
-                test = openImage(BytesIO(requests.get(list(args)[0], timeout=2).content)).size
-                assert (test[0] < 2048 or test[1] < 2048)
-            except:
-                return str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size'+str(size))
+        if inspect_image_url(list(args)[0]):
             return list(args)[0]
     if len(ctx.message.mentions)>0:
         if not allowgif: return str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', f'.png?size={size}')
@@ -99,6 +99,34 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
         return str(ctx.guild.get_member(int(list(args)[0])).avatar_url).replace('?size=1024', f'?size={size}')
     if not allowgif: return str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', f'.png?size={size}')
     return str(ctx.author.avatar_url).replace('?size=1024', f'?size={size}')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def getUser(ctx, args, user=None, allownoargs=True):
     if len(list(args))==0:
