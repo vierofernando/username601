@@ -182,10 +182,10 @@ class games(commands.Cog):
                 prize = random.randint(50, 200)
                 self.client.db.Economy.addbal(ctx.author.id, prize) ; await ctx.send('your bet was right! you get '+str(prize)+' bobux.')
         else:
-            res = random.randint(1, 6)
-            await ctx.send(':'+src.num2word(res)+':')
-            if len(list(args))>0 and args[0]==str(res) and self.client.db.Economy.get(ctx.author.id)!=None:
-                prize = random.randint(50, 100)
+            res = ['one', 'two', 'three', 'four', 'five', 'six'][random.randint(0, 5)]
+            await ctx.send(':'+res+':')
+            if len(list(args))>0 and args[0].lower()==res.lower() and self.client.db.Economy.get(ctx.author.id)!=None:
+                prize = random.randint(50, 150)
                 self.client.db.Economy.addbal(ctx.author.id, prize) ; await ctx.send('your bet was right! you get '+str(prize)+' bobux.')
 
     @command('guessav,avatarguess,avguess,avatargame,avgame')
