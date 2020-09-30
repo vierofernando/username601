@@ -26,7 +26,7 @@ class apps(commands.Cog):
         try:
             data = data.json()
             star = str(':star:'*round(data['rating']['average'])) if data['rating']['average']!=None else 'No star rating provided.'
-            em = discord.Embed(title=data['name'], url=data['url'], description=self.client.utils.html2discord(data['summary']), color=self.client.utils.get_embed_color(discord))
+            em = discord.Embed(title=data['name'], url=data['url'], description=self.client.utils.html2discord(data['summary']), color=self.client.utils.get_embed_color())
             em.add_field(name='General Information', value='**Status: **'+data['status']+'\n**Premiered at: **'+data['premiered']+'\n**Type: **'+data['type']+'\n**Language: **'+data['language']+'\n**Rating: **'+str(data['rating']['average'] if data['rating']['average']!=None else 'None')+'\n'+star)
             em.add_field(name='TV Network', value=data['network']['name']+' at '+data['network']['country']['name']+' ('+data['network']['country']['timezone']+')')
             em.add_field(name='Genre', value=str(', '.join(data['genres']) if len(data['genres'])>0 else 'no genre avaliable'))
@@ -60,7 +60,7 @@ class apps(commands.Cog):
         data = data['results'][0]
         em = discord.Embed(title=data['trackName'], url=data['trackViewUrl'],description='**Artist: **{}\n**Album: **{}\n**Release Date:** {}\n**Genre: **{}'.format(
             data['artistName'], data['collectionName'], data['releaseDate'].replace('T', ' ').replace('Z', ''), data['primaryGenreName']
-        ), color=self.client.utils.get_embed_color(discord))
+        ), color=self.client.utils.get_embed_color())
         em.set_thumbnail(url=data['artworkUrl100'])
         em.set_author(name='iTunes', icon_url='https://i.imgur.com/PR29ow0.jpg', url='https://www.apple.com/itunes/')
         await ctx.send(embed=em)
@@ -74,7 +74,7 @@ class apps(commands.Cog):
                 lang = ''
                 for bahasa in LANGUAGES:
                     lang = lang+str(bahasa)+' ('+str(LANGUAGES[bahasa])+')\n'
-                embed = discord.Embed(title='List of supported languages', description=str(lang), colour=self.client.utils.get_embed_color(discord))
+                embed = discord.Embed(title='List of supported languages', description=str(lang), colour=self.client.utils.get_embed_color())
                 await wait.edit(content='', embed=embed)
             elif len(args)>1:
                 destination = args[0]
@@ -84,7 +84,7 @@ class apps(commands.Cog):
                     await wait.edit(self.client.utils.emote(self.client, 'error')+' | Gimme something to translate!')
                 try:
                     translation = gtr.translate(toTrans, dest=destination)
-                    embed = discord.Embed(description=translation.text, colour=self.client.utils.get_embed_color(discord))
+                    embed = discord.Embed(description=translation.text, colour=self.client.utils.get_embed_color())
                     embed.set_footer(text=f'Translated {LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}.')
                     await wait.edit(content='', embed=embed)
                 except Exception as e:
@@ -129,14 +129,14 @@ class apps(commands.Cog):
                         explain = explain + str(list(page.summary)[i])
                         if list(page.summary)[i]=='.':
                             count = int(count) + 1
-                embed = discord.Embed(title=pageTitle, url=str(page.fullurl), description=str(explain), colour=self.client.utils.get_embed_color(discord))
+                embed = discord.Embed(title=pageTitle, url=str(page.fullurl), description=str(explain), colour=self.client.utils.get_embed_color())
                 await wait.edit(content='', embed=embed)
     @command()
     @cooldown(5)
     async def imdb(self, ctx, *args):
         wait, args = await ctx.send(self.client.utils.emote(self.client, 'loading') + ' | Please wait...'), list(args)
         if len(args)==0 or args[0].lower()=='help' or args[0].lower()=='--help':
-            embed = discord.Embed(title='IMDb command help', description='Searches through the IMDb Movie database.\n{} are Parameters that is **REQUIRED** to get the info.\n\n', colour=self.client.utils.get_embed_color(discord))
+            embed = discord.Embed(title='IMDb command help', description='Searches through the IMDb Movie database.\n{} are Parameters that is **REQUIRED** to get the info.\n\n', colour=self.client.utils.get_embed_color())
             embed.add_field(name='Commands', value=self.client.utils.prefix+'imdb --top {NUMBER}\n'+self.client.utils.prefix+'imdb help\n'+self.client.utils.prefix+'imdb --movie {MOVIE_ID or MOVIE_NAME}', inline='False')
             await wait.edit(content='', embed=embed)
         elif args[0].lower()=='--top':
@@ -151,7 +151,7 @@ class apps(commands.Cog):
                         arr, total = ia.get_top250_movies(), ''
                         for i in range(0, int(num)):
                             total = total + str(int(i)+1) + '. '+str(arr[i]['title'])+' (`'+str(arr[i].movieID)+'`)\n'
-                        embed = discord.Embed(title='IMDb Top '+str(num)+':', description=str(total), colour=self.client.utils.get_embed_color(discord))
+                        embed = discord.Embed(title='IMDb Top '+str(num)+':', description=str(total), colour=self.client.utils.get_embed_color())
                         await wait.edit(content='', embed=embed)
                 except ValueError:
                     await wait.edit(content=self.client.utils.emote(self.client, 'error') +' | Is the top thing you inputted REALLY a number?\nlike, Not top TEN, but top 10.\nGET IT?')
@@ -168,7 +168,7 @@ class apps(commands.Cog):
                     theID = str(movieId)
                 data = ia.get_movie(str(movieId))
             try:
-                embed = discord.Embed(title=data['title'], colour=self.client.utils.get_embed_color(discord))
+                embed = discord.Embed(title=data['title'], colour=self.client.utils.get_embed_color())
                 await wait.edit(content=self.client.utils.emote(self.client, 'loading') + ' | Please wait... Retrieving data...')
                 emoteStar = ''
                 for i in range(0, round(int(ia.get_movie_main(theID)['data']['rating']))):
@@ -182,7 +182,7 @@ class apps(commands.Cog):
                 await wait.edit(content='', embed=embed)
             except KeyError:
                 await wait.edit(content=self.client.utils.emote(self.client, 'error') + ' | An error occurred!\n**Good news, we *may* fix it.**')
-                errorQuick = discord.Embed(title=data['title'], colour=self.client.utils.get_embed_color(discord))
+                errorQuick = discord.Embed(title=data['title'], colour=self.client.utils.get_embed_color())
                 errorQuick.add_field(name='General Information', value=f'**IMDb URL: **{imdb_url}\n**Upload date: **{upload_date}')
 
                 errorQuick.add_field(name='Ratings', value=emoteStar+'\n**Overall rating: **'+str(ia.get_movie_main(str(theID))['data']['rating'])+'\n**Rated by '+str(ia.get_movie_main(str(theID))['data']['votes'])+' people**')

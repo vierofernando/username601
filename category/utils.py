@@ -54,7 +54,7 @@ class utils(commands.Cog):
         await ctx.channel.trigger_typing()
         if len(data['collection']['items'])==0: return await ctx.send('{} | Nothing found.'.format(self.client.utils.emote(self.client, 'error')))
         img = random.choice(data['collection']['items'])
-        em = discord.Embed(title=img['data'][0]['title'], description=img['data'][0]["description"], color=self.client.utils.get_embed_color(discord))
+        em = discord.Embed(title=img['data'][0]['title'], description=img['data'][0]["description"], color=self.client.utils.get_embed_color())
         em.set_image(url=img['links'][0]['href'])
         await ctx.send(embed=em)
 
@@ -66,7 +66,7 @@ class utils(commands.Cog):
             data = self.client.utils.fetchJSON('https://bulbapedia.bulbagarden.net/w/api.php?action=query&titles={}&format=json&formatversion=2&pithumbsize=150&prop=extracts|pageimages&explaintext&redirects&exintro'.format(query))
             embed = discord.Embed(
                 url='https://bulbapedia.bulbagarden.net/wiki/{}'.format(query),
-                color=self.client.utils.get_embed_color(discord),
+                color=self.client.utils.get_embed_color(),
                 title=data['query']['pages'][0]['title'], description=limitto(data['query']['pages'][0]['extract'], 1000)
             )
             try:
@@ -94,7 +94,7 @@ class utils(commands.Cog):
                 await ctx.send("{} | Did not find anything with a delicious picture.".format(str(self.client.utils.emote(self.client, 'error'))))
             else:
                 total = random.choice([i for i in data['results'] if i['thumbnail']!=''])
-                embed = discord.Embed(title=total['title'], url=total['href'], description='Ingredients:\n{}'.format(total['ingredients']), color=self.client.utils.get_embed_color(discord))
+                embed = discord.Embed(title=total['title'], url=total['href'], description='Ingredients:\n{}'.format(total['ingredients']), color=self.client.utils.get_embed_color())
                 embed.set_image(url=total['thumbnail'])
                 await ctx.send(embed=embed)
 
@@ -110,7 +110,7 @@ class utils(commands.Cog):
         embed = discord.Embed(
             title = str(date)+' | '+str(time)+' (API)',
             description = str(t.now())[:-7]+' (SYSTEM)\nBoth time above is on UTC.\n**Unix Time:** '+str(data["unixtime"])+'\n**Day of the year: **'+str(data["day_of_year"])+' ('+str(progressDayYear)+'%)\n**Day of the week: **'+str(data["day_of_week"])+' ('+str(progressDayWeek)+'%)\n'+str(yearType),
-            colour = get_embed_color(discord)
+            colour = get_embed_color()
         )
         await ctx.send(embed=embed)
     @command()
@@ -135,7 +135,7 @@ class utils(commands.Cog):
         async with ctx.channel.typing():
             data = self.client.utils.insp('https://quotes.herokuapp.com/libraries/math/random')
             text, quoter = data.split(' -- ')[0], data.split(' -- ')[1]
-            await ctx.send(embed=discord.Embed(description=f'***{text}***\n\n-- {quoter} --', color=self.client.utils.get_embed_color(discord)))
+            await ctx.send(embed=discord.Embed(description=f'***{text}***\n\n-- {quoter} --', color=self.client.utils.get_embed_color()))
 
     @command()
     @cooldown(10)
@@ -159,7 +159,7 @@ class utils(commands.Cog):
             await ctx.send(str(self.client.utils.emote(self.client, 'error'))+' | There was a problem on retrieving the info.\nThe server said: "'+str(data['status'])+'" :eyes:')
         else:
             ufo = random.choice(data['sightings'])
-            embed = discord.Embed(title='UFO Sighting in '+str(ufo['city'])+', '+str(ufo['state']), description='**Summary:** '+str(ufo['summary'])+'\n\n**Shape:** '+str(ufo['shape'])+'\n**Sighting Date: **'+str(ufo['date'])[:-8].replace('T', ' ')+'\n**Duration: **'+str(ufo['duration'])+'\n\n[Article Source]('+str(ufo['url'])+')', colour=self.client.utils.get_embed_color(discord))
+            embed = discord.Embed(title='UFO Sighting in '+str(ufo['city'])+', '+str(ufo['state']), description='**Summary:** '+str(ufo['summary'])+'\n\n**Shape:** '+str(ufo['shape'])+'\n**Sighting Date: **'+str(ufo['date'])[:-8].replace('T', ' ')+'\n**Duration: **'+str(ufo['duration'])+'\n\n[Article Source]('+str(ufo['url'])+')', colour=self.client.utils.get_embed_color())
             embed.set_footer(text='Username601 raided area 51 and found this!')
             await ctx.send(embed=embed)
     
@@ -177,7 +177,7 @@ class utils(commands.Cog):
                 words = dearray(words)
                 if len(words)>1950:
                     words = limitify(words)
-                embed = discord.Embed(title='Words that rhymes with '+str(' '.join(list(args)))+':', description=words, colour=self.client.utils.get_embed_color(discord))
+                embed = discord.Embed(title='Words that rhymes with '+str(' '.join(list(args)))+':', description=words, colour=self.client.utils.get_embed_color())
                 await wait.edit(content='', embed=embed)
 
     @command('sof')
@@ -197,7 +197,7 @@ class utils(commands.Cog):
                         tags += '['+str(ques['tags'][i])+'](https://stackoverflow.com/questions/tagged/'+str(ques['tags'][i])+')'
                         break
                     tags += '['+str(ques['tags'][i])+'](https://stackoverflow.com/questions/tagged/'+str(ques['tags'][i])+') | '
-                embed = discord.Embed(title=ques['title'], description='**'+str(ques['view_count'])+' *desperate* developers looked into this post.**\n**TAGS:** '+str(tags), url=ques['link'], colour=self.client.utils.get_embed_color(discord))
+                embed = discord.Embed(title=ques['title'], description='**'+str(ques['view_count'])+' *desperate* developers looked into this post.**\n**TAGS:** '+str(tags), url=ques['link'], colour=self.client.utils.get_embed_color())
                 embed.set_author(name=ques['owner']['display_name'], url=ques['owner']['link'], icon_url=ques['owner']['profile_image'])
                 embed.set_footer(text='Shown 1 result out of '+str(leng)+' results!')
                 await ctx.send(embed=embed)
@@ -210,7 +210,7 @@ class utils(commands.Cog):
         if 'pandafact' in str(ctx.message.content).lower(): link = 'https://some-random-api.ml/facts/panda'
         else: link = 'https://some-random-api.ml/facts/bird'
         data = self.client.utils.fetchJSON(link)['fact']
-        await ctx.send(embed=discord.Embed(title='Did you know?', description=data, colour=self.client.utils.get_embed_color(discord)))
+        await ctx.send(embed=discord.Embed(title='Did you know?', description=data, colour=self.client.utils.get_embed_color()))
 
     @command()
     @cooldown(2)
@@ -218,7 +218,7 @@ class utils(commands.Cog):
         iss, ppl, total = self.client.utils.fetchJSON('https://open-notify-api.herokuapp.com/iss-now.json'), self.client.utils.fetchJSON('https://open-notify-api.herokuapp.com/astros.json'), '```'
         for i in range(0, len(ppl['people'])):
             total += str(i+1) + '. ' + ppl['people'][i]['name'] + ((20-(len(ppl['people'][i]['name'])))*' ') + ppl['people'][i]['craft'] + '\n'
-        embed = discord.Embed(title='Position: '+str(iss['iss_position']['latitude'])+' '+str(iss['iss_position']['longitude']), description='**People at craft:**\n\n'+str(total)+'```', colour=self.client.utils.get_embed_color(discord))
+        embed = discord.Embed(title='Position: '+str(iss['iss_position']['latitude'])+' '+str(iss['iss_position']['longitude']), description='**People at craft:**\n\n'+str(total)+'```', colour=self.client.utils.get_embed_color())
         await ctx.send(embed=embed)
 
     @command('ghibli')
@@ -233,7 +233,7 @@ class utils(commands.Cog):
             embed = discord.Embed(
                 title = 'List of Ghibli Films',
                 description = str(films),
-                color = get_embed_color(discord)
+                color = get_embed_color()
             )
             embed.set_footer(text='Type `'+str(self.client.utils.prefix)+'ghibli <number>` to get each movie info.')
             await wait.edit(content='', embed=embed)
@@ -243,7 +243,7 @@ class utils(commands.Cog):
                 embed = discord.Embed(
                     title = data[num]['title'] + ' ('+str(data[num]['release_date'])+')',
                     description = '**Rotten Tomatoes Rating: '+str(data[num]['rt_score'])+'%**\n'+data[num]['description'],
-                    color = get_embed_color(discord)
+                    color = get_embed_color()
                 )
                 embed.add_field(name='Directed by', value=data[num]['director'], inline='True')
                 embed.add_field(name='Produced by', value=data[num]['producer'], inline='True')
@@ -257,7 +257,7 @@ class utils(commands.Cog):
             getprof = self.client.utils.urlify(list(args)[0].lower())
             data = self.client.utils.fetchJSON('https://api.alexflipnote.dev/steam/user/'+str(getprof))
             state, privacy, url, username, avatar, custom_url, steam_id = data["state"], data["privacy"], data["url"], data["username"], data["avatarfull"], data["customurl"], data["steamid64"]
-            embed = discord.Embed(title=username, description='**[Profile Link]('+str(url)+')**\n**Current state: **'+str(state)+'\n**Privacy: **'+str(privacy)+'\n**[Profile pic URL]('+str(avatar)+')**', colour = get_embed_color(discord))
+            embed = discord.Embed(title=username, description='**[Profile Link]('+str(url)+')**\n**Current state: **'+str(state)+'\n**Privacy: **'+str(privacy)+'\n**[Profile pic URL]('+str(avatar)+')**', colour = get_embed_color())
             embed.set_thumbnail(url=avatar)
             await ctx.send(embed=embed)
         except:
@@ -290,7 +290,7 @@ class utils(commands.Cog):
     async def googledoodle(self, ctx):
         wait = await ctx.send(str(self.client.utils.emote(self.client, 'loading')) + ' | Please wait... This may take a few moments...')
         data = self.client.utils.fetchJSON('https://www.google.com/doodles/json/{}/{}'.format(str(t.now().year), str(t.now().month)))[0]
-        embed = discord.Embed(title=data['title'], colour=self.client.utils.get_embed_color(discord), url='https://www.google.com/doodles/'+data['name'])
+        embed = discord.Embed(title=data['title'], colour=self.client.utils.get_embed_color(), url='https://www.google.com/doodles/'+data['name'])
         embed.set_image(url='https:'+data['high_res_url'])
         embed.set_footer(text='Event date: '+str('/'.join(
             [str(i) for i in data['run_date_array'][::-1]]
@@ -313,7 +313,7 @@ class utils(commands.Cog):
             for i in range(0, len(data['items'][0]['platforms'])):
                 if data['items'][0]['platforms'][str(list(data['items'][0]['platforms'].keys())[i])]==True:
                     oss_raw.append(str(list(data['items'][0]['platforms'].keys())[i]))
-            embed = discord.Embed(title=data['items'][0]['name'], url='https://store.steampowered.com/'+str(data['items'][0]['type'])+'/'+str(data['items'][0]['id']), description='**Price tag:** '+str(prize)+'\n**Metascore: **'+str(rate)+'\n**This app supports the following OSs: **'+str(dearray(oss_raw)), colour=self.client.utils.get_embed_color(discord))
+            embed = discord.Embed(title=data['items'][0]['name'], url='https://store.steampowered.com/'+str(data['items'][0]['type'])+'/'+str(data['items'][0]['id']), description='**Price tag:** '+str(prize)+'\n**Metascore: **'+str(rate)+'\n**This app supports the following OSs: **'+str(dearray(oss_raw)), colour=self.client.utils.get_embed_color())
             embed.set_image(url=data['items'][0]['tiny_image'])
             await ctx.send(embed=embed)
 
@@ -407,7 +407,7 @@ class utils(commands.Cog):
                 except: break
             try: accuracy, cps = round((len(asked)-wrong)/len(asked)*100), round(len(answered)/offset)
             except: accuracy, cps = "???", "???"
-            await ctx.send(embed=discord.Embed(title='TYPING TEST RESULTS', description='**Your time: **'+str(round(offset))+' seconds.\n**Your accuracy: **'+str(accuracy)+'%\n**Your speed: **'+str(cps)+' Characters per second.', colour=self.client.utils.get_embed_color(discord)))
+            await ctx.send(embed=discord.Embed(title='TYPING TEST RESULTS', description='**Your time: **'+str(round(offset))+' seconds.\n**Your accuracy: **'+str(accuracy)+'%\n**Your speed: **'+str(cps)+' Characters per second.', colour=self.client.utils.get_embed_color()))
 
 def setup(client):
     client.add_cog(utils(client))

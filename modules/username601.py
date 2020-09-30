@@ -1,11 +1,11 @@
 import random
 import base64
+import discord
 import requests
 from os import environ
 from os.path import isfile
 from subprocess import run, PIPE
 from json import dumps
-
 from urllib.request import urlopen as getapi
 from urllib.parse import quote_plus as urlencode
 from json import loads as jsonify
@@ -45,7 +45,7 @@ def inspect_image_url(url):
     except:
         return False
 
-def get_embed_color(discord):
+def get_embed_color():
     color = cfg('MAIN_COLOR').split(',')
     return discord.Colour.from_rgb(
         int(color[0]), int(color[1]), int(color[2])
@@ -99,34 +99,6 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
         return str(ctx.guild.get_member(int(list(args)[0])).avatar_url).replace('?size=1024', f'?size={size}')
     if not allowgif: return str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', f'.png?size={size}')
     return str(ctx.author.avatar_url).replace('?size=1024', f'?size={size}')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 def getUser(ctx, args, user=None, allownoargs=True):
     if len(list(args))==0:

@@ -42,7 +42,7 @@ class moderation(commands.Cog):
                 pass
         em = discord.Embed(title='{}\' join position'.format(user.name), description='\n'.join([
             '{}. {} ({} ago)'.format(i['order'], i['user'], self.client.utils.time_encode(round(i['time']))) for i in users
-        ]), color=self.client.utils.get_embed_color(discord))
+        ]), color=self.client.utils.get_embed_color())
         await wait.edit(content='', embed=em)
 
     @command('serverconfig,configuration,serversettings,settings')
@@ -57,7 +57,7 @@ class moderation(commands.Cog):
         extras = [len(data['shop']), len(data['warns'])]
         dehoister = 'Enabled :white_check_mark:' if data['dehoister'] else 'Disabled :x:'
         subs = 'Enabled :white_check_mark:' if data['subscription']!=None else 'Disabled :x:'
-        await ctx.send(embed=discord.Embed(title=f'{ctx.guild.name}\'s configuration', description=f'**Auto role:** {autorole}\n**Welcome channel:** {welcome}\n**Starboard channel: **{starboard}\n**Name/nick dehoister: **{dehoister}\n**Mute role: **{mute}\n**Members warned: **{extras[1]}\n**Shop products sold: **{extras[0]}\n**Development updates/Events subscription: {subs}**', color=self.client.utils.get_embed_color(discord)).set_thumbnail(url=ctx.guild.icon_url))
+        await ctx.send(embed=discord.Embed(title=f'{ctx.guild.name}\'s configuration', description=f'**Auto role:** {autorole}\n**Welcome channel:** {welcome}\n**Starboard channel: **{starboard}\n**Name/nick dehoister: **{dehoister}\n**Mute role: **{mute}\n**Members warned: **{extras[1]}\n**Shop products sold: **{extras[0]}\n**Development updates/Events subscription: {subs}**', color=self.client.utils.get_embed_color()).set_thumbnail(url=ctx.guild.icon_url))
 
     @command()
     @cooldown(5)
@@ -114,7 +114,7 @@ class moderation(commands.Cog):
             return await ctx.send(embed=discord.Embed(
                 title='Activated dehoister.',
                 description=f'**What is dehoister?**\nDehoister is an automated part of this bot that automatically renames someone that tries to hoist their name (for example: `!ABC`)\n\n**How do i deactivate this?**\nJust type `{self.client.utils.prefix}dehoister`.\n\n**It doesn\'t work for me!**\nMaybe because your role position is higher than me, so i don\'t have the permissions required.',
-                color=self.client.utils.get_embed_color(discord)
+                color=self.client.utils.get_embed_color()
             ))
         self.client.db.Dashboard.setDehoister(ctx.guild, False)
         await ctx.send('{} | Dehoister deactivated.'.format(self.client.utils.emote(self.client, 'success')))
@@ -140,7 +140,7 @@ class moderation(commands.Cog):
                 title=f'Starboard for {ctx.guild.name}',
                 description='Channel: <#{}>\nStars required to reach: {}'.format(
                     starboard_channel['channelid'], starboard_channel['starlimit']
-                ), color=self.client.utils.get_embed_color(discord)
+                ), color=self.client.utils.get_embed_color()
             ))
         if starboard_channel['channelid']==None: return
         elif list(args)[0].lower().startswith('rem'):
@@ -224,7 +224,7 @@ class moderation(commands.Cog):
                 await ctx.send(embed=discord.Embed(
                     title='Command usage',
                     description='{}welcome <CHANNEL>\n{}welcome disable'.format(self.client.utils.prefix, self.client.utils.prefix),
-                    color=self.client.utils.get_embed_color(discord)
+                    color=self.client.utils.get_embed_color()
                 ))
             else:
                 if list(args)[0].lower()=='disable':
@@ -249,7 +249,7 @@ class moderation(commands.Cog):
                 await ctx.send(embed=discord.Embed(
                     title='Command usage',
                     description='{}autorole <ROLENAME/ROLEPING>\n{}autorole disable'.format(self.client.utils.prefix, self.client.utils.prefix),
-                    color=self.client.utils.get_embed_color(discord)
+                    color=self.client.utils.get_embed_color()
                 ))
             else:
                 if list(args)[0].lower()=='disable':
@@ -466,7 +466,7 @@ class moderation(commands.Cog):
             for i in ctx.guild.channels: total.append('<#'+str(i.id)+'>')
         else:
             for i in ctx.guild.roles: total.append('<@&'+str(i.id)+'>')
-        await ctx.send(embed=discord.Embed(description=', '.join(total), color=self.client.utils.get_embed_color(discord)))
+        await ctx.send(embed=discord.Embed(description=', '.join(total), color=self.client.utils.get_embed_color()))
 
     @command('ui,user,usercard,user-info,user-card,whois')
     @cooldown(5)
@@ -487,7 +487,7 @@ class moderation(commands.Cog):
     @cooldown(1)
     async def avatar(self, ctx, *args):
         url = self.client.utils.getUserAvatar(ctx, args, allowgif=True)
-        embed = discord.Embed(title='look at dis avatar', color=self.client.utils.get_embed_color(discord))
+        embed = discord.Embed(title='look at dis avatar', color=self.client.utils.get_embed_color())
         embed.set_image(url=url)
         await ctx.send(embed=embed)
 
@@ -507,7 +507,7 @@ class moderation(commands.Cog):
         if 'servericon' in ctx.message.content:
             if ctx.guild.is_icon_animated(): link = 'https://cdn.discordapp.com/icons/'+str(ctx.guild.id)+'/'+str(ctx.guild.icon)+'.gif?size=1024'
             else: link = 'https://cdn.discordapp.com/icons/'+str(ctx.guild.id)+'/'+str(ctx.guild.icon)+'.png?size=1024'
-            theEm = discord.Embed(title=ctx.guild.name+'\'s Icon', url=link, colour=self.client.utils.get_embed_color(discord))
+            theEm = discord.Embed(title=ctx.guild.name+'\'s Icon', url=link, colour=self.client.utils.get_embed_color())
             theEm.set_image(url=link)
             await ctx.send(embed=theEm)
         else:
@@ -571,7 +571,7 @@ class moderation(commands.Cog):
             if str(type(data))=="<class 'bool'>":
                 if data: perms_list.append(':white_check_mark: {}'.format(i.replace('_', ' ')))
                 else: perms_list.append(':x: {}'.format(i.replace('_', ' ')))
-        embed = discord.Embed(title='Guild permissions for '+source.name, description='\n'.join(perms_list), colour=self.client.utils.get_embed_color(discord))
+        embed = discord.Embed(title='Guild permissions for '+source.name, description='\n'.join(perms_list), colour=self.client.utils.get_embed_color())
         await ctx.send(embed=embed)
 
     @command('mkchannel,mkch,createchannel,make-channel,create-channel')
@@ -621,7 +621,7 @@ class moderation(commands.Cog):
         if not erry:
             if data.animated: anim = 'This emoji is an animated emoji. **Only nitro users can use it.**'
             else: anim = 'This emoji is a static emoji. **Everyone can use it (except if limited by role)**'
-            embedy = discord.Embed(title='Emoji info for :'+str(data.name)+':', description='**Emoji name:** '+str(data.name)+'\n**Emoji ID: **'+str(data.id)+'\n'+anim+'\n**Emoji\'s server ID: **'+str(data.guild_id)+'\n**Emoji creation time: **'+str(data.created_at)[:-7]+' UTC.', colour=self.client.utils.get_embed_color(discord))
+            embedy = discord.Embed(title='Emoji info for :'+str(data.name)+':', description='**Emoji name:** '+str(data.name)+'\n**Emoji ID: **'+str(data.id)+'\n'+anim+'\n**Emoji\'s server ID: **'+str(data.guild_id)+'\n**Emoji creation time: **'+str(data.created_at)[:-7]+' UTC.', colour=self.client.utils.get_embed_color())
             embedy.set_thumbnail(url='https://cdn.discordapp.com/emojis/'+str(data.id)+'.png?v=1')
             await ctx.send(embed=embedy)
 

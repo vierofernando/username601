@@ -71,7 +71,7 @@ class fun(commands.Cog):
         embed = discord.Embed(
             title = str(data[0]["setup"]),
             description = '||'+str(data[0]["punchline"])+'||',
-            colour = self.client.utils.get_embed_color(discord)
+            colour = self.client.utils.get_embed_color()
         )
         await ctx.send(embed=embed)
 
@@ -132,7 +132,7 @@ class fun(commands.Cog):
         embed = discord.Embed(
             title=ctx.guild.name+'\'s death note',
             description=str(in_the_note),
-            colour = self.client.utils.get_embed_color(discord)
+            colour = self.client.utils.get_embed_color()
         )
         await ctx.send(embed=embed)
     
@@ -171,7 +171,7 @@ class fun(commands.Cog):
     @cooldown(2)
     async def factcore(self, ctx):
         data = self.client.utils.fetchJSON('https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fact-core.json')
-        embed = discord.Embed(title='Fact Core', description=random.choice(data), colour=self.client.utils.get_embed_color(discord))
+        embed = discord.Embed(title='Fact Core', description=random.choice(data), colour=self.client.utils.get_embed_color())
         embed.set_thumbnail(url='https://i1.theportalwiki.net/img/thumb/5/55/FactCore.png/300px-FactCore.png')
         await ctx.send(embed=embed)
 def setup(client):

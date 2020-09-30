@@ -91,7 +91,7 @@ class image(commands.Cog):
     @command()
     @cooldown(1)
     async def lucario(self, ctx):
-        embed = discord.Embed(title='Lucario!', color=self.client.utils.get_embed_color(discord))
+        embed = discord.Embed(title='Lucario!', color=self.client.utils.get_embed_color())
         embed.set_image(url=self.client.utils.fetchJSON('http://pics.floofybot.moe/image?token=lucario&category=sfw')['image'])
         await ctx.send(embed=embed)
     
@@ -109,7 +109,7 @@ class image(commands.Cog):
     @cooldown(21600)
     async def iotd(self, ctx):
         data = self.client.utils.fetchJSON('https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=en-US')['images'][0]
-        embed = discord.Embed( title=data['copyright'], url=data['copyrightlink'], color=self.client.utils.get_embed_color(discord))
+        embed = discord.Embed( title=data['copyright'], url=data['copyrightlink'], color=self.client.utils.get_embed_color())
         embed.set_image(url='https://bing.com'+data['url'])
         await ctx.send(embed=embed)
 
@@ -215,7 +215,7 @@ class image(commands.Cog):
     @command()
     @cooldown(1)
     async def panda(self, ctx):
-        link, col, msg = random.choice(["https://some-random-api.ml/img/panda", "https://some-random-api.ml/img/red_panda"]), self.client.utils.get_embed_color(discord), 'Here is some cute pics of pandas.'
+        link, col, msg = random.choice(["https://some-random-api.ml/img/panda", "https://some-random-api.ml/img/red_panda"]), self.client.utils.get_embed_color(), 'Here is some cute pics of pandas.'
         data = self.client.utils.fetchJSON(link)['link']
         embed = discord.Embed(title=msg, color=col)
         embed.set_image(url=data)
