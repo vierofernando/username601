@@ -17,6 +17,7 @@ setattr(client, 'utils', username601)
 setattr(client, 'db', database)
 setattr(client, 'games', discordgames)
 setattr(client, 'algorithm', algorithm)
+setattr(client, 'cmds', BotCommands())
 environ['BOT_MODULES_DIR'] = cfg('MODULES_DIR')
 environ['BOT_JSON_DIR'] = cfg('JSON_DIR')
 
@@ -32,6 +33,13 @@ async def on_ready():
             print('error on loading cog '+str(i[:-3])+': '+str(e))
             pass
     print('Bot is online.')
+
+@client.event
+async def on_guild_join(guild):
+    if 'bot list' in guild.name.lower(): return
+    elif 'test' in guild.name.lower(): return
+    bot_members = [i for i in guild.members if i.bot]
+    if round(bot_members/len(guild.members)*100) >= 95: await guild.leave()
 
 @client.event
 async def on_raw_reaction_add(payload):
@@ -117,15 +125,15 @@ async def on_guild_remove(guild):
 
 @client.event
 async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandOnCooldown): return await ctx.send("You are on cooldown. You can do the command again in {}.".format(time_encode(round(error.retry_after))))
+    if isinstance(error, commands.CommandOnCooldown): return await ctx.send("You are on cooldown. You can do the command again in {}.".format(time_encode(round(error.retry_after))), delete_after=2)
     elif isinstance(error, commands.CommandNotFound): return
-    elif 'noarguments' in str(error).lower(): return await ctx.send('{} | Please insert arguments! `Like insert your name as a parameter.`'.format(emote(client, 'error')))
-    elif 'nouserfound' in str(error).lower(): return await ctx.send('{} | No user found.'.format(emote(client, 'error')))
-    elif 'noprofile' in str(error).lower(): return await ctx.send('{} | You do not have any profile...\nYou can create one with `{}new`.'.format(emote(client, 'error'), prefix))
-    elif 'missing permissions' in str(error).lower() or 'Missing Access' in str(error): return await ctx.send("I don't have the permission required to use that command!")
+    elif 'noarguments' in str(error).lower(): return await ctx.send('{} | Please insert arguments! `Like insert your name as a parameter.`'.format(emote(client, 'error')), delete_after=5)
+    elif 'nouserfound' in str(error).lower(): return await ctx.send('{} | No user found.'.format(emote(client, 'error')), delete_after=5)
+    elif 'noprofile' in str(error).lower(): return await ctx.send('{} | You do not have any profile...\nYou can create one with `{}new`.'.format(emote(client, 'error'), prefix), delete_after=5)
+    elif 'missing permissions' in str(error).lower() or 'Missing Access' in str(error): 
+        try: return await ctx.send("I don't have the permission required to use that command!")
+        except: return
     elif 'cannot identify image file' in str(error).lower(): return await ctx.send(str(emote(client, 'error'))+' | Error, it seemed i can\'t load/send the image! Check your arguments and try again. Else, report this to the bot owner using `'+prefix+'feedback.`')
-    elif 'cannot send messages to this user' in str(error).lower():
-        return await ctx.send(str(emote(client, 'error'))+' | Oops! Your DMs are disabled!')
     else:
         await client.get_channel(cfg('FEEDBACK_CHANNEL', integer=True)).send(content='<@{}> there was an error!'.format(cfg('OWNER_ID')), embed=discord.Embed(
             title='Error', color=discord.Colour.red(), description=f'Content:\n```{ctx.message.content}```\n\nError:\n```{str(error)}```'
@@ -145,13 +153,9 @@ async def on_message(message):
         rewards = database.Economy.daily(data)
         try: await client.get_user(data).send(f'Thanks for voting! **You received {rewards} bobux!**')
         except: return
-    
-    # THESE TWO IF STATEMENTS ARE JUST FOR ME ON THE SUPPORT SERVER CHANNEL. YOU CAN DELETE THESE TWO.
-    if message.channel.id==700040209705861120: await message.author.add_roles(message.guild.get_role(700042707468550184))
-    if message.channel.id==724454726908772373: await message.author.add_roles(message.guild.get_role(701586228000325733))
+        
     await client.process_commands(message) # else bot will not respond to 99% commands
 
 def Username601():
     print('Logging in to discord...')
     client.run(environ['DISCORD_TOKEN'])
-if __name__=='__main__': Username601()

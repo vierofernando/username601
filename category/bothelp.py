@@ -45,56 +45,30 @@ class bothelp(commands.Cog):
     @command('commands,yardim,yardım')
     @cooldown(1)
     async def help(self, ctx, *args):
-        data = requests.get(self.client.utils.cfg("WEBSITE_MAIN")+"/assets/json/commands.json").json()
-        types, args = loads(open(self.client.utils.cfg("JSON_DIR")+'/categories.json').read()), list(args)
-        if len(args)<1:
-            cate, web_commands_list = '', self.client.utils.cfg('WEBSITE_COMMANDS')
-            for i in range(0, len(types)):
-                cate += f'**{str(i+1)}. **[{self.client.utils.prefix}help {str(types[i])}]({web_commands_list}?category={i})\n'
+        args = list(args)
+        if len(args) == 0:
+            cate = '\n'.join(['[{}. {}help {}]({}?category={})'.format(i+1, self.client.utils.prefix, self.client.cmds.categories[i], self.client.utils.cfg('WEBSITE_COMMANDS'), i) for i in range(len(self.client.cmds.categories))])
             embed = discord.Embed(
                 title='Username601\'s commands',
-                description='[Join the support server]('+self.client.utils.cfg('SERVER_INVITE')+') | [Vote us on top.gg](https://top.gg/bot/'+str(self.client.user.id)+'/vote)\n\n**[More information on our website here.]('+self.client.utils.cfg('WEBSITE_COMMANDS')+')**\n**Command Categories:** \n'+str(cate),
+                description='[Invite the bot]('+self.client.utils.cfg('BOT_INVITE')+') | [Vote us on top.gg](https://top.gg/bot/'+str(self.client.user.id)+'/vote)\n\n**[More information on our website here.]('+self.client.utils.cfg('WEBSITE_COMMANDS')+')**\n**Command Categories:** \n'+str(cate),
                 colour=self.client.utils.get_embed_color(discord)
             )
             embed.set_footer(text=f'Type {self.client.utils.prefix}help <command/category> for more details.')
             await ctx.send(embed=embed)
         else:
-            source = None
-            typ = ''
-            category_name = None
-            query = ' '.join(list(args))
-            for i in range(0, len(types)):
-                if query.lower()==types[i].lower():
-                    source = data[i][types[i]]
-                    typ = 'Category'
-                    category_name = types[i]
-                    break
-            if source==None:
-                for i in range(0, len(data)):
-                    for j in range(0, len(data[i][types[i]])):
-                        if query.lower()==data[i][types[i]][j]['n'].lower():
-                            source = data[i][types[i]][j]
-                            typ = 'Command'
-                            break
-                    if not typ=='':
-                        break
-            if source==None:
-                await ctx.send('Oops... Your command doesn\'t seem to exist.')
-            else:
-                if typ=='Category':
-                    cmds = []
-                    for i in range(0, len(source)):
-                        cmds.append(source[i]['n'])
-                    cmds = ', '.join(cmds)
-                    embed = discord.Embed(title='Category help for '+str(category_name)+':', description='**Commands:** \n```'+str(cmds)+'```', colour=self.client.utils.get_embed_color(discord))
-                if typ=='Command':
-                    parameters = 'No parameters required.'
-                    if len(source['p'])>0:
-                        parameters = ''
-                        for i in range(0, len(source['p'])):
-                            parameters += '**'+source['p'][i]+'**\n'
-                    embed = discord.Embed(title='Command help for '+str(source['n'])+':', description='**Function: **'+str(source['f'])+'\n**Parameters:** \n'+str(parameters), colour=self.client.utils.get_embed_color(discord))
-                await ctx.send(embed=embed)
+            data = self.client.cmds.get_commands_auto(' '.join(list(args)).lower())
+            if data==None: return await ctx.send('{} | Your command/category name does not exist, sorry!'.format(self.client.utils.emote(self.client, 'error')))
+            datatype = 'Category' if isinstance(data, list) else 'Command'
+            desc = '**Command name: **{}\n**Function: **{}\n**Category: **{}'.format(
+                data['name'], data['function'], data['category']
+            ) if datatype=='Command' else '**Commands count: **{}\n**Commands:**```{}```'.format(len(data), ', '.join([i['name'] for i in data]))
+            embed = discord.Embed(title='{} help for {}'.format(datatype, ' '.join(list(args))), description=desc, color=self.client.utils.get_embed_color(discord))
+            if datatype=='Command':
+                parameters = 'No parameters required.' if len(data['parameters'])==0 else '\n'.join([i for i in data['parameters']])
+                apis = 'No APIs used.' if len(data['apis'])==0 else '\n'.join([f'[{i}]({i})' for i in data['apis']])
+                embed.add_field(name='Parameters', value=parameters)
+                embed.add_field(name='APIs used', value=apis)
+            await ctx.send(embed=embed)
 
     @command()
     @cooldown(1)
