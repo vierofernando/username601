@@ -415,12 +415,24 @@ class memes(commands.Cog):
                 else: text = 'I forgot to put the arguments, oops'
             await ctx.send(file=discord.File(self.client.canvas.urltoimage('https://api.alexflipnote.dev/floor?image='+auth+'&text='+self.client.utils.urlify(text)), 'floor.png'))
 
-    @command('bad')
+    @command('doctor,terrifying,terrified,doctor,eyedoctor,scary,frightening')
+    @cooldown(2)
+    async def bad(self, ctx, *args):
+        ava = self.client.utils.getUserAvatar(ctx, args)
+        async with ctx.channel.typing():
+            im = self.client.canvas.trans_merge({
+                'url': ava,
+                'filename': 'doctor.png',
+                'pos': (348, 240),
+                'size': (93, 107)
+            })
+            return await ctx.send(file=discord.File(im, 'holyshit.png'))
+
+    @command()
     @cooldown(7)
     async def amiajoke(self, ctx, *args):
         source = self.client.utils.getUserAvatar(ctx, args)
-        if 'bad' in ctx.message.content: url = 'https://api.alexflipnote.dev/bad?image='+str(source)
-        else: url = 'https://api.alexflipnote.dev/amiajoke?image='+str(source)
+        url = 'https://api.alexflipnote.dev/amiajoke?image='+str(source)
         await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'maymays.png'))
 
     @command('avmeme,philosoraptor,money,doge,fry')
