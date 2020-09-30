@@ -415,7 +415,7 @@ class memes(commands.Cog):
                 else: text = 'I forgot to put the arguments, oops'
             await ctx.send(file=discord.File(self.client.canvas.urltoimage('https://api.alexflipnote.dev/floor?image='+auth+'&text='+self.client.utils.urlify(text)), 'floor.png'))
 
-    @command('doctor,terrifying,terrified,doctor,eyedoctor,scary,frightening')
+    @command('doctor,terrifying,terrified,eye-doctor,eyedoctor,eyedoctor,scary,frightening')
     @cooldown(2)
     async def bad(self, ctx, *args):
         ava = self.client.utils.getUserAvatar(ctx, args)
