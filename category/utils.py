@@ -73,12 +73,13 @@ class utils(commands.Cog):
             embed = discord.Embed(
                 url='https://bulbapedia.bulbagarden.net/wiki/{}'.format(query),
                 color=self.client.utils.get_embed_color(),
-                title=data['query']['pages'][0]['title'], description=data['query']['pages'][0]['extract'][0:1000]
+                title=data['query']['pages'][0]['title'], description=limitto(data['query']['pages'][0]['extract'], 1000)
             )
             try:
                 pokeimg = data['query']['pages'][0]['thumbnail']['source']
                 embed.set_thumbnail(url=pokeimg)
-            except: pass
+            except:
+                pass
             await ctx.send(embed=embed)
         except Exception as e:
             print(e)

@@ -463,11 +463,14 @@ class Painter:
         for i in range(im.width):
             for j in range(im.height):
                 br = round(sum(im.getpixel((i, j)))/3)
-                if br in range(0, 50): total_str += '.'
-                elif br in range(50, 100): total_str += '/'
-                elif br in range(100, 150): total_str += '$'
-                elif br in range(150, 200): total_str += '#'
-                else: total_str += '@'
+                if br in range(0, 32): total_str += ':'
+                elif br in range(32, 64): total_str += '-'
+                elif br in range(64, 96): total_str += '='
+                elif br in range(96, 128): total_str += '+'
+                elif br in range(128, 159): total_str += '*'
+                elif br in range(159, 191): total_str += '#'
+                elif br in range(191, 223): total_str += '%'
+                else: total_str += "@"
             total_str += '\n'
         return '\n'.join([i[::-1] for i in total_str.split('\n')])
     
