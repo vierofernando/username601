@@ -147,14 +147,10 @@ class games(commands.Cog):
             await main.add_reaction('😔')
         emojiArray, ran, given, beginGame = None, None, None, False
         if str(reaction.emoji) in exp:
-            emotes = ["fist", "hand_splayed", "v"]
-            num = findNum(str(reaction.emoji), exp)
-            beginGame = True
+            emotes, num, beginGame = ["fist", "hand_splayed", "v"], exp.index(str(reaction.emoji)), True
             res = self.client.games.rps(emotes[num])
-            given = emotes[num]
-            msgId = res[0]
-            emojiArray = emotes
-            ran = res[1]
+            given, msgId = emotes[num], res[0]
+            emojiArray, ran = emotes, res[1]
         messages = ["Congratulations! "+str(ctx.author.name)+" WINS!", "It's a draw.", "Oops, "+str(ctx.author.name)+" lost!"]
         colors = [self.client.utils.get_embed_color(), discord.Colour.orange(), self.client.utils.get_embed_color()]
         if beginGame:
