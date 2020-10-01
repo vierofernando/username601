@@ -49,7 +49,7 @@ class memes(commands.Cog):
     @cooldown(2)
     async def programmingmeme(self, ctx):
         data = self.client.utils.fetchJSON('https://useless-api.vierofernando.repl.co/programmermeme')['url']
-        return await ctx.send(embed=discord.Embed(title='Programmer meme', color=self.client.utils.get_embed_color(discord)).set_image(url=data))
+        return await ctx.send(embed=discord.Embed(title='Programmer meme', color=self.client.utils.get_embed_color()).set_image(url=data))
 
     @command('shred,burn,spongebobpaper,paper,spongepaper,sponge-paper,spongebob-paper,spongebob')
     @cooldown(1)
@@ -191,7 +191,7 @@ class memes(commands.Cog):
     @cooldown(5)
     async def didyoumean(self, ctx, *args):
         if list(args)[0]=='help' or len(list(args))==0:
-            embed = discord.Embed(title='didyoumean command help', description='Type like the following\n'+self.client.utils.prefix+'didyoumean [text1] [text2]\n\nFor example:\n'+self.client.utils.prefix+'didyoumean [i am gay] [i am guy]', colour=self.client.utils.get_embed_color(discord))
+            embed = discord.Embed(title='didyoumean command help', description='Type like the following\n'+self.client.utils.prefix+'didyoumean [text1] [text2]\n\nFor example:\n'+self.client.utils.prefix+'didyoumean [i am gay] [i am guy]', colour=self.client.utils.get_embed_color())
             await ctx.send(embed=embed)
         else:
             try:
@@ -235,31 +235,18 @@ class memes(commands.Cog):
     @cooldown(5)
     async def ifearnoman(self, ctx, *args):
         async with ctx.channel.typing():
-            source, by = self.client.utils.getUserAvatar(ctx, args), str(ctx.author.avatar_url).replace('.webp?size=1024', '.png?size=512')
+            source, by = self.client.utils.getUserAvatar(ctx, args), str(ctx.author.avatar_url_as(format='png', size=512))
             await ctx.send(file=discord.File(self.client.canvas.ifearnoman(by, source), 'i_fear_no_man.png'))
 
     @command()
     @cooldown(5)
     async def triggered(self, ctx, *args):
-        increment, accept = None, True
-        for i in list(args):
-            if i.isnumeric():
-                increment = int(i)
-                break
-        if increment==None: increment = 5
-        if increment!=5:
-            if increment<1: 
-                accept = False
-                await ctx.send(str(self.client.utils.emote(self.client, 'error') + " | Increment to small!"))
-            elif increment>50:
-                accept = False
-                await ctx.send(str(self.client.utils.emote(self.client, 'error') + " | Increment too big!"))
-        if accept:
-            if len(ctx.message.mentions)==0: ava = str(ctx.author.avatar_url).replace('.webp?size=1024', '.jpg?size=512')
-            else: ava = str(ctx.message.mentions[0].avatar_url).replace('.webp?size=1024', '.jpg?size=512')
-            async with ctx.channel.typing():
-                data = self.client.gif.triggered(ava, increment)
-                await ctx.send(file=discord.File(data, 'triggered.gif'))
+        ava = self.client.utils.getUserAvatar(ctx, args)
+        test_arr = [i for i in list(args) if i.isnumeric()]
+        increment = 5 if len(test_arr)==0 else test_arr[0]
+        async with ctx.channel.typing():
+            data = self.client.gif.triggered(ava, int(increment))
+            await ctx.send(file=discord.File(data, 'triggered.gif'))
 
     @command('communism,ussr,soviet,cykablyat,cyka-blyat,blyat')
     @cooldown(5)
@@ -273,9 +260,9 @@ class memes(commands.Cog):
     @cooldown(5)
     async def trash(self, ctx, *args):
         async with ctx.channel.typing():
-            av = ctx.author.avatar_url
+            av = ctx.author.avatar_url_as(format='png')
             toTrash = self.client.utils.getUserAvatar(ctx, args)
-            url='https://api.alexflipnote.dev/trash?face='+str(av).replace('webp', 'png')+'&trash='+str(toTrash).replace('webp', 'png')
+            url='https://api.alexflipnote.dev/trash?face='+str(av)+'&trash='+str(toTrash)
             data = self.client.canvas.urltoimage(url)
             await ctx.send(file=discord.File(data, 'trashed.png'))
 
@@ -327,7 +314,7 @@ class memes(commands.Cog):
         else:
             async with ctx.channel.typing():
                 scrolltxt = self.client.utils.urlify(' '.join(list(args)))
-                embed = discord.Embed(colour=self.client.utils.get_embed_color(discord))
+                embed = discord.Embed(colour=self.client.utils.get_embed_color())
                 url='https://api.alexflipnote.dev/scroll?text='+str(scrolltxt)
                 data = self.client.canvas.urltoimage(url)
                 await ctx.send(file=discord.File(data, 'scroll.png'))
@@ -385,7 +372,7 @@ class memes(commands.Cog):
     @cooldown(5)
     async def meme(self, ctx):
         data = self.client.utils.fetchJSON("https://meme-api.herokuapp.com/gimme")
-        embed = discord.Embed(colour = self.client.utils.get_embed_color(discord))
+        embed = discord.Embed(colour = self.client.utils.get_embed_color())
         embed.set_author(name=data["title"], url=data["postLink"])
         if data["nsfw"]:
             embed.set_footer(text='WARNING: IMAGE IS NSFW.')
@@ -407,10 +394,10 @@ class memes(commands.Cog):
     async def floor(self, ctx, *args):
         if len(list(args))==0: text = 'I forgot to put the arguments, oops'
         else: text = str(' '.join(args))
-        auth = str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp', '.png')
+        auth = str(ctx.author.avatar_url_as(format='png'))
         async with ctx.channel.typing():
             if len(ctx.message.mentions)>0:
-                auth = str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp').replace('.webp', '.png')
+                auth = str(ctx.message.mentions[0].avatar_url_as(format='png'))
                 if len(args)>2: text = str(ctx.message.content).split('> ')[1]
                 else: text = 'I forgot to put the arguments, oops'
             await ctx.send(file=discord.File(self.client.canvas.urltoimage('https://api.alexflipnote.dev/floor?image='+auth+'&text='+self.client.utils.urlify(text)), 'floor.png'))
@@ -441,13 +428,11 @@ class memes(commands.Cog):
         if 'avmeme' in ctx.message.content:
             async with ctx.channel.typing():
                 try:
-                    av = ctx.message.mentions[0].avatar_url
+                    av = ctx.message.mentions[0].avatar_url_as(format='png')
                     mes = ctx.message.content[int(len(args[0])+len(args[1])+1):]
                     top = self.client.utils.urlify(str(ctx.message.content).split('[')[1].split(']')[0])
                     bott = self.client.utils.urlify(str(ctx.message.content).split('[')[2].split(']')[0])
-                    name = 'custom'
-                    extr = '?alt='+str(av).replace('webp', 'png')
-                    url='https://memegen.link/'+str(name)+'/'+str(top)+'/'+str(bott)+'.jpg'+str(extr)
+                    url='https://memegen.link/custom/'+str(top)+'/'+str(bott)+'.jpg'+str(extr)+'?alt='+str(av)
                     await ctx.send(file=discord.File(self.client.canvas.memegen(url), 'avmeme.png'))
                 except Exception as e:
                     await ctx.send(self.client.utils.emote(self.client, 'error') +f' | Error!\n```{e}```Invalid parameters. Example: `{self.client.utils.prefix}avmeme <tag someone> [top text] [bottom text]`')

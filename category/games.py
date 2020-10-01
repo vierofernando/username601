@@ -48,7 +48,7 @@ class games(commands.Cog):
                     else: like = ':+1:'
                     levels += str(count+1)+'. **'+data[count]['name']+'** by '+data[count]['author']+' (`'+data[count]['id']+'`)\n:arrow_down: '+data[count]['downloads']+' | '+like+' '+data[count]['likes']+'\n'
                     count += 1
-                embedy = discord.Embed(title='Geometry Dash Level searches for "'+str(' '.join(list(args)))+'":', description=levels, colour=self.client.utils.get_embed_color(discord))
+                embedy = discord.Embed(title='Geometry Dash Level searches for "'+str(' '.join(list(args)))+'":', description=levels, colour=self.client.utils.get_embed_color())
                 await ctx.send(embed=embedy)
             except:
                 await ctx.send(self.client.utils.emote(self.client, 'error') + ' | Error: Not Found. :four::zero::four:')
@@ -96,12 +96,12 @@ class games(commands.Cog):
         if len(list(args))==0: await ctx.send(self.client.utils.emote(self.client, 'error')+' | Please input a text!')
         else:
             async with ctx.channel.typing():
-                text, av = self.client.utils.urlify(str(' '.join(list(args)))), ctx.author.avatar_url
+                text, av = self.client.utils.urlify(str(' '.join(list(args)))), ctx.author.avatar_url_as(format='png')
                 if len(text)>100: await ctx.send(self.client.utils.emote(self.client, 'error') +' | the text is too long!')
                 else:
                     if not ctx.author.guild_permissions.manage_guild: color = 'brown'
                     else: color = 'blue'
-                    url='https://gdcolon.com/tools/gdtextbox/img/'+str(text)+'?color='+color+'&name='+str(ctx.author.name)+'&url='+str(av).replace('webp', 'png')+'&resize=1'
+                    url='https://gdcolon.com/tools/gdtextbox/img/'+str(text)+'?color='+color+'&name='+str(ctx.author.name)+'&url='+str(av)+'&resize=1'
                     await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'gdbox.png'))
    
     @command()
@@ -135,7 +135,7 @@ class games(commands.Cog):
     @command('rockpaperscissors')
     @cooldown(5)
     async def rps(self, ctx):
-        main = await ctx.send(embed=discord.Embed(title='Rock Paper Scissors game.', description='Click the reaction below. And game will begin.', colour=self.client.utils.get_embed_color(discord)))
+        main = await ctx.send(embed=discord.Embed(title='Rock Paper Scissors game.', description='Click the reaction below. And game will begin.', colour=self.client.utils.get_embed_color()))
         exp = ['✊', '🖐️', '✌']
         for i in range(0, len(exp)):
             await main.add_reaction(exp[i])
@@ -156,7 +156,7 @@ class games(commands.Cog):
             emojiArray = emotes
             ran = res[1]
         messages = ["Congratulations! "+str(ctx.author.name)+" WINS!", "It's a draw.", "Oops, "+str(ctx.author.name)+" lost!"]
-        colors = [self.client.utils.get_embed_color(discord), discord.Colour.orange(), self.client.utils.get_embed_color(discord)]
+        colors = [self.client.utils.get_embed_color(), discord.Colour.orange(), self.client.utils.get_embed_color()]
         if beginGame:
             embed = discord.Embed(
                 title = messages[msgId],
@@ -182,9 +182,10 @@ class games(commands.Cog):
                 prize = random.randint(50, 200)
                 self.client.db.Economy.addbal(ctx.author.id, prize) ; await ctx.send('your bet was right! you get '+str(prize)+' bobux.')
         else:
-            res = ['one', 'two', 'three', 'four', 'five', 'six'][random.randint(0, 5)]
+            arr = ['one', 'two', 'three', 'four', 'five', 'six']
+            res = arr[random.randint(0, 5)]
             await ctx.send(':'+res+':')
-            if len(list(args))>0 and args[0].lower()==res.lower() and self.client.db.Economy.get(ctx.author.id)!=None:
+            if len(list(args))>0 and (args[0].lower()==res.lower() or args[0].lower() == str(arr.index(res)+1)) and self.client.db.Economy.get(ctx.author.id)!=None:
                 prize = random.randint(50, 150)
                 self.client.db.Economy.addbal(ctx.author.id, prize) ; await ctx.send('your bet was right! you get '+str(prize)+' bobux.')
 
@@ -192,51 +193,44 @@ class games(commands.Cog):
     @cooldown(30)
     async def guessavatar(self, ctx):
         wait = await ctx.send(self.client.utils.emote(self.client, 'loading') + ' | Please wait... generating question...\nThis process may take longer if your server has more members.')
-        avatarAll, nameAll = [], []
-        for ppl in ctx.guild.members:
-            if ctx.guild.get_member(int(ppl.id)).status.name!='offline':
-                avatarAll.append(str(ppl.avatar_url).replace('webp', 'png'))
-                nameAll.append(ppl.display_name)
-        if len(avatarAll)<=4:
-            await ctx.send(self.client.utils.emote(self.client, 'error') +' | Need more online members! :x:')
-        else:
-            numCorrect = random.randint(0, len(avatarAll)-1)
-            corr_avatar, corr_name = avatarAll[numCorrect], nameAll[numCorrect]
-            nameAll.remove(corr_name)
-            wrongArr = []
-            for i in range(0, 3):
-                wrongArr.append(random.choice(nameAll))
-            abcs, emots = list('🇦🇧🇨🇩'), list('🇦🇧🇨🇩')
-            randomInt = random.randint(0, 3)
-            corr_order = random.choice(abcs[randomInt])
-            abcs[randomInt] = '0'
-            question, chooseCount = '', 0
-            for assign in abcs:
-                if assign!='0':
-                    question += '**'+ str(assign) + '.** '+str(wrongArr[chooseCount])+ '\n'
-                    chooseCount += 1
-                else:
-                    question += '**'+ str(corr_order) + '.** '+str(corr_name)+ '\n'
-            embed = discord.Embed(title='What does the avatar below belongs to?', description=':eyes: Click the reactions! **You have 20 seconds.**\n\n'+str(question), colour=self.client.utils.get_embed_color(discord))
-            embed.set_footer(text='For privacy reasons, the people displayed above are online users.')
-            embed.set_image(url=corr_avatar)
-            main = await ctx.send(embed=embed)
-            for i in emots: await main.add_reaction(i)
-            def is_correct(reaction, user):
-                return user == ctx.author
-            try:
-                reaction, user = await self.client.wait_for('reaction_add', check=is_correct, timeout=20.0)
-            except asyncio.TimeoutError:
-                return await ctx.send(':pensive: No one? Okay then, the answer is: '+str(corr_order)+'. '+str(corr_name))
-            if str(reaction.emoji)==str(corr_order):
-                await ctx.send(self.client.utils.emote(self.client, 'success') +' | <@'+str(ctx.author.id)+'>, You are correct! :tada:')
-                if self.client.db.Economy.get(ctx.author.id)!=None:
-                    reward = random.randint(5, 100)
-                    self.client.db.Economy.addbal(ctx.author.id, reward)
-        
-                    await ctx.send('thanks for playing! You received '+str(reward)+' extra bobux!')
+        avatarAll, nameAll = [str(i.avatar_url) for i in ctx.guild.members if i.status.name!='offline'], [i.display_name for i in ctx.guild.members if i.status.name!='offline']
+        if len(avatarAll)<=4: return await ctx.send(self.client.utils.emote(self.client, 'error') +' | Need more online members! :x:')
+        numCorrect = random.randint(0, len(avatarAll)-1)
+        corr_avatar, corr_name = avatarAll[numCorrect], nameAll[numCorrect]
+        nameAll.remove(corr_name)
+        wrongArr = []
+        for i in range(0, 3):
+            wrongArr.append(random.choice(nameAll))
+        abcs, emots = list('🇦🇧🇨🇩'), list('🇦🇧🇨🇩')
+        randomInt = random.randint(0, 3)
+        corr_order = random.choice(abcs[randomInt])
+        abcs[randomInt] = '0'
+        question, chooseCount = '', 0
+        for assign in abcs:
+            if assign!='0':
+                question += '**'+ str(assign) + '.** '+str(wrongArr[chooseCount])+ '\n'
+                chooseCount += 1
             else:
-                await ctx.send(self.client.utils.emote(self.client, 'error') +' | <@'+str(ctx.author.id)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
+                question += '**'+ str(corr_order) + '.** '+str(corr_name)+ '\n'
+        embed = discord.Embed(title='What does the avatar below belongs to?', description=':eyes: Click the reactions! **You have 20 seconds.**\n\n'+str(question), colour=self.client.utils.get_embed_color())
+        embed.set_footer(text='For privacy reasons, the people displayed above are online users.')
+        embed.set_image(url=corr_avatar)
+        main = await ctx.send(embed=embed)
+        for i in emots: await main.add_reaction(i)
+        def is_correct(reaction, user):
+            return user == ctx.author
+        try:
+            reaction, user = await self.client.wait_for('reaction_add', check=is_correct, timeout=20.0)
+        except asyncio.TimeoutError:
+            return await ctx.send(':pensive: No one? Okay then, the answer is: '+str(corr_order)+'. '+str(corr_name))
+        if str(reaction.emoji)==str(corr_order):
+            await ctx.send(self.client.utils.emote(self.client, 'success') +' | <@'+str(ctx.author.id)+'>, You are correct! :tada:')
+            if self.client.db.Economy.get(ctx.author.id)!=None:
+                reward = random.randint(5, 100)
+                self.client.db.Economy.addbal(ctx.author.id, reward)
+                await ctx.send('thanks for playing! You received '+str(reward)+' extra bobux!')
+        else:
+            await ctx.send(self.client.utils.emote(self.client, 'error') +' | <@'+str(ctx.author.id)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
 
     @command()
     @cooldown(15)
@@ -245,7 +239,7 @@ class games(commands.Cog):
         data, topic = self.client.utils.fetchJSON("https://restcountries.eu/rest/v2/"), random.choice(['capital', 'region', 'subregion', 'population', 'demonym', 'nativeName'])
         chosen_nation_num = random.randint(0, len(data))
         chosen_nation, wrongs = data[chosen_nation_num], []
-        data.remove(data[chosen_nation_num])
+        del data[chosen_nation_num]
         correct = str(chosen_nation[topic])
         for i in range(0, 4):
             integer = random.randint(0, len(data))
@@ -261,7 +255,7 @@ class games(commands.Cog):
                 wrongs.remove(added)
             else:
                 question += corr_order + ' ' + correct + '\n'
-        embed = discord.Embed(title='Geography: '+str(topic)+' quiz!', description=':nerd: Click on the reaction! **You have 20 seconds.**\n\nWhich '+str(topic)+' belongs to '+str(chosen_nation['name'])+'?\n'+str(question), colour=self.client.utils.get_embed_color(discord))
+        embed = discord.Embed(title='Geography: '+str(topic)+' quiz!', description=':nerd: Click on the reaction! **You have 20 seconds.**\n\nWhich '+str(topic)+' belongs to '+str(chosen_nation['name'])+'?\n'+str(question), colour=self.client.utils.get_embed_color())
         await wait.edit(content='', embed=embed)
         for i in range(0, len(static_emot)):
             await wait.add_reaction(static_emot[i])
@@ -283,10 +277,10 @@ class games(commands.Cog):
     @command()
     @cooldown(4)
     async def mathquiz(self, ctx):
-        arrayId, num1, num2, symArray = random.randint(0, 4), random.randint(1, 100), random.randint(1, 100), ['+', '-', 'x', ':', '^']
-        ansArray = [num1+num2, num1-num2, num1*num2, num1/num2, num1**num2]
+        arrayId, num1, num2, symArray = random.randint(0, 4), random.randint(1, 500), random.randint(1, 500), ['+', '-', 'x', '÷']
+        ansArray = [num1+num2, num1-num2, num1*num2, num1/num2]
         sym = symArray[arrayId]
-        await ctx.send('**MATH QUIZ (15 seconds)**\n'+str(num1)+' '+str(sym)+' '+str(num2)+' = ???')
+        await ctx.send('**MATH QUIZ (15 seconds, answer rounded)**\n'+str(num1)+' '+str(sym)+' '+str(num2)+' = ???')
         def is_correct(m):
             return m.author == ctx.author
         answer = round(ansArray[arrayId])
@@ -316,7 +310,7 @@ class games(commands.Cog):
         while gameplay:
             if ctx.message.content==self.client.utils.prefix+'hangman' and ctx.author.id!=int(playing_with_id) and ctx.guild.id==server_id:
                 await ctx.send('<@'+str(ctx.author.id)+'>, cannot play hangman when a game is currently playing!')
-            newembed = discord.Embed(title=''.join(main_guess_hid), description='Wrong guesses: '+str(wrong_guesses), colour=self.client.utils.get_embed_color(discord))
+            newembed = discord.Embed(title=''.join(main_guess_hid), description='Wrong guesses: '+str(wrong_guesses), colour=self.client.utils.get_embed_color())
             newembed.set_image(url=f'https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{str(level)}.png')
             newembed.set_footer(text='Type "showanswer" to show the answer and end the game.')
             await ctx.send(embed=newembed)
@@ -368,17 +362,17 @@ class games(commands.Cog):
             slots.append(self.client.games.slotify(newslot))
         if win:
             msgslot = 'You win!'
-            col = self.client.utils.get_embed_color(discord)
+            col = self.client.utils.get_embed_color()
             if jackpot:
                 msgslot = 'JACKPOT!'
-                col = self.client.utils.get_embed_color(discord)
+                col = self.client.utils.get_embed_color()
             if self.client.db.Economy.get(ctx.author.id)!=None:
                 reward = random.randint(500, 1000)
                 self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! you received a whopping '+str(reward)+' bobux!')
         else:
             msgslot = 'You lose... Try again!'
-            col = self.client.utils.get_embed_color(discord)
+            col = self.client.utils.get_embed_color()
         embed = discord.Embed(title=msgslot, description=slots[0]+'\n\n'+slots[1]+'\n\n'+slots[2], colour=col)
         await ctx.send(embed=embed)
 
@@ -387,8 +381,8 @@ class games(commands.Cog):
     async def bomb(self, ctx):
         def embedType(a):
             if a==1: return discord.Embed(title='The bomb exploded!', description='Game OVER!', colour=discord.Colour(000))
-            elif a==2: return discord.Embed(title='The bomb defused!', description='Congratulations! :grinning:', colour=self.client.utils.get_embed_color(discord))
-        embed = discord.Embed(title='DEFUSE THE BOMB!', description='**Cut the correct wire!\nThe bomb will explode in 15 seconds!**', colour=self.client.utils.get_embed_color(discord))
+            elif a==2: return discord.Embed(title='The bomb defused!', description='Congratulations! :grinning:', colour=self.client.utils.get_embed_color())
+        embed = discord.Embed(title='DEFUSE THE BOMB!', description='**Cut the correct wire!\nThe bomb will explode in 15 seconds!**', colour=self.client.utils.get_embed_color())
         main = await ctx.send(embed=embed)
         buttons = ['🔴', '🟡', '🔵', '🟢']
         for i in range(0, len(buttons)):
@@ -411,7 +405,7 @@ class games(commands.Cog):
         num = random.randint(5, 100)
         username = ctx.author.display_name
         user_class = ctx.author
-        embed = discord.Embed(title='Starting the game!', description='You have to guess a *secret* number between 5 and 100!\n\nYou have 8 attempts, and 20 second timer in each attempt!\n\n**G O O D  L U C K**', colour=self.client.utils.get_embed_color(discord))
+        embed = discord.Embed(title='Starting the game!', description='You have to guess a *secret* number between 5 and 100!\n\nYou have 8 attempts, and 20 second timer in each attempt!\n\n**G O O D  L U C K**', colour=self.client.utils.get_embed_color())
         await ctx.send(embed=embed)
         gameplay = True
         attempts = 8
@@ -462,7 +456,7 @@ class games(commands.Cog):
                 if q['answer']==q['options'][i]:
                     corr = al[i]
                 choices = choices + al[i] +' '+ q['options'][i]+'\n'
-            embed = discord.Embed(title='Trivia!', description='**'+q['question']+'**\n'+choices, colour=self.client.utils.get_embed_color(discord))
+            embed = discord.Embed(title='Trivia!', description='**'+q['question']+'**\n'+choices, colour=self.client.utils.get_embed_color())
             embed.set_footer(text='Answer by clicking the reaction! You have 60 seconds.')
             await wait.edit(content='', embed=embed)
             for i in range(0, len(al)):

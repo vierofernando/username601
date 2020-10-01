@@ -51,12 +51,6 @@ def get_embed_color():
         int(color[0]), int(color[1]), int(color[2])
     )
 
-def getCommandLength():
-    data, count = requests.get(cfg('WEBSITE_MAIN')+'/assets/json/commands.json').json(), 0
-    for i in range(len(data)):
-        count += len(data[i][list(data[i].keys())[0]])
-    return count
-
 def ping():
     url = cfg('HOST_URL')
     if url.lower()=='none': return None
@@ -71,8 +65,8 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
             Vld = inspect_image_url(ctx.message.attachments[0].url)
             if Vld:
                 return ctx.message.attachments[0].url
-        if allowgif: return str(ctx.author.avatar_url).replace('.webp?size=1024', '.png?size'+str(size))
-        else: return str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', '.png?size'+str(size))
+        if allowgif: return str(ctx.author.avatar_url_as(size=size))
+        else: return str(ctx.author.avatar_url_as(format='png', size=size))
     elif len(list(args))==1 and (list(args)[0].startswith('http') or list(args)[0].startswith('<http')):
         if list(args)[0].startswith('<') and list(args)[0].endswith('>'):
             res = list(args)[0][:-1][1:]
@@ -82,8 +76,8 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
         if inspect_image_url(list(args)[0]):
             return list(args)[0]
     if len(ctx.message.mentions)>0:
-        if not allowgif: return str(ctx.message.mentions[0].avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', f'.png?size={size}')
-        return str(ctx.message.mentions[0].avatar_url).replace('?size=1024', f'?size={size}')
+        if not allowgif: return str(ctx.message.mentions[0].avatar_url_as(format='png', size=size))
+        return str(ctx.message.mentions[0].avatar_url_as(size=size))
     name = str(' '.join(list(args))).lower().split('#')[0] # disable discriminator if found
     for i in ctx.guild.members:
         if name in str(i.name).lower():
@@ -91,14 +85,14 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
         elif name in str(i.nick).lower():
             user = i; break
     if user!=None:
-        if not allowgif: return str(user.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', f'.png?size={size}')
-        return str(user.avatar_url).replace('?size=1024', f'?size={size}')
+        if not allowgif: return str(user.avatar_url_as(format='png', size=size))
+        return str(user.avatar_url_as(size=size))
     elif list(args)[0].isnumeric():
         if int(list(args)[0]) not in [i.id for i in ctx.guild.members]: raise noUserFound()
-        if not allowgif: return str(ctx.guild.get_member(int(list(args)[0])).avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', f'.png?size={size}')
-        return str(ctx.guild.get_member(int(list(args)[0])).avatar_url).replace('?size=1024', f'?size={size}')
-    if not allowgif: return str(ctx.author.avatar_url).replace('.gif', '.webp').replace('.webp?size=1024', f'.png?size={size}')
-    return str(ctx.author.avatar_url).replace('?size=1024', f'?size={size}')
+        if not allowgif: return str(ctx.guild.get_member(int(list(args)[0])).avatar_url_as(format='png', size=size))
+        return str(ctx.guild.get_member(int(list(args)[0])).avatar_url_as(size=size))
+    if not allowgif: return str(ctx.author.avatar_url_as(format='png', size=size))
+    return str(ctx.author.avatar_url_as(size=size))
 
 def getUser(ctx, args, user=None, allownoargs=True):
     if len(list(args))==0:
@@ -116,15 +110,6 @@ def getUser(ctx, args, user=None, allownoargs=True):
         if int(list(args)[0]) not in [i.id for i in ctx.guild.members]: raise noUserFound()
         return ctx.guild.get_member(int(list(args)[0]))
     return ctx.author
-
-def limitto(text, limitcount):
-    a = text
-    if len(a) < limitcount: return text
-    while (len(a) > limitcount):
-        temp = list(a)
-        temp.pop()
-        a = ''.join(temp)
-    return a
 
 def html2discord(text):
     res = text.replace('<p>', '').replace('</p>', '').replace('<b>', '**').replace('</b>', '**').replace('<i>', '*').replace('</i>', '*').replace('<br />', '\n')

@@ -233,9 +233,9 @@ class image(commands.Cog):
     async def ship(self, ctx):
         async with ctx.channel.typing():
             if len(ctx.message.mentions)!=2:
-                first, second = str(ctx.author.avatar_url).replace('webp', 'png'), str(random.choice(i.avatar_url for i in ctx.guild.members).replace('webp', 'png'))
+                first, second = str(ctx.author.avatar_url_as(format='png')), str(random.choice([i.avatar_url_as(format='png') for i in ctx.guild.members]))
             else:
-                first, second = str(ctx.message.mentions[0].avatar_url).replace('webp', 'png'), str(ctx.message.mentions[1].avatar_url).replace('webp', 'png')
+                first, second = str(ctx.message.mentions[0].avatar_url_as(format='png')), str(ctx.message.mentions[1].avatar_url_as(format='png'))
             url = f'https://api.alexflipnote.dev/ship?user={first}&user2={second}'
             await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'ship.png'))
 

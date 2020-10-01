@@ -5,6 +5,7 @@ from os import getcwd, name, environ
 sys.path.append(environ['BOT_MODULES_DIR'])
 from decorators import command, cooldown
 import random
+from io import BytesIO
 from requests import post, get
 from json import loads
 from datetime import datetime as t
@@ -42,8 +43,13 @@ class utils(commands.Cog):
         url = self.client.utils.getUserAvatar(ctx, args)
         wait = await ctx.send('{} | Please wait...'.format(self.client.utils.emote(self.client, 'loading')))
         text = self.client.canvas.imagetoASCII(url)
-        data = post("https://hastebin.com/documents", data=text)
-        if data.status_code!=200: return await wait.edit(content="{} | Oops! there was an error on posting it there.".format(self.client.utils.emote(self.client, 'error')))
+        try:
+            data = post("https://hastebin.com/documents", data=text, timeout=3)
+            assert data.status_code == 200
+        except:
+            await wait.delete()
+            file = discord.File(BytesIO(bytes(text, 'utf-8')), filename='ascii.txt')
+            return await ctx.send(content="{} | Oops! there was an error on posting it there. Don't worry, instead i send it as an attachment here:".format(self.client.utils.emote(self.client, 'error')), file=file)
         return await wait.edit(content='{} | You can see the results at **https://hastebin.com/{}**!'.format(self.client.utils.emote(self.client, 'success'), data.json()['key']))
     
     @command()
@@ -67,13 +73,12 @@ class utils(commands.Cog):
             embed = discord.Embed(
                 url='https://bulbapedia.bulbagarden.net/wiki/{}'.format(query),
                 color=self.client.utils.get_embed_color(),
-                title=data['query']['pages'][0]['title'], description=limitto(data['query']['pages'][0]['extract'], 1000)
+                title=data['query']['pages'][0]['title'], description=data['query']['pages'][0]['extract'][0:1000]
             )
             try:
                 pokeimg = data['query']['pages'][0]['thumbnail']['source']
                 embed.set_thumbnail(url=pokeimg)
-            except:
-                pass
+            except: pass
             await ctx.send(embed=embed)
         except Exception as e:
             print(e)
@@ -110,7 +115,7 @@ class utils(commands.Cog):
         embed = discord.Embed(
             title = str(date)+' | '+str(time)+' (API)',
             description = str(t.now())[:-7]+' (SYSTEM)\nBoth time above is on UTC.\n**Unix Time:** '+str(data["unixtime"])+'\n**Day of the year: **'+str(data["day_of_year"])+' ('+str(progressDayYear)+'%)\n**Day of the week: **'+str(data["day_of_week"])+' ('+str(progressDayWeek)+'%)\n'+str(yearType),
-            colour = get_embed_color()
+            colour = self.client.utils.get_embed_color()
         )
         await ctx.send(embed=embed)
     @command()
@@ -233,7 +238,7 @@ class utils(commands.Cog):
             embed = discord.Embed(
                 title = 'List of Ghibli Films',
                 description = str(films),
-                color = get_embed_color()
+                color = self.client.utils.get_embed_color()
             )
             embed.set_footer(text='Type `'+str(self.client.utils.prefix)+'ghibli <number>` to get each movie info.')
             await wait.edit(content='', embed=embed)
@@ -243,7 +248,7 @@ class utils(commands.Cog):
                 embed = discord.Embed(
                     title = data[num]['title'] + ' ('+str(data[num]['release_date'])+')',
                     description = '**Rotten Tomatoes Rating: '+str(data[num]['rt_score'])+'%**\n'+data[num]['description'],
-                    color = get_embed_color()
+                    color = self.client.utils.get_embed_color()
                 )
                 embed.add_field(name='Directed by', value=data[num]['director'], inline='True')
                 embed.add_field(name='Produced by', value=data[num]['producer'], inline='True')
@@ -257,7 +262,7 @@ class utils(commands.Cog):
             getprof = self.client.utils.urlify(list(args)[0].lower())
             data = self.client.utils.fetchJSON('https://api.alexflipnote.dev/steam/user/'+str(getprof))
             state, privacy, url, username, avatar, custom_url, steam_id = data["state"], data["privacy"], data["url"], data["username"], data["avatarfull"], data["customurl"], data["steamid64"]
-            embed = discord.Embed(title=username, description='**[Profile Link]('+str(url)+')**\n**Current state: **'+str(state)+'\n**Privacy: **'+str(privacy)+'\n**[Profile pic URL]('+str(avatar)+')**', colour = get_embed_color())
+            embed = discord.Embed(title=username, description='**[Profile Link]('+str(url)+')**\n**Current state: **'+str(state)+'\n**Privacy: **'+str(privacy)+'\n**[Profile pic URL]('+str(avatar)+')**', colour = self.client.utils.get_embed_color())
             embed.set_thumbnail(url=avatar)
             await ctx.send(embed=embed)
         except:
