@@ -473,7 +473,12 @@ class Painter:
                 else: total_str += "@"
             total_str += '\n'
         return '\n'.join([i[::-1] for i in total_str.split('\n')])
-    
+    def imagetoASCII_picture(self, url):
+        font = self.getFont(self.fontpath, "consola", 11)
+        image = Image.new(mode='RGB', size=(602, 523), color=(0, 0, 0))
+        draw, string = ImageDraw.Draw(image), self.imagetoASCII(url)
+        draw.text((0, 0), string, font=font, fill=(255, 255, 255))
+        return self.buffer(image)
     def spotify(self, details):
         url = details['url']
         del details['url']

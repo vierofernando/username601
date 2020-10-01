@@ -40,6 +40,12 @@ class utils(commands.Cog):
     @command('img2ascii,imagetoascii,avascii,avatarascii,avatar2ascii,av2ascii')
     @cooldown(10)
     async def imgascii(self, ctx, *args):
+        if len([i for i in list(args) if '--img' in i.lower()]) > 0:
+            args = tuple([i for i in list(args) if '--img' not in i.lower()])
+            url = self.client.utils.getUserAvatar(ctx, args)
+            async with ctx.channel.typing():
+                res_im = self.client.canvas.imagetoASCII_picture(url)
+                return await ctx.send(file=discord.File(res_im, 'imgascii.png'))
         url = self.client.utils.getUserAvatar(ctx, args)
         wait = await ctx.send('{} | Please wait...'.format(self.client.utils.emote(self.client, 'loading')))
         text = self.client.canvas.imagetoASCII(url)
@@ -49,7 +55,7 @@ class utils(commands.Cog):
         except:
             await wait.delete()
             file = discord.File(BytesIO(bytes(text, 'utf-8')), filename='ascii.txt')
-            return await ctx.send(content="{} | Oops! there was an error on posting it there. Don't worry, instead i send it as an attachment here:".format(self.client.utils.emote(self.client, 'error')), file=file)
+            return await ctx.send(content="{} | Oops! there was an error on posting it there. Don't worry, instead i send it as an attachment here:\n(Tip: you can also add `--img` so i send it as an image attachment!)".format(self.client.utils.emote(self.client, 'error')), file=file)
         return await wait.edit(content='{} | You can see the results at **https://hastebin.com/{}**!'.format(self.client.utils.emote(self.client, 'success'), data.json()['key']))
     
     @command()
