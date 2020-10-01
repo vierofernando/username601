@@ -19,7 +19,7 @@ class apps(commands.Cog):
     @command('movie')
     @cooldown(5)
     async def tv(self, ctx, *args):
-        if len(list(args))==0: return await ctx.send('{} | please gimme args',format(self.client.utils.emote(self.client, 'error')))
+        if len(list(args))==0: return await ctx.send('{} | please gimme args, like `{}tv <showname>` or something'.format(self.client.utils.emote(self.client, 'error'), self.client.utils.prefix))
         query = self.client.utils.urlify(' '.join(list(args)))
         data = get(f'http://api.tvmaze.com/singlesearch/shows?q={query}')
         if data.status_code==404: return await ctx.send('{} | Oops! did not found any movie.'.format(self.client.utils.emote(self.client, 'error')))
