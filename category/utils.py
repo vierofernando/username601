@@ -40,8 +40,9 @@ class utils(commands.Cog):
     @command('img2ascii,imagetoascii,avascii,avatarascii,avatar2ascii,av2ascii')
     @cooldown(10)
     async def imgascii(self, ctx, *args):
-        if len([i for i in list(args) if '--img' in i.lower()]) > 0:
-            args = tuple([i for i in list(args) if '--img' not in i.lower()])
+        parsed_arg = self.client.utils.parse_parameter(args, '--img')
+        if parsed_arg['available']:
+            args = parsed_arg['parsedarg']
             url = self.client.utils.getUserAvatar(ctx, args)
             async with ctx.channel.typing():
                 res_im = self.client.canvas.imagetoASCII_picture(url)

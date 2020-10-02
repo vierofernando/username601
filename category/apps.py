@@ -70,7 +70,7 @@ class apps(commands.Cog):
     async def translate(self, ctx, *args):
         wait = await ctx.send(self.client.utils.emote(self.client, 'loading') + ' | Please wait...') ; args = list(args)
         if len(args)>0:
-            if args[0]=='--list':
+            if self.client.utils.parse_parameter(tuple(args), '--list')['available']:
                 lang = ''
                 for bahasa in LANGUAGES:
                     lang = lang+str(bahasa)+' ('+str(LANGUAGES[bahasa])+')\n'
@@ -135,61 +135,44 @@ class apps(commands.Cog):
     @cooldown(5)
     async def imdb(self, ctx, *args):
         wait, args = await ctx.send(self.client.utils.emote(self.client, 'loading') + ' | Please wait...'), list(args)
-        if len(args)==0 or args[0].lower()=='help' or args[0].lower()=='--help':
+        if len(args)==0 or self.client.utils.parse_parameter(args, 'help')['available']:
             embed = discord.Embed(title='IMDb command help', description='Searches through the IMDb Movie database.\n{} are Parameters that is **REQUIRED** to get the info.\n\n', colour=self.client.utils.get_embed_color())
             embed.add_field(name='Commands', value=self.client.utils.prefix+'imdb --top {NUMBER}\n'+self.client.utils.prefix+'imdb help\n'+self.client.utils.prefix+'imdb --movie {MOVIE_ID or MOVIE_NAME}', inline='False')
-            await wait.edit(content='', embed=embed)
-        elif args[0].lower()=='--top':
-            if len(args)==1:
-                await wait.edit(content='Please type the number!\nex: --top 5, --top 10, etc.')
-            else:
-                num = args[1]
-                try:
-                    if int(num)>30:
-                        await wait.edit(content='That\'s too many movies to be listed!')
-                    else:
-                        arr, total = ia.get_top250_movies(), ''
-                        for i in range(0, int(num)):
-                            total = total + str(int(i)+1) + '. '+str(arr[i]['title'])+' (`'+str(arr[i].movieID)+'`)\n'
-                        embed = discord.Embed(title='IMDb Top '+str(num)+':', description=str(total), colour=self.client.utils.get_embed_color())
-                        await wait.edit(content='', embed=embed)
-                except ValueError:
-                    await wait.edit(content=self.client.utils.emote(self.client, 'error') +' | Is the top thing you inputted REALLY a number?\nlike, Not top TEN, but top 10.\nGET IT?')
-        elif args[0].lower()=='--movie':
-            if args[0]=='--movie' and len(args)==1:
-                await wait.edit(content='Where\'s the ID or movie name?!?!?!')
-            else:
-                if args[1].isnumeric()==True:
-                    movieId = args[1]
-                    theID = str(movieId)
-                else:
-                    q = ' '.join(list(args)[1:len(list(args))])
-                    movieId = ia.search_movie(q)[0].movieID
-                    theID = str(movieId)
-                data = ia.get_movie(str(movieId))
+            return await wait.edit(content='', embed=embed)
+        top = self.client.utils.parse_parameter(args, '--top', get_second_element=True, singular=True)
+        if top['available']:
             try:
+                num = int(top['secondparam'])
+                if num>30 or num<2: num = 20
+                arr = ia.get_top250_movies()
+                total = '\n'.join([str(int(i)+1) + '. '+str(arr[i]['title'])+' (`'+str(arr[i].movieID)+'`)' for i in range(num)])
+                embed = discord.Embed(title='IMDb Top '+str(num)+':', description=str(total), colour=self.client.utils.get_embed_color())
+                return await wait.edit(content='', embed=embed)
+            except:
+                return await wait.edit(content=self.client.utils.emote(self.client, 'error') +' | Is the top thing you inputted REALLY a number?\nlike, Not top TEN, but top 10.\nGET IT?')
+        movie_param = self.client.utils.parse_parameter(args, '--movie', get_second_element=True)
+        if movie_param['available']:
+            try:
+                movieId = int(movie_param['secondparam']) if movie_param['secondparam'].isnumeric() else ia.search_movie(movie_param['secondparam'])[0].movieID
+                theID = str(movieId)
+                data = ia.get_movie(str(movieId))
+                main_data = ia.get_movie_main(theID)
+                try:
+                    rating, cover, vote_count = main_data['data']['rating'], main_data['data']['cover url'], main_data['data']['votes']
+                except KeyError: rating, cover, vote_count = None, None, 0
                 embed = discord.Embed(title=data['title'], colour=self.client.utils.get_embed_color())
-                await wait.edit(content=self.client.utils.emote(self.client, 'loading') + ' | Please wait... Retrieving data...')
-                emoteStar = ''
-                for i in range(0, round(int(ia.get_movie_main(theID)['data']['rating']))):
-                    emoteStar = emoteStar + ' :star:'
+                await wait.edit(content=self.client.utils.emote(self.client, 'loading') + ' | Please wait... Retrieving data... this may take a while depending on how big the movie is.')
+                emoteStar = ' '.join([':star:' for i in range(0, round(rating))]) if rating != None else '???'
                 upload_date = ia.get_movie_release_info(str(theID))['data']['raw release dates'][0]['date']
                 imdb_url = ia.get_imdbURL(data)
-                await wait.edit(content=self.client.utils.emote(self.client, 'loading') + ' | Please wait... Creating result...')
-                embed.add_field(name='General Information', value=f'**IMDb URL: **{imdb_url}\n**Upload date: **{upload_date}\n**Written by: **'+ia.get_movie_main(str(theID))['data']['writer'][0]['name']+'\n**Directed by: **'+ia.get_movie_main(str(theID))['data']['director'][0]['name'])
-                embed.add_field(name='Ratings', value=emoteStar+'\n**Overall rating: **'+str(ia.get_movie_main(str(theID))['data']['rating'])+'\n**Rated by '+str(ia.get_movie_main(str(theID))['data']['votes'])+' people**')
-                embed.set_image(url=ia.get_movie_main(str(theID))['data']['cover url'])
-                await wait.edit(content='', embed=embed)
-            except KeyError:
-                await wait.edit(content=self.client.utils.emote(self.client, 'error') + ' | An error occurred!\n**Good news, we *may* fix it.**')
-                errorQuick = discord.Embed(title=data['title'], colour=self.client.utils.get_embed_color())
-                errorQuick.add_field(name='General Information', value=f'**IMDb URL: **{imdb_url}\n**Upload date: **{upload_date}')
-
-                errorQuick.add_field(name='Ratings', value=emoteStar+'\n**Overall rating: **'+str(ia.get_movie_main(str(theID))['data']['rating'])+'\n**Rated by '+str(ia.get_movie_main(str(theID))['data']['votes'])+' people**')
-                errorQuick.set_footer(text='Information given is limited due to Errors and... stuff.')
-                await wait.edit(content='', embed=errorQuick)
-        else:
-            await wait.edit(content=self.client.utils.emote(self.client, 'error')+' | Wrong syntax. Use `'+self.client.utils.prefix+'imdb help` next time.')
+                embed.add_field(name='General Information', value=f'[IMDb URL here]({imdb_url})\n**Upload date: **{upload_date}\n**Written by: **'+main_data['data']['writer'][0]['name']+'\n**Directed by: **'+main_data['data']['director'][0]['name'])
+                embed.add_field(name='Ratings', value=emoteStar+'\n**Overall rating: **'+str(rating)+'\n**Rated by '+str(vote_count)+' people**')
+                if cover != None: embed.set_image(url=cover)
+                return await wait.edit(content='', embed=embed)
+            except Exception as e:
+                print(e)
+                return await wait.edit(content='{} | Oopsies! please input a valid ID/parameter...'.format(self.client.utils.emote(self.client, 'error')))
+        await wait.edit(content=self.client.utils.emote(self.client, 'error')+' | Wrong syntax. Use `'+self.client.utils.prefix+'imdb help` next time.')
 
 def setup(client):
     client.add_cog(apps(client))
