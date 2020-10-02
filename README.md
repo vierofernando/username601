@@ -15,10 +15,8 @@ Category folder is a cogs folder, modules folder is basically "tools" folder. An
 [Official Website](https://vierofernando.github.io/username601)<br>
 [Add the bot to your server!](https://discordapp.com/api/oauth2/authorize?client_id=696973408000409626&permissions=8&scope=bot)<br>
 
-# Screenshots
-![Example 1](https://vierofernando.github.io/username601/assets/screenshots/1.png)<br>
-![Example 2](https://vierofernando.github.io/username601/assets/screenshots/2.png)<br>
-![Example 3](https://vierofernando.github.io/username601/assets/screenshots/3.png)<br>
+# Contribute!
+If you spot a bug, an enhancement idea, or just a little typo, **you can make a pull request, and merge it here!** Feel free to fork and do something with our code.
 
 # Configuration
 ## Please edit the config.ini file to your settings.
