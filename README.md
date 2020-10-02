@@ -25,7 +25,7 @@ If you spot a bug, an enhancement idea, or just a little typo, **you can make a 
 ```
 DISCORD_TOKEN = Your discord token
 DBL_TOKEN = Your discord bot list (top.gg) token
-DB_LINK = Your MongoDB database link<br>
+DB_LINK = Your MongoDB database link
 ```
 
 **DATABASE STRUCTURE:**<br>
