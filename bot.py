@@ -21,8 +21,8 @@ setattr(client, 'cmds', BotCommands())
 environ['BOT_MODULES_DIR'] = cfg('MODULES_DIR')
 environ['BOT_JSON_DIR'] = cfg('JSON_DIR')
 
-@client.event
-async def on_ready():
+async def ready():
+    await client.wait_until_ready()
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="👻Botghost.com👻 | Type "+cfg('PREFIX')+"help for command"))
     for i in listdir('./{}'.format(cfg('COGS_DIRNAME'))):
         if not i.endswith('.py'): continue
@@ -158,4 +158,5 @@ async def on_message(message):
 
 def Username601():
     print('Logging in to discord...')
+    client.loop.create_task(ready())
     client.run(environ['DISCORD_TOKEN'])
