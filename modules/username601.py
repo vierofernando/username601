@@ -51,6 +51,19 @@ def get_embed_color():
         int(color[0]), int(color[1]), int(color[2])
     )
 
+def parse_parameter(args, arg, get_second_element=False, singular=False):
+    if arg.lower() in [i.lower() for i in list(args)]:
+        parsed = tuple([i for i in list(args) if arg.lower() not in i.lower()])
+        if get_second_element:
+            index = [i.lower() for i in list(args)].index(arg.lower()) + 1
+            if index >= len(list(args)):
+                return {"available": False, "parsedarg": parsed, "secondparam": None}
+            parsed = parsed[0:index]
+            if not singular: return {"available": True, "parsedarg": parsed, "secondparam": ' '.join(list(args)[index:len(args)])}
+            return {"available": True, "parsedarg": parsed, "secondparam": list(args)[index]}
+        return {"available": True, "parsedarg": parsed, "secondparam": None}
+    return {"available": False, "parsedarg": args, "secondparam": None}
+
 def ping():
     url = cfg('HOST_URL')
     if url.lower()=='none': return None
@@ -180,26 +193,6 @@ def caesar(text, num):
         else:
             result += temp[i]
     return result
-
-def tohex(integer):
-    return str(hex(int(integer))).upper()[2:]
-
-def toint(hex):
-    return int(hex, 16)
-
-def convertrgb(hexCode, typ):
-    uselessArray = list(str(hexCode))
-    part1, part2, part3 = ''.join(uselessArray[0:1]), ''.join(uselessArray[2:3]), ''.join(uselessArray[4:5])
-    partsArray, rgb, percentageRgb = [part1, part2, part3], [], []
-    for i in range(0, 3):
-        toConvert = partsArray[i]
-        stackOverFlow = int(toConvert, 16)
-        rgb.append(stackOverFlow)
-        percentageRgbAdd = int(rgb[i])/255*100
-        percentageRgb.append(round(percentageRgbAdd))
-    if typ=='0':
-        return rgb
-    return percentageRgb
 
 def bin(text):
     result = " ".join(f"{ord(i):08b}" for i in text) # THANKS STACK OVERFLOW! UWU

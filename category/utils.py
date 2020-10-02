@@ -335,66 +335,24 @@ class utils(commands.Cog):
         elif 'dog' in str(ctx.message.content).lower(): await ctx.send('**Did you know?**\n'+str(self.client.utils.fetchJSON("https://dog-api.kinduff.com/api/facts")['facts'][0]))
         else:
             await ctx.send('**Did you know?**\n'+str(self.client.utils.fetchJSON("https://useless-api--vierofernando.repl.co/randomfact")['fact']))
-
     @command('em')
     @cooldown(2)
     async def embed(self, ctx, *args):
-        if '(title:' not in list(args) or '(desc:' not in list(args):
-            if len(list(args))==0:
-                await ctx.send(str(self.client.utils.emote(self.client, 'error'))+' | no args for you.')
-            else:
-                try:
-                    await ctx.send(embed=discord.Embed(
-                        description=str(' '.join(list(args)))
-                    ))
-                except:
-                    await ctx.send(str(self.client.utils.emote(self.client, 'error'))+' | that is too long.')
+        try:
+            return await ctx.send(embed=discord.Embed(description=' '.join(list(args))))
+        except:
+            return await ctx.message.add_reaction(self.client.utils.emote(self.client, 'error'))
+            
+    @command('col')
+    @cooldown(3)
+    async def color(self, ctx, *args):
+        if len(list(args)) == 0: return await ctx.send("{} | Please input a hex code.".format(self.client.utils.emote(self.client, 'error')))
+        if len([i for i in list(args) if 'random' in i.lower()]) > 0:
+            colim = self.client.canvas.color(None, (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
         else:
-            msg = str(' '.join(list(args)))
-            try:
-                title_e, desc_e = msg.split('(title:')[1].split(')')[0], msg.split('(desc:')[1].split(')')[0]
-                if '(footer:' in msg:
-                    foot = msg.split('(footer:')[1].split(')')[0]
-                    embed.set_footer(text=foot)
-                if '(auth:' in msg:
-                    auth = msg.split('(auth:')[1].split(')')[0]
-                    embed.set_author(name=auth)
-                if '(hex:' not in msg:
-                    embed = discord.Embed(title=title_e, description=desc_e, colour=discord.Colour.from_rgb(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
-                else:
-                    if msg.split('(hex:')[1].split(')')[0].startswith('#'): hexer = msg.split('(hex:')[1].split(')')[0][1:]
-                    else: hexer = msg.split('(hex:')[1].split(')')[0]
-                    arr = convertrgb(hexer, '0')
-                    embed = discord.Embed(title=title_e, description=desc_e, colour=discord.Colour.from_rgb(arr[0], arr[1], arr[2]))
-                await ctx.send(embed=embed)
-            except Exception as e:
-                await ctx.send(str(self.client.utils.emote(self.client, 'error')) + f' | An error occurd. For programmers: ```{e}```')
-
-    @command('colourinfo,color-info,randomcolor,randomcolour,colour-info')
-    @cooldown(10)
-    async def colorinfo(self, ctx, *args):
-        continuing, args = False, list(args)
-        if str(ctx.message.content).startswith(self.client.utils.prefix+'randomcolor') or str(ctx.message.content).startswith(self.client.utils.prefix+'randomcolour'):
-            listHex, hexCode = list('0123456789ABCDEF'), ''
-            for i in range(0, 6):
-                ran = random.choice(listHex)
-                hexCode += ran
-            continuing = True
-        else:
-            if len(args)!=1: await ctx.send(str(self.client.utils.emote(self.client, 'error')) +' | Invalid arguments.')
-            elif args[0].startswith('#'): hexCode = args[0][1:] ; continuing = True
-            elif args[0] in list('0123456789ABCDEF') and len(args[0])==6: hexCode = args[0] ; continuing = True
-            elif args[0].isnumeric(): hexCode = str(tohex(args[0])) ; continuing = True
-            elif len(args[0])!=6: await ctx.send(str(self.client.utils.emote(self.client, 'error'))+' | We only accept `HEX CODES` and `INTEGER VALUES` as inputs!')
-            else: hexCode = args[0] ; continuing = True
-        if continuing:
-            rgb = convertrgb(hexCode, '0')
-            percentageRgb = convertrgb(hexCode, '1')
-            colorInt = int(hexCode, 16)
-            embed = discord.Embed(title='#'+str(hexCode), description="**Integer: **`"+str(colorInt)+"`\n**Red:** "+str(rgb[0])+" ("+str(percentageRgb[0])+"%)\n**Green:** "+str(rgb[1])+" ("+str(percentageRgb[1])+"%)\n**Blue:** "+str(rgb[2])+" ("+str(percentageRgb[2])+"%)\n\nPreview is shown on thumbnail. Other similar gradients are shown below.", colour=discord.Colour.from_rgb(int(rgb[0]), int(rgb[1]), int(rgb[2])))
-            embed.set_thumbnail(url='https://api.alexflipnote.dev/colour/image/'+str(hexCode))
-            embed.set_image(url='https://api.alexflipnote.dev/colour/image/gradient/'+str(hexCode))
-            await ctx.send(embed=embed)
+            colim = self.client.canvas.color(' '.join(list(args)))
+        if colim == None: return await ctx.send("{} | Invalid hex color.".format(self.client.utils.emote(self.client, 'error')))
+        return await ctx.send(file=discord.File(colim, 'color.png'))
     
     @command('fast')
     @cooldown(10)

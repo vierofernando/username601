@@ -1,4 +1,4 @@
-from PIL import Image, ImageFont, ImageDraw, GifImagePlugin, ImageOps, ImageFilter
+from PIL import Image, ImageFont, ImageDraw, GifImagePlugin, ImageOps, ImageFilter, ImageColor
 from io import BytesIO
 from datetime import datetime as t
 from requests import get
@@ -137,6 +137,23 @@ class Painter:
     
     def get_accent(self, image): return self.get_color_accent(self.thief, image)
     def get_multiple_accents(self, image): return self.get_multiple_color_accents(self.thief, image)
+
+    def color(self, string, rgb_input=None):
+        if rgb_input != None: string = '#%02x%02x%02x' % rgb_input
+        if not string.startswith('#'): string = '#' + string
+        try: rgb, brightness = ImageColor.getrgb(string), ImageColor.getcolor(string, 'L')
+        except: return None
+        main = Image.new(mode='RGB', size=(500, 500), color=rgb)
+        try: color_name = requests.get('https://api.alexflipnote.dev/color/'+string[1:]).json()['name']
+        except: color_name = 'Unknown'
+        big_font = self.getFont(self.fontpath, "Aller", 50)
+        medium_font = self.getFont(self.fontpath, "Aller", 30)
+        small_font = self.getFont(self.fontpath, "Aller", 20)
+        draw = ImageDraw.Draw(main)
+        draw.text((10, 10), string, fill=self.invert(rgb), font=big_font)
+        draw.text((10, 75), color_name, fill=self.invert(rgb), font=medium_font)
+        draw.text((10, 115), f'RGB: {rgb[0]}, {rgb[1]}, {rgb[2]}\nInteger: {rgb[0]*rgb[1]*rgb[2]}\nBrightness: {brightness}', fill=self.invert(rgb), font=small_font)
+        return self.buffer(main)
 
     def among_us(self, url):
         bg = self.getImage(self.assetpath, 'among_us.png')
@@ -479,6 +496,7 @@ class Painter:
         draw, string = ImageDraw.Draw(image), self.imagetoASCII(url)
         draw.text((0, 0), string, font=font, fill=(255, 255, 255))
         return self.buffer(image)
+        
     def spotify(self, details):
         url = details['url']
         del details['url']
