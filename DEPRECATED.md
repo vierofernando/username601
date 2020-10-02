@@ -3,7 +3,7 @@
 ## DEPRECATED COMMANDS<br>
 these are commands i decided to delete with the reasons.
 
-### 1colorinfo, 1randomcolor<br>
+### 1colorinfo, 1randomcolor, 1rolecolor<br>
 Have been merged down to `1color`<br>
 
 ### 1search, 1randomword<br>

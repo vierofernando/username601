@@ -347,13 +347,17 @@ class utils(commands.Cog):
     @command('col')
     @cooldown(3)
     async def color(self, ctx, *args):
-        if len(list(args)) == 0: return await ctx.send("{} | Please input a hex code.".format(self.client.utils.emote(self.client, 'error')))
-        if len([i for i in list(args) if 'random' in i.lower()]) > 0:
-            colim = self.client.canvas.color(None, (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
-        else:
-            colim = self.client.canvas.color(' '.join(list(args)))
-        if colim == None: return await ctx.send("{} | Invalid hex color.".format(self.client.utils.emote(self.client, 'error')))
-        return await ctx.send(file=discord.File(colim, 'color.png'))
+        if len(list(args)) == 0: return await ctx.send("{} | Invalid argument. use `{}help color` for more info.".format(self.client.utils.emote(self.client, 'error')), self.client.utils.prefix)
+        async with ctx.channel.typing():
+            parameter_data = self.client.utils.parse_parameter(args, 'role', get_second_element=True)
+            if parameter_data['available']:
+                iterate_result = [i.id for i in ctx.guild.roles if parameter_data['secondparam'].lower() in i.name.lower()]
+                if len(iterate_result) == 0: return await ctx.send("{} | Role not found.".format(self.client.utils.emote(self.client, 'error')))
+                colim = self.client.canvas.color(str(ctx.guild.get_role(iterate_result[0]).colour))
+            else:
+                colim = self.client.canvas.color(None, (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))) if self.client.utils.parse_parameter(args, 'random')['available'] else self.client.canvas.color(' '.join(list(args)))
+            if colim == None: return await ctx.send("{} | Invalid hex color.".format(self.client.utils.emote(self.client, 'error')))
+            return await ctx.send(file=discord.File(colim, 'color.png'))
     
     @command('fast')
     @cooldown(10)

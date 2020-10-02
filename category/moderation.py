@@ -281,33 +281,6 @@ class moderation(commands.Cog):
             else: await ctx.send(file=discord.File(self.client.canvas.urltoimage('https://cdn.discordapp.com/emojis/{}.png'.format(_id)), 'emoji.png'))
         except:
             await ctx.send(self.client.utils.emote(self.client, 'error')+' | Invalid emoji.')
-            
-
-    @command()
-    @cooldown(10)
-    async def rolecolor(self, ctx, *args):
-        unprefixed = ' '.join(list(args))
-        if len(unprefixed.split('#'))==1:
-            await ctx.send(f'Please provide a hex!\nExample: `{self.client.utils.prefix}rolecolor {random.choice(ctx.guild.roles).name}` #ff0000')
-        else:
-            if ctx.author.guild_permissions.manage_roles==False:
-                await ctx.send(self.client.utils.emote(self.client, 'error') +' | You need the `MANAGE ROLES` permission to change role colors!')
-            else:
-                role = None
-                for i in ctx.guild.roles:
-                    if unprefixed.split('#')[0][:-1].lower()==str(i.name).lower():
-                        print(unprefixed.split('#')[0][:-1].lower())
-                        role = i
-                        break
-                if role==None:
-                    await ctx.send(self.client.utils.emote(self.client, 'error') +' | Invalid role input! :(')
-                else:
-                    try:
-                        colint = self.client.utils.toint(unprefixed.split('#')[1].lower())
-                        await role.edit(colour=discord.Colour(colint))
-                        await ctx.send('Color of '+role.name+' role has been changed.', delete_after=5)
-                    except Exception as e:
-                        await ctx.send(self.client.utils.emote(self.client, 'error') + f' | An error occurred while editing role:```{e}```')
     
     @command()
     @cooldown(10)
