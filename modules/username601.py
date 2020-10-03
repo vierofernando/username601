@@ -51,13 +51,22 @@ def get_embed_color():
         int(color[0]), int(color[1]), int(color[2])
     )
 
+def split_parameter_to_two(args):
+    if len(args) == 0: return None
+    available_split_chars = ';?,?, ?|? | ?'.split('?')[:-1]
+    if len(args) == 2: return args[0], args[1]
+    args_as_a_string = ' '.join(list(args))
+    for char in available_split_chars:
+        if char in args_as_a_string: return args_as_a_string.split(char)[0], char.join(args_as_a_string.split(char)[1:])
+    return None
+
 def parse_parameter(args, arg, get_second_element=False, singular=False):
     if arg.lower() in [i.lower() for i in list(args)]:
         parsed = tuple([i for i in list(args) if arg.lower() not in i.lower()])
         if get_second_element:
             index = [i.lower() for i in list(args)].index(arg.lower()) + 1
             if index >= len(list(args)):
-                return {"available": False, "parsedarg": parsed, "secondparam": None}
+                return {"available": False, "parsedarg": args, "secondparam": None}
             parsed = parsed[0:index]
             if not singular: return {"available": True, "parsedarg": parsed, "secondparam": ' '.join(list(args)[index:len(args)])}
             return {"available": True, "parsedarg": parsed, "secondparam": list(args)[index]}
@@ -71,27 +80,36 @@ def ping():
     requests.get(url)
     return round((t.now().timestamp()-a)*1000)
 
+def get_id_from_mention(mention):
+    if not mention.startswith('<@'): return mention
+    if mention.startswith('<@!'): return int(mention[3:(len(mention)-1)])
+    return int(mention[2:(len(mention)-1)])
+
 # if moment return moment
 def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
-    if len(list(args))==0:
+    args = [str(get_id_from_mention(args))] if isinstance(args, str) else list(args)
+    if args[0].isnumeric():
+        if int(args[0]) not in [i.id for i in ctx.guild.members]: raise noUserFound()
+        if not allowgif: return str(ctx.guild.get_member(int(args[0])).avatar_url_as(format='png', size=size))
+        return str(ctx.guild.get_member(int(args[0])).avatar_url_as(size=size))
+    if len(args)==0:
         if len(ctx.message.attachments) > 0:
             Vld = inspect_image_url(ctx.message.attachments[0].url)
             if Vld:
                 return ctx.message.attachments[0].url
         if allowgif: return str(ctx.author.avatar_url_as(size=size))
         else: return str(ctx.author.avatar_url_as(format='png', size=size))
-    elif len(list(args))==1 and (list(args)[0].startswith('http') or list(args)[0].startswith('<http')):
-        if list(args)[0].startswith('<') and list(args)[0].endswith('>'):
-            res = list(args)[0][:-1][1:]
-            temp = list(args)
+    elif len(args)==1 and (args[0].startswith('http') or args[0].startswith('<http')):
+        if args[0].startswith('<') and list(args)[0].endswith('>'):
+            res = args[0][:-1][1:]
+            temp = args
             temp[0] = res
-            args = tuple(temp)
-        if inspect_image_url(list(args)[0]):
-            return list(args)[0]
+            args = list(temp)
+        if inspect_image_url(args[0]): return args[0]
     if len(ctx.message.mentions)>0:
         if not allowgif: return str(ctx.message.mentions[0].avatar_url_as(format='png', size=size))
         return str(ctx.message.mentions[0].avatar_url_as(size=size))
-    name = str(' '.join(list(args))).lower().split('#')[0] # disable discriminator if found
+    name = str(' '.join(args)).lower().split('#')[0] # disable discriminator if found
     for i in ctx.guild.members:
         if name in str(i.name).lower():
             user = i; break
@@ -100,10 +118,6 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
     if user!=None:
         if not allowgif: return str(user.avatar_url_as(format='png', size=size))
         return str(user.avatar_url_as(size=size))
-    elif list(args)[0].isnumeric():
-        if int(list(args)[0]) not in [i.id for i in ctx.guild.members]: raise noUserFound()
-        if not allowgif: return str(ctx.guild.get_member(int(list(args)[0])).avatar_url_as(format='png', size=size))
-        return str(ctx.guild.get_member(int(list(args)[0])).avatar_url_as(size=size))
     if not allowgif: return str(ctx.author.avatar_url_as(format='png', size=size))
     return str(ctx.author.avatar_url_as(size=size))
 

@@ -177,24 +177,6 @@ class image(commands.Cog):
         async with ctx.channel.typing():
             await ctx.send(file=discord.File(self.client.canvas.urltoimage('https://source.unsplash.com./1600x900/?{}'.format(random.choice(['earth', 'moon', 'space']))), 'space.png'))
 
-    @command()
-    @cooldown(1)
-    async def ytthumbnail(self, ctx, *args):
-        if len(list(args))!=0:
-            videoid = 'dQw4w9WgXcQ'
-            async with ctx.channel.typing():
-                args = tuple(
-                    ',,'.join(list(args)).replace('<', '').replace('>', '').split(',,')
-                )
-                if list(args)[0].endswith('/'): list(args)[0] = list(args)[0][:-1]
-                if 'https://' in list(args)[0]: list(args)[0] = list(args)[0].replace('https://', '')
-                elif 'http://' in list(args)[0]: list(args)[0] = list(args)[0].replace('http://', '')
-                if '/watch?v=' in list(args)[0]: videoid = list(args)[0].split('/watch?v=')[1]
-                else: videoid = list(args)[0].split('/')[1]
-                url = 'https://img.youtube.com/vi/'+str(videoid)+'/mqdefault.jpg'
-                data = self.client.canvas.urltoimage(url)
-                await ctx.send(file=discord.File(data, 'thumbnail.png'))
-        else: await ctx.send(self.client.utils.emote(self.client, 'error')+' | gimme something to work with! Like a youtube url!')
     @command('cat,fox,sadcat,bird')
     @cooldown(1)
     async def dog(self, ctx):
@@ -230,12 +212,15 @@ class image(commands.Cog):
     
     @command()
     @cooldown(1)
-    async def ship(self, ctx):
+    async def ship(self, ctx, *args):
+        if len(args) == 0: return await ctx.send("{} | Please input a parameter or something".format(self.client.utils.emote(self.client, 'error')))
         async with ctx.channel.typing():
-            if len(ctx.message.mentions)!=2:
-                first, second = str(ctx.author.avatar_url_as(format='png')), str(random.choice([i.avatar_url_as(format='png') for i in ctx.guild.members]))
-            else:
-                first, second = str(ctx.message.mentions[0].avatar_url_as(format='png')), str(ctx.message.mentions[1].avatar_url_as(format='png'))
+            parsed_args = self.client.utils.split_parameter_to_two(args)
+            print(parsed_args)
+            if parsed_args == None: 
+                first, second = ctx.author.avatar_url_as(format='png'), self.client.utils.getUserAvatar(ctx, args)
+            else: first, second = self.client.utils.getUserAvatar(ctx, parsed_args[0]), self.client.utils.getUserAvatar(ctx, parsed_args[1])
+            print(first, second)
             url = f'https://api.alexflipnote.dev/ship?user={first}&user2={second}'
             await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'ship.png'))
 

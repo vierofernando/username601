@@ -35,13 +35,10 @@ class memes(commands.Cog):
     @command('pass')
     @cooldown(1)
     async def password(self, ctx, *args):
-        param = ' '.join(list(args))
+        param = self.client.utils.split_parameter_to_two(args)
+        if param == None: return await ctx.send("{} | Please send two parameters, either split by a space, a comma, or a semicolon.".format(self.client.utils.emote(self.client, 'error')))
         async with ctx.channel.typing():
-            if '|' in param: text1, text2 = param.split('|')[0], param.split('|')[1:len(param.split('|'))]
-            elif ', ' in param: text1, text2 = param.split(', ')[0], param.split(', ')[1:len(param.split(', '))]
-            elif ',' in param: text1, text2 = param.split(',')[0], param.split(',')[1:len(param.split(','))]
-            elif ' ' in param and len(param.split())==2: text1, text2 = param.split()[0], param.split()[1]
-            else: text1, text2 = 'use the correct', 'parameters smh'
+            text1, text2 = param
             i = self.client.canvas.password(text1, text2)
             await ctx.send(file=discord.File(i, 'password.png'))
 
@@ -187,41 +184,27 @@ class memes(commands.Cog):
                 elif 'call' in str(ctx.message.content).split(' ')[0][1:]: url='https://api.alexflipnote.dev/calling?text='+str(txt)
                 else: url='https://api.alexflipnote.dev/achievement?text='+str(txt)
                 await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'minecraft_notice.png'))
+
     @command('dym')
-    @cooldown(5)
-    async def didyoumean(self, ctx, *args):
-        if list(args)[0]=='help' or len(list(args))==0:
-            embed = discord.Embed(title='didyoumean command help', description='Type like the following\n'+self.client.command_prefix+'didyoumean [text1] [text2]\n\nFor example:\n'+self.client.command_prefix+'didyoumean [i am gay] [i am guy]', colour=self.client.utils.get_embed_color())
-            await ctx.send(embed=embed)
-        else:
-            try:
-                async with ctx.channel.typing():
-                    txt1, txt2 = self.client.utils.urlify(str(ctx.message.content).split('[')[1][:-2]), self.client.utils.urlify(str(ctx.message.content).split('[')[2][:-1])
-                    url='https://api.alexflipnote.dev/didyoumean?top='+str(txt1)+'&bottom='+str(txt2)
-                    await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'didyoumean.png'))
-            except IndexError:
-                await ctx.send(str(self.client.utils.emote(self.client, 'error')+' | error! invalid args!'))
-    @command()
-    @cooldown(5)
+    @cooldown(2)
     async def drake(self, ctx, *args):
-        unprefixed = ' '.join(list(args))
-        if list(args)[0]=='help' or len(list(args))==0:
-            embed = discord.Embed(
-                title='Drake meme helper help',
-                description='Type the following:\n`'+str(self.client.command_prefix)+'drake [text1] [text2]`\n\nFor example:\n`'+str(self.client.command_prefix)+'drake [test1] [test2]`'
-            )
-            await ctx.send(embed=embed)
-        else:
-            try:
-                async with ctx.channel.typing():
-                    txt1 = self.client.utils.urlify(unprefixed.split('[')[1][:-2])
-                    txt2 = self.client.utils.urlify(unprefixed.split('[')[2][:-1])
-                    url='https://api.alexflipnote.dev/drake?top='+str(txt1)+'&bottom='+str(txt2)
-                    data = self.client.canvas.urltoimage(url)
-                    await ctx.send(file=discord.File(data, 'drake.png'))
-            except IndexError:
-                await ctx.send(str(self.client.utils.emote(self.client, 'error')+" | Please send something like {}drake [test 1] [test2]!".format(self.client.command_prefix)))
+        params = self.client.utils.split_parameter_to_two(args)
+        if params == None: await ctx.send("{} | Please send two parameters, either split by a space, a comma, or a semicolon.".format(self.client.utils.emote(self.client, 'error')))
+        txt1, txt2 = params
+        url = f'https://api.alexflipnote.dev/didyoumean?top={txt1}&bottom={txt2}'
+        data = self.client.canvas.urltoimage(url)
+        await ctx.send(file=discord.File(data, 'drake.png'))
     
+    @command()
+    @cooldown(2)
+    async def drake(self, ctx, *args):
+        params = self.client.utils.split_parameter_to_two(args)
+        if params == None: return await ctx.send("{} | Please send two parameters, either split by a space, a comma, or a semicolon.".format(self.client.utils.emote(self.client, 'error')))
+        txt1, txt2 = params
+        url = f'https://api.alexflipnote.dev/drake?top={txt1}&bottom={txt2}'
+        data = self.client.canvas.urltoimage(url)
+        await ctx.send(file=discord.File(data, 'drake.png'))
+            
     @command()
     @cooldown(1)
     async def salty(self, ctx, *args):
@@ -439,8 +422,9 @@ class memes(commands.Cog):
         else:
             async with ctx.channel.typing():
                 try:
-                    top = self.client.utils.urlify(str(ctx.message.content).split('[')[1].split(']')[0])
-                    bott = self.client.utils.urlify(str(ctx.message.content).split('[')[2].split(']')[0])
+                    parameters = self.client.utils.split_parameter_to_two(args)
+                    assert parameters != None, "Please send two parameters, either split by a space, a comma, or a semicolon."
+                    top, bott = parameters
                     name = str(ctx.message.content).split(self.client.command_prefix)[1].split(' ')[0]
                     url='https://memegen.link/'+str(name)+'/'+str(top)+'/'+str(bott)+'.jpg?watermark=none'
                     await ctx.send(file=discord.File(self.client.canvas.memegen(url), args[0][1:]+'.png'))
