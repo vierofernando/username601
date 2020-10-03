@@ -3,6 +3,9 @@
 ## DEPRECATED COMMANDS<br>
 these are commands i decided to delete with the reasons.
 
+### 1ytthumbnail<br>
+Completely pointless and also buggy regex<br>
+
 ### 1colorinfo, 1randomcolor, 1rolecolor<br>
 Have been merged down to `1color`<br>
 
