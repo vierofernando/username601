@@ -22,7 +22,7 @@ class bothelp(commands.Cog):
     @cooldown(5)
     async def sub(self, ctx, *args):
         if len(list(args))==0 or 'help' in ''.join(list(args)).lower():
-            embed = discord.Embed(title='Get development updates and/or events in your server!', description='Want to get up-to-date development updates? either it is bugfixes, cool events, etc.\nHow do you set up? Use `{}sub <discord webhook url>`.\nIf you still do not understand, [please watch the tutorial video here.](https://vierofernando.is-inside.me/fEhT86EE.mp4)'.format(self.client.utils.prefix), color=self.client.utils.get_embed_color())
+            embed = discord.Embed(title='Get development updates and/or events in your server!', description='Want to get up-to-date development updates? either it is bugfixes, cool events, etc.\nHow do you set up? Use `{}sub <discord webhook url>`.\nIf you still do not understand, [please watch the tutorial video here.](https://vierofernando.is-inside.me/fEhT86EE.mp4)'.format(self.client.command_prefix), color=self.client.utils.get_embed_color())
             return await ctx.send(embed=embed)
         elif 'reset' in ''.join(list(args)).lower():
             self.client.db.Dashboard.subscribe(None, ctx.guild.id, reset=True)
@@ -37,7 +37,7 @@ class bothelp(commands.Cog):
         self.client.db.Dashboard.subscribe(url, ctx.guild.id)
         await ctx.message.add_reaction(self.client.utils.emote(self.client, 'success'))
         web.send(
-            embed=discord.Embed(title=f'Congratulations, {str(ctx.author)}!', description='Your webhook is now set! ;)\nNow every development updates or username601 events will be set here.\n\nIf you change your mind, you can do `{}sub reset` to remove the webhook from the database.\n[Join our support server if you still have any questions.]({})'.format(self.client.utils.prefix, self.client.utils.cfg('SERVER_INVITE')), color=discord.Color.green()),
+            embed=discord.Embed(title=f'Congratulations, {str(ctx.author)}!', description='Your webhook is now set! ;)\nNow every development updates or username601 events will be set here.\n\nIf you change your mind, you can do `{}sub reset` to remove the webhook from the database.\n[Join our support server if you still have any questions.]({})'.format(self.client.command_prefix, self.client.utils.cfg('SERVER_INVITE')), color=discord.Color.green()),
             username='Username601 News',
             avatar_url=self.client.user.avatar_url
         )
@@ -47,13 +47,13 @@ class bothelp(commands.Cog):
     async def help(self, ctx, *args):
         args = list(args)
         if len(args) == 0:
-            cate = '\n'.join(['[{}. {}help {}]({}?category={})'.format(i+1, self.client.utils.prefix, self.client.cmds.categories[i], self.client.utils.cfg('WEBSITE_COMMANDS'), i) for i in range(len(self.client.cmds.categories))])
+            cate = '\n'.join(['[{}. {}help {}]({}?category={})'.format(i+1, self.client.command_prefix, self.client.cmds.categories[i], self.client.utils.cfg('WEBSITE_COMMANDS'), i) for i in range(len(self.client.cmds.categories))])
             embed = discord.Embed(
                 title='Username601\'s commands',
                 description='[Invite the bot]('+self.client.utils.cfg('BOT_INVITE')+') | [Vote us on top.gg](https://top.gg/bot/'+str(self.client.user.id)+'/vote)\n\n**[More information on our website here.]('+self.client.utils.cfg('WEBSITE_COMMANDS')+')**\n**Command Categories:** \n'+str(cate),
                 colour=self.client.utils.get_embed_color()
             )
-            embed.set_footer(text=f'Type {self.client.utils.prefix}help <command/category> for more details.')
+            embed.set_footer(text=f'Type {self.client.command_prefix}help <command/category> for more details.')
             await ctx.send(embed=embed)
         else:
             data = self.client.cmds.get_commands_auto(' '.join(list(args)).lower())
@@ -155,7 +155,7 @@ class bothelp(commands.Cog):
         if str(self.client.get_guild(self.client.utils.cfg('SERVER_ID', integer=True)).get_member(self.client.utils.cfg('OWNER_ID', integer=True)).status)=='offline': devstatus = 'Offline'
         else: devstatus = 'Online'
         embed = discord.Embed(title = 'About '+str(ctx.guild.me.display_name), colour = self.client.utils.get_embed_color())
-        embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Library: **Discord.py\n**Default self.client.utils.prefix: **'+self.client.utils.prefix)
+        embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Library: **Discord.py\n**Default self.client.command_prefix: **'+self.client.command_prefix)
         embed.add_field(name='Programmer info', value='**Programmed by: **'+str(self.client.get_user(self.client.utils.cfg('OWNER_ID', integer=True)))+'\n(Indie developed)\n**Current Discord Status:** '+devstatus)
         embed.add_field(name='Version Info', value='**Bot version: ** '+self.client.utils.cfg('VERSION')+'\n**Changelog: **'+self.client.utils.cfg('CHANGELOG'))#+'\n'+str(osinfo))
         embed.add_field(name='Links', value='[Invite this bot to your server!]('+self.client.utils.cfg('BOT_INVITE')+')\n[The support server!]('+self.client.utils.cfg('SERVER_INVITE')+')\n[Vote us on top.gg](https://top.gg/bot/'+str(self.client.user.id)+'/vote)\n[Official Website]('+self.client.utils.cfg('WEBSITE_MAIN')+')')

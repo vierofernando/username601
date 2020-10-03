@@ -247,7 +247,7 @@ class utils(commands.Cog):
                 description = str(films),
                 color = self.client.utils.get_embed_color()
             )
-            embed.set_footer(text='Type `'+str(self.client.utils.prefix)+'ghibli <number>` to get each movie info.')
+            embed.set_footer(text='Type `'+str(self.client.command_prefix)+'ghibli <number>` to get each movie info.')
             await wait.edit(content='', embed=embed)
         else:
             try:
@@ -347,7 +347,7 @@ class utils(commands.Cog):
     @command('col')
     @cooldown(3)
     async def color(self, ctx, *args):
-        if len(list(args)) == 0: return await ctx.send("{} | Invalid argument. use `{}help color` for more info.".format(self.client.utils.emote(self.client, 'error')), self.client.utils.prefix)
+        if len(list(args)) == 0: return await ctx.send("{} | Invalid argument. use `{}help color` for more info.".format(self.client.utils.emote(self.client, 'error')), self.client.command_prefix)
         async with ctx.channel.typing():
             parameter_data = self.client.utils.parse_parameter(args, 'role', get_second_element=True)
             if parameter_data['available']:

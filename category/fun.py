@@ -143,7 +143,7 @@ class fun(commands.Cog):
             url = requests.get('https://useless-api.vierofernando.repl.co/useless-sites').json()['url']
             await ctx.send(self.client.utils.emote(self.client, 'success')+f' | **{url}**')
         except:
-            await ctx.send(self.client.utils.emote(self.client, 'error')+' | oops. there is some error, meanwhile look at this useless site: <https://top.gg/bot/{}/vote>'.format(self.client.utils.cfg('BOT_ID')))
+            await ctx.send(self.client.utils.emote(self.client, 'error')+' | oops. there is some error, meanwhile look at this useless site: <https://top.gg/bot/{}/vote>'.format(self.client.user.id))
     
     @command()
     @cooldown(2)

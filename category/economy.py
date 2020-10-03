@@ -72,7 +72,7 @@ class economy(commands.Cog):
     @command('addshop')
     @cooldown(5)
     async def addproduct(self, ctx, *args):
-        if len(list(args))==0: return await ctx.send('{} | Please use the following parameters:\n`{}addshop <price> <name>`'.format(self.client.utils.emote(self.client, 'error'), self.client.utils.prefix))
+        if len(list(args))==0: return await ctx.send('{} | Please use the following parameters:\n`{}addshop <price> <name>`'.format(self.client.utils.emote(self.client, 'error'), self.client.command_prefix))
         if not ctx.author.guild_permissions.manage_guild: return await ctx.send('{} | You do not have the correct permissions to modify the server\'s shop.'.format(self.client.utils.emote(self.client, 'error')))
         try:
             price = int(list(args)[0])
@@ -89,7 +89,7 @@ class economy(commands.Cog):
     @command('remshop,delshop')
     @cooldown(5)
     async def delproduct(self, ctx, *args):
-        if len(list(args))==0: return await ctx.send('{} | Please use the following parameters:\n`{}delproduct <name>` or to delete all stored in the shop, use `{}delproduct all`'.format(self.client.utils.emote(self.client, 'error'), self.client.utils.prefix, self.client.utils.prefix))
+        if len(list(args))==0: return await ctx.send('{} | Please use the following parameters:\n`{}delproduct <name>` or to delete all stored in the shop, use `{}delproduct all`'.format(self.client.utils.emote(self.client, 'error'), self.client.command_prefix, self.client.command_prefix))
         if not ctx.author.guild_permissions.manage_guild: return await ctx.send('{} | You do not have the correct permissions to modify the server\'s shop.'.format(self.client.utils.emote(self.client, 'error')))
         if list(args)[0].lower()=='all':
             self.client.db.Shop.delete_shop(ctx.guild)
@@ -104,7 +104,7 @@ class economy(commands.Cog):
     @command('bought')
     @cooldown(3)
     async def buy(self, ctx, *args):
-        if len(list(args))==0: return await ctx.send('{} | Please use the following parameters:\n`{}buy <name>`'.format(self.client.utils.emote(self.client, 'error'), self.client.utils.prefix))
+        if len(list(args))==0: return await ctx.send('{} | Please use the following parameters:\n`{}buy <name>`'.format(self.client.utils.emote(self.client, 'error'), self.client.command_prefix))
         if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.noProfile()
         try:
             data = self.client.db.Shop.buy(' '.join(list(args)), ctx.author)
@@ -124,7 +124,7 @@ class economy(commands.Cog):
             ), color=self.client.utils.get_embed_color())
             return await ctx.send(embed=em)
         except Exception as e:
-            await ctx.send('{} | {}!\nYou can always add a value using `{}addproduct <price> <name>`'.format(self.client.utils.emote(self.client, 'error'), str(e), self.client.utils.prefix))
+            await ctx.send('{} | {}!\nYou can always add a value using `{}addproduct <price> <name>`'.format(self.client.utils.emote(self.client, 'error'), str(e), self.client.command_prefix))
 
     @command('delete,deletedata,deldata,del-data,delete-data')
     @cooldown(3600)

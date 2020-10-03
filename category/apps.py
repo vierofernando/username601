@@ -19,7 +19,7 @@ class apps(commands.Cog):
     @command('movie')
     @cooldown(5)
     async def tv(self, ctx, *args):
-        if len(list(args))==0: return await ctx.send('{} | please gimme args, like `{}tv <showname>` or something'.format(self.client.utils.emote(self.client, 'error'), self.client.utils.prefix))
+        if len(list(args))==0: return await ctx.send('{} | please gimme args, like `{}tv <showname>` or something'.format(self.client.utils.emote(self.client, 'error'), self.client.command_prefix))
         query = self.client.utils.urlify(' '.join(list(args)))
         data = get(f'http://api.tvmaze.com/singlesearch/shows?q={query}')
         if data.status_code==404: return await ctx.send('{} | Oops! did not found any movie.'.format(self.client.utils.emote(self.client, 'error')))
@@ -90,9 +90,9 @@ class apps(commands.Cog):
                 except Exception as e:
                     await wait.edit(content=self.client.utils.emote(self.client, 'error') + f' | An error occurred! ```py\n{e}```')
             else:
-                await wait.edit(content=f'Please add a language! To have the list and their id, type\n`{self.client.utils.prefix}translate --list`.')
+                await wait.edit(content=f'Please add a language! To have the list and their id, type\n`{self.client.command_prefix}translate --list`.')
         else:
-            await wait.edit(content=f'Please add translations or\nType `{self.client.utils.prefix}translate --list` for supported languages.')
+            await wait.edit(content=f'Please add translations or\nType `{self.client.command_prefix}translate --list` for supported languages.')
     
     @command()
     @cooldown(5)
@@ -137,7 +137,7 @@ class apps(commands.Cog):
         wait, args = await ctx.send(self.client.utils.emote(self.client, 'loading') + ' | Please wait...'), list(args)
         if len(args)==0 or self.client.utils.parse_parameter(args, 'help')['available']:
             embed = discord.Embed(title='IMDb command help', description='Searches through the IMDb Movie database.\n{} are Parameters that is **REQUIRED** to get the info.\n\n', colour=self.client.utils.get_embed_color())
-            embed.add_field(name='Commands', value=self.client.utils.prefix+'imdb --top {NUMBER}\n'+self.client.utils.prefix+'imdb help\n'+self.client.utils.prefix+'imdb --movie {MOVIE_ID or MOVIE_NAME}', inline='False')
+            embed.add_field(name='Commands', value=self.client.command_prefix+'imdb --top {NUMBER}\n'+self.client.command_prefix+'imdb help\n'+self.client.command_prefix+'imdb --movie {MOVIE_ID or MOVIE_NAME}', inline='False')
             return await wait.edit(content='', embed=embed)
         top = self.client.utils.parse_parameter(args, '--top', get_second_element=True, singular=True)
         if top['available']:
@@ -172,7 +172,7 @@ class apps(commands.Cog):
             except Exception as e:
                 print(e)
                 return await wait.edit(content='{} | Oopsies! please input a valid ID/parameter...'.format(self.client.utils.emote(self.client, 'error')))
-        await wait.edit(content=self.client.utils.emote(self.client, 'error')+' | Wrong syntax. Use `'+self.client.utils.prefix+'imdb help` next time.')
+        await wait.edit(content=self.client.utils.emote(self.client, 'error')+' | Wrong syntax. Use `'+self.client.command_prefix+'imdb help` next time.')
 
 def setup(client):
     client.add_cog(apps(client))

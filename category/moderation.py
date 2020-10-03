@@ -113,7 +113,7 @@ class moderation(commands.Cog):
             self.client.db.Dashboard.setDehoister(ctx.guild, True)
             return await ctx.send(embed=discord.Embed(
                 title='Activated dehoister.',
-                description=f'**What is dehoister?**\nDehoister is an automated part of this bot that automatically renames someone that tries to hoist their name (for example: `!ABC`)\n\n**How do i deactivate this?**\nJust type `{self.client.utils.prefix}dehoister`.\n\n**It doesn\'t work for me!**\nMaybe because your role position is higher than me, so i don\'t have the permissions required.',
+                description=f'**What is dehoister?**\nDehoister is an automated part of this bot that automatically renames someone that tries to hoist their name (for example: `!ABC`)\n\n**How do i deactivate this?**\nJust type `{self.client.command_prefix}dehoister`.\n\n**It doesn\'t work for me!**\nMaybe because your role position is higher than me, so i don\'t have the permissions required.',
                 color=self.client.utils.get_embed_color()
             ))
         self.client.db.Dashboard.setDehoister(ctx.guild, False)
@@ -135,7 +135,7 @@ class moderation(commands.Cog):
                 channel = await ctx.guild.create_text_channel(name='starboard', topic='Server starboard channel. Every funny/cool posts will be here.')
                 self.client.db.Dashboard.addStarboardChannel(channel, 1)
                 success = self.client.utils.emote(self.client, 'success')
-                return await wait.edit(content=f'{success} | OK. Created a channel <#{str(channel.id)}>. Every starboard will be set there.\nTo remove starboard, type `{self.client.utils.prefix}starboard remove`.\nBy default, starboard requirements are set to 1 reaction. To increase, type `{self.client.utils.prefix}starboard limit <number>`.')
+                return await wait.edit(content=f'{success} | OK. Created a channel <#{str(channel.id)}>. Every starboard will be set there.\nTo remove starboard, type `{self.client.command_prefix}starboard remove`.\nBy default, starboard requirements are set to 1 reaction. To increase, type `{self.client.command_prefix}starboard limit <number>`.')
             return await wait.edit(content='', embed=discord.Embed(
                 title=f'Starboard for {ctx.guild.name}',
                 description='Channel: <#{}>\nStars required to reach: {}'.format(
@@ -223,7 +223,7 @@ class moderation(commands.Cog):
             if len(list(args))==0:
                 await ctx.send(embed=discord.Embed(
                     title='Command usage',
-                    description='{}welcome <CHANNEL>\n{}welcome disable'.format(self.client.utils.prefix, self.client.utils.prefix),
+                    description='{}welcome <CHANNEL>\n{}welcome disable'.format(self.client.command_prefix, self.client.command_prefix),
                     color=self.client.utils.get_embed_color()
                 ))
             else:
@@ -248,7 +248,7 @@ class moderation(commands.Cog):
             if len(list(args))==0:
                 await ctx.send(embed=discord.Embed(
                     title='Command usage',
-                    description='{}autorole <ROLENAME/ROLEPING>\n{}autorole disable'.format(self.client.utils.prefix, self.client.utils.prefix),
+                    description='{}autorole <ROLENAME/ROLEPING>\n{}autorole disable'.format(self.client.command_prefix, self.client.command_prefix),
                     color=self.client.utils.get_embed_color()
                 ))
             else:
@@ -410,7 +410,7 @@ class moderation(commands.Cog):
     @command('hidechannel')
     @cooldown(5)
     async def lockdown(self, ctx, *args):
-        if len(list(args))==0: await ctx.send(self.client.utils.emote(self.client, 'error') +f' | Invalid parameters. Correct Example: `{self.client.utils.prefix}{args[0][1:]} [disable/enable]`')
+        if len(list(args))==0: await ctx.send(self.client.utils.emote(self.client, 'error') +f' | Invalid parameters. Correct Example: `{self.client.command_prefix}{args[0][1:]} [disable/enable]`')
         else:
             accept = True
             if not ctx.author.guild_permissions.administrator: await ctx.channel.send(self.client.utils.emote(self.client, 'error')+' | You need the `Administrator` permission to do this, unless you are trying to mute yourself.')
@@ -604,7 +604,7 @@ class moderation(commands.Cog):
         if len(list(args))==0: await ctx.send(self.client.utils.emote(self.client, 'error')+' | Oops! Not a valid arg!')
         else:
             num = [int(i) for i in list(args) if i.isnumeric()]
-            if len(num)!=2: await ctx.send(self.client.utils.emote(self.client, 'error')+' | Oops! Not a valid arg!\n Do something like'+self.client.utils.prefix+'reactnum 0 9')
+            if len(num)!=2: await ctx.send(self.client.utils.emote(self.client, 'error')+' | Oops! Not a valid arg!\n Do something like'+self.client.command_prefix+'reactnum 0 9')
             elif len([True for i in num
             [0:1] if i not in list(range(0, 10))])!=0:
                 await ctx.send(self.client.utils.emote(self.client, 'error')+' | The valid range is from 0 to 9!')

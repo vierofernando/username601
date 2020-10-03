@@ -80,11 +80,11 @@ class memes(commands.Cog):
     @command('gruplan,plan')
     @cooldown(4)
     async def gru(self, ctx, *args):
-        if '; ' not in ' '.join(list(args)): return await ctx.send(self.client.utils.emote(self.client, 'error')+' | Please send something like:\n`'+self.client.utils.cfg('self.client.utils.prefix')+'gru test word 1; test word 2; test word 3` (with semicolons)')
+        if '; ' not in ' '.join(list(args)): return await ctx.send(self.client.utils.emote(self.client, 'error')+' | Please send something like:\n`'+self.client.utils.cfg('self.client.command_prefix')+'gru test word 1; test word 2; test word 3` (with semicolons)')
         try:
             text1, text2, text3 = tuple(' '.join(list(args)).split('; '))
         except:
-            return await ctx.send("Invalid arguments. use something like\n`"+self.client.utils.cfg('self.client.utils.prefix')+"gru text 1; text2; text3` (with semicolons)")
+            return await ctx.send("Invalid arguments. use something like\n`"+self.client.utils.cfg('self.client.command_prefix')+"gru text 1; text2; text3` (with semicolons)")
         async with ctx.channel.typing():
             im = self.client.canvas.gru(text1, text2, text3)
             return await ctx.send(file=discord.File(im, 'gru.png'))
@@ -191,7 +191,7 @@ class memes(commands.Cog):
     @cooldown(5)
     async def didyoumean(self, ctx, *args):
         if list(args)[0]=='help' or len(list(args))==0:
-            embed = discord.Embed(title='didyoumean command help', description='Type like the following\n'+self.client.utils.prefix+'didyoumean [text1] [text2]\n\nFor example:\n'+self.client.utils.prefix+'didyoumean [i am gay] [i am guy]', colour=self.client.utils.get_embed_color())
+            embed = discord.Embed(title='didyoumean command help', description='Type like the following\n'+self.client.command_prefix+'didyoumean [text1] [text2]\n\nFor example:\n'+self.client.command_prefix+'didyoumean [i am gay] [i am guy]', colour=self.client.utils.get_embed_color())
             await ctx.send(embed=embed)
         else:
             try:
@@ -208,7 +208,7 @@ class memes(commands.Cog):
         if list(args)[0]=='help' or len(list(args))==0:
             embed = discord.Embed(
                 title='Drake meme helper help',
-                description='Type the following:\n`'+str(self.client.utils.prefix)+'drake [text1] [text2]`\n\nFor example:\n`'+str(self.client.utils.prefix)+'drake [test1] [test2]`'
+                description='Type the following:\n`'+str(self.client.command_prefix)+'drake [text1] [text2]`\n\nFor example:\n`'+str(self.client.command_prefix)+'drake [test1] [test2]`'
             )
             await ctx.send(embed=embed)
         else:
@@ -220,7 +220,7 @@ class memes(commands.Cog):
                     data = self.client.canvas.urltoimage(url)
                     await ctx.send(file=discord.File(data, 'drake.png'))
             except IndexError:
-                await ctx.send(str(self.client.utils.emote(self.client, 'error')+" | Please send something like {}drake [test 1] [test2]!".format(self.client.utils.prefix)))
+                await ctx.send(str(self.client.utils.emote(self.client, 'error')+" | Please send something like {}drake [test 1] [test2]!".format(self.client.command_prefix)))
     
     @command()
     @cooldown(1)
@@ -435,13 +435,13 @@ class memes(commands.Cog):
                     url='https://memegen.link/custom/'+str(top)+'/'+str(bott)+'.jpg'+str(extr)+'?alt='+str(av)
                     await ctx.send(file=discord.File(self.client.canvas.memegen(url), 'avmeme.png'))
                 except Exception as e:
-                    await ctx.send(self.client.utils.emote(self.client, 'error') +f' | Error!\n```{e}```Invalid parameters. Example: `{self.client.utils.prefix}avmeme <tag someone> [top text] [bottom text]`')
+                    await ctx.send(self.client.utils.emote(self.client, 'error') +f' | Error!\n```{e}```Invalid parameters. Example: `{self.client.command_prefix}avmeme <tag someone> [top text] [bottom text]`')
         else:
             async with ctx.channel.typing():
                 try:
                     top = self.client.utils.urlify(str(ctx.message.content).split('[')[1].split(']')[0])
                     bott = self.client.utils.urlify(str(ctx.message.content).split('[')[2].split(']')[0])
-                    name = str(ctx.message.content).split(self.client.utils.prefix)[1].split(' ')[0]
+                    name = str(ctx.message.content).split(self.client.command_prefix)[1].split(' ')[0]
                     url='https://memegen.link/'+str(name)+'/'+str(top)+'/'+str(bott)+'.jpg?watermark=none'
                     await ctx.send(file=discord.File(self.client.canvas.memegen(url), args[0][1:]+'.png'))
                 except Exception as e:

@@ -21,8 +21,8 @@ setattr(client, 'cmds', BotCommands())
 environ['BOT_MODULES_DIR'] = cfg('MODULES_DIR')
 environ['BOT_JSON_DIR'] = cfg('JSON_DIR')
 
-async def ready():
-    await client.wait_until_ready()
+@client.event
+async def on_ready():
     await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="👻Botghost.com👻 | Type "+cfg('PREFIX')+"help for command"))
     for i in listdir('./{}'.format(cfg('COGS_DIRNAME'))):
         if not i.endswith('.py'): continue
@@ -146,7 +146,7 @@ def isdblvote(author):
 @client.event
 async def on_message(message):
     if isdblvote(message.author) or message.guild==None: return
-    if message.content.startswith('<@{}>'.format(cfg('BOT_ID'))) or message.content.startswith('<@!{}>'.format(cfg('BOT_ID'))): return await message.channel.send(f'Hello, {message.author.name}! My prefix is `1`. use `1help` for help')
+    if message.content.startswith(f'<@{client.user.id}>') or message.content.startswith(f'<@!{client.user.id}>'): return await message.channel.send(f'Hello, {message.author.name}! My prefix is `1`. use `1help` for help')
     if message.guild.id==cfg('SERVER_ID', integer=True) and message.author.id==479688142908162059:
         data = int(str(message.embeds[0].description).split('(id:')[1].split(')')[0])
         if database.Economy.get(data)==None: return
@@ -158,5 +158,5 @@ async def on_message(message):
 
 def Username601():
     print('Logging in to discord...')
-    client.loop.create_task(ready())
     client.run(environ['DISCORD_TOKEN'])
+if __name__ == "__main__": Username601()

@@ -119,7 +119,7 @@ class games(commands.Cog):
                 else: url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&days=1-second'
                 await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'gdcomment.png'))
             except Exception as e:
-                await ctx.send(self.client.utils.emote(self.client, 'error') +f' | Invalid!\nThe flow is this: `{self.client.utils.prefix}gdcomment text | name | like count`\nExample: `{self.client.utils.prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
+                await ctx.send(self.client.utils.emote(self.client, 'error') +f' | Invalid!\nThe flow is this: `{self.client.command_prefix}gdcomment text | name | like count`\nExample: `{self.client.command_prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
 
     @command('gdweekly')
     @cooldown(2)
@@ -304,7 +304,7 @@ class games(commands.Cog):
             main_guess_hid.append('\_ ')
         guessed, gameplay, playing_with, playing_with_id, level = [], True, ctx.author, int(ctx.author.id), 0
         while gameplay:
-            if ctx.message.content==self.client.utils.prefix+'hangman' and ctx.author.id!=int(playing_with_id) and ctx.guild.id==server_id:
+            if ctx.message.content==self.client.command_prefix+'hangman' and ctx.author.id!=int(playing_with_id) and ctx.guild.id==server_id:
                 await ctx.send('<@'+str(ctx.author.id)+'>, cannot play hangman when a game is currently playing!')
             newembed = discord.Embed(title=''.join(main_guess_hid), description='Wrong guesses: '+str(wrong_guesses), colour=self.client.utils.get_embed_color())
             newembed.set_image(url=f'https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{str(level)}.png')
@@ -458,7 +458,7 @@ class games(commands.Cog):
             for i in range(0, len(al)):
                 await wait.add_reaction(al[i])
         except Exception as e:
-            await wait.edit(content=self.client.utils.emote(self.client, 'error') + f' | An error occurred!\nReport this using {self.client.utils.prefix}feedback.\n```{e}```')
+            await wait.edit(content=self.client.utils.emote(self.client, 'error') + f' | An error occurred!\nReport this using {self.client.command_prefix}feedback.\n```{e}```')
         guy = ctx.author
         def check(reaction, user):
             return user == guy

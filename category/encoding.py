@@ -64,7 +64,7 @@ class encoding(commands.Cog):
     @cooldown(1)
     async def caesar(self, ctx, *args):
         if len(list(args))<2:
-            await ctx.send(self.client.utils.emote(self.client, 'error')+f' | Try something like `{self.client.utils.prefix}caesar 3 hello world`')
+            await ctx.send(self.client.utils.emote(self.client, 'error')+f' | Try something like `{self.client.command_prefix}caesar 3 hello world`')
         else:
             offset = None
             for i in args:
