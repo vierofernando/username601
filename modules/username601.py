@@ -88,10 +88,6 @@ def get_id_from_mention(mention):
 # if moment return moment
 def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
     args = [str(get_id_from_mention(args))] if isinstance(args, str) else list(args)
-    if args[0].isnumeric():
-        if int(args[0]) not in [i.id for i in ctx.guild.members]: raise noUserFound()
-        if not allowgif: return str(ctx.guild.get_member(int(args[0])).avatar_url_as(format='png', size=size))
-        return str(ctx.guild.get_member(int(args[0])).avatar_url_as(size=size))
     if len(args)==0:
         if len(ctx.message.attachments) > 0:
             Vld = inspect_image_url(ctx.message.attachments[0].url)
@@ -99,6 +95,10 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
                 return ctx.message.attachments[0].url
         if allowgif: return str(ctx.author.avatar_url_as(size=size))
         else: return str(ctx.author.avatar_url_as(format='png', size=size))
+    elif args[0].isnumeric():
+        if int(args[0]) not in [i.id for i in ctx.guild.members]: raise noUserFound()
+        if not allowgif: return str(ctx.guild.get_member(int(args[0])).avatar_url_as(format='png', size=size))
+        return str(ctx.guild.get_member(int(args[0])).avatar_url_as(size=size))
     elif len(args)==1 and (args[0].startswith('http') or args[0].startswith('<http')):
         if args[0].startswith('<') and list(args)[0].endswith('>'):
             res = args[0][:-1][1:]
