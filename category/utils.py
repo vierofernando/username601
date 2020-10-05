@@ -26,7 +26,7 @@ class utils(commands.Cog):
     @command('isitup,webstatus')
     @cooldown(2)
     async def isitdown(self, ctx, *args):
-        if len(list(args))==0: return await ctx.send('{} | Please send a website link...'.format(self.client.utils.emote(self.client, 'error')))
+        if len(args)==0: return await ctx.send('{} | Please send a website link...'.format(self.client.utils.emote(self.client, 'error')))
         wait = await ctx.send('{} | Pinging...'.format(self.client.utils.emote(self.client, 'loading')))
         web = list(args)[0].replace('<', '').replace('>', '')
         if not web.startswith('http'): web = 'http://' + web
@@ -63,7 +63,7 @@ class utils(commands.Cog):
     @command()
     @cooldown(15)
     async def nasa(self, ctx, *args):
-        query = 'earth' if len(list(args))==0 else self.client.utils.urlify(' '.join(list(args)))
+        query = 'earth' if len(args)==0 else self.client.utils.urlify(' '.join(list(args)))
         data = self.client.utils.fetchJSON(f'https://images-api.nasa.gov/search?q={query}&media_type=image')
         await ctx.channel.trigger_typing()
         if len(data['collection']['items'])==0: return await ctx.send('{} | Nothing found.'.format(self.client.utils.emote(self.client, 'error')))
@@ -75,7 +75,7 @@ class utils(commands.Cog):
     @command('pokedex,dex,bulbapedia,pokemoninfo,poke-info,poke-dex,pokepedia')
     @cooldown(10)
     async def pokeinfo(self, ctx, *args):
-        query = 'Missingno' if (len(list(args))==0) else self.client.utils.urlify(' '.join(list(args)))
+        query = 'Missingno' if (len(args)==0) else self.client.utils.urlify(' '.join(list(args)))
         try:
             data = self.client.utils.fetchJSON('https://bulbapedia.bulbagarden.net/w/api.php?action=query&titles={}&format=json&formatversion=2&pithumbsize=150&prop=extracts|pageimages&explaintext&redirects&exintro'.format(query))
             embed = discord.Embed(
@@ -97,7 +97,7 @@ class utils(commands.Cog):
     @command('recipes,cook')
     @cooldown(2)
     async def recipe(self, ctx, *args):
-        if len(list(args))==0:
+        if len(args)==0:
             await ctx.send(embed=discord.Embed(title='Here is a recipe to cook nothing:', description='1. Do nothing\n2. Profit'))
         else:
             data = self.client.utils.fetchJSON("http://www.recipepuppy.com/api/?q={}".format(self.client.utils.urlify(' '.join(list(args)))))
@@ -129,13 +129,13 @@ class utils(commands.Cog):
     @command('calculator,equ,equation,calculate')
     @cooldown(3)
     async def calc(self, ctx, *args):
-        if len(list(args))==0: return await ctx.send(str(self.client.utils.emote(self.client, 'error'))+" | You need something... i smell no args nearby.")
+        if len(args)==0: return await ctx.send(str(self.client.utils.emote(self.client, 'error'))+" | You need something... i smell no args nearby.")
         else:
             equation = ' '.join(list(args))
             replaceWith = "x>*;.>*;×>*;÷>/;plus>+;minus>-;divide>/;multiply>*"
             for rep in replaceWith.split(";"):
                 equation = equation.replace(rep.split('>')[0], rep.split('>')[1])
-            if search("[a-zA-Z]", equation): return await ctx.send("{} | Please do input something that contains letters. This is not eval, nerd.".format(self.client.utils.emote(self.client, 'error')))
+            if search("[a-zA-Z]", equation): return await ctx.send("{} | Please do NOT input something that contains letters. This is not eval, nerd.".format(self.client.utils.emote(self.client, 'error')))
             try:
                 res = eval(equation)
                 return await ctx.send("{} | {} = `{}`".format(self.client.utils.emote(self.client, 'success'), equation, res[0:1000]))
@@ -152,14 +152,14 @@ class utils(commands.Cog):
     @command()
     @cooldown(10)
     async def robohash(self, ctx, *args):
-        if len(list(args))==0: url='https://robohash.org/'+str(src.randomhash())
+        if len(args)==0: url='https://robohash.org/'+str(src.randomhash())
         else: url = 'https://robohash.org/'+str(self.client.utils.urlify(' '.join(list(args))))
         await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'robohash.png'))
 
     @command()
     @cooldown(10)
     async def weather(self, ctx, *args):
-        if len(list(args))==0: await ctx.send(str(self.client.utils.emote(self.client, 'error'))+" | Please send a location or a city!")
+        if len(args)==0: await ctx.send(str(self.client.utils.emote(self.client, 'error'))+" | Please send a location or a city!")
         else: await ctx.send(file=discord.File(self.client.canvas.urltoimage('https://wttr.in/'+str(self.client.utils.urlify(' '.join(list(args))))+'.png?m'), 'weather.png'))
 
     @command()
@@ -178,7 +178,7 @@ class utils(commands.Cog):
     @command('rhymes')
     @cooldown(7)
     async def rhyme(self, ctx, *args):
-        if len(list(args))==0: await ctx.send('Please input a word! And we will try to find the word that best rhymes with it.')
+        if len(args)==0: await ctx.send('Please input a word! And we will try to find the word that best rhymes with it.')
         else:
             wait, words = await ctx.send(str(self.client.utils.emote(self.client, 'loading')) + ' | Please wait... Searching...'), []
             data = self.client.utils.fetchJSON('https://rhymebrain.com/talk?function=getRhymes&word='+str(self.client.utils.urlify(' '.join(list(args)))))
@@ -195,7 +195,7 @@ class utils(commands.Cog):
     @command('sof')
     @cooldown(12)
     async def stackoverflow(self, ctx, *args):
-        if len(list(args))==0:
+        if len(args)==0:
             await ctx.send(str(self.client.utils.emote(self.client, 'error'))+' | Hey fellow developer, Try add a question!')
         else:
             try:
@@ -238,7 +238,7 @@ class utils(commands.Cog):
     async def ghiblifilms(self, ctx, *args):
         wait = await ctx.send(str(self.client.utils.emote(self.client, 'loading')) + ' | Please wait... Getting data...')
         data = self.client.utils.fetchJSON('https://ghibliapi.herokuapp.com/films')
-        if len(list(args))==0:
+        if len(args)==0:
             films = ""
             for i in range(0, int(len(data))):
                 films = films+'('+str(int(i)+1)+') '+str(data[i]['title']+' ('+str(data[i]['release_date'])+')\n')
@@ -347,7 +347,7 @@ class utils(commands.Cog):
     @command('col')
     @cooldown(3)
     async def color(self, ctx, *args):
-        if len(list(args)) == 0: return await ctx.send("{} | Invalid argument. use `{}help color` for more info.".format(self.client.utils.emote(self.client, 'error')), self.client.command_prefix)
+        if len(args) == 0: return await ctx.send("{} | Invalid argument. use `{}help color` for more info.".format(self.client.utils.emote(self.client, 'error')), self.client.command_prefix)
         async with ctx.channel.typing():
             parameter_data = self.client.utils.parse_parameter(args, 'role', get_second_element=True)
             if parameter_data['available']:

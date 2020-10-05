@@ -130,7 +130,7 @@ class moderation(commands.Cog):
                 self.client.utils.emote(self.client, 'error')
             ))
         starboard_channel = self.client.db.Dashboard.getStarboardChannel(ctx.guild)
-        if len(list(args))==0:
+        if len(args)==0:
             if starboard_channel['channelid']==None:
                 channel = await ctx.guild.create_text_channel(name='starboard', topic='Server starboard channel. Every funny/cool posts will be here.')
                 self.client.db.Dashboard.addStarboardChannel(channel, 1)
@@ -166,20 +166,18 @@ class moderation(commands.Cog):
     @command()
     @cooldown(5)
     async def warn(self, ctx, *args):
-        if len(ctx.message.mentions)==0:
-            return await ctx.send('{} | Mention someone.'.format(self.client.utils.emote(self.client, 'error')))
-        elif ctx.message.mentions[0].id == ctx.author.id:
-            return await ctx.send(':joy: | Warning yourself? Really?')
-        elif not ctx.author.guild_permissions.manage_messages:
+        params = self.client.utils.split_parameter_to_two(args)
+        if not ctx.author.guild_permissions.manage_messages:
             return await ctx.send('{} | You need to have manage messages permissions to do this man. Sad.'.format(self.client.utils.emote(self.client, 'error')))
-        reason = 'No reason provided' if (len(list(args))<2) else ' '.join(list(args)[1:len(list(args))])
-        if len(reason)>100: return await ctx.send('{} | Your reason is toooo longgg!'.format(
-            self.client.utils.emote(self.client, 'error')
-        ))
-        warned = self.client.db.Dashboard.addWarn(ctx.message.mentions[0], ctx.author, reason)
+        elif len(args) == 0: return await ctx.send('{} | Invalid arguments. do `{}warn <userid/username> <reason optional>`')
+        user_to_warn = self.client.utils.getUser(args[0] if params == None else params[0], allownoargs=False)
+        if user_to_warn.guild_permissions.manage_channels: return await ctx.send("{} | You cannot warn a moderator.".format(self.client.utils.emote(self.client, 'error')))
+        reason = 'No reason provided' if (params == None) else params[1]
+        if len(reason)>100: reason = reason[0:100]
+        warned = self.client.db.Dashboard.addWarn(user_to_warn, ctx.author, reason)
         if warned:
             error = self.client.utils.emote(self.client, 'success')
-            return await ctx.send(f'{success} | {ctx.message.mentions[0].name}#{ctx.message.mentions[0].discriminator} was warned by {ctx.author.name}#{ctx.author.discriminator} for the reason *"{reason}"*.')
+            return await ctx.send(f'{error} | {str(user_to_warn)} was warned by {str(ctx.author)} for the reason *"{reason}"*.')
         error = self.client.utils.emote(self.client, 'error')
         await ctx.send(f'{error} | An error occurred.')
     
@@ -204,15 +202,13 @@ class moderation(commands.Cog):
     
     @command('deletewarn,clear-all-infractions,clear-infractions,clearinfractions,delinfractions,delwarn,clearwarn,clear-warn')
     @cooldown(5)
-    async def unwarn(self, ctx):
-        error = self.client.utils.emote(self.client, 'success')
+    async def unwarn(self, ctx, *args):
+        error = self.client.utils.emote(self.client, 'error')
+        user_to_unwarn = self.client.utils.getUser(ctx, args)
         if not ctx.author.guild_permissions.manage_messages: return await ctx.send(f'{error} | You need the `Manage messages` permissions to unwarn someone.')
-        if len(ctx.message.mentions)==0: return await ctx.send('{} | Please TAG someone !!!'.format(
-            self.client.utils.emote(self.client, 'error')
-        ))
-        unwarned = self.client.db.Dashboard.clearWarn(ctx.message.mentions[0])
-        if unwarned: return await ctx.send(f'{error} | Successfully unwarned {ctx.message.mentions[0].name}.')
-        await ctx.send(f'{error} | An error occurred.')
+        unwarned = self.client.db.Dashboard.clearWarn(user_to_unwarn)
+        if unwarned: return await ctx.send('{} | Successfully unwarned {}.'.format(self.client.utils.emote(self.client, 'error'), user_to_unwarn))
+        await ctx.send(f'{error} | {str(user_to_unwarn)} is not warned.')
 
     @command('welcomelog,setwelcome')
     @cooldown(15)
@@ -220,7 +216,7 @@ class moderation(commands.Cog):
         if not ctx.author.guild_permissions.manage_channels:
             await ctx.send("{} | You need the `Manage Channels` permission!".format(self.client.utils.emote(self.client, 'error')))
         else:
-            if len(list(args))==0:
+            if len(args)==0:
                 await ctx.send(embed=discord.Embed(
                     title='Command usage',
                     description='{}welcome <CHANNEL>\n{}welcome disable'.format(self.client.command_prefix, self.client.command_prefix),
@@ -245,7 +241,7 @@ class moderation(commands.Cog):
         if not ctx.author.guild_permissions.manage_roles:
             await ctx.send("{} | You need the `Manage Roles` permission!".format(self.client.utils.emote(self.client, 'error')))
         else:
-            if len(list(args))==0:
+            if len(args)==0:
                 await ctx.send(embed=discord.Embed(
                     title='Command usage',
                     description='{}autorole <ROLENAME/ROLEPING>\n{}autorole disable'.format(self.client.command_prefix, self.client.command_prefix),
@@ -285,139 +281,93 @@ class moderation(commands.Cog):
     @command()
     @cooldown(10)
     async def slowmode(self, ctx, *args):
-        if len(list(args))==0: await ctx.send(self.client.utils.emote(self.client, 'error')+" | How long in seconds?")
+        if (len(args)==0): return await ctx.send(self.client.utils.emote(self.client, 'error')+" | How long in seconds?")
         else:
-            cd = list(args)[0]
-            if ctx.author.guild_permissions.manage_channels:
-                if not cd.isnumeric():
-                    await ctx.send(self.client.utils.emote(self.client, 'error')+" | That cooldown is not a number!")
-                else:
-                    if int(cd)<0:
-                        await ctx.send(self.client.utils.emote(self.client, 'error')+" | Minus slowmode? Did you mean slowmode 0 seconds?")
-                    elif int(cd)>21600:
-                        await ctx.send(self.client.utils.emote(self.client, 'error')+" | That is too hecking sloow....")
-                    else:
-                        await ctx.channel.edit(slowmode_delay=cd)
-                        await ctx.send(self.client.utils.emote(self.client, 'success')+" | Channel slowmode cooldown has been set to "+str(self.client.utils.time_encode(int(cd))))
-            else: await ctx.send(self.client.utils.emote(self.client, 'error')+" | You need the manage channels permission to do this command!")
-
+            if not args[0].isnumeric(): return await ctx.send(self.client.utils.emote(self.client, 'error')+" | Make sure it is a number.")
+            count = int(args[0])
+            if count not in range(0, 21599): return await ctx.send(self.client.utils.emote(self.client, 'error')+" | Nah.. invalid range.")
+            try:
+                assert ctx.author.guild_permissions.manage_channels
+                await ctx.channel.edit(slowmode_delay=count)
+                return await ctx.send(self.client.utils.emote(self.client, 'success')+" | "+("Disabled channel slowmode." if (count == 0) else f"Successfully set slowmode for <#{ctx.channel.id}> to {count} seconds."))
+            except:
+                return await ctx.send(self.client.utils.emote(self.client, 'error')+" | Please make sure you have the correct permission, or give me manage channels permission.")
+            
     @command('addrole,add-role')
     @cooldown(10)
     async def ar(self, ctx, *args):
-        args = list(args)
-        if not ctx.author.guild_permissions.manage_roles:
-            await ctx.send(self.client.utils.emote(self.client, 'error') +f' | <@{str(ctx.author.id)}>, you don\'t have the `Manage Roles` permission!')
+        if not ctx.author.guild_permissions.manage_roles: await ctx.send(self.client.utils.emote(self.client, 'error') +f' | {ctx.author.mention}, you don\'t have the `Manage Roles` permission!')
         else:
+            role_and_guy = self.client.utils.split_parameter_to_two(args)
+            if role_and_guy == None: return await ctx.send(self.client.utils.emote(self.client, 'error')+" | Please make sure you inputted like this: `{}addrole <user id/user mention/username>, <role id/role mention/rolename>`".format(self.client.command_prefix))
+            guy = self.client.utils.getUser(role_and_guy[0])
+            role_array = [i for i in ctx.guild.roles if role_and_guy[1].lower() in i.name.lower()]
+            if len(role_array) == 0: return await ctx.send(self.client.utils.emote(self.client, 'error')+f" | Role `{role_and_guy[1]}` does not exist.")
             try:
-                toadd = None
-                if '<@&' in ''.join(args):
-                    toadd = ctx.guild.get_role(int(''.join(args).split('<@&')[1].split('>')[0]))
-                else:
-                    for i in ctx.guild.roles:
-                        if str(i.name).lower()==str(ctx.message.content).split('> ')[1].lower():
-                            toadd = ctx.guild.get_role(i.id)
-                            break
-                if toadd==None:
-                    await ctx.send(self.client.utils.emote(self.client, 'error')+" | Invalid input!")
-                else:
-                    aruser = ctx.message.mentions[0]
-                    await aruser.add_roles(toadd)
-                    await ctx.send('Congratulations, '+aruser.name+', you now have the '+toadd.name+' role! :tada:')
-            except IndexError:
-                await ctx.send(self.client.utils.emote(self.client, 'error')+" | Invalid arguments!")
+                await guy.add_roles(role_array[0])
+                return await ctx.send(self.client.utils.emote(self.client, 'success')+f" | Successfully added `{role_array[0].name}` role to `{str(guy)}`!")
+            except:
+                return await ctx.send(self.client.utils.emote(self.client, 'error')+f" | Oops. Please make sure i have the manage roles perms.")
     
     @command('removerole,remove-role')
     @cooldown(10)
     async def rr(self, ctx, *args):
-        args = list(args)
-        if not ctx.author.guild_permissions.manage_roles:
-            await ctx.send(self.client.utils.emote(self.client, 'error') +f' | <@{str(ctx.author.id)}>, you don\'t have the `Manage Roles` permission!')
+        if not ctx.author.guild_permissions.manage_roles: await ctx.send(self.client.utils.emote(self.client, 'error') +f' | {ctx.author.mention}, you don\'t have the `Manage Roles` permission!')
         else:
+            role_and_guy = self.client.utils.split_parameter_to_two(args)
+            if role_and_guy == None: return await ctx.send(self.client.utils.emote(self.client, 'error')+" | Please make sure you inputted like this: `{}removerole <user id/user mention/username>, <role id/role mention/rolename>`".format(self.client.command_prefix))
+            guy = self.client.utils.getUser(role_and_guy[0])
+            role_array = [i for i in ctx.guild.roles if role_and_guy[1].lower() in i.name.lower()]
+            if len(role_array) == 0: return await ctx.send(self.client.utils.emote(self.client, 'error')+f" | Role `{role_and_guy[1]}` does not exist.")
             try:
-                toadd = None
-                if '<@&' in ''.join(args):
-                    toadd = ctx.guild.get_role(int(''.join(args).split('<@&')[1].split('>')[0]))
-                else:
-                    for i in ctx.guild.roles:
-                        if str(i.name).lower()==str(ctx.message.content).split('> ')[1].lower():
-                            toadd = ctx.guild.get_role(i.id)
-                            break
-                if toadd==None:
-                    await ctx.send(self.client.utils.emote(self.client, 'error')+" | Invalid input!")
-                else:
-                    rruser = ctx.message.mentions[0]
-                    await rruser.remove_roles(toadd)
-                    await ctx.send(rruser.name+', you lost the '+toadd.name+' role... :pensive:')
-            except IndexError:
-                await ctx.send(self.client.utils.emote(self.client, 'error')+" | Invalid arguments!")
+                await guy.remove_roles(role_array[0])
+                return await ctx.send(self.client.utils.emote(self.client, 'success')+f" | Successfully removed `{role_array[0].name}` role from `{str(guy)}`!")
+            except:
+                return await ctx.send(self.client.utils.emote(self.client, 'error')+f" | Oops. Please make sure i have the manage roles perms.")
 
     @command('kick')
     @cooldown(10)
     async def ban(self, ctx, *args):
-        if len(list(args))==0:
-            await ctx.send(self.client.utils.emote(self.client, 'error')+" | Nope. No arguments means no moderation:tm:.")
-        elif len(ctx.message.mentions)==0:
-            await ctx.send(self.client.utils.emote(self.client, 'error')+" | Nope. No tagging means no moderation:tm:.")
-        else:
-            accept = True
-            if 'kick' in ctx.message.content:
-                if not ctx.author.guild_permissions.kick_members:
-                    await ctx.send(self.client.utils.emote(self.client, 'error')+" | No kick members permission?")
-                    accept = False
-            else:
-                if not ctx.author.guild_permissions.ban_members:
-                    await ctx.send(self.client.utils.emote(self.client, 'error')+" | No ban members permission?")
-                    accept = False
-            if ctx.guild.owner.id!=ctx.author.id:
-                if ctx.message.mentions[0].guild_permissions.administrator==True:
-                    await ctx.send(self.client.utils.emote(self.client, 'error')+" | Nope, that guy probably has higher permissions than you.")
-                    accept = False
-                elif ctx.message.mentions[0].roles[::-1][0].position>ctx.guild.get_member(self.client.user.id).roles[::-1][0].position:
-                    await ctx.send(self.client.utils.emote(self.client, 'error')+" | Try moving my role higher than "+ctx.message.mentions[0].name+"'s role.")
-            if accept:
-                if 'kick' in ctx.message.content:
-                    await ctx.guild.kick(ctx.message.mentions[0])
-                    await ctx.send(self.client.utils.emote(self.client, 'success')+" | Successfully kicked "+ctx.message.mentions[0].name+".")
-                else:
-                    await ctx.guild.ban(ctx.message.mentions[0])
-                    await ctx.send(self.client.utils.emote(self.client, 'success')+" | Successfully banned "+ctx.message.mentions[0].name+".")
+        try:
+            permission_name = 'ban_members' if ctx.message.content.startswith(self.client.command_prefix + "ban") else 'kick_members'
+            permission = getattr(ctx.author.guild_permissions, permission_name)
+            assert permission, "{} does not have the `{}` to {} members.".format(str(ctx.author), permission_name.replace('_', ' '), permission_name.split('_')[0])
+            idiot = self.client.utils.getUser(ctx, args)
+            assert idiot != ctx.author, "You cannot {} yourself.".format(permission_name.split('_')[0])
+            assert not idiot.guild_permissions.manage_guild, "You cannot {} a moderator.".format(permission_name.split('_')[0])
+            return await ctx.send("{} | Aight. {}ed {} from existence.".format(self.client.utils.emote(self.client, 'error'), permission_name.split('_')[0], str(idiot)))
+        except Exception as e:
+            return await ctx.send(self.client.utils.emote(self.client, 'error')+" | "+e)
+            
     @command('purge')
     @cooldown(2)
     async def clear(self, ctx, *args):
-        if not ctx.author.guild_permissions.manage_channels:
-            await ctx.send(self.client.utils.emote(self.client, 'error')+" | You need the manage channel permission!")
-        else:
-            if len(list(args))==0:
-                await ctx.send(self.client.utils.emote(self.client, 'error')+" | How many messages to be purged?")
-            else:
-                if len(ctx.message.mentions)==0:
-                    if not list(args)[0].isnumeric():
-                        await ctx.send(self.client.utils.emote(self.client, 'error')+" | Not a number!")
-                    else:
-                        if int(list(args)[0])<0:
-                            await ctx.send(self.client.utils.emote(self.client, 'error')+" | Minus?")
-                        elif int(list(args)[0])>250:
-                            await ctx.send(self.client.utils.emote(self.client, 'error')+" | Too much! Use clone channel instead!")
-                        else:
-                            topurge = int(list(args)[0])+1
-                            await ctx.channel.purge(limit=topurge)
-                            await ctx.send(self.client.utils.emote(self.client, 'success')+" | Done! {} messages has been cleared!".format(str(list(args)[0])), delete_after=3)
-                else:
-                    def check(m):
-                        return m.author.id == ctx.message.mentions[0].id
-                    dels = await ctx.channel.purge(check=check, limit=500)
-                    await ctx.send(self.client.utils.emote(self.client, 'success')+' | Done. Cleared '+str(len(dels))+' message by <@'+str(ctx.message.mentions[0].id)+'>.', delete_after=3)
+        try:
+            assert len(args)>0, 'Please insert the amount to be cleared or a mention.'
+            if len(ctx.message.mentions)==0 and (not args[0].isnumeric()): raise Exception('Please input a valid parameter')
+            mention = True if len(ctx.message.mentions)>0 else False
+            if not mention:
+                num = int(args[0])
+                assert (num in range(1, 301)), "invalid arguments, out of range"
+                await ctx.channel.purge(limit=num)
+                return await ctx.send(self.client.utils.emote(self.client, 'success')+f" | Successfully purged {num} messages.")
+            def check(m): return m.author.id == ctx.message.mentions[0].id
+            deleted_messages = await ctx.channel.purge(check=check, limit=500)
+            return await ctx.send(self.client.utils.emote(self.client, 'success')+f" | Successfully purged {len(deleted_messages)} messages.")
+        except Exception as e:
+            return await ctx.send(self.client.utils.emote(self.client, 'error')+" | "+e)
+                
     @command('hidechannel')
     @cooldown(5)
     async def lockdown(self, ctx, *args):
-        if len(list(args))==0: await ctx.send(self.client.utils.emote(self.client, 'error') +f' | Invalid parameters. Correct Example: `{self.client.command_prefix}{args[0][1:]} [disable/enable]`')
+        if len(args)==0: await ctx.send(self.client.utils.emote(self.client, 'error') +f' | Invalid parameters. Correct Example: `{self.client.command_prefix}{args[0][1:]} [disable/enable]`')
         else:
             accept = True
             if not ctx.author.guild_permissions.administrator: await ctx.channel.send(self.client.utils.emote(self.client, 'error')+' | You need the `Administrator` permission to do this, unless you are trying to mute yourself.')
             else:
                 if 'enable' not in args[0].lower():
                     if 'disable' not in args[0].lower():
-                        await ctx.send(self.client.utils.emote(self.client, 'error')+' | Oops! Please type `enable` or `disable`.')
+                        await ctx.send(self.client.utils.emote(self.client, 'error')+' | Oops! Please add `enable` or `disable`.')
                         accept = False
                 if accept:
                     try:
@@ -432,17 +382,13 @@ class moderation(commands.Cog):
                         await ctx.send(self.client.utils.emote(self.client, 'error') +f' | For some reason, i cannot change <#{ctx.channel.id}>\'s :(\n\n```{e}```')
 
     @command('roles,serverroles,serverchannels,channels')
-    @cooldown(5)
+    @cooldown(2)
     async def channel(self, ctx):
-        total = []
-        if 'channel' in ctx.message.content:
-            for i in ctx.guild.channels: total.append('<#'+str(i.id)+'>')
-        else:
-            for i in ctx.guild.roles: total.append('<@&'+str(i.id)+'>')
+        total = ', '.join([f'<#{i.id}>' for i in ctx.guild.channels]) if 'channel' in ctx.message.content.lower() else ', '.join([f'<#{i.id}>' for i in ctx.guild.roles])
         await ctx.send(embed=discord.Embed(description=', '.join(total), color=self.client.utils.get_embed_color()))
 
     @command('ui,user,usercard,user-info,user-card,whois')
-    @cooldown(5)
+    @cooldown(3)
     async def userinfo(self, ctx, *args):
         guy, ava, nitro = self.client.utils.getUser(ctx, args), self.client.utils.getUserAvatar(ctx, args), False
         async with ctx.channel.typing():
@@ -459,32 +405,24 @@ class moderation(commands.Cog):
     @command('av,ava')
     @cooldown(1)
     async def avatar(self, ctx, *args):
-        url = self.client.utils.getUserAvatar(ctx, args, allowgif=True)
-        embed = discord.Embed(title='look at dis avatar', color=self.client.utils.get_embed_color())
-        embed.set_image(url=url)
-        await ctx.send(embed=embed)
+        url = self.client.utils.getUserAvatar(ctx, args, allowgif=True, size=4096)
+        return await ctx.send(url)
 
     @command('serveremotes,emotelist,emojilist,emotes,serveremoji')
     @cooldown(10)
     async def serveremojis(self, ctx):
         if len(ctx.guild.emojis)==0: await ctx.send(self.client.utils.emote(self.client, 'error')+' | This server has no emojis!')
         else:
-            try:
-                await ctx.send(', '.join([str(i) for i in ctx.guild.emojis]))
-            except:
-                await ctx.send(self.client.utils.emote(self.client, 'error')+' | This server probably has too many emojis to be listed!')
+            await ctx.send(', '.join([str(i) for i in ctx.guild.emojis])[0:2000])
 
     @command('serverinfo,server,servericon,si,server-info,guild,guildinfo,guild-info')
     @cooldown(10)
     async def servercard(self, ctx, *args):
         if 'servericon' in ctx.message.content:
-            if ctx.guild.is_icon_animated(): link = 'https://cdn.discordapp.com/icons/'+str(ctx.guild.id)+'/'+str(ctx.guild.icon)+'.gif?size=1024'
-            else: link = 'https://cdn.discordapp.com/icons/'+str(ctx.guild.id)+'/'+str(ctx.guild.icon)+'.png?size=1024'
-            theEm = discord.Embed(title=ctx.guild.name+'\'s Icon', url=link, colour=self.client.utils.get_embed_color())
-            theEm.set_image(url=link)
-            await ctx.send(embed=theEm)
+            if ctx.guild.icon_url == None: return await ctx.send(self.client.utils.emote(self.client, 'error')+" | This server has no emotes...")
+            await ctx.send(ctx.guild.icon_url_as(size=4096))
         else:
-            if len(list(args))==0:
+            if len(args)==0:
                 if len(ctx.guild.members)>100:
                     wait = await ctx.send('{} | Fetching guild data... please wait...'.format(self.client.utils.emote(self.client, 'loading')))
                     im = self.client.canvas.server(ctx.guild)
@@ -494,9 +432,12 @@ class moderation(commands.Cog):
                     im = self.client.canvas.server(ctx.guild)
                 await ctx.send(file=discord.File(im, 'server.png'))
             else:
-                data = self.client.utils.fetchJSON(f"https://discord.com/api/v6/invites/{list(args)[0].lower()}?with_counts=true")
-                im = self.client.canvas.server(None, data=data['guild'], raw=data)
-                await ctx.send(file=discord.File(im, 'server_that_has_some_kewl_vanity_url.png'))
+                try:
+                    data = self.client.utils.fetchJSON(f"https://discord.com/api/v6/invites/{list(args)[0].lower()}?with_counts=true")
+                    im = self.client.canvas.server(None, data=data['guild'], raw=data)
+                    await ctx.send(file=discord.File(im, 'server_that_has_some_kewl_vanity_url.png'))
+                except:
+                    return await ctx.send(self.client.utils.emote(self.client, 'error')+" | Please input a valid invite url code.")
 
     @command('serverinvite,create-invite,createinvite,makeinvite,make-invite,server-invite')
     @cooldown(30)
@@ -504,13 +445,13 @@ class moderation(commands.Cog):
         if not ctx.author.guild_permissions.create_instant_invite:
             await ctx.send(self.client.utils.emote(self.client, 'error')+' | No create invite permission?')
         else:
-            serverinvite = await ctx.channel.create_invite(reason='Requested by '+str(ctx.author.name))
+            serverinvite = await ctx.channel.create_invite(reason='Requested by '+ctx.author.name)
             await ctx.send(self.client.utils.emote(self.client, 'success')+' | New invite created! Link: **'+str(serverinvite)+'**')
 
     @command()
-    @cooldown(7)
+    @cooldown(3)
     async def roleinfo(self, ctx, *args):
-        if len(list(args))==0:
+        if len(args)==0:
             await ctx.send(self.client.utils.emote(self.client, 'error')+" | Please send a role name or a role mention! (don\'t)")
         else:
             data = None
@@ -550,7 +491,7 @@ class moderation(commands.Cog):
     @command('mkchannel,mkch,createchannel,make-channel,create-channel')
     @cooldown(5)
     async def makechannel(self, ctx, *args):
-        if len(list(args))<2:
+        if len(args)<2:
             await ctx.send(self.client.utils.emote(self.client, 'error')+' | Please send me an args or something!')
         else:
             begin = True
@@ -566,7 +507,7 @@ class moderation(commands.Cog):
     @command('nickname')
     @cooldown(10)
     async def nick(self, ctx, *args):
-        if len(list(args))<2:
+        if len(args)<2:
             await ctx.send(self.client.utils.emote(self.client, 'error')+" | Invalid args!")
         else:
             if not ctx.author.guild_permissions.change_nickname:
@@ -598,31 +539,16 @@ class moderation(commands.Cog):
             embedy.set_thumbnail(url='https://cdn.discordapp.com/emojis/'+str(data.id)+'.png?v=1')
             await ctx.send(embed=embedy)
 
-    @command()
-    @cooldown(12)
-    async def reactnum(self, ctx, *args):
-        if len(list(args))==0: await ctx.send(self.client.utils.emote(self.client, 'error')+' | Oops! Not a valid arg!')
-        else:
-            num = [int(i) for i in list(args) if i.isnumeric()]
-            if len(num)!=2: await ctx.send(self.client.utils.emote(self.client, 'error')+' | Oops! Not a valid arg!\n Do something like'+self.client.command_prefix+'reactnum 0 9')
-            elif len([True for i in num
-            [0:1] if i not in list(range(0, 10))])!=0:
-                await ctx.send(self.client.utils.emote(self.client, 'error')+' | The valid range is from 0 to 9!')
-            else:
-                if num[1] > num[0]: num = num[::-1]
-                for i in range(num[0], num[1]):
-                    await ctx.message.add_reaction(self.client.utils.num2word(i))
-
     @command('createchannel,create-channel,mc')
     @cooldown(10)
     async def makechannel(self, ctx, *args):
-        if len(list(args))<2:
+        if len(args)<2:
             await ctx.send(self.client.utils.emote(self.client, 'error')+' | Oops! Not a valid argument!')
         else:
             if list(args)[0].lower()!='text' or list(args)[0].lower()!='voice':
                 await ctx.send(self.client.utils.emote(self.client, 'error')+' | Oops! Not a valid type of channel!')
             else:
-                names = list(args)[1:len(list(args))]
+                names = list(args)[1:len(args)]
                 if list(args)[0].lower()=='text': await ctx.guild.create_text_channel(name='-'.join(list(names)))
                 else: await ctx.guild.create_voice_channel(name='-'.join(names))
                 await ctx.send(self.client.utils.emote(self.client, 'success')+" | Successfully created a {} channel named {}.".format(list(args)[0], str('-'.join(names))))
