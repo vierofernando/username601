@@ -68,7 +68,7 @@ class owner(commands.Cog):
     @command('pm')
     async def postmeme(self, ctx, *args):
         if ctx.author.id!=self.client.utils.cfg('OWNER_ID', integer=True):
-            return await ctx.message.add_reaction(self.client.utils.emote(self.client, 'error'))
+            return await ctx.message.add_reaction(self.client.error_emoji)
         url = ''.join(list(args))
         if url.startswith('<'): url = url[1:]
         if url.endswith('>'): url = url[:-1]
@@ -77,7 +77,7 @@ class owner(commands.Cog):
             'url': url
         }).json()
         try:
-            if data['success']: return await ctx.message.add_reaction(self.client.utils.emote(self.client, 'success'))
+            if data['success']: return await ctx.message.add_reaction(self.client.success_emoji)
         except Exception as e:
             await ctx.author.send(str(e))
 
@@ -102,7 +102,7 @@ class owner(commands.Cog):
                 await user_to_send.send(embed=em)
                 await ctx.message.add_reaction('✅')
             except Exception as e:
-                await ctx.send(self.client.utils.emote(self.client, 'error') + f' | Error: `{e}`')
+                await ctx.send(self.client.error_emoji + f' | Error: `{e}`')
         else:
             await ctx.send('You are not the bot owner. Go get a life.')
 
@@ -110,17 +110,17 @@ class owner(commands.Cog):
     async def fban(self, ctx, *args):
         if int(ctx.author.id)==self.client.utils.cfg('OWNER_ID', integer=True):
             self.client.db.selfDB.feedback_ban(int(list(args)[0]), str(' '.join(list(args)[1:len(list(args))])))
-            await ctx.message.add_reaction(self.client.utils.emote(self.client, 'success'))
+            await ctx.message.add_reaction(self.client.success_emoji)
         else:
-            await ctx.send(self.client.utils.emote(self.client, 'error') +' | You are not the owner, nerd.')
+            await ctx.send(self.client.error_emoji +' | You are not the owner, nerd.')
     @command()
     async def funban(self, ctx, *args):
         if int(ctx.author.id)==self.client.utils.cfg('OWNER_ID', integer=True):
             data = self.client.db.selfDB.feedback_unban(int(list(args)[0]))
-            if data=='200': await ctx.message.add_reaction(self.client.utils.emote(self.client, 'success'))
-            else: await ctx.message.add_reaction(self.client.utils.emote(self.client, 'error'))
+            if data=='200': await ctx.message.add_reaction(self.client.success_emoji)
+            else: await ctx.message.add_reaction(self.client.error_emoji)
         else:
-            await ctx.send(self.client.utils.emote(self.client, 'error') +' | Invalid person.')
+            await ctx.send(self.client.error_emoji +' | Invalid person.')
     @command('ex,eval')
     async def evaluate(self, ctx, *args):
         iwanttostealsometoken = False

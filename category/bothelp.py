@@ -26,16 +26,16 @@ class bothelp(commands.Cog):
             return await ctx.send(embed=embed)
         elif 'reset' in ''.join(list(args)).lower():
             self.client.db.Dashboard.subscribe(None, ctx.guild.id, reset=True)
-            return await ctx.send('{} | Subscription has been deleted.'.format(self.client.utils.emote(self.client, 'success')))
+            return await ctx.send('{} | Subscription has been deleted.'.format(self.client.success_emoji))
         url = list(args)[0].replace('<', '').replace('>', '')
         try:
             web = discord.Webhook.from_url(
                 url,
                 adapter=discord.RequestsWebhookAdapter()
             )
-        except: return await ctx.send("{} | Invalid url! Please follow the tutorial.".format(self.client.utils.emote(self.client, 'error')))
+        except: return await ctx.send("{} | Invalid url! Please follow the tutorial.".format(self.client.error_emoji))
         self.client.db.Dashboard.subscribe(url, ctx.guild.id)
-        await ctx.message.add_reaction(self.client.utils.emote(self.client, 'success'))
+        await ctx.message.add_reaction(self.client.success_emoji)
         web.send(
             embed=discord.Embed(title=f'Congratulations, {str(ctx.author)}!', description='Your webhook is now set! ;)\nNow every development updates or username601 events will be set here.\n\nIf you change your mind, you can do `{}sub reset` to remove the webhook from the database.\n[Join our support server if you still have any questions.]({})'.format(self.client.command_prefix, self.client.utils.cfg('SERVER_INVITE')), color=discord.Color.green()),
             username='Username601 News',
@@ -57,7 +57,7 @@ class bothelp(commands.Cog):
             await ctx.send(embed=embed)
         else:
             data = self.client.cmds.get_commands_auto(' '.join(list(args)).lower())
-            if data==None: return await ctx.send('{} | Your command/category name does not exist, sorry!'.format(self.client.utils.emote(self.client, 'error')))
+            if data==None: return await ctx.send('{} | Your command/category name does not exist, sorry!'.format(self.client.error_emoji))
             datatype = 'Category' if isinstance(data, list) else 'Command'
             desc = '**Command name: **{}\n**Function: **{}\n**Category: **{}'.format(
                 data['name'], data['function'], data['category']
@@ -96,23 +96,23 @@ class bothelp(commands.Cog):
     @cooldown(15)
     async def feedback(self, ctx, *args):
         if len(list(args))==0:
-            await ctx.send(self.client.utils.emote(self.client, 'error')+' | Where\'s the feedback? :(')
+            await ctx.send(self.client.error_emoji+' | Where\'s the feedback? :(')
         elif len(list(args))>1000:
-            await ctx.send(self.client.utils.emote(self.client, 'error')+' | That\'s too long! Please provide a simpler description.')
+            await ctx.send(self.client.error_emoji+' | That\'s too long! Please provide a simpler description.')
         elif 'discord.gg/' in ' '.join(list(args)):
-            await ctx.send(self.client.utils.emote(self.client, 'error')+' | Do NOT send discord invites through feedback! Use the advertising channel in our support server instead!')
+            await ctx.send(self.client.error_emoji+' | Do NOT send discord invites through feedback! Use the advertising channel in our support server instead!')
         else:
-            wait = await ctx.send(self.client.utils.emote(self.client, 'loading') + ' | Please wait... Transmitting data to owner...')
+            wait = await ctx.send(self.client.loading_emoji + ' | Please wait... Transmitting data to owner...')
             banned = self.client.db.selfDB.is_banned(ctx.author.id)
             if not banned:
                 try:
                     fb = ' '.join(list(args))
                     feedbackCh = self.client.get_channel(self.client.utils.cfg('FEEDBACK_CHANNEL', integer=True))
                     await feedbackCh.send('<@'+self.client.utils.cfg('OWNER_ID')+'>, User with ID: '+str(ctx.author.id)+' sent a feedback: **"'+str(fb)+'"**')
-                    embed = discord.Embed(title='Feedback Successful', description=self.client.utils.emote(self.client, 'success') + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+self.client.utils.cfg('SERVER_INVITE')+')',colour=self.client.utils.get_embed_color())
+                    embed = discord.Embed(title='Feedback Successful', description=self.client.success_emoji + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+self.client.utils.cfg('SERVER_INVITE')+')',colour=self.client.utils.get_embed_color())
                     await wait.edit(content='', embed=embed)
                 except:
-                    await wait.edit(content=self.client.utils.emote(self.client, 'error') + ' | Error: There was an error while sending your feedback. Sorry! :(')
+                    await wait.edit(content=self.client.error_emoji + ' | Error: There was an error while sending your feedback. Sorry! :(')
             else:
                 await wait.edit(content='', embed=discord.Embed(
                     title="You have been banned from using the Feedback command.",

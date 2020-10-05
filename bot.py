@@ -8,22 +8,12 @@ import discord
 
 # DECLARATION AND STUFF
 client = commands.Bot(command_prefix=prefix)
-client.remove_command('help')
-setattr(client, 'canvas', Painter(cfg('ASSETS_DIR'), cfg('FONTS_DIR')))
-setattr(client, 'gif', GifGenerator(cfg('ASSETS_DIR'), cfg('FONTS_DIR')))
-setattr(client, 'last_downtime', t.now().timestamp())
-setattr(client, 'command_uses', 0)
-setattr(client, 'utils', username601)
-setattr(client, 'db', database)
-setattr(client, 'games', discordgames)
-setattr(client, 'algorithm', algorithm)
-setattr(client, 'cmds', BotCommands())
+pre_ready_initiation(client)
 environ['BOT_MODULES_DIR'] = cfg('MODULES_DIR')
 environ['BOT_JSON_DIR'] = cfg('JSON_DIR')
 
-@client.event
-async def on_ready():
-    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="👻Botghost.com👻 | Type "+cfg('PREFIX')+"help for command"))
+async def ready():
+    await client.wait_until_ready()
     for i in listdir('./{}'.format(cfg('COGS_DIRNAME'))):
         if not i.endswith('.py'): continue
         print('[BOT] Loaded cog: '+str(i[:-3]))
@@ -32,6 +22,7 @@ async def on_ready():
         except Exception as e:
             print('error on loading cog '+str(i[:-3])+': '+str(e))
             pass
+    post_ready_initiation(client)
     print('Bot is online.')
 
 @client.event
@@ -45,11 +36,12 @@ async def on_guild_join(guild):
 async def on_raw_reaction_add(payload):
     # IF IS NOT STAR EMOJI, IGNORE
     if str(payload.emoji)!='⭐': return
+    if payload.event_type != 'REACTION_ADD': return
     data = database.Dashboard.getStarboardChannel(None, guildid=payload.guild_id)
     if data==None: return
     try:
         messages = await client.get_channel(data['channelid']).history().flatten()
-        starboards = [int(str(message.content).split(': ')[1]) for message in messages if message.author.id==cfg('BOT_ID', integer=True)]
+        starboards = [int(str(message.content).split(': ')[1]) for message in messages if message.author.id==client.user.id]
         if payload.message_id in starboards: return
     except: return
     message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
@@ -147,7 +139,7 @@ def isdblvote(author):
 async def on_message(message):
     if isdblvote(message.author) or message.guild==None: return
     if message.content.startswith(f'<@{client.user.id}>') or message.content.startswith(f'<@!{client.user.id}>'): return await message.channel.send(f'Hello, {message.author.name}! My prefix is `1`. use `1help` for help')
-    if message.guild.id==cfg('SERVER_ID', integer=True) and message.author.id==479688142908162059:
+    if message.guild.id==client.utils.cfg('SERVER_ID', integer=True) and message.author.id==479688142908162059:
         data = int(str(message.embeds[0].description).split('(id:')[1].split(')')[0])
         if database.Economy.get(data)==None: return
         rewards = database.Economy.daily(data)
@@ -158,5 +150,5 @@ async def on_message(message):
 
 def Username601():
     print('Logging in to discord...')
+    client.loop.create_task(ready())
     client.run(environ['DISCORD_TOKEN'])
-if __name__ == "__main__": Username601()

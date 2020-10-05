@@ -26,17 +26,17 @@ class utils(commands.Cog):
     @command('isitup,webstatus')
     @cooldown(2)
     async def isitdown(self, ctx, *args):
-        if len(args)==0: return await ctx.send('{} | Please send a website link...'.format(self.client.utils.emote(self.client, 'error')))
-        wait = await ctx.send('{} | Pinging...'.format(self.client.utils.emote(self.client, 'loading')))
+        if len(args)==0: return await ctx.send('{} | Please send a website link...'.format(self.client.error_emoji))
+        wait = await ctx.send('{} | Pinging...'.format(self.client.loading_emoji))
         web = list(args)[0].replace('<', '').replace('>', '')
         if not web.startswith('http'): web = 'http://' + web
         try:
             a = t.now()
             ping = get(web, timeout=5)
             pingtime = round((t.now()-a).total_seconds()*1000)
-            await wait.edit(content='{} | That website is up.\nPing: {} ms\nStatus code: {}'.format(self.client.utils.emote(self.client, 'success'), pingtime, ping.status_code))
+            await wait.edit(content='{} | That website is up.\nPing: {} ms\nStatus code: {}'.format(self.client.success_emoji, pingtime, ping.status_code))
         except:
-            await wait.edit(content='{} | Yes. that website is down.'.format(self.client.utils.emote(self.client, 'error')))
+            await wait.edit(content='{} | Yes. that website is down.'.format(self.client.error_emoji))
     
     @command('img2ascii,imagetoascii,avascii,avatarascii,avatar2ascii,av2ascii')
     @cooldown(10)
@@ -49,7 +49,7 @@ class utils(commands.Cog):
                 res_im = self.client.canvas.imagetoASCII_picture(url)
                 return await ctx.send(file=discord.File(res_im, 'imgascii.png'))
         url = self.client.utils.getUserAvatar(ctx, args)
-        wait = await ctx.send('{} | Please wait...'.format(self.client.utils.emote(self.client, 'loading')))
+        wait = await ctx.send('{} | Please wait...'.format(self.client.loading_emoji))
         text = self.client.canvas.imagetoASCII(url)
         try:
             data = post("https://hastebin.com/documents", data=text, timeout=3)
@@ -57,8 +57,8 @@ class utils(commands.Cog):
         except:
             await wait.delete()
             file = discord.File(BytesIO(bytes(text, 'utf-8')), filename='ascii.txt')
-            return await ctx.send(content="{} | Oops! there was an error on posting it there. Don't worry, instead i send it as an attachment here:\n(Tip: you can also add `--img` so i send it as an image attachment!)".format(self.client.utils.emote(self.client, 'error')), file=file)
-        return await wait.edit(content='{} | You can see the results at **https://hastebin.com/{}**!'.format(self.client.utils.emote(self.client, 'success'), data.json()['key']))
+            return await ctx.send(content="{} | Oops! there was an error on posting it there. Don't worry, instead i send it as an attachment here:\n(Tip: you can also add `--img` so i send it as an image attachment!)".format(self.client.error_emoji), file=file)
+        return await wait.edit(content='{} | You can see the results at **https://hastebin.com/{}**!'.format(self.client.success_emoji, data.json()['key']))
     
     @command()
     @cooldown(15)
@@ -66,7 +66,7 @@ class utils(commands.Cog):
         query = 'earth' if len(args)==0 else self.client.utils.urlify(' '.join(list(args)))
         data = self.client.utils.fetchJSON(f'https://images-api.nasa.gov/search?q={query}&media_type=image')
         await ctx.channel.trigger_typing()
-        if len(data['collection']['items'])==0: return await ctx.send('{} | Nothing found.'.format(self.client.utils.emote(self.client, 'error')))
+        if len(data['collection']['items'])==0: return await ctx.send('{} | Nothing found.'.format(self.client.error_emoji))
         img = random.choice(data['collection']['items'])
         em = discord.Embed(title=img['data'][0]['title'], description=img['data'][0]["description"], color=self.client.utils.get_embed_color())
         em.set_image(url=img['links'][0]['href'])
@@ -91,7 +91,7 @@ class utils(commands.Cog):
         except Exception as e:
             print(e)
             return await ctx.send("{} | Pokemon not found!".format(
-                str(self.client.utils.emote(self.client, 'error'))
+                str(self.client.error_emoji)
             ))
 
     @command('recipes,cook')
@@ -102,9 +102,9 @@ class utils(commands.Cog):
         else:
             data = self.client.utils.fetchJSON("http://www.recipepuppy.com/api/?q={}".format(self.client.utils.urlify(' '.join(list(args)))))
             if len(data['results'])==0: 
-                await ctx.send("{} | Did not find anything.".format(str(self.client.utils.emote(self.client, 'error'))))
+                await ctx.send("{} | Did not find anything.".format(str(self.client.error_emoji)))
             elif len([i for i in data['results'] if i['thumbnail']!=''])==0:
-                await ctx.send("{} | Did not find anything with a delicious picture.".format(str(self.client.utils.emote(self.client, 'error'))))
+                await ctx.send("{} | Did not find anything with a delicious picture.".format(str(self.client.error_emoji)))
             else:
                 total = random.choice([i for i in data['results'] if i['thumbnail']!=''])
                 embed = discord.Embed(title=total['title'], url=total['href'], description='Ingredients:\n{}'.format(total['ingredients']), color=self.client.utils.get_embed_color())
@@ -129,18 +129,18 @@ class utils(commands.Cog):
     @command('calculator,equ,equation,calculate')
     @cooldown(3)
     async def calc(self, ctx, *args):
-        if len(args)==0: return await ctx.send(str(self.client.utils.emote(self.client, 'error'))+" | You need something... i smell no args nearby.")
+        if len(args)==0: return await ctx.send(str(self.client.error_emoji)+" | You need something... i smell no args nearby.")
         else:
             equation = ' '.join(list(args))
             replaceWith = "x>*;.>*;×>*;÷>/;plus>+;minus>-;divide>/;multiply>*"
             for rep in replaceWith.split(";"):
                 equation = equation.replace(rep.split('>')[0], rep.split('>')[1])
-            if search("[a-zA-Z]", equation): return await ctx.send("{} | Please do NOT input something that contains letters. This is not eval, nerd.".format(self.client.utils.emote(self.client, 'error')))
+            if search("[a-zA-Z]", equation): return await ctx.send("{} | Please do NOT input something that contains letters. This is not eval, nerd.".format(self.client.error_emoji))
             try:
                 res = eval(equation)
-                return await ctx.send("{} | {} = `{}`".format(self.client.utils.emote(self.client, 'success'), equation, res[0:1000]))
+                return await ctx.send("{} | {} = `{}`".format(self.client.success_emoji, equation, res[0:1000]))
             except Exception as e:
-                return await ctx.send("{} | ***Error: {}***".format(self.client.utils.emote(self.client, 'error'), e))
+                return await ctx.send("{} | ***Error: {}***".format(self.client.error_emoji, e))
     @command()
     @cooldown(7)
     async def quote(self, ctx):
@@ -159,7 +159,7 @@ class utils(commands.Cog):
     @command()
     @cooldown(10)
     async def weather(self, ctx, *args):
-        if len(args)==0: await ctx.send(str(self.client.utils.emote(self.client, 'error'))+" | Please send a location or a city!")
+        if len(args)==0: await ctx.send(str(self.client.error_emoji)+" | Please send a location or a city!")
         else: await ctx.send(file=discord.File(self.client.canvas.urltoimage('https://wttr.in/'+str(self.client.utils.urlify(' '.join(list(args))))+'.png?m'), 'weather.png'))
 
     @command()
@@ -168,7 +168,7 @@ class utils(commands.Cog):
         num = str(random.randint(50, 100))
         data = self.client.utils.fetchJSON('http://ufo-api.herokuapp.com/api/sightings/search?limit='+num)
         if data['status']!='OK':
-            await ctx.send(str(self.client.utils.emote(self.client, 'error'))+' | There was a problem on retrieving the info.\nThe server said: "'+str(data['status'])+'" :eyes:')
+            await ctx.send(str(self.client.error_emoji)+' | There was a problem on retrieving the info.\nThe server said: "'+str(data['status'])+'" :eyes:')
         else:
             ufo = random.choice(data['sightings'])
             embed = discord.Embed(title='UFO Sighting in '+str(ufo['city'])+', '+str(ufo['state']), description='**Summary:** '+str(ufo['summary'])+'\n\n**Shape:** '+str(ufo['shape'])+'\n**Sighting Date: **'+str(ufo['date'])[:-8].replace('T', ' ')+'\n**Duration: **'+str(ufo['duration'])+'\n\n[Article Source]('+str(ufo['url'])+')', colour=self.client.utils.get_embed_color())
@@ -180,7 +180,7 @@ class utils(commands.Cog):
     async def rhyme(self, ctx, *args):
         if len(args)==0: await ctx.send('Please input a word! And we will try to find the word that best rhymes with it.')
         else:
-            wait, words = await ctx.send(str(self.client.utils.emote(self.client, 'loading')) + ' | Please wait... Searching...'), []
+            wait, words = await ctx.send(str(self.client.loading_emoji) + ' | Please wait... Searching...'), []
             data = self.client.utils.fetchJSON('https://rhymebrain.com/talk?function=getRhymes&word='+str(self.client.utils.urlify(' '.join(list(args)))))
             if len(data)<1: await wait.edit(content='We did not find any rhyming words corresponding to that letter.')
             else:
@@ -196,7 +196,7 @@ class utils(commands.Cog):
     @cooldown(12)
     async def stackoverflow(self, ctx, *args):
         if len(args)==0:
-            await ctx.send(str(self.client.utils.emote(self.client, 'error'))+' | Hey fellow developer, Try add a question!')
+            await ctx.send(str(self.client.error_emoji)+' | Hey fellow developer, Try add a question!')
         else:
             try:
                 query = self.client.utils.urlify(' '.join(list(args)))
@@ -214,7 +214,7 @@ class utils(commands.Cog):
                 embed.set_footer(text='Shown 1 result out of '+str(leng)+' results!')
                 await ctx.send(embed=embed)
             except:
-                await ctx.send(str(self.client.utils.emote(self.client, 'error')) + ' | There was an error on searching! Please check your spelling :eyes:')
+                await ctx.send(str(self.client.error_emoji) + ' | There was an error on searching! Please check your spelling :eyes:')
 
     @command('birbfact,birdfact')
     @cooldown(7)
@@ -236,7 +236,7 @@ class utils(commands.Cog):
     @command('ghibli')
     @cooldown(5)
     async def ghiblifilms(self, ctx, *args):
-        wait = await ctx.send(str(self.client.utils.emote(self.client, 'loading')) + ' | Please wait... Getting data...')
+        wait = await ctx.send(str(self.client.loading_emoji) + ' | Please wait... Getting data...')
         data = self.client.utils.fetchJSON('https://ghibliapi.herokuapp.com/films')
         if len(args)==0:
             films = ""
@@ -260,7 +260,7 @@ class utils(commands.Cog):
                 embed.add_field(name='Directed by', value=data[num]['director'], inline='True')
                 embed.add_field(name='Produced by', value=data[num]['producer'], inline='True')
                 await wait.edit(content='', embed=embed)
-            except: await wait.edit(content=str(self.client.utils.emote(self.client, 'error'))+' | the movie you requested does not exist!?')
+            except: await wait.edit(content=str(self.client.error_emoji)+' | the movie you requested does not exist!?')
 
     @command()
     @cooldown(10)
@@ -273,7 +273,7 @@ class utils(commands.Cog):
             embed.set_thumbnail(url=avatar)
             await ctx.send(embed=embed)
         except:
-            await ctx.send(str(self.client.utils.emote(self.client, 'error'))+" | Error; profile not found!")
+            await ctx.send(str(self.client.error_emoji)+" | Error; profile not found!")
 
     @command('nation')
     @cooldown(5)
@@ -289,7 +289,7 @@ class utils(commands.Cog):
             embed.set_image(url='attachment://country.png')
             return await ctx.send(file=file, embed=embed)
         except:
-            return await ctx.send('{} | Country not found!'.format(self.client.utils.emote(self.client, 'error')))
+            return await ctx.send('{} | Country not found!'.format(self.client.error_emoji))
 
     @command()
     @cooldown(5)
@@ -300,7 +300,7 @@ class utils(commands.Cog):
     @command()
     @cooldown(20)
     async def googledoodle(self, ctx):
-        wait = await ctx.send(str(self.client.utils.emote(self.client, 'loading')) + ' | Please wait... This may take a few moments...')
+        wait = await ctx.send(str(self.client.loading_emoji) + ' | Please wait... This may take a few moments...')
         data = self.client.utils.fetchJSON('https://www.google.com/doodles/json/{}/{}'.format(str(t.now().year), str(t.now().month)))[0]
         embed = discord.Embed(title=data['title'], colour=self.client.utils.get_embed_color(), url='https://www.google.com/doodles/'+data['name'])
         embed.set_image(url='https:'+data['high_res_url'])
@@ -313,7 +313,7 @@ class utils(commands.Cog):
     @cooldown(10)
     async def steamapp(self, ctx, *args):
         data = self.client.utils.fetchJSON('https://store.steampowered.com/api/storesearch?term='+self.client.utils.urlify(str(' '.join(list(args))))+'&cc=us&l=en')
-        if data['total']==0: await ctx.send(str(self.client.utils.emote(self.client, 'error'))+' | Did not found anything. Maybe that app *doesn\'t exist...*')
+        if data['total']==0: await ctx.send(str(self.client.error_emoji)+' | Did not found anything. Maybe that app *doesn\'t exist...*')
         else:
             try:
                 prize = data['items'][0]['price']['initial']
@@ -342,21 +342,21 @@ class utils(commands.Cog):
         try:
             return await ctx.send(embed=discord.Embed(description=' '.join(list(args))))
         except:
-            return await ctx.message.add_reaction(self.client.utils.emote(self.client, 'error'))
+            return await ctx.message.add_reaction(self.client.error_emoji)
             
     @command('col')
     @cooldown(3)
     async def color(self, ctx, *args):
-        if len(args) == 0: return await ctx.send("{} | Invalid argument. use `{}help color` for more info.".format(self.client.utils.emote(self.client, 'error')), self.client.command_prefix)
+        if len(args) == 0: return await ctx.send("{} | Invalid argument. use `{}help color` for more info.".format(self.client.error_emoji), self.client.command_prefix)
         async with ctx.channel.typing():
             parameter_data = self.client.utils.parse_parameter(args, 'role', get_second_element=True)
             if parameter_data['available']:
                 iterate_result = [i.id for i in ctx.guild.roles if parameter_data['secondparam'].lower() in i.name.lower()]
-                if len(iterate_result) == 0: return await ctx.send("{} | Role not found.".format(self.client.utils.emote(self.client, 'error')))
+                if len(iterate_result) == 0: return await ctx.send("{} | Role not found.".format(self.client.error_emoji))
                 colim = self.client.canvas.color(str(ctx.guild.get_role(iterate_result[0]).colour))
             else:
                 colim = self.client.canvas.color(None, (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))) if self.client.utils.parse_parameter(args, 'random')['available'] else self.client.canvas.color(' '.join(list(args)))
-            if colim == None: return await ctx.send("{} | Invalid hex color.".format(self.client.utils.emote(self.client, 'error')))
+            if colim == None: return await ctx.send("{} | Invalid hex color.".format(self.client.error_emoji))
             return await ctx.send(file=discord.File(colim, 'color.png'))
     
     @command('fast')

@@ -20,14 +20,14 @@ class encoding(commands.Cog):
                 self.client.utils.insp('http://artii.herokuapp.com/make?text={}'.format(text))
             ))
         except:
-            await ctx.send('{} | Your text is too long to be processed!'.format(self.client.utils.emote(self.client, 'error')))
+            await ctx.send('{} | Your text is too long to be processed!'.format(self.client.error_emoji))
 
     @command('fliptext,fancy,cursive,braille')
     @cooldown(5)
     async def morse(self, ctx, *args):
-        if len(list(args))==0: await ctx.send(self.client.utils.emote(self.client, 'error')+' | no arguments? Really?')
+        if len(list(args))==0: await ctx.send(self.client.error_emoji+' | no arguments? Really?')
         elif len(' '.join(list(args))) > 100:
-            await ctx.send(self.client.utils.emote(self.client, 'error')+' | too long....')
+            await ctx.send(self.client.error_emoji+' | too long....')
         else:
             async with ctx.channel.typing():
                 res = self.client.utils.fetchJSON('https://useless-api--vierofernando.repl.co/encode?text='+self.client.utils.urlify(' '.join(list(args))))
@@ -41,9 +41,9 @@ class encoding(commands.Cog):
     @cooldown(1)
     async def barcode(self, ctx, *args):
         if len(list(args))==0:
-            await ctx.send(self.client.utils.emote(self.client, 'error')+' | Please provide a text!')
+            await ctx.send(self.client.error_emoji+' | Please provide a text!')
         elif len(' '.join(list(args))) > 50:
-            await ctx.send(self.client.utils.emote(self.client, 'error')+' | too longggggggggg')
+            await ctx.send(self.client.error_emoji+' | too longggggggggg')
         else:
             async with ctx.channel.typing():
                 if 'qr' in str(ctx.message.content).split(' ')[0][1:]: url = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+str(self.client.utils.urlify(str(' '.join(list(args)))))
@@ -54,17 +54,17 @@ class encoding(commands.Cog):
     @cooldown(1)
     async def binary(self, ctx, *args):
         if len(list(args))==0:
-            await ctx.send(self.client.utils.emote(self.client, 'error')+' | gimme something.')
+            await ctx.send(self.client.error_emoji+' | gimme something.')
         elif len(' '.join(list(args))) > 50:
-            await ctx.send(self.client.utils.emote(self.client, 'error')+' | too long.')
+            await ctx.send(self.client.error_emoji+' | too long.')
         else:
-            if len(self.client.utils.bin(str(' '.join(list(args)))))>4000: await ctx.send(self.client.utils.emote(self.client, 'error')+' | the result is too long for discord to proccess...')
+            if len(self.client.utils.bin(str(' '.join(list(args)))))>4000: await ctx.send(self.client.error_emoji+' | the result is too long for discord to proccess...')
             else: await ctx.send('```'+str(self.client.utils.bin(str(' '.join(list(args)))))+'```')
     @command()
     @cooldown(1)
     async def caesar(self, ctx, *args):
         if len(list(args))<2:
-            await ctx.send(self.client.utils.emote(self.client, 'error')+f' | Try something like `{self.client.command_prefix}caesar 3 hello world`')
+            await ctx.send(self.client.error_emoji+f' | Try something like `{self.client.command_prefix}caesar 3 hello world`')
         else:
             offset = None
             for i in args:
@@ -72,13 +72,13 @@ class encoding(commands.Cog):
                     offset = int(i)
                     break
             if offset==None:
-                await ctx.send(self.client.utils.emote(self.client, 'error')+' | No offset?')
+                await ctx.send(self.client.error_emoji+' | No offset?')
             else:
                 await ctx.send(self.client.utils.caesar(str(' '.join(list(args)).replace(str(offset), '')), int(offset)))
     @command()
     @cooldown(1)
     async def atbash(self, ctx, *args):
-        if len(list(args))==0: await ctx.send(self.client.utils.emote(self.client, 'error') + ' | Invalid. Please give us the word to encode...')
+        if len(list(args))==0: await ctx.send(self.client.error_emoji + ' | Invalid. Please give us the word to encode...')
         else: await ctx.send(self.client.utils.atbash(' '.join(list(args))))
 
     @command()
@@ -90,14 +90,14 @@ class encoding(commands.Cog):
     @command('b64')
     @cooldown(1)
     async def base64(self, ctx, *args):
-        if len(list(args))==0: await ctx.send(self.client.utils.emote(self.client, 'error')+' | Gimme dat args!')
+        if len(list(args))==0: await ctx.send(self.client.error_emoji+' | Gimme dat args!')
         else: await ctx.send(self.client.utils.encodeb64(' '.join(args)))
     
     @command('leetspeak')
     @cooldown(1)
     async def leet(self, ctx, *args):
         if len(list(args))==0:
-            await ctx.send(self.client.utils.emote(self.client, 'error')+' | No arguments? ok then! no service it is!')
+            await ctx.send(self.client.error_emoji+' | No arguments? ok then! no service it is!')
         else:
             data = self.client.utils.fetchJSON("https://vierofernando.github.io/username601/assets/json/leet.json")
             total = ''

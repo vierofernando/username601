@@ -59,7 +59,7 @@ class image(commands.Cog):
         except: num = 5
         if num not in range(0, 999):
             return await ctx.send("{} | damn that level is hella weirdd".format(
-                self.client.utils.emote(self.client, 'error')
+                self.client.error_emoji
             ))
         ava = self.client.utils.getUserAvatar(ctx, args)
         async with ctx.channel.typing():
@@ -85,7 +85,7 @@ class image(commands.Cog):
             ))
         except:
             await ctx.send("{} | Ooops! We cannot find the image. Please try again.".format(
-                self.client.utils.emote(self.client, 'error')
+                self.client.error_emoji
             ))
 
     @command()
@@ -130,7 +130,7 @@ class image(commands.Cog):
             ))
         except:
             await ctx.send('{} | 404'.format(
-                self.client.utils.emote(self.client, 'error')
+                self.client.error_emoji
             ))
 
     @command()
@@ -157,13 +157,13 @@ class image(commands.Cog):
         async with ctx.channel.typing():
             if correct=='yy':
                 ava = self.client.utils.getUserAvatar(ctx, args, size=512)
-                if wh[0]>2000 or wh[1]>2000: await ctx.send(self.client.utils.emote(self.client, 'error') + " | Your image is too big!")
-                elif wh[0]<300 or wh[1]<300: await ctx.send(self.client.utils.emote(self.client, 'error') + " | Your image is too small!")
+                if wh[0]>2000 or wh[1]>2000: await ctx.send(self.client.error_emoji + " | Your image is too big!")
+                elif wh[0]<300 or wh[1]<300: await ctx.send(self.client.error_emoji + " | Your image is too small!")
                 else:
                     data = self.client.canvas.resize(ava, wh[0], wh[1])
                     await ctx.send(file=discord.File(data, 'resize.png'))
             else:
-                await ctx.send(self.client.utils.emote(self.client, 'error') + " | Where are the parameters?")
+                await ctx.send(self.client.error_emoji + " | Where are the parameters?")
 
     @command()
     @cooldown(10)
@@ -213,7 +213,7 @@ class image(commands.Cog):
     @command()
     @cooldown(1)
     async def ship(self, ctx, *args):
-        if len(args) == 0: return await ctx.send("{} | Please input a parameter or something".format(self.client.utils.emote(self.client, 'error')))
+        if len(args) == 0: return await ctx.send("{} | Please input a parameter or something".format(self.client.error_emoji))
         async with ctx.channel.typing():
             parsed_args = self.client.utils.split_parameter_to_two(args)
             print(parsed_args)

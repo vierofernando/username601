@@ -24,20 +24,20 @@ class games(commands.Cog):
     @command()
     @cooldown(3)
     async def gdlevel(self, ctx, *args):
-        if len(list(args))==0: return await ctx.send(self.client.utils.emote(self.client, 'error')+' | Please enter a level ID!')
-        if not args[0].isnumeric(): return await ctx.send(self.client.utils.emote(self.client, 'error')+' | That is not a level ID!')
-        toEdit = await ctx.send(self.client.utils.emote(self.client, 'loading')+' | Fetching data from the Geometry Dash servers...')
+        if len(list(args))==0: return await ctx.send(self.client.error_emoji+' | Please enter a level ID!')
+        if not args[0].isnumeric(): return await ctx.send(self.client.error_emoji+' | That is not a level ID!')
+        toEdit = await ctx.send(self.client.loading_emoji+' | Fetching data from the Geometry Dash servers...')
         try:
             data = self.client.canvas.geometry_dash_level(int(list(args)[0]))
             await toEdit.delete()
             await ctx.send(file=discord.File(data, 'gdlevel.png'))
         except:
-            await toEdit.edit(content=self.client.utils.emote(self.client, 'error')+ ' | Sorry! there is an error with the GD servers.')
+            await toEdit.edit(content=self.client.error_emoji+ ' | Sorry! there is an error with the GD servers.')
     @command()
     @cooldown(3)
     async def gdsearch(self, ctx, *args):
         if len(list(args))==0:
-            await ctx.send(self.client.utils.emote(self.client, 'error')+' | Please input a query!')
+            await ctx.send(self.client.error_emoji+' | Please input a query!')
         else:
             try:
                 query = self.client.utils.urlify(' '.join(list(args)))
@@ -51,12 +51,12 @@ class games(commands.Cog):
                 embedy = discord.Embed(title='Geometry Dash Level searches for "'+str(' '.join(list(args)))+'":', description=levels, colour=self.client.utils.get_embed_color())
                 await ctx.send(embed=embedy)
             except:
-                await ctx.send(self.client.utils.emote(self.client, 'error') + ' | Error: Not Found. :four::zero::four:')
+                await ctx.send(self.client.error_emoji + ' | Error: Not Found. :four::zero::four:')
 
     @command()
     @cooldown(3)
     async def gdprofile(self, ctx, *args):
-        if len(list(args))==0: await ctx.send(self.client.utils.emote(self.client, 'error')+' | Gimme some ARGS!')
+        if len(list(args))==0: await ctx.send(self.client.error_emoji+' | Gimme some ARGS!')
         else:
             try:
                 url = self.client.utils.urlify(str(' '.join(list(args))))
@@ -77,13 +77,13 @@ class games(commands.Cog):
                 embed.set_author(name='Display User Information', icon_url="https://gdbrowser.com/icon/"+url)
                 await ctx.send(embed=embed)
             except:
-                await ctx.send(self.client.utils.emote(self.client, 'error')+' | Error, user not found.')
+                await ctx.send(self.client.error_emoji+' | Error, user not found.')
     
     @command()
     @cooldown(3)
     async def gdlogo(self, ctx, *args):
         if len(list(args))==0:
-            await ctx.send(self.client.utils.emote(self.client, 'error')+' | Please input a text!')
+            await ctx.send(self.client.error_emoji+' | Please input a text!')
         else:
             async with ctx.channel.typing():
                 text = self.client.utils.urlify(' '.join(list(args)))
@@ -93,11 +93,11 @@ class games(commands.Cog):
     @command()
     @cooldown(3)
     async def gdbox(self, ctx, *args):
-        if len(list(args))==0: await ctx.send(self.client.utils.emote(self.client, 'error')+' | Please input a text!')
+        if len(list(args))==0: await ctx.send(self.client.error_emoji+' | Please input a text!')
         else:
             async with ctx.channel.typing():
                 text, av = self.client.utils.urlify(str(' '.join(list(args)))), ctx.author.avatar_url_as(format='png')
-                if len(text)>100: await ctx.send(self.client.utils.emote(self.client, 'error') +' | the text is too long!')
+                if len(text)>100: await ctx.send(self.client.error_emoji +' | the text is too long!')
                 else:
                     if not ctx.author.guild_permissions.manage_guild: color = 'brown'
                     else: color = 'blue'
@@ -119,18 +119,18 @@ class games(commands.Cog):
                 else: url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&days=1-second'
                 await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'gdcomment.png'))
             except Exception as e:
-                await ctx.send(self.client.utils.emote(self.client, 'error') +f' | Invalid!\nThe flow is this: `{self.client.command_prefix}gdcomment text | name | like count`\nExample: `{self.client.command_prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
+                await ctx.send(self.client.error_emoji +f' | Invalid!\nThe flow is this: `{self.client.command_prefix}gdcomment text | name | like count`\nExample: `{self.client.command_prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
 
     @command('gdweekly')
     @cooldown(2)
     async def gddaily(self, ctx):
-        toEdit = await ctx.send(self.client.utils.emote(self.client, 'loading')+' | Fetching data from the Geometry Dash servers...')
+        toEdit = await ctx.send(self.client.loading_emoji+' | Fetching data from the Geometry Dash servers...')
         try:
             data = self.client.canvas.geometry_dash_level(None, daily=True) if 'daily' in ctx.message.content.lower() else self.client.canvas.geometry_dash_level(None, weekly=True)
             await toEdit.delete()
             await ctx.send(file=discord.File(data, 'gdnivel.png'))
         except:
-            await toEdit.edit(content=self.client.utils.emote(self.client, 'error')+ ' | Sorry! Geometry dash servers seems to doing... something wrong.')
+            await toEdit.edit(content=self.client.error_emoji+ ' | Sorry! Geometry dash servers seems to doing... something wrong.')
 
     @command('rockpaperscissors')
     @cooldown(5)
@@ -188,9 +188,9 @@ class games(commands.Cog):
     @command('guessav,avatarguess,avguess,avatargame,avgame')
     @cooldown(30)
     async def guessavatar(self, ctx):
-        wait = await ctx.send(self.client.utils.emote(self.client, 'loading') + ' | Please wait... generating question...\nThis process may take longer if your server has more members.')
+        wait = await ctx.send(self.client.loading_emoji + ' | Please wait... generating question...\nThis process may take longer if your server has more members.')
         avatarAll, nameAll = [str(i.avatar_url) for i in ctx.guild.members if i.status.name!='offline'], [i.display_name for i in ctx.guild.members if i.status.name!='offline']
-        if len(avatarAll)<=4: return await ctx.send(self.client.utils.emote(self.client, 'error') +' | Need more online members! :x:')
+        if len(avatarAll)<=4: return await ctx.send(self.client.error_emoji +' | Need more online members! :x:')
         numCorrect = random.randint(0, len(avatarAll)-1)
         corr_avatar, corr_name = avatarAll[numCorrect], nameAll[numCorrect]
         nameAll.remove(corr_name)
@@ -220,18 +220,18 @@ class games(commands.Cog):
         except asyncio.TimeoutError:
             return await ctx.send(':pensive: No one? Okay then, the answer is: '+str(corr_order)+'. '+str(corr_name))
         if str(reaction.emoji)==str(corr_order):
-            await ctx.send(self.client.utils.emote(self.client, 'success') +' | <@'+str(ctx.author.id)+'>, You are correct! :tada:')
+            await ctx.send(self.client.success_emoji +' | <@'+str(ctx.author.id)+'>, You are correct! :tada:')
             if self.client.db.Economy.get(ctx.author.id)!=None:
                 reward = random.randint(5, 100)
                 self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! You received '+str(reward)+' extra bobux!')
         else:
-            await ctx.send(self.client.utils.emote(self.client, 'error') +' | <@'+str(ctx.author.id)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
+            await ctx.send(self.client.error_emoji +' | <@'+str(ctx.author.id)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
 
     @command()
     @cooldown(15)
     async def geoquiz(self, ctx):
-        wait = await ctx.send(self.client.utils.emote(self.client, 'loading') + ' | Please wait... generating question...')
+        wait = await ctx.send(self.client.loading_emoji + ' | Please wait... generating question...')
         data, topic = self.client.utils.fetchJSON("https://restcountries.eu/rest/v2/"), random.choice(['capital', 'region', 'subregion', 'population', 'demonym', 'nativeName'])
         chosen_nation_num = random.randint(0, len(data))
         chosen_nation, wrongs = data[chosen_nation_num], []
@@ -262,13 +262,13 @@ class games(commands.Cog):
         except asyncio.TimeoutError:
             await main.add_reaction('😔')
         if str(reaction.emoji)==str(corr_order):
-            await ctx.send(self.client.utils.emote(self.client, 'success') +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
+            await ctx.send(self.client.success_emoji +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
             if self.client.db.Economy.get(ctx.author.id)!=None:
                 reward = random.randint(5, 150)
                 self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! You obtained '+str(reward)+' bobux in total!')
         else:
-            await ctx.send(self.client.utils.emote(self.client, 'error') +' | <@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr_order)+'.')
+            await ctx.send(self.client.error_emoji +' | <@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr_order)+'.')
 
     @command()
     @cooldown(4)
@@ -285,18 +285,18 @@ class games(commands.Cog):
         except asyncio.TimeoutError:
             return await ctx.send(':pensive: No one? Okay then, the answer is: {}.'.format(answer))
         if str(trying.content)==str(answer):
-            await ctx.send(self.client.utils.emote(self.client, 'success') +' | <@'+str(ctx.author.id)+'>, You are correct! :tada:')
+            await ctx.send(self.client.success_emoji +' | <@'+str(ctx.author.id)+'>, You are correct! :tada:')
             if self.client.db.Economy.get(ctx.author.id)!=None:
                 reward = random.randint(5, 50)
                 self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! we added an extra '+str(reward)+' bobux to your profile.')
         else:
-            await ctx.send(self.client.utils.emote(self.client, 'error') +' | <@'+str(ctx.author.id)+'>, Incorrect. The answer is {}.'.format(answer))
+            await ctx.send(self.client.error_emoji +' | <@'+str(ctx.author.id)+'>, Incorrect. The answer is {}.'.format(answer))
 
     @command()
     @cooldown(60)
     async def hangman(self, ctx):
-        wait = await ctx.send(self.client.utils.emote(self.client, 'loading') + ' | Please wait... generating...')
+        wait = await ctx.send(self.client.loading_emoji + ' | Please wait... generating...')
         the_word = self.client.utils.fetchJSON("https://random-word-api.herokuapp.com/word?number=1")
         main_guess_cor, main_guess_hid = list(the_word[0]), []
         server_id, wrong_guesses = ctx.guild.id, ''
@@ -415,7 +415,7 @@ class games(commands.Cog):
             try:
                 trying = await self.client.wait_for('message', check=check_not_stranger, timeout=20.0)
             except asyncio.TimeoutError:
-                await ctx.send(self.client.utils.emote(self.client, 'error') +' | You did not respond for the next 20 seconds!\nGame ended.')
+                await ctx.send(self.client.error_emoji +' | You did not respond for the next 20 seconds!\nGame ended.')
                 gameplay = False
                 break
             if trying.content.isnumeric()==False:
@@ -429,7 +429,7 @@ class games(commands.Cog):
                     await ctx.send('Lower!')
                     attempts = int(attempts) - 1
                 if int(trying.content)==num:
-                    await ctx.send(self.client.utils.emote(self.client, 'success') +' | You are correct!\n**The answer is '+str(num)+'!**')
+                    await ctx.send(self.client.success_emoji +' | You are correct!\n**The answer is '+str(num)+'!**')
                     if self.client.db.Economy.get(ctx.author.id)!=None:
                         reward = random.randint(5, 50)
                         self.client.db.Economy.addbal(ctx.author.id, reward)
@@ -442,7 +442,7 @@ class games(commands.Cog):
     async def trivia(self, ctx):
         al = None
         try:
-            wait = await ctx.send(self.client.utils.emote(self.client, 'loading') + ' | Please wait... generating quiz...')
+            wait = await ctx.send(self.client.loading_emoji + ' | Please wait... generating quiz...')
             auth = ctx.author
             data = self.client.utils.fetchJSON('https://wiki-quiz.herokuapp.com/v1/quiz?topics=Science')
             q = random.choice(data['quiz'])
@@ -458,7 +458,7 @@ class games(commands.Cog):
             for i in range(0, len(al)):
                 await wait.add_reaction(al[i])
         except Exception as e:
-            await wait.edit(content=self.client.utils.emote(self.client, 'error') + f' | An error occurred!\nReport this using {self.client.command_prefix}feedback.\n```{e}```')
+            await wait.edit(content=self.client.error_emoji + f' | An error occurred!\nReport this using {self.client.command_prefix}feedback.\n```{e}```')
         guy = ctx.author
         def check(reaction, user):
             return user == guy
@@ -467,13 +467,13 @@ class games(commands.Cog):
         except asyncio.TimeoutError:
             await wait.add_reaction('😔')
         if str(reaction.emoji)==str(corr):
-            await ctx.send(self.client.utils.emote(self.client, 'success') +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
+            await ctx.send(self.client.success_emoji +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
             if self.client.db.Economy.get(ctx.author.id)!=None:
                 reward = random.randint(250, 400)
                 self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! You get also a '+str(reward)+' bobux as a prize!')
         else:
-            await ctx.send(self.client.utils.emote(self.client, 'error') +' | <@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr)+'.')
+            await ctx.send(self.client.error_emoji +' | <@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr)+'.')
 
 def setup(client):
     client.add_cog(games(client))

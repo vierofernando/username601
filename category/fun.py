@@ -51,7 +51,7 @@ class fun(commands.Cog):
     @command('howlove,friendship,fs')
     @cooldown(2)
     async def lovelevel(self, ctx):
-        if len(ctx.message.mentions)!=2: await ctx.send(self.client.utils.emote(self.client, 'error')+' | Error: Please give me 2 tags!')
+        if len(ctx.message.mentions)!=2: await ctx.send(self.client.error_emoji+' | Error: Please give me 2 tags!')
         else:
             result = self.client.algorithm.love_finder(ctx.message.mentions[0].id, ctx.message.mentions[1].id)
             await ctx.send('Love level of {} and {} is **{}%!**'.format(ctx.message.mentions[0].name, ctx.message.mentions[1].name, str(result)))
@@ -116,7 +116,7 @@ class fun(commands.Cog):
     @command('serverdeathnote,dn')
     @cooldown(10)
     async def deathnote(self, ctx):
-        if len(ctx.guild.members)>500: return await ctx.send(self.client.utils.emote(self.client, 'error')+' | This server has soo many members')
+        if len(ctx.guild.members)>500: return await ctx.send(self.client.error_emoji+' | This server has soo many members')
         member, in_the_note, notecount, membercount = [], "", 0, 0
         for i in range(0, int(len(ctx.guild.members))):
             if ctx.guild.members[i].name!=ctx.author.name:
@@ -141,9 +141,9 @@ class fun(commands.Cog):
     async def uselesswebs(self, ctx):
         try:
             url = requests.get('https://useless-api.vierofernando.repl.co/useless-sites').json()['url']
-            await ctx.send(self.client.utils.emote(self.client, 'success')+f' | **{url}**')
+            await ctx.send(self.client.success_emoji+f' | **{url}**')
         except:
-            await ctx.send(self.client.utils.emote(self.client, 'error')+' | oops. there is some error, meanwhile look at this useless site: <https://top.gg/bot/{}/vote>'.format(self.client.user.id))
+            await ctx.send(self.client.error_emoji+' | oops. there is some error, meanwhile look at this useless site: <https://top.gg/bot/{}/vote>'.format(self.client.user.id))
     
     @command()
     @cooldown(2)
@@ -156,7 +156,7 @@ class fun(commands.Cog):
     @command()
     @cooldown(2)
     async def temmie(self, ctx, *args):
-        if len(list(args))==0: await ctx.send(self.client.utils.emote(self.client, 'error')+' | Please send something to be encoded.')
+        if len(list(args))==0: await ctx.send(self.client.error_emoji+' | Please send something to be encoded.')
         else:
             link, num = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/temmie.json', 1
             data = self.client.utils.fetchJSON(link)
