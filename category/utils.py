@@ -1,14 +1,15 @@
 import discord
-from discord.ext import commands
 import sys
+import random
+from discord.ext import commands
 from os import getcwd, name, environ
 sys.path.append(environ['BOT_MODULES_DIR'])
 from decorators import command, cooldown
-import random
 from io import BytesIO
 from requests import post, get
 from json import loads
 from datetime import datetime as t
+from re import search
 
 class utils(commands.Cog):
     def __init__(self, client):
@@ -125,22 +126,21 @@ class utils(commands.Cog):
             colour = self.client.utils.get_embed_color()
         )
         await ctx.send(embed=embed)
-    @command()
+    @command('calculator,equ,equation,calculate')
     @cooldown(3)
     async def calc(self, ctx, *args):
-        if len(list(args))==0: await ctx.send(str(self.client.utils.emote(self.client, 'error'))+" | You need something... i smell no args nearby.")
+        if len(list(args))==0: return await ctx.send(str(self.client.utils.emote(self.client, 'error'))+" | You need something... i smell no args nearby.")
         else:
-            start_counting = True
-            for i in list('abcdefghijklmnopqrstuvwxyz.'):
-                if i in ''.join(list(args)).lower():
-                    start_counting = False
-                    break
-            if start_counting:
-                try: # i know it's eval, but at least it is protected
-                    result = eval(' '.join(list(args)))
-                    await ctx.send('`'+str(result)+'`')
-                except:
-                    await ctx.send(str(self.client.utils.emote(self.client, 'error'))+" | Somehow your calculation returns an error...")             
+            equation = ' '.join(list(args))
+            replaceWith = "x>*;.>*;×>*;÷>/;plus>+;minus>-;divide>/;multiply>*"
+            for rep in replaceWith.split(";"):
+                equation = equation.replace(rep.split('>')[0], rep.split('>')[1])
+            if search("[a-zA-Z]", equation): return await ctx.send("{} | Please do input something that contains letters. This is not eval, nerd.".format(self.client.utils.emote(self.client, 'error')))
+            try:
+                res = eval(equation)
+                return await ctx.send("{} | {} = `{}`".format(self.client.utils.emote(self.client, 'success'), equation, res[0:1000]))
+            except Exception as e:
+                return await ctx.send("{} | ***Error: {}***".format(self.client.utils.emote(self.client, 'error'), e))
     @command()
     @cooldown(7)
     async def quote(self, ctx):
