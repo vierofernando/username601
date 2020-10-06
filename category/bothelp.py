@@ -21,10 +21,10 @@ class bothelp(commands.Cog):
     @command('subscribe,dev,development,devupdates,dev-updates,development-updates')
     @cooldown(5)
     async def sub(self, ctx, *args):
-        if len(list(args))==0 or 'help' in ''.join(list(args)).lower():
+        if len(args)==0 or 'help' in ''.join(args).lower():
             embed = discord.Embed(title='Get development updates and/or events in your server!', description='Want to get up-to-date development updates? either it is bugfixes, cool events, etc.\nHow do you set up? Use `{}sub <discord webhook url>`.\nIf you still do not understand, [please watch the tutorial video here.](https://vierofernando.is-inside.me/fEhT86EE.mp4)'.format(self.client.command_prefix), color=self.client.utils.get_embed_color())
             return await ctx.send(embed=embed)
-        elif 'reset' in ''.join(list(args)).lower():
+        elif 'reset' in ''.join(args).lower():
             self.client.db.Dashboard.subscribe(None, ctx.guild.id, reset=True)
             return await ctx.send('{} | Subscription has been deleted.'.format(self.client.success_emoji))
         url = list(args)[0].replace('<', '').replace('>', '')
@@ -33,7 +33,7 @@ class bothelp(commands.Cog):
                 url,
                 adapter=discord.RequestsWebhookAdapter()
             )
-        except: return await ctx.send("{} | Invalid url! Please follow the tutorial.".format(self.client.error_emoji))
+        except: raise self.client.utils.SendErrorMessage("Invalid Webhook URL. Please send the one according to the tutorial.")
         self.client.db.Dashboard.subscribe(url, ctx.guild.id)
         await ctx.message.add_reaction(self.client.success_emoji)
         web.send(
@@ -56,13 +56,13 @@ class bothelp(commands.Cog):
             embed.set_footer(text=f'Type {self.client.command_prefix}help <command/category> for more details.')
             await ctx.send(embed=embed)
         else:
-            data = self.client.cmds.get_commands_auto(' '.join(list(args)).lower())
-            if data==None: return await ctx.send('{} | Your command/category name does not exist, sorry!'.format(self.client.error_emoji))
+            data = self.client.cmds.get_commands_auto(' '.join(args).lower())
+            if data==None: raise self.client.utils.SendErrorMessage("Your command/category name does not exist, sorry!")
             datatype = 'Category' if isinstance(data, list) else 'Command'
             desc = '**Command name: **{}\n**Function: **{}\n**Category: **{}'.format(
                 data['name'], data['function'], data['category']
             ) if datatype=='Command' else '**Commands count: **{}\n**Commands:**```{}```'.format(len(data), ', '.join([i['name'] for i in data]))
-            embed = discord.Embed(title='{} help for {}'.format(datatype, ' '.join(list(args))), description=desc, color=self.client.utils.get_embed_color())
+            embed = discord.Embed(title='{} help for {}'.format(datatype, ' '.join(args)), description=desc, color=self.client.utils.get_embed_color())
             if datatype=='Command':
                 parameters = 'No parameters required.' if len(data['parameters'])==0 else '\n'.join([i for i in data['parameters']])
                 apis = 'No APIs used.' if len(data['apis'])==0 else '\n'.join([f'[{i}]({i})' for i in data['apis']])
@@ -76,7 +76,7 @@ class bothelp(commands.Cog):
         embed = discord.Embed(title='Support by Voting us at top.gg!', description='Sure thing, mate! [Vote us at top.gg by clicking me!](https://top.gg/bot/'+str(self.client.user.id)+'/vote)', colour=self.client.utils.get_embed_color())
         await ctx.send(embed=embed)
     
-    @command()
+    @command('sourcecode,source-code,git,repo')
     @cooldown(1)
     async def github(self, ctx):
         embed = discord.Embed(title="Click me to visit the Bot's github page.", colour=self.client.utils.get_embed_color(), url=self.client.utils.cfg('GITHUB_REPO'))
@@ -95,18 +95,14 @@ class bothelp(commands.Cog):
     @command('report,suggest,bug,reportbug,bugreport')
     @cooldown(15)
     async def feedback(self, ctx, *args):
-        if len(list(args))==0:
-            await ctx.send(self.client.error_emoji+' | Where\'s the feedback? :(')
-        elif len(list(args))>1000:
-            await ctx.send(self.client.error_emoji+' | That\'s too long! Please provide a simpler description.')
-        elif 'discord.gg/' in ' '.join(list(args)):
-            await ctx.send(self.client.error_emoji+' | Do NOT send discord invites through feedback! Use the advertising channel in our support server instead!')
+        if ((len(args)==0) or (len(''.join(args))>1000)): raise self.client.utils.SendErrorMessage("Invalid feedback length.")
+        elif (('discord.gg/' in ' '.join(args)) or ('discord.com/invite/' in ' '.join(args))): raise self.client.utils.SendErrorMessage("Please do NOT send invites. This is NOT advertising.")
         else:
             wait = await ctx.send(self.client.loading_emoji + ' | Please wait... Transmitting data to owner...')
             banned = self.client.db.selfDB.is_banned(ctx.author.id)
             if not banned:
                 try:
-                    fb = ' '.join(list(args))
+                    fb = ' '.join(args)
                     feedbackCh = self.client.get_channel(self.client.utils.cfg('FEEDBACK_CHANNEL', integer=True))
                     await feedbackCh.send('<@'+self.client.utils.cfg('OWNER_ID')+'>, User with ID: '+str(ctx.author.id)+' sent a feedback: **"'+str(fb)+'"**')
                     embed = discord.Embed(title='Feedback Successful', description=self.client.success_emoji + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+self.client.utils.cfg('SERVER_INVITE')+')',colour=self.client.utils.get_embed_color())
@@ -114,11 +110,8 @@ class bothelp(commands.Cog):
                 except:
                     await wait.edit(content=self.client.error_emoji + ' | Error: There was an error while sending your feedback. Sorry! :(')
             else:
-                await wait.edit(content='', embed=discord.Embed(
-                    title="You have been banned from using the Feedback command.",
-                    description="**Reason: **```"+str(banned)+"```",
-                    color=discord.Colour.red()
-                ))
+                raise self.client.utils.SendErrorMessage("You have been banned from using the Feedback command.\nReason: {str(banned)}")
+                
     @command()
     @cooldown(2)
     async def ping(self, ctx):
@@ -149,7 +142,7 @@ class bothelp(commands.Cog):
         ), color=self.client.utils.get_embed_color())
         await ctx.send(embed=embed)
 
-    @command('botinfo,aboutbot,bot')
+    @command('botinfo,aboutbot,bot,info,information')
     @cooldown(2)
     async def about(self, ctx):
         if str(self.client.get_guild(self.client.utils.cfg('SERVER_ID', integer=True)).get_member(self.client.utils.cfg('OWNER_ID', integer=True)).status)=='offline': devstatus = 'Offline'

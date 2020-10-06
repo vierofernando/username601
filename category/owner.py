@@ -54,7 +54,7 @@ class owner(commands.Cog):
                     i['url'], adapter=discord.RequestsWebhookAdapter()
                 )
                 web.send(
-                    embed=discord.Embed(title=f'Username601 News: {str(t.now())[:-7]}', description=' '.join(list(args)).replace('\\n', '\n'), color=discord.Color.green()),
+                    embed=discord.Embed(title=f'Username601 News: {str(t.now())[:-7]}', description=' '.join(args).replace('\\n', '\n'), color=discord.Color.green()),
                     username='Username601 News',
                     avatar_url=self.client.user.avatar_url
                 )
@@ -69,7 +69,7 @@ class owner(commands.Cog):
     async def postmeme(self, ctx, *args):
         if ctx.author.id!=self.client.utils.cfg('OWNER_ID', integer=True):
             return await ctx.message.add_reaction(self.client.error_emoji)
-        url = ''.join(list(args))
+        url = ''.join(args)
         if url.startswith('<'): url = url[1:]
         if url.endswith('>'): url = url[:-1]
         data = requests.post('https://useless-api--vierofernando.repl.co/postprogrammermeme', headers={
@@ -98,21 +98,21 @@ class owner(commands.Cog):
         if ctx.author.id==self.client.utils.cfg('OWNER_ID', integer=True):
             try:
                 user_to_send = self.client.get_user(int(args[0]))
-                em = discord.Embed(title="Hi, "+user_to_send.name+"! the bot owner sent a response for your feedback.", description=' '.join(list(args)[1:len(list(args))]), colour=self.client.utils.get_embed_color())
+                em = discord.Embed(title="Hi, "+user_to_send.name+"! the bot owner sent a response for your feedback.", description=' '.join(list(args)[1:len(args)]), colour=self.client.utils.get_embed_color())
                 await user_to_send.send(embed=em)
                 await ctx.message.add_reaction('✅')
             except Exception as e:
-                await ctx.send(self.client.error_emoji + f' | Error: `{e}`')
+                raise self.client.utils.SendErrorMessage(f'Error: `{str(e)}`')
         else:
             await ctx.send('You are not the bot owner. Go get a life.')
 
     @command()
     async def fban(self, ctx, *args):
         if int(ctx.author.id)==self.client.utils.cfg('OWNER_ID', integer=True):
-            self.client.db.selfDB.feedback_ban(int(list(args)[0]), str(' '.join(list(args)[1:len(list(args))])))
+            self.client.db.selfDB.feedback_ban(int(list(args)[0]), str(' '.join(list(args)[1:len(args)])))
             await ctx.message.add_reaction(self.client.success_emoji)
         else:
-            await ctx.send(self.client.error_emoji +' | You are not the owner, nerd.')
+            raise self.client.utils.SendErrorMessage('You are not the owner, nerd.')
     @command()
     async def funban(self, ctx, *args):
         if int(ctx.author.id)==self.client.utils.cfg('OWNER_ID', integer=True):
@@ -120,17 +120,17 @@ class owner(commands.Cog):
             if data=='200': await ctx.message.add_reaction(self.client.success_emoji)
             else: await ctx.message.add_reaction(self.client.error_emoji)
         else:
-            await ctx.send(self.client.error_emoji +' | Invalid person.')
+            raise self.client.utils.SendErrorMessage('Invalid person.')
     @command('ex,eval')
     async def evaluate(self, ctx, *args):
         iwanttostealsometoken = False
-        unprefixed = ' '.join(list(args)).replace("`", "").replace('"', "'") if len(list(args))!=0 else 'undefined'
+        unprefixed = ' '.join(args).replace("`", "").replace('"', "'") if len(args)!=0 else 'undefined'
         if int(ctx.author.id)==self.client.utils.cfg('OWNER_ID', integer=True):
             try:
                 res = eval(unprefixed)
                 for i in self.protected_files:
                     if str(i).lower() in str(res).lower(): res = totallyrealtoken
-                    elif str(i).lower() in str(' '.join(list(args))).lower():
+                    elif str(i).lower() in str(' '.join(args)).lower():
                         res = totallyrealtoken
                 if isawaitable(res): await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```**Output:**```py\n'+str(await res)[0:1990]+'```Return type:```py\n'+str(type(await res))+'```', color=discord.Colour.green()))
                 else: await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```**Output:**```py\n'+str(res)[0:1990]+'```Return type:```py\n'+str(type(res).__name__)+'```', color=discord.Color.green()))
@@ -155,13 +155,13 @@ class owner(commands.Cog):
 
     @command('sh')
     async def bash(self, ctx, *args):
-        unprefixed = ' '.join(list(args))
-        if unprefixed == ' ': unprefixed = 'undefined'
+        unprefixed = ' '.join(args)
+        if unprefixed == '': unprefixed = 'echo hello world'
         if int(ctx.author.id)==self.client.utils.cfg('OWNER_ID', integer=True):
             try:
-                if len(list(args))==0: raise OSError('you are gay')
+                if len(args)==0: raise OSError('you are gay')
                 if len(unprefixed.split())==1: data = run([unprefixed], stdout=PIPE).stdout.decode('utf-8')
-                else: data = run([unprefixed.split()[0], ' '.join(unprefixed.split()[1:len(unprefixed)])], stdout=PIPE).stdout.decode('utf-8')
+                else: data = run(args, stdout=PIPE).stdout.decode('utf-8')
                 await ctx.send(embed=discord.Embed(title='Bash Terminal', description='Input:```sh\n'+str(unprefixed)+'```**Output:**```sh\n'+str(data)+'```', color=discord.Color.green()))
             except Exception as e:
                 await ctx.send(embed=discord.Embed(title='Error on execution', description='Input:```sh\n'+str(unprefixed)+'```**Error:**```py\n'+str(e)+'```', color=discord.Color.red()))

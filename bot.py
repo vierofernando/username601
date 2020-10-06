@@ -4,6 +4,7 @@ from modules import *
 from datetime import datetime as t
 from discord.ext import commands
 from os import environ, listdir
+from PIL import UnidentifiedImageError
 import discord
 
 # DECLARATION AND STUFF
@@ -117,15 +118,13 @@ async def on_guild_remove(guild):
 
 @client.event
 async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandOnCooldown): return await ctx.send("You are on cooldown. You can do the command again in {}.".format(time_encode(round(error.retry_after))), delete_after=2)
-    elif isinstance(error, commands.CommandNotFound): return
-    elif 'noarguments' in str(error).lower(): return await ctx.send('{} | Please insert arguments! `Like insert your name as a parameter.`'.format(emote(client, 'error')), delete_after=5)
-    elif 'nouserfound' in str(error).lower(): return await ctx.send('{} | No user found.'.format(emote(client, 'error')), delete_after=5)
-    elif 'noprofile' in str(error).lower(): return await ctx.send('{} | You do not have any profile...\nYou can create one with `{}new`.'.format(emote(client, 'error'), prefix), delete_after=5)
-    elif 'missing permissions' in str(error).lower() or 'Missing Access' in str(error): 
+    if isinstance(error, commands.CommandNotFound): return
+    elif isinstance(error, commands.CommandOnCooldown): return await ctx.send("You are on cooldown. You can do the command again in {}.".format(time_encode(round(error.retry_after))), delete_after=2)
+    elif isinstance(error.original, client.utils.SendErrorMessage): return await ctx.send(embed=discord.Embed(title='Error', description=f'{client.error_emoji} | {str(error.original)}', color=discord.Color.red()))
+    elif isinstance(error.original, discord.Forbidden): 
         try: return await ctx.send("I don't have the permission required to use that command!")
         except: return
-    elif 'cannot identify image file' in str(error).lower(): return await ctx.send(str(emote(client, 'error'))+' | Error, it seemed i can\'t load/send the image! Check your arguments and try again. Else, report this to the bot owner using `'+prefix+'feedback.`')
+    elif isinstance(error.original, UnidentifiedImageError): return await ctx.send(str(emote(client, 'error'))+' | Error, it seemed i can\'t load/send the image! Check your arguments and try again. Else, report this to the bot owner using `'+prefix+'feedback.`')
     else:
         await client.get_channel(cfg('FEEDBACK_CHANNEL', integer=True)).send(content='<@{}> there was an error!'.format(cfg('OWNER_ID')), embed=discord.Embed(
             title='Error', color=discord.Colour.red(), description=f'Content:\n```{ctx.message.content}```\n\nError:\n```{str(error)}```'

@@ -19,10 +19,10 @@ class apps(commands.Cog):
     @command('movie')
     @cooldown(5)
     async def tv(self, ctx, *args):
-        if len(list(args))==0: return await ctx.send('{} | please gimme args, like `{}tv <showname>` or something'.format(self.client.error_emoji, self.client.command_prefix))
-        query = self.client.utils.urlify(' '.join(list(args)))
+        if len(args)==0: raise self.client.utils.SendErrorMessage("Please give TV shows as arguments.")
+        query = self.client.utils.urlify(' '.join(args))
         data = get(f'http://api.tvmaze.com/singlesearch/shows?q={query}')
-        if data.status_code==404: return await ctx.send('{} | Oops! did not found any movie.'.format(self.client.error_emoji))
+        if data.status_code==404: raise self.client.utils.SendErrorMessage("Did not found anything.")
         try:
             data = data.json()
             star = str(':star:'*round(data['rating']['average'])) if data['rating']['average']!=None else 'No star rating provided.'
@@ -34,7 +34,7 @@ class apps(commands.Cog):
             em.set_image(url=data['image']['original'])
             await ctx.send(embed=em)
         except:
-            await ctx.send('{} | Oops! There was an error...'.format(self.client.error_emoji))
+            raise self.client.utils.SendErrorMessage("There was an error on fetching the info.")
 
     @command('spot,splay,listeningto,sp')
     @cooldown(2)
@@ -42,8 +42,8 @@ class apps(commands.Cog):
         source, act = self.client.utils.getUser(ctx, args), None
         for i in source.activities:
             if isinstance(i, discord.Spotify): act = i
-        if act==None: return await ctx.send(self.client.error_emoji+' | Nope, not listening to spotify.')
-        async with ctx.message.channel.typing():
+        if act==None: raise self.client.utils.SendErrorMessage("Nope. Not listening to spotify.")
+        async with ctx.channel.typing():
             await ctx.send(file=discord.File(self.client.canvas.spotify({
                 'name': act.title,
                 'artist': ', '.join(act.artists),
@@ -54,8 +54,8 @@ class apps(commands.Cog):
     @command()
     @cooldown(5)
     async def itunes(self, ctx, *args):
-        if len(list(args))==0: return await ctx.send('{} | Please send a search term!'.format(self.client.error_emoji))
-        data = self.client.utils.fetchJSON('https://itunes.apple.com/search?term={}&media=music&entity=song&limit=1&explicit=no'.format(self.client.utils.urlify(' '.join(list(args)))))
+        if len(args)==0: raise self.client.utils.SendErrorMessage("Please send a search term.")
+        data = self.client.utils.fetchJSON('https://itunes.apple.com/search?term={}&media=music&entity=song&limit=1&explicit=no'.format(self.client.utils.urlify(' '.join(args))))
         if len(data['results'])==0: return await ctx.send('{} | No music found... oop'.format(self.client.error_emoji))
         data = data['results'][0]
         em = discord.Embed(title=data['trackName'], url=data['trackViewUrl'],description='**Artist: **{}\n**Album: **{}\n**Release Date:** {}\n**Genre: **{}'.format(
@@ -97,40 +97,39 @@ class apps(commands.Cog):
     @command()
     @cooldown(5)
     async def wikipedia(self, ctx, *args):
+        if len(args)==0:
+            raise self.client.utils.SendErrorMessage("Please input a page name.")
         wait = await ctx.send(self.client.loading_emoji + ' | Please wait...')
-        if len(list(args))==0:
-            await wait.edit(content='Please input a page name!')
+        wikipedia = wikipediaapi.Wikipedia('en')
+        page = wikipedia.page(' '.join(args))
+        if page.exists()==False:
+            await wait.edit(content='That page does not exist!')
         else:
-            wikipedia = wikipediaapi.Wikipedia('en')
-            page = wikipedia.page(' '.join(list(args)))
-            if page.exists()==False:
-                await wait.edit(content='That page does not exist!\n40404040404040404040404')
+            if ' may refer to:' in page.text:
+                byCategory = page.text.split('\n\n')
+                del byCategory[0]
+                temp = ''
+                totalCount = 0
+                for b in byCategory:
+                    if b.startswith('See also') or len(temp)>950:
+                        break
+                    totalCount = int(totalCount)+1
+                    temp = temp + str(totalCount)+'. ' + str(b) + '\n\n'
+                explain = temp
+                pageTitle = 'The page you may be refering to may be;'
             else:
-                if ' may refer to:' in page.text:
-                    byCategory = page.text.split('\n\n')
-                    del byCategory[0]
-                    temp = ''
-                    totalCount = 0
-                    for b in byCategory:
-                        if b.startswith('See also') or len(temp)>950:
-                            break
-                        totalCount = int(totalCount)+1
-                        temp = temp + str(totalCount)+'. ' + str(b) + '\n\n'
-                    explain = temp
-                    pageTitle = 'The page you may be refering to may be;'
-                else:
-                    pageTitle = page.title
-                    explain = ''
-                    count = 0
-                    limit = random.choice(list(range(2, 4)))
-                    for i in range(0, len(page.summary)):
-                        if count==limit or len(explain)>900:
-                            break
-                        explain = explain + str(list(page.summary)[i])
-                        if list(page.summary)[i]=='.':
-                            count = int(count) + 1
-                embed = discord.Embed(title=pageTitle, url=str(page.fullurl), description=str(explain), colour=self.client.utils.get_embed_color())
-                await wait.edit(content='', embed=embed)
+                pageTitle = page.title
+                explain = ''
+                count = 0
+                limit = random.choice(list(range(2, 4)))
+                for i in range(0, len(page.summary)):
+                    if count==limit or len(explain)>900:
+                        break
+                    explain = explain + str(list(page.summary)[i])
+                    if list(page.summary)[i]=='.':
+                        count = int(count) + 1
+            embed = discord.Embed(title=pageTitle, url=str(page.fullurl), description=str(explain), colour=self.client.utils.get_embed_color())
+            await wait.edit(content='', embed=embed)
     @command()
     @cooldown(5)
     async def imdb(self, ctx, *args):

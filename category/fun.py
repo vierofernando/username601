@@ -25,9 +25,9 @@ class fun(commands.Cog):
     @command('talk,gtts,texttospeech,text-to-speech')
     @cooldown(5)
     async def tts(self, ctx, *args):
-        if len(list(args))==0: raise self.client.utils.noArguments()
+        if len(args)==0: raise self.client.utils.SendErrorMessage('Please send arguments!')
         res = BytesIO()
-        tts = gTTS(text=' '.join(list(args)), lang='en', slow=False)
+        tts = gTTS(text=' '.join(args), lang='en', slow=False)
         tts.write_to_fp(res)
         res.seek(0)
         await ctx.send(file=discord.File(fp=res, filename='tts.mp3'))
@@ -44,25 +44,26 @@ class fun(commands.Cog):
     @cooldown(2)
     async def edited(self, ctx, *args):
         msg = await ctx.send('...')
-        if len(list(args))==0 or '|' not in ' '.join(list(args)):
+        if len(args)==0 or '|' not in ' '.join(args):
             return await msg.edit(content='Please use | to place where the \u202b will be. \u202b')
-        await msg.edit(content=' '.join(list(args)).replace('|', '\u202b')+' \u202b')
+        await msg.edit(content=' '.join(args).replace('|', '\u202b')+' \u202b')
 
     @command('howlove,friendship,fs')
     @cooldown(2)
-    async def lovelevel(self, ctx):
-        if len(ctx.message.mentions)!=2: await ctx.send(self.client.error_emoji+' | Error: Please give me 2 tags!')
-        else:
-            result = self.client.algorithm.love_finder(ctx.message.mentions[0].id, ctx.message.mentions[1].id)
-            await ctx.send('Love level of {} and {} is **{}%!**'.format(ctx.message.mentions[0].name, ctx.message.mentions[1].name, str(result)))
+    async def lovelevel(self, ctx, *args):
+        res = self.client.utils.split_parameter_to_two(args)
+        if res == None: raise self.client.utils.SendErrorMessage('Please send a valid two user ids/names/mentions!')
+        user1, user2 = self.client.utils.getUser(res[0]), self.client.utils.getUser(res[1])
+        result = self.client.algorithm.love_finder(user1.id, user2.id)
+        await ctx.send('Love level of {} and {} is **{}%!**'.format(ctx.message.mentions[0].name, ctx.message.mentions[1].name, str(result)))
     
     @command('echo,reply')
     @cooldown(1)
     async def say(self, ctx, *args):
-        if '--h' in ''.join(list(args)):
+        if '--h' in ''.join(args):
             try: await ctx.message.delete()
             except: pass
-        await ctx.send(' '.join(list(args)).replace('--h', ''), allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False))
+        await ctx.send(' '.join(args).replace('--h', ''), allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False))
     
     @command()
     @cooldown(1)
@@ -78,16 +79,15 @@ class fun(commands.Cog):
     @command("howgay")
     @cooldown(5)
     async def gaylevel(self, ctx, *args):
-        try: data = self.client.utils.getUser(ctx, args)
-        except: data = ctx.author
+        data = self.client.utils.getUser(ctx, args)
         name = data.name+'\'s' if data!=ctx.author else 'Your'
         await ctx.send('{} gay level is currently {}%!'.format(name, str(self.client.algorithm.gay_finder(data.id))))
 
     @command()
     @cooldown(5)
     async def randomavatar(self, ctx, *args):
-        if len(list(args))<1: name = self.client.utils.randomhash()
-        else: name = ' '.join(list(args))
+        if len(args)<1: name = self.client.utils.randomhash()
+        else: name = ' '.join(args)
         url= 'https://api.adorable.io/avatars/285/{}.png'.format(name)
         await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'random_avatar.png'))
 
@@ -101,7 +101,7 @@ class fun(commands.Cog):
     @command('randomcase')
     @cooldown(1)
     async def mock(self, ctx, *args):
-        text = 'i am a dumbass that forgot to put the arguments' if len(list(args))==0 else str(' '.join(list(args)))
+        text = 'i am a dumbass that forgot to put the arguments' if len(args)==0 else str(' '.join(args))
         return await ctx.send(''.join([random.choice([i.upper(), i.lower()]) for i in list(text)]))
 
     @command('8ball,8b')
@@ -116,7 +116,7 @@ class fun(commands.Cog):
     @command('serverdeathnote,dn')
     @cooldown(10)
     async def deathnote(self, ctx):
-        if len(ctx.guild.members)>500: return await ctx.send(self.client.error_emoji+' | This server has soo many members')
+        if len(ctx.guild.members)>500: raise self.client.utils.SendErrorMessage('This server has soo many members')
         member, in_the_note, notecount, membercount = [], "", 0, 0
         for i in range(0, int(len(ctx.guild.members))):
             if ctx.guild.members[i].name!=ctx.author.name:
@@ -143,27 +143,27 @@ class fun(commands.Cog):
             url = requests.get('https://useless-api.vierofernando.repl.co/useless-sites').json()['url']
             await ctx.send(self.client.success_emoji+f' | **{url}**')
         except:
-            await ctx.send(self.client.error_emoji+' | oops. there is some error, meanwhile look at this useless site: <https://top.gg/bot/{}/vote>'.format(self.client.user.id))
+            raise self.client.utils.SendErrorMessage(f'oops. there is some error, meanwhile look at this useless site: <https://top.gg/bot/{self.client.user.id}/vote>')
     
     @command()
     @cooldown(2)
     async def choose(self, ctx, *args):
-        if len(list(args))==0 or ',' not in ''.join(list(args)):
-            await ctx.send('send in something!\nLike: `choose he is cool, he is not cool`')
+        if len(args)==0 or ',' not in ''.join(args):
+            raise self.client.utils.SendErrorMessage(f'send in something!\nLike: `{self.client.command_prefix}choose he is cool, he is not cool`')
         else:
-            await ctx.send(random.choice(' '.join(list(args)).split(',')))
+            await ctx.send(random.choice(' '.join(args).split(',')))
     
     @command()
     @cooldown(2)
     async def temmie(self, ctx, *args):
-        if len(list(args))==0: await ctx.send(self.client.error_emoji+' | Please send something to be encoded.')
+        if len(args)==0: raise self.client.utils.SendErrorMessage('Please send something to be encoded.')
         else:
             link, num = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/temmie.json', 1
             data = self.client.utils.fetchJSON(link)
             keyz = list(data.keys())
             total = ''
             for j in range(num, len(keyz)):
-                if total=='': total = ' '.join(list(args))
+                if total=='': total = ' '.join(args)
                 total = total.replace(keyz[j], data[keyz[j]])
             await ctx.send(total)
     
