@@ -81,14 +81,14 @@ class apps(commands.Cog):
                 try:
                     toTrans = ' '.join(args[1:len(args)])
                 except IndexError:
-                    await wait.edit(self.client.error_emoji+' | Gimme something to translate!')
+                    raise self.client.utils.SendErrorMessage('Gimme something to translate!')
                 try:
                     translation = gtr.translate(toTrans, dest=destination)
                     embed = discord.Embed(description=translation.text, colour=self.client.utils.get_embed_color())
                     embed.set_footer(text=f'Translated {LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}.')
                     await wait.edit(content='', embed=embed)
                 except Exception as e:
-                    await wait.edit(content=self.client.error_emoji + f' | An error occurred! ```py\n{e}```')
+                    raise self.client.utils.SendErrorMessage(f'An error occurred! ```py\n{str(e)}```')
             else:
                 await wait.edit(content=f'Please add a language! To have the list and their id, type\n`{self.client.command_prefix}translate --list`.')
         else:
@@ -148,7 +148,7 @@ class apps(commands.Cog):
                 embed = discord.Embed(title='IMDb Top '+str(num)+':', description=str(total), colour=self.client.utils.get_embed_color())
                 return await wait.edit(content='', embed=embed)
             except:
-                return await wait.edit(content=self.client.error_emoji +' | Is the top thing you inputted REALLY a number?\nlike, Not top TEN, but top 10.\nGET IT?')
+                raise self.client.utils.SendErrorMessage('Is the top thing you inputted REALLY a number?\nlike, Not top TEN, but top 10.\nGET IT?')
         movie_param = self.client.utils.parse_parameter(args, '--movie', get_second_element=True)
         if movie_param['available']:
             try:
@@ -170,8 +170,8 @@ class apps(commands.Cog):
                 return await wait.edit(content='', embed=embed)
             except Exception as e:
                 print(e)
-                return await wait.edit(content='{} | Oopsies! please input a valid ID/parameter...'.format(self.client.error_emoji))
-        await wait.edit(content=self.client.error_emoji+' | Wrong syntax. Use `'+self.client.command_prefix+'imdb help` next time.')
+                raise self.client.utils.SendErrorMessage('Oopsies! please input a valid ID/parameter...')
+        raise self.client.utils.SendErrorMessage('Wrong syntax. Use `'+self.client.command_prefix+'imdb help` next time.')
 
 def setup(client):
     client.add_cog(apps(client))

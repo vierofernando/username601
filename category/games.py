@@ -32,7 +32,7 @@ class games(commands.Cog):
             await toEdit.delete()
             await ctx.send(file=discord.File(data, 'gdlevel.png'))
         except:
-            await toEdit.edit(content=self.client.error_emoji+ ' | Sorry! there is an error with the GD servers.')
+            raise self.client.utils.SendErrorMessage('Sorry! there is an error with the GD servers.')
     @command()
     @cooldown(3)
     async def gdsearch(self, ctx, *args):
@@ -190,7 +190,7 @@ class games(commands.Cog):
     async def guessavatar(self, ctx):
         wait = await ctx.send(self.client.loading_emoji + ' | Please wait... generating question...\nThis process may take longer if your server has more members.')
         avatarAll, nameAll = [str(i.avatar_url) for i in ctx.guild.members if i.status.name!='offline'], [i.display_name for i in ctx.guild.members if i.status.name!='offline']
-        if len(avatarAll)<=4: return await ctx.send(self.client.error_emoji +' | Need more online members! :x:')
+        if len(avatarAll)<=4: raise self.client.utils.SendErrorMessage('Need more online members! :x:')
         numCorrect = random.randint(0, len(avatarAll)-1)
         corr_avatar, corr_name = avatarAll[numCorrect], nameAll[numCorrect]
         nameAll.remove(corr_name)
@@ -226,7 +226,7 @@ class games(commands.Cog):
                 self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! You received '+str(reward)+' extra bobux!')
         else:
-            await ctx.send(self.client.error_emoji +' | <@'+str(ctx.author.id)+'>, Incorrect. The answer is '+str(corr_order)+'. '+str(corr_name))
+            raise self.client.utils.SendErrorMessage(f'<@{ctx.author.id}>, Incorrect. The answer is {corr_order}. {corr_name}')
 
     @command()
     @cooldown(15)
@@ -268,7 +268,7 @@ class games(commands.Cog):
                 self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! You obtained '+str(reward)+' bobux in total!')
         else:
-            await ctx.send(self.client.error_emoji +' | <@'+str(guy.id)+'>, You are incorrect. The answer is '+str(corr_order)+'.')
+            raise self.client.utils.SendErrorMessage(f'<@{guy.id}>, You are incorrect. The answer is {corr_order}.')
 
     @command()
     @cooldown(4)

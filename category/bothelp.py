@@ -62,7 +62,7 @@ class bothelp(commands.Cog):
             desc = '**Command name: **{}\n**Function: **{}\n**Category: **{}'.format(
                 data['name'], data['function'], data['category']
             ) if datatype=='Command' else '**Commands count: **{}\n**Commands:**```{}```'.format(len(data), ', '.join([i['name'] for i in data]))
-            embed = discord.Embed(title='{} help for {}'.format(datatype, ' '.join(args)), description=desc, color=self.client.utils.get_embed_color())
+            embed = discord.Embed(title='{} help for query: "{}"'.format(datatype, ' '.join(args)), description=desc, color=self.client.utils.get_embed_color())
             if datatype=='Command':
                 parameters = 'No parameters required.' if len(data['parameters'])==0 else '\n'.join([i for i in data['parameters']])
                 apis = 'No APIs used.' if len(data['apis'])==0 else '\n'.join([f'[{i}]({i})' for i in data['apis']])
@@ -108,7 +108,7 @@ class bothelp(commands.Cog):
                     embed = discord.Embed(title='Feedback Successful', description=self.client.success_emoji + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+self.client.utils.cfg('SERVER_INVITE')+')',colour=self.client.utils.get_embed_color())
                     await wait.edit(content='', embed=embed)
                 except:
-                    await wait.edit(content=self.client.error_emoji + ' | Error: There was an error while sending your feedback. Sorry! :(')
+                    raise self.client.utils.SendErrorMessage('There was an error while sending your feedback. Sorry! :(')
             else:
                 raise self.client.utils.SendErrorMessage("You have been banned from using the Feedback command.\nReason: {str(banned)}")
                 

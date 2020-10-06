@@ -8,7 +8,7 @@ from PIL import UnidentifiedImageError
 import discord
 
 # DECLARATION AND STUFF
-client = commands.Bot(command_prefix=prefix)
+client = commands.Bot(command_prefix=prefix, max_messages=None)
 pre_ready_initiation(client)
 environ['BOT_MODULES_DIR'] = cfg('MODULES_DIR')
 environ['BOT_JSON_DIR'] = cfg('JSON_DIR')

@@ -7,10 +7,11 @@ from decorators import command, cooldown
 from discord.ext import commands
 from datetime import datetime as t
 from subprocess import run, PIPE
-from inspect import isawaitable
+from inspect import isawaitable, getsource
 from asyncio import sleep
 
 totallyrealtoken = 'Ng5NDU4MjY5NTI2Mjk0MTc1.AkxrpC.MyB2BEHJLXuZ8h0wY0Qro6Pwi8'
+mods = 'weebs'
 
 class owner(commands.Cog):
     def __init__(self, client):
@@ -47,6 +48,7 @@ class owner(commands.Cog):
     @cooldown(2)
     async def announce(self, ctx, *args):
         if ctx.author.id != self.client.utils.cfg('OWNER_ID', integer=True): return
+        await ctx.message.add_reaction(self.client.loading_emoji)
         data, wr, sc = self.client.db.Dashboard.get_subscribers(), 0, 0
         for i in data:
             try:
@@ -65,6 +67,15 @@ class owner(commands.Cog):
             await sleep(1)
         await ctx.send(f'Done with {sc} success and {wr} fails')
     
+    @command('src')
+    async def source(self, ctx, *args):
+        try:
+            assert ctx.author.id == self.client.utils.cfg('OWNER_ID', integer=True), 'Source code not available'
+            source = eval("getsource({})".format(' '.join(args)))
+            return await ctx.send('```py\n'+str(source)[0:1900]+'```')
+        except Exception as e:
+            raise self.client.utils.SendErrorMessage(str(e))
+    
     @command('pm')
     async def postmeme(self, ctx, *args):
         if ctx.author.id!=self.client.utils.cfg('OWNER_ID', integer=True):
@@ -80,18 +91,6 @@ class owner(commands.Cog):
             if data['success']: return await ctx.message.add_reaction(self.client.success_emoji)
         except Exception as e:
             await ctx.author.send(str(e))
-
-
-    @command()
-    async def cont(self, ctx):
-        if ctx.author.id==self.client.utils.cfg('OWNER_ID', integer=True):
-            owners, c = [i.owner.id for i in self.client.guilds], 0
-            for i in self.client.get_guild(self.client.utils.cfg('SERVER_ID', integer=True)).members:
-                if i.id in owners:
-                    await self.client.get_guild(self.client.utils.cfg('SERVER_ID', integer=True)).get_member(i.id).add_roles(self.client.get_guild(self.client.utils.cfg('SERVER_ID', integer=True)).get_role(727667048645394492))
-                    await sleep(1)
-                    c += 1
-            await ctx.send(f"found {str(c)} new conts!")
 
     @command()
     async def rp(self, ctx, *args):

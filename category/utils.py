@@ -109,28 +109,13 @@ class utils(commands.Cog):
                 embed.set_image(url=total['thumbnail'])
                 await ctx.send(embed=embed)
 
-    @command()
-    @cooldown(5)
-    async def time(self, ctx):
-        data = self.client.utils.fetchJSON("http://worldtimeapi.org/api/timezone/africa/accra")
-        year, time, date = str(data["utc_datetime"])[:-28], str(data["utc_datetime"])[:-22], str(str(data["utc_datetime"])[:-13])[11:]
-        if int(year)%4==0: yearType, yearLength = 'It is a leap year.', 366
-        else: yearType, yearLength = 'It is not a leap year yet.', 365
-        progressDayYear = round(int(data["day_of_year"])/int(yearLength)*100)
-        progressDayWeek = round(int(data["day_of_week"])/7*100)
-        embed = discord.Embed(
-            title = str(date)+' | '+str(time)+' (API)',
-            description = str(t.now())[:-7]+' (SYSTEM)\nBoth time above is on UTC.\n**Unix Time:** '+str(data["unixtime"])+'\n**Day of the year: **'+str(data["day_of_year"])+' ('+str(progressDayYear)+'%)\n**Day of the week: **'+str(data["day_of_week"])+' ('+str(progressDayWeek)+'%)\n'+str(yearType),
-            colour = self.client.utils.get_embed_color()
-        )
-        await ctx.send(embed=embed)
     @command('calculator,equ,equation,calculate')
     @cooldown(3)
     async def calc(self, ctx, *args):
         if len(args)==0: raise self.client.utils.SendErrorMessage("You need something... i smell no args nearby.")
         else:
             equation = ' '.join(args)
-            replaceWith = "x>*;.>*;×>*;÷>/;plus>+;minus>-;divide>/;multiply>*"
+            replaceWith = "x>*;.>*;?>*;?>/;?>*;plus>+;minus>-;divide>/;multiply>*;divide by>/;times>*;subtract>-;add>+;power>**;powers>**;^>**"
             for rep in replaceWith.split(";"):
                 equation = equation.replace(rep.split('>')[0], rep.split('>')[1])
             if search("[a-zA-Z]", equation): raise self.client.utils.SendErrorMessage("Please do NOT input something that contains letters. This is not eval, nerd.")

@@ -159,7 +159,7 @@ class economy(commands.Cog):
             new_data = self.client.db.Economy.addbal(ctx.author.id, int(reward))
             job = random.choice(loads(open(self.client.utils.cfg('JSON_DIR')+'/work.json', 'r').read())['works'])
             if new_data=='success': await wait.edit(content=self.client.success_emoji+f" | {ctx.author.name} worked {job} and earned {reward} bobux!")
-            else: await wait.edit(content=self.client.error_emoji+f" | Oops there was an error... Please report this to the owner using `1feedback.`\n`{new_data}`")
+            else: raise self.client.utils.SendErrorMessage(f"Oops there was an error... Please report this to the owner using `{self.client.command_prefix}feedback.`\n`{new_data}`")
             
     @command()
     @cooldown(15)
@@ -175,7 +175,7 @@ class economy(commands.Cog):
                 #     color = discord.Colour.green()
                 # ))
                 rewards = self.client.db.Economy.daily(ctx.author.id)
-                await ctx.send("{} | Congrats! You got **{} bobux** as a daily reward! You can try again in 12 hours.".format(self.client.error_emoji, rewards))
+                await ctx.send("{} | Congrats! You got **{} bobux** as a daily reward! You can try again in 12 hours.".format(self.client.success_emoji, rewards))
             else:
                 await wait.edit(content='', embed=discord.Embed(
                     title='You can get rewards again in '+str(obj['time'])+'!',
@@ -273,7 +273,7 @@ class economy(commands.Cog):
         try:
             num = int(list(args)[0])
             if num > data['bankbal']:
-                return await ctx.send('{} | Your number is more than the one in your bank!'.format(self.client.error_emoji))
+                raise self.client.utils.SendErrorMessage('Your number is more than the one in your bank!')
             self.client.db.Economy.withdraw(ctx.author.id, num)
             return await ctx.send('{} | OK. Withdrawed {} bobux from your bank.'.format(self.client.success_emoji, num))
         except:
