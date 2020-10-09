@@ -1,0 +1,34 @@
+body {
+  margin: 0;
+  user-select: none;
+}
+.top {
+  position: absolute;
+  width: 100%;
+  top: 0;
+  margin: 0;
+  height: 10%;
+  background-color: black;
+  z-index: 2;
+}
+#navbarButton {
+  width: 10%;
+  outline: none;
+  border: none;
+  padding:10px 50px;
+  height: 100%;
+  text-align: center;
+  font-family: Roboto;
+  font-size: 20px;
+  display: inline-block;
+  color: white;
+  transition: 0.3s linear;
+  cursor: pointer;
+  background-color: black;
+}
+#navbarButton:hover {
+  background-color: #444;
+}
+#navbarButton:active {
+  background-color: red;
+}

@@ -1,0 +1,73 @@
+body {
+  background-color: #555;
+}
+#left {
+  background-color: #555;
+  width: 20%;
+  left: 0;
+}
+#right {
+  background-color: #444;
+  width: 80%;
+  left: 20%;
+  overflow: auto;
+}
+null {
+  font-family: Roboto;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  top: 50%;
+  left: 0;
+  right: 0;
+  position: absolute;
+}
+.leftright {
+  top: 10%;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+}
+button {
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-family: Roboto;
+  transition: 0.3s linear;
+}
+.categoryButton {
+  width: 100%;
+  height: 50px;
+  text-align: right;
+  font-size: 80%;
+  color: white;
+  background-color: #555;
+}
+.categoryButton:hover {
+  background-color: #333;
+}
+.commandDisplay {
+  width: 100%;
+  height: 50px;
+  color: white;
+  font-family: Roboto;
+  cursor: pointer;
+  background-color: #333;
+  transition: 0.3s linear;
+}
+.commandDisplay:hover {
+  background-color: #222;
+}
+cmdname , cmddesc {
+  left: 10px;
+  top: 5%;
+  position: relative;
+  font-size: 100%;
+  text-align: left;
+}
+cmdname {
+  font-weight: bold;
+}
+
+/* henlo */
+somebody { display: none; }
