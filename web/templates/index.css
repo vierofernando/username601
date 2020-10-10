@@ -59,10 +59,6 @@ li {
   cursor: pointer;
   box-shadow:0px 5px 20px rgba(0, 0, 0, 0.5);
 }
-#inviteBotum:hover {
-  background-color: green;
-  transform: translateY(5%);
-}
 #imageOverlay {
   background-color: rgba(1, 1, 1, 0.5);
   width: 100%;
