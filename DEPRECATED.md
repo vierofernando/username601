@@ -29,7 +29,7 @@ completely useless and barely anyone ever uses it<br>
 The last command with scraping to be deprecated, the reason is:<br>
 1. scraping is not that good, and 2. sometimes discordemojis.com gives NSFW emojis, yuck.<br>
 
-### 1trap, 1trumptweet, 1deepfry, 1blurpify, 1threats, 1whowouldwin<br>
+### 1trap, 1trumptweet, 1deepfry, 1blurpify, 1threats, 1whowouldwin, 1app, 1ph<br>
 My bot seemed to cannot have a GET request with the API, so since they are<br>
 not functional, i will delete then.<br>
 
