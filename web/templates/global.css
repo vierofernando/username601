@@ -6,21 +6,19 @@ body {
   position: absolute;
   width: 100%;
   top: 0;
-  margin: 0;
+  margin: 5;
   height: 10%;
   background-color: black;
   z-index: 2;
 }
 #navbarButton {
-  width: 10%;
+  width: 125px;
   outline: none;
   border: none;
-  padding:10px 50px;
   height: 100%;
   text-align: center;
   font-family: Roboto;
   font-size: 20px;
-  display: inline-block;
   color: white;
   transition: 0.3s linear;
   cursor: pointer;
