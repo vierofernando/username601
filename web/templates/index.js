@@ -12,6 +12,9 @@ const possibleShit = [
   "insert copyrighted unspash picture here.",
   "disclaimer: the background pic is free",
   "null",
+  "why did you pick me",
+  "LMAO WHAT KIND OF WEB DESIGN IS THIS",
+  "why",
   "hey look, what a shit user interface!",
   "go away",
   "no u",
@@ -138,13 +141,18 @@ const possibleShit = [
 ]
 
 function init() {
-  document.getElementById("botAccurateDescription").innerHTML = possibleShit[Math.floor(Math.random() * possibleShit.length)];
+  const message = possibleShit[Math.floor(Math.random() * possibleShit.length)];
+  document.getElementById("botAccurateDescription").innerHTML = message;
+  document.title = /<a/.test(message) ? "601 the bot" : message;
   document.getElementById("inviteBotum").addEventListener("click", function() {
     let Botum = document.getElementById("inviteBotum");
     Botum.style.backgroundColor = "red";
     Botum.innerHTML = "Bruh moment";
     window.location.href = "https://601.vierofernando.repl.co/invite";
   });
+  fetch("https://cors-anywhere.herokuapp.com/https://useless-api.vierofernando.repl.co/get_bot_stats").then(res => res.json()).then(res => {
+    document.getElementById("flex").innerHTML = `Serving <b>${res.guild_count}</b> discord servers and <b>${res.user_count}</b> users as of <b>${res.last_updated} ago</b>`;
+  }).catch(error => console.log("There was an error on flexing. Oopsies :("));
 }
 
 function redirectTo(url) {
