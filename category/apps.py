@@ -8,6 +8,7 @@ ia = imdb.IMDb()
 from datetime import datetime as t
 from decorators import command, cooldown
 from requests import get
+import random
 import wikipediaapi
 from googletrans import Translator, LANGUAGES
 gtr = Translator()

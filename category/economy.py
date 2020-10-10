@@ -311,16 +311,16 @@ class economy(commands.Cog):
             raise self.client.utils.SendErrorMessage('What is the new description?')
         else:
             if len(args)>120: raise self.client.utils.SendErrorMessage('Your description is too long!')
-            elif '://' in str(' '.join(args)): raise self.client.utils.SendErrorMessage('Please don\'t use links in the description! We don\'t allow that!')
-            elif 'discord.gg' in str(' '.join(args)): raise self.client.utils.SendErrorMessage('Please don\'t use server invite links in the description! We don\'t allow that!')
+            newdesc = ' '.join(args)
+            for i in ['discord.gg', 'discord.com/', 'bit.ly', '://', 'nigga', 'nigger', 'discordapp.com']:
+                if i in newdesc.lower(): raise self.client.utils.SendErrorMessage('Your description has invalid/blocked text!')
+            wait = await ctx.send(self.client.loading_emoji+' | Please wait...')
+            if self.client.db.Economy.get(ctx.author.id)==None:
+                raise self.client.utils.SendErrorMessage("Doesn't have a profile yet. Try `1new` to have a profile.")
             else:
-                wait = await ctx.send(self.client.loading_emoji+' | Please wait...')
-                if self.client.db.Economy.get(ctx.author.id)==None:
-                    raise self.client.utils.SendErrorMessage("Doesn't have a profile yet. Try `1new` to have a profile.")
-                else:
-                    data = self.client.db.Economy.setdesc(ctx.author.id, str(' '.join(args)))
-                    if data=='error': await wait.edit(content=self.client.error_emoji+' | Oopsies! There was an error...')
-                    else: await wait.edit(content=self.client.success_emoji+' | Updated your description!')
+                data = self.client.db.Economy.setdesc(ctx.author.id, newdesc)
+                if data=='error': await wait.edit(content=self.client.error_emoji+' | Oopsies! There was an error...')
+                else: await wait.edit(content=self.client.success_emoji+' | Updated your description!')
     
     @command('balance,mybal,profile,me,myprofile')
     @cooldown(2)

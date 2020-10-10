@@ -384,7 +384,7 @@ class moderation(commands.Cog):
         total = ', '.join([f'<#{i.id}>' for i in ctx.guild.channels]) if 'channel' in ctx.message.content.lower() else ', '.join([f'<#{i.id}>' for i in ctx.guild.roles])
         await ctx.send(embed=discord.Embed(description=', '.join(total), color=self.client.utils.get_embed_color()))
 
-    @command('ui,user,usercard,user-info,user-card,whois')
+    @command('ui,user,usercard,user-info,user-card,whois,user-interface,userinterface')
     @cooldown(3)
     async def userinfo(self, ctx, *args):
         guy, ava, nitro = self.client.utils.getUser(ctx, args), self.client.utils.getUserAvatar(ctx, args), False
