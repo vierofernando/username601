@@ -22,7 +22,18 @@ class Website:
       "github": "https://github.com/vierofernando/username601",
       "api": "https://useless-api.vierofernando.repl.co/docs"
     }
+    self.raw_index_template = open('./templates/index.html', 'r').read().replace('\n', '')
+    self.callback_code = open('./templates/callback.html', 'r').read().replace('\n', '')
   
+  def render_index_template(self):
+    data = get('https://useless-api.vierofernando.repl.co/get_bot_stats').json()
+    return self.raw_index_template.replace(
+      "'flex'>",
+      "'flex'>Serving <b>{}</b> discord servers with <b>{}</b> users as of <b>{} ago</b>".format(
+        data['guild_count'], data['user_count'], data['last_updated']
+      )
+    )
+
   def redirect(self, key):
     return f"<script>window.location.href = '{self.redirects[key]}';</script>"
 
