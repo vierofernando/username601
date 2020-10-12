@@ -49,16 +49,10 @@ class image(commands.Cog):
     @command('distortion')
     @cooldown(1)
     async def distort(self, ctx, *args, blacklist=None):
-        num = 5
-        try:
-            for i in range(len(args)):
-                if list(args)[i].isnumeric():
-                    num, blacklist = int(list(args)[i]), i
-                    break
-            if blacklist!=None: del list(args)[blacklist]
-        except: num = 5
-        if num not in range(0, 999): raise self.client.utils.SendErrorMessage("damn that level is hella weirdd")
-        ava = self.client.utils.getUserAvatar(ctx, args)
+        user, num = self.client.utils.split_parameter_to_two(args)
+        if not num.isnumeric(): num = 5
+        elif int(num) not in range(0, 999): raise self.client.utils.SendErrorMessage("damn that level is hella weirdd")
+        ava = self.client.utils.getUserAvatar(ctx, (user,))
         async with ctx.channel.typing():
             await ctx.send(file=discord.File(
                 self.client.canvas.urltoimage('https://nezumiyuiz.glitch.me/api/distort?level={}&image={}'.format(

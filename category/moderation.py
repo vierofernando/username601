@@ -381,8 +381,8 @@ class moderation(commands.Cog):
     @command('roles,serverroles,serverchannels,channels')
     @cooldown(2)
     async def channel(self, ctx):
-        total = ', '.join([f'<#{i.id}>' for i in ctx.guild.channels]) if 'channel' in ctx.message.content.lower() else ', '.join([f'<#{i.id}>' for i in ctx.guild.roles])
-        await ctx.send(embed=discord.Embed(description=', '.join(total), color=self.client.utils.get_embed_color()))
+        total = ', '.join([f'<#{i.id}>' for i in ctx.guild.channels]) if 'channel' in ctx.message.content.lower() else ', '.join([f'<@&{i.id}>' for i in ctx.guild.roles])
+        await ctx.send(embed=discord.Embed(description=total, color=self.client.utils.get_embed_color()))
 
     @command('ui,user,usercard,user-info,user-card,whois,user-interface,userinterface')
     @cooldown(3)
