@@ -11,10 +11,7 @@ from urllib.parse import quote_plus as urlencode
 from json import loads as jsonify
 from configparser import ConfigParser
 from datetime import datetime as t
-
-class noArguments(Exception): pass
-class noUserFound(Exception): pass
-class noProfile(Exception): pass
+class SendErrorMessage(Exception): pass
 
 main_cfg = ConfigParser()
 if isfile('config.ini'): main_cfg.read('config.ini')
@@ -23,15 +20,14 @@ else: main_cfg.read('../config.ini')
 def cfg(param, integer=False):
     if integer: return int(main_cfg.get('bot', param.lower()))
     return main_cfg.get('bot', param.lower())
+
 prefix = cfg('PREFIX')
 
 def randomtroll():
     return random.choice(loads(open(cfg('JSON_DIR')+'/troll.json', 'r').read()))
+
 def randomhash():
     return ''.join([random.choice(list('ABCDEFHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_')) for i in range(random.randint(11, 26))])
-def num2word(num):
-    try: return 'zero,one,two,three,four,five,six,seven,eight,nine'.split(',')[num]
-    except: return None
 
 def emote(client, type):
     return str(client.get_emoji(cfg('EMOJI_'+type.upper(), integer=True)))
@@ -45,27 +41,21 @@ def inspect_image_url(url):
     except:
         return False
 
-def get_embed_color():
-    color = cfg('MAIN_COLOR').split(',')
-    return discord.Colour.from_rgb(
-        int(color[0]), int(color[1]), int(color[2])
-    )
-
 def split_parameter_to_two(args):
-    if len(args) == 0: return None
-    available_split_chars = ';?,?, ?|? | ?'.split('?')[:-1]
+    if len(args) < 2: return None
+    available_split_chars = ';?, ?,?|? | '.split('?')
     if len(args) == 2: return args[0], args[1]
     args_as_a_string = ' '.join(list(args))
     for char in available_split_chars:
         if char in args_as_a_string: return args_as_a_string.split(char)[0], char.join(args_as_a_string.split(char)[1:])
-    return None
+    return args[0], ' '.join(args[1:])
 
 def parse_parameter(args, arg, get_second_element=False, singular=False):
     if arg.lower() in [i.lower() for i in list(args)]:
         parsed = tuple([i for i in list(args) if arg.lower() not in i.lower()])
         if get_second_element:
             index = [i.lower() for i in list(args)].index(arg.lower()) + 1
-            if index >= len(list(args)):
+            if index >= len(args):
                 return {"available": False, "parsedarg": args, "secondparam": None}
             parsed = parsed[0:index]
             if not singular: return {"available": True, "parsedarg": parsed, "secondparam": ' '.join(list(args)[index:len(args)])}
@@ -96,7 +86,7 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
         if allowgif: return str(ctx.author.avatar_url_as(size=size))
         else: return str(ctx.author.avatar_url_as(format='png', size=size))
     elif args[0].isnumeric():
-        if int(args[0]) not in [i.id for i in ctx.guild.members]: raise noUserFound()
+        if int(args[0]) not in [i.id for i in ctx.guild.members]: raise SendErrorMessage("No user found.")
         if not allowgif: return str(ctx.guild.get_member(int(args[0])).avatar_url_as(format='png', size=size))
         return str(ctx.guild.get_member(int(args[0])).avatar_url_as(size=size))
     elif len(args)==1 and (args[0].startswith('http') or args[0].startswith('<http')):
@@ -122,8 +112,8 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
     return str(ctx.author.avatar_url_as(size=size))
 
 def getUser(ctx, args, user=None, allownoargs=True):
-    if len(list(args))==0:
-        if not allownoargs: raise noArguments()
+    if len(args)==0:
+        if not allownoargs: raise SendErrorMessage("Please include arguments.")
         return ctx.author
     if len(ctx.message.mentions)>0: return ctx.message.mentions[0]
     name = str(' '.join(list(args))).lower().split('#')[0] # disable discriminator if found
@@ -133,8 +123,8 @@ def getUser(ctx, args, user=None, allownoargs=True):
         elif name in str(i.nick).lower():
             user = i; break
     if user!=None: return user
-    if list(args)[0].isnumeric():
-        if int(list(args)[0]) not in [i.id for i in ctx.guild.members]: raise noUserFound()
+    if args[0].isnumeric():
+        if int(args[0]) not in [i.id for i in ctx.guild.members]: raise SendErrorMessage("No user found.")
         return ctx.guild.get_member(int(list(args)[0]))
     return ctx.author
 
