@@ -97,7 +97,7 @@ class owner(commands.Cog):
         if ctx.author.id==self.client.utils.cfg('OWNER_ID', integer=True):
             try:
                 user_to_send = self.client.get_user(int(args[0]))
-                em = discord.Embed(title="Hi, "+user_to_send.name+"! the bot owner sent a response for your feedback.", description=' '.join(list(args)[1:len(args)]), colour=self.client.utils.get_embed_color())
+                em = discord.Embed(title="Hi, "+user_to_send.name+"! the bot owner sent a response for your feedback.", description=' '.join(list(args)[1:len(args)]), colour=ctx.guild.me.roles[::-1][0].color)
                 await user_to_send.send(embed=em)
                 await ctx.message.add_reaction('✅')
             except Exception as e:

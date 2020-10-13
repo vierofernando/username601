@@ -9,7 +9,6 @@ sys.path.append(environ['BOT_MODULES_DIR'])
 from aiohttp import ClientSession
 from decorators import command, cooldown
 from datetime import datetime as t
-# import Dashboard
 
 class moderation(commands.Cog):
     def __init__(self, client):
@@ -19,33 +18,26 @@ class moderation(commands.Cog):
     @command('jp,joinpos,joindate,jd,howold')
     @cooldown(5)
     async def joinposition(self, ctx, *args):
-        current_time = t.now().timestamp()
-        user = self.client.utils.getUser(ctx, args)
-        wait = await ctx.send('{} | Iterating through {} members...'.format(self.client.loading_emoji, len(ctx.guild.members)))
-        sortedJoins = sorted([current_time - i.joined_at.timestamp() for i in ctx.guild.members])[::-1]
-        num, users = [i for i in range(len(sortedJoins)) if (current_time - user.joined_at.timestamp())==sortedJoins[i]][0], []
-        for i in range(-10, 11):
-            try:
-                placement = (num + i) + 1
-                if placement < 1: continue
-                locate = sortedJoins[num + i]
-                username = [str(i) for i in ctx.guild.members if (current_time- i.joined_at.timestamp())==locate][0].replace('`', '\`').replace('_', '\_').replace('*', '\*').replace('|', '\|')
-                if i == 0:
-                    username = f'__**{username}**__'
-                    placement = f'__**{str(placement)}**__'
-                users.append({
-                    'user': username,
-                    'time': locate,
-                    'order': str(placement)
-                })
-            except IndexError:
-                pass
-        em = discord.Embed(title='{}\' join position'.format(user.name), description='\n'.join([
-            '{}. {} ({} ago)'.format(i['order'], i['user'], self.client.utils.time_encode(round(i['time']))) for i in users
-        ]), color=self.client.utils.get_embed_color())
-        await wait.edit(content='', embed=em)
-
-    @command('serverconfig,configuration,serversettings,settings')
+        wait = await ctx.send(f"{self.client.loading_emoji} | Hang tight... collecting data...")
+        current_time, members = t.now().timestamp(), ctx.guild.members
+        user, desc = self.client.utils.getUser(ctx, args), ""
+        user_join_date = user.joined_at.timestamp()
+        full_arr = [{'ja': i.joined_at.timestamp(), 'da': i} for i in members]
+        raw_unsorted_arr = [i['ja'] for i in full_arr]
+        sorted_arr = sorted(raw_unsorted_arr)
+        user_index = sorted_arr.index(user_join_date)
+        for i in range(user_index - 10, user_index + 11):
+            if i < 0: continue
+            try: key = sorted_arr[i]
+            except: continue
+            index = raw_unsorted_arr.index(key)
+            name = str(full_arr[index]['da']).replace('_', '\_').replace('*', '\*').replace('`', '\`')
+            string = "{}. {} ({} ago)\n" if i != user_index else "**__{}. {} ({} ago)__**\n"
+            desc += string.format(
+                i + 1, name, self.client.utils.time_encode(current_time - full_arr[index]['ja'])
+            )
+        return await wait.edit(content='', embed=discord.Embed(title=str(user)+'\'s join position for '+ctx.guild.name, description=desc, color=ctx.guild.me.roles[::-1][0].color))
+        
     @cooldown(1)
     async def config(self, ctx):
         data = self.client.db.Dashboard.getData(ctx.guild.id)
@@ -57,7 +49,7 @@ class moderation(commands.Cog):
         extras = [len(data['shop']), len(data['warns'])]
         dehoister = 'Enabled :white_check_mark:' if data['dehoister'] else 'Disabled :x:'
         subs = 'Enabled :white_check_mark:' if data['subscription']!=None else 'Disabled :x:'
-        await ctx.send(embed=discord.Embed(title=f'{ctx.guild.name}\'s configuration', description=f'**Auto role:** {autorole}\n**Welcome channel:** {welcome}\n**Starboard channel: **{starboard}\n**Name/nick dehoister: **{dehoister}\n**Mute role: **{mute}\n**Members warned: **{extras[1]}\n**Shop products sold: **{extras[0]}\n**Development updates/Events subscription: {subs}**', color=self.client.utils.get_embed_color()).set_thumbnail(url=ctx.guild.icon_url))
+        await ctx.send(embed=discord.Embed(title=f'{ctx.guild.name}\'s configuration', description=f'**Auto role:** {autorole}\n**Welcome channel:** {welcome}\n**Starboard channel: **{starboard}\n**Name/nick dehoister: **{dehoister}\n**Mute role: **{mute}\n**Members warned: **{extras[1]}\n**Shop products sold: **{extras[0]}\n**Development updates/Events subscription: {subs}**', color=ctx.guild.me.roles[::-1][0].color).set_thumbnail(url=ctx.guild.icon_url))
 
     @command()
     @cooldown(5)
@@ -114,7 +106,7 @@ class moderation(commands.Cog):
             return await ctx.send(embed=discord.Embed(
                 title='Activated dehoister.',
                 description=f'**What is dehoister?**\nDehoister is an automated part of this bot that automatically renames someone that tries to hoist their name (for example: `!ABC`)\n\n**How do i deactivate this?**\nJust type `{self.client.command_prefix}dehoister`.\n\n**It doesn\'t work for me!**\nMaybe because your role position is higher than me, so i don\'t have the permissions required.',
-                color=self.client.utils.get_embed_color()
+                color=ctx.guild.me.roles[::-1][0].color
             ))
         self.client.db.Dashboard.setDehoister(ctx.guild, False)
         await ctx.send('{} | Dehoister deactivated.'.format(self.client.success_emoji))
@@ -136,7 +128,7 @@ class moderation(commands.Cog):
                 title=f'Starboard for {ctx.guild.name}',
                 description='Channel: <#{}>\nStars required to reach: {}'.format(
                     starboard_channel['channelid'], starboard_channel['starlimit']
-                ), color=self.client.utils.get_embed_color()
+                ), color=ctx.guild.me.roles[::-1][0].color
             ))
         if starboard_channel['channelid']==None: return
         elif list(args)[0].lower().startswith('rem'):
@@ -215,7 +207,7 @@ class moderation(commands.Cog):
                 await ctx.send(embed=discord.Embed(
                     title='Command usage',
                     description='{}welcome <CHANNEL>\n{}welcome disable'.format(self.client.command_prefix, self.client.command_prefix),
-                    color=self.client.utils.get_embed_color()
+                    color=ctx.guild.me.roles[::-1][0].color
                 ))
             else:
                 if list(args)[0].lower()=='disable':
@@ -240,7 +232,7 @@ class moderation(commands.Cog):
                 await ctx.send(embed=discord.Embed(
                     title='Command usage',
                     description='{}autorole <ROLENAME/ROLEPING>\n{}autorole disable'.format(self.client.command_prefix, self.client.command_prefix),
-                    color=self.client.utils.get_embed_color()
+                    color=ctx.guild.me.roles[::-1][0].color
                 ))
             else:
                 if list(args)[0].lower()=='disable':
@@ -382,7 +374,7 @@ class moderation(commands.Cog):
     @cooldown(2)
     async def channel(self, ctx):
         total = ', '.join([f'<#{i.id}>' for i in ctx.guild.channels]) if 'channel' in ctx.message.content.lower() else ', '.join([f'<@&{i.id}>' for i in ctx.guild.roles])
-        await ctx.send(embed=discord.Embed(description=total, color=self.client.utils.get_embed_color()))
+        await ctx.send(embed=discord.Embed(description=total, color=ctx.guild.me.roles[::-1][0].color))
 
     @command('ui,user,usercard,user-info,user-card,whois,user-interface,userinterface')
     @cooldown(3)
@@ -420,7 +412,7 @@ class moderation(commands.Cog):
             await ctx.send(ctx.guild.icon_url_as(size=4096))
         else:
             if len(args)==0:
-                if len(ctx.guild.members)>100:
+                if ctx.guild.member_count>100:
                     wait = await ctx.send('{} | Fetching guild data... please wait...'.format(self.client.loading_emoji))
                     im = self.client.canvas.server(ctx.guild)
                     await wait.delete()
@@ -482,7 +474,7 @@ class moderation(commands.Cog):
             if str(type(data))=="<class 'bool'>":
                 if data: perms_list.append(':white_check_mark: {}'.format(i.replace('_', ' ')))
                 else: perms_list.append(':x: {}'.format(i.replace('_', ' ')))
-        embed = discord.Embed(title='Guild permissions for '+source.name, description='\n'.join(perms_list), colour=self.client.utils.get_embed_color())
+        embed = discord.Embed(title='Guild permissions for '+source.name, description='\n'.join(perms_list), colour=ctx.guild.me.roles[::-1][0].color)
         await ctx.send(embed=embed)
 
     @command('mkchannel,mkch,createchannel,make-channel,create-channel')
@@ -532,7 +524,7 @@ class moderation(commands.Cog):
         if not erry:
             if data.animated: anim = 'This emoji is an animated emoji. **Only nitro users can use it.**'
             else: anim = 'This emoji is a static emoji. **Everyone can use it (except if limited by role)**'
-            embedy = discord.Embed(title='Emoji info for :'+str(data.name)+':', description='**Emoji name:** '+str(data.name)+'\n**Emoji ID: **'+str(data.id)+'\n'+anim+'\n**Emoji\'s server ID: **'+str(data.guild_id)+'\n**Emoji creation time: **'+str(data.created_at)[:-7]+' UTC.', colour=self.client.utils.get_embed_color())
+            embedy = discord.Embed(title='Emoji info for :'+str(data.name)+':', description='**Emoji name:** '+str(data.name)+'\n**Emoji ID: **'+str(data.id)+'\n'+anim+'\n**Emoji\'s server ID: **'+str(data.guild_id)+'\n**Emoji creation time: **'+str(data.created_at)[:-7]+' UTC.', colour=ctx.guild.me.roles[::-1][0].color)
             embedy.set_thumbnail(url='https://cdn.discordapp.com/emojis/'+str(data.id)+'.png?v=1')
             await ctx.send(embed=embedy)
 

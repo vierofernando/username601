@@ -48,7 +48,7 @@ class games(commands.Cog):
                     else: like = ':+1:'
                     levels += str(count+1)+'. **'+data[count]['name']+'** by '+data[count]['author']+' (`'+data[count]['id']+'`)\n:arrow_down: '+data[count]['downloads']+' | '+like+' '+data[count]['likes']+'\n'
                     count += 1
-                embedy = discord.Embed(title='Geometry Dash Level searches for "'+str(' '.join(args))+'":', description=levels, colour=self.client.utils.get_embed_color())
+                embedy = discord.Embed(title='Geometry Dash Level searches for "'+str(' '.join(args))+'":', description=levels, colour=ctx.guild.me.roles[::-1][0].color)
                 await ctx.send(embed=embedy)
             except:
                 raise self.client.utils.SendErrorMessage('Error: Not Found. :four::zero::four:')
@@ -135,7 +135,7 @@ class games(commands.Cog):
     @command('rockpaperscissors')
     @cooldown(5)
     async def rps(self, ctx):
-        main = await ctx.send(embed=discord.Embed(title='Rock Paper Scissors game.', description='Click the reaction below. And game will begin.', colour=self.client.utils.get_embed_color()))
+        main = await ctx.send(embed=discord.Embed(title='Rock Paper Scissors game.', description='Click the reaction below. And game will begin.', colour=ctx.guild.me.roles[::-1][0].color))
         exp = ['✊', '🖐️', '✌']
         for i in range(0, len(exp)):
             await main.add_reaction(exp[i])
@@ -152,7 +152,7 @@ class games(commands.Cog):
             given, msgId = emotes[num], res[0]
             emojiArray, ran = emotes, res[1]
         messages = ["Congratulations! "+ctx.author.name+" WINS!", "It's a draw.", "Oops, "+ctx.author.name+" lost!"]
-        colors = [self.client.utils.get_embed_color(), discord.Colour.orange(), self.client.utils.get_embed_color()]
+        colors = [ctx.guild.me.roles[::-1][0].color, discord.Colour.orange(), ctx.guild.me.roles[::-1][0].color]
         if beginGame:
             embed = discord.Embed(
                 title = messages[msgId],
@@ -208,7 +208,7 @@ class games(commands.Cog):
                 chooseCount += 1
             else:
                 question += '**'+ str(corr_order) + '.** '+str(corr_name)+ '\n'
-        embed = discord.Embed(title='What does the avatar below belongs to?', description=':eyes: Click the reactions! **You have 20 seconds.**\n\n'+str(question), colour=self.client.utils.get_embed_color())
+        embed = discord.Embed(title='What does the avatar below belongs to?', description=':eyes: Click the reactions! **You have 20 seconds.**\n\n'+str(question), colour=ctx.guild.me.roles[::-1][0].color)
         embed.set_footer(text='For privacy reasons, the people displayed above are online users.')
         embed.set_image(url=corr_avatar)
         main = await ctx.send(embed=embed)
@@ -251,7 +251,7 @@ class games(commands.Cog):
                 wrongs.remove(added)
             else:
                 question += corr_order + ' ' + correct + '\n'
-        embed = discord.Embed(title='Geography: '+str(topic)+' quiz!', description=':nerd: Click on the reaction! **You have 20 seconds.**\n\nWhich '+str(topic)+' belongs to '+str(chosen_nation['name'])+'?\n'+str(question), colour=self.client.utils.get_embed_color())
+        embed = discord.Embed(title='Geography: '+str(topic)+' quiz!', description=':nerd: Click on the reaction! **You have 20 seconds.**\n\nWhich '+str(topic)+' belongs to '+str(chosen_nation['name'])+'?\n'+str(question), colour=ctx.guild.me.roles[::-1][0].color)
         await wait.edit(content='', embed=embed)
         for i in range(0, len(static_emot)):
             await wait.add_reaction(static_emot[i])
@@ -306,7 +306,7 @@ class games(commands.Cog):
         while gameplay:
             if ctx.message.content==self.client.command_prefix+'hangman' and ctx.author.id!=int(playing_with_id) and ctx.guild.id==server_id:
                 await ctx.send('<@'+str(ctx.author.id)+'>, cannot play hangman when a game is currently playing!')
-            newembed = discord.Embed(title=''.join(main_guess_hid), description='Wrong guesses: '+str(wrong_guesses), colour=self.client.utils.get_embed_color())
+            newembed = discord.Embed(title=''.join(main_guess_hid), description='Wrong guesses: '+str(wrong_guesses), colour=ctx.guild.me.roles[::-1][0].color)
             newembed.set_image(url=f'https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{str(level)}.png')
             newembed.set_footer(text='Type "showanswer" to show the answer and end the game.')
             await ctx.send(embed=newembed)
@@ -358,17 +358,17 @@ class games(commands.Cog):
             slots.append(self.client.games.slotify(newslot))
         if win:
             msgslot = 'You win!'
-            col = self.client.utils.get_embed_color()
+            col = ctx.guild.me.roles[::-1][0].color
             if jackpot:
                 msgslot = 'JACKPOT!'
-                col = self.client.utils.get_embed_color()
+                col = ctx.guild.me.roles[::-1][0].color
             if self.client.db.Economy.get(ctx.author.id)!=None:
                 reward = random.randint(500, 1000)
                 self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! you received a whopping '+str(reward)+' bobux!')
         else:
             msgslot = 'You lose... Try again!'
-            col = self.client.utils.get_embed_color()
+            col = ctx.guild.me.roles[::-1][0].color
         embed = discord.Embed(title=msgslot, description=slots[0]+'\n\n'+slots[1]+'\n\n'+slots[2], colour=col)
         await ctx.send(embed=embed)
 
@@ -378,7 +378,7 @@ class games(commands.Cog):
         num = random.randint(5, 100)
         username = ctx.author.display_name
         user_class = ctx.author
-        embed = discord.Embed(title='Starting the game!', description='You have to guess a *secret* number between 5 and 100!\n\nYou have 8 attempts, and 20 second timer in each attempt!\n\n**G O O D  L U C K**', colour=self.client.utils.get_embed_color())
+        embed = discord.Embed(title='Starting the game!', description='You have to guess a *secret* number between 5 and 100!\n\nYou have 8 attempts, and 20 second timer in each attempt!\n\n**G O O D  L U C K**', colour=ctx.guild.me.roles[::-1][0].color)
         await ctx.send(embed=embed)
         gameplay = True
         attempts = 8
@@ -428,7 +428,7 @@ class games(commands.Cog):
                 if q['answer']==q['options'][i]:
                     corr = al[i]
                 choices = choices + al[i] +' '+ q['options'][i]+'\n'
-            embed = discord.Embed(title='Trivia!', description='**'+q['question']+'**\n'+choices, colour=self.client.utils.get_embed_color())
+            embed = discord.Embed(title='Trivia!', description='**'+q['question']+'**\n'+choices, colour=ctx.guild.me.roles[::-1][0].color)
             embed.set_footer(text='Answer by clicking the reaction! You have 60 seconds.')
             await wait.edit(content='', embed=embed)
             for i in range(0, len(al)):

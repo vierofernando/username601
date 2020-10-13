@@ -46,7 +46,7 @@ class memes(commands.Cog):
     @cooldown(2)
     async def programmingmeme(self, ctx):
         data = self.client.utils.fetchJSON('https://useless-api.vierofernando.repl.co/programmermeme')['url']
-        return await ctx.send(embed=discord.Embed(title='Programmer meme', color=self.client.utils.get_embed_color()).set_image(url=data))
+        return await ctx.send(embed=discord.Embed(title='Programmer meme', color=ctx.guild.me.roles[::-1][0].color).set_image(url=data))
 
     @command('shred,burn,spongebobpaper,paper,spongepaper,sponge-paper,spongebob-paper,spongebob')
     @cooldown(1)
@@ -297,7 +297,7 @@ class memes(commands.Cog):
         else:
             async with ctx.channel.typing():
                 scrolltxt = self.client.utils.urlify(' '.join(args))
-                embed = discord.Embed(colour=self.client.utils.get_embed_color())
+                embed = discord.Embed(colour=ctx.guild.me.roles[::-1][0].color)
                 url='https://api.alexflipnote.dev/scroll?text='+str(scrolltxt)
                 data = self.client.canvas.urltoimage(url)
                 await ctx.send(file=discord.File(data, 'scroll.png'))
@@ -355,7 +355,7 @@ class memes(commands.Cog):
     @cooldown(5)
     async def meme(self, ctx):
         data = self.client.utils.fetchJSON("https://meme-api.herokuapp.com/gimme")
-        embed = discord.Embed(colour = self.client.utils.get_embed_color())
+        embed = discord.Embed(colour = ctx.guild.me.roles[::-1][0].color)
         embed.set_author(name=data["title"], url=data["postLink"])
         if data["nsfw"]:
             embed.set_footer(text='WARNING: IMAGE IS NSFW.')

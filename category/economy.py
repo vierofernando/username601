@@ -67,7 +67,7 @@ class economy(commands.Cog):
         try:
             data = self.client.db.Economy.getBuyList(source)
             assert not data['error'], data['ctx']
-            return await ctx.send(embed=discord.Embed(title='{}\'s buy list'.format(source.name), description=data['ctx'], color=self.client.utils.get_embed_color()))
+            return await ctx.send(embed=discord.Embed(title='{}\'s buy list'.format(source.name), description=data['ctx'], color=ctx.guild.me.roles[::-1][0].color))
         except Exception as e:
             raise self.client.utils.SendErrorMessage(str(e))
 
@@ -123,7 +123,7 @@ class economy(commands.Cog):
             assert data['error']==False, data['ctx']
             em = discord.Embed(title='{}\'s shop'.format(ctx.guild.name), description='\n'.join(
                 [str(i+1)+'. **'+str(data['ctx'][i]['name'])+'** (price: '+str(data['ctx'][i]['price'])+' :gem:)' for i in range(len(data['ctx']))]
-            ), color=self.client.utils.get_embed_color())
+            ), color=ctx.guild.me.roles[::-1][0].color)
             return await ctx.send(embed=em)
         except Exception as e:
             raise self.client.utils.SendErrorMessage(f'{str(e)}!\nYou can always add a value using `{self.client.command_prefix}addproduct <price> <name>`')
@@ -301,7 +301,7 @@ class economy(commands.Cog):
             await wait.edit(content='', embed=discord.Embed(
                 title = ctx.guild.name+'\'s leaderboard',
                 description = '\n'.join(total),
-                color = self.client.utils.get_embed_color()
+                color = ctx.guild.me.roles[::-1][0].color
             ))
     
     @command('desc,description')

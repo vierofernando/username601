@@ -72,7 +72,7 @@ class fun(commands.Cog):
         embed = discord.Embed(
             title = str(data[0]["setup"]),
             description = '||'+str(data[0]["punchline"])+'||',
-            colour = self.client.utils.get_embed_color()
+            colour = ctx.guild.me.roles[::-1][0].color
         )
         await ctx.send(embed=embed)
 
@@ -116,9 +116,9 @@ class fun(commands.Cog):
     @command('serverdeathnote,dn')
     @cooldown(10)
     async def deathnote(self, ctx):
-        if len(ctx.guild.members)>500: raise self.client.utils.SendErrorMessage('This server has soo many members')
+        if ctx.guild.member_count>500: raise self.client.utils.SendErrorMessage('This server has soo many members')
         member, in_the_note, notecount, membercount = [], "", 0, 0
-        for i in range(0, int(len(ctx.guild.members))):
+        for i in range(0, int(ctx.guild.member_count)):
             if ctx.guild.members[i].name!=ctx.author.name:
                 member.append(ctx.guild.members[i].name)
                 membercount = int(membercount) + 1
@@ -132,7 +132,7 @@ class fun(commands.Cog):
         embed = discord.Embed(
             title=ctx.guild.name+'\'s death note',
             description=str(in_the_note),
-            colour = self.client.utils.get_embed_color()
+            colour = ctx.guild.me.roles[::-1][0].color
         )
         await ctx.send(embed=embed)
     
@@ -171,7 +171,7 @@ class fun(commands.Cog):
     @cooldown(2)
     async def factcore(self, ctx):
         data = self.client.utils.fetchJSON('https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fact-core.json')
-        embed = discord.Embed(title='Fact Core', description=random.choice(data), colour=self.client.utils.get_embed_color())
+        embed = discord.Embed(title='Fact Core', description=random.choice(data), colour=ctx.guild.me.roles[::-1][0].color)
         embed.set_thumbnail(url='https://i1.theportalwiki.net/img/thumb/5/55/FactCore.png/300px-FactCore.png')
         await ctx.send(embed=embed)
 def setup(client):
