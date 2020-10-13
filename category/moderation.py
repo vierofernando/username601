@@ -19,13 +19,16 @@ class moderation(commands.Cog):
     @cooldown(5)
     async def joinposition(self, ctx, *args):
         wait = await ctx.send(f"{self.client.loading_emoji} | Hang tight... collecting data...")
-        current_time, members = t.now().timestamp(), ctx.guild.members
-        user, desc = self.client.utils.getUser(ctx, args), ""
-        user_join_date = user.joined_at.timestamp()
+        current_time, members, user_index, desc = t.now().timestamp(), ctx.guild.members, None, ""
         full_arr = [{'ja': i.joined_at.timestamp(), 'da': i} for i in members]
         raw_unsorted_arr = [i['ja'] for i in full_arr]
         sorted_arr = sorted(raw_unsorted_arr)
-        user_index = sorted_arr.index(user_join_date)
+        if len(args) > 0 and args[0].isnumeric() and ((int(args[0])-1) in range(len(members))):
+            user_index, title = int(args[0]) - 1, f'User join position for order: #{args[0]}'
+        else:
+            user = self.client.utils.getUser(ctx, args)
+            user_join_date = user.joined_at.timestamp()
+            user_index, title = sorted_arr.index(user_join_date), str(user)+'\'s join position for '+ctx.guild.name
         for i in range(user_index - 10, user_index + 11):
             if i < 0: continue
             try: key = sorted_arr[i]
@@ -36,7 +39,7 @@ class moderation(commands.Cog):
             desc += string.format(
                 i + 1, name, self.client.utils.time_encode(current_time - full_arr[index]['ja'])
             )
-        return await wait.edit(content='', embed=discord.Embed(title=str(user)+'\'s join position for '+ctx.guild.name, description=desc, color=ctx.guild.me.roles[::-1][0].color))
+        return await wait.edit(content='', embed=discord.Embed(title=title, description=desc, color=ctx.guild.me.roles[::-1][0].color))
         
     @cooldown(1)
     async def config(self, ctx):
