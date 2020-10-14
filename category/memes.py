@@ -12,7 +12,7 @@ class memes(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.session = ClientSession()
-        self.rawMetadata = open(self.client.utils.cfg('MODULES_DIR')+'/Animation.dat', 'r').read().split('\n')
+        self.rawMetadata = open(self.client.utils.config('MODULES_DIR')+'/Animation.dat', 'r').read().split('\n')
         self.rageMetadata = [tuple([int(a) for a in i.split(',')]) for i in self.rawMetadata[0].split(';')]
         self.frogMetadata = self.rawMetadata[1].split(':')
 

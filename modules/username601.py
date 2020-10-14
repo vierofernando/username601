@@ -10,7 +10,7 @@ class send_error_message(Exception): pass
 main_cfg = ConfigParser()
 main_cfg.read('config.ini')
 
-def cfg(param, integer=False):
+def config(param, integer=False):
     if integer: return int(main_cfg.get('bot', param.lower()))
     return main_cfg.get('bot', param.lower())
 

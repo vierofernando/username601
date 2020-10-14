@@ -3,7 +3,7 @@ import json
 from .username601 import *
 
 def getfish():
-    res, found, ctx = json.loads(open(cfg('JSON_DIR')+'/fish.json', 'r').read()), False, None
+    res, found, ctx = json.loads(open(config('JSON_DIR')+'/fish.json', 'r').read()), False, None
     for i in res['results']['overall']:
         if randint(1, i['chance'])==1:
             found, ctx = True, i

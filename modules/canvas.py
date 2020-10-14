@@ -129,10 +129,10 @@ class Painter:
         self.process_text = process
         self.add_corners = add_corners
         self.char_process = char_process
-        self.flags = json.loads(open(cfg('JSON_DIR')+'/flags.json', 'r').read())
-        self.region = json.loads(open(cfg('JSON_DIR')+'/regions.json', 'r').read())
+        self.flags = json.loads(open(config('JSON_DIR')+'/flags.json', 'r').read())
+        self.region = json.loads(open(config('JSON_DIR')+'/regions.json', 'r').read())
         self.get_multiple_color_accents = get_multiple_color_accents
-        self.gd_assets = json.loads(open(cfg('JSON_DIR')+'/gd.json', 'r').read())
+        self.gd_assets = json.loads(open(config('JSON_DIR')+'/gd.json', 'r').read())
         self.invert = brightness_text # lmao
     
     def get_accent(self, image): return self.get_color_accent(self.thief, image)

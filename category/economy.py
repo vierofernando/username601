@@ -13,8 +13,8 @@ from asyncio import sleep
 class economy(commands.Cog):
     def __init__(self, client):
         self.client = client
-        self.fish_json = loads(open(self.client.utils.cfg("JSON_DIR")+'/fish.json', 'r').read())
-        self.steal_json = loads(open(client.utils.cfg('JSON_DIR')+'/steal.json', 'r').read())
+        self.fish_json = loads(open(self.client.utils.config("JSON_DIR")+'/fish.json', 'r').read())
+        self.steal_json = loads(open(client.utils.config('JSON_DIR')+'/steal.json', 'r').read())
     
     @command()
     @cooldown(30)
@@ -157,7 +157,7 @@ class economy(commands.Cog):
             wait = await ctx.send(self.client.loading_emoji+" | Please wait...")
             reward = str(random.randint(100, 500))
             new_data = self.client.db.Economy.addbal(ctx.author.id, int(reward))
-            job = random.choice(loads(open(self.client.utils.cfg('JSON_DIR')+'/work.json', 'r').read())['works'])
+            job = random.choice(loads(open(self.client.utils.config('JSON_DIR')+'/work.json', 'r').read())['works'])
             if new_data=='success': await wait.edit(content=self.client.success_emoji+f" | {ctx.author.name} worked {job} and earned {reward} bobux!")
             else: raise self.client.utils.send_error_message(f"Oops there was an error... Please report this to the owner using `{self.client.command_prefix}feedback.`\n`{new_data}`")
             

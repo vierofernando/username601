@@ -26,14 +26,14 @@ class owner(commands.Cog):
     @command()
     @cooldown(1)
     async def leave(self, ctx, *args):
-        if ctx.author.id != self.client.utils.cfg('OWNER_ID', integer=True): return
+        if ctx.author.id != self.client.utils.config('OWNER_ID', integer=True): return
         server_id = int(list(args)[1])
         await self.client.get_guild(server_id).leave()
         return await ctx.send('ok')
     
     @command()
     async def leavehmm(self, ctx, *args):
-        if ctx.author.id != self.client.utils.cfg('OWNER_ID', integer=True): return
+        if ctx.author.id != self.client.utils.config('OWNER_ID', integer=True): return
         res = [i for i in self.client.guilds if len([
             a for a in i.members if a.bot
         ]) > len([
@@ -47,7 +47,7 @@ class owner(commands.Cog):
     @command('ann,announcement')
     @cooldown(2)
     async def announce(self, ctx, *args):
-        if ctx.author.id != self.client.utils.cfg('OWNER_ID', integer=True): return
+        if ctx.author.id != self.client.utils.config('OWNER_ID', integer=True): return
         await ctx.message.add_reaction(self.client.loading_emoji)
         data, wr, sc = self.client.db.Dashboard.get_subscribers(), 0, 0
         for i in data:
@@ -70,7 +70,7 @@ class owner(commands.Cog):
     @command('src')
     async def source(self, ctx, *args):
         try:
-            assert ctx.author.id == self.client.utils.cfg('OWNER_ID', integer=True), 'Source code not available'
+            assert ctx.author.id == self.client.utils.config('OWNER_ID', integer=True), 'Source code not available'
             source = eval("getsource({})".format(' '.join(args)))
             return await ctx.send('```py\n'+str(source)[0:1900]+'```')
         except Exception as e:
@@ -78,7 +78,7 @@ class owner(commands.Cog):
     
     @command('pm')
     async def postmeme(self, ctx, *args):
-        if ctx.author.id!=self.client.utils.cfg('OWNER_ID', integer=True):
+        if ctx.author.id!=self.client.utils.config('OWNER_ID', integer=True):
             return await ctx.message.add_reaction(self.client.error_emoji)
         url = ''.join(args)
         if url.startswith('<'): url = url[1:]
@@ -94,7 +94,7 @@ class owner(commands.Cog):
 
     @command()
     async def rp(self, ctx, *args):
-        if ctx.author.id==self.client.utils.cfg('OWNER_ID', integer=True):
+        if ctx.author.id==self.client.utils.config('OWNER_ID', integer=True):
             try:
                 user_to_send = self.client.get_user(int(args[0]))
                 em = discord.Embed(title="Hi, "+user_to_send.name+"! the bot owner sent a response for your feedback.", description=' '.join(list(args)[1:len(args)]), colour=ctx.guild.me.roles[::-1][0].color)
@@ -107,14 +107,14 @@ class owner(commands.Cog):
 
     @command()
     async def fban(self, ctx, *args):
-        if int(ctx.author.id)==self.client.utils.cfg('OWNER_ID', integer=True):
+        if int(ctx.author.id)==self.client.utils.config('OWNER_ID', integer=True):
             self.client.db.selfDB.feedback_ban(int(list(args)[0]), str(' '.join(list(args)[1:len(args)])))
             await ctx.message.add_reaction(self.client.success_emoji)
         else:
             raise self.client.utils.send_error_message('You are not the owner, nerd.')
     @command()
     async def funban(self, ctx, *args):
-        if int(ctx.author.id)==self.client.utils.cfg('OWNER_ID', integer=True):
+        if int(ctx.author.id)==self.client.utils.config('OWNER_ID', integer=True):
             data = self.client.db.selfDB.feedback_unban(int(list(args)[0]))
             if data=='200': await ctx.message.add_reaction(self.client.success_emoji)
             else: await ctx.message.add_reaction(self.client.error_emoji)
@@ -124,7 +124,7 @@ class owner(commands.Cog):
     async def evaluate(self, ctx, *args):
         iwanttostealsometoken = False
         unprefixed = ' '.join(args).replace("`", "").replace('"', "'") if len(args)!=0 else 'undefined'
-        if int(ctx.author.id)==self.client.utils.cfg('OWNER_ID', integer=True):
+        if int(ctx.author.id)==self.client.utils.config('OWNER_ID', integer=True):
             try:
                 time_then = t.now().timestamp()
                 res = eval(unprefixed)
@@ -159,7 +159,7 @@ class owner(commands.Cog):
     async def bash(self, ctx, *args):
         unprefixed = ' '.join(args)
         if unprefixed == '': unprefixed = 'echo hello world'
-        if int(ctx.author.id)==self.client.utils.cfg('OWNER_ID', integer=True):
+        if int(ctx.author.id)==self.client.utils.config('OWNER_ID', integer=True):
             try:
                 if len(args)==0: raise OSError('you are gay')
                 if len(unprefixed.split())==1: data = run([unprefixed], stdout=PIPE).stdout.decode('utf-8')

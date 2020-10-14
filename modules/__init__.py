@@ -7,8 +7,8 @@ from os import environ
 
 def pre_ready_initiation(client):
     client.remove_command('help')
-    setattr(client, 'canvas', Painter(cfg('ASSETS_DIR'), cfg('FONTS_DIR')))
-    setattr(client, 'gif', GifGenerator(cfg('ASSETS_DIR'), cfg('FONTS_DIR')))
+    setattr(client, 'canvas', Painter(config('ASSETS_DIR'), config('FONTS_DIR')))
+    setattr(client, 'gif', GifGenerator(config('ASSETS_DIR'), config('FONTS_DIR')))
     setattr(client, 'last_downtime', t.now().timestamp())
     setattr(client, 'command_uses', 0)
     setattr(client, 'utils', username601)
@@ -18,9 +18,9 @@ def pre_ready_initiation(client):
     setattr(client, 'cmds', BotCommands())
 
 def post_ready_initiation(client):
-    setattr(client, 'error_emoji',   str(client.get_emoji(client.utils.cfg('EMOJI_ERROR'))))
-    setattr(client, 'loading_emoji', str(client.get_emoji(client.utils.cfg('EMOJI_LOADING'))))
-    setattr(client, 'success_emoji', str(client.get_emoji(client.utils.cfg('EMOJI_SUCCESS'))))
+    setattr(client, 'error_emoji',   str(client.get_emoji(client.utils.config('EMOJI_ERROR'))))
+    setattr(client, 'loading_emoji', str(client.get_emoji(client.utils.config('EMOJI_LOADING'))))
+    setattr(client, 'success_emoji', str(client.get_emoji(client.utils.config('EMOJI_SUCCESS'))))
     test = post("https://useless-api.vierofernando.repl.co/update_bot_stats", headers={
         'superdupersecretkey': environ["USELESSAPI"],
         'guild_count': str(len(client.guilds)),

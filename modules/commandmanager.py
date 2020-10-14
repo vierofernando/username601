@@ -16,7 +16,7 @@ def __command_type__(param, commands, categories):
 class BotCommands:
     def __init__(self):
         try:
-            self.raw_data = requests.get(cfg('WEBSITE_MAIN')+"/assets/json/commands.json").json()
+            self.raw_data = requests.get(config('WEBSITE_MAIN')+"/assets/json/commands.json").json()
             self.categories = [list(i.keys())[0] for i in self.raw_data]
             self.commands = []
             self._get_command = __gcmd__

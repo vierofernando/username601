@@ -16,7 +16,7 @@ class bothelp(commands.Cog):
     @command('supportserver,support-server,botserver,bot-server')
     @cooldown(1)
     async def support(self, ctx):
-        return await ctx.send(self.client.utils.cfg('SERVER_INVITE'))
+        return await ctx.send(self.client.utils.config('SERVER_INVITE'))
 
     @command('subscribe,dev,development,devupdates,dev-updates,development-updates')
     @cooldown(5)
@@ -37,7 +37,7 @@ class bothelp(commands.Cog):
         self.client.db.Dashboard.subscribe(url, ctx.guild.id)
         await ctx.message.add_reaction(self.client.success_emoji)
         web.send(
-            embed=discord.Embed(title=f'Congratulations, {str(ctx.author)}!', description='Your webhook is now set! ;)\nNow every development updates or username601 events will be set here.\n\nIf you change your mind, you can do `{}sub reset` to remove the webhook from the database.\n[Join our support server if you still have any questions.]({})'.format(self.client.command_prefix, self.client.utils.cfg('SERVER_INVITE')), color=discord.Color.green()),
+            embed=discord.Embed(title=f'Congratulations, {str(ctx.author)}!', description='Your webhook is now set! ;)\nNow every development updates or username601 events will be set here.\n\nIf you change your mind, you can do `{}sub reset` to remove the webhook from the database.\n[Join our support server if you still have any questions.]({})'.format(self.client.command_prefix, self.client.utils.config('SERVER_INVITE')), color=discord.Color.green()),
             username='Username601 News',
             avatar_url=self.client.user.avatar_url
         )
@@ -47,10 +47,10 @@ class bothelp(commands.Cog):
     async def help(self, ctx, *args):
         args = list(args)
         if len(args) == 0:
-            cate = '\n'.join(['[{}. {}help {}]({}?category={})'.format(i+1, self.client.command_prefix, self.client.cmds.categories[i], self.client.utils.cfg('WEBSITE_COMMANDS'), i) for i in range(len(self.client.cmds.categories))])
+            cate = '\n'.join(['[{}. {}help {}]({}?category={})'.format(i+1, self.client.command_prefix, self.client.cmds.categories[i], self.client.utils.config('WEBSITE_COMMANDS'), i) for i in range(len(self.client.cmds.categories))])
             embed = discord.Embed(
                 title='Username601\'s commands',
-                description='[Invite the bot]('+self.client.utils.cfg('BOT_INVITE')+') | [Vote us on top.gg](https://top.gg/bot/'+str(self.client.user.id)+'/vote)\n\n**[More information on our website here.]('+self.client.utils.cfg('WEBSITE_COMMANDS')+')**\n**Command Categories:** \n'+str(cate),
+                description='[Invite the bot]('+self.client.utils.config('BOT_INVITE')+') | [Vote us on top.gg](https://top.gg/bot/'+str(self.client.user.id)+'/vote)\n\n**[More information on our website here.]('+self.client.utils.config('WEBSITE_COMMANDS')+')**\n**Command Categories:** \n'+str(cate),
                 colour=ctx.guild.me.roles[::-1][0].color
             )
             embed.set_footer(text=f'Type {self.client.command_prefix}help <command/category> for more details.')
@@ -79,7 +79,7 @@ class bothelp(commands.Cog):
     @command('sourcecode,source-code,git,repo')
     @cooldown(1)
     async def github(self, ctx):
-        embed = discord.Embed(title="Click me to visit the Bot's github page.", colour=ctx.guild.me.roles[::-1][0].color, url=self.client.utils.cfg('GITHUB_REPO'))
+        embed = discord.Embed(title="Click me to visit the Bot's github page.", colour=ctx.guild.me.roles[::-1][0].color, url=self.client.utils.config('GITHUB_REPO'))
         await ctx.send(embed=embed)
     
     @command('inviteme,invitelink,botinvite,invitebot,addtoserver,addbot')
@@ -103,9 +103,9 @@ class bothelp(commands.Cog):
             if not banned:
                 try:
                     fb = ' '.join(args)
-                    feedbackCh = self.client.get_channel(self.client.utils.cfg('FEEDBACK_CHANNEL', integer=True))
-                    await feedbackCh.send('<@'+self.client.utils.cfg('OWNER_ID')+'>, User with ID: '+str(ctx.author.id)+' sent a feedback: **"'+str(fb)+'"**')
-                    embed = discord.Embed(title='Feedback Successful', description=self.client.success_emoji + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+self.client.utils.cfg('SERVER_INVITE')+')',colour=ctx.guild.me.roles[::-1][0].color)
+                    feedbackCh = self.client.get_channel(self.client.utils.config('FEEDBACK_CHANNEL', integer=True))
+                    await feedbackCh.send('<@'+self.client.utils.config('OWNER_ID')+'>, User with ID: '+str(ctx.author.id)+' sent a feedback: **"'+str(fb)+'"**')
+                    embed = discord.Embed(title='Feedback Successful', description=self.client.success_emoji + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+self.client.utils.config('SERVER_INVITE')+')',colour=ctx.guild.me.roles[::-1][0].color)
                     await wait.edit(content='', embed=embed)
                 except:
                     raise self.client.utils.send_error_message('There was an error while sending your feedback. Sorry! :(')
@@ -118,11 +118,8 @@ class bothelp(commands.Cog):
         msgping = str(round((t.now().timestamp() - ctx.message.created_at.timestamp())*1000))
         wait = await ctx.send('pinging...')
         dbping, extras = self.client.db.selfDB.ping(), ''
-        if self.client.utils.cfg('HOST_URL').lower()!='none':
-            webping = self.client.utils.ping()
-            extras = f'\n**Hosting latency: **{webping} ms.'
         wsping = str(round(self.client.ws.latency*1000))
-        embed = discord.Embed(title=f'Pong!', description=f'**Message latency: **{msgping} ms.\n**Client Latency:** {wsping} ms.\n**Database latency:** {dbping} ms.{extras}', colour=ctx.guild.me.roles[::-1][0].color)
+        embed = discord.Embed(title=f'Pong!', description=f'**Message latency: **{msgping} ms.\n**Client Latency:** {wsping} ms.\n**Database latency:** {dbping} ms.', colour=ctx.guild.me.roles[::-1][0].color)
         embed.set_thumbnail(url='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif')
         await wait.edit(content='', embed=embed)
     
@@ -145,15 +142,15 @@ class bothelp(commands.Cog):
     @command('botinfo,aboutbot,bot,info,information')
     @cooldown(2)
     async def about(self, ctx):
-        if str(self.client.get_guild(self.client.utils.cfg('SERVER_ID', integer=True)).get_member(self.client.utils.cfg('OWNER_ID', integer=True)).status)=='offline': devstatus = 'Offline'
+        if str(self.client.get_guild(self.client.utils.config('SERVER_ID', integer=True)).get_member(self.client.utils.config('OWNER_ID', integer=True)).status)=='offline': devstatus = 'Offline'
         else: devstatus = 'Online'
         embed = discord.Embed(title = 'About '+str(ctx.guild.me.display_name), colour = ctx.guild.me.roles[::-1][0].color)
         embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Library: **Discord.py\n**Default self.client.command_prefix: **'+self.client.command_prefix)
-        embed.add_field(name='Programmer info', value='**Programmed by: **'+str(self.client.get_user(self.client.utils.cfg('OWNER_ID', integer=True)))+'\n(Indie developed)\n**Current Discord Status:** '+devstatus)
-        embed.add_field(name='Version Info', value='**Bot version: ** '+self.client.utils.cfg('VERSION')+'\n**Changelog: **'+self.client.utils.cfg('CHANGELOG'))#+'\n'+str(osinfo))
-        embed.add_field(name='Links', value='[Invite this bot to your server!]('+self.client.utils.cfg('BOT_INVITE')+')\n[The support server!]('+self.client.utils.cfg('SERVER_INVITE')+')\n[Vote us on top.gg](https://top.gg/bot/'+str(self.client.user.id)+'/vote)\n[Official Website]('+self.client.utils.cfg('WEBSITE_MAIN')+')')
-        embed.set_thumbnail(url=self.client.utils.cfg('WEBSITE_MAIN')+'/assets/pics/pfp.png')
-        embed.set_footer(text='© '+str(self.client.get_user(self.client.utils.cfg('OWNER_ID', integer=True)))+' Programming, 2020. All rights reserved.')
+        embed.add_field(name='Programmer info', value='**Programmed by: **'+str(self.client.get_user(self.client.utils.config('OWNER_ID', integer=True)))+'\n(Indie developed)\n**Current Discord Status:** '+devstatus)
+        embed.add_field(name='Version Info', value='**Bot version: ** '+self.client.utils.config('VERSION')+'\n**Changelog: **'+self.client.utils.config('CHANGELOG'))#+'\n'+str(osinfo))
+        embed.add_field(name='Links', value='[Invite this bot to your server!]('+self.client.utils.config('BOT_INVITE')+')\n[The support server!]('+self.client.utils.config('SERVER_INVITE')+')\n[Vote us on top.gg](https://top.gg/bot/'+str(self.client.user.id)+'/vote)\n[Official Website]('+self.client.utils.config('WEBSITE_MAIN')+')')
+        embed.set_thumbnail(url=self.client.utils.config('WEBSITE_MAIN')+'/assets/pics/pfp.png')
+        embed.set_footer(text='© '+str(self.client.get_user(self.client.utils.config('OWNER_ID', integer=True)))+' Programming, 2020. All rights reserved.')
         await ctx.send(embed=embed)
 
 def setup(client):
