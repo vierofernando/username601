@@ -145,5 +145,6 @@ async def on_message(message):
 
 def Username601():
     print('Logging in to discord...')
+    client.loop.create_task(ready())
     client.run(environ['DISCORD_TOKEN'])
 if __name__ == "__main__": Username601()
