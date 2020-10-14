@@ -1,4 +1,4 @@
-from .username601 import cfg
+from .username601 import config
 import requests
 def __gcmd__(cmdn, commands):
     for i in commands:
