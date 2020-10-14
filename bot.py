@@ -117,7 +117,7 @@ async def on_guild_remove(guild):
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound): return
     elif isinstance(error, commands.CommandOnCooldown): return await ctx.send("You are on cooldown. You can do the command again in {}.".format(lapsed_time_from_seconds(round(error.retry_after))), delete_after=2)
-    elif isinstance(error.original, client.utils.SendErrorMessage): return await ctx.send(embed=discord.Embed(title='Error', description=f'{client.error_emoji} | {str(error.original)}', color=discord.Color.red()))
+    elif isinstance(error.original, client.utils.send_error_message): return await ctx.send(embed=discord.Embed(title='Error', description=f'{client.error_emoji} | {str(error.original)}', color=discord.Color.red()))
     elif isinstance(error.original, discord.Forbidden): 
         try: return await ctx.send("I don't have the permission required to use that command!")
         except: return

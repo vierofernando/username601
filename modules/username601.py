@@ -60,7 +60,7 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
         if allowgif: return str(ctx.author.avatar_url_as(size=size))
         else: return str(ctx.author.avatar_url_as(format='png', size=size))
     elif args[0].isnumeric():
-        if int(args[0]) not in [i.id for i in ctx.guild.members]: raise SendErrorMessage("No user found.")
+        if int(args[0]) not in [i.id for i in ctx.guild.members]: raise send_error_message("No user found.")
         if not allowgif: return str(ctx.guild.get_member(int(args[0])).avatar_url_as(format='png', size=size))
         return str(ctx.guild.get_member(int(args[0])).avatar_url_as(size=size))
     elif len(args)==1 and (args[0].startswith('http') or args[0].startswith('<http')):
@@ -87,7 +87,7 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
 
 def getUser(ctx, args, user=None, allownoargs=True):
     if len(args)==0:
-        if not allownoargs: raise SendErrorMessage("Please include arguments.")
+        if not allownoargs: raise send_error_message("Please include arguments.")
         return ctx.author
     if len(ctx.message.mentions)>0: return ctx.message.mentions[0]
     name = str(' '.join(list(args))).lower().split('#')[0] # disable discriminator if found
@@ -98,7 +98,7 @@ def getUser(ctx, args, user=None, allownoargs=True):
             user = i; break
     if user!=None: return user
     if args[0].isnumeric():
-        if int(args[0]) not in [i.id for i in ctx.guild.members]: raise SendErrorMessage("No user found.")
+        if int(args[0]) not in [i.id for i in ctx.guild.members]: raise send_error_message("No user found.")
         return ctx.guild.get_member(int(list(args)[0]))
     return ctx.author
 
