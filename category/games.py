@@ -24,23 +24,23 @@ class games(commands.Cog):
     @command()
     @cooldown(3)
     async def gdlevel(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.SendErrorMessage('Please enter a level ID!')
-        if not args[0].isnumeric(): raise self.client.utils.SendErrorMessage('That is not a level ID!')
+        if len(args)==0: raise self.client.utils.send_error_message('Please enter a level ID!')
+        if not args[0].isnumeric(): raise self.client.utils.send_error_message('That is not a level ID!')
         toEdit = await ctx.send(self.client.loading_emoji+' | Fetching data from the Geometry Dash servers...')
         try:
             data = self.client.canvas.geometry_dash_level(int(list(args)[0]))
             await toEdit.delete()
             await ctx.send(file=discord.File(data, 'gdlevel.png'))
         except:
-            raise self.client.utils.SendErrorMessage('Sorry! there is an error with the GD servers.')
+            raise self.client.utils.send_error_message('Sorry! there is an error with the GD servers.')
     @command()
     @cooldown(3)
     async def gdsearch(self, ctx, *args):
         if len(args)==0:
-            raise self.client.utils.SendErrorMessage('Please input a query!')
+            raise self.client.utils.send_error_message('Please input a query!')
         else:
             try:
-                query = self.client.utils.urlify(' '.join(args))
+                query = self.client.utils.encode_uri(' '.join(args))
                 data = self.client.utils.fetchJSON('https://gdbrowser.com/api/search/'+str(query))
                 levels, count = '', 0
                 for i in range(0, len(data)):
@@ -51,15 +51,15 @@ class games(commands.Cog):
                 embedy = discord.Embed(title='Geometry Dash Level searches for "'+str(' '.join(args))+'":', description=levels, colour=ctx.guild.me.roles[::-1][0].color)
                 await ctx.send(embed=embedy)
             except:
-                raise self.client.utils.SendErrorMessage('Error: Not Found. :four::zero::four:')
+                raise self.client.utils.send_error_message('Error: Not Found. :four::zero::four:')
 
     @command()
     @cooldown(3)
     async def gdprofile(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.SendErrorMessage('Gimme some ARGS!')
+        if len(args)==0: raise self.client.utils.send_error_message('Gimme some ARGS!')
         else:
             try:
-                url = self.client.utils.urlify(str(' '.join(args)))
+                url = self.client.utils.encode_uri(str(' '.join(args)))
                 data = self.client.utils.fetchJSON("https://gdbrowser.com/api/profile/"+url)
                 embed = discord.Embed(
                     title = data["username"],
@@ -77,27 +77,27 @@ class games(commands.Cog):
                 embed.set_author(name='Display User Information', icon_url="https://gdbrowser.com/icon/"+url)
                 await ctx.send(embed=embed)
             except:
-                raise self.client.utils.SendErrorMessage('Error, user not found.')
+                raise self.client.utils.send_error_message('Error, user not found.')
     
     @command()
     @cooldown(3)
     async def gdlogo(self, ctx, *args):
         if len(args)==0:
-            raise self.client.utils.SendErrorMessage('Please input a text!')
+            raise self.client.utils.send_error_message('Please input a text!')
         else:
             async with ctx.channel.typing():
-                text = self.client.utils.urlify(' '.join(args))
+                text = self.client.utils.encode_uri(' '.join(args))
                 url='https://gdcolon.com/tools/gdlogo/img/'+str(text)
                 await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'gdlogo.png'))
     
     @command()
     @cooldown(3)
     async def gdbox(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.SendErrorMessage('Please input a text!')
+        if len(args)==0: raise self.client.utils.send_error_message('Please input a text!')
         else:
             async with ctx.channel.typing():
-                text, av = self.client.utils.urlify(str(' '.join(args))), ctx.author.avatar_url_as(format='png')
-                if len(text)>100: raise self.client.utils.SendErrorMessage('the text is too long!')
+                text, av = self.client.utils.encode_uri(str(' '.join(args))), ctx.author.avatar_url_as(format='png')
+                if len(text)>100: raise self.client.utils.send_error_message('the text is too long!')
                 else:
                     if not ctx.author.guild_permissions.manage_guild: color = 'brown'
                     else: color = 'blue'
@@ -110,16 +110,16 @@ class games(commands.Cog):
         async with ctx.channel.typing():
             try:
                 byI = str(' '.join(args)).split(' | ')
-                text = self.client.utils.urlify(byI[0])
+                text = self.client.utils.encode_uri(byI[0])
                 num = int(byI[2])
                 if num>9999: num = 601
                 elif num<-9999: num = -601
-                gdprof = self.client.utils.urlify(byI[1])
+                gdprof = self.client.utils.encode_uri(byI[1])
                 if ctx.author.guild_permissions.manage_guild: url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&mod=mod&days=1-second'
                 else: url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&days=1-second'
                 await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'gdcomment.png'))
             except Exception as e:
-                raise self.client.utils.SendErrorMessage(f'Invalid!\nThe flow is this: `{self.client.command_prefix}gdcomment text | name | like count`\nExample: `{self.client.command_prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
+                raise self.client.utils.send_error_message(f'Invalid!\nThe flow is this: `{self.client.command_prefix}gdcomment text | name | like count`\nExample: `{self.client.command_prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
 
     @command('gdweekly')
     @cooldown(2)
@@ -190,7 +190,7 @@ class games(commands.Cog):
     async def guessavatar(self, ctx):
         wait = await ctx.send(self.client.loading_emoji + ' | Please wait... generating question...\nThis process may take longer if your server has more members.')
         avatarAll, nameAll = [str(i.avatar_url) for i in ctx.guild.members if i.status.name!='offline'], [i.display_name for i in ctx.guild.members if i.status.name!='offline']
-        if len(avatarAll)<=4: raise self.client.utils.SendErrorMessage('Need more online members! :x:')
+        if len(avatarAll)<=4: raise self.client.utils.send_error_message('Need more online members! :x:')
         numCorrect = random.randint(0, len(avatarAll)-1)
         corr_avatar, corr_name = avatarAll[numCorrect], nameAll[numCorrect]
         nameAll.remove(corr_name)
@@ -226,7 +226,7 @@ class games(commands.Cog):
                 self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! You received '+str(reward)+' extra bobux!')
         else:
-            raise self.client.utils.SendErrorMessage(f'<@{ctx.author.id}>, Incorrect. The answer is {corr_order}. {corr_name}')
+            raise self.client.utils.send_error_message(f'<@{ctx.author.id}>, Incorrect. The answer is {corr_order}. {corr_name}')
 
     @command()
     @cooldown(15)
@@ -268,7 +268,7 @@ class games(commands.Cog):
                 self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! You obtained '+str(reward)+' bobux in total!')
         else:
-            raise self.client.utils.SendErrorMessage(f'<@{guy.id}>, You are incorrect. The answer is {corr_order}.')
+            raise self.client.utils.send_error_message(f'<@{guy.id}>, You are incorrect. The answer is {corr_order}.')
 
     @command()
     @cooldown(4)
@@ -291,7 +291,7 @@ class games(commands.Cog):
                 self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! we added an extra '+str(reward)+' bobux to your profile.')
         else:
-            raise self.client.utils.SendErrorMessage(f'<@{ctx.author.id}>, Incorrect. The answer is {answer}.')
+            raise self.client.utils.send_error_message(f'<@{ctx.author.id}>, Incorrect. The answer is {answer}.')
 
     @command()
     @cooldown(60)
@@ -318,7 +318,7 @@ class games(commands.Cog):
                     await ctx.send('thanks for playing! you get an extra '+str(reward)+' bobux!')
                 gameplay = False ; break
             if level>7:
-                raise self.client.utils.SendErrorMessage(f'<@{playing_with_id}> lost! :(\nThe answer is actually "'+''.join(main_guess_cor)+'".')
+                raise self.client.utils.send_error_message(f'<@{playing_with_id}> lost! :(\nThe answer is actually "'+''.join(main_guess_cor)+'".')
                 gameplay = False ; break
             def is_not_stranger(m):
                 return m.author == playing_with
@@ -392,11 +392,11 @@ class games(commands.Cog):
             try:
                 trying = await self.client.wait_for('message', check=check_not_stranger, timeout=20.0)
             except asyncio.TimeoutError:
-                raise self.client.utils.SendErrorMessage('You did not respond for the next 20 seconds!\nGame ended.')
+                raise self.client.utils.send_error_message('You did not respond for the next 20 seconds!\nGame ended.')
                 gameplay = False
                 break
             if trying.content.isnumeric()==False:
-                raise self.client.utils.SendErrorMessage('That is not a number!')
+                raise self.client.utils.send_error_message('That is not a number!')
                 attempts = int(attempts) - 1
             else:
                 if int(trying.content)<num:
@@ -434,7 +434,7 @@ class games(commands.Cog):
             for i in range(0, len(al)):
                 await wait.add_reaction(al[i])
         except Exception as e:
-            raise self.client.utils.SendErrorMessage(f'An error occurred!\nReport this using {self.client.command_prefix}feedback.\n```{str(e)}```')
+            raise self.client.utils.send_error_message(f'An error occurred!\nReport this using {self.client.command_prefix}feedback.\n```{str(e)}```')
         guy = ctx.author
         def check(reaction, user):
             return user == guy
@@ -449,7 +449,7 @@ class games(commands.Cog):
                 self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! You get also a '+str(reward)+' bobux as a prize!')
         else:
-            raise self.client.utils.SendErrorMessage(f'<@{guy.id}>, You are incorrect. The answer is {corr}.')
+            raise self.client.utils.send_error_message(f'<@{guy.id}>, You are incorrect. The answer is {corr}.')
 
 def setup(client):
     client.add_cog(games(client))

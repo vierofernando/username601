@@ -19,12 +19,12 @@ class economy(commands.Cog):
     @command()
     @cooldown(30)
     async def gamble(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.SendErrorMessage('Please input a number.')
+        if len(args)==0: raise self.client.utils.send_error_message('Please input a number.')
         lucky = random.choice([False, True])
         try:
             amount = int(list(args)[0])
         except:
-            raise self.client.utils.SendErrorMessage('Please make sure you inputted a number!')
+            raise self.client.utils.send_error_message('Please make sure you inputted a number!')
         if not lucky:
             self.client.db.Economy.delbal(ctx.author.id, amount)
             say, emote = "Yikes! %M%, you just lost %A% bobux...", self.client.error_emoji
@@ -37,7 +37,7 @@ class economy(commands.Cog):
     @cooldown(120)
     async def beg(self, ctx):
         c = random.randint(1, 3)
-        if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.SendErrorMessage("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         if c==1:
             award = random.randint(100, 800)
             self.client.db.Economy.addbal(ctx.author.id, award)
@@ -47,7 +47,7 @@ class economy(commands.Cog):
     @command('fishing')
     @cooldown(60)
     async def fish(self, ctx):
-        if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.SendErrorMessage("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         wait = await ctx.send('{} | {}'.format(self.client.loading_emoji, random.choice(
             self.fish_json['waiting']
         )))
@@ -63,19 +63,19 @@ class economy(commands.Cog):
     @cooldown(7)
     async def buylist(self, ctx):
         source = ctx.author if len(ctx.message.mentions)==0 else ctx.message.mentions[0]
-        if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.SendErrorMessage("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         try:
             data = self.client.db.Economy.getBuyList(source)
             assert not data['error'], data['ctx']
             return await ctx.send(embed=discord.Embed(title='{}\'s buy list'.format(source.name), description=data['ctx'], color=ctx.guild.me.roles[::-1][0].color))
         except Exception as e:
-            raise self.client.utils.SendErrorMessage(str(e))
+            raise self.client.utils.send_error_message(str(e))
 
     @command('addshop')
     @cooldown(5)
     async def addproduct(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.SendErrorMessage(f'Please use the following parameters:\n`{self.client.command_prefix}addshop <price> <name>`')
-        if not ctx.author.guild_permissions.manage_guild: raise self.client.utils.SendErrorMessage('You do not have the correct permissions to modify the server\'s shop.')
+        if len(args)==0: raise self.client.utils.send_error_message(f'Please use the following parameters:\n`{self.client.command_prefix}addshop <price> <name>`')
+        if not ctx.author.guild_permissions.manage_guild: raise self.client.utils.send_error_message('You do not have the correct permissions to modify the server\'s shop.')
         try:
             price = int(list(args)[0])
             extra = '' if price in range(5, 1000000) else 'Invalid price. Setting price to default: 1000'
@@ -86,13 +86,13 @@ class economy(commands.Cog):
             assert not a['error'], a['ctx']
             return await ctx.send('{} | {}!\n{}'.format(self.client.success_emoji, a['ctx'], extra))
         except Exception as e:
-            raise self.client.utils.SendErrorMessage(str(e))
+            raise self.client.utils.send_error_message(str(e))
     
     @command('remshop,delshop')
     @cooldown(5)
     async def delproduct(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.SendErrorMessage(f'Please use the following parameters:\n`{self.client.command_prefix}delproduct <name>`\nor to delete all stored in the shop, use `{self.client.command_prefix}delproduct all`')
-        if not ctx.author.guild_permissions.manage_guild: raise self.client.utils.SendErrorMessage('You do not have the correct permissions to modify the server\'s shop.')
+        if len(args)==0: raise self.client.utils.send_error_message(f'Please use the following parameters:\n`{self.client.command_prefix}delproduct <name>`\nor to delete all stored in the shop, use `{self.client.command_prefix}delproduct all`')
+        if not ctx.author.guild_permissions.manage_guild: raise self.client.utils.send_error_message('You do not have the correct permissions to modify the server\'s shop.')
         if list(args)[0].lower()=='all':
             self.client.db.Shop.delete_shop(ctx.guild)
             return await ctx.send('{} | OK. All data for the shop is deleted.'.format(self.client.success_emoji))
@@ -101,19 +101,19 @@ class economy(commands.Cog):
             assert data['error']==False, data['ctx']
             return await ctx.send('{} | {}!'.format(self.client.success_emoji, data['ctx']))
         except Exception as e:
-            raise self.client.utils.SendErrorMessage(str(e))
+            raise self.client.utils.send_error_message(str(e))
     
     @command('bought')
     @cooldown(3)
     async def buy(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.SendErrorMessage(f'Please use the following parameters:\n`{self.client.command_prefix}buy <name>`')
-        if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.SendErrorMessage("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if len(args)==0: raise self.client.utils.send_error_message(f'Please use the following parameters:\n`{self.client.command_prefix}buy <name>`')
+        if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         try:
             data = self.client.db.Shop.buy(' '.join(args), ctx.author)
             assert not data['error'], data['ctx']
             return await ctx.send('{} | {}!'.format(self.client.success_emoji, data['ctx']))
         except Exception as e:
-            raise self.client.utils.SendErrorMessage(str(e))
+            raise self.client.utils.send_error_message(str(e))
     
     @command('servershop,store,serverstore')
     @cooldown(2)
@@ -126,13 +126,13 @@ class economy(commands.Cog):
             ), color=ctx.guild.me.roles[::-1][0].color)
             return await ctx.send(embed=em)
         except Exception as e:
-            raise self.client.utils.SendErrorMessage(f'{str(e)}!\nYou can always add a value using `{self.client.command_prefix}addproduct <price> <name>`')
+            raise self.client.utils.send_error_message(f'{str(e)}!\nYou can always add a value using `{self.client.command_prefix}addproduct <price> <name>`')
 
     @command('delete,deletedata,deldata,del-data,delete-data')
     @cooldown(3600)
     async def reset(self, ctx):
         data = self.client.db.Economy.get(ctx.author.id)
-        if data==None: raise self.client.utils.SendErrorMessage("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if data==None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         else:
             wait = await ctx.send(self.client.loading_emoji+" | Please wait...")
             await wait.edit(content=':thinking: | Are you sure? This action is irreversible!\n(Reply with yes/no)')
@@ -152,20 +152,20 @@ class economy(commands.Cog):
     @cooldown(450)
     async def work(self, ctx):
         data = self.client.db.Economy.get(ctx.author.id)
-        if data==None: raise self.client.utils.SendErrorMessage("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if data==None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         else:
             wait = await ctx.send(self.client.loading_emoji+" | Please wait...")
             reward = str(random.randint(100, 500))
             new_data = self.client.db.Economy.addbal(ctx.author.id, int(reward))
             job = random.choice(loads(open(self.client.utils.cfg('JSON_DIR')+'/work.json', 'r').read())['works'])
             if new_data=='success': await wait.edit(content=self.client.success_emoji+f" | {ctx.author.name} worked {job} and earned {reward} bobux!")
-            else: raise self.client.utils.SendErrorMessage(f"Oops there was an error... Please report this to the owner using `{self.client.command_prefix}feedback.`\n`{new_data}`")
+            else: raise self.client.utils.send_error_message(f"Oops there was an error... Please report this to the owner using `{self.client.command_prefix}feedback.`\n`{new_data}`")
             
     @command()
     @cooldown(15)
     async def daily(self, ctx, *args):
         wait = await ctx.send(self.client.loading_emoji+" | Please wait...")
-        if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.SendErrorMessage("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         else:
             obj = self.client.db.Economy.can_vote(ctx.author.id)
             if obj['bool']:
@@ -185,16 +185,16 @@ class economy(commands.Cog):
     @command()
     @cooldown(10)
     async def transfer(self, ctx, *args):
-        if len(args)==0 or len(ctx.message.mentions)==0: raise self.client.utils.SendErrorMessage("Please send a mention and an amount to transfer.")
+        if len(args)==0 or len(ctx.message.mentions)==0: raise self.client.utils.send_error_message("Please send a mention and an amount to transfer.")
         else:
             wait = await ctx.send(self.client.loading_emoji+' | Please wait...?')
             amount = None
             for i in list(args):
                 if i.isnumeric(): amount = int(i); break
-            if amount==None: raise self.client.utils.SendErrorMessage("Please give a valid amount.")
-            elif amount not in range(1, 500001): raise self.client.utils.SendErrorMessage("Invalid amount range.")
+            if amount==None: raise self.client.utils.send_error_message("Please give a valid amount.")
+            elif amount not in range(1, 500001): raise self.client.utils.send_error_message("Invalid amount range.")
             elif self.client.db.Economy.get(ctx.author.id)==None or self.client.db.Economy.get(ctx.message.mentions[0].id)==None:
-                raise self.client.utils.SendErrorMessage("One of them does not have a profile.")
+                raise self.client.utils.send_error_message("One of them does not have a profile.")
             else:
                 self.client.db.Economy.addbal(ctx.message.mentions[0].id, amount)
                 self.client.db.Economy.delbal(ctx.author.id, amount) # EFFICIENT CODE LMFAO
@@ -204,22 +204,22 @@ class economy(commands.Cog):
     @cooldown(60)
     async def rob(self, ctx, *args):
         if len(ctx.message.mentions)==0 or len(args)==0:
-            raise self.client.utils.SendErrorMessage(f'Rob who? Try `1rob <mention> <amount>`.')
+            raise self.client.utils.send_error_message(f'Rob who? Try `1rob <mention> <amount>`.')
         else:
             if ctx.message.mentions[0].id==ctx.author.id:
-                raise self.client.utils.SendErrorMessage('Seriously? Robbing yourself?')
+                raise self.client.utils.send_error_message('Seriously? Robbing yourself?')
             else:
                 amount2rob = None
                 for i in list(args):
                     if i.isnumeric(): amount2rob = int(i) ; break
-                if amount2rob==None: raise self.client.utils.SendErrorMessage('How many bobux shall be robbed?')
-                elif amount2rob>9999: raise self.client.utils.SendErrorMessage('Dude, you must be crazy. That\'s too many bobux!')
-                elif amount2rob<0: raise self.client.utils.SendErrorMessage('minus??? HUH?')
+                if amount2rob==None: raise self.client.utils.send_error_message('How many bobux shall be robbed?')
+                elif amount2rob>9999: raise self.client.utils.send_error_message('Dude, you must be crazy. That\'s too many bobux!')
+                elif amount2rob<0: raise self.client.utils.send_error_message('minus??? HUH?')
                 else:
                     wait = await ctx.send(self.client.loading_emoji+' | *Please wait... robbing...*')
                     victim, stealer = self.client.db.Economy.get(ctx.message.mentions[0].id), self.client.db.Economy.get(ctx.author.id)
                     if victim==None or stealer==None:
-                        raise self.client.utils.SendErrorMessage('you/that guy doesn\'t even have a profile!')
+                        raise self.client.utils.send_error_message('you/that guy doesn\'t even have a profile!')
                     else:
                         data = random.choice(self.steal_json)
                         if not str(data['amount']).replace('-', '').isnumeric():
@@ -246,45 +246,45 @@ class economy(commands.Cog):
     @command('dep')
     @cooldown(10)
     async def deposit(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.SendErrorMessage(f'How many money?\nOr use `{self.client.command_prefix}dep all` to deposit all of your money.')
+        if len(args)==0: raise self.client.utils.send_error_message(f'How many money?\nOr use `{self.client.command_prefix}dep all` to deposit all of your money.')
         data = self.client.db.Economy.get(ctx.author.id)
-        if data==None: raise self.client.utils.SendErrorMessage("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if data==None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         if list(args)[0].lower()=='all':
             self.client.db.Economy.deposit(ctx.author.id, data['bal'])
             return await ctx.send('{} | OK. Deposited all of your bobux to the username601 bank.'.format(self.client.success_emoji))
         try:
             num = int(list(args)[0])
             if num > data['bal']:
-                raise self.client.utils.SendErrorMessage('Your bank has more money than in your balance!')
+                raise self.client.utils.send_error_message('Your bank has more money than in your balance!')
             self.client.db.Economy.deposit(ctx.author.id, num)
             return await ctx.send('{} | OK. Deposited {} bobux to your bank.'.format(self.client.success_emoji, num))
         except:
-            raise self.client.utils.SendErrorMessage("Invalid number.")
+            raise self.client.utils.send_error_message("Invalid number.")
     
     @command()
     @cooldown(10)
     async def withdraw(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.SendErrorMessage(f'How many money?\nOr use `{self.client.command_prefix}widthdraw all` to get money from the bank.')
+        if len(args)==0: raise self.client.utils.send_error_message(f'How many money?\nOr use `{self.client.command_prefix}widthdraw all` to get money from the bank.')
         data = self.client.db.Economy.get(ctx.author.id)
-        if data==None: raise self.client.utils.SendErrorMessage("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if data==None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         if list(args)[0].lower()=='all':
             self.client.db.Economy.withdraw(ctx.author.id, data['bankbal'])
             return await ctx.send('{} | OK. Withdrawed all of your bobux from the username601 bank.'.format(self.client.success_emoji))
         try:
             num = int(list(args)[0])
             if num > data['bankbal']:
-                raise self.client.utils.SendErrorMessage('Your number is more than the one in your bank!')
+                raise self.client.utils.send_error_message('Your number is more than the one in your bank!')
             self.client.db.Economy.withdraw(ctx.author.id, num)
             return await ctx.send('{} | OK. Withdrawed {} bobux from your bank.'.format(self.client.success_emoji, num))
         except:
-            raise self.client.utils.SendErrorMessage("Invalid number.")
+            raise self.client.utils.send_error_message("Invalid number.")
 
     @command('lb,leader,leaders,rich,richest,top')
     @cooldown(6)
     async def leaderboard(self, ctx):
         data = self.client.db.Economy.leaderboard(ctx.guild.members)
         if len(data)==0:
-            raise self.client.utils.SendErrorMessage('This server doesn\'t have any members with profiles...')
+            raise self.client.utils.send_error_message('This server doesn\'t have any members with profiles...')
         else:
             wait = await ctx.send(self.client.loading_emoji+' | Please wait...')
             total, bals, ids = [], sorted([int(a.split('|')[1]) for a in data])[::-1][0:20], []
@@ -308,15 +308,15 @@ class economy(commands.Cog):
     @cooldown(2)
     async def setdesc(self, ctx, *args):
         if len(args)==0:
-            raise self.client.utils.SendErrorMessage('What is the new description?')
+            raise self.client.utils.send_error_message('What is the new description?')
         else:
-            if len(args)>120: raise self.client.utils.SendErrorMessage('Your description is too long!')
+            if len(args)>120: raise self.client.utils.send_error_message('Your description is too long!')
             newdesc = ' '.join(args)
             for i in ['discord.gg', 'discord.com/', 'bit.ly', '://', 'nigga', 'nigger', 'discordapp.com']:
-                if i in newdesc.lower(): raise self.client.utils.SendErrorMessage('Your description has invalid/blocked text!')
+                if i in newdesc.lower(): raise self.client.utils.send_error_message('Your description has invalid/blocked text!')
             wait = await ctx.send(self.client.loading_emoji+' | Please wait...')
             if self.client.db.Economy.get(ctx.author.id)==None:
-                raise self.client.utils.SendErrorMessage("Doesn't have a profile yet. Try `1new` to have a profile.")
+                raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
             else:
                 data = self.client.db.Economy.setdesc(ctx.author.id, newdesc)
                 if data=='error': await wait.edit(content=self.client.error_emoji+' | Oopsies! There was an error...')
@@ -327,7 +327,7 @@ class economy(commands.Cog):
     async def bal(self, ctx, *args):
         src, ava = self.client.utils.getUser(ctx, args), self.client.utils.getUserAvatar(ctx, args)
         if self.client.db.Economy.get(src.id)==None:
-            raise self.client.utils.SendErrorMessage("Doesn't have a profile yet. Try `1new` to have a profile.")
+            raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         else:
             wait = await ctx.send(self.client.loading_emoji+" | Please wait...")
             data = self.client.db.Economy.getProfile(src.id, [i.id for i in ctx.guild.members if not i.bot])
@@ -342,11 +342,11 @@ class economy(commands.Cog):
         data = self.client.db.Economy.get(ctx.author.id)
         wait = await ctx.send(self.client.loading_emoji+" | Please wait... creating your profile...")
         if data!=None:
-            raise self.client.utils.SendErrorMessage("You already have a profile!")
+            raise self.client.utils.send_error_message("You already have a profile!")
         else:
             data = self.client.db.Economy.new(ctx.author.id)
             if data!='done':
-                raise self.client.utils.SendErrorMessage(f"Oops! there was an error: {data}")
+                raise self.client.utils.send_error_message(f"Oops! there was an error: {data}")
             else:
                 await wait.edit(content=self.client.success_emoji+f" | Created your profile!")
 

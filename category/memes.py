@@ -36,7 +36,7 @@ class memes(commands.Cog):
     @cooldown(1)
     async def password(self, ctx, *args):
         param = self.client.utils.split_parameter_to_two(args)
-        if param == None: raise self.client.utils.SendErrorMessage("Please send two parameters, either split by a space, a comma, or a semicolon.")
+        if param == None: raise self.client.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
         async with ctx.channel.typing():
             text1, text2 = param
             i = self.client.canvas.password(text1, text2)
@@ -77,11 +77,11 @@ class memes(commands.Cog):
     @command('gruplan,plan')
     @cooldown(4)
     async def gru(self, ctx, *args):
-        if '; ' not in ' '.join(args): raise self.client.utils.SendErrorMessage('Please send something like:\n`'+self.client.command_prefix+'gru test word 1; test word 2; test word 3` (with semicolons)')
+        if '; ' not in ' '.join(args): raise self.client.utils.send_error_message('Please send something like:\n`'+self.client.command_prefix+'gru test word 1; test word 2; test word 3` (with semicolons)')
         try:
             text1, text2, text3 = tuple(' '.join(args).split('; '))
         except:
-            raise self.client.utils.SendErrorMessage("Invalid arguments. use something like\n`"+self.client.command_prefix+"gru text 1; text2; text3` (with semicolons)")
+            raise self.client.utils.send_error_message("Invalid arguments. use something like\n`"+self.client.command_prefix+"gru text 1; text2; text3` (with semicolons)")
         async with ctx.channel.typing():
             im = self.client.canvas.gru(text1, text2, text3)
             return await ctx.send(file=discord.File(im, 'gru.png'))
@@ -158,9 +158,9 @@ class memes(commands.Cog):
     @cooldown(10)
     async def nichijou(self, ctx, *args):
         text = 'LAZY PERSON' if (len(args)==0) else ' '.join(args)
-        if len(text) > 22: raise self.client.utils.SendErrorMessage("Text too long ;w;")
+        if len(text) > 22: raise self.client.utils.send_error_message("Text too long ;w;")
         async with ctx.channel.typing():
-            async with self.session.get("https://i.ode.bz/auto/nichijou?text={}".format(self.client.utils.urlify(text))) as r:
+            async with self.session.get("https://i.ode.bz/auto/nichijou?text={}".format(self.client.utils.encode_uri(text))) as r:
                 res = await r.read()
                 await ctx.send(file=discord.File(fp=BytesIO(res), filename="nichijou.gif"))
     
@@ -176,10 +176,10 @@ class memes(commands.Cog):
     @command('achieve,call')
     @cooldown(5)
     async def challenge(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.SendErrorMessage('What is the challenge?')
+        if len(args)==0: raise self.client.utils.send_error_message('What is the challenge?')
         else:
             async with ctx.channel.typing():
-                txt = self.client.utils.urlify(' '.join(args))
+                txt = self.client.utils.encode_uri(' '.join(args))
                 if 'challenge' in str(ctx.message.content).split(' ')[0][1:]: url='https://api.alexflipnote.dev/challenge?text='+str(txt)
                 elif 'call' in str(ctx.message.content).split(' ')[0][1:]: url='https://api.alexflipnote.dev/calling?text='+str(txt)
                 else: url='https://api.alexflipnote.dev/achievement?text='+str(txt)
@@ -189,7 +189,7 @@ class memes(commands.Cog):
     @cooldown(2)
     async def didyoumean(self, ctx, *args):
         params = self.client.utils.split_parameter_to_two(args)
-        if params == None: raise self.client.utils.SendErrorMessage("Please send two parameters, either split by a space, a comma, or a semicolon.")
+        if params == None: raise self.client.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
         txt1, txt2 = params
         url = f'https://api.alexflipnote.dev/didyoumean?top={txt1}&bottom={txt2}'
         data = self.client.canvas.urltoimage(url)
@@ -199,7 +199,7 @@ class memes(commands.Cog):
     @cooldown(2)
     async def drake(self, ctx, *args):
         params = self.client.utils.split_parameter_to_two(args)
-        if params == None: raise self.client.utils.SendErrorMessage("Please send two parameters, either split by a space, a comma, or a semicolon.")
+        if params == None: raise self.client.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
         txt1, txt2 = params
         url = f'https://api.alexflipnote.dev/drake?top={txt1}&bottom={txt2}'
         data = self.client.canvas.urltoimage(url)
@@ -293,10 +293,10 @@ class memes(commands.Cog):
     @command()
     @cooldown(10)
     async def scroll(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.SendErrorMessage("Error! where is your text?")
+        if len(args)==0: raise self.client.utils.send_error_message("Error! where is your text?")
         else:
             async with ctx.channel.typing():
-                scrolltxt = self.client.utils.urlify(' '.join(args))
+                scrolltxt = self.client.utils.encode_uri(' '.join(args))
                 embed = discord.Embed(colour=ctx.guild.me.roles[::-1][0].color)
                 url='https://api.alexflipnote.dev/scroll?text='+str(scrolltxt)
                 data = self.client.canvas.urltoimage(url)
@@ -341,15 +341,15 @@ class memes(commands.Cog):
     @command('changedmymind')
     @cooldown(10)
     async def changemymind(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.SendErrorMessage("Error! You need a text...")
+        if len(args)==0: raise self.client.utils.send_error_message("Error! You need a text...")
         else:
             await ctx.message.add_reaction(self.client.loading_emoji)
             async with ctx.channel.typing():
                 try:
-                    data = self.client.canvas.urltoimage('https://nekobot.xyz/api/imagegen?type=changemymind&text='+self.client.utils.urlify(' '.join(args))+'&raw=1')
+                    data = self.client.canvas.urltoimage('https://nekobot.xyz/api/imagegen?type=changemymind&text='+self.client.utils.encode_uri(' '.join(args))+'&raw=1')
                     await ctx.send(file=discord.File(data, 'changemymind.png'))
                 except Exception as e:
-                    raise self.client.utils.SendErrorMessage("Oops! There was an error on generating your meme; `"+str(e)+"`")
+                    raise self.client.utils.send_error_message("Oops! There was an error on generating your meme; `"+str(e)+"`")
 
     @command('gimme,memz,memey')
     @cooldown(5)
@@ -369,7 +369,7 @@ class memes(commands.Cog):
         if len(args)==0: await ctx.send('Please input a text...')
         else:
             async with ctx.channel.typing():
-                url='https://nekobot.xyz/api/imagegen?type='+str(ctx.message.content).split(' ')[0][1:]+'&text='+self.client.utils.urlify(' '.join(args))+'&raw=1'
+                url='https://nekobot.xyz/api/imagegen?type='+str(ctx.message.content).split(' ')[0][1:]+'&text='+self.client.utils.encode_uri(' '.join(args))+'&raw=1'
                 await ctx.send(file=discord.File(self.client.canvas.urltoimage(url, stream=True), 'yolo.png'))
 
     @command()
@@ -383,7 +383,7 @@ class memes(commands.Cog):
                 auth = str(ctx.message.mentions[0].avatar_url_as(format='png'))
                 if len(args)>2: text = str(ctx.message.content).split('> ')[1]
                 else: text = 'I forgot to put the arguments, oops'
-            await ctx.send(file=discord.File(self.client.canvas.urltoimage('https://api.alexflipnote.dev/floor?image='+auth+'&text='+self.client.utils.urlify(text)), 'floor.png'))
+            await ctx.send(file=discord.File(self.client.canvas.urltoimage('https://api.alexflipnote.dev/floor?image='+auth+'&text='+self.client.utils.encode_uri(text)), 'floor.png'))
 
     @command('doctor,terrifying,terrified,eye-doctor,eyedoctor,scary,frightening')
     @cooldown(2)
@@ -413,12 +413,12 @@ class memes(commands.Cog):
                 try:
                     av = ctx.message.mentions[0].avatar_url_as(format='png')
                     mes = ctx.message.content[int(len(args[0])+len(args[1])+1):]
-                    top = self.client.utils.urlify(str(ctx.message.content).split('[')[1].split(']')[0])
-                    bott = self.client.utils.urlify(str(ctx.message.content).split('[')[2].split(']')[0])
+                    top = self.client.utils.encode_uri(str(ctx.message.content).split('[')[1].split(']')[0])
+                    bott = self.client.utils.encode_uri(str(ctx.message.content).split('[')[2].split(']')[0])
                     url='https://memegen.link/custom/'+str(top)+'/'+str(bott)+'.jpg'+str(extr)+'?alt='+str(av)
                     await ctx.send(file=discord.File(self.client.canvas.memegen(url), 'avmeme.png'))
                 except Exception as e:
-                    raise self.client.utils.SendErrorMessage(f'Error!\n```{str(e)}```Invalid parameters. Example: `{self.client.command_prefix}avmeme <tag someone> [top text] [bottom text]`')
+                    raise self.client.utils.send_error_message(f'Error!\n```{str(e)}```Invalid parameters. Example: `{self.client.command_prefix}avmeme <tag someone> [top text] [bottom text]`')
         else:
             async with ctx.channel.typing():
                 try:
@@ -429,6 +429,6 @@ class memes(commands.Cog):
                     url='https://memegen.link/'+str(name)+'/'+str(top)+'/'+str(bott)+'.jpg?watermark=none'
                     await ctx.send(file=discord.File(self.client.canvas.memegen(url), args[0][1:]+'.png'))
                 except Exception as e:
-                    raise self.client.utils.SendErrorMessage(f'Error!\n```{str(e)}```Invalid parameters.')
+                    raise self.client.utils.send_error_message(f'Error!\n```{str(e)}```Invalid parameters.')
 def setup(client):
     client.add_cog(memes(client))

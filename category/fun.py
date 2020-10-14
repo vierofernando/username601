@@ -14,18 +14,11 @@ class fun(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.session = ClientSession()
-    
-    @command('nsfw,porn,pornhub,rule34,rule-34,ass')
-    @cooldown(1)
-    async def hentai(self, ctx):
-        return await ctx.send(file=discord.File(
-            self.client.canvas.urltoimage(self.client.utils.randomtroll()), 'SPOILER_nsfw.png'
-        ))
 
     @command('talk,gtts,texttospeech,text-to-speech')
     @cooldown(5)
     async def tts(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.SendErrorMessage('Please send arguments!')
+        if len(args)==0: raise self.client.utils.send_error_message('Please send arguments!')
         res = BytesIO()
         tts = gTTS(text=' '.join(args), lang='en', slow=False)
         tts.write_to_fp(res)
@@ -52,7 +45,7 @@ class fun(commands.Cog):
     @cooldown(2)
     async def lovelevel(self, ctx, *args):
         res = self.client.utils.split_parameter_to_two(args)
-        if res == None: raise self.client.utils.SendErrorMessage('Please send a valid two user ids/names/mentions!')
+        if res == None: raise self.client.utils.send_error_message('Please send a valid two user ids/names/mentions!')
         user1, user2 = self.client.utils.getUser(res[0]), self.client.utils.getUser(res[1])
         result = self.client.algorithm.love_finder(user1.id, user2.id)
         await ctx.send('Love level of {} and {} is **{}%!**'.format(ctx.message.mentions[0].name, ctx.message.mentions[1].name, str(result)))
@@ -86,16 +79,16 @@ class fun(commands.Cog):
     @command()
     @cooldown(5)
     async def randomavatar(self, ctx, *args):
-        if len(args)<1: name = self.client.utils.randomhash()
+        if len(args)<1: name = 'your mom'
         else: name = ' '.join(args)
-        url= 'https://api.adorable.io/avatars/285/{}.png'.format(name)
+        url= 'https://api.adorable.io/avatars/285/{}.png'.format(self.client.utils.encode_uri(name))
         await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'random_avatar.png'))
 
     @command('inspiringquotes,lolquote,aiquote,imagequote,imgquote')
     @cooldown(10)
     async def inspirobot(self, ctx):
         async with ctx.channel.typing():
-            img = self.client.utils.insp('https://inspirobot.me/api?generate=true')
+            img = self.client.utils.inspect_element('https://inspirobot.me/api?generate=true')
             await ctx.send(file=discord.File(self.client.canvas.urltoimage(img), 'inspirobot.png'))
     
     @command('randomcase')
@@ -116,7 +109,7 @@ class fun(commands.Cog):
     @command('serverdeathnote,dn')
     @cooldown(10)
     async def deathnote(self, ctx):
-        if ctx.guild.member_count>500: raise self.client.utils.SendErrorMessage('This server has soo many members')
+        if ctx.guild.member_count>500: raise self.client.utils.send_error_message('This server has soo many members')
         member, in_the_note, notecount, membercount = [], "", 0, 0
         for i in range(0, int(ctx.guild.member_count)):
             if ctx.guild.members[i].name!=ctx.author.name:
@@ -143,20 +136,20 @@ class fun(commands.Cog):
             url = requests.get('https://useless-api.vierofernando.repl.co/useless-sites').json()['url']
             await ctx.send(self.client.success_emoji+f' | **{url}**')
         except:
-            raise self.client.utils.SendErrorMessage(f'oops. there is some error, meanwhile look at this useless site: <https://top.gg/bot/{self.client.user.id}/vote>')
+            raise self.client.utils.send_error_message(f'oops. there is some error, meanwhile look at this useless site: <https://top.gg/bot/{self.client.user.id}/vote>')
     
     @command()
     @cooldown(2)
     async def choose(self, ctx, *args):
         if len(args)==0 or ',' not in ''.join(args):
-            raise self.client.utils.SendErrorMessage(f'send in something!\nLike: `{self.client.command_prefix}choose he is cool, he is not cool`')
+            raise self.client.utils.send_error_message(f'send in something!\nLike: `{self.client.command_prefix}choose he is cool, he is not cool`')
         else:
             await ctx.send(random.choice(' '.join(args).split(',')))
     
     @command()
     @cooldown(2)
     async def temmie(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.SendErrorMessage('Please send something to be encoded.')
+        if len(args)==0: raise self.client.utils.send_error_message('Please send something to be encoded.')
         else:
             link, num = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/temmie.json', 1
             data = self.client.utils.fetchJSON(link)

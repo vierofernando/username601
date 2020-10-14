@@ -20,14 +20,14 @@ class apps(commands.Cog):
     @command('movie')
     @cooldown(5)
     async def tv(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.SendErrorMessage("Please give TV shows as arguments.")
-        query = self.client.utils.urlify(' '.join(args))
+        if len(args)==0: raise self.client.utils.send_error_message("Please give TV shows as arguments.")
+        query = self.client.utils.encode_uri(' '.join(args))
         data = get(f'http://api.tvmaze.com/singlesearch/shows?q={query}')
-        if data.status_code==404: raise self.client.utils.SendErrorMessage("Did not found anything.")
+        if data.status_code==404: raise self.client.utils.send_error_message("Did not found anything.")
         try:
             data = data.json()
             star = str(':star:'*round(data['rating']['average'])) if data['rating']['average']!=None else 'No star rating provided.'
-            em = discord.Embed(title=data['name'], url=data['url'], description=self.client.utils.html2discord(data['summary']), color=ctx.guild.me.roles[::-1][0].color)
+            em = discord.Embed(title=data['name'], url=data['url'], description=self.client.utils.clean_html(data['summary']), color=ctx.guild.me.roles[::-1][0].color)
             em.add_field(name='General Information', value='**Status: **'+data['status']+'\n**Premiered at: **'+data['premiered']+'\n**Type: **'+data['type']+'\n**Language: **'+data['language']+'\n**Rating: **'+str(data['rating']['average'] if data['rating']['average']!=None else 'None')+'\n'+star)
             em.add_field(name='TV Network', value=data['network']['name']+' at '+data['network']['country']['name']+' ('+data['network']['country']['timezone']+')')
             em.add_field(name='Genre', value=str(', '.join(data['genres']) if len(data['genres'])>0 else 'no genre avaliable'))
@@ -35,7 +35,7 @@ class apps(commands.Cog):
             em.set_image(url=data['image']['original'])
             await ctx.send(embed=em)
         except:
-            raise self.client.utils.SendErrorMessage("There was an error on fetching the info.")
+            raise self.client.utils.send_error_message("There was an error on fetching the info.")
 
     @command('spot,splay,listeningto,sp')
     @cooldown(2)
@@ -43,7 +43,7 @@ class apps(commands.Cog):
         source, act = self.client.utils.getUser(ctx, args), None
         for i in source.activities:
             if isinstance(i, discord.Spotify): act = i
-        if act==None: raise self.client.utils.SendErrorMessage("Nope. Not listening to spotify.")
+        if act==None: raise self.client.utils.send_error_message("Nope. Not listening to spotify.")
         async with ctx.channel.typing():
             await ctx.send(file=discord.File(self.client.canvas.spotify({
                 'name': act.title,
@@ -55,8 +55,8 @@ class apps(commands.Cog):
     @command()
     @cooldown(5)
     async def itunes(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.SendErrorMessage("Please send a search term.")
-        data = self.client.utils.fetchJSON('https://itunes.apple.com/search?term={}&media=music&entity=song&limit=1&explicit=no'.format(self.client.utils.urlify(' '.join(args))))
+        if len(args)==0: raise self.client.utils.send_error_message("Please send a search term.")
+        data = self.client.utils.fetchJSON('https://itunes.apple.com/search?term={}&media=music&entity=song&limit=1&explicit=no'.format(self.client.utils.encode_uri(' '.join(args))))
         if len(data['results'])==0: return await ctx.send('{} | No music found... oop'.format(self.client.error_emoji))
         data = data['results'][0]
         em = discord.Embed(title=data['trackName'], url=data['trackViewUrl'],description='**Artist: **{}\n**Album: **{}\n**Release Date:** {}\n**Genre: **{}'.format(
@@ -82,14 +82,14 @@ class apps(commands.Cog):
                 try:
                     toTrans = ' '.join(args[1:len(args)])
                 except IndexError:
-                    raise self.client.utils.SendErrorMessage('Gimme something to translate!')
+                    raise self.client.utils.send_error_message('Gimme something to translate!')
                 try:
                     translation = gtr.translate(toTrans, dest=destination)
                     embed = discord.Embed(description=translation.text, colour=ctx.guild.me.roles[::-1][0].color)
                     embed.set_footer(text=f'Translated {LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}.')
                     await wait.edit(content='', embed=embed)
                 except Exception as e:
-                    raise self.client.utils.SendErrorMessage(f'An error occurred! ```py\n{str(e)}```')
+                    raise self.client.utils.send_error_message(f'An error occurred! ```py\n{str(e)}```')
             else:
                 await wait.edit(content=f'Please add a language! To have the list and their id, type\n`{self.client.command_prefix}translate --list`.')
         else:
@@ -99,7 +99,7 @@ class apps(commands.Cog):
     @cooldown(5)
     async def wikipedia(self, ctx, *args):
         if len(args)==0:
-            raise self.client.utils.SendErrorMessage("Please input a page name.")
+            raise self.client.utils.send_error_message("Please input a page name.")
         wait = await ctx.send(self.client.loading_emoji + ' | Please wait...')
         wikipedia = wikipediaapi.Wikipedia('en')
         page = wikipedia.page(' '.join(args))
@@ -149,7 +149,7 @@ class apps(commands.Cog):
                 embed = discord.Embed(title='IMDb Top '+str(num)+':', description=str(total), colour=ctx.guild.me.roles[::-1][0].color)
                 return await wait.edit(content='', embed=embed)
             except:
-                raise self.client.utils.SendErrorMessage('Is the top thing you inputted REALLY a number?\nlike, Not top TEN, but top 10.\nGET IT?')
+                raise self.client.utils.send_error_message('Is the top thing you inputted REALLY a number?\nlike, Not top TEN, but top 10.\nGET IT?')
         movie_param = self.client.utils.parse_parameter(args, '--movie', get_second_element=True)
         if movie_param['available']:
             try:
@@ -171,8 +171,8 @@ class apps(commands.Cog):
                 return await wait.edit(content='', embed=embed)
             except Exception as e:
                 print(e)
-                raise self.client.utils.SendErrorMessage('Oopsies! please input a valid ID/parameter...')
-        raise self.client.utils.SendErrorMessage('Wrong syntax. Use `'+self.client.command_prefix+'imdb help` next time.')
+                raise self.client.utils.send_error_message('Oopsies! please input a valid ID/parameter...')
+        raise self.client.utils.send_error_message('Wrong syntax. Use `'+self.client.command_prefix+'imdb help` next time.')
 
 def setup(client):
     client.add_cog(apps(client))

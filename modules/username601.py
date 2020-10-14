@@ -1,40 +1,22 @@
-import random
-import base64
-import discord
-import requests
 from os import environ
-from os.path import isfile
+from requests import get
+from base64 import b64encode
 from subprocess import run, PIPE
-from json import dumps
-from urllib.request import urlopen as getapi
-from urllib.parse import quote_plus as urlencode
-from json import loads as jsonify
-from configparser import ConfigParser
 from datetime import datetime as t
-class SendErrorMessage(Exception): pass
+from urllib.parse import quote_plus
+from configparser import ConfigParser
+class send_error_message(Exception): pass
 
 main_cfg = ConfigParser()
-if isfile('config.ini'): main_cfg.read('config.ini')
-else: main_cfg.read('../config.ini')
+main_cfg.read('config.ini')
 
 def cfg(param, integer=False):
     if integer: return int(main_cfg.get('bot', param.lower()))
     return main_cfg.get('bot', param.lower())
 
-prefix = cfg('PREFIX')
-
-def randomtroll():
-    return random.choice(loads(open(cfg('JSON_DIR')+'/troll.json', 'r').read()))
-
-def randomhash():
-    return ''.join([random.choice(list('ABCDEFHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_')) for i in range(random.randint(11, 26))])
-
-def emote(client, type):
-    return str(client.get_emoji(cfg('EMOJI_'+type.upper(), integer=True)))
-
 def inspect_image_url(url):
     try:
-        hdrs = requests.get(url, timeout=3).headers
+        hdrs = get(url, timeout=3).headers
         assert hdrs['Content-Type'].startswith('image/')
         assert (int(hdrs['Content-Length'])/1024/1024) < 2
         return True
@@ -63,19 +45,11 @@ def parse_parameter(args, arg, get_second_element=False, singular=False):
         return {"available": True, "parsedarg": parsed, "secondparam": None}
     return {"available": False, "parsedarg": args, "secondparam": None}
 
-def ping():
-    url = cfg('HOST_URL')
-    if url.lower()=='none': return None
-    a = t.now().timestamp()
-    requests.get(url)
-    return round((t.now().timestamp()-a)*1000)
-
 def get_id_from_mention(mention):
     if not mention.startswith('<@'): return mention
     if mention.startswith('<@!'): return int(mention[3:(len(mention)-1)])
     return int(mention[2:(len(mention)-1)])
 
-# if moment return moment
 def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
     args = [str(get_id_from_mention(args))] if isinstance(args, str) else list(args)
     if len(args)==0:
@@ -128,14 +102,14 @@ def getUser(ctx, args, user=None, allownoargs=True):
         return ctx.guild.get_member(int(list(args)[0]))
     return ctx.author
 
-def html2discord(text):
+def clean_html(text):
     res = text.replace('<p>', '').replace('</p>', '').replace('<b>', '**').replace('</b>', '**').replace('<i>', '*').replace('</i>', '*').replace('<br />', '\n')
     return res
 
-def urlify(word):
-    return urlencode(word).replace('+', '%20')
+def encode_uri(word):
+    return quote_plus(word).replace('+', '%20')
 
-def time_encode(sec):
+def lapsed_time_from_seconds(sec):
     time_type, newsec = 'seconds', int(sec)
     # YANDEREDEV.EXE
     if sec>60:
@@ -151,59 +125,37 @@ def time_encode(sec):
     if str(newsec) == '1': return str(str(newsec)+' '+time_type[:-1])
     return str(str(newsec)+' '+time_type)
 
-def terminal(command):
-    try:
-        data = run([command.split(' ')[0], str(' '.join(command.split(' ')[1:len(command.split(' '))]))], stdout=PIPE).stdout.decode('utf-8')
-    except IndexError:
-        data = run([command], stdout=PIPE).stdout.decode('utf-8')
+def run_terminal(command):
+    data = run(command.split(), stdout=PIPE).stdout.decode('utf-8')
     return data
 
-def fetchJSON(url): return requests.get(url).json()
-def insp(url): return requests.get(url).text
+def fetchJSON(url): return get(url).json()
+
+def inspect_element(url): return get(url).text
 
 def atbash(text):
-    temp = list(text.lower())
-    alph = list('abcdefghijklmnopqrstuvwxyz')
-    hpla = alph[::-1]
-    total = ''
-    for i in range(0, len(temp)):
-        if temp[i] in alph:
-            for j in range(0, len(alph)):
-                if temp[i]==alph[j]:
-                    total += hpla[j]
-        else:
-            total += temp[i]
-    return total
+    alphabet = list('abcdefghijklmnopqrstuvwxyz')
+    reversed_alphabet, res = alphabet[::-1], ''
+    for i in text.lower():
+        try: res += reversed_alphabet[alphabet.index(i)]
+        except ValueError: res += i
+    return res
 
-def caesar(text, num):
-    temp = text.lower()
-    if num>26:
-        while num>26:
-            num -= 26
-    elif num<0:
-        while num<0:
-            num += 26
-    alph, result = list('abcdefghijklmnopqrstuvwxyz'), ''
-    for i in range(0, len(temp)):
-        if temp[i] in alph:
-            for j in range(0, len(alph)):
-                if alph[j]==temp[i]:
-                    tempnum = j+num
-                    if tempnum>len(alph)-1:
-                        while tempnum>len(alph)-1:
-                            tempnum -= 26
-                    result += alph[tempnum]
-                    break
-        else:
-            result += temp[i]
-    return result
+def caesar(text, offset):
+    if offset>26:
+        while offset>26:
+            offset -= 26
+    elif offset<0:
+        while offset<0:
+            offset += 26
+    alphabet, res = list('abcdefghijklmnopqrstuvwxyz'), ''
+    for i in text.lower():
+        try: res += alphabet[alphabet.index(i) + offset]
+        except ValueError: res += i
+    return res
 
-def bin(text):
-    result = " ".join(f"{ord(i):08b}" for i in text) # THANKS STACK OVERFLOW! UWU
-    return result.replace(' ', '')
+def binary_from(text):
+    return " ".join(f"{ord(i):08b}" for i in text).replace(' ', '')
 
-def encodeb64(text):
-    message_bytes = text.encode('ascii')
-    base64_bytes = base64.b64encode(message_bytes)
-    base64_message = base64_bytes.decode('ascii')
-    return base64_message # yes. copy-pasted i know. #EPICDEVELOPER2020
+def base64_from(text):
+    return b64encode(text.encode('ascii')).decode('ascii')

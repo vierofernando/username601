@@ -33,7 +33,7 @@ class bothelp(commands.Cog):
                 url,
                 adapter=discord.RequestsWebhookAdapter()
             )
-        except: raise self.client.utils.SendErrorMessage("Invalid Webhook URL. Please send the one according to the tutorial.")
+        except: raise self.client.utils.send_error_message("Invalid Webhook URL. Please send the one according to the tutorial.")
         self.client.db.Dashboard.subscribe(url, ctx.guild.id)
         await ctx.message.add_reaction(self.client.success_emoji)
         web.send(
@@ -57,7 +57,7 @@ class bothelp(commands.Cog):
             await ctx.send(embed=embed)
         else:
             data = self.client.cmds.get_commands_auto(' '.join(args).lower())
-            if data==None: raise self.client.utils.SendErrorMessage("Your command/category name does not exist, sorry!")
+            if data==None: raise self.client.utils.send_error_message("Your command/category name does not exist, sorry!")
             datatype = 'Category' if isinstance(data, list) else 'Command'
             desc = '**Command name: **{}\n**Function: **{}\n**Category: **{}'.format(
                 data['name'], data['function'], data['category']
@@ -95,8 +95,8 @@ class bothelp(commands.Cog):
     @command('report,suggest,bug,reportbug,bugreport')
     @cooldown(15)
     async def feedback(self, ctx, *args):
-        if ((len(args)==0) or (len(''.join(args))>1000)): raise self.client.utils.SendErrorMessage("Invalid feedback length.")
-        elif (('discord.gg/' in ' '.join(args)) or ('discord.com/invite/' in ' '.join(args))): raise self.client.utils.SendErrorMessage("Please do NOT send invites. This is NOT advertising.")
+        if ((len(args)==0) or (len(''.join(args))>1000)): raise self.client.utils.send_error_message("Invalid feedback length.")
+        elif (('discord.gg/' in ' '.join(args)) or ('discord.com/invite/' in ' '.join(args))): raise self.client.utils.send_error_message("Please do NOT send invites. This is NOT advertising.")
         else:
             wait = await ctx.send(self.client.loading_emoji + ' | Please wait... Transmitting data to owner...')
             banned = self.client.db.selfDB.is_banned(ctx.author.id)
@@ -108,9 +108,9 @@ class bothelp(commands.Cog):
                     embed = discord.Embed(title='Feedback Successful', description=self.client.success_emoji + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+self.client.utils.cfg('SERVER_INVITE')+')',colour=ctx.guild.me.roles[::-1][0].color)
                     await wait.edit(content='', embed=embed)
                 except:
-                    raise self.client.utils.SendErrorMessage('There was an error while sending your feedback. Sorry! :(')
+                    raise self.client.utils.send_error_message('There was an error while sending your feedback. Sorry! :(')
             else:
-                raise self.client.utils.SendErrorMessage("You have been banned from using the Feedback command.\nReason: {str(banned)}")
+                raise self.client.utils.send_error_message("You have been banned from using the Feedback command.\nReason: {str(banned)}")
                 
     @command()
     @cooldown(2)
@@ -129,12 +129,12 @@ class bothelp(commands.Cog):
     @command('botstats,meta')
     @cooldown(10)
     async def stats(self, ctx):
-        bot_uptime = self.client.utils.time_encode(round(t.now().timestamp() - self.client.last_downtime))
+        bot_uptime = self.client.utils.lapsed_time_from_seconds(round(t.now().timestamp() - self.client.last_downtime))
         embed = discord.Embed(description='This bot is serving **{} servers** each with **{} users.**\nBot uptime: {}\nOS uptime: {}\nLast downtime: {} UTC\nCommands run in the past {}: {}\nTotal commands: {}'.format(
             len(self.client.guilds),
             len(self.client.users),
             bot_uptime,
-            self.client.utils.terminal('uptime -p')[3:],
+            self.client.utils.run_terminal('uptime -p')[3:],
             t.fromtimestamp(self.client.last_downtime),
             bot_uptime,
             self.client.command_uses,

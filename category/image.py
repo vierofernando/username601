@@ -51,7 +51,7 @@ class image(commands.Cog):
     async def distort(self, ctx, *args, blacklist=None):
         user, num = self.client.utils.split_parameter_to_two(args)
         if not num.isnumeric(): num = 5
-        elif int(num) not in range(0, 999): raise self.client.utils.SendErrorMessage("damn that level is hella weirdd")
+        elif int(num) not in range(0, 999): raise self.client.utils.send_error_message("damn that level is hella weirdd")
         ava = self.client.utils.getUserAvatar(ctx, (user,))
         async with ctx.channel.typing():
             await ctx.send(file=discord.File(
@@ -75,7 +75,7 @@ class image(commands.Cog):
                 ), "garfield.png"
             ))
         except:
-            raise self.client.utils.SendErrorMessage("Ooops! We cannot find the image. Please try again.")
+            raise self.client.utils.send_error_message("Ooops! We cannot find the image. Please try again.")
 
     @command()
     @cooldown(1)
@@ -118,7 +118,7 @@ class image(commands.Cog):
                 self.client.canvas.urltoimage(url.replace('ABC', code)), 'httpdogduck.png'
             ))
         except:
-            raise self.client.utils.SendErrorMessage("404")
+            raise self.client.utils.send_error_message("404")
 
     @command()
     @cooldown(1)
@@ -144,13 +144,13 @@ class image(commands.Cog):
         async with ctx.channel.typing():
             if correct=='yy':
                 ava = self.client.utils.getUserAvatar(ctx, args, size=512)
-                if wh[0]>2000 or wh[1]>2000: raise self.client.utils.SendErrorMessage("Your image is too big!")
-                elif wh[0]<300 or wh[1]<300: raise self.client.utils.SendErrorMessage("Your image is too small!")
+                if wh[0]>2000 or wh[1]>2000: raise self.client.utils.send_error_message("Your image is too big!")
+                elif wh[0]<300 or wh[1]<300: raise self.client.utils.send_error_message("Your image is too small!")
                 else:
                     data = self.client.canvas.resize(ava, wh[0], wh[1])
                     await ctx.send(file=discord.File(data, 'resize.png'))
             else:
-                raise self.client.utils.SendErrorMessage("Where are the parameters?")
+                raise self.client.utils.send_error_message("Where are the parameters?")
 
     @command()
     @cooldown(10)
@@ -200,7 +200,7 @@ class image(commands.Cog):
     @command()
     @cooldown(1)
     async def ship(self, ctx, *args):
-        if len(args) == 0: raise self.client.utils.SendErrorMessage("Please input a parameter or something")
+        if len(args) == 0: raise self.client.utils.send_error_message("Please input a parameter or something")
         async with ctx.channel.typing():
             parsed_args = self.client.utils.split_parameter_to_two(args)
             print(parsed_args)

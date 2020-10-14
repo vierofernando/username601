@@ -26,7 +26,7 @@ class utils(commands.Cog):
     @command('isitup,webstatus')
     @cooldown(2)
     async def isitdown(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.SendErrorMessage("Please send a website link.")
+        if len(args)==0: raise self.client.utils.send_error_message("Please send a website link.")
         wait = await ctx.send('{} | Pinging...'.format(self.client.loading_emoji))
         web = list(args)[0].replace('<', '').replace('>', '')
         if not web.startswith('http'): web = 'http://' + web
@@ -63,10 +63,10 @@ class utils(commands.Cog):
     @command()
     @cooldown(15)
     async def nasa(self, ctx, *args):
-        query = 'earth' if len(args)==0 else self.client.utils.urlify(' '.join(args))
+        query = 'earth' if len(args)==0 else self.client.utils.encode_uri(' '.join(args))
         data = self.client.utils.fetchJSON(f'https://images-api.nasa.gov/search?q={query}&media_type=image')
         await ctx.channel.trigger_typing()
-        if len(data['collection']['items'])==0: raise self.client.utils.SendErrorMessage("Nothing found.")
+        if len(data['collection']['items'])==0: raise self.client.utils.send_error_message("Nothing found.")
         img = random.choice(data['collection']['items'])
         em = discord.Embed(title=img['data'][0]['title'], description=img['data'][0]["description"], color=ctx.guild.me.roles[::-1][0].color)
         em.set_image(url=img['links'][0]['href'])
@@ -75,7 +75,7 @@ class utils(commands.Cog):
     @command('pokedex,dex,bulbapedia,pokemoninfo,poke-info,poke-dex,pokepedia')
     @cooldown(10)
     async def pokeinfo(self, ctx, *args):
-        query = 'Missingno' if (len(args)==0) else self.client.utils.urlify(' '.join(args))
+        query = 'Missingno' if (len(args)==0) else self.client.utils.encode_uri(' '.join(args))
         try:
             data = self.client.utils.fetchJSON('https://bulbapedia.bulbagarden.net/w/api.php?action=query&titles={}&format=json&formatversion=2&pithumbsize=150&prop=extracts|pageimages&explaintext&redirects&exintro'.format(query))
             embed = discord.Embed(
@@ -90,7 +90,7 @@ class utils(commands.Cog):
             await ctx.send(embed=embed)
         except Exception as e:
             print(e)
-            raise self.client.utils.SendErrorMessage("Pokemon not found.")
+            raise self.client.utils.send_error_message("Pokemon not found.")
 
     @command('recipes,cook')
     @cooldown(2)
@@ -98,11 +98,11 @@ class utils(commands.Cog):
         if len(args)==0:
             await ctx.send(embed=discord.Embed(title='Here is a recipe to cook nothing:', description='1. Do nothing\n2. Profit'))
         else:
-            data = self.client.utils.fetchJSON("http://www.recipepuppy.com/api/?q={}".format(self.client.utils.urlify(' '.join(args))))
+            data = self.client.utils.fetchJSON("http://www.recipepuppy.com/api/?q={}".format(self.client.utils.encode_uri(' '.join(args))))
             if len(data['results'])==0: 
-                raise self.client.utils.SendErrorMessage("I did not find anything.")
+                raise self.client.utils.send_error_message("I did not find anything.")
             elif len([i for i in data['results'] if i['thumbnail']!=''])==0:
-                raise self.client.utils.SendErrorMessage("Did not found anything with a delicious picture.")
+                raise self.client.utils.send_error_message("Did not found anything with a delicious picture.")
             else:
                 total = random.choice([i for i in data['results'] if i['thumbnail']!=''])
                 embed = discord.Embed(title=total['title'], url=total['href'], description='Ingredients:\n{}'.format(total['ingredients']), color=ctx.guild.me.roles[::-1][0].color)
@@ -112,23 +112,23 @@ class utils(commands.Cog):
     @command('calculator,equ,equation,calculate')
     @cooldown(3)
     async def calc(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.SendErrorMessage("You need something... i smell no args nearby.")
+        if len(args)==0: raise self.client.utils.send_error_message("You need something... i smell no args nearby.")
         else:
             equation = ' '.join(args)
             replaceWith = "x>*;.>*;?>*;?>/;?>*;plus>+;minus>-;divide>/;multiply>*;divide by>/;times>*;subtract>-;add>+;power>**;powers>**;^>**"
             for rep in replaceWith.split(";"):
                 equation = equation.replace(rep.split('>')[0], rep.split('>')[1])
-            if search("[a-zA-Z]", equation): raise self.client.utils.SendErrorMessage("Please do NOT input something that contains letters. This is not eval, nerd.")
+            if search("[a-zA-Z]", equation): raise self.client.utils.send_error_message("Please do NOT input something that contains letters. This is not eval, nerd.")
             try:
                 res = eval(equation)
                 return await ctx.send("{} | {} = `{}`".format(self.client.success_emoji, equation, str(res)[0:1000]))
             except Exception as e:
-                raise self.client.utils.SendErrorMessage(f"Error: {str(e)}")
+                raise self.client.utils.send_error_message(f"Error: {str(e)}")
     @command()
     @cooldown(7)
     async def quote(self, ctx):
         async with ctx.channel.typing():
-            data = self.client.utils.insp('https://quotes.herokuapp.com/libraries/math/random')
+            data = self.client.utils.inspect_element('https://quotes.herokuapp.com/libraries/math/random')
             text, quoter = data.split(' -- ')[0], data.split(' -- ')[1]
             await ctx.send(embed=discord.Embed(description=f'***{text}***\n\n-- {quoter} --', color=ctx.guild.me.roles[::-1][0].color))
 
@@ -136,14 +136,14 @@ class utils(commands.Cog):
     @cooldown(10)
     async def robohash(self, ctx, *args):
         if len(args)==0: url='https://robohash.org/'+str(src.randomhash())
-        else: url = 'https://robohash.org/'+str(self.client.utils.urlify(' '.join(args)))
+        else: url = 'https://robohash.org/'+str(self.client.utils.encode_uri(' '.join(args)))
         await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'robohash.png'))
 
     @command()
     @cooldown(10)
     async def weather(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.SendErrorMessage("Please send a location or a city!")
-        else: await ctx.send(file=discord.File(self.client.canvas.urltoimage('https://wttr.in/'+str(self.client.utils.urlify(' '.join(args)))+'.png?m'), 'weather.png'))
+        if len(args)==0: raise self.client.utils.send_error_message("Please send a location or a city!")
+        else: await ctx.send(file=discord.File(self.client.canvas.urltoimage('https://wttr.in/'+str(self.client.utils.encode_uri(' '.join(args)))+'.png?m'), 'weather.png'))
 
     @command()
     @cooldown(10)
@@ -151,7 +151,7 @@ class utils(commands.Cog):
         num = str(random.randint(50, 100))
         data = self.client.utils.fetchJSON('http://ufo-api.herokuapp.com/api/sightings/search?limit='+num)
         if data['status']!='OK':
-            raise self.client.utils.SendErrorMessage('There was a problem on retrieving the info.\nThe server said: "'+str(data['status'])+'" :eyes:')
+            raise self.client.utils.send_error_message('There was a problem on retrieving the info.\nThe server said: "'+str(data['status'])+'" :eyes:')
         else:
             ufo = random.choice(data['sightings'])
             embed = discord.Embed(title='UFO Sighting in '+str(ufo['city'])+', '+str(ufo['state']), description='**Summary:** '+str(ufo['summary'])+'\n\n**Shape:** '+str(ufo['shape'])+'\n**Sighting Date: **'+str(ufo['date'])[:-8].replace('T', ' ')+'\n**Duration: **'+str(ufo['duration'])+'\n\n[Article Source]('+str(ufo['url'])+')', colour=ctx.guild.me.roles[::-1][0].color)
@@ -164,7 +164,7 @@ class utils(commands.Cog):
         if len(args)==0: await ctx.send('Please input a word! And we will try to find the word that best rhymes with it.')
         else:
             wait, words = await ctx.send(str(self.client.loading_emoji) + ' | Please wait... Searching...'), []
-            data = self.client.utils.fetchJSON('https://rhymebrain.com/talk?function=getRhymes&word='+str(self.client.utils.urlify(' '.join(args))))
+            data = self.client.utils.fetchJSON('https://rhymebrain.com/talk?function=getRhymes&word='+str(self.client.utils.encode_uri(' '.join(args))))
             if len(data)<1: await wait.edit(content='We did not find any rhyming words corresponding to that letter.')
             else:
                 for i in range(0, len(data)):
@@ -179,10 +179,10 @@ class utils(commands.Cog):
     @cooldown(12)
     async def stackoverflow(self, ctx, *args):
         if len(args)==0:
-            raise self.client.utils.SendErrorMessage('Hey fellow developer, Try add a question!')
+            raise self.client.utils.send_error_message('Hey fellow developer, Try add a question!')
         else:
             try:
-                query = self.client.utils.urlify(' '.join(args))
+                query = self.client.utils.encode_uri(' '.join(args))
                 data = self.client.utils.fetchJSON("https://api.stackexchange.com/2.2/search/advanced?q="+str(query)+"&site=stackoverflow&page=1&answers=1&order=asc&sort=relevance")
                 leng = len(data['items'])
                 ques = data['items'][0]
@@ -197,7 +197,7 @@ class utils(commands.Cog):
                 embed.set_footer(text='Shown 1 result out of '+str(leng)+' results!')
                 await ctx.send(embed=embed)
             except:
-                raise self.client.utils.SendErrorMessage('There was an error on searching! Please check your spelling :eyes:')
+                raise self.client.utils.send_error_message('There was an error on searching! Please check your spelling :eyes:')
 
     @command('birbfact,birdfact')
     @cooldown(7)
@@ -243,26 +243,26 @@ class utils(commands.Cog):
                 embed.add_field(name='Directed by', value=data[num]['director'], inline='True')
                 embed.add_field(name='Produced by', value=data[num]['producer'], inline='True')
                 await wait.edit(content='', embed=embed)
-            except: raise self.client.utils.SendErrorMessage('the movie you requested does not exist!?')
+            except: raise self.client.utils.send_error_message('the movie you requested does not exist!?')
 
     @command()
     @cooldown(10)
     async def steamprofile(self, ctx, *args):
         try:
-            getprof = self.client.utils.urlify(list(args)[0].lower())
+            getprof = self.client.utils.encode_uri(list(args)[0].lower())
             data = self.client.utils.fetchJSON('https://api.alexflipnote.dev/steam/user/'+str(getprof))
             state, privacy, url, username, avatar, custom_url, steam_id = data["state"], data["privacy"], data["url"], data["username"], data["avatarfull"], data["customurl"], data["steamid64"]
             embed = discord.Embed(title=username, description='**[Profile Link]('+str(url)+')**\n**Current state: **'+str(state)+'\n**Privacy: **'+str(privacy)+'\n**[Profile pic URL]('+str(avatar)+')**', colour = ctx.guild.me.roles[::-1][0].color)
             embed.set_thumbnail(url=avatar)
             await ctx.send(embed=embed)
         except:
-            raise self.client.utils.SendErrorMessage("Error: profile not found!")
+            raise self.client.utils.send_error_message("Error: profile not found!")
 
     @command('nation')
     @cooldown(5)
     async def country(self, ctx, *args):
         try:
-            country = self.client.utils.urlify(' '.join(args))
+            country = self.client.utils.encode_uri(' '.join(args))
             data = self.client.canvas.country(country)
             file = discord.File(data['buffer'], 'country.png')
             embed = discord.Embed(title=' '.join(args), color=discord.Color.from_rgb(
@@ -272,7 +272,7 @@ class utils(commands.Cog):
             embed.set_image(url='attachment://country.png')
             return await ctx.send(file=file, embed=embed)
         except:
-            raise self.client.utils.SendErrorMessage('Country not found!')
+            raise self.client.utils.send_error_message('Country not found!')
 
     @command()
     @cooldown(5)
@@ -295,8 +295,8 @@ class utils(commands.Cog):
     @command()
     @cooldown(10)
     async def steamapp(self, ctx, *args):
-        data = self.client.utils.fetchJSON('https://store.steampowered.com/api/storesearch?term='+self.client.utils.urlify(str(' '.join(args)))+'&cc=us&l=en')
-        if data['total']==0: raise self.client.utils.SendErrorMessage('Did not found anything. Maybe that app *doesn\'t exist...*')
+        data = self.client.utils.fetchJSON('https://store.steampowered.com/api/storesearch?term='+self.client.utils.encode_uri(str(' '.join(args)))+'&cc=us&l=en')
+        if data['total']==0: raise self.client.utils.send_error_message('Did not found anything. Maybe that app *doesn\'t exist...*')
         else:
             try:
                 prize = data['items'][0]['price']['initial']
@@ -330,16 +330,16 @@ class utils(commands.Cog):
     @command('col')
     @cooldown(3)
     async def color(self, ctx, *args):
-        if len(args) == 0: raise self.client.utils.SendErrorMessage(f"Invalid argument. use `{self.client.command_prefix}help color` for more info.")
+        if len(args) == 0: raise self.client.utils.send_error_message(f"Invalid argument. use `{self.client.command_prefix}help color` for more info.")
         async with ctx.channel.typing():
             parameter_data = self.client.utils.parse_parameter(args, 'role', get_second_element=True)
             if parameter_data['available']:
                 iterate_result = [i.id for i in ctx.guild.roles if parameter_data['secondparam'].lower() in i.name.lower()]
-                if len(iterate_result) == 0: raise self.client.utils.SendErrorMessage("Role not found.")
+                if len(iterate_result) == 0: raise self.client.utils.send_error_message("Role not found.")
                 colim = self.client.canvas.color(str(ctx.guild.get_role(iterate_result[0]).colour))
             else:
                 colim = self.client.canvas.color(None, (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))) if self.client.utils.parse_parameter(args, 'random')['available'] else self.client.canvas.color(' '.join(args))
-            if colim == None: raise self.client.utils.SendErrorMessage("Please insert a valid Hex.")
+            if colim == None: raise self.client.utils.send_error_message("Please insert a valid Hex.")
             return await ctx.send(file=discord.File(colim, 'color.png'))
     
     @command('fast')

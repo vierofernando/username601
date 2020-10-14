@@ -1,5 +1,4 @@
 print('Please wait...')
-
 from modules import *
 from datetime import datetime as t
 from discord.ext import commands
@@ -7,8 +6,7 @@ from os import environ, listdir
 from PIL import UnidentifiedImageError
 import discord
 
-# DECLARATION AND STUFF
-client = commands.Bot(command_prefix=prefix)
+client = commands.Bot(command_prefix=cfg('PREFIX'), activity=discord.Activity(type=discord.ActivityType.listening, name="you"))
 pre_ready_initiation(client)
 environ['BOT_MODULES_DIR'] = cfg('MODULES_DIR')
 environ['BOT_JSON_DIR'] = cfg('JSON_DIR')
@@ -35,14 +33,13 @@ async def on_guild_join(guild):
 
 @client.event
 async def on_raw_reaction_add(payload):
-    # IF IS NOT STAR EMOJI, IGNORE
     if str(payload.emoji)!='⭐': return
     if payload.event_type != 'REACTION_ADD': return
     data = database.Dashboard.getStarboardChannel(None, guildid=payload.guild_id)
     if data==None: return
     try:
         messages = await client.get_channel(data['channelid']).history().flatten()
-        starboards = [int(str(message.content).split(': ')[1]) for message in messages if message.author.id==client.user.id]
+        starboards = [int(str(message.content).split(': ')[1]) for message in messages if message.author.id==cfg('BOT_ID', integer=True)]
         if payload.message_id in starboards: return
     except: return
     message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
@@ -119,7 +116,7 @@ async def on_guild_remove(guild):
 @client.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound): return
-    elif isinstance(error, commands.CommandOnCooldown): return await ctx.send("You are on cooldown. You can do the command again in {}.".format(time_encode(round(error.retry_after))), delete_after=2)
+    elif isinstance(error, commands.CommandOnCooldown): return await ctx.send("You are on cooldown. You can do the command again in {}.".format(lapsed_time_from_seconds(round(error.retry_after))), delete_after=2)
     elif isinstance(error.original, client.utils.SendErrorMessage): return await ctx.send(embed=discord.Embed(title='Error', description=f'{client.error_emoji} | {str(error.original)}', color=discord.Color.red()))
     elif isinstance(error.original, discord.Forbidden): 
         try: return await ctx.send("I don't have the permission required to use that command!")
@@ -138,16 +135,15 @@ def isdblvote(author):
 async def on_message(message):
     if isdblvote(message.author) or message.guild==None: return
     if message.content.startswith(f'<@{client.user.id}>') or message.content.startswith(f'<@!{client.user.id}>'): return await message.channel.send(f'Hello, {message.author.name}! My prefix is `1`. use `1help` for help')
-    if message.guild.id==client.utils.cfg('SERVER_ID', integer=True) and message.author.id==479688142908162059:
-        data = int(str(message.embeds[0].description).split('(id:')[1].split(')')[0])
-        if database.Economy.get(data)==None: return
-        rewards = database.Economy.daily(data)
-        try: await client.get_user(data).send(f'Thanks for voting! **You received {rewards} bobux!**')
-        except: return
-        
+    #if message.guild.id==cfg('SERVER_ID', integer=True) and message.author.id==479688142908162059:
+    #    data = int(str(message.embeds[0].description).split('(id:')[1].split(')')[0])
+    #    if database.Economy.get(data)==None: return
+    #    rewards = database.Economy.daily(data)
+    #    try: await client.get_user(data).send(f'Thanks for voting! **You received {rewards} bobux!**')
+    #    except: return
     await client.process_commands(message) # else bot will not respond to 99% commands
 
 def Username601():
     print('Logging in to discord...')
-    client.loop.create_task(ready())
     client.run(environ['DISCORD_TOKEN'])
+if __name__ == "__main__": Username601()
