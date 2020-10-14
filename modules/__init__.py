@@ -18,9 +18,9 @@ def pre_ready_initiation(client):
     setattr(client, 'cmds', BotCommands())
 
 def post_ready_initiation(client):
-    setattr(client, 'error_emoji',   str(client.get_emoji(client.utils.config('EMOJI_ERROR'))))
-    setattr(client, 'loading_emoji', str(client.get_emoji(client.utils.config('EMOJI_LOADING'))))
-    setattr(client, 'success_emoji', str(client.get_emoji(client.utils.config('EMOJI_SUCCESS'))))
+    setattr(client, 'error_emoji',   str(client.get_emoji(client.utils.config('EMOJI_ERROR', integer=True))))
+    setattr(client, 'loading_emoji', str(client.get_emoji(client.utils.config('EMOJI_LOADING', integer=True))))
+    setattr(client, 'success_emoji', str(client.get_emoji(client.utils.config('EMOJI_SUCCESS', integer=True))))
     test = post("https://useless-api.vierofernando.repl.co/update_bot_stats", headers={
         'superdupersecretkey': environ["USELESSAPI"],
         'guild_count': str(len(client.guilds)),
