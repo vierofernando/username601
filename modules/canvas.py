@@ -138,6 +138,12 @@ class Painter:
     def get_accent(self, image): return self.get_color_accent(self.thief, image)
     def get_multiple_accents(self, image): return self.get_multiple_color_accents(self.thief, image)
 
+    def blend(self, user1, user2):
+        pic1 = self.imagefromURL(user1).resize((500, 500))
+        pic2 = self.imagefromURL(user2).resize((500, 500))
+        res = Image.blend(pic1, pic2, alpha=0.5)
+        return self.buffer(res)
+
     def color(self, string, rgb_input=None):
         if rgb_input != None: string = '#%02x%02x%02x' % rgb_input
         if not string.startswith('#'): string = '#' + string
@@ -326,7 +332,7 @@ class Painter:
         smolerfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 15, otf=True)
         if data == None:
             server_title, members, icon = guild.name, guild.members, guild.icon_url
-            subtitle = 'Created {} ago by {}'.format(time_encode(t.now().timestamp() - guild.created_at.timestamp()), str(guild.owner))
+            subtitle = 'Created {} ago by {}'.format(lapsed_time_from_seconds(t.now().timestamp() - guild.created_at.timestamp()), str(guild.owner))
         else:
             server_title, icon = data['name'], "https://cdn.discordapp.com/icons/{}/{}.png?size=1024".format(data['id'], data['icon'])
             subtitle = data['description']
@@ -366,7 +372,7 @@ class Painter:
                 len(guild.channels), len(guild.roles), guild.premium_tier, guild.premium_subscription_count
             ), fill=self.invert(bg_arr[2]), font=medium)
             draw.text(((main.width/2) + 5, rect_y_cursor + 3), "Region: {}\nAFK: {}\nAFK time: {}".format(
-                str(guild.region).replace('-', ''), afkname, time_encode(guild.afk_timeout).replace('minute', 'min')
+                str(guild.region).replace('-', ''), afkname, lapsed_time_from_seconds(guild.afk_timeout).replace('minute', 'min')
             ), fill=self.invert(bg_arr[3]), font=medium)
         else:
             draw.text((margin_left + 5, rect_y_cursor + 3), "Approx. Members: {}\nApprox. Presence: {}".format(raw['approximate_member_count'], raw['approximate_presence_count']), fill=self.invert(bg_arr[2]), font=medium)
@@ -397,8 +403,8 @@ class Painter:
         foreground_col = self.invert(bg)
         avatar = self.imagefromURL(ava).resize((100, 100))
         self.add_corners(avatar, round(avatar.width/2))
-        if not booster_since: details_text = 'Created account {}\nJoined server {}'.format(time_encode(t.now().timestamp()-user.created_at.timestamp())+' ago', time_encode(t.now().timestamp()-user.joined_at.timestamp())+' ago')
-        else: details_text = 'Created account {}\nJoined server {}\nBoosting since {}'.format(time_encode(t.now().timestamp()-user.created_at.timestamp())+' ago', time_encode(t.now().timestamp()-user.joined_at.timestamp())+' ago', time_encode(booster_since)+' ago')
+        if not booster_since: details_text = 'Created account {}\nJoined server {}'.format(lapsed_time_from_seconds(t.now().timestamp()-user.created_at.timestamp())+' ago', lapsed_time_from_seconds(t.now().timestamp()-user.joined_at.timestamp())+' ago')
+        else: details_text = 'Created account {}\nJoined server {}\nBoosting since {}'.format(lapsed_time_from_seconds(t.now().timestamp()-user.created_at.timestamp())+' ago', lapsed_time_from_seconds(t.now().timestamp()-user.joined_at.timestamp())+' ago', lapsed_time_from_seconds(booster_since)+' ago')
         rect_y_pos = 180 + ((bigfont.getsize(details_text)[1]+20))
         canvas_height = rect_y_pos + len(roles * 50) + 30
         if bigfont.getsize(name)[0] > 600: main = Image.new(mode='RGB', color=bg, size=(bigfont.getsize(name)[0]+200, canvas_height))
@@ -589,7 +595,7 @@ class Painter:
             str(len([i for i in guild.members if i.status.value.lower()=='offline']))
         ]
         img1 = "{type:'pie',data:{labels:['Online', 'Idle', 'Do not Disturb', 'Offline'], datasets:[{data:["+data1[0]+", "+data1[1]+", "+data1[2]+", "+data1[3]+"]}]}}"
-        img = self.imagefromURL(start+urlify(img1))
+        img = self.imagefromURL(start+encode_uri(img1))
         w, h = img.size
         cnv = Image.new(mode='RGB', size=(w, h), color=(255, 255, 255))
         cnv.paste(img, (0, 0), img)

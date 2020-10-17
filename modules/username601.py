@@ -1,3 +1,5 @@
+from random import choice
+from discord import Color, Embed
 from os import environ
 from requests import get
 from base64 import b64encode
@@ -9,6 +11,13 @@ class send_error_message(Exception): pass
 
 main_cfg = ConfigParser()
 main_cfg.read('config.ini')
+links = "https://cdn.discordapp.com/halloween-bot/Fairy.png,https://cdn.discordapp.com/halloween-bot/Jackolantern.png,https://cdn.discordapp.com/halloween-bot/Witch.png,https://cdn.discordapp.com/halloween-bot/Slime.png,https://cdn.discordapp.com/halloween-bot/Wumpus-Wumpus.png,https://cdn.discordapp.com/halloween-bot/Mummy.png,https://cdn.discordapp.com/halloween-bot/Rat.png,https://cdn.discordapp.com/halloween-bot/Orc.png,https://cdn.discordapp.com/halloween-bot/Reaper.png,https://cdn.discordapp.com/halloween-bot/Mothman.png,https://cdn.discordapp.com/halloween-bot/Ghost.png,https://cdn.discordapp.com/halloween-bot/Cat.png,https://cdn.discordapp.com/halloween-bot/Clown.png,https://cdn.discordapp.com/halloween-bot/Skeleton.png,https://cdn.discordapp.com/halloween-bot/Demon.png,https://cdn.discordapp.com/halloween-bot/Wumpus-Yeti.png,https://cdn.discordapp.com/halloween-bot/Alien.png,https://cdn.discordapp.com/halloween-bot/Spider.png".split(',')
+
+async def fake_halloween(ctx, link):
+    embed = Embed(title="A trick-or-treater has stopped by!", description="Open the door and greet them with h!treat", color=Color.from_rgb(110, 138, 215))
+    embed.set_image(url=link)
+    res = await ctx.send(embed=embed)
+    return res
 
 def config(param, integer=False):
     if integer: return int(main_cfg.get('bot', param.lower()))
@@ -24,7 +33,7 @@ def inspect_image_url(url):
         return False
 
 def split_parameter_to_two(args):
-    if len(args) < 2: return None
+    if len(args) < 2: raise send_error_message("Please input at least 1 - 2 inputs!")
     available_split_chars = ';?, ?,?|? | '.split('?')
     if len(args) == 2: return args[0], args[1]
     args_as_a_string = ' '.join(list(args))

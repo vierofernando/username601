@@ -4,8 +4,8 @@ from sys import path
 from datetime import datetime as t
 from random import choice
 import requests
-try: from modules.username601 import time_encode
-except: from .username601 import time_encode
+try: from modules.username601 import lapsed_time_from_seconds
+except: from .username601 import lapsed_time_from_seconds
 database = MongoClient(os.getenv('DB_LINK'))['username601']
 
 class Dashboard:
@@ -280,7 +280,7 @@ class Economy:
         else:
             return {
                 'bool': False,
-                'time': time_encode(round((data+43200) - t.now().timestamp()))
+                'time': lapsed_time_from_seconds(round((data+43200) - t.now().timestamp()))
             }
     
     def setbal(userid, newbal):

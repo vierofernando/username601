@@ -13,6 +13,17 @@ class image(commands.Cog):
         self.client = client
         self.session = ClientSession()
 
+    @command('combine')
+    @cooldown(2)
+    async def blend(self, ctx, *args):
+        if len(args) == 0: raise self.client.utils.send_error_message("Please input a parameter or something")
+        async with ctx.channel.typing():
+            parsed_args = self.client.utils.split_parameter_to_two(args)
+            if parsed_args == None: 
+                first, second = ctx.author.avatar_url_as(format='png'), self.client.utils.getUserAvatar(ctx, args)
+            else: first, second = self.client.utils.getUserAvatar(ctx, parsed_args[0]), self.client.utils.getUserAvatar(ctx, parsed_args[1])
+            return await ctx.send(file=discord.File(self.client.canvas.blend(first, second), 'blend.png'))
+            
     @command('pika')
     @cooldown(2)
     async def pikachu(self, ctx):
@@ -203,11 +214,9 @@ class image(commands.Cog):
         if len(args) == 0: raise self.client.utils.send_error_message("Please input a parameter or something")
         async with ctx.channel.typing():
             parsed_args = self.client.utils.split_parameter_to_two(args)
-            print(parsed_args)
             if parsed_args == None: 
                 first, second = ctx.author.avatar_url_as(format='png'), self.client.utils.getUserAvatar(ctx, args)
             else: first, second = self.client.utils.getUserAvatar(ctx, parsed_args[0]), self.client.utils.getUserAvatar(ctx, parsed_args[1])
-            print(first, second)
             url = f'https://api.alexflipnote.dev/ship?user={first}&user2={second}'
             await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'ship.png'))
 
