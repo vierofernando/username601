@@ -49,6 +49,7 @@ The website is written in H**TML/CSS/JS for the front-end**, and **Python for th
 **REQUIREMENTS:**<br>
 ```
 flask
+Flask-Limiter
 ```
 
 Happy coding!<br>
