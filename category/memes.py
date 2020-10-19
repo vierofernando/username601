@@ -1,12 +1,13 @@
 import discord
 from discord.ext import commands
 import sys
-from os import getcwd, name, environ
+from os import environ
 sys.path.append(environ['BOT_MODULES_DIR'])
 from io import BytesIO
 from decorators import command, cooldown
 from requests import get
 from aiohttp import ClientSession
+from json import loads
 
 class memes(commands.Cog):
     def __init__(self, client):
@@ -15,6 +16,7 @@ class memes(commands.Cog):
         self.rawMetadata = open(self.client.utils.config('MODULES_DIR')+'/Animation.dat', 'r').read().split('\n')
         self.rageMetadata = [tuple([int(a) for a in i.split(',')]) for i in self.rawMetadata[0].split(';')]
         self.frogMetadata = self.rawMetadata[1].split(':')
+        self.meme_templates = loads(open(self.client.utils.config('JSON_DIR')+'/memes.json', 'r').read())
 
     @command('scoobydoo,reveal,revealed,expose,exposed,scooby-doo')
     @cooldown(2)
@@ -405,30 +407,41 @@ class memes(commands.Cog):
         url = 'https://api.alexflipnote.dev/amiajoke?image='+str(source)
         await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'maymays.png'))
 
-    @command('avmeme,philosoraptor,money,doge,fry')
-    @cooldown(12)
-    async def wonka(self, ctx, *args):
-        if 'avmeme' in ctx.message.content:
-            async with ctx.channel.typing():
-                try:
-                    av = ctx.message.mentions[0].avatar_url_as(format='png')
-                    mes = ctx.message.content[int(len(args[0])+len(args[1])+1):]
-                    top = self.client.utils.encode_uri(str(ctx.message.content).split('[')[1].split(']')[0])
-                    bott = self.client.utils.encode_uri(str(ctx.message.content).split('[')[2].split(']')[0])
-                    url='https://memegen.link/custom/'+str(top)+'/'+str(bott)+'.jpg'+str(extr)+'?alt='+str(av)
-                    await ctx.send(file=discord.File(self.client.canvas.memegen(url), 'avmeme.png'))
-                except Exception as e:
-                    raise self.client.utils.send_error_message(f'Error!\n```{str(e)}```Invalid parameters. Example: `{self.client.command_prefix}avmeme <tag someone> [top text] [bottom text]`')
-        else:
-            async with ctx.channel.typing():
-                try:
-                    parameters = self.client.utils.split_parameter_to_two(args)
-                    assert parameters != None, "Please send two parameters, either split by a space, a comma, or a semicolon."
-                    top, bott = parameters
-                    name = str(ctx.message.content).split(self.client.command_prefix)[1].split(' ')[0]
-                    url='https://memegen.link/'+str(name)+'/'+str(top)+'/'+str(bott)+'.jpg?watermark=none'
-                    await ctx.send(file=discord.File(self.client.canvas.memegen(url), args[0][1:]+'.png'))
-                except Exception as e:
-                    raise self.client.utils.send_error_message(f'Error!\n```{str(e)}```Invalid parameters.')
+    @command('toptext,top-text,bottomtext,bottom-text,topmeme,bottommeme')
+    @cooldown(5)
+    async def topbottom(self, ctx, *args):
+        keys = list(self.meme_templates["topbottom"].keys())
+        def check(m):
+            if ((m.channel != ctx.channel) or (m.author != ctx.author)): return False
+            elif (m.content in keys) and (not m.content.isnumeric()): return True
+            elif (m.content.isnumeric()):
+                if int(m.content) in range(1, len(keys)+1): return True
+            return False
+        await ctx.send(embed=discord.Embed(title="Please provide your meme type (in numbers/names)", description="\n".join([
+            str(i + 1)+". " + keys[i] for i in range(len(keys))
+        ]), color=ctx.guild.me.roles[::-1][0].color))
+        message = await self.client.utils.wait_for_message(self, ctx, message=None, func=check, timeout=20.0)
+        if message is None: raise self.client.utils.send_error_message("You did not respond in time. Meme-generation canceled.")
+        link = self.meme_templates["topbottom"][(keys[int(message.content) - 1] if message.content.isnumeric() else message.content)]
+        format_text = await self.client.utils.wait_for_message(self, ctx, message="Now send your top text and bottom text. Splitted by either spaces, commas, semicolon, or |.", timeout=20.0)
+        if format_text is None: raise self.client.utils.send_error_message("You did not respond in time. Meme-generation canceled.")
+        text1, text2 = self.client.utils.split_parameter_to_two(format_text.content.split())
+        url = link.replace("{TEXT1}", self.client.utils.encode_uri(text1)[0:50]).replace("{TEXT2}", self.client.utils.encode_uri(text2)[0:50])
+        return await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), "bottom_text.png"))
+
+    @command('avatarmeme,avatar-meme')
+    @cooldown(5)
+    async def avmeme(self, ctx, *args):
+        async with ctx.channel.typing():
+            try:
+                av = ctx.message.mentions[0].avatar_url_as(format='png')
+                mes = ctx.message.content[int(len(args[0])+len(args[1])+1):]
+                top = self.client.utils.encode_uri(str(ctx.message.content).split('[')[1].split(']')[0])
+                bott = self.client.utils.encode_uri(str(ctx.message.content).split('[')[2].split(']')[0])
+                url='https://memegen.link/custom/'+str(top)+'/'+str(bott)+'.jpg'+str(extr)+'?alt='+str(av)
+                await ctx.send(file=discord.File(self.client.canvas.memegen(url), 'avmeme.png'))
+            except Exception as e:
+                raise self.client.utils.send_error_message(f'Error!\n```{str(e)}```Invalid parameters. Example: `{self.client.command_prefix}avmeme <tag someone> [top text] [bottom text]`')
+
 def setup(client):
     client.add_cog(memes(client))

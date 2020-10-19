@@ -1,3 +1,4 @@
+import aiohttp
 from random import choice
 from discord import Color, Embed
 from os import environ
@@ -19,6 +20,17 @@ async def fake_halloween(ctx, link):
     res = await ctx.send(embed=embed)
     return res
 
+async def wait_for_message(this, ctx, message, func=None, timeout=5.0, *args, **kwargs):
+    if message is not None: await ctx.send(message)
+    def wait_check(m): return ((m.author == ctx.author) and (m.channel == ctx.channel))
+    _function = wait_check if (func is None) else func
+    try:
+        message = await this.client.wait_for("message", check=_function, timeout=timeout)
+    except:
+        message = None
+    finally:
+        return message
+
 def config(param, integer=False):
     if integer: return int(main_cfg.get('bot', param.lower()))
     return main_cfg.get('bot', param.lower())
@@ -33,7 +45,7 @@ def inspect_image_url(url):
         return False
 
 def split_parameter_to_two(args):
-    if len(args) < 2: raise send_error_message("Please input at least 1 - 2 inputs!")
+    if ((args is None) or (len(args) < 2)): raise send_error_message("Please input at least 1 - 2 inputs!")
     available_split_chars = ';?, ?,?|? | '.split('?')
     if len(args) == 2: return args[0], args[1]
     args_as_a_string = ' '.join(list(args))
