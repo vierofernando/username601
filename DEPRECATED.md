@@ -3,7 +3,7 @@
 ## DEPRECATED COMMANDS<br>
 these are commands i decided to delete with the reasons.
 
-### 1wonka, 1fry, 1money, 1doge, 1philosoraptor
+### 1wonka, 1fry, 1money, 1doge, 1philosoraptor, 1avmeme<br>
 Have been merged down to `1memegen`
 
 ### 1ytthumbnail<br>

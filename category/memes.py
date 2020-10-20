@@ -424,7 +424,7 @@ class memes(commands.Cog):
         format_text = await self.client.utils.wait_for_message(self, ctx, message="Now send your text content to be in the meme.", timeout=20.0)
         if format_text is None: raise self.client.utils.send_error_message("You did not respond in time. Meme-generation canceled.")
         async with ctx.channel.typing():
-            return self.client.canvas.bottom_image_meme(link, format_text.content[0:500])
+            return self.client.canvas.bottom_image_meme(link, format_text.content[0:640])
 
     async def top_bottom_text_meme(self, ctx, *args):
         keys = list(self.meme_templates["topbottom"].keys())
@@ -443,35 +443,31 @@ class memes(commands.Cog):
         format_text = await self.client.utils.wait_for_message(self, ctx, message="Now send your top text and bottom text. Splitted by either spaces, commas, semicolon, or |.", timeout=20.0)
         if format_text is None: raise self.client.utils.send_error_message("You did not respond in time. Meme-generation canceled.")
         text1, text2 = self.client.utils.split_parameter_to_two(format_text.content.split())
-        url = link.replace("{TEXT1}", self.client.utils.encode_uri(text1)[0:50]).replace("{TEXT2}", self.client.utils.encode_uri(text2)[0:50])
+        url = link.replace("{TEXT1}", self.client.utils.encode_uri(text1)[0:64]).replace("{TEXT2}", self.client.utils.encode_uri(text2)[0:64])
         async with ctx.channel.typing():
             return self.client.canvas.urltoimage(url)
+
+    async def custom_image_meme(self, ctx, *args):
+        message = await self.client.utils.wait_for_message(self, ctx, message="Please send a **Image URL/Attachment**, or\nSend a **ping/user ID/name** to format as an **avatar.**\nOr **leave empty** to use your avatar instead.", timeout=10.0)
+        if message is None: url = ctx.author.avatar_url_as(format="png")
+        else: url = self.client.utils.getUserAvatar(message, tuple(message.content.split()))
+        text = await self.client.utils.wait_for_message(self, ctx, message="Send top text and bottom text. Splitted by a space, comma, semicolon, or |.", timeout=10.0)
+        text1, text2 = self.client.utils.split_parameter_to_two(tuple(text.content.split()))
+        async with ctx.channel.typing():
+            return self.client.canvas.urltoimage("https://api.memegen.link/images/custom/{}/{}.png?background={}".format(self.client.utils.encode_uri(text1)[0:64], self.client.utils.encode_uri(text2)[0:64], url))
 
     @command('memegen,meme-gen,gen-meme,generatememe,generate-meme,meme-editor,meme_editor,memeeditor')
     @cooldown(5)
     async def mememaker(self, ctx, *args):
-        m = await ctx.send(embed=discord.Embed(title="Please select your meme format:", description="**[A] **Classic meme, Top text, bottom text, background image.\n**[B] **Modern meme, Top text, bottom image", color=ctx.guild.me.roles[::-1][0].color))
+        m = await ctx.send(embed=discord.Embed(title="Please select your meme format:", description="**[A] **Classic meme, Top text, bottom text, background image.\n**[B] **Modern meme, Top text, bottom image\n**[C] **Custom classic meme, with a custom background.", color=ctx.guild.me.roles[::-1][0].color))
         def check_chosen(m):
             return ((m.channel == ctx.channel) and (m.author == ctx.author) and (len(m.content) == 1) and m.content.lower() in ['a', 'b'])
         message = await self.client.utils.wait_for_message(self, ctx, message=None, timeout=20.0)
         if message is None: return await m.edit(content="", embed=discord.Embed(title="Meme-making process canceled.", color=discord.Color.red()))
         elif message.content.lower() == 'a': res = await self.top_bottom_text_meme(ctx, *args)
+        elif message.content.lower() == 'c': res = await self.custom_image_meme(ctx, *args)
         else: res = await self.modern_meme(ctx, *args)
         return await ctx.send(file=discord.File(res, "meme.png"))
-
-    @command('avatarmeme,avatar-meme')
-    @cooldown(5)
-    async def avmeme(self, ctx, *args):
-        async with ctx.channel.typing():
-            try:
-                av = ctx.message.mentions[0].avatar_url_as(format='png')
-                mes = ctx.message.content[int(len(args[0])+len(args[1])+1):]
-                top = self.client.utils.encode_uri(str(ctx.message.content).split('[')[1].split(']')[0])
-                bott = self.client.utils.encode_uri(str(ctx.message.content).split('[')[2].split(']')[0])
-                url='https://memegen.link/custom/'+str(top)+'/'+str(bott)+'.jpg'+str(extr)+'?alt='+str(av)
-                await ctx.send(file=discord.File(self.client.canvas.memegen(url), 'avmeme.png'))
-            except Exception as e:
-                raise self.client.utils.send_error_message(f'Error!\n```{str(e)}```Invalid parameters. Example: `{self.client.command_prefix}avmeme <tag someone> [top text] [bottom text]`')
 
 def setup(client):
     client.add_cog(memes(client))
