@@ -41,6 +41,7 @@ class moderation(commands.Cog):
             )
         return await wait.edit(content='', embed=discord.Embed(title=title, description=desc, color=ctx.guild.me.roles[::-1][0].color))
         
+    @command()
     @cooldown(1)
     async def config(self, ctx):
         data = self.client.db.Dashboard.getData(ctx.guild.id)
