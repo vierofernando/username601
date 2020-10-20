@@ -19,7 +19,7 @@ class games(commands.Cog):
         res = ["**Latest: **`"+data[0]["name"]+"`"]
         if len(data) == 1: return res[0]
         for i in res[1:]:
-            res.append("**["+str(t.fromtimestamp(i["changedToAt"] / 1000))[:-7]+"]: **`"+i["name"]+"`")
+            res.append("**["+str(t.fromtimestamp(i["changedToAt"] / 1000))+"]: **`"+i["name"]+"`")
         return "\n".join(res)
     
     @command('mc')
