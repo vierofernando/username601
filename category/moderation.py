@@ -337,15 +337,16 @@ class moderation(commands.Cog):
             assert len(args)>0, 'Please insert the amount to be cleared or a mention.'
             if len(ctx.message.mentions)==0 and (not args[0].isnumeric()): raise Exception('Please input a valid parameter')
             mention = True if len(ctx.message.mentions)>0 else False
-            await ctx.message.delete()
+            try: await ctx.message.delete()
+            except: pass
             if not mention:
                 num = int(args[0])
                 assert (num in range(1, 301)), "invalid arguments, out of range"
                 await ctx.channel.purge(limit=num)
-                return await ctx.send(self.client.success_emoji+f" | Successfully purged {num} messages.")
+                return await ctx.send(self.client.success_emoji+f" | Successfully purged {num} messages.", delete_after=3)
             def check(m): return m.author.id == ctx.message.mentions[0].id
             deleted_messages = await ctx.channel.purge(check=check, limit=500)
-            return await ctx.send(self.client.success_emoji+f" | Successfully purged {len(deleted_messages)} messages.")
+            return await ctx.send(self.client.success_emoji+f" | Successfully purged {len(deleted_messages)} messages.", delete_after=3)
         except Exception as e:
             raise self.client.utils.send_error_message(str(e))
                 

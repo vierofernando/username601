@@ -6,7 +6,6 @@ sys.path.append(environ['BOT_MODULES_DIR'])
 from decorators import command, cooldown
 import random
 import discordgames as Games
-# import Economy
 import asyncio
 
 class games(commands.Cog):
@@ -273,7 +272,7 @@ class games(commands.Cog):
     @command()
     @cooldown(4)
     async def mathquiz(self, ctx):
-        arrayId, num1, num2, symArray = random.randint(0, 4), random.randint(1, 500), random.randint(1, 500), ['+', '-', 'x', '÷']
+        arrayId, num1, num2, symArray = random.randint(0, 3), random.randint(1, 500), random.randint(1, 500), ['+', '-', 'x', '÷']
         ansArray = [num1+num2, num1-num2, num1*num2, num1/num2]
         sym = symArray[arrayId]
         await ctx.send('**MATH QUIZ (15 seconds, answer rounded)**\n'+str(num1)+' '+str(sym)+' '+str(num2)+' = ???')
