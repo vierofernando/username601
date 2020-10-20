@@ -1,0 +1,31 @@
+{
+    "topbottom": {
+        "philosoraptor": "https://api.memegen.link/images/philosoraptor/{TEXT1}/{TEXT2}.png",
+        "hide the pain harold": "https://api.memegen.link/images/harold/{TEXT1}/{TEXT2}.png",
+        "fry": "https://api.memegen.link/images/fry/{TEXT1}/{TEXT2}.png",
+        "buzz": "https://api.memegen.link/images/buzz/{TEXT1}/{TEXT2}.png",
+        "doge": "https://api.memegen.link/images/doge/{TEXT1}/{TEXT2}.png",
+        "this is fine": "https://api.memegen.link/images/fine/{TEXT1}/{TEXT2}.png",
+        "the chosen one": "https://api.memegen.link/images/chosen/{TEXT1}/{TEXT2}.png",
+        "it ain't much but it's honest work": "https://api.memegen.link/images/bihw/{TEXT1}/{TEXT2}.png",
+        "facepalm": "https://api.memegen.link/images/facepalm/{TEXT1}/{TEXT2}.png",
+        "i have no idea": "https://api.memegen.link/images/noidea/{TEXT1}/{TEXT2}.png",
+        "keanu reeves": "https://api.memegen.link/images/mini-keanu/{TEXT1}/{TEXT2}.png",
+        "spongemock": "https://api.memegen.link/images/spongebob/{TEXT1}/{TEXT2}.png",
+        "one does not simply": "https://api.memegen.link/images/mordor/{TEXT1}/{TEXT2}.png",
+        "big brain": "https://api.memegen.link/images/rollsafe/{TEXT1}/{TEXT2}.png",
+        "shut up and take my money": "https://api.memegen.link/images/money/{TEXT1}/{TEXT2}.png"
+    },
+    "bottom_image": {
+        "woman yelling at cat": "https://i.kym-cdn.com/entries/icons/facebook/000/030/157/womanyellingcat.jpg",
+        "sad pablo escobar": "https://imgflip.com/s/meme/Sad-Pablo-Escobar.jpg",
+        "ight imma head out": "https://i.kym-cdn.com/photos/images/newsfeed/001/555/872/b49.jpg",
+        "unsettled tom": "https://imgflip.com/s/meme/Unsettled-Tom.jpg",
+        "the what": "https://vierofernando.is-inside.me/FruYDxq8.png",
+        "well yes but actually no": "https://i.kym-cdn.com/entries/icons/facebook/000/028/596/dsmGaKWMeHXe9QuJtq_ys30PNfTGnMsRuHuo_MUzGCg.jpg",
+        "wait that's illegal": "https://nyc3.digitaloceanspaces.com/memecreator-cdn/media/__processed__/cb5/template-wait-thats-illegal-0c6db91aec9c.jpg",
+        "end this man's whole career": "https://i.ytimg.com/vi/GJSEtXY9HYY/mqdefault.jpg",
+        "pro gamer move": "https://i.kym-cdn.com/photos/images/newsfeed/001/498/705/803.png",
+        "monkey puppet": "https://i.pinimg.com/originals/f6/3e/d4/f63ed4353608ac2c6080fdafedd60865.png"
+    }
+}
