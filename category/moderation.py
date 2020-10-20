@@ -162,7 +162,7 @@ class moderation(commands.Cog):
         if not ctx.author.guild_permissions.manage_messages:
             raise self.client.utils.send_error_message('You need to have manage messages permissions to do this man. Sad.')
         elif len(args) == 0: return await ctx.send('{} | Invalid arguments. do `{}warn <userid/username> <reason optional>`')
-        user_to_warn = self.client.utils.getUser(args[0] if params == None else params[0], allownoargs=False)
+        user_to_warn = self.client.utils.getUser(ctx, args[0] if params == None else params[0], allownoargs=False)
         if user_to_warn.guild_permissions.manage_channels: raise self.client.utils.send_error_message("You cannot warn a moderator.")
         reason = 'No reason provided' if (params == None) else params[1]
         if len(reason)>100: reason = reason[0:100]
@@ -291,7 +291,7 @@ class moderation(commands.Cog):
         else:
             role_and_guy = self.client.utils.split_parameter_to_two(args)
             if role_and_guy == None: raise self.client.utils.send_error_message(f"Please make sure you inputted like this: `{self.client.command_prefix}addrole <user id/user mention/username>, <role id/role mention/rolename>`")
-            guy = self.client.utils.getUser(role_and_guy[0])
+            guy = self.client.utils.getUser(ctx, role_and_guy[0])
             role_array = [i for i in ctx.guild.roles if role_and_guy[1].lower() in i.name.lower()]
             if len(role_array) == 0: raise self.client.utils.send_error_message(f"Role `{role_and_guy[1]}` does not exist.")
             try:
@@ -307,7 +307,7 @@ class moderation(commands.Cog):
         else:
             role_and_guy = self.client.utils.split_parameter_to_two(args)
             if role_and_guy == None: raise self.client.utils.send_error_message(f"Please make sure you inputted like this: `{self.client.command_prefix}removerole <user id/user mention/username>, <role id/role mention/rolename>`")
-            guy = self.client.utils.getUser(role_and_guy[0])
+            guy = self.client.utils.getUser(ctx, role_and_guy[0])
             role_array = [i for i in ctx.guild.roles if role_and_guy[1].lower() in i.name.lower()]
             if len(role_array) == 0: raise self.client.utils.send_error_message(f"Role `{role_and_guy[1]}` does not exist.")
             try:
