@@ -18,7 +18,7 @@ class games(commands.Cog):
         data = self.client.utils.fetchJSON("https://api.mojang.com/user/profiles/"+uuid+"/names")
         res = ["**Latest: **`"+data[0]["name"]+"`"]
         if len(data) == 1: return res[0]
-        for i in arr[1:]:
+        for i in res[1:]:
             res.append("**["+str(t.fromtimestamp(i["changedToAt"] / 1000))[:-7]+"]: **`"+i["name"]+"`")
         return "\n".join(res)
     
