@@ -533,7 +533,7 @@ class moderation(commands.Cog):
             embedy.set_thumbnail(url='https://cdn.discordapp.com/emojis/'+str(data.id)+'.png?v=1')
             await ctx.send(embed=embedy)
 
-    @command('createchannel,create-channel,mc')
+    @command('createchannel,create-channel,ch')
     @cooldown(10)
     async def makechannel(self, ctx, *args):
         if len(args)<2:

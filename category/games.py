@@ -1,16 +1,43 @@
 import discord
 from discord.ext import commands
 import sys
+from requests import get
 from os import getcwd, name, environ
 sys.path.append(environ['BOT_MODULES_DIR'])
 from decorators import command, cooldown
 import random
+from datetime import datetime as t
 import discordgames as Games
 import asyncio
 
 class games(commands.Cog):
     def __init__(self, client):
         self.client = client
+    
+    def get_name_history(self, uuid):
+        data = self.client.utils.fetchJSON("https://api.mojang.com/user/profiles/"+uuid+"/names")
+        res = ["**Latest: **`"+data[0]["name"]+"`"]
+        if len(data) == 1: return res[0]
+        for i in arr[1:]:
+            res.append("**["+str(t.fromtimestamp(i["changedToAt"] / 1000))[:-7]+"]: **`"+i["name"]+"`")
+        return "\n".join(res)
+    
+    @command('mc')
+    @cooldown(3)
+    async def minecraft(self, ctx, *args):
+        async with ctx.channel.typing():
+            name = self.client.utils.encode_uri("Notch" if len(args)==0 else ' '.join(args))
+            body, head = discord.File(self.client.canvas.urltoimage(f"https://mc-heads.net/body/{name}/600"), "body.png"), discord.File(self.client.canvas.urltoimage(f"https://mc-heads.net/head/{name}/600"), "head.png")
+            data = get(f"https://mc-heads.net/minecraft/profile/{name}")
+            accent_color = self.client.canvas.get_accent(f"https://mc-heads.net/head/{name}/600")
+            if data.status_code != 200: raise self.client.utils.send_error_message(f"Minecraft for profile: {name} not found.")
+            data = data.json()
+            names = self.get_name_history(data['id'])
+            embed = discord.Embed(title=name, url='https://namemc.com/profile/'+data['id'], description="UUID: `"+data['id']+"`", color=discord.Color.from_rgb(*accent_color))
+            embed.set_image(url="attachment://body.png")
+            embed.set_thumbnail(url="attachment://head.png")
+            embed.add_field(name="Name history", value=names)
+            return await ctx.send(embed=embed, files=[body, head])
     
     @command('imposter,among-us,among_us,impostor,crew,crewmate,crew-mate')
     @cooldown(3)
