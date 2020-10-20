@@ -17,8 +17,8 @@ class games(commands.Cog):
     def get_name_history(self, uuid):
         data = self.client.utils.fetchJSON("https://api.mojang.com/user/profiles/"+uuid+"/names")
         res = ["**Latest: **`"+data[0]["name"]+"`"]
-        if len(data) == 1: return res[0]
-        for i in res[1:]:
+        if len(data) < 2: return res[0]
+        for i in data[1:]:
             res.append("**["+str(t.fromtimestamp(i["changedToAt"] / 1000))+"]: **`"+i["name"]+"`")
         return "\n".join(res)
     
