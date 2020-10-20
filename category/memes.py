@@ -448,10 +448,12 @@ class memes(commands.Cog):
             return self.client.canvas.urltoimage(url)
 
     async def custom_image_meme(self, ctx, *args):
-        message = await self.client.utils.wait_for_message(self, ctx, message="Please send a **Image URL/Attachment**, or\nSend a **ping/user ID/name** to format as an **avatar.**\nOr **leave empty** to use your avatar instead.", timeout=10.0)
-        if message is None: url = ctx.author.avatar_url_as(format="png")
+        message = await self.client.utils.wait_for_message(self, ctx, message="Please send a **Image URL/Attachment**, or\nSend a **ping/user ID/name** to format as an **avatar.**\nOr send `mine` to use your avatar instead.", timeout=20.0)
+        if message is None: raise self.client.utils.send_error_message("You did not input a text. Meme making canceled.")
+        elif "mine" in message.content.lower(): url = ctx.author.avatar_url_as(size=512, format="png")
         else: url = self.client.utils.getUserAvatar(message, tuple(message.content.split()))
         text = await self.client.utils.wait_for_message(self, ctx, message="Send top text and bottom text. Splitted by a space, comma, semicolon, or |.", timeout=10.0)
+        if text is None: raise self.client.utils.send_error_message("You did not input a text. Meme making canceled.")
         text1, text2 = self.client.utils.split_parameter_to_two(tuple(text.content.split()))
         async with ctx.channel.typing():
             return self.client.canvas.urltoimage("https://api.memegen.link/images/custom/{}/{}.png?background={}".format(self.client.utils.encode_uri(text1)[0:64], self.client.utils.encode_uri(text2)[0:64], url))
