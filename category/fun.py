@@ -15,6 +15,26 @@ class fun(commands.Cog):
         self.client = client
         self.session = ClientSession()
 
+    @command()
+    @cooldown(2)
+    async def trick(self, ctx):
+        link = random.choice(self.client.utils.links)
+        channel = ctx.channel
+        msg = await self.client.utils.fake_halloween(ctx, link)
+        def check(m):
+            return ((m.channel == channel) and (m.content.lower().startswith("h!")))
+        try:
+            waiting = await self.client.wait_for('message', check=check, timeout=15.0)
+        except asyncio.TimeoutError:
+            return
+        embed = discord.Embed(title="Happy Halloween!", description=f'As a thank you for your kindness, they give {waiting.author.mention} one **STICK BUG**', color=discord.Color.from_rgb(110, 138, 215))
+        embed.set_image(url=link)
+        embed.set_footer(text=random.choice([
+            "This item is uncommon. You wonder where they got it... It has been added to your inventory.",
+            "This item is common. There's nothing special about it. It has been added to your inventory."
+        ]))
+        return await msg.edit(content='', embed=embed)
+
     @command('talk,gtts,texttospeech,text-to-speech')
     @cooldown(5)
     async def tts(self, ctx, *args):

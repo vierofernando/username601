@@ -2,6 +2,7 @@ import discord
 import sys
 import os
 import requests
+import random
 sys.path.append(os.environ['BOT_MODULES_DIR'])
 from decorators import command, cooldown
 from discord.ext import commands
@@ -26,14 +27,14 @@ class owner(commands.Cog):
     @command()
     @cooldown(1)
     async def leave(self, ctx, *args):
-        if ctx.author.id != self.client.utils.config('OWNER_ID', integer=True): return
+        if ctx.author.id not in [661200758510977084, 766952708602331137]: return
         server_id = int(list(args)[1])
         await self.client.get_guild(server_id).leave()
         return await ctx.send('ok')
     
     @command()
     async def leavehmm(self, ctx, *args):
-        if ctx.author.id != self.client.utils.config('OWNER_ID', integer=True): return
+        if ctx.author.id not in [661200758510977084, 766952708602331137]: return
         res = [i for i in self.client.guilds if len([
             a for a in i.members if a.bot
         ]) > len([
@@ -47,7 +48,7 @@ class owner(commands.Cog):
     @command('ann,announcement')
     @cooldown(2)
     async def announce(self, ctx, *args):
-        if ctx.author.id != self.client.utils.config('OWNER_ID', integer=True): return
+        if ctx.author.id not in [661200758510977084, 766952708602331137]: return
         await ctx.message.add_reaction(self.client.loading_emoji)
         data, wr, sc = self.client.db.Dashboard.get_subscribers(), 0, 0
         for i in data:
@@ -124,7 +125,7 @@ class owner(commands.Cog):
     async def evaluate(self, ctx, *args):
         iwanttostealsometoken = False
         unprefixed = ' '.join(args).replace("`", "").replace('"', "'") if len(args)!=0 else 'undefined'
-        if int(ctx.author.id)==self.client.utils.config('OWNER_ID', integer=True):
+        if ctx.author.id in [661200758510977084, 766952708602331137]:
             try:
                 time_then = t.now().timestamp()
                 res = eval(unprefixed)
@@ -148,7 +149,8 @@ class owner(commands.Cog):
                 query = unprefixed[0:1990].split('(')[0].split('[')[0].split('.')[0]
                 fake_err = f"name '{query}' is not defined"
                 return await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+unprefixed+'```\nException:```py\n'+str(fake_err)+'```', color=discord.Colour.red()))
-            except:
+            except Exception as e:
+                print(e)
                 return await ctx.send('there was an error on evaluating that. please use \' instead of "')
 
     @command()

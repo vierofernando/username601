@@ -93,8 +93,7 @@ def process(text, font, width):
     if res==[]: res = [text]
     return '\n'.join(res)
 def char_process(text, width, font, array=False):
-    res = []
-    temp = ""
+    res, temp = [], ""
     for i in list(text):
         temp += i
         if font.getsize(temp)[0] < width:
@@ -137,6 +136,17 @@ class Painter:
     
     def get_accent(self, image): return self.get_color_accent(self.thief, image)
     def get_multiple_accents(self, image): return self.get_multiple_color_accents(self.thief, image)
+
+    def bottom_image_meme(self, image_url, text):
+        main = Image.new("RGB", size=(500, 500), color=(255, 255, 255))
+        font = self.getFont(self.fontpath, "Helvetica", 35)
+        draw = ImageDraw.Draw(main)
+        curs = 5
+        for i in self.char_process(text, 475, font, array=True)[0:5]:
+            draw.text((5, curs), i, font=font, fill='black')
+            curs += 35
+        main.paste(self.imagefromURL(image_url).resize((500, 300)), (0, 200))
+        return self.buffer(main)
 
     def blend(self, user1, user2):
         pic1 = self.imagefromURL(user1).resize((500, 500))
@@ -697,13 +707,6 @@ class Painter:
         img = self.imagefromURL(url)
         img.seek(0)
         return self.buffer(img)
-        
-    def memegen(self, url):
-        image = self.imagefromURL(url)
-        area = (0, 20, list(image.size)[0], list(image.size)[1]-12)
-        cropped_img = image.crop(area)
-        data = self.buffer(cropped_img)
-        return data
     
 class GifGenerator:
     

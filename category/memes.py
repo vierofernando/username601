@@ -407,9 +407,26 @@ class memes(commands.Cog):
         url = 'https://api.alexflipnote.dev/amiajoke?image='+str(source)
         await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'maymays.png'))
 
-    @command('toptext,top-text,bottomtext,bottom-text,topmeme,bottommeme')
-    @cooldown(5)
-    async def topbottom(self, ctx, *args):
+    async def modern_meme(self, ctx, *args):
+        keys = list(self.meme_templates["bottom_image"].keys())
+        def check(m):
+            if ((m.channel != ctx.channel) or (m.author != ctx.author)): return False
+            elif (m.content in keys) and (not m.content.isnumeric()): return True
+            elif (m.content.isnumeric()):
+                if int(m.content) in range(1, len(keys)+1): return True
+            return False
+        await ctx.send(embed=discord.Embed(title="Please provide your meme template from the available ones below. (in number)", description="\n".join([
+            str(i + 1)+". " + keys[i] for i in range(len(keys))
+        ]), color=ctx.guild.me.roles[::-1][0].color))
+        message = await self.client.utils.wait_for_message(self, ctx, message=None, func=check, timeout=20.0)
+        if message is None: raise self.client.utils.send_error_message("You did not respond in time. Meme-generation canceled.")
+        link = self.meme_templates["bottom_image"][(keys[int(message.content) - 1] if message.content.isnumeric() else message.content)]
+        format_text = await self.client.utils.wait_for_message(self, ctx, message="Now send your text content to be in the meme.", timeout=20.0)
+        if format_text is None: raise self.client.utils.send_error_message("You did not respond in time. Meme-generation canceled.")
+        async with ctx.channel.typing():
+            return self.client.canvas.bottom_image_meme(link, format_text.content[0:500])
+
+    async def top_bottom_text_meme(self, ctx, *args):
         keys = list(self.meme_templates["topbottom"].keys())
         def check(m):
             if ((m.channel != ctx.channel) or (m.author != ctx.author)): return False
@@ -417,7 +434,7 @@ class memes(commands.Cog):
             elif (m.content.isnumeric()):
                 if int(m.content) in range(1, len(keys)+1): return True
             return False
-        await ctx.send(embed=discord.Embed(title="Please provide your meme type (in numbers/names)", description="\n".join([
+        await ctx.send(embed=discord.Embed(title="Please provide your meme template from the available ones below. (in number)", description="\n".join([
             str(i + 1)+". " + keys[i] for i in range(len(keys))
         ]), color=ctx.guild.me.roles[::-1][0].color))
         message = await self.client.utils.wait_for_message(self, ctx, message=None, func=check, timeout=20.0)
@@ -427,7 +444,20 @@ class memes(commands.Cog):
         if format_text is None: raise self.client.utils.send_error_message("You did not respond in time. Meme-generation canceled.")
         text1, text2 = self.client.utils.split_parameter_to_two(format_text.content.split())
         url = link.replace("{TEXT1}", self.client.utils.encode_uri(text1)[0:50]).replace("{TEXT2}", self.client.utils.encode_uri(text2)[0:50])
-        return await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), "bottom_text.png"))
+        async with ctx.channel.typing():
+            return self.client.canvas.urltoimage(url)
+
+    @command('memegen,meme-gen,gen-meme,generatememe,generate-meme,meme-editor,meme_editor,memeeditor')
+    @cooldown(5)
+    async def mememaker(self, ctx, *args):
+        m = await ctx.send(embed=discord.Embed(title="Please select your meme format:", description="**[A] **Classic meme, Top text, bottom text, background image.\n**[B] **Modern meme, Top text, bottom image", color=ctx.guild.me.roles[::-1][0].color))
+        def check_chosen(m):
+            return ((m.channel == ctx.channel) and (m.author == ctx.author) and (len(m.content) == 1) and m.content.lower() in ['a', 'b'])
+        message = await self.client.utils.wait_for_message(self, ctx, message=None, timeout=20.0)
+        if message is None: return await m.edit(content="", embed=discord.Embed(title="Meme-making process canceled.", color=discord.Color.red()))
+        elif message.content.lower() == 'a': res = await self.top_bottom_text_meme(ctx, *args)
+        else: res = await self.modern_meme(ctx, *args)
+        return await ctx.send(file=discord.File(res, "meme.png"))
 
     @command('avatarmeme,avatar-meme')
     @cooldown(5)

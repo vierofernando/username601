@@ -4,7 +4,7 @@
 these are commands i decided to delete with the reasons.
 
 ### 1wonka, 1fry, 1money, 1doge, 1philosoraptor
-Have been merged down to `1bottomtext`
+Have been merged down to `1memegen`
 
 ### 1ytthumbnail<br>
 Completely pointless and also buggy regex<br>
