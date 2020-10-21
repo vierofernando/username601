@@ -86,8 +86,17 @@ class games(commands.Cog):
     @command()
     @cooldown(3)
     async def gdprofile(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.send_error_message('Gimme some ARGS!')
+        if len(args)==0: raise self.client.utils.send_error_message('Input a GD Username, (you also can add `--icon` to see the icon kit)')
         else:
+            parsed = self.client.utils.parse_parameter(args, "--icon")
+            if parsed["available"]:
+                try:
+                    name = self.client.utils.encode_uri(' '.join(parsed["parsedarg"]))
+                    wait = await ctx.send(f"{self.client.loading_emoji} | Fetching data from the Geometry Dash servers...\nThis may take a while. Hang tight...")
+                    image = self.client.canvas.geometry_dash_icons(name)
+                except: return await wait.edit(f"{self.client.error_emoji} | Please input a valid parameter!")
+                await wait.delete()
+                return await ctx.send(file=discord.File(image, "icon_kit.png"))
             try:
                 url = self.client.utils.encode_uri(str(' '.join(args)))
                 data = self.client.utils.fetchJSON("https://gdbrowser.com/api/profile/"+url)
@@ -102,11 +111,13 @@ class games(commands.Cog):
                 else: cp = data["cp"]
                 embed.add_field(name='ID Stuff', value='Player ID: '+str(data["playerID"])+'\nAccount ID: '+str(data["accountID"]), inline='True')
                 embed.add_field(name='Rank', value=rank, inline='True')
-                embed.add_field(name='Stats', value=str(data["stars"])+" Stars"+"\n"+str(data["bobux"])+" bobux\n"+str(data["coins"])+" Secret Coins\n"+str(data["userCoins"])+" User Coins\n"+str(data["demons"])+" Demons beaten", inline='False')
+                embed.add_field(name='Stats', value=str(data["stars"])+" Stars"+"\n"+str(data["diamonds"])+" bobux\n"+str(data["coins"])+" Secret Coins\n"+str(data["userCoins"])+" User Coins\n"+str(data["demons"])+" Demons beaten", inline='False')
                 embed.add_field(name='Creator Points', value=cp)
                 embed.set_author(name='Display User Information', icon_url="https://gdbrowser.com/icon/"+url)
+                embed.set_footer(text="TIP: add --icon to see the icon kit!")
                 await ctx.send(embed=embed)
-            except:
+            except Exception as e:
+                print(e)
                 raise self.client.utils.send_error_message('Error, user not found.')
     
     @command()

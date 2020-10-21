@@ -137,6 +137,17 @@ class Painter:
     def get_accent(self, image): return self.get_color_accent(self.thief, image)
     def get_multiple_accents(self, image): return self.get_multiple_color_accents(self.thief, image)
 
+    def geometry_dash_icons(self, name):
+        GD_FORMS = ('cube', 'ship', 'ball', 'ufo', 'wave', 'robot', 'spider')
+        forms = [self.imagefromURL(f"https://gdbrowser.com/icon/{name}?form={i}") for i in GD_FORMS]
+        width = sum([i.width for i in forms]) + (len(GD_FORMS) * 25) + 25
+        curs = 25
+        main = Image.new(mode="RGBA", size=(width, 250), color=(0, 0, 0, 0))
+        for i in forms:
+            main.paste(i, (curs, round((main.height - i.height) / 2)))
+            curs += (i.width + 25)
+        return self.buffer(main)
+
     def minecraft_body(self, url, uuid):
         body_3d = self.imagefromURL(url) # LMAO 420 NICE
         main = Image.new(mode="RGBA", size=(body_3d.width + 420, body_3d.height), color=(0, 0, 0, 0))
