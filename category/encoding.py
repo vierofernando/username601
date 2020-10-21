@@ -18,7 +18,6 @@ class encoding(commands.Cog):
         await ctx.send('```{}```'.format(
             str(self.client.utils.inspect_element('http://artii.herokuapp.com/make?text={}'.format(text)))[0:2000]
         ))
-
     @command('fliptext,fancy,cursive,braille')
     @cooldown(5)
     async def morse(self, ctx, *args):
@@ -52,11 +51,8 @@ class encoding(commands.Cog):
     async def binary(self, ctx, *args):
         if len(args)==0:
             raise self.client.utils.send_error_message('gimme something.')
-        elif len(' '.join(args)) > 50:
-            raise self.client.utils.send_error_message('too long.')
-        else:
-            return await ctx.send('```'+str(self.client.utils.binary_from(str(' '.join(args))))[0:2000]+'```')
-            
+        return await ctx.send('```'+str(self.client.utils.binary_from(str(' '.join(args))))[0:2000]+'```')
+
     @command()
     @cooldown(1)
     async def caesar(self, ctx, *args):

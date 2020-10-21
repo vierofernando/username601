@@ -1,6 +1,7 @@
 import aiohttp
 from random import choice
 from discord import Color, Embed
+from discord.message import Message
 from os import environ
 from requests import get
 from base64 import b64encode
@@ -73,17 +74,18 @@ def get_id_from_mention(mention):
 
 def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
     args = [str(get_id_from_mention(args))] if isinstance(args, str) else list(args)
+    msg = ctx if isinstance(ctx, Message) else ctx.message
     if len(args)==0:
-        if len(ctx.message.attachments) > 0:
-            Vld = inspect_image_url(ctx.message.attachments[0].url)
+        if len(msg.attachments) > 0:
+            Vld = inspect_image_url(msg.attachments[0].url)
             if Vld:
-                return ctx.message.attachments[0].url
-        if allowgif: return str(ctx.author.avatar_url_as(size=size))
-        else: return str(ctx.author.avatar_url_as(format='png', size=size))
+                return msg.attachments[0].url
+        if allowgif: return str(msg.author.avatar_url_as(size=size))
+        else: return str(msg.author.avatar_url_as(format='png', size=size))
     elif args[0].isnumeric():
-        if int(args[0]) not in [i.id for i in ctx.guild.members]: raise send_error_message("No user found.")
-        if not allowgif: return str(ctx.guild.get_member(int(args[0])).avatar_url_as(format='png', size=size))
-        return str(ctx.guild.get_member(int(args[0])).avatar_url_as(size=size))
+        if int(args[0]) not in [i.id for i in msg.guild.members]: raise send_error_message("No user found.")
+        if not allowgif: return str(msg.guild.get_member(int(args[0])).avatar_url_as(format='png', size=size))
+        return str(msg.guild.get_member(int(args[0])).avatar_url_as(size=size))
     elif len(args)==1 and (args[0].startswith('http') or args[0].startswith('<http')):
         if args[0].startswith('<') and list(args)[0].endswith('>'):
             res = args[0][:-1][1:]
@@ -91,9 +93,9 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
             temp[0] = res
             args = list(temp)
         if inspect_image_url(args[0]): return args[0]
-    if len(ctx.message.mentions)>0:
-        if not allowgif: return str(ctx.message.mentions[0].avatar_url_as(format='png', size=size))
-        return str(ctx.message.mentions[0].avatar_url_as(size=size))
+    if len(msg.mentions)>0:
+        if not allowgif: return str(msg.mentions[0].avatar_url_as(format='png', size=size))
+        return str(msg.mentions[0].avatar_url_as(size=size))
     name = str(' '.join(args)).lower().split('#')[0] # disable discriminator if found
     for i in ctx.guild.members:
         if name in str(i.name).lower():

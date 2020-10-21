@@ -137,6 +137,19 @@ class Painter:
     def get_accent(self, image): return self.get_color_accent(self.thief, image)
     def get_multiple_accents(self, image): return self.get_multiple_color_accents(self.thief, image)
 
+    def minecraft_body(self, url, uuid):
+        body_3d = self.imagefromURL(url) # LMAO 420 NICE
+        main = Image.new(mode="RGBA", size=(body_3d.width + 420, body_3d.height), color=(0, 0, 0, 0))
+        main.paste(body_3d, (0, 0))
+        textures = get(f"https://api.minetools.eu/profile/{uuid}").json()["decoded"]["textures"]
+        raw_texture = self.imagefromURL(textures["SKIN"]["url"])
+        main.paste(raw_texture.resize((400, 200)), (body_3d.width + 20, 0))
+        try:
+            cape = self.imagefromURL(textures["CAPE"]["url"])
+            main.paste(cape.resize((400, 200)), (body_3d.width + 20, 220))
+        except: pass
+        return self.buffer(main)
+
     def bottom_image_meme(self, image_url, text):
         main = Image.new("RGB", size=(500, 500), color=(255, 255, 255))
         font = self.getFont(self.fontpath, "Helvetica", 35)

@@ -18,26 +18,30 @@ class games(commands.Cog):
         data = self.client.utils.fetchJSON("https://api.mojang.com/user/profiles/"+uuid+"/names")
         res = ["**Latest: **`"+data[0]["name"]+"`"]
         if len(data) < 2: return res[0]
+        count = 0
         for i in data[1:]:
+            if count > 20: break
             res.append("**["+str(t.fromtimestamp(i["changedToAt"] / 1000))+"]: **`"+i["name"]+"`")
+            count += 1
         return "\n".join(res)
     
     @command('mc')
-    @cooldown(3)
+    @cooldown(5)
     async def minecraft(self, ctx, *args):
-        async with ctx.channel.typing():
-            name = self.client.utils.encode_uri("Notch" if len(args)==0 else ' '.join(args))
-            body, head = discord.File(self.client.canvas.urltoimage(f"https://mc-heads.net/body/{name}/600"), "body.png"), discord.File(self.client.canvas.urltoimage(f"https://mc-heads.net/head/{name}/600"), "head.png")
-            data = get(f"https://mc-heads.net/minecraft/profile/{name}")
-            accent_color = self.client.canvas.get_accent(f"https://mc-heads.net/head/{name}/600")
-            if data.status_code != 200: raise self.client.utils.send_error_message(f"Minecraft for profile: {name} not found.")
-            data = data.json()
-            names = self.get_name_history(data['id'])
-            embed = discord.Embed(title=name, url='https://namemc.com/profile/'+data['id'], description="UUID: `"+data['id']+"`", color=discord.Color.from_rgb(*accent_color))
-            embed.set_image(url="attachment://body.png")
-            embed.set_thumbnail(url="attachment://head.png")
-            embed.add_field(name="Name history", value=names)
-            return await ctx.send(embed=embed, files=[body, head])
+        msg = await ctx.send(f"{self.client.loading_emoji} | Fetching data from the minecraft servers...")
+        name = self.client.utils.encode_uri("Notch" if len(args)==0 else ' '.join(args))
+        data = get(f"https://mc-heads.net/minecraft/profile/{name}")
+        if data.status_code != 200: return await msg.edit(content=f"Minecraft for profile: `{name}` not found.")
+        data = data.json()
+        body, head = discord.File(self.client.canvas.minecraft_body(f"https://mc-heads.net/body/{name}/600", data['id']), "body.png"), discord.File(self.client.canvas.urltoimage(f"https://mc-heads.net/head/{name}/600"), "head.png")
+        accent_color = self.client.canvas.get_accent(f"https://mc-heads.net/head/{name}/600")
+        names = self.get_name_history(data['id'])
+        embed = discord.Embed(title=name, url='https://namemc.com/profile/'+data['id'], description="UUID: `"+data['id']+"`", color=discord.Color.from_rgb(*accent_color))
+        embed.set_image(url="attachment://body.png")
+        embed.set_thumbnail(url="attachment://head.png")
+        embed.add_field(name="Name history", value=names)
+        await msg.delete()
+        return await ctx.send(embed=embed, files=[body, head])
     
     @command('imposter,among-us,among_us,impostor,crew,crewmate,crew-mate')
     @cooldown(3)
