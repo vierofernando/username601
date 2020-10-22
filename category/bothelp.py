@@ -27,7 +27,7 @@ class bothelp(commands.Cog):
         elif 'reset' in ''.join(args).lower():
             self.client.db.Dashboard.subscribe(None, ctx.guild.id, reset=True)
             return await ctx.send('{} | Subscription has been deleted.'.format(self.client.success_emoji))
-        url = list(args)[0].replace('<', '').replace('>', '')
+        url = args[0].replace('<', '').replace('>', '')
         try:
             web = discord.Webhook.from_url(
                 url,
@@ -145,7 +145,7 @@ class bothelp(commands.Cog):
         if str(self.client.get_guild(self.client.utils.config('SERVER_ID', integer=True)).get_member(self.client.utils.config('OWNER_ID', integer=True)).status)=='offline': devstatus = 'Offline'
         else: devstatus = 'Online'
         embed = discord.Embed(title = 'About '+str(ctx.guild.me.display_name), colour = ctx.guild.me.roles[::-1][0].color)
-        embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Library: **Discord.py\n**Default self.client.command_prefix: **'+self.client.command_prefix)
+        embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Library: **Discord.py\n**Default prefix: **'+self.client.command_prefix)
         embed.add_field(name='Programmer info', value='**Programmed by: **'+str(self.client.get_user(self.client.utils.config('OWNER_ID', integer=True)))+'\n(Indie developed)\n**Current Discord Status:** '+devstatus)
         embed.add_field(name='Version Info', value='**Bot version: ** '+self.client.utils.config('VERSION')+'\n**Changelog: **'+self.client.utils.config('CHANGELOG'))#+'\n'+str(osinfo))
         embed.add_field(name='Links', value='[Invite this bot to your server!]('+self.client.utils.config('BOT_INVITE')+')\n[The support server!]('+self.client.utils.config('SERVER_INVITE')+')\n[Vote us on top.gg](https://top.gg/bot/'+str(self.client.user.id)+'/vote)\n[Official Website]('+self.client.utils.config('WEBSITE_MAIN')+')')

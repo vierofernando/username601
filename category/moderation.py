@@ -135,10 +135,10 @@ class moderation(commands.Cog):
                 ), color=ctx.guild.me.roles[::-1][0].color
             ))
         if starboard_channel['channelid']==None: return
-        elif list(args)[0].lower().startswith('rem'):
+        elif args[0].lower()=='remove':
             self.client.db.Dashboard.removeStarboardChannel(ctx.guild)
             return await wait.edit(content='{} | OK. Starboard for this server is deleted.'.format(self.client.success_emoji))
-        elif list(args)[0].lower()=='limit':
+        elif args[0].lower()=='limit':
             try:
                 num = int(list(args)[1])
                 if not num in range(1, 20):
@@ -214,12 +214,12 @@ class moderation(commands.Cog):
                     color=ctx.guild.me.roles[::-1][0].color
                 ))
             else:
-                if list(args)[0].lower()=='disable':
+                if args[0].lower()=='disable':
                     self.client.db.Dashboard.set_welcome(ctx.guild.id, None)
                     await ctx.send("{} | Welcome disabled!".format(self.client.success_emoji))
                 else:
                     try:
-                        if list(args)[0].startswith("<#") and list(args)[0].endswith('>'): channelid = int(list(args)[0].split('<#')[1].split('>')[0])
+                        if args[0].startswith("<#") and args[0].endswith('>'): channelid = int(args[0].split('<#')[1].split('>')[0])
                         else: channelid = int([i.id for i in ctx.guild.channels if str(i.name).lower()==str(''.join(args)).lower()][0])
                         self.client.db.Dashboard.set_welcome(ctx.guild.id, channelid)
                         await ctx.send("{} | Success! set the welcome log to <#{}>!".format(self.client.success_emoji, channelid))
@@ -239,12 +239,12 @@ class moderation(commands.Cog):
                     color=ctx.guild.me.roles[::-1][0].color
                 ))
             else:
-                if list(args)[0].lower()=='disable':
+                if args[0].lower()=='disable':
                     self.client.db.Dashboard.set_autorole(ctx.guild.id, None)
                     await ctx.send("{} | Autorole disabled!".format(self.client.success_emoji))
                 else:
                     try:
-                        if list(args)[0].startswith("<@&") and list(args)[0].endswith('>'): roleid = int(list(args)[0].split('<@&')[1].split('>')[0])
+                        if args[0].startswith("<@&") and args[0].endswith('>'): roleid = int(args[0].split('<@&')[1].split('>')[0])
                         else: roleid = int([i.id for i in ctx.guild.roles if str(i.name).lower()==str(' '.join(args)).lower()][0])
                         self.client.db.Dashboard.set_autorole(ctx.guild.id, roleid)
                         await ctx.send("{} | Success! set the autorole to **{}!**".format(self.client.success_emoji, ctx.guild.get_role(roleid).name))
@@ -255,7 +255,7 @@ class moderation(commands.Cog):
     @cooldown(3)
     async def emojiimg(self, ctx, *args):
         try:
-            em = list(args)[0].lower()
+            em = args[0].lower()
             if em.startswith('<:a:'): _id, an = em.split(':')[3].split('>')[0], True
             else: _id, an = em.split(':')[2].split('>')[0], False
             if an:
@@ -427,7 +427,7 @@ class moderation(commands.Cog):
                 await ctx.send(file=discord.File(im, 'server.png'))
             else:
                 try:
-                    data = self.client.utils.fetchJSON(f"https://discord.com/api/v6/invites/{list(args)[0].lower()}?with_counts=true")
+                    data = self.client.utils.fetchJSON(f"https://discord.com/api/v6/invites/{args[0].lower()}?with_counts=true")
                     im = self.client.canvas.server(None, data=data['guild'], raw=data)
                     await ctx.send(file=discord.File(im, 'server_that_has_some_kewl_vanity_url.png'))
                 except:
@@ -489,13 +489,13 @@ class moderation(commands.Cog):
             raise self.client.utils.send_error_message('Please send me an args or something!')
         else:
             begin = True
-            if list(args)[0].lower()!='voice':
-                if list(args)[0].lower()!='text':
+            if args[0].lower()!='voice':
+                if args[0].lower()!='text':
                     raise self.client.utils.send_error_message("Please use 'text' or 'channel'!")
                     begin = False
             if begin:
                 name = str(ctx.message.content).split(' ')[2:len(str(ctx.message.content).split())].replace(' ', '-')
-                if list(args)[0].lower()=='voice': await ctx.guild.create_voice_channel(name)
+                if args[0].lower()=='voice': await ctx.guild.create_voice_channel(name)
                 else: await ctx.guild.create_voice_channel(name)
 
     @command('nickname')
@@ -507,7 +507,7 @@ class moderation(commands.Cog):
             if not ctx.author.guild_permissions.change_nickname:
                 raise self.client.utils.send_error_message("Invalid permissions! You need the change nickname permission to do this")
             else:
-                if len(ctx.message.mentions)==0 or not list(args)[0].startswith('<@'):
+                if len(ctx.message.mentions)==0 or not args[0].startswith('<@'):
                     raise self.client.utils.send_error_message("Go mention someone!")
                 else:
                     try:
@@ -521,7 +521,7 @@ class moderation(commands.Cog):
     @cooldown(5)
     async def emojiinfo(self, ctx, *args):
         try:
-            erry, emojiid = int(list(args)[0].split(':')[2][:-1]), False
+            erry, emojiid = int(args[0].split(':')[2][:-1]), False
             data = self.client.get_emoji(emojiid)
         except:
             erry = True
@@ -539,12 +539,12 @@ class moderation(commands.Cog):
         if len(args)<2:
             raise self.client.utils.send_error_message(f'Oops! Not a valid argument! Please do `{self.client.command_prefix}makechannel <voice/text> <name>`')
         else:
-            if list(args)[0].lower()!='text' or list(args)[0].lower()!='voice':
+            if args[0].lower()!='text' or args[0].lower()!='voice':
                 raise self.client.utils.send_error_message('Oops! Not a valid type of channel!')
             else:
                 names = list(args)[1:len(args)]
-                if list(args)[0].lower()=='text': await ctx.guild.create_text_channel(name='-'.join(list(names)))
+                if args[0].lower()=='text': await ctx.guild.create_text_channel(name='-'.join(list(names)))
                 else: await ctx.guild.create_voice_channel(name='-'.join(names))
-                await ctx.send(self.client.success_emoji+" | Successfully created a {} channel named {}.".format(list(args)[0], str('-'.join(names))))
+                await ctx.send(self.client.success_emoji+" | Successfully created a {} channel named {}.".format(args[0], str('-'.join(names))))
 def setup(client):
     client.add_cog(moderation(client))

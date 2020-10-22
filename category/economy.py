@@ -22,7 +22,7 @@ class economy(commands.Cog):
         if len(args)==0: raise self.client.utils.send_error_message('Please input a number.')
         lucky = random.choice([False, True])
         try:
-            amount = int(list(args)[0])
+            amount = int(args[0])
         except:
             raise self.client.utils.send_error_message('Please make sure you inputted a number!')
         if not lucky:
@@ -77,7 +77,7 @@ class economy(commands.Cog):
         if len(args)==0: raise self.client.utils.send_error_message(f'Please use the following parameters:\n`{self.client.command_prefix}addshop <price> <name>`')
         if not ctx.author.guild_permissions.manage_guild: raise self.client.utils.send_error_message('You do not have the correct permissions to modify the server\'s shop.')
         try:
-            price = int(list(args)[0])
+            price = int(args[0])
             extra = '' if price in range(5, 1000000) else 'Invalid price. Setting price to default: 1000'
             if extra.endswith('1000'): price = 1000
             productName = '<product name undefined>' if len(args)<2 else ' '.join(list(args)[1:len(args)])
@@ -93,7 +93,7 @@ class economy(commands.Cog):
     async def delproduct(self, ctx, *args):
         if len(args)==0: raise self.client.utils.send_error_message(f'Please use the following parameters:\n`{self.client.command_prefix}delproduct <name>`\nor to delete all stored in the shop, use `{self.client.command_prefix}delproduct all`')
         if not ctx.author.guild_permissions.manage_guild: raise self.client.utils.send_error_message('You do not have the correct permissions to modify the server\'s shop.')
-        if list(args)[0].lower()=='all':
+        if args[0].lower()=='all':
             self.client.db.Shop.delete_shop(ctx.guild)
             return await ctx.send('{} | OK. All data for the shop is deleted.'.format(self.client.success_emoji))
         try:
@@ -249,11 +249,11 @@ class economy(commands.Cog):
         if len(args)==0: raise self.client.utils.send_error_message(f'How many money?\nOr use `{self.client.command_prefix}dep all` to deposit all of your money.')
         data = self.client.db.Economy.get(ctx.author.id)
         if data==None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
-        if list(args)[0].lower()=='all':
+        if args[0].lower()=='all':
             self.client.db.Economy.deposit(ctx.author.id, data['bal'])
             return await ctx.send('{} | OK. Deposited all of your bobux to the username601 bank.'.format(self.client.success_emoji))
         try:
-            num = int(list(args)[0])
+            num = int(args[0])
             if num > data['bal']:
                 raise self.client.utils.send_error_message('Your bank has more money than in your balance!')
             self.client.db.Economy.deposit(ctx.author.id, num)
@@ -267,11 +267,11 @@ class economy(commands.Cog):
         if len(args)==0: raise self.client.utils.send_error_message(f'How many money?\nOr use `{self.client.command_prefix}widthdraw all` to get money from the bank.')
         data = self.client.db.Economy.get(ctx.author.id)
         if data==None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
-        if list(args)[0].lower()=='all':
+        if args[0].lower()=='all':
             self.client.db.Economy.withdraw(ctx.author.id, data['bankbal'])
             return await ctx.send('{} | OK. Withdrawed all of your bobux from the username601 bank.'.format(self.client.success_emoji))
         try:
-            num = int(list(args)[0])
+            num = int(args[0])
             if num > data['bankbal']:
                 raise self.client.utils.send_error_message('Your number is more than the one in your bank!')
             self.client.db.Economy.withdraw(ctx.author.id, num)

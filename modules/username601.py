@@ -87,7 +87,7 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
         if not allowgif: return str(msg.guild.get_member(int(args[0])).avatar_url_as(format='png', size=size))
         return str(msg.guild.get_member(int(args[0])).avatar_url_as(size=size))
     elif len(args)==1 and (args[0].startswith('http') or args[0].startswith('<http')):
-        if args[0].startswith('<') and list(args)[0].endswith('>'):
+        if args[0].startswith('<') and args[0].endswith('>'):
             res = args[0][:-1][1:]
             temp = args
             temp[0] = res
@@ -122,7 +122,7 @@ def getUser(ctx, args, user=None, allownoargs=True):
     if user!=None: return user
     if args[0].isnumeric():
         if int(args[0]) not in [i.id for i in ctx.guild.members]: raise send_error_message("No user found.")
-        return ctx.guild.get_member(int(list(args)[0]))
+        return ctx.guild.get_member(int(args[0]))
     return ctx.author
 
 def clean_html(text):

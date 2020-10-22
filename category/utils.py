@@ -28,7 +28,7 @@ class utils(commands.Cog):
     async def isitdown(self, ctx, *args):
         if len(args)==0: raise self.client.utils.send_error_message("Please send a website link.")
         wait = await ctx.send('{} | Pinging...'.format(self.client.loading_emoji))
-        web = list(args)[0].replace('<', '').replace('>', '')
+        web = args[0].replace('<', '').replace('>', '')
         if not web.startswith('http'): web = 'http://' + web
         try:
             a = t.now()
@@ -249,7 +249,7 @@ class utils(commands.Cog):
     @cooldown(10)
     async def steamprofile(self, ctx, *args):
         try:
-            getprof = self.client.utils.encode_uri(list(args)[0].lower())
+            getprof = self.client.utils.encode_uri(args[0].lower())
             data = self.client.utils.fetchJSON('https://api.alexflipnote.dev/steam/user/'+str(getprof))
             state, privacy, url, username, avatar, custom_url, steam_id = data["state"], data["privacy"], data["url"], data["username"], data["avatarfull"], data["customurl"], data["steamid64"]
             embed = discord.Embed(title=username, description='**[Profile Link]('+str(url)+')**\n**Current state: **'+str(state)+'\n**Privacy: **'+str(privacy)+'\n**[Profile pic URL]('+str(avatar)+')**', colour = ctx.guild.me.roles[::-1][0].color)

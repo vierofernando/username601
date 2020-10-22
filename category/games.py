@@ -58,7 +58,7 @@ class games(commands.Cog):
         if not args[0].isnumeric(): raise self.client.utils.send_error_message('That is not a level ID!')
         toEdit = await ctx.send(self.client.loading_emoji+' | Fetching data from the Geometry Dash servers...')
         try:
-            data = self.client.canvas.geometry_dash_level(int(list(args)[0]))
+            data = self.client.canvas.geometry_dash_level(int(args[0]))
             await toEdit.delete()
             await ctx.send(file=discord.File(data, 'gdlevel.png'))
         except:

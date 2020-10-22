@@ -109,14 +109,14 @@ class owner(commands.Cog):
     @command()
     async def fban(self, ctx, *args):
         if int(ctx.author.id)==self.client.utils.config('OWNER_ID', integer=True):
-            self.client.db.selfDB.feedback_ban(int(list(args)[0]), str(' '.join(list(args)[1:len(args)])))
+            self.client.db.selfDB.feedback_ban(int(args[0]), str(' '.join(list(args)[1:len(args)])))
             await ctx.message.add_reaction(self.client.success_emoji)
         else:
             raise self.client.utils.send_error_message('You are not the owner, nerd.')
     @command()
     async def funban(self, ctx, *args):
         if int(ctx.author.id)==self.client.utils.config('OWNER_ID', integer=True):
-            data = self.client.db.selfDB.feedback_unban(int(list(args)[0]))
+            data = self.client.db.selfDB.feedback_unban(int(args[0]))
             if data=='200': await ctx.message.add_reaction(self.client.success_emoji)
             else: await ctx.message.add_reaction(self.client.error_emoji)
         else:

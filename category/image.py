@@ -116,13 +116,13 @@ class image(commands.Cog):
     @command()
     @cooldown(1)
     async def httpcat(self, ctx, *args):
-        code = list(args)[0] if (len(args)!=0) else '404'
+        code = args[0] if (len(args)!=0) else '404'
         await ctx.send(file=discord.File(self.client.canvas.urltoimage('https://http.cat/'+str(code)+'.jpg'), 'httpcat.png'))
     
     @command('httpduck')
     @cooldown(1)
     async def httpdog(self, ctx, *args):
-        code = list(args)[0] if (len(args)!=0) else '404'
+        code = args[0] if (len(args)!=0) else '404'
         url = 'https://random-d.uk/api/http/ABC.jpg' if ('duck' in ctx.message.content) else 'https://httpstatusdogs.com/img/ABC.jpg'
         try:
             await ctx.send(file=discord.File(
