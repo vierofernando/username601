@@ -110,8 +110,8 @@ class Dashboard:
             return
         database['dashboard'].update_one({'serverid': channel.guild.id}, {'$set': {'starboard': channel.id, 'star_requirements': int(limit)}})
     def removeStarboardChannel(guild):
-        if not Dashboard.exist(channel.guild.id):
-            Dashboard.add_guild(channel.guild.id)
+        if not Dashboard.exist(guild.id):
+            Dashboard.add_guild(guild.id)
             return
         database['dashboard'].update_one({
             'serverid': guildid

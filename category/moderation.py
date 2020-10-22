@@ -135,7 +135,7 @@ class moderation(commands.Cog):
                 ), color=ctx.guild.me.roles[::-1][0].color
             ))
         if starboard_channel['channelid']==None: return
-        elif args[0].lower()=='remove':
+        elif args[0].lower().startswith("rem"):
             self.client.db.Dashboard.removeStarboardChannel(ctx.guild)
             return await wait.edit(content='{} | OK. Starboard for this server is deleted.'.format(self.client.success_emoji))
         elif args[0].lower()=='limit':
