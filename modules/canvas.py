@@ -716,9 +716,8 @@ class Painter:
         data = self.buffer(pic)
         return data
     
-    def urltoimage(self, url, stream=False):
-        image = self.imagefromURL(url, stream=stream)
-        return self.buffer(image)
+    def urltoimage(self, url):
+        return BytesIO(get(url).content)
     
     def smallURL(self, url):
         image = self.imagefromURL(url)
