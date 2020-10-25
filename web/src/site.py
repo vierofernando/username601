@@ -30,8 +30,7 @@ class Website:
       "api": "https://useless-api.vierofernando.repl.co/docs"
     }
     self.raw_index_template = open('./templates/index.html', 'r').read().replace('\n', '')
-    self.callback_code = open('./templates/callback.html', 'r').read().replace('\n', '')
-  
+
   def render_index_template(self):
     try:
       data = get('https://useless-api.vierofernando.repl.co/get_bot_stats').json()

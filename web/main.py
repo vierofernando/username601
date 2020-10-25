@@ -8,14 +8,6 @@ web = Website("username601's webshite")
 def not_found(err):
   return render_template("404.html")
 
-@web.page('/dashboard')
-def dashboard():
-  return render_template("dashboard.html")
-
-@web.page('/auth-callback')
-def callback():
-  return web.callback_code
-
 @web.page('/github')
 def github():
   return web.redirect('github')
