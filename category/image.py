@@ -15,10 +15,11 @@ class image(commands.Cog):
     @command('explode')
     @cooldown(8)
     async def implode(self, ctx, *args):
-        command_name = ctx.message.content.split()[0][1:].lower()
-        amount = "3.5" if ("implode" in command_name) else "-3.5"
-        url = self.client.utils.getUserAvatar(ctx, args)
-        return await ctx.send(file=discord.File(self.client.canvas.urltoimage(f"https://useless-api.vierofernando.repl.co/implode?image={url}&amount={amount}"), "boom.png"))
+        async with ctx.channel.typing():
+            command_name = ctx.message.content.split()[0][1:].lower()
+            amount = "3.5" if ("implode" in command_name) else "-3.5"
+            url = self.client.utils.getUserAvatar(ctx, args)
+            return await ctx.send(file=discord.File(self.client.canvas.urltoimage(f"https://useless-api.vierofernando.repl.co/implode?image={url}&amount={amount}"), "boom.png"))
 
     @command('spread,emboss,edge,sketch,swirl')
     @cooldown(10)
