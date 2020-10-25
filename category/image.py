@@ -21,7 +21,7 @@ class image(commands.Cog):
             url = self.client.utils.getUserAvatar(ctx, args)
             return await ctx.send(file=discord.File(self.client.canvas.urltoimage(f"https://useless-api.vierofernando.repl.co/implode?image={url}&amount={amount}"), "boom.png"))
 
-    @command('spread,emboss,edge,sketch,swirl')
+    @command('spread,emboss,edge,sketch,swirl,wave')
     @cooldown(10)
     async def charcoal(self, ctx, *args):
         async with ctx.channel.typing():
