@@ -298,7 +298,7 @@ class Painter:
                 if data['disliked']: sym = self.imagefromURL(self.gd_assets['dislike']).convert('RGBA').resize((25, 25))
                 else: sym = self.imagefromURL(self.gd_assets['like']).convert('RGBA').resize((25, 25))
                 main.paste(sym, (round((W-25)/2) + 75, sym_cursor), sym)
-                draw.text((round((W-25)/2)+105, sym_cursor+5), data['likes'], font=pusab_smoler, stroke_width=2, stroke_fill="black")
+                draw.text((round((W-25)/2)+105, sym_cursor+5), str(data['likes']), font=pusab_smoler, stroke_width=2, stroke_fill="black")
                 sym_cursor += 30
                 continue
             if i not in list(data.keys()): continue
@@ -716,7 +716,7 @@ class Painter:
         data = self.buffer(pic)
         return data
     
-    def urltoimage(self, url):
+    def urltoimage(self, url, stream=False):
         return BytesIO(get(url).content)
     
     def smallURL(self, url):
