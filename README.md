@@ -10,47 +10,6 @@ There are two types of parts in this repo. The **website source code** is stored
 # Contribute!
 If you spot a bug, an enhancement idea, or just a little typo, **you can make a pull request, and merge it here!** Feel free to fork and do something with our code.
 
-# Configuration
-
-## Bot configuration
-### P.S: Please modify the config.ini file first to your desired settings.
-
-**ENVIRONMENT VARIABLES:**<br>
-```
-DISCORD_TOKEN = Your discord token
-DBL_TOKEN = Your discord bot list (top.gg) token
-DB_LINK = Your MongoDB database link
-```
-
-**DATABASE STRUCTURE:**<br>
-username601 > economy<br>
-username601 > config<br>
-username601 > dashboard<br>
-
-**REQUIREMENTS:**<br>
-```
-discord.py
-IMDbPY
-requests
-googletrans
-Wikipedia-API
-dblpy
-Pillow
-pymongo
-dnspython
-PyNaCl
-gtts
-colorthief
-```
-
-## Website configuration<br>
-The website is written in H**TML/CSS/JS for the front-end**, and **Python for the back-end.**
-
-**REQUIREMENTS:**<br>
-```
-flask
-Flask-Limiter
-```
-
-Happy coding!<br>
-(c) vierofernando Programming 2020. All rights reserved.
+# Use this for your bot?
+In my opinion, i **do not recommend using this whole code to your bot** since there may be some bugs or something.<br>
+But you still can get small snippets of code from this repository.
