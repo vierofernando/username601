@@ -11,7 +11,22 @@ from aiohttp import ClientSession
 class image(commands.Cog):
     def __init__(self, client):
         self.client = client
-        self.session = ClientSession()
+
+    @command('explode')
+    @cooldown(8)
+    async def implode(self, ctx, *args):
+        command_name = ctx.message.content.split()[0][1:].lower()
+        amount = "3.5" if ("implode" in command_name) else "-3.5"
+        url = self.client.utils.getUserAvatar(ctx, args)
+        return await ctx.send(file=discord.File(self.client.canvas.urltoimage(f"https://useless-api.vierofernando.repl.co/implode?image={url}&amount={amount}"), "boom.png"))
+
+    @command('spread,emboss,edge,sketch,swirl')
+    @cooldown(10)
+    async def charcoal(self, ctx, *args):
+        async with ctx.channel.typing():
+            command_name = ctx.message.content.split()[0][1:].lower()
+            url = self.client.utils.getUserAvatar(ctx, args)
+            return await ctx.send(file=discord.File(self.client.canvas.urltoimage(f"https://useless-api.vierofernando.repl.co/{command_name}?image={url}"), "image.png"))    
 
     @command('combine')
     @cooldown(2)
@@ -28,7 +43,7 @@ class image(commands.Cog):
     @cooldown(2)
     async def pikachu(self, ctx):
         async with ctx.channel.typing():
-            async with self.session.get(self.client.utils.fetchJSON('https://some-random-api.ml/img/pikachu')['link']) as r:
+            async with self.client.bot_session.get(self.client.utils.fetchJSON('https://some-random-api.ml/img/pikachu')['link']) as r:
                 res = await r.read()
                 await ctx.send(file=discord.File(fp=BytesIO(res), filename="pikachu.gif"))
 
