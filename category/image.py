@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import sys
+from requests import get
 from os import getcwd, name, environ
 sys.path.append(environ['BOT_MODULES_DIR'])
 from decorators import command, cooldown
@@ -12,17 +13,27 @@ class image(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    async def explode_animated(self, ctx, args):
+        wait = await ctx.send(f"{self.client.loading_emoji} | Please wait... this may take a few seconds.")
+        url = self.client.utils.getUserAvatar(ctx, args, size=128)
+        data = get(f"https://useless-api.vierofernando.repl.co/explode/animated?image={url}", headers={'superdupersecretkey': environ['USELESSAPI']}).content
+        await wait.delete()
+        await ctx.send(file=discord.File(BytesIO(data), 'brrr.gif'))
+
     @command('explode')
-    @cooldown(8)
+    @cooldown(9)
     async def implode(self, ctx, *args):
+        command_name = ctx.message.content.split()[0][1:].lower()
+        if (("--animated" in args) and ("explode" in command_name)):
+            return await self.explode_animated(ctx, args)
+
         async with ctx.channel.typing():
-            command_name = ctx.message.content.split()[0][1:].lower()
-            amount = "3.5" if ("implode" in command_name) else "-3.5"
+            amount = "1" if ("implode" in command_name)  else "-3.5"
             url = self.client.utils.getUserAvatar(ctx, args)
             return await ctx.send(file=discord.File(self.client.canvas.urltoimage(f"https://useless-api.vierofernando.repl.co/implode?image={url}&amount={amount}"), "boom.png"))
 
     @command('spread,emboss,edge,sketch,swirl,wave')
-    @cooldown(10)
+    @cooldown(8)
     async def charcoal(self, ctx, *args):
         async with ctx.channel.typing():
             command_name = ctx.message.content.split()[0][1:].lower()
