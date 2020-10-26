@@ -258,7 +258,7 @@ class image(commands.Cog):
         source = self.client.utils.getUserAvatar(ctx, args)
         await ctx.channel.trigger_typing()
         await ctx.send(file=discord.File(
-            self.client.canvas.urltoimage(f'https://nekobot.xyz/api/imagegen?type=magik&image={source}&raw=1&intensity={random.randint(5, 10)}'), 'magik.png'
+            self.client.canvas.urltoimage(f'https://nekobot.xyz/api/imagegen?type=magik&image={source}&raw=1'), 'magik.png'
         ))
 
     @command()
@@ -274,13 +274,14 @@ class image(commands.Cog):
         return await ctx.send(file=discord.File(self.client.canvas.grayscale(av), 'invert.png'))
 
     @command('pixelate')
-    @cooldown(1)
+    @cooldown(5)
     async def jpeg(self, ctx, *args):
-        com = str(ctx.message.content).split()[0].replace('jpeg', 'jpegify')[1:]
-        source = self.client.utils.getUserAvatar(ctx, args)
-        await ctx.channel.trigger_typing()
-        await ctx.send(file=discord.File(
-            self.client.canvas.urltoimage(f'https://nekobot.xyz/api/imagegen?type={com.lower()}&image={source}&raw=1'), 'lmao-nice.png'
-        ))
+        async with ctx.channel.typing():
+            url = {"jpeg": "https://api.alexflipnote.dev/filter/jpegify?image=<URL>", "pixelate": "https://useless-api.vierofernando.repl.co/pixelate?image=<URL>&amount=<NUM>"}
+            command_name = ctx.message.content.split()[0][1:].lower()
+            avatar = self.client.utils.getUserAvatar(ctx, args)
+            url = url[command_name].replace("<URL>", avatar).replace("<NUM>", random.choice(["16", "32"]))
+            return await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), "image.png"))
+
 def setup(client):
     client.add_cog(image(client))
