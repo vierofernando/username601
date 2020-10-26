@@ -13,10 +13,10 @@ class image(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    async def explode_animated(self, ctx, args):
+    async def plode_animated(self, ctx, args, command_name):
         wait = await ctx.send(f"{self.client.loading_emoji} | Please wait... this may take a few seconds.")
         url = self.client.utils.getUserAvatar(ctx, args, size=128)
-        data = get(f"https://useless-api.vierofernando.repl.co/explode/animated?image={url}", headers={'superdupersecretkey': environ['USELESSAPI']}).content
+        data = get(f"https://useless-api.vierofernando.repl.co/{command_name}/animated?image={url}", headers={'superdupersecretkey': environ['USELESSAPI']}).content
         await wait.delete()
         await ctx.send(file=discord.File(BytesIO(data), 'brrr.gif'))
 
@@ -24,8 +24,8 @@ class image(commands.Cog):
     @cooldown(9)
     async def implode(self, ctx, *args):
         command_name = ctx.message.content.split()[0][1:].lower()
-        if (("--animated" in args) and ("explode" in command_name)):
-            return await self.explode_animated(ctx, args)
+        if ("--animated" in args):
+            return await self.plode_animated(ctx, args, command_name)
 
         async with ctx.channel.typing():
             amount = "1" if ("implode" in command_name)  else "-3.5"
