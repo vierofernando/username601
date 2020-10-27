@@ -1,4 +1,12 @@
-from PIL import Image, ImageFont, ImageDraw, GifImagePlugin, ImageOps, ImageFilter, ImageColor
+from PIL import (
+    Image,
+    ImageFont,
+    ImageDraw,
+    GifImagePlugin,
+    ImageOps,
+    ImageFilter,
+    ImageColor
+)
 from io import BytesIO
 from datetime import datetime as t
 from requests import get
@@ -7,139 +15,106 @@ import random
 from .username601 import *
 from colorthief import ColorThief
 
-def toLocaleString(num): return f'{str(num):,}'
-def getFont(fontpath, fontname, size, otf=False):
-    ext = 'ttf' if not otf else 'otf'
-    return ImageFont.truetype(f'{fontpath}/{fontname}.{ext}', size)
-def getImage(assetpath, imageName): return Image.open(f'{assetpath}/{imageName}')
-def imagefromURL(url, *args, **kwargs):
-    try: return Image.open(BytesIO(get(url).content))
+def buffer_from_url(url, *args, **kwargs):
+    try: return Image.open(BytesIO(get(url, timeout=5).content))
     except: return Image.new(mode='RGB', size=(500, 500), color=(0, 0, 0))
-def bufferGIF(images, duration, optimize=False):
-    arr = BytesIO()
-    images[0].save(arr, "GIF", save_all=True, append_images=images[1:], optimize=optimize, duration=duration, loop=0)
-    arr.seek(0)
-    return arr
-def buffer(data):
-    arr = BytesIO()
-    data.save(arr, format='PNG')
-    arr.seek(0)
-    return arr
-def drawtext(draw, thefont, text, x, y, col):
-    draw.text((x, y), text, fill =col, font=thefont, align ="left")
-def drawProgressBar(draw, percent):
-    data = round(percent/100*485)
-    if data<2: return
-    draw.rectangle(((15, 459), (data, 469)), fill=(0, 255, 0))
-def getSongString(thetime, now):
-    i = round((now - thetime).total_seconds())
-    minute = '0' if (i%60==0) else str(int(i/60))
-    if i > 60:
-        while i > 60:
-            i -= 60
-    if len(minute)==1: minute = '0'+minute
-    return minute+':'+str(i)
-def brightness_text(tupl):
-    if (sum(tupl)/3) < 127.5: return (255, 255, 255)
-    return (0, 0, 0)
-def add_corners(im, rad, top_only=False, bottom_only=False):
-    circle = Image.new('L', (rad * 2, rad * 2), 0)
-    draw = ImageDraw.Draw(circle)
-    draw.ellipse((0, 0, rad * 2, rad * 2), fill=255)
-    alpha = Image.new('L', im.size, 255)
-    w, h = im.size
-    alpha.paste(circle.crop((0, 0, rad, rad)), (0, 0))
-    alpha.paste(circle.crop((0, rad, rad, rad * 2)), (0, h-rad))
-    alpha.paste(circle.crop((rad, 0, rad * 2, rad)), (w-rad, 0))
-    alpha.paste(circle.crop((rad, rad, rad * 2, rad * 2)), (w-rad, h-rad))
-    im.putalpha(alpha)
-def get_accent(thief, image):
-    data = BytesIO(get(image).content)
-    return thief(data).get_color()
-def draw_status_stats(draw, obj, rect_y_cursor, font, margin_left, margin_right, bg_arr):
-    x_pos, colors = margin_left, [(63, 232, 0), (244, 208, 63), (225, 0, 0), (124, 0, 211), (127, 127, 127)]
-    total = sum([obj[i] for i in list(obj.keys())])
-    draw.rectangle([
-        (margin_left, rect_y_cursor), (margin_right, rect_y_cursor + 25)
-    ], fill=bg_arr[1])
-    draw.text((margin_left + 3, rect_y_cursor + 2), "Member status graph:", fill=brightness_text(bg_arr[1]), font=font)
-    rect_y_cursor += 25
-    draw.rectangle([
-        (margin_left, rect_y_cursor), (margin_right, rect_y_cursor + 50)
-    ], fill=(50, 50, 50))
-    for i in range(len(list(obj.keys()))):
-        percentage = round(obj[list(obj.keys())[i]]/total*(margin_right - margin_left))
-        draw.rectangle([
-            (x_pos, rect_y_cursor), (x_pos + percentage, rect_y_cursor + 50)
-        ], fill=colors[i])
-        x_pos += percentage
-    rect_y_cursor += 70
-    return rect_y_cursor
-def get_multiple_color_accents(thief, image):
-    b = BytesIO(get(image).content)
-    thief = thief(b).get_palette(color_count=10)
-    return [{
-        'r': i[0], 'g': i[1], 'b': i[2]
-    } for i in thief]
-def process(text, font, width):
-    res, temp = [], []
-    for i in text.split():
-        data = font.getsize(' '.join(temp))[0]
-        if data < width:
-            temp.append(i)
-            continue
-        res.append(' '.join(temp))
-        temp = []
-    if res==[]: res = [text]
-    return '\n'.join(res)
-def char_process(text, width, font, array=False):
-    res, temp = [], ""
-    for i in list(text):
-        temp += i
-        if font.getsize(temp)[0] < width:
-            continue
-        res.append(temp+'-')
-        temp = ""
-    if len(''.join(res)) != len(text):
-        res.append(temp+'-')
-    if res ==[]:
-        if array: return [''.join(temp)[:-1]]
-        return ''.join(temp)[:-1]
-    res[len(res)-1] = res[len(res)-1][:-1]
-    if array: return res
-    return '\n'.join(res)
 
 class Painter:
 
     def __init__(self, assetpath, fontpath): # lmao wtf is this
-        self.getFont = getFont
-        self.getImage = getImage
-        self.imagefromURL = imagefromURL
+        self.buffer_from_url = buffer_from_url
         self.assetpath = assetpath
         self.fontpath = fontpath
-        self.toLocaleString = toLocaleString
-        self.buffer = buffer
-        self.drawProgressBar = drawProgressBar
-        self.getSongString = getSongString
-        self.get_color_accent = get_accent
-        self.drawtext = drawtext
-        self.draw_status_stats = draw_status_stats
-        self.thief = ColorThief
-        self.process_text = process
-        self.add_corners = add_corners
-        self.char_process = char_process
         self.flags = json.loads(open(config('JSON_DIR')+'/flags.json', 'r').read())
         self.region = json.loads(open(config('JSON_DIR')+'/regions.json', 'r').read())
-        self.get_multiple_color_accents = get_multiple_color_accents
         self.gd_assets = json.loads(open(config('JSON_DIR')+'/gd.json', 'r').read())
-        self.invert = brightness_text # lmao
+
+    def drawtext(self, draw, thefont, text, x, y, col):
+        draw.text((x, y), text, fill =col, font=thefont, align ="left")
+
+    def get_font(self, fontname, size, otf=False):
+        ext = 'ttf' if not otf else 'otf'
+        return ImageFont.truetype(f'{self.fontpath}/{fontname}.{ext}', size)
+
+    def get_image(self, imageName):
+        return Image.open(f'{self.assetpath}/{imageName}')
+
+    def invert(self, tupl):
+        if (sum(tupl)/3) < 127.5: return (255, 255, 255)
+        return (0, 0, 0)
+
+    def add_corners(self, im, rad, top_only=False, bottom_only=False):
+        circle = Image.new('L', (rad * 2, rad * 2), 0)
+        draw = ImageDraw.Draw(circle)
+        draw.ellipse((0, 0, rad * 2, rad * 2), fill=255)
+        alpha = Image.new('L', im.size, 255)
+        w, h = im.size
+        alpha.paste(circle.crop((0, 0, rad, rad)), (0, 0))
+        alpha.paste(circle.crop((0, rad, rad, rad * 2)), (0, h-rad))
+        alpha.paste(circle.crop((rad, 0, rad * 2, rad)), (w-rad, 0))
+        alpha.paste(circle.crop((rad, rad, rad * 2, rad * 2)), (w-rad, h-rad))
+        im.putalpha(alpha)
+
+    def wrap_text(self, width, font, array=False):
+        res, temp = [], ""
+        for i in list(text):
+            temp += i
+            if font.getsize(temp)[0] < width:
+                continue
+            res.append(temp+'-')
+            temp = ""
+        if len(''.join(res)) != len(text):
+            res.append(temp+'-')
+        if res ==[]:
+            if array: return [''.join(temp)[:-1]]
+            return ''.join(temp)[:-1]
+        res[len(res)-1] = res[len(res)-1][:-1]
+        if array: return res
+        return '\n'.join(res)
+
+    def _draw_status_stats(self, draw, obj, rect_y_cursor, font, margin_left, margin_right, bg_arr):
+        x_pos, colors = margin_left, [(63, 232, 0), (244, 208, 63), (225, 0, 0), (124, 0, 211), (127, 127, 127)]
+        total = sum([obj[i] for i in list(obj.keys())])
+        draw.rectangle([
+            (margin_left, rect_y_cursor), (margin_right, rect_y_cursor + 25)
+        ], fill=bg_arr[1])
+        draw.text((margin_left + 3, rect_y_cursor + 2), "Member status graph:", fill=brightness_text(bg_arr[1]), font=font)
+        rect_y_cursor += 25
+        draw.rectangle([
+            (margin_left, rect_y_cursor), (margin_right, rect_y_cursor + 50)
+        ], fill=(50, 50, 50))
+        for i in range(len(list(obj.keys()))):
+            percentage = round(obj[list(obj.keys())[i]]/total*(margin_right - margin_left))
+            draw.rectangle([
+                (x_pos, rect_y_cursor), (x_pos + percentage, rect_y_cursor + 50)
+            ], fill=colors[i])
+            x_pos += percentage
+        rect_y_cursor += 70
+        return rect_y_cursor
+
+    def buffer(self, data):
+        arr = BytesIO()
+        data.save(arr, format='PNG')
+        arr.seek(0)
+        return arr
+
+    def toLocaleString(self, num):
+        return f'{str(num):,}'
     
-    def get_accent(self, image): return self.get_color_accent(self.thief, image)
-    def get_multiple_accents(self, image): return self.get_multiple_color_accents(self.thief, image)
+    def get_color_accent(self, url):
+        res = ColorThief(BytesIO(get(url).content))
+        return res.get_color()
+
+    def get_multiple_accents(self, image):
+        b = BytesIO(get(image).content)
+        thief = ColorThief(b).get_palette(color_count=10)
+        return [{
+            'r': i[0], 'g': i[1], 'b': i[2]
+        } for i in thief]
 
     def geometry_dash_icons(self, name):
         GD_FORMS = ('cube', 'ship', 'ball', 'ufo', 'wave', 'robot', 'spider')
-        forms = [self.imagefromURL(f"https://gdbrowser.com/icon/{name}?form={i}") for i in GD_FORMS]
+        forms = [self.buffer_from_url(f"https://gdbrowser.com/icon/{name}?form={i}") for i in GD_FORMS]
         width = sum([i.width for i in forms]) + (len(GD_FORMS) * 25) + 25
         curs = 25
         main = Image.new(mode="RGBA", size=(width, 250), color=(0, 0, 0, 0))
@@ -149,32 +124,32 @@ class Painter:
         return self.buffer(main)
 
     def minecraft_body(self, url, uuid):
-        body_3d = self.imagefromURL(url) # LMAO 420 NICE
+        body_3d = self.buffer_from_url(url) # LMAO 420 NICE
         main = Image.new(mode="RGBA", size=(body_3d.width + 420, body_3d.height), color=(0, 0, 0, 0))
         main.paste(body_3d, (0, 0))
         textures = get(f"https://api.minetools.eu/profile/{uuid}").json()["decoded"]["textures"]
-        raw_texture = self.imagefromURL(textures["SKIN"]["url"])
+        raw_texture = self.buffer_from_url(textures["SKIN"]["url"])
         main.paste(raw_texture.resize((400, 200)), (body_3d.width + 20, 0))
         try:
-            cape = self.imagefromURL(textures["CAPE"]["url"])
+            cape = self.buffer_from_url(textures["CAPE"]["url"])
             main.paste(cape.resize((400, 200)), (body_3d.width + 20, 220))
         except: pass
         return self.buffer(main)
 
     def bottom_image_meme(self, image_url, text):
         main = Image.new("RGB", size=(500, 500), color=(255, 255, 255))
-        font = self.getFont(self.fontpath, "Helvetica", 35)
+        font = self.get_font(self.fontpath, "Helvetica", 35)
         draw = ImageDraw.Draw(main)
         curs = 5
-        for i in self.char_process(text, 475, font, array=True)[0:5]:
+        for i in self.wrap_text(text, 475, font, array=True)[0:5]:
             draw.text((5, curs), i, font=font, fill='black')
             curs += 35
-        main.paste(self.imagefromURL(image_url).resize((500, 300)), (0, 200))
+        main.paste(self.buffer_from_url(image_url).resize((500, 300)), (0, 200))
         return self.buffer(main)
 
     def blend(self, user1, user2):
-        pic1 = self.imagefromURL(user1).resize((500, 500))
-        pic2 = self.imagefromURL(user2).resize((500, 500))
+        pic1 = self.buffer_from_url(user1).resize((500, 500))
+        pic2 = self.buffer_from_url(user2).resize((500, 500))
         res = Image.blend(pic1, pic2, alpha=0.5)
         return self.buffer(res)
 
@@ -184,11 +159,11 @@ class Painter:
         try: rgb, brightness = ImageColor.getrgb(string), ImageColor.getcolor(string, 'L')
         except: return None
         main = Image.new(mode='RGB', size=(500, 500), color=rgb)
-        try: color_name = requests.get('https://api.alexflipnote.dev/color/'+string[1:]).json()['name']
+        try: color_name = get('https://api.alexflipnote.dev/color/'+string[1:]).json()['name']
         except: color_name = 'Unknown'
-        big_font = self.getFont(self.fontpath, "Aller", 50)
-        medium_font = self.getFont(self.fontpath, "Aller", 30)
-        small_font = self.getFont(self.fontpath, "Aller", 20)
+        big_font = self.get_font(self.fontpath, "Aller", 50)
+        medium_font = self.get_font(self.fontpath, "Aller", 30)
+        small_font = self.get_font(self.fontpath, "Aller", 20)
         draw = ImageDraw.Draw(main)
         draw.text((10, 10), string, fill=self.invert(rgb), font=big_font)
         draw.text((10, 75), color_name, fill=self.invert(rgb), font=medium_font)
@@ -196,9 +171,9 @@ class Painter:
         return self.buffer(main)
 
     def among_us(self, url):
-        bg = self.getImage(self.assetpath, 'among_us.png')
-        ava = self.imagefromURL(url).resize((240, 228))
-        col = self.get_accent(url)
+        bg = self.get_image(self.assetpath, 'among_us.png')
+        ava = self.buffer_from_url(url).resize((240, 228))
+        col = self.get_color_accent(url)
         cnv = Image.new(mode='RGBA', size=(512, 512), color=(0,0,0))
         draw = ImageDraw.Draw(cnv)
         draw.rectangle([(0, 0), (512, 512)], fill=col)
@@ -209,36 +184,36 @@ class Painter:
         return self.buffer(anothercnv)
 
     def gru(self, text1, text2, text3):
-        main = self.getImage(self.assetpath, "gru.png")
+        main = self.get_image(self.assetpath, "gru.png")
         draw = ImageDraw.Draw(main)
-        font = self.getFont(self.fontpath, "Helvetica", 15)
+        font = self.get_font(self.fontpath, "Helvetica", 15)
         curs = 60
-        for i in self.char_process(text1, 125, font, array=True)[0:10]:
+        for i in self.wrap_text(text1, 125, font, array=True)[0:10]:
             draw.text((212, curs), i, font=font, fill='black')
             curs += 15
         curs = 60
-        for i in self.char_process(text2, 125, font, array=True)[0:10]:
+        for i in self.wrap_text(text2, 125, font, array=True)[0:10]:
             draw.text((558, curs), i, font=font, fill='black')
             curs += 15
         curs = 283
-        for i in self.char_process(text3, 125, font, array=True)[0:10]:
+        for i in self.wrap_text(text3, 125, font, array=True)[0:10]:
             draw.text((214, curs), i, font=font, fill='black')
             draw.text((561, curs), i, font=font, fill='black')
             curs += 15
         return self.buffer(main)
 
     def presentation(self, text):
-        im = self.getImage(self.assetpath, 'presentation.jpg')
-        font = self.getFont(self.fontpath, 'Helvetica', 25)
+        im = self.get_image(self.assetpath, 'presentation.jpg')
+        font = self.get_font(self.fontpath, 'Helvetica', 25)
         draw, curs = ImageDraw.Draw(im), 65
-        for i in self.char_process(text, 432, font, array=True)[0:7]:
+        for i in self.wrap_text(text, 432, font, array=True)[0:7]:
             draw.text((113, curs), i, font=font, fill='black')
             curs += 30
         return self.buffer(im)
 
     def scooby(self, url):
-        im = self.imagefromURL(url)
-        bg = self.getImage(self.assetpath, 'scooby.png')
+        im = self.buffer_from_url(url)
+        bg = self.get_image(self.assetpath, 'scooby.png')
         cnv = Image.new(mode='RGB', size=(720, 960), color=(0, 0, 0))
         cnv.paste(im.resize((100, 93)), (139, 153))
         cnv.paste(im.resize((194, 213)), (79, 569))
@@ -246,11 +221,11 @@ class Painter:
         return self.buffer(cnv)
 
     def password(self, bad_pass, good_pass):
-        im = self.getImage(self.assetpath, 'pass.png')
-        font = self.getFont(self.fontpath, 'Helvetica', 25)
+        im = self.get_image(self.assetpath, 'pass.png')
+        font = self.get_font(self.fontpath, 'Helvetica', 25)
         draw = ImageDraw.Draw(im)
-        draw.text((42, 80), self.char_process(bad_pass, 396, font, array=True)[0], font=font, fill='black')
-        draw.text((42, 311), self.char_process(good_pass, 396, font, array=True)[0], font=font, fill='black')
+        draw.text((42, 80), self.wrap_text(bad_pass, 396, font, array=True)[0], font=font, fill='black')
+        draw.text((42, 311), self.wrap_text(good_pass, 396, font, array=True)[0], font=font, fill='black')
         return self.buffer(im)
 
     def geometry_dash_level(self, levelid, daily=False, weekly=False):
@@ -259,11 +234,11 @@ class Painter:
         elif weekly: query = 'weekly'
         else: query = str(levelid)
         data = get('https://gdbrowser.com/api/level/'+query).json()
-        pusab_big = self.getFont(self.fontpath, 'PUSAB__', 40, otf=True)
-        pusab_smol = self.getFont(self.fontpath, 'PUSAB__', 30, otf=True)
-        pusab_smoler = self.getFont(self.fontpath, 'PUSAB__', 20, otf=True)
-        pusab_tiny = self.getFont(self.fontpath, 'PUSAB__', 20, otf=True)
-        aller = self.getFont(self.fontpath, 'Aller', 20)
+        pusab_big = self.get_font(self.fontpath, 'PUSAB__', 40, otf=True)
+        pusab_smol = self.get_font(self.fontpath, 'PUSAB__', 30, otf=True)
+        pusab_smoler = self.get_font(self.fontpath, 'PUSAB__', 20, otf=True)
+        pusab_tiny = self.get_font(self.fontpath, 'PUSAB__', 20, otf=True)
+        aller = self.get_font(self.fontpath, 'Aller', 20)
         levelName = data['name']
         levelAuth = "by "+data['author']
         levelDesc = data['description']
@@ -278,7 +253,7 @@ class Painter:
         w, h = pusab_smol.getsize(levelAuth)
         draw.text(((W-w)/2,50), levelAuth, font=pusab_smol, stroke_width=2, stroke_fill="black", fill=(255, 200, 0))
         width, desc_cursor = (w, h), 300
-        texts, sym_cursor = char_process(levelDesc, 445, aller, array=True), 100
+        texts, sym_cursor = self.wrap_text(levelDesc, 445, aller, array=True), 100
 
         for i in texts:
             w, h = aller.getsize(i)
@@ -286,7 +261,7 @@ class Painter:
             desc_cursor += 25
         del desc_cursor, width, texts
 
-        difficulty = self.imagefromURL("https://gdbrowser.com/difficulty/"+data['difficultyFace']+".png").convert('RGBA').resize((75, 75))
+        difficulty = self.buffer_from_url("https://gdbrowser.com/difficulty/"+data['difficultyFace']+".png").convert('RGBA').resize((75, 75))
         main.paste(difficulty, (round((W - 75)/2) - 100, 100), difficulty)
         w, h = pusab_tiny.getsize(levelDiff)
         draw.text(((W - w)/2 - 100, 180), levelDiff, font=pusab_tiny, stroke_width=2, stroke_fill="black")
@@ -295,14 +270,14 @@ class Painter:
 
         for i in list(self.gd_assets['main'].keys()):
             if self.gd_assets['main'][i]==None:
-                if data['disliked']: sym = self.imagefromURL(self.gd_assets['dislike']).convert('RGBA').resize((25, 25))
-                else: sym = self.imagefromURL(self.gd_assets['like']).convert('RGBA').resize((25, 25))
+                if data['disliked']: sym = self.buffer_from_url(self.gd_assets['dislike']).convert('RGBA').resize((25, 25))
+                else: sym = self.buffer_from_url(self.gd_assets['like']).convert('RGBA').resize((25, 25))
                 main.paste(sym, (round((W-25)/2) + 75, sym_cursor), sym)
                 draw.text((round((W-25)/2)+105, sym_cursor+5), str(data['likes']), font=pusab_smoler, stroke_width=2, stroke_fill="black")
                 sym_cursor += 30
                 continue
             if i not in list(data.keys()): continue
-            sym = imagefromURL(self.gd_assets['main'][i]).convert('RGBA').resize((25, 25))
+            sym = buffer_from_url(self.gd_assets['main'][i]).convert('RGBA').resize((25, 25))
             main.paste(sym, (round((W-25)/2) + 75, sym_cursor), sym)
             draw.text((round((W-25)/2)+105, sym_cursor+5), str(data[i]), font=pusab_smoler, stroke_width=2, stroke_fill="black")
             sym_cursor += 30
@@ -311,18 +286,18 @@ class Painter:
         return self.buffer(main)
 
     def invert_image(self, im):
-        ava = self.imagefromURL(im).convert('RGB')
+        ava = self.buffer_from_url(im).convert('RGB')
         im_invert = ImageOps.invert(ava)
         return self.buffer(im_invert)
     
     def grayscale(self, im):
-        res = self.imagefromURL(im).convert('L')
+        res = self.buffer_from_url(im).convert('L')
         return self.buffer(res)
 
     def country(self, query):
-        bigfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 35, otf=True)
-        smolfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 25, otf=True)
-        smolerfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 20, otf=True)
+        bigfont = self.get_font(self.fontpath, 'NotoSansDisplay-Bold', 35, otf=True)
+        smolfont = self.get_font(self.fontpath, 'NotoSansDisplay-Bold', 25, otf=True)
+        smolerfont = self.get_font(self.fontpath, 'NotoSansDisplay-Bold', 20, otf=True)
         data = get('https://restcountries.eu/rest/v2/name/'+query).json()[0]
         length = bigfont.getsize(data['name'])[0] + 200
         flagid, flagnotfound = data['alpha2Code'].lower(), False
@@ -348,12 +323,12 @@ class Painter:
             (margin_left, 81), (main.width, 400)
         ], fill=cf[2])
         capital = '<not avaliable>' if data['capital']=='' else data['capital']
-        draw.text((margin_left+5, 78), self.char_process('Capital: '+capital, main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
-        draw.text((margin_left+5, 103), self.char_process('Region: '+data['region'], main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
-        draw.text((margin_left+5, 128), self.char_process('Subregion: '+data['subregion'], main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
-        draw.text((margin_left+5, 153), self.char_process('Population: '+self.toLocaleString(str(data['population'])), main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
-        draw.text((margin_left+5, 178), self.char_process('Area: '+self.toLocaleString(str(round(data['area'])))+' km', main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
-        draw.text((margin_left+5, 203), self.char_process('Timezones: '+', '.join(data['timezones']), main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
+        draw.text((margin_left+5, 78), self.wrap_text('Capital: '+capital, main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
+        draw.text((margin_left+5, 103), self.wrap_text('Region: '+data['region'], main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
+        draw.text((margin_left+5, 128), self.wrap_text('Subregion: '+data['subregion'], main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
+        draw.text((margin_left+5, 153), self.wrap_text('Population: '+self.toLocaleString(str(data['population'])), main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
+        draw.text((margin_left+5, 178), self.wrap_text('Area: '+self.toLocaleString(str(round(data['area'])))+' km', main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
+        draw.text((margin_left+5, 203), self.wrap_text('Timezones: '+', '.join(data['timezones']), main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
         return {
             'buffer': self.buffer(main),
             'color': cf[0],
@@ -361,9 +336,9 @@ class Painter:
         }
 
     def server(self, guild, data=None, raw=None):
-        bigfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 50, otf=True)
-        medium = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 20, otf=True)
-        smolerfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 15, otf=True)
+        bigfont = self.get_font(self.fontpath, 'NotoSansDisplay-Bold', 50, otf=True)
+        medium = self.get_font(self.fontpath, 'NotoSansDisplay-Bold', 20, otf=True)
+        smolerfont = self.get_font(self.fontpath, 'NotoSansDisplay-Bold', 15, otf=True)
         if data == None:
             server_title, members, icon = guild.name, guild.members, guild.icon_url
             subtitle = 'Created {} ago by {}'.format(lapsed_time_from_seconds(t.now().timestamp() - guild.created_at.timestamp()), str(guild.owner))
@@ -371,7 +346,7 @@ class Painter:
             server_title, icon = data['name'], "https://cdn.discordapp.com/icons/{}/{}.png?size=1024".format(data['id'], data['icon'])
             subtitle = data['description']
         title_width = bigfont.getsize(server_title)[0]
-        ava = self.imagefromURL(icon).resize((100, 100))
+        ava = self.buffer_from_url(icon).resize((100, 100))
         bg_arr = [(i['r'], i['g'], i['b']) for i in self.get_multiple_accents(icon)]
         desc_width = medium.getsize(subtitle)[0]
         if desc_width > title_width: title_width = desc_width # :^)
@@ -383,7 +358,7 @@ class Painter:
         draw.text((135, 20), server_title, fill=self.invert(main_bg), font=bigfont)
         draw.text((135, 90), subtitle, fill=self.invert(main_bg), font=medium)
         if data == None:
-            rect_y_cursor = self.draw_status_stats(draw, {
+            rect_y_cursor = self._draw_status_stats(draw, {
                 "online": len([i for i in members if i.status.value.lower()=='online']),
                 "idle": len([i for i in members if i.status.value.lower()=='idle']),
                 "do not disturb": len([i for i in members if i.status.value.lower()=='dnd']),
@@ -399,7 +374,7 @@ class Painter:
             ], fill=bg_arr[3])
             afkname = "???" if guild.afk_channel==None else guild.afk_channel.name
             main.paste(
-                self.imagefromURL(self.region[str(guild.region)]).resize((35, 23)),
+                self.buffer_from_url(self.region[str(guild.region)]).resize((35, 23)),
                 (margin_right - 45, round(rect_y_cursor + 25 + (18 * 3)))
             )
             draw.text((margin_left + 5, rect_y_cursor + 3), "Channels: {}\nRoles: {}\nLevel {}\n{} boosters".format(
@@ -422,20 +397,20 @@ class Painter:
             text = ', '.join([
                 i.replace('_', ' ').lower() for i in data['features']
             ])
-            draw.text((margin_left + 5, rect_y_cursor + 5), self.char_process(text, (margin_right-5) - (margin_left+5), medium), fill=self.invert(bg_arr[4]), font=medium)
+            draw.text((margin_left + 5, rect_y_cursor + 5), self.wrap_text(text, (margin_right-5) - (margin_left+5), medium), fill=self.invert(bg_arr[4]), font=medium)
         self.add_corners(main, 25)
         return self.buffer(main)
 
     def usercard(self, roles, user, ava, bg, nitro, booster, booster_since):
         name, flags, flag_x = user.name, [], 170
-        bigfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 50, otf=True)
-        mediumfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 25, otf=True)
+        bigfont = self.get_font(self.fontpath, 'NotoSansDisplay-Bold', 50, otf=True)
+        mediumfont = self.get_font(self.fontpath, 'NotoSansDisplay-Bold', 25, otf=True)
         if nitro: flags.append(self.flags['nitro'])
         if booster: flags.append(self.flags['booster'])
         for i in list(self.flags['badges'].keys()):
             if getattr(user.public_flags, i): flags.append(self.flags['badges'][i])
         foreground_col = self.invert(bg)
-        avatar = self.imagefromURL(ava).resize((100, 100))
+        avatar = self.buffer_from_url(ava).resize((100, 100))
         self.add_corners(avatar, round(avatar.width/2))
         if not booster_since: details_text = 'Created account {}\nJoined server {}'.format(lapsed_time_from_seconds(t.now().timestamp()-user.created_at.timestamp())+' ago', lapsed_time_from_seconds(t.now().timestamp()-user.joined_at.timestamp())+' ago')
         else: details_text = 'Created account {}\nJoined server {}\nBoosting since {}'.format(lapsed_time_from_seconds(t.now().timestamp()-user.created_at.timestamp())+' ago', lapsed_time_from_seconds(t.now().timestamp()-user.joined_at.timestamp())+' ago', lapsed_time_from_seconds(booster_since)+' ago')
@@ -448,7 +423,7 @@ class Painter:
         draw.text((170, 20), name, fill=foreground_col, font=bigfont)
         draw.text((170, 80), f'ID: {user.id}', fill=foreground_col, font=mediumfont)
         for i in flags:
-            temp_im = self.imagefromURL(i).resize((25, 25))
+            temp_im = self.buffer_from_url(i).resize((25, 25))
             main.paste(temp_im, (flag_x, 115), temp_im)
             flag_x += 30
         draw.text((40, 150), details_text, fill=foreground_col, font=mediumfont)
@@ -464,7 +439,7 @@ class Painter:
         return self.buffer(main)
 
     def get_palette(self, temp_data):
-        font = self.getFont(self.fontpath, 'Minecraftia-Regular', 30) 
+        font = self.get_font(self.fontpath, 'Minecraftia-Regular', 30) 
         main = Image.new(mode='RGB', size=(1800, 500), color=(0, 0, 0))
         draw, loc = ImageDraw.Draw(main), 0
         temp = sorted([round(sum((i['r'], i['g'], i['b']))/3) for i in temp_data])
@@ -484,8 +459,8 @@ class Painter:
         return self.buffer(main)
 
     def trans_merge(self, obj):
-        av = self.imagefromURL(obj['url']).resize(obj['size'])
-        bg = self.getImage(self.assetpath, obj['filename'].lower())
+        av = self.buffer_from_url(obj['url']).resize(obj['size'])
+        bg = self.get_image(self.assetpath, obj['filename'].lower())
         cnv = Image.new(mode='RGB', color=(0,0,0), size=bg.size)
         try: cnv.paste(av, obj['pos'], av)
         except: cnv.paste(av, obj['pos'])
@@ -493,17 +468,17 @@ class Painter:
         return self.buffer(cnv)
     
     def merge(self, obj):
-        av = self.imagefromURL(obj['url']).resize(obj['size'])
-        bg = self.getImage(self.assetpath, obj['filename'].lower())
+        av = self.buffer_from_url(obj['url']).resize(obj['size'])
+        bg = self.get_image(self.assetpath, obj['filename'].lower())
         bg.paste(av, obj['pos'])
         return self.buffer(bg)
 
     def blur(self, url):
-        im = self.imagefromURL(url).filter(ImageFilter.BLUR)
+        im = self.buffer_from_url(url).filter(ImageFilter.BLUR)
         return self.buffer(im)
     
     def glitch(self, url):
-        img = self.imagefromURL(url).resize((200, 200))
+        img = self.buffer_from_url(url).resize((200, 200))
         p = img.load()
         for i in range(img.width):
             if random.randint(0, 1)==1:
@@ -514,7 +489,7 @@ class Painter:
                     p[i, j] = img.getpixel((getloc, j))
         return self.buffer(img)
     def imagetoASCII(self, url):
-        im = self.imagefromURL(url).resize((300, 300)).rotate(90).convert('RGB')
+        im = self.buffer_from_url(url).resize((300, 300)).rotate(90).convert('RGB')
         im = im.resize((int(list(im.size)[0]/3)-60, int(list(im.size)[1]/3)))
         total_str = ""
         for i in range(im.width):
@@ -531,7 +506,7 @@ class Painter:
             total_str += '\n'
         return '\n'.join([i[::-1] for i in total_str.split('\n')])
     def imagetoASCII_picture(self, url):
-        font = self.getFont(self.fontpath, "consola", 11)
+        font = self.get_font(self.fontpath, "consola", 11)
         image = Image.new(mode='RGB', size=(602, 523), color=(0, 0, 0))
         draw, string = ImageDraw.Draw(image), self.imagetoASCII(url)
         draw.text((0, 0), string, font=font, fill=(255, 255, 255))
@@ -543,9 +518,9 @@ class Painter:
         longest_word = [details[i] for i in list(details.keys()) if len(details[i])==sorted([
             len(details[a]) for a in list(details.keys())
         ])[::-1][0]][0]
-        ava, bg = self.imagefromURL(url).resize((100, 100)), self.get_color_accent(self.thief, url)
+        ava, bg = self.buffer_from_url(url).resize((100, 100)), self.get_color_accent(url)
         fg = self.invert(bg)
-        big_font, smol_font = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 50, otf=True), self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 17, otf=True)
+        big_font, smol_font = self.get_font(self.fontpath, 'NotoSansDisplay-Bold', 50, otf=True), self.get_font(self.fontpath, 'NotoSansDisplay-Bold', 17, otf=True)
         longest_font_width = smol_font.getsize(longest_word)[0] if longest_word!=details['name'] else big_font.getsize(details['name'])[0]   
         if longest_font_width < 300: longest_font_width = 300
         main = Image.new(mode='RGB', color=bg, size=(longest_font_width+275, 140))
@@ -560,8 +535,8 @@ class Painter:
     
     def profile(self, username, avatar, details, after):
         # yanderedev was here
-        ava, ava_col = self.imagefromURL(avatar).resize((100, 100)), [(i['r'], i['g'], i['b']) for i in self.get_multiple_accents(avatar)]
-        font, smolfont, smolerfont = self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 50, otf=True), self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 20, otf=True), self.getFont(self.fontpath, 'NotoSansDisplay-Bold', 15, otf=True)
+        ava, ava_col = self.buffer_from_url(avatar).resize((100, 100)), [(i['r'], i['g'], i['b']) for i in self.get_multiple_accents(avatar)]
+        font, smolfont, smolerfont = self.get_font(self.fontpath, 'NotoSansDisplay-Bold', 50, otf=True), self.get_font(self.fontpath, 'NotoSansDisplay-Bold', 20, otf=True), self.get_font(self.fontpath, 'NotoSansDisplay-Bold', 15, otf=True)
         name = username
         data = font.getsize(name)[0]
         if data < 324: data = 324
@@ -574,7 +549,7 @@ class Painter:
         draw.text((170, 100), 'Joined since {}\n(order {})'.format(details['joined'], details['number']), fill=fg, font=smolfont)
         bal = details['wallet']+" bobux"
         draw.rectangle([(margin_left, 180), (margin_right, 240)], fill=ava_col[8])
-        res_text = self.process_text(details['desc'], smolfont, (margin_right - 180) - 2)
+        res_text = self.wrap_text(details['desc'], smolfont, (margin_right - 180) - 2)
         draw.rectangle([(margin_left, 240), (margin_right, 270)], fill=ava_col[3])
         draw.text((round((main.width - smolfont.getsize(bal)[0])/2), 239), bal, fill=self.invert(ava_col[3]), font=smolfont)
         draw.rectangle([(margin_left, 270), (round(main.width/2), 310)], fill=ava_col[1])
@@ -602,21 +577,21 @@ class Painter:
         return self.buffer(main)
     
     def evol(self, url):
-        ava, img = self.imagefromURL(url).resize((77, 69)), self.getImage(self.assetpath, "evol.jpg")
+        ava, img = self.buffer_from_url(url).resize((77, 69)), self.get_image(self.assetpath, "evol.jpg")
         img.paste(ava, (255, 175))
         return self.buffer(img)
     
     def disconnected(self, msg):
-        im = self.getImage(self.assetpath, 'disconnected.png')
-        draw, myFont = ImageDraw.Draw(im), self.getFont(self.fontpath, 'Minecraftia-Regular', 16)
+        im = self.get_image(self.assetpath, 'disconnected.png')
+        draw, myFont = ImageDraw.Draw(im), self.get_font(self.fontpath, 'Minecraftia-Regular', 16)
         w, h = myFont.getsize(msg)
         W, H = im.size
         draw.text(((W-w)/2,336), msg, font=myFont, fill="white")
         return self.buffer(im)
     
     def ruin(self, ava):
-        im = self.getImage(self.assetpath, 'destroyimg.png')
-        av = self.imagefromURL(ava)
+        im = self.get_image(self.assetpath, 'destroyimg.png')
+        av = self.buffer_from_url(ava)
         av.paste(im, (0,0), im)
         return self.buffer(av)
     
@@ -629,15 +604,15 @@ class Painter:
             str(len([i for i in guild.members if i.status.value.lower()=='offline']))
         ]
         img1 = "{type:'pie',data:{labels:['Online', 'Idle', 'Do not Disturb', 'Offline'], datasets:[{data:["+data1[0]+", "+data1[1]+", "+data1[2]+", "+data1[3]+"]}]}}"
-        img = self.imagefromURL(start+encode_uri(img1))
+        img = self.buffer_from_url(start+encode_uri(img1))
         w, h = img.size
         cnv = Image.new(mode='RGB', size=(w, h), color=(255, 255, 255))
         cnv.paste(img, (0, 0), img)
         return self.buffer(cnv)
     
     def lookatthisgraph(self, url):
-        img = self.imagefromURL(url).resize((741, 537)).rotate(20)
-        bg = self.getImage(self.assetpath, 'graph.png')
+        img = self.buffer_from_url(url).resize((741, 537)).rotate(20)
+        bg = self.get_image(self.assetpath, 'graph.png')
         canvas = Image.new(mode='RGB', size=(1920, 1080), color=(0,0,0))
         canvas.paste(img, (833, 365))
         canvas.paste(bg, (0, 0), bg)
@@ -645,27 +620,27 @@ class Painter:
     
     def squidwardstv(self, avatar):
         cnv = Image.new(mode='RGB', size=(1088, 720), color=(0, 0, 0))
-        img = self.getImage(self.assetpath, 'squidwardstv.png')
-        ava = self.imagefromURL(avatar).resize((577, 467))
+        img = self.get_image(self.assetpath, 'squidwardstv.png')
+        ava = self.buffer_from_url(avatar).resize((577, 467))
         cnv.paste(ava.rotate(-27), (381, 125))
         cnv.paste(img, (0, 0), img)
         return self.buffer(cnv)
     
     def waifu(self, avatar):
         cnv = Image.new(mode='RGB', size=(450, 344), color=(0, 0, 0))
-        img = self.getImage(self.assetpath, 'waifu.png')
-        ava = self.imagefromURL(avatar).resize((131, 162))
+        img = self.get_image(self.assetpath, 'waifu.png')
+        ava = self.buffer_from_url(avatar).resize((131, 162))
         cnv.paste(ava.rotate(-20), (112, 182))
         cnv.paste(img, (0, 0), img)
         return self.buffer(cnv)
     
     def ifunny(self, avatar):
-        avatar, watermark = self.imagefromURL(avatar).resize((545, 481)), self.getImage(self.assetpath, 'ifunny.png')
+        avatar, watermark = self.buffer_from_url(avatar).resize((545, 481)), self.get_image(self.assetpath, 'ifunny.png')
         avatar.paste(watermark, (0, 0), watermark)
         return self.buffer(avatar)
         
     def wasted(self, avatar):
-        avatar, wasted = self.imagefromURL(avatar).resize((240, 240)), self.getImage(self.assetpath, 'wasted.png').resize((240, 240))
+        avatar, wasted = self.buffer_from_url(avatar).resize((240, 240)), self.get_image(self.assetpath, 'wasted.png').resize((240, 240))
         try:
             red = Image.new(mode='RGB', size=(240, 240), color=(255, 0, 0))
             avatar = Image.blend(avatar, red, alpha=0.4)
@@ -675,9 +650,9 @@ class Painter:
         return self.buffer(avatar)
     
     def ifearnoman(self, url, url2):
-        avpic = self.imagefromURL(url)
-        avpic2 = self.imagefromURL(url2)
-        template = self.getImage(self.assetpath, 'ifearnoman.jpg')
+        avpic = self.buffer_from_url(url)
+        avpic2 = self.buffer_from_url(url2)
+        template = self.get_image(self.assetpath, 'ifearnoman.jpg')
         template.paste(avpic.resize((173, 159)), (98, 28))
         template.paste(avpic.resize((114, 109)), (60, 536))
         template.paste(avpic.resize((139, 145)), (598, 549))
@@ -687,14 +662,14 @@ class Painter:
     
     def simpletext(self, text):
         image = Image.new(mode='RGB',size=(5+(len(text)*38)+5, 80) ,color=(255, 255, 255))
-        self.drawtext(ImageDraw.Draw(image), self.getFont(self.fontpath, 'consola', 60), text, 10, 10, "black")
+        self.drawtext(ImageDraw.Draw(image), self.get_font(self.fontpath, 'consola', 60), text, 10, 10, "black")
         data = self.buffer(image)
         return data
     
     def baby(self, ava):
-        avatar = self.imagefromURL(ava)
+        avatar = self.buffer_from_url(ava)
         canvas = Image.new(mode='RGB',size=(728, 915) ,color=(0, 0, 0))
-        baby = self.getImage(self.assetpath, "baby.png")
+        baby = self.get_image(self.assetpath, "baby.png")
         avatar = avatar.resize((382, 349))
         avatar = avatar.rotate(50)
         canvas.paste(avatar, (203, 309))
@@ -703,15 +678,15 @@ class Painter:
         return data
     
     def art(self, ava):
-        image = self.getImage(self.assetpath, 'art.png')
-        cnv, pic = Image.new(mode='RGB', size=(1364, 1534), color=(0,0,0)), self.imagefromURL(ava)
+        image = self.get_image(self.assetpath, 'art.png')
+        cnv, pic = Image.new(mode='RGB', size=(1364, 1534), color=(0,0,0)), self.buffer_from_url(ava)
         cnv.paste(pic.resize((315, 373)), (927, 94))
         cnv.paste(pic.resize((318, 375)), (925, 861))
         cnv.paste(image, (0, 0), image)
         return self.buffer(cnv)
     
     def resize(self, url, x, y):
-        pic = self.imagefromURL(url)
+        pic = self.buffer_from_url(url)
         pic = pic.resize((x, y))
         data = self.buffer(pic)
         return data
@@ -720,31 +695,43 @@ class Painter:
         return BytesIO(get(url).content)
     
     def smallURL(self, url):
-        image = self.imagefromURL(url)
+        image = self.buffer_from_url(url)
         size = list(image.size)
         pic = image.resize((round(size[0]/4), round(size[1]/4)))
         data = self.buffer(pic)
         return data
     
     def gif2png(self, url):
-        img = self.imagefromURL(url)
+        img = self.buffer_from_url(url)
         img.seek(0)
         return self.buffer(img)
     
 class GifGenerator:
     
     def __init__(self, assetpath, fontpath):
-        self.imagefromURL = imagefromURL
-        self.getImage = getImage
-        self.bufferGIF = bufferGIF
+        self.buffer_from_url = buffer_from_url
         self.assetpath = assetpath
         self.fontpath = fontpath
-        self.drawtext = drawtext
-        self.getFont = getFont
     
+    def bufferGIF(self, images, duration, optimize=False):
+        arr = BytesIO()
+        images[0].save(arr, "GIF", save_all=True, append_images=images[1:], optimize=optimize, duration=duration, loop=0)
+        arr.seek(0)
+        return arr
+
+    def drawtext(self, draw, thefont, text, x, y, col):
+        draw.text((x, y), text, fill =col, font=thefont, align ="left")
+
+    def get_image(self, imageName):
+        return Image.open(f'{self.assetpath}/{imageName}')
+
+    def get_font(self, fontname, size, otf=False):
+        ext = 'ttf' if not otf else 'otf'
+        return ImageFont.truetype(f'{self.fontpath}/{fontname}.{ext}', size)
+
     def hitler(self, pic):
-        thegif = self.getImage(self.assetpath, "hitler.gif")
-        av, images = self.imagefromURL(pic).resize((79, 103)), []
+        thegif = self.get_image(self.assetpath, "hitler.gif")
+        av, images = self.buffer_from_url(pic).resize((79, 103)), []
         size = thegif.size
         for i in range(thegif.n_frames):
             cnv = Image.new('RGB', size=size, color=(0,0,0))
@@ -761,8 +748,8 @@ class GifGenerator:
         return self.bufferGIF(images, 1.2)
     
     def worship(self, pic):
-        im = self.imagefromURL(pic).resize((127, 160))
-        gi = self.getImage(self.assetpath, 'worship.gif')
+        im = self.buffer_from_url(pic).resize((127, 160))
+        gi = self.get_image(self.assetpath, 'worship.gif')
         images = []
         for i in range(gi.n_frames):
             gi.seek(i)
@@ -774,7 +761,7 @@ class GifGenerator:
         return self.bufferGIF(images, 5)
 
     def flip(self, pic):
-        im = self.imagefromURL(pic).resize((400,400))
+        im = self.buffer_from_url(pic).resize((400,400))
         inv_im = ImageOps.flip(im)
         speed, images = [3,6,13,25,50,100,200,399], []
         for i in range(len(speed)*2):
@@ -786,8 +773,8 @@ class GifGenerator:
         images += images[::-1]
         return self.bufferGIF(images, 5)
     def crazy_frog_dance(self, pic, metadata):
-        im = self.getImage(self.assetpath, 'crazyfrog.gif')
-        ava = self.imagefromURL(pic)
+        im = self.get_image(self.assetpath, 'crazyfrog.gif')
+        ava = self.buffer_from_url(pic)
         size, images = im.size, []
         for i in range(im.n_frames):
             im.seek(i)
@@ -800,8 +787,8 @@ class GifGenerator:
         return self.bufferGIF(images, 5)
 
     def destroy_computer(self, pic, metadata):
-        data = self.getImage(self.assetpath, 'rage.gif')
-        ava = self.imagefromURL(pic).resize((40, 40))
+        data = self.get_image(self.assetpath, 'rage.gif')
+        ava = self.buffer_from_url(pic).resize((40, 40))
         imsize = data.size
         images = []
         for i in range(data.n_frames):
@@ -813,8 +800,8 @@ class GifGenerator:
         return self.bufferGIF(images, 4.3)
 
     def death_star(self, pic):
-        gif_template = self.getImage(self.assetpath, 'explosion.gif')
-        ava, images, size = self.imagefromURL(pic).resize((61, 62)), [], gif_template.size
+        gif_template = self.get_image(self.assetpath, 'explosion.gif')
+        ava, images, size = self.buffer_from_url(pic).resize((61, 62)), [], gif_template.size
         for i in range(gif_template.n_frames):
             canvas = Image.new(mode='RGB', color=(0,0,0), size=size)
             canvas.paste(gif_template, (0,0))
@@ -824,7 +811,7 @@ class GifGenerator:
         return self.bufferGIF(images, 3)
 
     def rotate(self, pic):
-        image = self.imagefromURL(pic)
+        image = self.buffer_from_url(pic)
         image = image.resize((216, 216))
         images, num = [], 0
         while num<360:
@@ -834,11 +821,11 @@ class GifGenerator:
         return data
     
     def triggered(self, pic, increment):
-        image = self.imagefromURL(pic)
+        image = self.buffer_from_url(pic)
         image = image.resize((216, 216))
         red = Image.new(mode='RGB', size=(216, 216), color=(255, 0, 0))
         image = Image.blend(image, red, alpha=0.25)
-        text = self.getImage(self.assetpath, 'triggered.jpg')
+        text = self.get_image(self.assetpath, 'triggered.jpg')
 
         canvas = Image.new(mode='RGB',size=image.size ,color=(0, 0, 0))
         images, num = [], 0
@@ -852,8 +839,8 @@ class GifGenerator:
         return data
 
     def communist(self, comrade):
-        flag = self.getImage(self.assetpath, 'blyat.jpg').convert('RGB')
-        user = self.imagefromURL(comrade).resize((216, 216)).convert('RGB')
+        flag = self.get_image(self.assetpath, 'blyat.jpg').convert('RGB')
+        user = self.buffer_from_url(comrade).resize((216, 216)).convert('RGB')
         images = []
         opacity = float(0)
         while int(opacity)!=1:
@@ -864,15 +851,15 @@ class GifGenerator:
 
         while extras<100:
             image = flag
-            self.drawtext(ImageDraw.Draw(image), self.getFont(self.fontpath, 'Whitney-Medium', 30), 'COMMUNIST', 216/2-86, 10, 'white')
-            self.drawtext(ImageDraw.Draw(image), self.getFont(self.fontpath, 'Whitney-Medium', 30), 'CONFIRMED', 216/2-84, 170, 'white')
+            self.drawtext(ImageDraw.Draw(image), self.get_font(self.fontpath, 'Whitney-Medium', 30), 'COMMUNIST', 216/2-86, 10, 'white')
+            self.drawtext(ImageDraw.Draw(image), self.get_font(self.fontpath, 'Whitney-Medium', 30), 'CONFIRMED', 216/2-84, 170, 'white')
             images.append(image)
             extras += 1
         data = self.bufferGIF(images, 5)
         return data
     
     def giffromURL(self, url, compress):
-        mygif = self.imagefromURL(url)
+        mygif = self.buffer_from_url(url)
         frames = []
         for i in range(0, mygif.n_frames):
             mygif.seek(i)
