@@ -55,7 +55,7 @@ class Painter:
         alpha.paste(circle.crop((rad, rad, rad * 2, rad * 2)), (w-rad, h-rad))
         im.putalpha(alpha)
 
-    def wrap_text(self, width, font, array=False):
+    def wrap_text(self, text, width, font, array=False):
         res, temp = [], ""
         for i in list(text):
             temp += i
