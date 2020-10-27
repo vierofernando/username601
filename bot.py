@@ -6,7 +6,15 @@ from os import environ, listdir
 from PIL import UnidentifiedImageError
 import discord
 
-client = commands.Bot(command_prefix=config('PREFIX'), activity=discord.Activity(type=discord.ActivityType.listening, name="you"))
+# For discord.py 1.5.0 >=, and the Intents update thing
+# guilds, members, guild_messages are crucial parts of the bot, which is utilised by several utils and moderation commands
+# guild_reactions is used for starboard managing
+# presences is used for spotify commands, and server status graph in 1serverinfo.
+intents = discord.Intents(
+    guilds=True, members=True, emojis=True, guild_reactions=True, presences=True, guild_messages=True
+)
+
+client = commands.Bot(command_prefix=config('PREFIX'), intents=intents, activity=discord.Activity(type=discord.ActivityType.listening, name="you"))
 pre_ready_initiation(client)
 environ['BOT_MODULES_DIR'] = config('MODULES_DIR')
 environ['BOT_JSON_DIR'] = config('JSON_DIR')

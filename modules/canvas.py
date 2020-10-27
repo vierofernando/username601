@@ -78,7 +78,7 @@ class Painter:
         draw.rectangle([
             (margin_left, rect_y_cursor), (margin_right, rect_y_cursor + 25)
         ], fill=bg_arr[1])
-        draw.text((margin_left + 3, rect_y_cursor + 2), "Member status graph:", fill=brightness_text(bg_arr[1]), font=font)
+        draw.text((margin_left + 3, rect_y_cursor + 2), "Member status graph:", fill=self.invert(bg_arr[1]), font=font)
         rect_y_cursor += 25
         draw.rectangle([
             (margin_left, rect_y_cursor), (margin_right, rect_y_cursor + 50)
