@@ -34,7 +34,7 @@ class games(commands.Cog):
         if data.status_code != 200: return await msg.edit(content=f"Minecraft for profile: `{name}` not found.")
         data = data.json()
         body, head = discord.File(self.client.canvas.minecraft_body(f"https://mc-heads.net/body/{name}/600", data['id']), "body.png"), discord.File(self.client.canvas.urltoimage(f"https://mc-heads.net/head/{name}/600"), "head.png")
-        accent_color = self.client.canvas.get_accent(f"https://mc-heads.net/head/{name}/600")
+        accent_color = self.client.canvas.get_color_accent(f"https://mc-heads.net/head/{name}/600")
         names = self.get_name_history(data['id'])
         embed = discord.Embed(title=name, url='https://namemc.com/profile/'+data['id'], description="UUID: `"+data['id']+"`", color=discord.Color.from_rgb(*accent_color))
         embed.set_image(url="attachment://body.png")
@@ -61,7 +61,8 @@ class games(commands.Cog):
             data = self.client.canvas.geometry_dash_level(int(args[0]))
             await toEdit.delete()
             await ctx.send(file=discord.File(data, 'gdlevel.png'))
-        except:
+        except Exception as e:
+            print(e)
             raise self.client.utils.send_error_message('Sorry! there is an error with the GD servers.')
     @command()
     @cooldown(3)
