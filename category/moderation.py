@@ -14,7 +14,6 @@ class moderation(commands.Cog):
     def __init__(self, client):
         self.client = client
         
-
     @command('jp,joinpos,joindate,jd,howold')
     @cooldown(5)
     async def joinposition(self, ctx, *args):
@@ -354,26 +353,25 @@ class moderation(commands.Cog):
     @command('hidechannel')
     @cooldown(5)
     async def lockdown(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.send_error_message(f'Invalid parameters. Correct Example: `{self.client.command_prefix}{args[0][1:]} [disable/enable]`')
-        else:
-            accept = True
+        try:
+            assert len(args) > 0
             if not ctx.author.guild_permissions.administrator: raise self.client.utils.send_error_message('You need the `Administrator` permission to do this, unless you are trying to mute yourself.')
             else:
                 if 'enable' not in args[0].lower():
                     if 'disable' not in args[0].lower():
-                        raise self.client.utils.send_error_message('Oops! Please add `enable` or `disable`.')
-                        accept = False
-                if accept:
-                    try:
-                        if args[0].lower()=='disable':
-                            if 'hidechannel' in ctx.message.content: await ctx.channel.set_permissions(ctx.guild.default_role, read_messages=True)
-                            if 'lockdown' in ctx.message.content: await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=True)
-                        elif args[0].lower()=='enable':
-                            if 'hidechannel' in ctx.message.content: await ctx.channel.set_permissions(ctx.guild.default_role, read_messages=False)
-                            if 'lockdown' in ctx.message.content: await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=False)
-                        await ctx.send(self.client.success_emoji +f' | Success! <#{ctx.channel.id}>\'s {str(ctx.message.content).split(" ")[0][1:]} has been {args[0]}d!')
-                    except Exception as e:
-                        raise self.client.utils.send_error_message(f'For some reason, i cannot change <#{ctx.channel.id}>\'s :(\n\n```{str(e)}```')
+                        raise self.client.utils.send_error_message('Sorry! Please add `enable` or `disable`.')
+                try:
+                    if 'disable' in args[0].lower():
+                        if 'hidechannel' in ctx.message.content.lower(): await ctx.channel.set_permissions(ctx.guild.default_role, read_messages=True)
+                        elif 'lockdown' in ctx.message.content.lower(): await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=True)
+                    elif 'enable' in args[0].lower():
+                        if 'hidechannel' in ctx.message.content.lower(): await ctx.channel.set_permissions(ctx.guild.default_role, read_messages=False)
+                        elif 'lockdown' in ctx.message.content.lower(): await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=False)
+                    return await ctx.send(self.client.success_emoji +f' | Success! <#{ctx.channel.id}>\'s {str(ctx.message.content).split(" ")[0][1:]} has been {args[0]}d!')
+                except Exception as e:
+                    raise self.client.utils.send_error_message(f'For some reason, i cannot change <#{ctx.channel.id}>\'s :(\n\n```{str(e)}```')
+        except:
+            raise self.client.utils.send_error_message(f'Invalid parameters. Correct Example: `{self.client.command_prefix}{ctx.message.content.split()[0][1:]} [disable/enable]`')    
 
     @command('roles,serverroles,serverchannels,channels')
     @cooldown(2)
