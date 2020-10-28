@@ -68,11 +68,12 @@ class image(commands.Cog):
             await ctx.send(file=discord.File(im, 'blur.png'))
 
     @command('glitchify,matrix')
-    @cooldown(1)
+    @cooldown(5)
     async def glitch(self, ctx, *args):
-        ava = self.client.utils.getUserAvatar(ctx, args, size=512)
+        ava = self.client.utils.getUserAvatar(ctx, args, size=128)
         async with ctx.channel.typing():
-            im = self.client.canvas.glitch(ava)
+            # use https://useless-api.vierofernando.repl.co/glitch?image=URL to use without token, but with ratelimit
+            im = BytesIO(get("https://useless-api.vierofernando.repl.co/glitch/noratelimit?image="+ava, headers={'token': environ["USELESSAPI"]}).content)
             await ctx.send(file=discord.File(im, 'glitch.png'))
 
     @command('destroy,destroyava,destroyavatar')
