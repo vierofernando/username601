@@ -13,7 +13,7 @@ from datetime import datetime as t
 class moderation(commands.Cog):
     def __init__(self, client):
         self.client = client
-        self.session = ClientSession()
+        
 
     @command('jp,joinpos,joindate,jd,howold')
     @cooldown(5)
@@ -259,7 +259,7 @@ class moderation(commands.Cog):
             if em.startswith('<:a:'): _id, an = em.split(':')[3].split('>')[0], True
             else: _id, an = em.split(':')[2].split('>')[0], False
             if an:
-                async with self.session.get('https://cdn.discordapp.com/emojis/{}.gif'.format(_id)) as r:
+                async with self.client.bot_session.get('https://cdn.discordapp.com/emojis/{}.gif'.format(_id)) as r:
                     res = await r.read()
                     try:
                         return await ctx.send(file=discord.File(fp=res, filename='emoji.gif'))
@@ -390,7 +390,7 @@ class moderation(commands.Cog):
             elif guy.is_avatar_animated(): nitro = True
             booster = True if guy in ctx.guild.premium_subscribers else False
             booster_since = round(t.now().timestamp() - guy.premium_since.timestamp()) if guy.premium_since != None else False
-            bg_col = tuple(self.client.canvas.get_accent(ava))
+            bg_col = tuple(self.client.canvas.get_color_accent(ava))
             data = self.client.canvas.usercard([{
                 'name': i.name, 'color': i.color.to_rgb()
             } for i in guy.roles][::-1][0:5], guy, ava, bg_col, nitro, booster, booster_since)

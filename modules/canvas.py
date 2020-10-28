@@ -12,6 +12,7 @@ from datetime import datetime as t
 from requests import get
 import json
 import random
+from .smart_colorthief import Smart_ColorThief
 from .username601 import *
 from colorthief import ColorThief
 
@@ -102,8 +103,7 @@ class Painter:
         return f'{str(num):,}'
     
     def get_color_accent(self, url):
-        res = ColorThief(BytesIO(get(url).content))
-        return res.get_color()
+        return Smart_ColorThief(url).get_color()
 
     def get_multiple_accents(self, image):
         b = BytesIO(get(image).content)
@@ -527,7 +527,7 @@ class Painter:
         self.add_corners(ava, 50)
         main.paste(ava, (20, 20))
         draw = ImageDraw.Draw(main)
-        draw.text((145, 9), details['name'], fill=fg, font=big_font)
+        draw.text((145, 5), details['name'], fill=fg, font=big_font)
         draw.text((145, 70), details['artist'], fill=fg, font=smol_font)
         draw.text((145, 92), details['album'], fill=fg, font=smol_font)
         self.add_corners(main, 25)
