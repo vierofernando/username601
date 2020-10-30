@@ -11,11 +11,11 @@ from requests import get
 import random
 import wikipediaapi
 from googletrans import Translator, LANGUAGES
-gtr = Translator()
 
 class apps(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.translator = Translator()
 
     @command('movie')
     @cooldown(5)
@@ -50,7 +50,7 @@ class apps(commands.Cog):
                 'artist': ', '.join(act.artists),
                 'album': act.album,
                 'url': act.album_cover_url
-            }), 'spotify.png'))
+            }, ctx.author), 'spotify.png'))
 
     @command()
     @cooldown(5)
@@ -66,25 +66,29 @@ class apps(commands.Cog):
         em.set_author(name='iTunes', icon_url='https://i.imgur.com/PR29ow0.jpg', url='https://www.apple.com/itunes/')
         await ctx.send(embed=em)
 
-    @command()
+    @command('tr,trans')
     @cooldown(5)
     async def translate(self, ctx, *args):
         wait = await ctx.send(self.client.loading_emoji + ' | Please wait...') ; args = list(args)
         if len(args)>0:
             if self.client.utils.parse_parameter(tuple(args), '--list')['available']:
-                lang = ''
-                for bahasa in LANGUAGES:
-                    lang = lang+str(bahasa)+' ('+str(LANGUAGES[bahasa])+')\n'
-                embed = discord.Embed(title='List of supported languages', description=str(lang), colour=ctx.guild.me.roles[::-1][0].color)
+                lang = "\n".join([str(i)+' ('+str(LANGUAGES[i])+')' for i in LANGUAGES])
+                embed = discord.Embed(title='List of supported languages', description=lang, colour=ctx.guild.me.roles[::-1][0].color)
                 await wait.edit(content='', embed=embed)
             elif len(args)>1:
-                destination = args[0]
+                destination = args[0].lower()
                 try:
-                    toTrans = ' '.join(args[1:len(args)])
-                except IndexError:
+                    toTrans = ' '.join(args[1:])
+                    if len(destination) > 2:
+                        q = self.client.utils.query(
+                            [LANGUAGES[i] for i in list(LANGUAGES)], destination
+                        )
+                        assert q is not None
+                        destination = q
+                except (IndexError, AssertionError):
                     raise self.client.utils.send_error_message('Gimme something to translate!')
                 try:
-                    translation = gtr.translate(toTrans, dest=destination)
+                    translation = self.translator.translate(toTrans, dest=destination)
                     embed = discord.Embed(description=translation.text, colour=ctx.guild.me.roles[::-1][0].color)
                     embed.set_footer(text=f'Translated {LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}.')
                     await wait.edit(content='', embed=embed)
