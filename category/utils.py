@@ -339,7 +339,7 @@ class utils(commands.Cog):
                 colim = self.client.canvas.color(str(ctx.guild.get_role(iterate_result[0]).colour))
             else:
                 colim = self.client.canvas.color(None, (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))) if self.client.utils.parse_parameter(args, 'random')['available'] else self.client.canvas.color(' '.join(args))
-            if colim == None: raise self.client.utils.send_error_message("Please insert a valid Hex.")
+            if colim is None: raise self.client.utils.send_error_message("Please insert a valid Hex.")
             return await ctx.send(file=discord.File(colim, 'color.png'))
     
     @command('fast')
@@ -355,7 +355,7 @@ class utils(commands.Cog):
             trying = await self.client.wait_for('message', check=check, timeout=120.0)
         except:
             await main.edit(content='Time is up.')
-        if str(trying.content)!=None:
+        if str(trying.content)is not None:
             offset = t.now().timestamp()-first
             asked, answered, wrong = text.lower(), str(trying.content).lower(), 0
             for i in range(len(asked)):

@@ -65,7 +65,7 @@ class fun(commands.Cog):
     @cooldown(2)
     async def lovelevel(self, ctx, *args):
         res = self.client.utils.split_parameter_to_two(args)
-        if res == None: raise self.client.utils.send_error_message('Please send a valid two user ids/names/mentions!')
+        if res is None: raise self.client.utils.send_error_message('Please send a valid two user ids/names/mentions!')
         user1, user2 = self.client.utils.getUser(res[0]), self.client.utils.getUser(res[1])
         result = self.client.algorithm.love_finder(user1.id, user2.id)
         await ctx.send('Love level of {} and {} is **{}%!**'.format(ctx.message.mentions[0].name, ctx.message.mentions[1].name, str(result)))

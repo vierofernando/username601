@@ -38,7 +38,7 @@ class memes(commands.Cog):
     @cooldown(1)
     async def password(self, ctx, *args):
         param = self.client.utils.split_parameter_to_two(args)
-        if param == None: raise self.client.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
+        if param is None: raise self.client.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
         async with ctx.channel.typing():
             text1, text2 = param
             i = self.client.canvas.password(text1, text2)
@@ -191,7 +191,7 @@ class memes(commands.Cog):
     @cooldown(2)
     async def didyoumean(self, ctx, *args):
         params = self.client.utils.split_parameter_to_two(args)
-        if params == None: raise self.client.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
+        if params is None: raise self.client.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
         txt1, txt2 = params
         url = f'https://api.alexflipnote.dev/didyoumean?top={txt1}&bottom={txt2}'
         data = self.client.canvas.urltoimage(url)
@@ -201,7 +201,7 @@ class memes(commands.Cog):
     @cooldown(2)
     async def drake(self, ctx, *args):
         params = self.client.utils.split_parameter_to_two(args)
-        if params == None: raise self.client.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
+        if params is None: raise self.client.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
         txt1, txt2 = params
         url = f'https://api.alexflipnote.dev/drake?top={txt1}&bottom={txt2}'
         data = self.client.canvas.urltoimage(url)

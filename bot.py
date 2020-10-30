@@ -44,7 +44,7 @@ async def on_raw_reaction_add(payload):
     if str(payload.emoji)!='⭐': return
     if payload.event_type != 'REACTION_ADD': return
     data = database.Dashboard.getStarboardChannel(None, guildid=payload.guild_id)
-    if data==None: return
+    if datais None: return
     try:
         messages = await client.get_channel(data['channelid']).history().flatten()
         starboards = [int(str(message.content).split(': ')[1]) for message in messages if message.author.id==config('BOT_ID', integer=True)]
@@ -62,7 +62,7 @@ async def on_command_completion(ctx):
 async def on_member_join(member):
     # SEND WELCOME CHANNEL
     welcome_message, welcome_channel = database.Dashboard.send_welcome(member, discord), database.Dashboard.get_welcome_channel(member.guild.id)
-    if welcome_message!=None and welcome_channel!=None: await member.guild.get_channel(welcome_channel).send(embed=welcome_message)
+    if welcome_messageis not None and welcome_channelis not None: await member.guild.get_channel(welcome_channel).send(embed=welcome_message)
     data = database.Dashboard.add_autorole(member.guild.id)
     if data.isnumeric():
         # AUTOROLE
@@ -75,7 +75,7 @@ async def on_member_join(member):
 @client.event
 async def on_member_update(before, after):
     if before.nick == after.nick: return
-    elif after.nick==None: return
+    elif after.nickis None: return
     if after.nick.startswith('!'):
         if not database.Dashboard.getDehoister(after.guild.id): return
         try: await after.edit(nick='Dehoisted user')
@@ -84,13 +84,13 @@ async def on_member_update(before, after):
 async def on_member_remove(member):
     database.Dashboard.clearWarn(member)
     goodbye_message, goodbye_channel = database.Dashboard.send_goodbye(member, discord), database.Dashboard.get_welcome_channel(member.guild.id)
-    if goodbye_message!=None and goodbye_channel!=None: await member.guild.get_channel(goodbye_channel).send(embed=goodbye_message)
+    if goodbye_messageis not None and goodbye_channelis not None: await member.guild.get_channel(goodbye_channel).send(embed=goodbye_message)
 
 @client.event
 async def on_guild_channel_create(channel):
     if str(channel.type) not in ['text', 'voice']: return
     data = database.Dashboard.getMuteRole(channel.guild.id)
-    if data==None: return
+    if datais None: return
     if str(channel.type)=='text': return await channel.set_permissions(channel.guild.get_role(data), send_messages=False)
     await channel.set_permissions(channel.guild.get_role(data), connect=False)
 
@@ -102,7 +102,7 @@ async def on_guild_channel_delete(channel):
 @client.event
 async def on_guild_role_delete(role):
     muterole = database.Dashboard.getMuteRole(role.guild.id)
-    if muterole==None: return
+    if muteroleis None: return
     if muterole!=role.id: return
     database.Dashboard.editMuteRole(role.guild.id, None)
 
@@ -141,11 +141,11 @@ def isdblvote(author):
     elif author.id==479688142908162059: return False
 @client.event
 async def on_message(message):
-    if isdblvote(message.author) or message.guild==None: return
+    if isdblvote(message.author) or message.guildis None: return
     if message.content.startswith(f'<@{client.user.id}>') or message.content.startswith(f'<@!{client.user.id}>'): return await message.channel.send(f'Hello, {message.author.name}! My prefix is `1`. use `1help` for help')
     #if message.guild.id==config('SERVER_ID', integer=True) and message.author.id==479688142908162059:
     #    data = int(str(message.embeds[0].description).split('(id:')[1].split(')')[0])
-    #    if database.Economy.get(data)==None: return
+    #    if database.Economy.get(data)is None: return
     #    rewards = database.Economy.daily(data)
     #    try: await client.get_user(data).send(f'Thanks for voting! **You received {rewards} bobux!**')
     #    except: return

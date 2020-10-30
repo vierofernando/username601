@@ -37,7 +37,7 @@ class economy(commands.Cog):
     @cooldown(120)
     async def beg(self, ctx):
         c = random.randint(1, 3)
-        if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if self.client.db.Economy.get(ctx.author.id)is None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         if c==1:
             award = random.randint(100, 800)
             self.client.db.Economy.addbal(ctx.author.id, award)
@@ -47,7 +47,7 @@ class economy(commands.Cog):
     @command('fishing')
     @cooldown(60)
     async def fish(self, ctx):
-        if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if self.client.db.Economy.get(ctx.author.id)is None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         wait = await ctx.send('{} | {}'.format(self.client.loading_emoji, random.choice(
             self.fish_json['waiting']
         )))
@@ -63,7 +63,7 @@ class economy(commands.Cog):
     @cooldown(7)
     async def buylist(self, ctx):
         source = ctx.author if len(ctx.message.mentions)==0 else ctx.message.mentions[0]
-        if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if self.client.db.Economy.get(ctx.author.id)is None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         try:
             data = self.client.db.Economy.getBuyList(source)
             assert not data['error'], data['ctx']
@@ -107,7 +107,7 @@ class economy(commands.Cog):
     @cooldown(3)
     async def buy(self, ctx, *args):
         if len(args)==0: raise self.client.utils.send_error_message(f'Please use the following parameters:\n`{self.client.command_prefix}buy <name>`')
-        if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if self.client.db.Economy.get(ctx.author.id)is None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         try:
             data = self.client.db.Shop.buy(' '.join(args), ctx.author)
             assert not data['error'], data['ctx']
@@ -132,7 +132,7 @@ class economy(commands.Cog):
     @cooldown(3600)
     async def reset(self, ctx):
         data = self.client.db.Economy.get(ctx.author.id)
-        if data==None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if datais None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         else:
             wait = await ctx.send(self.client.loading_emoji+" | Please wait...")
             await wait.edit(content=':thinking: | Are you sure? This action is irreversible!\n(Reply with yes/no)')
@@ -152,7 +152,7 @@ class economy(commands.Cog):
     @cooldown(450)
     async def work(self, ctx):
         data = self.client.db.Economy.get(ctx.author.id)
-        if data==None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if datais None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         else:
             wait = await ctx.send(self.client.loading_emoji+" | Please wait...")
             reward = str(random.randint(100, 500))
@@ -165,7 +165,7 @@ class economy(commands.Cog):
     @cooldown(15)
     async def daily(self, ctx, *args):
         wait = await ctx.send(self.client.loading_emoji+" | Please wait...")
-        if self.client.db.Economy.get(ctx.author.id)==None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if self.client.db.Economy.get(ctx.author.id)is None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         else:
             obj = self.client.db.Economy.can_vote(ctx.author.id)
             if obj['bool']:
@@ -191,9 +191,9 @@ class economy(commands.Cog):
             amount = None
             for i in list(args):
                 if i.isnumeric(): amount = int(i); break
-            if amount==None: raise self.client.utils.send_error_message("Please give a valid amount.")
+            if amountis None: raise self.client.utils.send_error_message("Please give a valid amount.")
             elif amount not in range(1, 500001): raise self.client.utils.send_error_message("Invalid amount range.")
-            elif self.client.db.Economy.get(ctx.author.id)==None or self.client.db.Economy.get(ctx.message.mentions[0].id)==None:
+            elif self.client.db.Economy.get(ctx.author.id)is None or self.client.db.Economy.get(ctx.message.mentions[0].id)is None:
                 raise self.client.utils.send_error_message("One of them does not have a profile.")
             else:
                 self.client.db.Economy.addbal(ctx.message.mentions[0].id, amount)
@@ -212,13 +212,13 @@ class economy(commands.Cog):
                 amount2rob = None
                 for i in list(args):
                     if i.isnumeric(): amount2rob = int(i) ; break
-                if amount2rob==None: raise self.client.utils.send_error_message('How many bobux shall be robbed?')
+                if amount2robis None: raise self.client.utils.send_error_message('How many bobux shall be robbed?')
                 elif amount2rob>9999: raise self.client.utils.send_error_message('Dude, you must be crazy. That\'s too many bobux!')
                 elif amount2rob<0: raise self.client.utils.send_error_message('minus??? HUH?')
                 else:
                     wait = await ctx.send(self.client.loading_emoji+' | *Please wait... robbing...*')
                     victim, stealer = self.client.db.Economy.get(ctx.message.mentions[0].id), self.client.db.Economy.get(ctx.author.id)
-                    if victim==None or stealer==None:
+                    if victimis None or stealeris None:
                         raise self.client.utils.send_error_message('you/that guy doesn\'t even have a profile!')
                     else:
                         data = random.choice(self.steal_json)
@@ -248,7 +248,7 @@ class economy(commands.Cog):
     async def deposit(self, ctx, *args):
         if len(args)==0: raise self.client.utils.send_error_message(f'How many money?\nOr use `{self.client.command_prefix}dep all` to deposit all of your money.')
         data = self.client.db.Economy.get(ctx.author.id)
-        if data==None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if datais None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         if args[0].lower()=='all':
             self.client.db.Economy.deposit(ctx.author.id, data['bal'])
             return await ctx.send('{} | OK. Deposited all of your bobux to the username601 bank.'.format(self.client.success_emoji))
@@ -266,7 +266,7 @@ class economy(commands.Cog):
     async def withdraw(self, ctx, *args):
         if len(args)==0: raise self.client.utils.send_error_message(f'How many money?\nOr use `{self.client.command_prefix}widthdraw all` to get money from the bank.')
         data = self.client.db.Economy.get(ctx.author.id)
-        if data==None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if datais None: raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         if args[0].lower()=='all':
             self.client.db.Economy.withdraw(ctx.author.id, data['bankbal'])
             return await ctx.send('{} | OK. Withdrawed all of your bobux from the username601 bank.'.format(self.client.success_emoji))
@@ -315,7 +315,7 @@ class economy(commands.Cog):
             for i in ['discord.gg', 'discord.com/', 'bit.ly', '://', 'nigga', 'nigger', 'discordapp.com']:
                 if i in newdesc.lower(): raise self.client.utils.send_error_message('Your description has invalid/blocked text!')
             wait = await ctx.send(self.client.loading_emoji+' | Please wait...')
-            if self.client.db.Economy.get(ctx.author.id)==None:
+            if self.client.db.Economy.get(ctx.author.id)is None:
                 raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
             else:
                 data = self.client.db.Economy.setdesc(ctx.author.id, newdesc)
@@ -326,7 +326,7 @@ class economy(commands.Cog):
     @cooldown(2)
     async def bal(self, ctx, *args):
         src, ava = self.client.utils.getUser(ctx, args), self.client.utils.getUserAvatar(ctx, args)
-        if self.client.db.Economy.get(src.id)==None:
+        if self.client.db.Economy.get(src.id)is None:
             raise self.client.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         else:
             wait = await ctx.send(self.client.loading_emoji+" | Please wait...")
@@ -341,7 +341,7 @@ class economy(commands.Cog):
     async def new(self, ctx):
         data = self.client.db.Economy.get(ctx.author.id)
         wait = await ctx.send(self.client.loading_emoji+" | Please wait... creating your profile...")
-        if data!=None:
+        if datais not None:
             raise self.client.utils.send_error_message("You already have a profile!")
         else:
             data = self.client.db.Economy.new(ctx.author.id)
