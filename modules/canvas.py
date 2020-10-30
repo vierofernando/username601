@@ -269,7 +269,7 @@ class Painter:
         draw.text(((W - w)/2 - 100, 200), levelStars, font=pusab_tiny, stroke_width=2, stroke_fill="black")
 
         for i in list(self.gd_assets['main'].keys()):
-            if self.gd_assets['main'][i]is None:
+            if self.gd_assets['main'][i] is None:
                 if data['disliked']: sym = self.buffer_from_url(self.gd_assets['dislike']).convert('RGBA').resize((25, 25))
                 else: sym = self.buffer_from_url(self.gd_assets['like']).convert('RGBA').resize((25, 25))
                 main.paste(sym, (round((W-25)/2) + 75, sym_cursor), sym)
@@ -372,7 +372,7 @@ class Painter:
             draw.rectangle([
                 (main.width/2, rect_y_cursor), (margin_right, rect_y_cursor + 120)
             ], fill=bg_arr[3])
-            afkname = "???" if guild.afk_channelis None else guild.afk_channel.name
+            afkname = "???" if guild.afk_channel is None else guild.afk_channel.name
             main.paste(
                 self.buffer_from_url(self.region[str(guild.region)]).resize((35, 23)),
                 (margin_right - 45, round(rect_y_cursor + 25 + (18 * 3)))
@@ -561,7 +561,7 @@ class Painter:
         draw.text((margin_left + 7, 317), "Local Rank #"+details['rank'], font=smolfont, fill=self.invert(ava_col[4]))
         draw.text((round(main.width/2) + 7, 317), "Global Rank #"+details['global'], font=smolfont, fill=self.invert(ava_col[5]))
         draw.text((margin_left + 3, 183), res_text, fill=self.invert(ava_col[8]), font=smolfont)
-        if afteris not None:
+        if after is not None:
             draw.rectangle([(margin_left, 350), (margin_right, 370)], fill=ava_col[6])
             draw.rectangle([(margin_left, 370), (margin_right, 400)], fill=(100, 100, 100))
             try:

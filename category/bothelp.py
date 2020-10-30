@@ -57,7 +57,7 @@ class bothelp(commands.Cog):
             await ctx.send(embed=embed)
         else:
             data = self.client.cmds.get_commands_auto(' '.join(args).lower())
-            if datais None: raise self.client.utils.send_error_message("Your command/category name does not exist, sorry!")
+            if data is None: raise self.client.utils.send_error_message("Your command/category name does not exist, sorry!")
             datatype = 'Category' if isinstance(data, list) else 'Command'
             desc = '**Command name: **{}\n**Function: **{}\n**Category: **{}'.format(
                 data['name'], data['function'], data['category']

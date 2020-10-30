@@ -355,7 +355,7 @@ class utils(commands.Cog):
             trying = await self.client.wait_for('message', check=check, timeout=120.0)
         except:
             await main.edit(content='Time is up.')
-        if str(trying.content)is not None:
+        if str(trying.content) is not None:
             offset = t.now().timestamp()-first
             asked, answered, wrong = text.lower(), str(trying.content).lower(), 0
             for i in range(len(asked)):

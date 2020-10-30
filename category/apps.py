@@ -26,9 +26,9 @@ class apps(commands.Cog):
         if data.status_code==404: raise self.client.utils.send_error_message("Did not found anything.")
         try:
             data = data.json()
-            star = str(':star:'*round(data['rating']['average'])) if data['rating']['average']is not None else 'No star rating provided.'
+            star = str(':star:'*round(data['rating']['average'])) if data['rating']['average'] is not None else 'No star rating provided.'
             em = discord.Embed(title=data['name'], url=data['url'], description=self.client.utils.clean_html(data['summary']), color=ctx.guild.me.roles[::-1][0].color)
-            em.add_field(name='General Information', value='**Status: **'+data['status']+'\n**Premiered at: **'+data['premiered']+'\n**Type: **'+data['type']+'\n**Language: **'+data['language']+'\n**Rating: **'+str(data['rating']['average'] if data['rating']['average']is not None else 'None')+'\n'+star)
+            em.add_field(name='General Information', value='**Status: **'+data['status']+'\n**Premiered at: **'+data['premiered']+'\n**Type: **'+data['type']+'\n**Language: **'+data['language']+'\n**Rating: **'+str(data['rating']['average'] if data['rating']['average'] is not None else 'None')+'\n'+star)
             em.add_field(name='TV Network', value=data['network']['name']+' at '+data['network']['country']['name']+' ('+data['network']['country']['timezone']+')')
             em.add_field(name='Genre', value=str(', '.join(data['genres']) if len(data['genres'])>0 else 'no genre avaliable'))
             em.add_field(name='Schedule', value=', '.join(data['schedule']['days'])+' at '+data['schedule']['time'])
@@ -43,7 +43,7 @@ class apps(commands.Cog):
         source, act = self.client.utils.getUser(ctx, args), None
         for i in source.activities:
             if isinstance(i, discord.Spotify): act = i
-        if actis None: raise self.client.utils.send_error_message("Nope. Not listening to spotify.")
+        if act is None: raise self.client.utils.send_error_message("Nope. Not listening to spotify.")
         async with ctx.channel.typing():
             await ctx.send(file=discord.File(self.client.canvas.spotify({
                 'name': act.title,

@@ -22,7 +22,7 @@ class Dashboard:
         except:
             return False
     def add_guild(guildid, **kwargs):
-        warns = [] if kwargs.get('warns')is None else kwargs.get('warns')
+        warns = [] if kwargs.get('warns') is None else kwargs.get('warns')
         database["dashboard"].insert_one({
             "serverid": guildid,
             "autorole": kwargs.get('autorole'),
@@ -30,7 +30,7 @@ class Dashboard:
             "starboard": kwargs.get('starboard'),
             "star_requirements": kwargs.get('starreq'),
             "warns": warns,
-            "dehoister": kwargs.get('dehoister') if kwargs.get('dehoister')is not None else False,
+            "dehoister": kwargs.get('dehoister') if kwargs.get('dehoister') is not None else False,
             "mute": kwargs.get('muterole'),
             "shop": [],
             "subscription": kwargs.get('sub')
@@ -48,7 +48,7 @@ class Dashboard:
     def get_subscribers():
         return [{
             'url': i['subscription'], 'serverid': int(i['serverid'])
-        } for i in database['dashboard'].find() if i['subscription']is not None]
+        } for i in database['dashboard'].find() if i['subscription'] is not None]
     def subscribe(url, guildid, reset=False):
         if reset:
             if Dashboard.exist(guildid):
@@ -88,7 +88,7 @@ class Dashboard:
             return int(data)
         except: return None
     def getStarboardChannel(guild, **kwargs):
-        guildid = guild.id if (guildis not None) else int(kwargs.get('guildid'))
+        guildid = guild.id if (guild is not None) else int(kwargs.get('guildid'))
         if not Dashboard.exist(guildid): return None
         data = database['dashboard'].find_one({'serverid': guildid})
         try:
@@ -119,7 +119,7 @@ class Dashboard:
     def databaseDeleteChannel(channel):
         try:
             data = database['dashboard'].find_one({'serverid': channel.guild.id})
-            if datais None: return
+            if data is None: return
         except: return
         if channel.id not in [data[i] for i in list(data.keys())]: return
         if data['welcome'] == channel.id:
@@ -172,17 +172,17 @@ class Dashboard:
     def getDehoister(serverid):
         if not Dashboard.exist(serverid): return False
         data = database['dashboard'].find_one({'serverid': serverid})
-        if datais None: return False
+        if data is None: return False
         return data['dehoister']
     def getMuteRole(serverid):
         if not Dashboard.exist(serverid):
             Dashboard.add_guild(serverid)
             return None
         data = database['dashboard'].find_one({'serverid': serverid})
-        if datais None: return None
+        if data is None: return None
         return data['mute']
     def editMuteRole(serverid, roleid):
-        new = int(roleid) if roleidis not None else None
+        new = int(roleid) if roleid is not None else None
         database['dashboard'].update_one({'serverid': serverid}, {'$set': {
             'mute': new
         }})
@@ -334,14 +334,14 @@ class Economy:
             return e
     def getBuyList(author, raw=False):
         data = Economy.get(author.id)
-        if datais None: return {'error': True, 'ctx': f'{author.name} has no profile'}
+        if data is None: return {'error': True, 'ctx': f'{author.name} has no profile'}
         elif len(data['buyList'])==0: return {'error': True, 'ctx': 'No buylist found'}
         if raw: return {'error': False, 'ctx': data['buyList']}
         return {'error': False, 'ctx': '\n'.join([str(i+1)+'. "'+' '.join(data['buyList'][i].split('.')[3:60])+'" (Price: '+str(data['buyList'][i].split('.')[2])+' :gem:)' for i in range(len(data['buyList']))])}
     def changedesc(userid, newdesc):
         try:
             data = database['economy'].find({'userid': userid})
-            if len(data)==0 or datais None:
+            if len(data)==0 or data is None:
                 return 'undefined'
             else:
                 database['economy'].update_one({'userid': userid}, { '$set': { 'desc': str(newdesc) } })
@@ -381,7 +381,7 @@ class Shop:
         if len(shop)==0: return {'error': True, 'ctx': 'This server has no product left'}
         for i in shop:
             if name.lower() in i['name'].lower(): product = i; break
-        if productis None: return {'error': True, 'ctx': 'Product not found'}
+        if product is None: return {'error': True, 'ctx': 'Product not found'}
         database['dashboard'].update_one({'serverid': server.id}, {'$pull': {'shop': product['price']+'.'+product['name']}})
         return {'error': False, 'ctx': '{} deleted from shop'.format(product['name'])}
     def buy(name, user):
@@ -389,8 +389,8 @@ class Shop:
         if server_shop['error']: return server_shop
         for i in server_shop['ctx']:
             if name.lower() in i['name'].lower(): element = i ; break
-        if elementis None: return {'error': True, 'ctx': 'Error product not found'}
-        elif user_datais None: return {'error': True, 'ctx': 'User does not have any profile'}
+        if element is None: return {'error': True, 'ctx': 'Error product not found'}
+        elif user_data is None: return {'error': True, 'ctx': 'User does not have any profile'}
         elif user_data['bal'] < element['price']: return {'error': True, 'ctx': 'Money is less than the price.\nPlease have {} more bobux'.format(element['price']-user_data['bal'])}
         Economy.delbal(user.id, element['price'])
         if element['name'] not in [' '.join(i.split('.')[3:len(i.split('.'))]) for i in user_data['buyList']]:

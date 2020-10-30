@@ -7,7 +7,7 @@ def __gcmd__(cmdn, commands):
     return None
 def __command_type__(param, commands, categories):
     name = __gcmd__(param, commands)
-    if nameis None:
+    if name is None:
         if param.lower() in [i.lower() for i in categories]:
             return "category"
         return None
