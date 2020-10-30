@@ -7,6 +7,7 @@ from PIL import (
     ImageFilter,
     ImageColor
 )
+from time import strftime, gmtime
 from io import BytesIO
 from datetime import datetime as t
 from requests import get
@@ -154,7 +155,7 @@ class Painter:
         return self.buffer(res)
 
     def color(self, string, rgb_input=None):
-        if rgb_input is not None: string = '#%02x%02x%02x' % rgb_input
+        if rgb_input != None: string = '#%02x%02x%02x' % rgb_input
         if not string.startswith('#'): string = '#' + string
         try: rgb, brightness = ImageColor.getrgb(string), ImageColor.getcolor(string, 'L')
         except: return None
@@ -269,7 +270,7 @@ class Painter:
         draw.text(((W - w)/2 - 100, 200), levelStars, font=pusab_tiny, stroke_width=2, stroke_fill="black")
 
         for i in list(self.gd_assets['main'].keys()):
-            if self.gd_assets['main'][i] is None:
+            if self.gd_assets['main'][i]==None:
                 if data['disliked']: sym = self.buffer_from_url(self.gd_assets['dislike']).convert('RGBA').resize((25, 25))
                 else: sym = self.buffer_from_url(self.gd_assets['like']).convert('RGBA').resize((25, 25))
                 main.paste(sym, (round((W-25)/2) + 75, sym_cursor), sym)
@@ -339,7 +340,7 @@ class Painter:
         bigfont = self.get_font('NotoSansDisplay-Bold', 50, otf=True)
         medium = self.get_font('NotoSansDisplay-Bold', 20, otf=True)
         smolerfont = self.get_font('NotoSansDisplay-Bold', 15, otf=True)
-        if data is None:
+        if data == None:
             server_title, members, icon = guild.name, guild.members, guild.icon_url
             subtitle = 'Created {} ago by {}'.format(lapsed_time_from_seconds(t.now().timestamp() - guild.created_at.timestamp()), str(guild.owner))
         else:
@@ -357,7 +358,7 @@ class Painter:
         main.paste(ava, (25, 25))
         draw.text((135, 20), server_title, fill=self.invert(main_bg), font=bigfont)
         draw.text((135, 90), subtitle, fill=self.invert(main_bg), font=medium)
-        if data is None:
+        if data == None:
             rect_y_cursor = self._draw_status_stats(draw, {
                 "online": len([i for i in members if i.status.value.lower()=='online']),
                 "idle": len([i for i in members if i.status.value.lower()=='idle']),
@@ -368,11 +369,11 @@ class Painter:
         draw.rectangle([
             (margin_left, rect_y_cursor), (main.width/2, rect_y_cursor + 120)
         ], fill=bg_arr[2])
-        if data is None:
+        if data == None:
             draw.rectangle([
                 (main.width/2, rect_y_cursor), (margin_right, rect_y_cursor + 120)
             ], fill=bg_arr[3])
-            afkname = "???" if guild.afk_channel is None else guild.afk_channel.name
+            afkname = "???" if guild.afk_channel==None else guild.afk_channel.name
             main.paste(
                 self.buffer_from_url(self.region[str(guild.region)]).resize((35, 23)),
                 (margin_right - 45, round(rect_y_cursor + 25 + (18 * 3)))
@@ -389,7 +390,7 @@ class Painter:
         draw.rectangle([
             (margin_left, rect_y_cursor), (margin_right, rect_y_cursor + 90)
         ], fill=bg_arr[4])
-        if data is None:
+        if data == None:
             draw.text((margin_left + 5, rect_y_cursor + 3), "{} Humans\n{} Bots\n{} Members in total".format(
                 len([i for i in members if not i.bot]), len([i for i in members if i.bot]), len(members)
             ), fill=self.invert(bg_arr[4]), font=medium)
@@ -512,26 +513,60 @@ class Painter:
         draw.text((0, 0), string, font=font, fill=(255, 255, 255))
         return self.buffer(image)
         
-    def spotify(self, details):
-        url = details['url']
-        del details['url']
-        longest_word = [details[i] for i in list(details.keys()) if len(details[i])==sorted([
-            len(details[a]) for a in list(details.keys())
-        ])[::-1][0]][0]
-        ava, bg = self.buffer_from_url(url).resize((100, 100)), self.get_color_accent(url)
-        fg = self.invert(bg)
-        big_font, smol_font = self.get_font('NotoSansDisplay-Bold', 50, otf=True), self.get_font('NotoSansDisplay-Bold', 17, otf=True)
-        longest_font_width = smol_font.getsize(longest_word)[0] if longest_word!=details['name'] else big_font.getsize(details['name'])[0]   
-        if longest_font_width < 300: longest_font_width = 300
-        main = Image.new(mode='RGB', color=bg, size=(longest_font_width+275, 140))
-        self.add_corners(ava, 50)
-        main.paste(ava, (20, 20))
-        draw = ImageDraw.Draw(main)
-        draw.text((145, 5), details['name'], fill=fg, font=big_font)
-        draw.text((145, 70), details['artist'], fill=fg, font=smol_font)
-        draw.text((145, 92), details['album'], fill=fg, font=smol_font)
-        self.add_corners(main, 25)
-        return self.buffer(main)
+    def __getstartstring(self, tm):
+        i = round((t.now() - tm).total_seconds())
+        minute = '0' if (i%60==0) else str(int(i/60))
+        if i > 60:
+            while i > 60:
+                i -= 60
+        if len(minute)==1: minute = '0'+minute
+        return minute+':'+str(i)
+
+    def spotify(self, spt):
+        TITLE_TEXT = spt.title
+        TITLE_FONT = self.get_font("NotoSansDisplay-Bold", 30, otf=True)
+
+        AUTHOR_TEXT = ', '.join(spt.artists)
+        AUTHOR_FONT = self.get_font("NotoSansDisplay-Bold", 20, otf=True)
+
+        ALBUM_TEXT = spt.album
+        ALBUM_FONT = self.get_font("NotoSansDisplay-Bold", 15, otf=True)
+        ALBUM_COVER = self.buffer_from_url(spt.album_cover_url).resize((200, 200))
+        BACKGROUND_COLOR = self.get_color_accent(spt.album_cover_url)
+        FOREGROUND_COLOR = self.invert(BACKGROUND_COLOR)
+
+        if len(TITLE_TEXT) > 25: TITLE_TEXT = TITLE_TEXT[0:25] + "..."
+        if len(AUTHOR_TEXT) > 35: AUTHOR_TEXT = AUTHOR_TEXT[0:35] + "..."
+        if len(ALBUM_TEXT) > 45: ALBUM_TEXT = ALBUM_TEXT[0:45] + "..."
+
+        TITLE_SIZE = TITLE_FONT.getsize(TITLE_TEXT)
+        AUTHOR_SIZE = AUTHOR_FONT.getsize(AUTHOR_TEXT)
+        ALBUM_SIZE = ALBUM_FONT.getsize(ALBUM_TEXT)
+        WIDTH = max([TITLE_SIZE[0], AUTHOR_SIZE[0], ALBUM_SIZE[0]]) + 270
+
+        MARGIN_LEFT = 220
+        MARGIN_RIGHT = WIDTH - 20
+        MARGIN_TOP = 20
+
+        SEEK = round(round((t.now() - spt.created_at).total_seconds())/round(spt.duration.total_seconds())*100)
+        STR_CURRENT = strftime('%H:%M:%S', gmtime(round((t.now() - spt.created_at).total_seconds())))
+        STR_END = strftime('%H:%M:%S', gmtime(round(spt.duration.total_seconds())))
+
+        MAIN = Image.new(mode="RGB", color=BACKGROUND_COLOR, size=(WIDTH, 200))
+        DRAW = ImageDraw.Draw(MAIN)
+
+        DRAW.text((MARGIN_LEFT, MARGIN_TOP), TITLE_TEXT, font=TITLE_FONT, fill=FOREGROUND_COLOR)
+        DRAW.text((MARGIN_LEFT, MARGIN_TOP + 38), "By "+AUTHOR_TEXT, font=AUTHOR_FONT, fill=FOREGROUND_COLOR)
+        DRAW.text((MARGIN_LEFT, MARGIN_TOP + 65), "On "+ALBUM_TEXT, font=ALBUM_FONT, fill=FOREGROUND_COLOR)
+
+        MAIN.paste(ALBUM_COVER, (0, 0))
+        DURATION_LEFT_SIZE = DRAW.textsize(STR_END, font=AUTHOR_FONT)[0]
+
+        DRAW.rectangle([(MARGIN_LEFT, MARGIN_TOP + 100), ((SEEK / 100 * (MARGIN_RIGHT - MARGIN_LEFT)) + MARGIN_LEFT, MARGIN_TOP + 120)], fill=FOREGROUND_COLOR)
+        DRAW.text((MARGIN_LEFT, MARGIN_TOP + 130), STR_CURRENT, font=AUTHOR_FONT, fill=FOREGROUND_COLOR)
+        DRAW.text((MARGIN_RIGHT - DURATION_LEFT_SIZE, MARGIN_TOP + 130), STR_END, font=AUTHOR_FONT, fill=FOREGROUND_COLOR)
+
+        return self.buffer(MAIN)
     
     def profile(self, username, avatar, details, after):
         # yanderedev was here
@@ -549,7 +584,7 @@ class Painter:
         draw.text((170, 100), 'Joined since {}\n(order {})'.format(details['joined'], details['number']), fill=fg, font=smolfont)
         bal = details['wallet']+" bobux"
         draw.rectangle([(margin_left, 180), (margin_right, 240)], fill=ava_col[8])
-        res_text = self.wrap_text(details['desc'], smolfont, (margin_right - 180) - 2)
+        res_text = self.wrap_text(details['desc'], (margin_right - 180) - 2, smolfont)
         draw.rectangle([(margin_left, 240), (margin_right, 270)], fill=ava_col[3])
         draw.text((round((main.width - smolfont.getsize(bal)[0])/2), 239), bal, fill=self.invert(ava_col[3]), font=smolfont)
         draw.rectangle([(margin_left, 270), (round(main.width/2), 310)], fill=ava_col[1])
@@ -561,7 +596,7 @@ class Painter:
         draw.text((margin_left + 7, 317), "Local Rank #"+details['rank'], font=smolfont, fill=self.invert(ava_col[4]))
         draw.text((round(main.width/2) + 7, 317), "Global Rank #"+details['global'], font=smolfont, fill=self.invert(ava_col[5]))
         draw.text((margin_left + 3, 183), res_text, fill=self.invert(ava_col[8]), font=smolfont)
-        if after is not None:
+        if after!=None:
             draw.rectangle([(margin_left, 350), (margin_right, 370)], fill=ava_col[6])
             draw.rectangle([(margin_left, 370), (margin_right, 400)], fill=(100, 100, 100))
             try:
