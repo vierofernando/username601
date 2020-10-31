@@ -15,6 +15,17 @@ class utils(commands.Cog):
     def __init__(self, client):
         self.client = client
     
+    @command('prsc,psrc,act,activity')
+    @cooldown(3)
+    async def presence(self, ctx, *args):
+        async with ctx.channel.typing():
+            user = self.client.utils.getUser(ctx, args)
+            if user.activity is None: raise self.client.utils.send_error_message(f"Sorry, but {user.display_name} has no activity...")
+            title = "" if (not hasattr(user.activity, 'name')) else user.activity.name
+            subtitle = "" if (not hasattr(user.activity, 'details')) else user.activity.details
+            desc = "" if (not hasattr(user.activity, 'state')) else user.activity.state
+            url = "https://cdn.discordapp.com/embed/avatars/0.png" if (not hasattr(user.activity, 'large_image_url')) else user.activity.large_image_url
+            return await ctx.send(file=discord.File(self.client.canvas.custom_panel(title=title, subtitle=subtitle, description=desc, icon=url), 'activity.png'))
     @command('colorthief,getcolor,accent,accentcolor,accent-color,colorpalette,color-palette')
     @cooldown(3)
     async def palette(self, ctx, *args):
@@ -339,7 +350,7 @@ class utils(commands.Cog):
                 colim = self.client.canvas.color(str(ctx.guild.get_role(iterate_result[0]).colour))
             else:
                 colim = self.client.canvas.color(None, (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))) if self.client.utils.parse_parameter(args, 'random')['available'] else self.client.canvas.color(' '.join(args))
-            if colim is None: raise self.client.utils.send_error_message("Please insert a valid Hex.")
+            if colim == None: raise self.client.utils.send_error_message("Please insert a valid Hex.")
             return await ctx.send(file=discord.File(colim, 'color.png'))
     
     @command('fast')
@@ -355,7 +366,7 @@ class utils(commands.Cog):
             trying = await self.client.wait_for('message', check=check, timeout=120.0)
         except:
             await main.edit(content='Time is up.')
-        if str(trying.content) is not None:
+        if str(trying.content)!=None:
             offset = t.now().timestamp()-first
             asked, answered, wrong = text.lower(), str(trying.content).lower(), 0
             for i in range(len(asked)):

@@ -103,8 +103,8 @@ class Painter:
     def toLocaleString(self, num):
         return f'{str(num):,}'
     
-    def get_color_accent(self, url):
-        return Smart_ColorThief(url).get_color()
+    def get_color_accent(self, url, right=False):
+        return Smart_ColorThief(url).get_color(right=right)
 
     def get_multiple_accents(self, image):
         b = BytesIO(get(image).content)
@@ -522,50 +522,56 @@ class Painter:
         if len(minute)==1: minute = '0'+minute
         return minute+':'+str(i)
 
-    def spotify(self, spt):
-        TITLE_TEXT = spt.title
+    def custom_panel(self, title="Title text", subtitle="Subtitle text", description="Description text here", icon="https://cdn.discordapp.com/embed/avatars/0.png", spt=None):
+        SPOTIFY = False if (spt is None) else True
+        TITLE_TEXT = title if not SPOTIFY else spt.title
         TITLE_FONT = self.get_font("NotoSansDisplay-Bold", 30, otf=True)
 
-        AUTHOR_TEXT = ', '.join(spt.artists)
-        AUTHOR_FONT = self.get_font("NotoSansDisplay-Bold", 20, otf=True)
+        SUBTITLE_TEXT = subtitle if not SPOTIFY else ', '.join(spt.artists)
+        SUBTITLE_FONT = self.get_font("NotoSansDisplay-Bold", 20, otf=True)
 
-        ALBUM_TEXT = spt.album
-        ALBUM_FONT = self.get_font("NotoSansDisplay-Bold", 15, otf=True)
-        ALBUM_COVER = self.buffer_from_url(spt.album_cover_url).resize((200, 200))
-        BACKGROUND_COLOR = self.get_color_accent(spt.album_cover_url)
+        DESC_TEXT = description if not SPOTIFY else spt.album
+        DESC_FONT = self.get_font("NotoSansDisplay-Bold", 15, otf=True)
+        COVER_URL = icon if not SPOTIFY else spt.album_cover_url
+        COVER = self.buffer_from_url(COVER_URL).resize((200, 200))
+        BACKGROUND_COLOR = self.get_color_accent(COVER_URL, right=True)
         FOREGROUND_COLOR = self.invert(BACKGROUND_COLOR)
 
         if len(TITLE_TEXT) > 25: TITLE_TEXT = TITLE_TEXT[0:25] + "..."
-        if len(AUTHOR_TEXT) > 35: AUTHOR_TEXT = AUTHOR_TEXT[0:35] + "..."
-        if len(ALBUM_TEXT) > 45: ALBUM_TEXT = ALBUM_TEXT[0:45] + "..."
+        if len(SUBTITLE_TEXT) > 35: SUBTITLE_TEXT = SUBTITLE_TEXT[0:35] + "..."
+        if len(DESC_TEXT) > 45: DESC_TEXT = DESC_TEXT[0:45] + "..."
 
         TITLE_SIZE = TITLE_FONT.getsize(TITLE_TEXT)
-        AUTHOR_SIZE = AUTHOR_FONT.getsize(AUTHOR_TEXT)
-        ALBUM_SIZE = ALBUM_FONT.getsize(ALBUM_TEXT)
-        WIDTH = max([TITLE_SIZE[0], AUTHOR_SIZE[0], ALBUM_SIZE[0]]) + 270
+        SUBTITLE_SIZE = SUBTITLE_FONT.getsize(SUBTITLE_TEXT)
+        DESC_SIZE = DESC_FONT.getsize(DESC_TEXT)
+        WIDTH = max([TITLE_SIZE[0], SUBTITLE_SIZE[0], DESC_SIZE[0]]) + 270
+        
+        if WIDTH < 500:
+            WIDTH = 500
 
         MARGIN_LEFT = 220
         MARGIN_RIGHT = WIDTH - 20
         MARGIN_TOP = 20
 
-        SEEK = round(round((t.now() - spt.created_at).total_seconds())/round(spt.duration.total_seconds())*100)
-        STR_CURRENT = strftime('%H:%M:%S', gmtime(round((t.now() - spt.created_at).total_seconds())))
-        STR_END = strftime('%H:%M:%S', gmtime(round(spt.duration.total_seconds())))
-
         MAIN = Image.new(mode="RGB", color=BACKGROUND_COLOR, size=(WIDTH, 200))
         DRAW = ImageDraw.Draw(MAIN)
 
+        if SPOTIFY:
+            SEEK = round(round((t.now() - spt.created_at).total_seconds())/round(spt.duration.total_seconds())*100)
+            STR_CURRENT = strftime('%H:%M:%S', gmtime(round((t.now() - spt.created_at).total_seconds())))
+            STR_END = strftime('%H:%M:%S', gmtime(round(spt.duration.total_seconds())))
+            DURATION_LEFT_SIZE = DRAW.textsize(STR_END, font=SUBTITLE_FONT)[0]
+
+            DRAW.rectangle([(MARGIN_LEFT, MARGIN_TOP + 100), ((SEEK / 100 * (MARGIN_RIGHT - MARGIN_LEFT)) + MARGIN_LEFT, MARGIN_TOP + 120)], fill=FOREGROUND_COLOR)
+            DRAW.text((MARGIN_LEFT, MARGIN_TOP + 130), STR_CURRENT, font=SUBTITLE_FONT, fill=FOREGROUND_COLOR)
+            DRAW.text((MARGIN_RIGHT - DURATION_LEFT_SIZE, MARGIN_TOP + 130), STR_END, font=SUBTITLE_FONT, fill=FOREGROUND_COLOR)
+
         DRAW.text((MARGIN_LEFT, MARGIN_TOP), TITLE_TEXT, font=TITLE_FONT, fill=FOREGROUND_COLOR)
-        DRAW.text((MARGIN_LEFT, MARGIN_TOP + 38), "By "+AUTHOR_TEXT, font=AUTHOR_FONT, fill=FOREGROUND_COLOR)
-        DRAW.text((MARGIN_LEFT, MARGIN_TOP + 65), "On "+ALBUM_TEXT, font=ALBUM_FONT, fill=FOREGROUND_COLOR)
+        DRAW.text((MARGIN_LEFT, MARGIN_TOP + 38), SUBTITLE_TEXT, font=SUBTITLE_FONT, fill=FOREGROUND_COLOR)
+        DRAW.text((MARGIN_LEFT, MARGIN_TOP + 65), DESC_TEXT, font=DESC_FONT, fill=FOREGROUND_COLOR)
 
-        MAIN.paste(ALBUM_COVER, (0, 0))
-        DURATION_LEFT_SIZE = DRAW.textsize(STR_END, font=AUTHOR_FONT)[0]
-
-        DRAW.rectangle([(MARGIN_LEFT, MARGIN_TOP + 100), ((SEEK / 100 * (MARGIN_RIGHT - MARGIN_LEFT)) + MARGIN_LEFT, MARGIN_TOP + 120)], fill=FOREGROUND_COLOR)
-        DRAW.text((MARGIN_LEFT, MARGIN_TOP + 130), STR_CURRENT, font=AUTHOR_FONT, fill=FOREGROUND_COLOR)
-        DRAW.text((MARGIN_RIGHT - DURATION_LEFT_SIZE, MARGIN_TOP + 130), STR_END, font=AUTHOR_FONT, fill=FOREGROUND_COLOR)
-
+        MAIN.paste(COVER, (0, 0))
+        
         return self.buffer(MAIN)
     
     def profile(self, username, avatar, details, after):

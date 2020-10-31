@@ -40,26 +40,33 @@ class apps(commands.Cog):
     @command('spot,splay,listeningto,sp')
     @cooldown(2)
     async def spotify(self, ctx, *args):
-        source, act = self.client.utils.getUser(ctx, args), None
-        for i in source.activities:
-            if isinstance(i, discord.Spotify): act = i
-        if act is None: raise self.client.utils.send_error_message(f"Sorry, but  {source.display_name} is not listening to spotify.")
+        source, act = self.client.utils.getUser(ctx, tuple([
+                i for i in args if '--force' not in i
+            ])), None
+        if ''.join(args).endswith('--force'):
+            force = True
+            act = source.activity
+        else:
+            force = False
+            for i in source.activities:
+                if isinstance(i, discord.Spotify): act = i
+            if act is None: raise self.client.utils.send_error_message(f"Sorry, but  {source.display_name} is not listening to spotify.")
         async with ctx.channel.typing():
-            await ctx.send(file=discord.File(self.client.canvas.spotify(act), 'spotify.png'))
+            if force:
+                try:
+                    return await ctx.send(file=discord.File(self.client.canvas.custom_panel(spt=act), 'spotify.png'))
+                except: return 
+            await ctx.send(file=discord.File(self.client.canvas.custom_panel(spt=act), 'spotify.png'))
 
     @command()
     @cooldown(5)
     async def itunes(self, ctx, *args):
         if len(args)==0: raise self.client.utils.send_error_message("Please send a search term.")
-        data = self.client.utils.fetchJSON('https://itunes.apple.com/search?term={}&media=music&entity=song&limit=1&explicit=no'.format(self.client.utils.encode_uri(' '.join(args))))
-        if len(data['results'])==0: return await ctx.send('{} | No music found... oop'.format(self.client.error_emoji))
-        data = data['results'][0]
-        em = discord.Embed(title=data['trackName'], url=data['trackViewUrl'],description='**Artist: **{}\n**Album: **{}\n**Release Date:** {}\n**Genre: **{}'.format(
-            data['artistName'], data['collectionName'], data['releaseDate'].replace('T', ' ').replace('Z', ''), data['primaryGenreName']
-        ), color=ctx.guild.me.roles[::-1][0].color)
-        em.set_thumbnail(url=data['artworkUrl100'])
-        em.set_author(name='iTunes', icon_url='https://i.imgur.com/PR29ow0.jpg', url='https://www.apple.com/itunes/')
-        await ctx.send(embed=em)
+        async with ctx.channel.typing():
+            data = self.client.utils.fetchJSON('https://itunes.apple.com/search?term={}&media=music&entity=song&limit=1&explicit=no'.format(self.client.utils.encode_uri(' '.join(args))))
+            if len(data['results'])==0: return await ctx.send('{} | No music found... oop'.format(self.client.error_emoji))
+            data = data['results'][0]
+            return await ctx.send(file=discord.File(self.client.canvas.custom_panel(title=data['trackName'], subtitle=data['artistName'], description=data['primaryGenreName'], icon=data['artworkUrl100']), 'itunes.png'))
 
     @command('tr,trans')
     @cooldown(5)
