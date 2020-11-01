@@ -108,7 +108,7 @@ def getUser(ctx, args, user=None, allownoargs=True):
         return ctx.author
     if len(ctx.message.mentions)>0: return ctx.message.mentions[0]
     name = str(' '.join(list(args))).lower().split('#')[0] # disable discriminator if found
-    user = [i for i in ctx.guild.members if name in i.display_name.lower()]
+    user = [i for i in ctx.guild.members if ((i.display_name.lower().startswith(name)) or (name in i.display_name.lower()))]
     if len(user) > 0: return user[0]
     if args[0].isnumeric():
         if int(args[0]) not in [i.id for i in ctx.guild.members]: raise send_error_message("No user found.")

@@ -20,6 +20,8 @@ class utils(commands.Cog):
     async def presence(self, ctx, *args):
         async with ctx.channel.typing():
             user = self.client.utils.getUser(ctx, args)
+            if isinstance(user.activity, discord.Spotify):
+                return await ctx.send(file=discord.File(self.client.canvas.custom_panel(spt=user.activity)))
             if user.activity is None: raise self.client.utils.send_error_message(f"Sorry, but {user.display_name} has no activity...")
             title = "" if (not hasattr(user.activity, 'name')) else user.activity.name
             subtitle = "" if (not hasattr(user.activity, 'details')) else user.activity.details

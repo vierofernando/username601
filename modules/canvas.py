@@ -547,25 +547,16 @@ class Painter:
         draw, string = ImageDraw.Draw(image), self.imagetoASCII(url)
         draw.text((0, 0), string, font=font, fill=(255, 255, 255))
         return self.buffer(image)
-        
-    def __getstartstring(self, tm):
-        i = round((t.now() - tm).total_seconds())
-        minute = '0' if (i%60==0) else str(int(i/60))
-        if i > 60:
-            while i > 60:
-                i -= 60
-        if len(minute)==1: minute = '0'+minute
-        return minute+':'+str(i)
 
     def custom_panel(self, title="Title text", subtitle="Subtitle text", description="Description text here", icon="https://cdn.discordapp.com/embed/avatars/0.png", spt=None):
         SPOTIFY = False if (spt is None) else True
         TITLE_TEXT = title if not SPOTIFY else spt.title
         TITLE_FONT = self.get_font("NotoSansDisplay-Bold", 30, otf=True)
 
-        SUBTITLE_TEXT = subtitle if not SPOTIFY else ', '.join(spt.artists)
+        SUBTITLE_TEXT = subtitle if not SPOTIFY else "By "+(', '.join(spt.artists))
         SUBTITLE_FONT = self.get_font("NotoSansDisplay-Bold", 20, otf=True)
 
-        DESC_TEXT = description if not SPOTIFY else spt.album
+        DESC_TEXT = description if not SPOTIFY else "On "+spt.album
         DESC_FONT = self.get_font("NotoSansDisplay-Bold", 15, otf=True)
         COVER_URL = icon if not SPOTIFY else spt.album_cover_url
         COVER = self.buffer_from_url(COVER_URL).resize((200, 200))
@@ -597,6 +588,7 @@ class Painter:
             STR_END = strftime('%H:%M:%S', gmtime(round(spt.duration.total_seconds())))
             DURATION_LEFT_SIZE = DRAW.textsize(STR_END, font=SUBTITLE_FONT)[0]
 
+            DRAW.rectangle([(MARGIN_LEFT, MARGIN_TOP + 100), (MARGIN_RIGHT, MARGIN_TOP + 120)], fill=tuple(map(lambda x: x - 25, BACKGROUND_COLOR)))
             DRAW.rectangle([(MARGIN_LEFT, MARGIN_TOP + 100), ((SEEK / 100 * (MARGIN_RIGHT - MARGIN_LEFT)) + MARGIN_LEFT, MARGIN_TOP + 120)], fill=FOREGROUND_COLOR)
             DRAW.text((MARGIN_LEFT, MARGIN_TOP + 130), STR_CURRENT, font=SUBTITLE_FONT, fill=FOREGROUND_COLOR)
             DRAW.text((MARGIN_RIGHT - DURATION_LEFT_SIZE, MARGIN_TOP + 130), STR_END, font=SUBTITLE_FONT, fill=FOREGROUND_COLOR)

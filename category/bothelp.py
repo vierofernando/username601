@@ -110,7 +110,7 @@ class bothelp(commands.Cog):
                 except:
                     raise self.client.utils.send_error_message('There was an error while sending your feedback. Sorry! :(')
             else:
-                raise self.client.utils.send_error_message("You have been banned from using the Feedback command.\nReason: {str(banned)}")
+                raise self.client.utils.send_error_message(f"You have been banned from using the Feedback command.\nReason: {str(banned)}")
                 
     @command()
     @cooldown(2)
