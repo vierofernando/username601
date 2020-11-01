@@ -7,7 +7,7 @@ def __gcmd__(cmdn, commands):
     return None
 def __command_type__(param, commands, categories):
     name = __gcmd__(param, commands)
-    if name is None:
+    if name==None:
         if param.lower() in [i.lower() for i in categories]:
             return "category"
         return None
@@ -37,10 +37,10 @@ class BotCommands:
             if category_name.lower() in self.categories[i].lower():
                 category = self.categories[i].lower()
                 break
-        if category is None: return None
+        if category == None: return None
         return [i for i in self.commands if i['category'].lower() == category.lower()]
     def get_commands_auto(self, parameter):
         command_type = self._get_type(parameter, self.commands, self.categories)
-        if command_type is None: return None
+        if command_type == None: return None
         if command_type == "command": return self._get_command(parameter, self.commands)
         return self.get_commands_from_category(parameter)

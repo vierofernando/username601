@@ -46,7 +46,7 @@ class image(commands.Cog):
         if len(args) == 0: raise self.client.utils.send_error_message("Please input a parameter or something")
         async with ctx.channel.typing():
             parsed_args = self.client.utils.split_parameter_to_two(args)
-            if parsed_args is None: 
+            if parsed_args == None: 
                 first, second = ctx.author.avatar_url_as(format='png'), self.client.utils.getUserAvatar(ctx, args)
             else: first, second = self.client.utils.getUserAvatar(ctx, parsed_args[0]), self.client.utils.getUserAvatar(ctx, parsed_args[1])
             return await ctx.send(file=discord.File(self.client.canvas.blend(first, second), 'blend.png'))
@@ -72,7 +72,6 @@ class image(commands.Cog):
     async def glitch(self, ctx, *args):
         ava = self.client.utils.getUserAvatar(ctx, args, size=128)
         async with ctx.channel.typing():
-            # use https://useless-api.vierofernando.repl.co/glitch?image=URL to use without token, but with ratelimit
             im = BytesIO(get("https://useless-api.vierofernando.repl.co/glitch/noratelimit?image="+ava, headers={'token': environ["USELESSAPI"]}).content)
             await ctx.send(file=discord.File(im, 'glitch.png'))
 
@@ -242,7 +241,7 @@ class image(commands.Cog):
         if len(args) == 0: raise self.client.utils.send_error_message("Please input a parameter or something")
         async with ctx.channel.typing():
             parsed_args = self.client.utils.split_parameter_to_two(args)
-            if parsed_args is None: 
+            if parsed_args == None: 
                 first, second = ctx.author.avatar_url_as(format='png'), self.client.utils.getUserAvatar(ctx, args)
             else: first, second = self.client.utils.getUserAvatar(ctx, parsed_args[0]), self.client.utils.getUserAvatar(ctx, parsed_args[1])
             url = f'https://api.alexflipnote.dev/ship?user={first}&user2={second}'

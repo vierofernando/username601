@@ -3,10 +3,14 @@ from .canvas import Painter, GifGenerator
 from .commandmanager import BotCommands
 from . import algorithm, discordgames, database, username601
 from requests import post
+from aiohttp import ClientSession
 from os import environ
 
 def pre_ready_initiation(client):
     client.remove_command('help')
+    setattr(client, 'blacklisted_ids', [
+        593774699654283265
+    ])
     setattr(client, 'canvas', Painter(config('ASSETS_DIR'), config('FONTS_DIR')))
     setattr(client, 'gif', GifGenerator(config('ASSETS_DIR'), config('FONTS_DIR')))
     setattr(client, 'last_downtime', t.now().timestamp())
@@ -16,6 +20,7 @@ def pre_ready_initiation(client):
     setattr(client, 'games', discordgames)
     setattr(client, 'algorithm', algorithm)
     setattr(client, 'cmds', BotCommands())
+    setattr(client, 'bot_session', ClientSession())
 
 def post_ready_initiation(client):
     setattr(client, 'error_emoji',   str(client.get_emoji(client.utils.config('EMOJI_ERROR', integer=True))))

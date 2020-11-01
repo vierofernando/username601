@@ -63,7 +63,7 @@ class encoding(commands.Cog):
             for i in args:
                 if i.isnumeric():
                     offset = int(i); break
-            if offset is None:
+            if offset==None:
                 raise self.client.utils.send_error_message('No offset?')
             else:
                 return await ctx.send(self.client.utils.caesar(str(' '.join(args).replace(str(offset), '')), int(offset)))

@@ -47,7 +47,7 @@ class bothelp(commands.Cog):
     async def help(self, ctx, *args):
         args = list(args)
         if len(args) == 0:
-            cate = '\n'.join(['[{}. {}help {}]({}?category={})'.format(i+1, self.client.command_prefix, self.client.cmds.categories[i], self.client.utils.config('WEBSITE_COMMANDS'), i) for i in range(len(self.client.cmds.categories))])
+            cate = '\n'.join(['{}. `{}help {}`'.format(i+1, self.client.command_prefix, self.client.cmds.categories[i]) for i in range(len(self.client.cmds.categories))])
             embed = discord.Embed(
                 title='Username601\'s commands',
                 description='[Invite the bot]('+self.client.utils.config('BOT_INVITE')+') | [Vote us on top.gg](https://top.gg/bot/'+str(self.client.user.id)+'/vote)\n\n**[More information on our website here.]('+self.client.utils.config('WEBSITE_COMMANDS')+')**\n**Command Categories:** \n'+str(cate),
@@ -57,7 +57,7 @@ class bothelp(commands.Cog):
             await ctx.send(embed=embed)
         else:
             data = self.client.cmds.get_commands_auto(' '.join(args).lower())
-            if data is None: raise self.client.utils.send_error_message("Your command/category name does not exist, sorry!")
+            if data==None: raise self.client.utils.send_error_message("Your command/category name does not exist, sorry!")
             datatype = 'Category' if isinstance(data, list) else 'Command'
             desc = '**Command name: **{}\n**Function: **{}\n**Category: **{}'.format(
                 data['name'], data['function'], data['category']

@@ -205,7 +205,7 @@ class games(commands.Cog):
             embed.add_field(name=ctx.author.name, value=':'+given+':', inline="True")
             embed.add_field(name='Username601', value=':'+str(emojiArray[ran])+':', inline="True")
             await main.edit(embed=embed)
-            if msgId==1 and self.client.db.Economy.get(ctx.author.id) is not None:
+            if msgId==1 and self.client.db.Economy.get(ctx.author.id)!=None:
                 reward = random.randint(5, 100)
                 self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thank you for playing! you earned '+str(reward)+' as a prize!')
@@ -216,14 +216,14 @@ class games(commands.Cog):
         if 'coin' in ctx.message.content:
             res = random.choice(['***heads!***', '***tails!***'])
             await ctx.send(res)
-            if len(args)>0 and args[0].lower()==res.replace('*', '').replace('!', '') and self.client.db.Economy.get(ctx.author.id) is not None:
+            if len(args)>0 and args[0].lower()==res.replace('*', '').replace('!', '') and self.client.db.Economy.get(ctx.author.id)!=None:
                 prize = random.randint(50, 200)
                 self.client.db.Economy.addbal(ctx.author.id, prize) ; await ctx.send('your bet was right! you get '+str(prize)+' bobux.')
         else:
             arr = ['one', 'two', 'three', 'four', 'five', 'six']
             res = arr[random.randint(0, 5)]
             await ctx.send(':'+res+':')
-            if len(args)>0 and (args[0].lower()==res.lower() or args[0].lower() == str(arr.index(res)+1)) and self.client.db.Economy.get(ctx.author.id) is not None:
+            if len(args)>0 and (args[0].lower()==res.lower() or args[0].lower() == str(arr.index(res)+1)) and self.client.db.Economy.get(ctx.author.id)!=None:
                 prize = random.randint(50, 150)
                 self.client.db.Economy.addbal(ctx.author.id, prize) ; await ctx.send('your bet was right! you get '+str(prize)+' bobux.')
 
@@ -263,7 +263,7 @@ class games(commands.Cog):
             return await ctx.send(':pensive: No one? Okay then, the answer is: '+str(corr_order)+'. '+str(corr_name))
         if str(reaction.emoji)==str(corr_order):
             await ctx.send(self.client.success_emoji +' | <@'+str(ctx.author.id)+'>, You are correct! :tada:')
-            if self.client.db.Economy.get(ctx.author.id) is not None:
+            if self.client.db.Economy.get(ctx.author.id)!=None:
                 reward = random.randint(5, 100)
                 self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! You received '+str(reward)+' extra bobux!')
@@ -305,7 +305,7 @@ class games(commands.Cog):
             await main.add_reaction('😔')
         if str(reaction.emoji)==str(corr_order):
             await ctx.send(self.client.success_emoji +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
-            if self.client.db.Economy.get(ctx.author.id) is not None:
+            if self.client.db.Economy.get(ctx.author.id)!=None:
                 reward = random.randint(5, 150)
                 self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! You obtained '+str(reward)+' bobux in total!')
@@ -328,7 +328,7 @@ class games(commands.Cog):
             return await ctx.send(f':pensive: | No one? Okay then, the answer is: {answer}.')
         if str(trying.content)==str(answer):
             await ctx.send(self.client.success_emoji +' | <@'+str(ctx.author.id)+'>, You are correct! :tada:')
-            if self.client.db.Economy.get(ctx.author.id) is not None:
+            if self.client.db.Economy.get(ctx.author.id)!=None:
                 reward = random.randint(5, 50)
                 self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! we added an extra '+str(reward)+' bobux to your profile.')
@@ -354,7 +354,7 @@ class games(commands.Cog):
             await ctx.send(embed=newembed)
             if '\_ ' not in ''.join(main_guess_hid):
                 await ctx.send(f'Congratulations! <@{str(playing_with_id)}> win! :tada:\nThe answer is "'+str(''.join(main_guess_cor))+'".')
-                if self.client.db.Economy.get(ctx.author.id) is not None:
+                if self.client.db.Economy.get(ctx.author.id)!=None:
                     reward = random.randint(5, 500)
                     self.client.db.Economy.addbal(ctx.author.id, reward)
                     await ctx.send('thanks for playing! you get an extra '+str(reward)+' bobux!')
@@ -404,7 +404,7 @@ class games(commands.Cog):
             if jackpot:
                 msgslot = 'JACKPOT!'
                 col = ctx.guild.me.roles[::-1][0].color
-            if self.client.db.Economy.get(ctx.author.id) is not None:
+            if self.client.db.Economy.get(ctx.author.id)!=None:
                 reward = random.randint(500, 1000)
                 self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! you received a whopping '+str(reward)+' bobux!')
@@ -449,7 +449,7 @@ class games(commands.Cog):
                     attempts = int(attempts) - 1
                 if int(trying.content)==num:
                     await ctx.send(self.client.success_emoji +' | You are correct!\n**The answer is '+str(num)+'!**')
-                    if self.client.db.Economy.get(ctx.author.id) is not None:
+                    if self.client.db.Economy.get(ctx.author.id)!=None:
                         reward = random.randint(5, 50)
                         self.client.db.Economy.addbal(ctx.author.id, reward)
                         await ctx.send('thanks for playing! You get an extra '+str(reward)+' bobux!')
@@ -486,7 +486,7 @@ class games(commands.Cog):
             await wait.add_reaction('😔')
         if str(reaction.emoji)==str(corr):
             await ctx.send(self.client.success_emoji +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
-            if self.client.db.Economy.get(ctx.author.id) is not None:
+            if self.client.db.Economy.get(ctx.author.id)!=None:
                 reward = random.randint(250, 400)
                 self.client.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! You get also a '+str(reward)+' bobux as a prize!')

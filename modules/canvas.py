@@ -74,6 +74,41 @@ class Painter:
         if array: return res
         return '\n'.join(res)
 
+    def _process_message_box(self, text, font, content=False):
+        if not content:
+            size, index, hit_max, res = 0, 0, True, ""
+            while size < 360:
+                if res == text:
+                    hit_max = False
+                    break
+                res += text[index]
+                size = font.getsize(res)[0]
+                index += 1
+            if hit_max: res += "..."
+            return res
+        temp = ""
+        res = []
+        for i in list(text):
+            if len(res) == 3: break
+            temp += i
+            if font.getsize(temp)[0] > 312:
+                res.append(temp)
+                temp = ""
+                continue
+        if res == []: return text
+        return "\n".join(res)
+    
+    def fake_message_box(self, title, description):
+        image = self.get_image("msgbox.png")
+        big_font = self.get_font("segoeui", 12)
+        small_font = self.get_font("segoeui", 11)
+        draw = ImageDraw.Draw(image)
+        title = self._process_message_box(title[0:250], big_font)
+        description = self._process_message_box(description[0:250], small_font, content=True)
+        draw.text((9, 7), title, font=big_font)
+        draw.text((63, 57), description, font=small_font, fill=(0, 0, 0))
+        return self.buffer(image)
+
     def _draw_status_stats(self, draw, obj, rect_y_cursor, font, margin_left, margin_right, bg_arr):
         x_pos, colors = margin_left, [(63, 232, 0), (244, 208, 63), (225, 0, 0), (124, 0, 211), (127, 127, 127)]
         total = sum([obj[i] for i in list(obj.keys())])

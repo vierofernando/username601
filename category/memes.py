@@ -12,11 +12,21 @@ from json import loads
 class memes(commands.Cog):
     def __init__(self, client):
         self.client = client
-        self.session = ClientSession()
+        
         self.rawMetadata = open(self.client.utils.config('MODULES_DIR')+'/Animation.dat', 'r').read().split('\n')
         self.rageMetadata = [tuple([int(a) for a in i.split(',')]) for i in self.rawMetadata[0].split(';')]
         self.frogMetadata = self.rawMetadata[1].split(':')
         self.meme_templates = loads(open(self.client.utils.config('JSON_DIR')+'/memes.json', 'r').read())
+
+    @command('fakemsgbox,fakemessagebox,messagebox,message-box,msg-box')
+    @cooldown(3)
+    async def msgbox(self, ctx, *args):
+        async with ctx.channel.typing():
+            res = self.client.utils.split_parameter_to_two(args)
+            if res is None:
+                raise self.client.utils.send_error_message("Plesae input two parameters, split by space, comma, semicolon, or |.")
+            buffer = self.client.canvas.fake_message_box(res[0], res[1])
+            return await ctx.send(file=discord.File(buffer, "msgbox.png"))
 
     @command('scoobydoo,reveal,revealed,expose,exposed,scooby-doo')
     @cooldown(2)
@@ -38,7 +48,7 @@ class memes(commands.Cog):
     @cooldown(1)
     async def password(self, ctx, *args):
         param = self.client.utils.split_parameter_to_two(args)
-        if param is None: raise self.client.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
+        if param == None: raise self.client.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
         async with ctx.channel.typing():
             text1, text2 = param
             i = self.client.canvas.password(text1, text2)
@@ -162,7 +172,7 @@ class memes(commands.Cog):
         text = 'LAZY PERSON' if (len(args)==0) else ' '.join(args)
         if len(text) > 22: raise self.client.utils.send_error_message("Text too long ;w;")
         async with ctx.channel.typing():
-            async with self.session.get("https://i.ode.bz/auto/nichijou?text={}".format(self.client.utils.encode_uri(text))) as r:
+            async with self.client.bot_session.get("https://i.ode.bz/auto/nichijou?text={}".format(self.client.utils.encode_uri(text))) as r:
                 res = await r.read()
                 await ctx.send(file=discord.File(fp=BytesIO(res), filename="nichijou.gif"))
     
@@ -191,7 +201,7 @@ class memes(commands.Cog):
     @cooldown(2)
     async def didyoumean(self, ctx, *args):
         params = self.client.utils.split_parameter_to_two(args)
-        if params is None: raise self.client.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
+        if params == None: raise self.client.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
         txt1, txt2 = params
         url = f'https://api.alexflipnote.dev/didyoumean?top={txt1}&bottom={txt2}'
         data = self.client.canvas.urltoimage(url)
@@ -201,7 +211,7 @@ class memes(commands.Cog):
     @cooldown(2)
     async def drake(self, ctx, *args):
         params = self.client.utils.split_parameter_to_two(args)
-        if params is None: raise self.client.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
+        if params == None: raise self.client.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
         txt1, txt2 = params
         url = f'https://api.alexflipnote.dev/drake?top={txt1}&bottom={txt2}'
         data = self.client.canvas.urltoimage(url)

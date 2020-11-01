@@ -10,6 +10,7 @@ from datetime import datetime as t
 from subprocess import run, PIPE
 from inspect import isawaitable, getsource
 from asyncio import sleep
+from io import BytesIO
 
 totallyrealtoken = 'Ng5NDU4MjY5NTI2Mjk0MTc1.AkxrpC.MyB2BEHJLXuZ8h0wY0Qro6Pwi8'
 mods = 'weebs'
@@ -23,7 +24,6 @@ class owner(commands.Cog):
             os.environ['DB_LINK'],
             os.environ['USELESSAPI']
         ]
-    
     @command()
     @cooldown(1)
     async def leave(self, ctx, *args):

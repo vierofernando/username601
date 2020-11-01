@@ -12,28 +12,7 @@ from gtts import gTTS
 
 class fun(commands.Cog):
     def __init__(self, client):
-        self.client = client
-        self.session = ClientSession()
-
-    @command()
-    @cooldown(2)
-    async def trick(self, ctx):
-        link = random.choice(self.client.utils.links)
-        channel = ctx.channel
-        msg = await self.client.utils.fake_halloween(ctx, link)
-        def check(m):
-            return ((m.channel == channel) and (m.content.lower().startswith("h!")))
-        try:
-            waiting = await self.client.wait_for('message', check=check, timeout=15.0)
-        except asyncio.TimeoutError:
-            return
-        embed = discord.Embed(title="Happy Halloween!", description=f'As a thank you for your kindness, they give {waiting.author.mention} one **STICK BUG**', color=discord.Color.from_rgb(110, 138, 215))
-        embed.set_image(url=link)
-        embed.set_footer(text=random.choice([
-            "This item is uncommon. You wonder where they got it... It has been added to your inventory.",
-            "This item is common. There's nothing special about it. It has been added to your inventory."
-        ]))
-        return await msg.edit(content='', embed=embed)
+        self.client = client        
 
     @command('talk,gtts,texttospeech,text-to-speech')
     @cooldown(5)
@@ -65,7 +44,7 @@ class fun(commands.Cog):
     @cooldown(2)
     async def lovelevel(self, ctx, *args):
         res = self.client.utils.split_parameter_to_two(args)
-        if res is None: raise self.client.utils.send_error_message('Please send a valid two user ids/names/mentions!')
+        if res == None: raise self.client.utils.send_error_message('Please send a valid two user ids/names/mentions!')
         user1, user2 = self.client.utils.getUser(res[0]), self.client.utils.getUser(res[1])
         result = self.client.algorithm.love_finder(user1.id, user2.id)
         await ctx.send('Love level of {} and {} is **{}%!**'.format(ctx.message.mentions[0].name, ctx.message.mentions[1].name, str(result)))
@@ -122,7 +101,7 @@ class fun(commands.Cog):
     async def _8ball(self, ctx):
         async with ctx.channel.typing():
             data = self.client.utils.fetchJSON("https://yesno.wtf/api")
-            async with self.session.get(data['image']) as r:
+            async with self.client.bot_session.get(data['image']) as r:
                 res = await r.read()
                 await ctx.send(content='**'+data['answer'].upper()+'**', file=discord.File(fp=BytesIO(res), filename=data['answer'].upper()+".gif"))
 
