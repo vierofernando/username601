@@ -190,7 +190,7 @@ class Painter:
         return self.buffer(res)
 
     def color(self, string, rgb_input=None):
-        if rgb_input != None: string = '#%02x%02x%02x' % rgb_input
+        if rgb_input is not None: string = '#%02x%02x%02x' % rgb_input
         if not string.startswith('#'): string = '#' + string
         try: rgb, brightness = ImageColor.getrgb(string), ImageColor.getcolor(string, 'L')
         except: return None
@@ -305,7 +305,7 @@ class Painter:
         draw.text(((W - w)/2 - 100, 200), levelStars, font=pusab_tiny, stroke_width=2, stroke_fill="black")
 
         for i in list(self.gd_assets['main'].keys()):
-            if self.gd_assets['main'][i]==None:
+            if self.gd_assets['main'][i] is None:
                 if data['disliked']: sym = self.buffer_from_url(self.gd_assets['dislike']).convert('RGBA').resize((25, 25))
                 else: sym = self.buffer_from_url(self.gd_assets['like']).convert('RGBA').resize((25, 25))
                 main.paste(sym, (round((W-25)/2) + 75, sym_cursor), sym)
@@ -375,7 +375,7 @@ class Painter:
         bigfont = self.get_font('NotoSansDisplay-Bold', 50, otf=True)
         medium = self.get_font('NotoSansDisplay-Bold', 20, otf=True)
         smolerfont = self.get_font('NotoSansDisplay-Bold', 15, otf=True)
-        if data == None:
+        if data is None:
             server_title, members, icon = guild.name, guild.members, guild.icon_url
             subtitle = 'Created {} ago by {}'.format(lapsed_time_from_seconds(t.now().timestamp() - guild.created_at.timestamp()), str(guild.owner))
         else:
@@ -393,7 +393,7 @@ class Painter:
         main.paste(ava, (25, 25))
         draw.text((135, 20), server_title, fill=self.invert(main_bg), font=bigfont)
         draw.text((135, 90), subtitle, fill=self.invert(main_bg), font=medium)
-        if data == None:
+        if data is None:
             rect_y_cursor = self._draw_status_stats(draw, {
                 "online": len([i for i in members if i.status.value.lower()=='online']),
                 "idle": len([i for i in members if i.status.value.lower()=='idle']),
@@ -404,11 +404,11 @@ class Painter:
         draw.rectangle([
             (margin_left, rect_y_cursor), (main.width/2, rect_y_cursor + 120)
         ], fill=bg_arr[2])
-        if data == None:
+        if data is None:
             draw.rectangle([
                 (main.width/2, rect_y_cursor), (margin_right, rect_y_cursor + 120)
             ], fill=bg_arr[3])
-            afkname = "???" if guild.afk_channel==None else guild.afk_channel.name
+            afkname = "???" if guild.afk_channel is None else guild.afk_channel.name
             main.paste(
                 self.buffer_from_url(self.region[str(guild.region)]).resize((35, 23)),
                 (margin_right - 45, round(rect_y_cursor + 25 + (18 * 3)))
@@ -425,7 +425,7 @@ class Painter:
         draw.rectangle([
             (margin_left, rect_y_cursor), (margin_right, rect_y_cursor + 90)
         ], fill=bg_arr[4])
-        if data == None:
+        if data is None:
             draw.text((margin_left + 5, rect_y_cursor + 3), "{} Humans\n{} Bots\n{} Members in total".format(
                 len([i for i in members if not i.bot]), len([i for i in members if i.bot]), len(members)
             ), fill=self.invert(bg_arr[4]), font=medium)
@@ -637,7 +637,7 @@ class Painter:
         draw.text((margin_left + 7, 317), "Local Rank #"+details['rank'], font=smolfont, fill=self.invert(ava_col[4]))
         draw.text((round(main.width/2) + 7, 317), "Global Rank #"+details['global'], font=smolfont, fill=self.invert(ava_col[5]))
         draw.text((margin_left + 3, 183), res_text, fill=self.invert(ava_col[8]), font=smolfont)
-        if after!=None:
+        if after is not None:
             draw.rectangle([(margin_left, 350), (margin_right, 370)], fill=ava_col[6])
             draw.rectangle([(margin_left, 370), (margin_right, 400)], fill=(100, 100, 100))
             try:
