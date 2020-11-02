@@ -21,11 +21,15 @@ class utils(commands.Cog):
         async with ctx.channel.typing():
             user = self.client.utils.getUser(ctx, args)
             if isinstance(user.activity, discord.Spotify):
-                return await ctx.send(file=discord.File(self.client.canvas.custom_panel(spt=user.activity)))
+                return await ctx.send(file=discord.File(self.client.canvas.custom_panel(spt=user.activity), 'activity.png'))
             if user.activity is None: raise self.client.utils.send_error_message(f"Sorry, but {user.display_name} has no activity...")
             title = "" if (not hasattr(user.activity, 'name')) else user.activity.name
             subtitle = "" if (not hasattr(user.activity, 'details')) else user.activity.details
             desc = "" if (not hasattr(user.activity, 'state')) else user.activity.state
+            if ((subtitle == "") and (not desc == "")):
+                temp = desc
+                subtitle = temp
+                desc = ""
             url = "https://cdn.discordapp.com/embed/avatars/0.png" if (not hasattr(user.activity, 'large_image_url')) else user.activity.large_image_url
             return await ctx.send(file=discord.File(self.client.canvas.custom_panel(title=title, subtitle=subtitle, description=desc, icon=url), 'activity.png'))
     @command('colorthief,getcolor,accent,accentcolor,accent-color,colorpalette,color-palette')

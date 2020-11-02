@@ -139,7 +139,8 @@ class Painter:
         return f'{str(num):,}'
     
     def get_color_accent(self, url, right=False):
-        return Smart_ColorThief(url).get_color(right=right)
+        res = Smart_ColorThief(url).get_color(right=right)
+        return res[0], res[1], res[2]
 
     def get_multiple_accents(self, image):
         b = BytesIO(get(image).content)
