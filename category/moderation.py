@@ -382,7 +382,7 @@ class moderation(commands.Cog):
     @command('ui,user,usercard,user-info,user-card,whois,user-interface,userinterface')
     @cooldown(3)
     async def userinfo(self, ctx, *args):
-        guy, ava, nitro = self.client.utils.getUser(ctx, args), self.client.utils.getUserAvatar(ctx, args), False
+        guy, nitro = self.client.utils.getUser(ctx, args), False
         async with ctx.channel.typing():
             if guy.id in [i.id for i in ctx.guild.premium_subscribers]: nitro = True
             elif guy.is_avatar_animated(): nitro = True
@@ -391,7 +391,7 @@ class moderation(commands.Cog):
             bg_col = tuple(self.client.canvas.get_color_accent(ava))
             data = self.client.canvas.usercard([{
                 'name': i.name, 'color': i.color.to_rgb()
-            } for i in guy.roles][::-1][0:5], guy, ava, bg_col, nitro, booster, booster_since)
+            } for i in guy.roles][::-1][0:5], guy, str(guy.avatar_url_as(format='png')), bg_col, nitro, booster, booster_since)
             await ctx.send(file=discord.File(data, str(guy.discriminator)+'.png'))
 
     @command('av,ava')
