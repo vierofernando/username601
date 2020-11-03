@@ -391,7 +391,7 @@ class moderation(commands.Cog):
             bg_col = tuple(self.client.canvas.get_color_accent(ava))
             data = self.client.canvas.usercard([{
                 'name': i.name, 'color': i.color.to_rgb()
-            } for i in guy.roles][::-1][0:5], guy, str(guy.avatar_url_as(format='png')), bg_col, nitro, booster, booster_since)
+            } for i in guy.roles][::-1][0:5], guy, str(guy.avatar_url_as(format="png")), bg_col, nitro, booster, booster_since)
             await ctx.send(file=discord.File(data, str(guy.discriminator)+'.png'))
 
     @command('av,ava')
