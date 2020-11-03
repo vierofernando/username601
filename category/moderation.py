@@ -388,7 +388,7 @@ class moderation(commands.Cog):
             elif guy.is_avatar_animated(): nitro = True
             booster = True if guy in ctx.guild.premium_subscribers else False
             booster_since = round(t.now().timestamp() - guy.premium_since.timestamp()) if guy.premium_since is not None else False
-            bg_col = tuple(self.client.canvas.get_color_accent(ava))
+            bg_col = self.client.canvas.get_color_accent(str(guy.avatar_url_as(format="png")))
             data = self.client.canvas.usercard([{
                 'name': i.name, 'color': i.color.to_rgb()
             } for i in guy.roles][::-1][0:5], guy, str(guy.avatar_url_as(format="png")), bg_col, nitro, booster, booster_since)
