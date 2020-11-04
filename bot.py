@@ -125,16 +125,19 @@ async def on_guild_remove(guild):
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound): return
     elif isinstance(error, commands.CommandOnCooldown): return await ctx.send("You are on cooldown. You can do the command again in {}.".format(lapsed_time_from_seconds(round(error.retry_after))), delete_after=2)
-    elif isinstance(error.original, client.utils.send_error_message): return await ctx.send(embed=discord.Embed(title='Error', description=f'{client.error_emoji} | {str(error.original)}', color=discord.Color.red()))
-    elif isinstance(error.original, discord.Forbidden): 
+    if hasattr(error, "original"):
+        error = error.original
+    
+    if isinstance(error, client.utils.send_error_message): return await ctx.send(embed=discord.Embed(title='Error', description=f'{client.error_emoji} | {str(error)}', color=discord.Color.red()))
+    elif isinstance(error, discord.Forbidden): 
         try: return await ctx.send("I don't have the permission required to use that command!")
         except: return
-    elif isinstance(error.original, UnidentifiedImageError): return await ctx.send(str(emote(client, 'error'))+' | Error, it seemed i can\'t load/send the image! Check your arguments and try again. Else, report this to the bot owner using `'+prefix+'feedback.`')
+    elif isinstance(error, UnidentifiedImageError): return await ctx.send(str(emote(client, 'error'))+' | Error, it seemed i can\'t load/send the image! Check your arguments and try again. Else, report this to the bot owner using `'+prefix+'feedback.`')
     else:
         await client.get_channel(config('FEEDBACK_CHANNEL', integer=True)).send(content='<@{}> there was an error!'.format(config('OWNER_ID')), embed=discord.Embed(
             title='Error', color=discord.Colour.red(), description=f'Content:\n```{ctx.message.content}```\n\nError:\n```{str(error)}```'
         ).set_footer(text='Bug made by user: {} (ID of {})'.format(str(ctx.author), ctx.author.id)))
-        await ctx.send('There was an error. Error reported to the developer! sorry for the inconvenience...', delete_after=3)
+        await ctx.send('Sorry, there was an error when executing this command.\nThis message has been reported to the developer of the bot.', delete_after=3)
 
 def isdblvote(author):
     if not author.bot: return False

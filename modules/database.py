@@ -409,7 +409,7 @@ class Shop:
 class selfDB:
     def ping():
         a = t.now().timestamp()
-        temp = database['dashboard'].find()
+        list(database['dashboard'].find())
         return round((t.now().timestamp()-a)*1000)
     def feedback_ban(userid, reason):
         for i in database['config'].find():
