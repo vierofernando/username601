@@ -83,7 +83,7 @@ class apps(commands.Cog):
                     toTrans = ' '.join(args[1:])
                     if len(destination) > 2:
                         q = self.client.utils.query(
-                            [LANGUAGES[i] for i in list(LANGUAGES)], destination
+                            list(map(lambda x: LANGUAGES[x], list(LANGUAGES))), destination
                         )
                         assert q is not None
                         destination = q
@@ -129,7 +129,7 @@ class apps(commands.Cog):
                 explain = ''
                 count = 0
                 limit = random.choice(list(range(2, 4)))
-                for i in range(0, len(page.summary)):
+                for i in range(len(page.summary)):
                     if count==limit or len(explain)>900:
                         break
                     explain = explain + str(list(page.summary)[i])
@@ -151,7 +151,7 @@ class apps(commands.Cog):
                 num = int(top['secondparam'])
                 if num>30 or num<2: num = 20
                 arr = ia.get_top250_movies()
-                total = '\n'.join([str(int(i)+1) + '. '+str(arr[i]['title'])+' (`'+str(arr[i].movieID)+'`)' for i in range(num)])
+                total = '\n'.join(map(lambda x: str(int(x)+1) + '. '+str(arr[x]['title'])+' (`'+str(arr[x].movieID)+'`)', range(num)))
                 embed = discord.Embed(title='IMDb Top '+str(num)+':', description=str(total), colour=ctx.guild.me.roles[::-1][0].color)
                 return await wait.edit(content='', embed=embed)
             except:
@@ -168,7 +168,7 @@ class apps(commands.Cog):
                 except KeyError: rating, cover, vote_count = None, None, 0
                 embed = discord.Embed(title=data['title'], colour=ctx.guild.me.roles[::-1][0].color)
                 await wait.edit(content=self.client.loading_emoji + ' | Please wait... Retrieving data... this may take a while depending on how big the movie is.')
-                emoteStar = ' '.join([':star:' for i in range(0, round(rating))]) if rating is not None else '???'
+                emoteStar = ' '.join(map(lambda x: ':star:', range(round(rating)))) if rating is not None else '???'
                 upload_date = ia.get_movie_release_info(str(theID))['data']['raw release dates'][0]['date']
                 imdb_url = ia.get_imdbURL(data)
                 embed.add_field(name='General Information', value=f'[IMDb URL here]({imdb_url})\n**Upload date: **{upload_date}\n**Written by: **'+main_data['data']['writer'][0]['name']+'\n**Directed by: **'+main_data['data']['director'][0]['name'])

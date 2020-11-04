@@ -47,7 +47,7 @@ class bothelp(commands.Cog):
     async def help(self, ctx, *args):
         args = list(args)
         if len(args) == 0:
-            cate = '\n'.join(['{}. `{}help {}`'.format(i+1, self.client.command_prefix, self.client.cmds.categories[i]) for i in range(len(self.client.cmds.categories))])
+            cate = '\n'.join(map(lambda i: '{}. `{}help {}`'.format(i+1, self.client.command_prefix, self.client.cmds.categories[i]), range(len(self.client.cmds.categories))))
             embed = discord.Embed(
                 title='Username601\'s commands',
                 description='[Invite the bot]('+self.client.utils.config('BOT_INVITE')+') | [Vote us on top.gg](https://top.gg/bot/'+str(self.client.user.id)+'/vote)\n\n**[More information on our website here.]('+self.client.utils.config('WEBSITE_COMMANDS')+')**\n**Command Categories:** \n'+str(cate),
@@ -65,7 +65,7 @@ class bothelp(commands.Cog):
             embed = discord.Embed(title='{} help for query: "{}"'.format(datatype, ' '.join(args)), description=desc, color=ctx.guild.me.roles[::-1][0].color)
             if datatype=='Command':
                 parameters = 'No parameters required.' if len(data['parameters'])==0 else '\n'.join([i for i in data['parameters']])
-                apis = 'No APIs used.' if len(data['apis'])==0 else '\n'.join([f'[{i}]({i})' for i in data['apis']])
+                apis = 'No APIs used.' if len(data['apis'])==0 else '\n'.join(map(lambda x: f"[{x}]({x})", data['apis']))
                 embed.add_field(name='Parameters', value=parameters)
                 embed.add_field(name='APIs used', value=apis)
             await ctx.send(embed=embed)

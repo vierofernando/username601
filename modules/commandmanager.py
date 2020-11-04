@@ -8,7 +8,7 @@ def __gcmd__(cmdn, commands):
 def __command_type__(param, commands, categories):
     name = __gcmd__(param, commands)
     if name is None:
-        if param.lower() in [i.lower() for i in categories]:
+        if param.lower() in list(map(lambda i: i.lower(), categories)):
             return "category"
         return None
     else: return "command"
@@ -17,7 +17,7 @@ class BotCommands:
     def __init__(self):
         try:
             self.raw_data = requests.get("https://raw.githubusercontent.com/vierofernando/username601/master/assets/json/commands.json").json()
-            self.categories = [list(i.keys())[0] for i in self.raw_data]
+            self.categories = list(map(lambda i: list(i.keys())[0], self.raw_data))
             self.commands = []
             self._get_command = __gcmd__
             self._get_type = __command_type__

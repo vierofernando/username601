@@ -111,7 +111,7 @@ class Painter:
 
     def _draw_status_stats(self, draw, obj, rect_y_cursor, font, margin_left, margin_right, bg_arr):
         x_pos, colors = margin_left, [(63, 232, 0), (244, 208, 63), (225, 0, 0), (124, 0, 211), (127, 127, 127)]
-        total = sum([obj[i] for i in list(obj.keys())])
+        total = sum(map(lambda i: obj[i], obj.keys()))
         draw.rectangle([
             (margin_left, rect_y_cursor), (margin_right, rect_y_cursor + 25)
         ], fill=bg_arr[1])
@@ -144,15 +144,14 @@ class Painter:
 
     def get_multiple_accents(self, image):
         b = BytesIO(get(image).content)
-        thief = ColorThief(b).get_palette(color_count=10)
-        return [{
+        return list(map(lambda i: {
             'r': i[0], 'g': i[1], 'b': i[2]
-        } for i in thief]
+        }, ColorThief(b).get_palette(color_count=10)))
 
     def geometry_dash_icons(self, name):
         GD_FORMS = ('cube', 'ship', 'ball', 'ufo', 'wave', 'robot', 'spider')
         forms = [self.buffer_from_url(f"https://gdbrowser.com/icon/{name}?form={i}") for i in GD_FORMS]
-        width = sum([i.width for i in forms]) + (len(GD_FORMS) * 25) + 25
+        width = sum(map(lambda i: i.width, forms)) + (len(GD_FORMS) * 25) + 25
         curs = 25
         main = Image.new(mode="RGBA", size=(width, 250), color=(0, 0, 0, 0))
         for i in forms:
@@ -344,7 +343,7 @@ class Painter:
         except: flagnotfound = True
         size = (length, 400)
         if flagnotfound:
-            cf = [(0,0,0) for i in range(5)]
+            cf = list(map(lambda: (0,0,0), range(5)))
         main = Image.new('RGB', color=(0,0,0), size=size)
         draw = ImageDraw.Draw(main)
         margin_right, margin_left = main.width, 0
@@ -431,9 +430,9 @@ class Painter:
                 len([i for i in members if not i.bot]), len([i for i in members if i.bot]), len(members)
             ), fill=self.invert(bg_arr[4]), font=medium)
         else:
-            text = ', '.join([
-                i.replace('_', ' ').lower() for i in data['features']
-            ])
+            text = ', '.join(map(
+                lambda i: i.replace('_', ' ').lower(), data['features']
+            ))
             draw.text((margin_left + 5, rect_y_cursor + 5), self.wrap_text(text, (margin_right-5) - (margin_left+5), medium), fill=self.invert(bg_arr[4]), font=medium)
         self.add_corners(main, 25)
         return self.buffer(main)
@@ -479,7 +478,7 @@ class Painter:
         font = self.get_font('Minecraftia-Regular', 30) 
         main = Image.new(mode='RGB', size=(1800, 500), color=(0, 0, 0))
         draw, loc = ImageDraw.Draw(main), 0
-        temp = sorted([round(sum((i['r'], i['g'], i['b']))/3) for i in temp_data])
+        temp = sorted(list(map(lambda i: round(sum((i['r'], i['g'], i['b']))/3), temp_data)))
         data = []
         for i in range(len(temp)):
             for j in range(len(temp_data)):
@@ -532,7 +531,7 @@ class Painter:
         for i in range(im.width):
             for j in range(im.height):
                 br = round(sum(im.getpixel((i, j)))/3)
-                if br in range(0, 32): total_str += ':'
+                if br in range(32): total_str += ':'
                 elif br in range(32, 64): total_str += '-'
                 elif br in range(64, 96): total_str += '='
                 elif br in range(96, 128): total_str += '+'
@@ -541,7 +540,7 @@ class Painter:
                 elif br in range(191, 223): total_str += '%'
                 else: total_str += "@"
             total_str += '\n'
-        return '\n'.join([i[::-1] for i in total_str.split('\n')])
+        return '\n'.join(map(lambda i: i[::-1], total_str.split('\n')))
     def imagetoASCII_picture(self, url):
         font = self.get_font("consola", 11)
         image = Image.new(mode='RGB', size=(602, 523), color=(0, 0, 0))
@@ -847,8 +846,8 @@ class GifGenerator:
         size, images = im.size, []
         for i in range(im.n_frames):
             im.seek(i)
-            ava_size = tuple([int(a) for a in metadata[i].split(';')[0].split(',')])
-            placement = tuple([int(a) for a in metadata[i].split(';')[1].split(',')])
+            ava_size = tuple(map(lambda a: int(a), metadata[i].split(';')[0].split(',')))
+            placement = tuple(map(lambda a: int(a), metadata[i].split(';')[1].split(',')))
             cnv = Image.new(mode='RGB', size=size, color=(0,0,0))
             cnv.paste(im.convert('RGB'), (0,0))
             cnv.paste(ava.resize(placement), ava_size)
@@ -930,7 +929,7 @@ class GifGenerator:
     def giffromURL(self, url, compress):
         mygif = self.buffer_from_url(url)
         frames = []
-        for i in range(0, mygif.n_frames):
+        for i in range(mygif.n_frames):
             mygif.seek(i)
             if compress: frames.append(mygif.resize((216, 216))) ; continue
             frames.append(mygif)

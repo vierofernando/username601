@@ -53,14 +53,14 @@ def split_parameter_to_two(args):
     return args[0], ' '.join(args[1:])
 
 def parse_parameter(args, arg, get_second_element=False, singular=False):
-    if arg.lower() in [i.lower() for i in list(args)]:
+    if arg.lower() in list(map(lambda x: x.lower(), args)):
         parsed = tuple([i for i in list(args) if arg.lower() not in i.lower()])
         if get_second_element:
             index = [i.lower() for i in list(args)].index(arg.lower()) + 1
             if index >= len(args):
                 return {"available": False, "parsedarg": args, "secondparam": None}
             parsed = parsed[0:index]
-            if not singular: return {"available": True, "parsedarg": parsed, "secondparam": ' '.join(list(args)[index:len(args)])}
+            if not singular: return {"available": True, "parsedarg": parsed, "secondparam": ' '.join(args[index:])}
             return {"available": True, "parsedarg": parsed, "secondparam": list(args)[index]}
         return {"available": True, "parsedarg": parsed, "secondparam": None}
     return {"available": False, "parsedarg": args, "secondparam": None}
@@ -81,7 +81,7 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
         if allowgif: return str(msg.author.avatar_url_as(size=size))
         else: return str(msg.author.avatar_url_as(format='png', size=size))
     elif args[0].isnumeric():
-        if int(args[0]) not in [i.id for i in msg.guild.members]: raise send_error_message("No user found.")
+        if int(args[0]) not in list(map(lambda x: x.id, msg.guild.members)): raise send_error_message("No user found.")
         if not allowgif: return str(msg.guild.get_member(int(args[0])).avatar_url_as(format='png', size=size))
         return str(msg.guild.get_member(int(args[0])).avatar_url_as(size=size))
     elif len(args)==1 and (args[0].startswith('http') or args[0].startswith('<http')):
@@ -111,7 +111,7 @@ def getUser(ctx, args, user=None, allownoargs=True):
     user = [i for i in ctx.guild.members if ((i.display_name.lower().startswith(name)) or (name in i.display_name.lower()))]
     if len(user) > 0: return user[0]
     if args[0].isnumeric():
-        if int(args[0]) not in [i.id for i in ctx.guild.members]: raise send_error_message("No user found.")
+        if int(args[0]) not in list(map(lambda x: x.id, ctx.guild.members)): raise send_error_message("No user found.")
         return ctx.guild.get_member(int(args[0]))
     return ctx.author
 
@@ -168,7 +168,7 @@ def caesar(text, offset):
     return res
 
 def binary_from(text):
-    return " ".join(f"{ord(i):08b}" for i in text).replace(' ', '')
+    return ''.join(map(lambda x: f"{ord(x):08b}", text))
 
 def base64_from(text):
     return b64encode(text.encode('ascii')).decode('ascii')

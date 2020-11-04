@@ -32,19 +32,6 @@ class owner(commands.Cog):
         await self.client.get_guild(server_id).leave()
         return await ctx.send('ok')
     
-    @command()
-    async def leavehmm(self, ctx, *args):
-        if ctx.author.id not in [661200758510977084, 766952708602331137]: return
-        res = [i for i in self.client.guilds if len([
-            a for a in i.members if a.bot
-        ]) > len([
-            b for b in i.members if not b.bot
-        ])]
-        ttl = "\n".join(str(i.id) + ' - ' + str(i.name) + ' ({}|{}) '.format(
-            len([a for a in i.members if a.bot]), len([b for b in i.members if not b.bot])
-        ) for i in res)
-        return await ctx.send('```'+ttl[0:1990]+'```')
-    
     @command('ann,announcement')
     @cooldown(2)
     async def announce(self, ctx, *args):
@@ -98,7 +85,7 @@ class owner(commands.Cog):
         if ctx.author.id==self.client.utils.config('OWNER_ID', integer=True):
             try:
                 user_to_send = self.client.get_user(int(args[0]))
-                em = discord.Embed(title="Hi, "+user_to_send.name+"! the bot owner sent a response for your feedback.", description=' '.join(list(args)[1:len(args)]), colour=ctx.guild.me.roles[::-1][0].color)
+                em = discord.Embed(title="Hi, "+user_to_send.name+"! the bot owner sent a response for your feedback.", description=' '.join(args[1:]), colour=ctx.guild.me.roles[::-1][0].color)
                 await user_to_send.send(embed=em)
                 await ctx.message.add_reaction('✅')
             except Exception as e:
@@ -108,14 +95,14 @@ class owner(commands.Cog):
 
     @command()
     async def fban(self, ctx, *args):
-        if int(ctx.author.id)==self.client.utils.config('OWNER_ID', integer=True):
-            self.client.db.selfDB.feedback_ban(int(args[0]), str(' '.join(list(args)[1:len(args)])))
+        if ctx.author.id==self.client.utils.config('OWNER_ID', integer=True):
+            self.client.db.selfDB.feedback_ban(int(args[0]), str(' '.join(list(args)[1:])))
             await ctx.message.add_reaction(self.client.success_emoji)
         else:
             raise self.client.utils.send_error_message('You are not the owner, nerd.')
     @command()
     async def funban(self, ctx, *args):
-        if int(ctx.author.id)==self.client.utils.config('OWNER_ID', integer=True):
+        if ctx.author.id==self.client.utils.config('OWNER_ID', integer=True):
             data = self.client.db.selfDB.feedback_unban(int(args[0]))
             if data=='200': await ctx.message.add_reaction(self.client.success_emoji)
             else: await ctx.message.add_reaction(self.client.error_emoji)
@@ -161,7 +148,7 @@ class owner(commands.Cog):
     async def bash(self, ctx, *args):
         unprefixed = ' '.join(args)
         if unprefixed == '': unprefixed = 'echo hello world'
-        if int(ctx.author.id)==self.client.utils.config('OWNER_ID', integer=True):
+        if ctx.author.id==self.client.utils.config('OWNER_ID', integer=True):
             try:
                 if len(args)==0: raise OSError('you are gay')
                 if len(unprefixed.split())==1: data = run([unprefixed], stdout=PIPE).stdout.decode('utf-8')

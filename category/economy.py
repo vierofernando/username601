@@ -80,7 +80,7 @@ class economy(commands.Cog):
             price = int(args[0])
             extra = '' if price in range(5, 1000000) else 'Invalid price. Setting price to default: 1000'
             if extra.endswith('1000'): price = 1000
-            productName = '<product name undefined>' if len(args)<2 else ' '.join(list(args)[1:len(args)])
+            productName = '<product name undefined>' if len(args)<2 else ' '.join(list(args)[1:])
             if len(productName)>30: productName = ''.join(list(productName)[0:30])
             a = self.client.db.Shop.add_value(productName, price, ctx.guild)
             assert not a['error'], a['ctx']
@@ -122,7 +122,7 @@ class economy(commands.Cog):
             data = self.client.db.Shop.get_shop(ctx.guild)
             assert data['error']==False, data['ctx']
             em = discord.Embed(title='{}\'s shop'.format(ctx.guild.name), description='\n'.join(
-                [str(i+1)+'. **'+str(data['ctx'][i]['name'])+'** (price: '+str(data['ctx'][i]['price'])+' :gem:)' for i in range(len(data['ctx']))]
+                list(map(lambda x: str(x + 1)+". **"+ data['ctx'][x]['name'] + '** (price: '+ str(data['ctx'][x]['price']) + " :gem:)", range(len(data['ctx']))))
             ), color=ctx.guild.me.roles[::-1][0].color)
             return await ctx.send(embed=em)
         except Exception as e:
@@ -287,8 +287,8 @@ class economy(commands.Cog):
             raise self.client.utils.send_error_message('This server doesn\'t have any members with profiles...')
         else:
             wait = await ctx.send(self.client.loading_emoji+' | Please wait...')
-            total, bals, ids = [], sorted([int(a.split('|')[1]) for a in data])[::-1][0:20], []
-            for a in range(0, len(bals)):
+            total, bals, ids = [], sorted(list(map(lambda x: int(x.split("|")[1]), data)))[::-1][0:20], []
+            for a in range(len(bals)):
                 person = [{
                     'userid': int(i.split('|')[0]),
                     'bal': int(i.split('|')[1])

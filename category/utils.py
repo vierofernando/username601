@@ -15,6 +15,21 @@ class utils(commands.Cog):
     def __init__(self, client):
         self.client = client
     
+    @command('trending,news')
+    @cooldown(5)
+    async def msn(self, ctx, *args):
+        try:
+            data = self.client.utils.inspect_element("http://cdn.content.prod.cms.msn.com/singletile/summary/alias/experiencebyname/today?market=en-GB&source=appxmanifest&tenant=amp&vertical=news")
+            imageURL = data.split('baseUri="')[1].split('"')[0] + data.split('src="')[1].split('?')[0].replace(".img", ".png")
+            content = data.split('hint-wrap="true">')[1].split('<')[0]
+            embed = discord.Embed(title=content, color=ctx.guild.me.roles[::-1][0].color)
+            embed.set_image(url=imageURL)
+            embed.set_footer(text="Content provided by msn.com")
+            return await ctx.send(embed=embed)
+        except Exception as e:
+            await self.client.get_user(self.client.utils.config("OWNER_ID", integer=True)).send(f"yo, theres an error: `{str(e)}`")
+            raise self.client.utils.send_error_message("Oopsies, there was an error on searching the news.")
+    
     @command('prsc,psrc,act,activity')
     @cooldown(3)
     async def presence(self, ctx, *args):
@@ -184,7 +199,7 @@ class utils(commands.Cog):
             data = self.client.utils.fetchJSON('https://rhymebrain.com/talk?function=getRhymes&word='+str(self.client.utils.encode_uri(' '.join(args))))
             if len(data)<1: await wait.edit(content='We did not find any rhyming words corresponding to that letter.')
             else:
-                for i in range(0, len(data)):
+                for i in range(len(data)):
                     if data[i]['flags']=='bc': words.append(data[i]['word'])
                 words = dearray(words)
                 if len(words)>1950:
@@ -204,7 +219,7 @@ class utils(commands.Cog):
                 leng = len(data['items'])
                 ques = data['items'][0]
                 tags = ''
-                for i in range(0, len(ques['tags'])):
+                for i in range(len(ques['tags'])):
                     if i==len(ques['tags'])-1:
                         tags += '['+str(ques['tags'][i])+'](https://stackoverflow.com/questions/tagged/'+str(ques['tags'][i])+')'
                         break
@@ -228,7 +243,7 @@ class utils(commands.Cog):
     @cooldown(2)
     async def iss(self, ctx):
         iss, ppl, total = self.client.utils.fetchJSON('https://open-notify-api.herokuapp.com/iss-now.json'), self.client.utils.fetchJSON('https://open-notify-api.herokuapp.com/astros.json'), '```'
-        for i in range(0, len(ppl['people'])):
+        for i in range(len(ppl['people'])):
             total += str(i+1) + '. ' + ppl['people'][i]['name'] + ((20-(len(ppl['people'][i]['name'])))*' ') + ppl['people'][i]['craft'] + '\n'
         embed = discord.Embed(title='Position: '+str(iss['iss_position']['latitude'])+' '+str(iss['iss_position']['longitude']), description='**People at craft:**\n\n'+str(total)+'```', colour=ctx.guild.me.roles[::-1][0].color)
         await ctx.send(embed=embed)
@@ -240,7 +255,7 @@ class utils(commands.Cog):
         data = self.client.utils.fetchJSON('https://ghibliapi.herokuapp.com/films')
         if len(args)==0:
             films = ""
-            for i in range(0, int(len(data))):
+            for i in range(int(len(data))):
                 films = films+'('+str(int(i)+1)+') '+str(data[i]['title']+' ('+str(data[i]['release_date'])+')\n')
             embed = discord.Embed(
                 title = 'List of Ghibli Films',
@@ -322,7 +337,7 @@ class utils(commands.Cog):
             if data['items'][0]['metascore']=="": rate = '???'
             else: rate = str(data['items'][0]['metascore'])
             oss_raw = []
-            for i in range(0, len(data['items'][0]['platforms'])):
+            for i in range(len(data['items'][0]['platforms'])):
                 if data['items'][0]['platforms'][str(list(data['items'][0]['platforms'].keys())[i])]==True:
                     oss_raw.append(str(list(data['items'][0]['platforms'].keys())[i]))
             embed = discord.Embed(title=data['items'][0]['name'], url='https://store.steampowered.com/'+str(data['items'][0]['type'])+'/'+str(data['items'][0]['id']), description='**Price tag:** '+str(prize)+'\n**Metascore: **'+str(rate)+'\n**This app supports the following OSs: **'+str(dearray(oss_raw)), colour=ctx.guild.me.roles[::-1][0].color)

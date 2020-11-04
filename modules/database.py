@@ -121,7 +121,7 @@ class Dashboard:
             data = database['dashboard'].find_one({'serverid': channel.guild.id})
             if data is None: return
         except: return
-        if channel.id not in [data[i] for i in list(data.keys())]: return
+        if channel.id not in list(map(lambda i: data[i], data.keys())): return
         if data['welcome'] == channel.id:
             database['dashboard'].update_one({'serverid': channel.guild.id}, {'$set': {
                 'welcome': None
@@ -145,7 +145,7 @@ class Dashboard:
         if not Dashboard.exist(user.guild.id): return False
         try:
             data = database['dashboard'].find_one({'serverid': user.guild.id})['warns']
-            ids = [int(i.split('.')[0]) for i in data]
+            ids = list(map(lambda i: int(i.split('.')[0]), data))
             if user.id not in ids: return False
             warns = [i for i in data if i.startswith(str(user.id))]
             for i in warns:
@@ -198,9 +198,9 @@ class Economy:
         try:
             data = database['economy'].find_one({'userid': int(userid)})
             alldata = [i for i in database['economy'].find()]
-            bal_global_list = sorted([i['bal'] for i in alldata])[::-1]
+            bal_global_list = sorted(list(map(lambda i: i["bal"], alldata)))[::-1]
             bal_guild_list = sorted([i['bal'] for i in alldata if i['userid'] in guildMembersId])[::-1]
-            time_join_list = sorted([i['joinDate'] for i in alldata])
+            time_join_list = sorted(list(map(lambda i: i['joinDate'], alldata)))
             global_rank = str([i+1 for i in range(len(bal_global_list)) if bal_global_list[i]==data['bal']][0])
             after_bal = [i for i in bal_global_list[::-1] if i > data['bal']][0]
             return {
@@ -286,7 +286,7 @@ class Economy:
             }
     
     def setbal(userid, newbal):
-        if userid not in [i['userid'] for i in database['economy'].find()]:
+        if userid not in list(map(lambda i: i['userid'], database['economy'].find())):
             return 'user has no profile'
         else:
             try:
@@ -359,10 +359,12 @@ class Shop:
         data = database['dashboard'].find_one({'serverid': server.id})['shop']
         if len(data)==0:
             return {'error': True, 'ctx': 'This server does not have any shops!'}
-        return {'error': False, 'ctx': [{
-            'price': int(i.split('.')[0]),
-            'name': ' '.join(i.split('.')[1:len(i)])
-        } for i in data]}
+        return {'error': False, 'ctx': list(map(
+            lambda i: {
+                'price': int(i.split('.')[0]),
+                'name': ' '.join(i.split('.')[1:])
+            }, data
+        ))}
     def delete_shop(server):
         if not Dashboard.exist(server.id):
             Dashboard.add_guild(server.id)
@@ -395,7 +397,7 @@ class Shop:
         elif user_data is None: return {'error': True, 'ctx': 'User does not have any profile'}
         elif user_data['bal'] < element['price']: return {'error': True, 'ctx': 'Money is less than the price.\nPlease have {} more bobux'.format(element['price']-user_data['bal'])}
         Economy.delbal(user.id, element['price'])
-        if element['name'] not in [' '.join(i.split('.')[3:len(i.split('.'))]) for i in user_data['buyList']]:
+        if element['name'] not in list(map(lambda i: ' '.join(i.split('.')[3:]), user_data['buyList'])):
             database['economy'].update_one({'userid': user.id}, {'$push': {'buyList': '{}.{}.{}.{}'.format(
                 user.guild.id, round(t.now().timestamp()), element['price'], element['name']
             )}})
@@ -407,7 +409,7 @@ class Shop:
 class selfDB:
     def ping():
         a = t.now().timestamp()
-        temp = [i for i in database['dashboard'].find()]
+        temp = database['dashboard'].find()
         return round((t.now().timestamp()-a)*1000)
     def feedback_ban(userid, reason):
         for i in database['config'].find():

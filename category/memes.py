@@ -14,7 +14,10 @@ class memes(commands.Cog):
         self.client = client
         
         self.rawMetadata = open(self.client.utils.config('MODULES_DIR')+'/Animation.dat', 'r').read().split('\n')
-        self.rageMetadata = [tuple([int(a) for a in i.split(',')]) for i in self.rawMetadata[0].split(';')]
+        self.rageMetadata = list(map(
+            lambda i: tuple(map(lambda a: int(a), i.split(','))),
+            self.rawMetadata[0].split(';')
+        ))
         self.frogMetadata = self.rawMetadata[1].split(':')
         self.meme_templates = loads(open(self.client.utils.config('JSON_DIR')+'/memes.json', 'r').read())
 

@@ -89,7 +89,7 @@ class image(commands.Cog):
     async def distort(self, ctx, *args, blacklist=None):
         user, num = self.client.utils.split_parameter_to_two(args)
         if not num.isnumeric(): num = 5
-        elif int(num) not in range(0, 999): raise self.client.utils.send_error_message("damn that level is hella weirdd")
+        elif int(num) not in range(999): raise self.client.utils.send_error_message("damn that level is hella weirdd")
         ava = self.client.utils.getUserAvatar(ctx, (user,))
         async with ctx.channel.typing():
             await ctx.send(file=discord.File(

@@ -13,21 +13,31 @@ from datetime import datetime as t
 class moderation(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.latest = ["latest", "recent", "last"]
+        self.first = ["first", "early", "earliest", "earlyest", "firstmember"]
         
     @command('jp,joinpos,joindate,jd,howold')
     @cooldown(5)
     async def joinposition(self, ctx, *args):
         wait = await ctx.send(f"{self.client.loading_emoji} | Hang tight... collecting data...")
+        from_string = False
         current_time, members, user_index, desc = t.now().timestamp(), ctx.guild.members, None, ""
-        full_arr = [{'ja': i.joined_at.timestamp(), 'da': i} for i in members]
-        raw_unsorted_arr = [i['ja'] for i in full_arr]
+        full_arr = list(map(lambda x: {'ja': x.joined_at.timestamp(), 'da': x}, members))
+        raw_unsorted_arr = list(map(lambda x: x['ja'], full_arr))
         sorted_arr = sorted(raw_unsorted_arr)
-        if len(args) > 0 and args[0].isnumeric() and ((int(args[0])-1) in range(len(members))):
-            user_index, title = int(args[0]) - 1, f'User join position for order: #{args[0]}'
-        else:
-            user = self.client.utils.getUser(ctx, args)
-            user_join_date = user.joined_at.timestamp()
-            user_index, title = sorted_arr.index(user_join_date), str(user)+'\'s join position for '+ctx.guild.name
+        if (len(args) > 0) and (not args[0].isnumeric()):
+            if args[0].lower() in self.first:
+                from_string, user_index, title = 0, f'User join position for the first member in {ctx.guild.name}', True
+            elif args[0].lower() in self.latest:
+                from_string, user_index, title = ctx.guild.member_count - 1, f'User join position for the latest member to join {ctx.guild.name}', True
+        
+        if not from_string:
+            if len(args) > 0 and args[0].isnumeric() and ((int(args[0])-1) in range(len(members))):
+                user_index, title = int(args[0]) - 1, f'User join position for order #{args[0]}'
+            else:
+                user = self.client.utils.getUser(ctx, args)
+                user_join_date = user.joined_at.timestamp()
+                user_index, title = sorted_arr.index(user_join_date), str(user)+'\'s join position for '+ctx.guild.name
         for i in range(user_index - 10, user_index + 11):
             if i < 0: continue
             try: key = sorted_arr[i]
@@ -91,7 +101,7 @@ class moderation(commands.Cog):
         toUnmute = self.client.utils.getUser(ctx, args, allownoargs=False)
         roleid = self.client.db.Dashboard.getMuteRole(ctx.guild.id)
         if roleid is None: raise self.client.utils.send_error_message('He is not muted!\nOr maybe you muted this on other bot... which is not compatible.')
-        elif roleid not in [i.id for i in ctx.message.mentions[0].roles]:
+        elif roleid not in list(map(lambda x: x.id, ctx.message.mentions[0].roles)):
             raise self.client.utils.send_error_message('That guy is not muted.')
         try:
             await toUnmute.remove_roles(ctx.guild.get_role(roleid))
@@ -179,11 +189,10 @@ class moderation(commands.Cog):
         if data is None:
             error = self.client.error_emoji
             return await ctx.send(f'{error} | Good news! {source.name} does not have any warns!')
-        warnlist = '\n'.join([
-            '{}. "{}" (warned by <@{}>)'.format(
-                i+1, data[i]['reason'], data[i]['moderator']
-            ) for i in range(0, len(data))
-        ][0:10])
+        warnlist = '\n'.join(map(
+            lambda x: '{}. "{}" (warned by <@{}>)'.format(x+1, data[x]['reason'], data[x]['moderator']),
+            range(len(data))
+        )[0:10])
         await ctx.send(embed=discord.Embed(
             title=f'Warn list for {source.name}',
             description=warnlist,
@@ -276,7 +285,7 @@ class moderation(commands.Cog):
             try:
                 assert args[0].isnumeric(), "Please add the time in seconds. (number)"
                 count = int(args[0])
-                assert count in range(0, 21599), "Invalid range."
+                assert count in range(21599), "Invalid range."
                 assert ctx.author.guild_permissions.manage_channels, "You need the `manage channels` permission to do this.`"
                 await ctx.channel.edit(slowmode_delay=count)
                 return await ctx.send(self.client.success_emoji+" | "+("Disabled channel slowmode." if (count == 0) else f"Successfully set slowmode for <#{ctx.channel.id}> to {count} seconds."))
@@ -389,9 +398,9 @@ class moderation(commands.Cog):
             booster = True if guy in ctx.guild.premium_subscribers else False
             booster_since = round(t.now().timestamp() - guy.premium_since.timestamp()) if guy.premium_since is not None else False
             bg_col = self.client.canvas.get_color_accent(str(guy.avatar_url_as(format="png")))
-            data = self.client.canvas.usercard([{
-                'name': i.name, 'color': i.color.to_rgb()
-            } for i in guy.roles][::-1][0:5], guy, str(guy.avatar_url_as(format="png")), bg_col, nitro, booster, booster_since)
+            data = self.client.canvas.usercard(list(map(lambda x: {
+                'name': x.name, 'color': x.color.to_rgb()
+            }, guy.roles))[::-1][0:5], guy, str(guy.avatar_url_as(format="png")), bg_col, nitro, booster, booster_since)
             await ctx.send(file=discord.File(data, str(guy.discriminator)+'.png'))
 
     @command('av,ava')
@@ -405,7 +414,7 @@ class moderation(commands.Cog):
     async def serveremojis(self, ctx):
         if len(ctx.guild.emojis)==0: raise self.client.utils.send_error_message('This server has no emojis!')
         else:
-            await ctx.send(', '.join([str(i) for i in ctx.guild.emojis])[0:2000])
+            await ctx.send(', '.join(map(lambda x: str(x), ctx.guild.emojis)))[0:2000]
 
     @command('serverinfo,server,servericon,si,server-info,guild,guildinfo,guild-info')
     @cooldown(10)
@@ -461,7 +470,7 @@ class moderation(commands.Cog):
                 else: men = ':v: You can mention this role and they will not get pinged! ;)'
                 embedrole = discord.Embed(title='Role info for role: '+str(data.name), description='**Role ID: **'+str(data.id)+'\n**Role created at: **'+self.client.utils.lapsed_time_from_seconds(round(t.now().timestamp()-data.created_at.timestamp()))+' ago\n**Role position: **'+str(data.position)+'\n**Members having this role: **'+str(len(data.members))+'\n'+str(men)+'\nPermissions Value: '+str(data.permissions.value)+'\n'+str(perm), colour=data.colour)
                 embedrole.add_field(name='Role Colour', value='**Color hex: **#'+str(self.client.utils.tohex(data.color.value))+'\n**Color integer: **'+str(data.color.value)+'\n**Color RGB: **'+str(', '.join(
-                    [str(i) for i in list(data.color.to_rgb())]
+                    list(map(lambda x: str(x), data.color.to_rgb()))
                 )))
                 await ctx.send(embed=embedrole)
 
@@ -492,7 +501,7 @@ class moderation(commands.Cog):
                     raise self.client.utils.send_error_message("Please use 'text' or 'channel'!")
                     begin = False
             if begin:
-                name = str(ctx.message.content).split(' ')[2:len(str(ctx.message.content).split())].replace(' ', '-')
+                name = str(ctx.message.content).split()[2:].replace(' ', '-')
                 if args[0].lower()=='voice': await ctx.guild.create_voice_channel(name)
                 else: await ctx.guild.create_voice_channel(name)
 

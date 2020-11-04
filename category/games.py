@@ -74,7 +74,7 @@ class games(commands.Cog):
                 query = self.client.utils.encode_uri(' '.join(args))
                 data = self.client.utils.fetchJSON('https://gdbrowser.com/api/search/'+str(query))
                 levels, count = '', 0
-                for i in range(0, len(data)):
+                for i in range(len(data)):
                     if data[count]['disliked']: like = ':-1:'
                     else: like = ':+1:'
                     levels += str(count+1)+'. **'+data[count]['name']+'** by '+data[count]['author']+' (`'+data[count]['id']+'`)\n:arrow_down: '+data[count]['downloads']+' | '+like+' '+data[count]['likes']+'\n'
@@ -179,7 +179,7 @@ class games(commands.Cog):
     async def rps(self, ctx):
         main = await ctx.send(embed=discord.Embed(title='Rock Paper Scissors game.', description='Click the reaction below. And game will begin.', colour=ctx.guild.me.roles[::-1][0].color))
         exp = ['✊', '🖐️', '✌']
-        for i in range(0, len(exp)):
+        for i in range(len(exp)):
             await main.add_reaction(exp[i])
         def check(reaction, user):
             return user == ctx.author
@@ -237,7 +237,7 @@ class games(commands.Cog):
         corr_avatar, corr_name = avatarAll[numCorrect], nameAll[numCorrect]
         nameAll.remove(corr_name)
         wrongArr = []
-        for i in range(0, 3):
+        for i in range(3):
             wrongArr.append(random.choice(nameAll))
         abcs, emots = list('🇦🇧🇨🇩'), list('🇦🇧🇨🇩')
         randomInt = random.randint(0, 3)
@@ -279,7 +279,7 @@ class games(commands.Cog):
         chosen_nation, wrongs = data[chosen_nation_num], []
         del data[chosen_nation_num]
         correct = str(chosen_nation[topic])
-        for i in range(0, 4):
+        for i in range(4):
             integer = random.randint(0, len(data))
             wrongs.append(str(data[integer][str(topic)]))
             data.remove(data[integer])
@@ -295,7 +295,7 @@ class games(commands.Cog):
                 question += corr_order + ' ' + correct + '\n'
         embed = discord.Embed(title='Geography: '+str(topic)+' quiz!', description=':nerd: Click on the reaction! **You have 20 seconds.**\n\nWhich '+str(topic)+' belongs to '+str(chosen_nation['name'])+'?\n'+str(question), colour=ctx.guild.me.roles[::-1][0].color)
         await wait.edit(content='', embed=embed)
-        for i in range(0, len(static_emot)):
+        for i in range(len(static_emot)):
             await wait.add_reaction(static_emot[i])
         def check(reaction, user):
             return user == guy
@@ -342,9 +342,9 @@ class games(commands.Cog):
         the_word = self.client.utils.fetchJSON("https://random-word-api.herokuapp.com/word?number=1")
         main_guess_cor, main_guess_hid = list(the_word[0]), []
         server_id, wrong_guesses = ctx.guild.id, ''
-        for i in range(0, len(main_guess_cor)):
+        for i in range(len(main_guess_cor)):
             main_guess_hid.append('\_ ')
-        guessed, gameplay, playing_with, playing_with_id, level = [], True, ctx.author, int(ctx.author.id), 0
+        guessed, gameplay, playing_with, playing_with_id, level = [], True, ctx.author, ctx.author.id, 0
         while gameplay:
             if ctx.message.content==self.client.command_prefix+'hangman' and ctx.author.id!=int(playing_with_id) and ctx.guild.id==server_id:
                 await ctx.send('<@'+str(ctx.author.id)+'>, cannot play hangman when a game is currently playing!')
@@ -380,7 +380,7 @@ class games(commands.Cog):
                 level = int(level)+1
             elif str(trying.content).lower() in ''.join(main_guess_cor).lower():
                 guessed.append(str(trying.content).lower())
-                for i in range(0, len(main_guess_cor)):
+                for i in range(len(main_guess_cor)):
                     if main_guess_cor[i].lower()==str(trying.content).lower():
                         main_guess_hid[i] = str(trying.content).lower()
             else:
@@ -391,7 +391,7 @@ class games(commands.Cog):
     @cooldown(2)
     async def slot(self, ctx):
         win, jackpot, slots = False, False, []
-        for i in range(0, 3):
+        for i in range(3):
             newslot = self.client.games.slot()
             if newslot[1]==newslot[2] and newslot[1]==newslot[3] and newslot[2]==newslot[3]:
                 win = True
@@ -465,7 +465,7 @@ class games(commands.Cog):
             data = self.client.utils.fetchJSON('https://wiki-quiz.herokuapp.com/v1/quiz?topics=Science')
             q = random.choice(data['quiz'])
             choices = ''
-            for i in range(0, len(q['options'])):
+            for i in range(len(q['options'])):
                 al = list('🇦🇧🇨🇩')
                 if q['answer']==q['options'][i]:
                     corr = al[i]
@@ -473,7 +473,7 @@ class games(commands.Cog):
             embed = discord.Embed(title='Trivia!', description='**'+q['question']+'**\n'+choices, colour=ctx.guild.me.roles[::-1][0].color)
             embed.set_footer(text='Answer by clicking the reaction! You have 60 seconds.')
             await wait.edit(content='', embed=embed)
-            for i in range(0, len(al)):
+            for i in range(len(al)):
                 await wait.add_reaction(al[i])
         except Exception as e:
             raise self.client.utils.send_error_message(f'An error occurred!\nReport this using {self.client.command_prefix}feedback.\n```{str(e)}```')

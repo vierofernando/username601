@@ -110,17 +110,17 @@ class fun(commands.Cog):
     async def deathnote(self, ctx):
         if ctx.guild.member_count>500: raise self.client.utils.send_error_message('This server has soo many members')
         member, in_the_note, notecount, membercount = [], "", 0, 0
-        for i in range(0, int(ctx.guild.member_count)):
+        for i in range(ctx.guild.member_count):
             if ctx.guild.members[i].name!=ctx.author.name:
                 member.append(ctx.guild.members[i].name)
                 membercount = int(membercount) + 1
         chances = ['ab', 'abc', 'abcd']
         strRandomizer = random.choice(chances)
-        for i in range(0, int(membercount)):
+        for i in range(int(membercount)):
             if random.choice(list(strRandomizer))=='b':
                 notecount = int(notecount) + 1
                 in_the_note = in_the_note+str(notecount)+'. '+ str(member[i]) + '\n'
-        death, count = random.choice(member), random.choice(list(range(0, int(membercount))))
+        death, count = random.choice(member), random.choice(list(range(int(membercount))))
         embed = discord.Embed(
             title=ctx.guild.name+'\'s death note',
             description=str(in_the_note),
