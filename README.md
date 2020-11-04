@@ -1,4 +1,3 @@
-<style>.flexingDaBot { display: inline-block; margin-left: auto; margin-right: auto; padding: 15px; }</style>
 # [username601](https://bit.ly/username601)
 
 [![Top.gg place](https://top.gg/api/widget/status/696973408000409626.svg)](https://top.gg/bot/696973408000409626)
@@ -21,7 +20,7 @@ Everything here is open-source to everyone. You can fork it, or do something els
 7. **Moderation System, including Muting (customizable mute role), Warning System, and several more!**<br>
 8. **And *so much more!***<br>
 <div style="text-align: center;">
-<img width="454" height="333" class="flexingDaBot" src="https://vierofernando.is-inside.me/8opT6Mez.gif"></img><img class="flexingDaBot" src="https://vierofernando.is-inside.me/4Gbhh0Zl.gif">
+<img width="454" height="333" style="display: inline-block; margin-left: auto; margin-right: auto; padding: 15px;" src="https://vierofernando.is-inside.me/8opT6Mez.gif"></img><img style="display: inline-block; margin-left: auto; margin-right: auto; padding: 15px;" src="https://vierofernando.is-inside.me/4Gbhh0Zl.gif">
 </img>
 </div>
 
