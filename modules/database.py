@@ -197,7 +197,7 @@ class Economy:
     def getProfile(userid, guildMembersId):
         try:
             data = database['economy'].find_one({'userid': int(userid)})
-            alldata = [i for i in database['economy'].find()]
+            alldata = list(database['economy'].find())
             bal_global_list = sorted(list(map(lambda i: i["bal"], alldata)))[::-1]
             bal_guild_list = sorted([i['bal'] for i in alldata if i['userid'] in guildMembersId])[::-1]
             time_join_list = sorted(list(map(lambda i: i['joinDate'], alldata)))
@@ -236,7 +236,7 @@ class Economy:
             }
         
     def leaderboard(guildMembers):
-        fetched, members = database['economy'].find(), [a.id for a in guildMembers]
+        fetched, members = database['economy'].find(), list(map(lambda a: a.id, guildMembers))
         temp = ['{}|{}'.format(
             i['userid'], i['bal']
         ) for i in fetched if i['userid'] in members]
