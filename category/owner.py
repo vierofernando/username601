@@ -28,7 +28,7 @@ class owner(commands.Cog):
     @cooldown(1)
     async def leave(self, ctx, *args):
         if ctx.author.id not in [661200758510977084, 766952708602331137]: return
-        server_id = int(list(args)[1])
+        server_id = int(args[1])
         await self.client.get_guild(server_id).leave()
         return await ctx.send('ok')
     
@@ -96,7 +96,7 @@ class owner(commands.Cog):
     @command()
     async def fban(self, ctx, *args):
         if ctx.author.id==self.client.utils.config('OWNER_ID', integer=True):
-            self.client.db.selfDB.feedback_ban(int(args[0]), str(' '.join(list(args)[1:])))
+            self.client.db.selfDB.feedback_ban(int(args[0]), str(' '.join(args[1:])))
             await ctx.message.add_reaction(self.client.success_emoji)
         else:
             raise self.client.utils.send_error_message('You are not the owner, nerd.')

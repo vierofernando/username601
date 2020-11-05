@@ -149,7 +149,7 @@ class moderation(commands.Cog):
             return await wait.edit(content='{} | OK. Starboard for this server is deleted.'.format(self.client.success_emoji))
         elif args[0].lower()=='limit':
             try:
-                num = int(list(args)[1])
+                num = int(args[1])
                 if not num in range(1, 20):
                     raise self.client.utils.send_error_message('Invalid number.')
                 self.client.db.Dashboard.setStarboardLimit(num, ctx.guild)
@@ -549,7 +549,7 @@ class moderation(commands.Cog):
             if args[0].lower()!='text' or args[0].lower()!='voice':
                 raise self.client.utils.send_error_message('Oops! Not a valid type of channel!')
             else:
-                names = list(args)[1:len(args)]
+                names = args[1:len(args)]
                 if args[0].lower()=='text': await ctx.guild.create_text_channel(name='-'.join(list(names)))
                 else: await ctx.guild.create_voice_channel(name='-'.join(names))
                 await ctx.send(self.client.success_emoji+" | Successfully created a {} channel named {}.".format(args[0], str('-'.join(names))))

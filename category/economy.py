@@ -80,7 +80,7 @@ class economy(commands.Cog):
             price = int(args[0])
             extra = '' if price in range(5, 1000000) else 'Invalid price. Setting price to default: 1000'
             if extra.endswith('1000'): price = 1000
-            productName = '<product name undefined>' if len(args)<2 else ' '.join(list(args)[1:])
+            productName = '<product name undefined>' if len(args)<2 else ' '.join(args[1:])
             if len(productName)>30: productName = ''.join(list(productName)[0:30])
             a = self.client.db.Shop.add_value(productName, price, ctx.guild)
             assert not a['error'], a['ctx']
