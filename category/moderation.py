@@ -27,9 +27,9 @@ class moderation(commands.Cog):
         sorted_arr = sorted(raw_unsorted_arr)
         if (len(args) > 0) and (not args[0].isnumeric()):
             if args[0].lower() in self.first:
-                from_string, user_index, title = 0, f'User join position for the first member in {ctx.guild.name}', True
+                from_string, user_index, title = True, 0, f'User join position for the first member in {ctx.guild.name}'
             elif args[0].lower() in self.latest:
-                from_string, user_index, title = ctx.guild.member_count - 1, f'User join position for the latest member to join {ctx.guild.name}', True
+                from_string, user_index, title = True, ctx.guild.member_count - 1, f'User join position for the latest member to join {ctx.guild.name}'
         
         if not from_string:
             if len(args) > 0 and args[0].isnumeric() and ((int(args[0])-1) in range(len(members))):
