@@ -61,7 +61,7 @@ class games(commands.Cog):
             check = game.check_if_win()
             if check is not None:
                 if check == "?":
-                    await ctx.send(embed=discord.Embed(title="No one wins! It's a draw!", color=discord.Colour.yellow()))
+                    await ctx.send(embed=discord.Embed(title="No one wins! It's a draw!", color=discord.Colour.orange()))
                     break
                 winner = str(characters[0 if (current == 1) else 1])
                 await ctx.send(embed=discord.Embed(color=discord.Color.green(), title=str(characters[current]) + " won the game!"))

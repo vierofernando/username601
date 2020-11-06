@@ -28,7 +28,7 @@ class Paginator:
             self.index -= 1
             changed = True
         if changed:
-            await self.message.edit(embed=self.embeds[self.index])
+            await self.message.edit(content='', embed=self.embeds[self.index])
 
     async def execute(self):
         self.message = await self.ctx.send(embed=self.embeds[0])
@@ -72,11 +72,10 @@ class embed:
         self.footer_icon = str(self.ctx.author.avatar_url) if footer_icon is None else str(footer_icon)
         self.attachment_url = attachment
 
-        if (self.color, tuple):
+        if isinstance(self.color, tuple):
             self.color = Color.from_rgb(*self.color)
         elif ((isinstance(self.color, str)) and (self.color.startswith("#"))):
             self._convert_hex_to_rgb()
-        self.embed, self.attachment = self.get_embed()
 
     def get_embed(self) -> tuple:
         _embed = Embed(title=self.title, description=self.description, color=self.color, url=self.url)
@@ -98,11 +97,13 @@ class embed:
         return _embed, _file
 
     async def send(self):
-        if self.attachment is None:
-            return await self.ctx.send(embed=self.embed)
-        return await self.ctx.send(embed=self.embed, file=self.attachment)
+        _embed, _attachment = self.get_embed()
+        if _attachment is None:
+            return await self.ctx.send(embed=_embed)
+        return await self.ctx.send(embed=_embed, file=_attachment)
     
     async def edit_to(self, message):
-        if attachment is None:
-            await message.edit(embed=self.embed)
-        await message.edit(embed=self.embed, file=self.attachment)
+        _embed, _attachment = self.get_embed()
+        if _attachment is None:
+            await message.edit(content='', embed=_embed)
+        await message.edit(content='', embed=_embed, file=_attachment)
