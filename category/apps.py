@@ -14,7 +14,6 @@ from googletrans import Translator, LANGUAGES
 
 class apps(commands.Cog):
     def __init__(self, client):
-        pass
         self.translator = Translator()
 
     @command('movie')
@@ -40,7 +39,7 @@ class apps(commands.Cog):
     @command('spot,splay,listeningto,sp')
     @cooldown(2)
     async def spotify(self, ctx, *args):
-        source, act = ctx.bot.utils.utils.getUser(ctx, tuple([
+        source, act = ctx.bot.utils.getUser(ctx, tuple([
                 i for i in args if '--force' not in i
             ])), None
         if ''.join(args).endswith('--force'):

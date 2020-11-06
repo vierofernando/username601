@@ -318,7 +318,7 @@ class memes(commands.Cog):
     @cooldown(10)
     async def imgcaptcha(self, ctx, *args):
         async with ctx.channel.typing():
-            av, nm = ctx.bot.utils.getUserAvatar(ctx, args), ctx.bot.utils.utils.getUser(ctx, args).name
+            av, nm = ctx.bot.utils.getUserAvatar(ctx, args), ctx.bot.utils.getUser(ctx, args).name
             url = 'http://nekobot.xyz/api/imagegen?type=captcha&username='+nm+'&url='+av+'&raw=1'
             data = ctx.bot.canvas.urltoimage(url)
             await ctx.send(file=discord.File(data, 'your_captcha.png'))

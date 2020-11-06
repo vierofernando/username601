@@ -11,8 +11,7 @@ from decorators import command, cooldown
 from datetime import datetime as t
 
 class moderation(commands.Cog):
-    def __init__(self, client):
-        pass
+    def __init__(self, client
         self.latest = ["latest", "recent", "last"]
         self.first = ["first", "early", "earliest", "earlyest", "firstmember"]
         
@@ -35,7 +34,7 @@ class moderation(commands.Cog):
             if len(args) > 0 and args[0].isnumeric() and ((int(args[0])-1) in range(len(members))):
                 user_index, title = int(args[0]) - 1, f'User join position for order #{args[0]}'
             else:
-                user = ctx.bot.utils.utils.getUser(ctx, args)
+                user = ctx.bot.utils.getUser(ctx, args)
                 user_join_date = user.joined_at.timestamp()
                 user_index, title = sorted_arr.index(user_join_date), str(user)+'\'s join position for '+ctx.guild.name
         for i in range(user_index - 10, user_index + 11):
@@ -67,7 +66,7 @@ class moderation(commands.Cog):
     @command()
     @cooldown(5)
     async def mute(self, ctx, *args):
-        toMute = ctx.bot.utils.utils.getUser(ctx, args, allownoargs=False)
+        toMute = ctx.bot.utils.getUser(ctx, args, allownoargs=False)
         if not ctx.author.guild_permissions.manage_messages: raise ctx.bot.utils.send_error_message('No `manage messages` permission!')
         role = ctx.bot.db.Dashboard.getMuteRole(ctx.guild.id)
         if role is None:
@@ -98,7 +97,7 @@ class moderation(commands.Cog):
     @command()
     @cooldown(5)
     async def unmute(self, ctx, *args):
-        toUnmute = ctx.bot.utils.utils.getUser(ctx, args, allownoargs=False)
+        toUnmute = ctx.bot.utils.getUser(ctx, args, allownoargs=False)
         roleid = ctx.bot.db.Dashboard.getMuteRole(ctx.guild.id)
         if roleid is None: raise ctx.bot.utils.send_error_message('He is not muted!\nOr maybe you muted this on other bot... which is not compatible.')
         elif roleid not in list(map(lambda x: x.id, ctx.message.mentions[0].roles)):
@@ -171,7 +170,7 @@ class moderation(commands.Cog):
         if not ctx.author.guild_permissions.manage_messages:
             raise ctx.bot.utils.send_error_message('You need to have manage messages permissions to do this man. Sad.')
         elif len(args) == 0: return await ctx.send('{} | Invalid arguments. do `{}warn <userid/username> <reason optional>`')
-        user_to_warn = ctx.bot.utils.utils.getUser(ctx, args[0] if params is None else params[0], allownoargs=False)
+        user_to_warn = ctx.bot.utils.getUser(ctx, args[0] if params is None else params[0], allownoargs=False)
         if user_to_warn.guild_permissions.manage_channels: raise ctx.bot.utils.send_error_message("You cannot warn a moderator.")
         reason = 'No reason provided' if (params is None) else params[1]
         if len(reason)>100: reason = reason[0:100]
@@ -203,7 +202,7 @@ class moderation(commands.Cog):
     @cooldown(5)
     async def unwarn(self, ctx, *args):
         error = ctx.bot.error_emoji
-        user_to_unwarn = ctx.bot.utils.utils.getUser(ctx, args)
+        user_to_unwarn = ctx.bot.utils.getUser(ctx, args)
         if not ctx.author.guild_permissions.manage_messages: raise ctx.bot.utils.send_error_message('You need the `Manage messages` permissions to unwarn someone.')
         unwarned = ctx.bot.db.Dashboard.clearWarn(user_to_unwarn)
         if unwarned: return await ctx.send('{} | Successfully unwarned {}.'.format(ctx.bot.success_emoji, user_to_unwarn))
@@ -299,7 +298,7 @@ class moderation(commands.Cog):
         else:
             role_and_guy = ctx.bot.utils.split_parameter_to_two(args)
             if role_and_guy is None: raise ctx.bot.utils.send_error_message(f"Please make sure you inputted like this: `{ctx.bot.command_prefix}addrole <user id/user mention/username>, <role id/role mention/rolename>`")
-            guy = ctx.bot.utils.utils.getUser(ctx, role_and_guy[0])
+            guy = ctx.bot.utils.getUser(ctx, role_and_guy[0])
             role_array = [i for i in ctx.guild.roles if role_and_guy[1].lower() in i.name.lower()]
             if len(role_array) == 0: raise ctx.bot.utils.send_error_message(f"Role `{role_and_guy[1]}` does not exist.")
             try:
@@ -315,7 +314,7 @@ class moderation(commands.Cog):
         else:
             role_and_guy = ctx.bot.utils.split_parameter_to_two(args)
             if role_and_guy is None: raise ctx.bot.utils.send_error_message(f"Please make sure you inputted like this: `{ctx.bot.command_prefix}removerole <user id/user mention/username>, <role id/role mention/rolename>`")
-            guy = ctx.bot.utils.utils.getUser(ctx, role_and_guy[0])
+            guy = ctx.bot.utils.getUser(ctx, role_and_guy[0])
             role_array = [i for i in ctx.guild.roles if role_and_guy[1].lower() in i.name.lower()]
             if len(role_array) == 0: raise ctx.bot.utils.send_error_message(f"Role `{role_and_guy[1]}` does not exist.")
             try:
@@ -331,7 +330,7 @@ class moderation(commands.Cog):
             permission_name = 'ban_members' if ctx.message.content.startswith(ctx.bot.command_prefix + "ban") else 'kick_members'
             permission = getattr(ctx.author.guild_permissions, permission_name)
             assert permission, "{} does not have the `{}` to {} members.".format(str(ctx.author), permission_name.replace('_', ' '), permission_name.split('_')[0])
-            idiot = ctx.bot.utils.utils.getUser(ctx, args)
+            idiot = ctx.bot.utils.getUser(ctx, args)
             assert idiot != ctx.author, "You cannot {} yourself.".format(permission_name.split('_')[0])
             assert not idiot.guild_permissions.manage_guild, "You cannot {} a moderator.".format(permission_name.split('_')[0])
             return await ctx.send("{} | Aight. {}ed {} from existence.".format(ctx.bot.success_emoji, permission_name.split('_')[0], str(idiot)))
@@ -391,7 +390,7 @@ class moderation(commands.Cog):
     @command('ui,user,usercard,user-info,user-card,whois,user-interface,userinterface')
     @cooldown(3)
     async def userinfo(self, ctx, *args):
-        guy, nitro = ctx.bot.utils.utils.getUser(ctx, args), False
+        guy, nitro = ctx.bot.utils.getUser(ctx, args), False
         async with ctx.channel.typing():
             if guy.id in [i.id for i in ctx.guild.premium_subscribers]: nitro = True
             elif guy.is_avatar_animated(): nitro = True

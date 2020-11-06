@@ -17,7 +17,6 @@ mods = 'weebs'
 
 class owner(commands.Cog):
     def __init__(self, client):
-        pass
         self.protected_files = [ # CONFIDENTIAL FILES
             os.environ['DISCORD_TOKEN'],
             os.environ['DBL_TOKEN'],
