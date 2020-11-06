@@ -11,7 +11,7 @@ from decorators import command, cooldown
 from datetime import datetime as t
 
 class moderation(commands.Cog):
-    def __init__(self, client
+    def __init__(self, client):
         self.latest = ["latest", "recent", "last"]
         self.first = ["first", "early", "earliest", "earlyest", "firstmember"]
         
