@@ -2,9 +2,16 @@
 # You can use the code in this directory for your bot.
 # I am not really planning on uploading it to PyPI though...
 
-from .embed import embed
+from .message import embed, Paginator
 from .parser import Parser
+from .panel import CustomPanel
+from .colorthief import Smart_ColorThief
+from .tictactoe import TicTacToe
 
 def initiate(client):
     setattr(client, "Embed", embed)
     setattr(client, "Parser", Parser)
+    setattr(client, "Panel", CustomPanel)
+    setattr(client, "ColorThief", Smart_ColorThief)
+    setattr(client, "EmbedPaginator", Paginator)
+    setattr(client, "TicTacToe", TicTacToe)

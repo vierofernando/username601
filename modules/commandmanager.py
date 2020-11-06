@@ -1,8 +1,11 @@
 from .username601 import config
 import requests
 def __gcmd__(cmdn, commands):
+    command_name = cmdn.lower()
     for i in commands:
-        if cmdn.lower() in i["name"].lower():
+        if i["name"].lower().startswith(command_name):
+            return i
+        elif command_name in i["name"].lower():
             return i
     return None
 def __command_type__(param, commands, categories):

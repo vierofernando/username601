@@ -61,7 +61,7 @@ def parse_parameter(args, arg, get_second_element=False, singular=False):
                 return {"available": False, "parsedarg": args, "secondparam": None}
             parsed = parsed[0:index]
             if not singular: return {"available": True, "parsedarg": parsed, "secondparam": ' '.join(args[index:])}
-            return {"available": True, "parsedarg": parsed, "secondparam": args[index]}
+            return {"available": True, "parsedarg": parsed, "secondparam": list(args)[index]}
         return {"available": True, "parsedarg": parsed, "secondparam": None}
     return {"available": False, "parsedarg": args, "secondparam": None}
 

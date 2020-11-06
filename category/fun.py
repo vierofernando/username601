@@ -12,12 +12,12 @@ from gtts import gTTS
 
 class fun(commands.Cog):
     def __init__(self, client):
-        self.client = client        
+        pass        
 
     @command('talk,gtts,texttospeech,text-to-speech')
     @cooldown(5)
     async def tts(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.send_error_message('Please send arguments!')
+        if len(args)==0: raise ctx.bot.utils.send_error_message('Please send arguments!')
         res = BytesIO()
         tts = gTTS(text=' '.join(args), lang='en', slow=False)
         tts.write_to_fp(res)
@@ -27,9 +27,9 @@ class fun(commands.Cog):
     @command()
     @cooldown(6)
     async def flip(self, ctx, *args):
-        av = self.client.utils.getUserAvatar(ctx, args)
+        av = ctx.bot.utils.getUserAvatar(ctx, args)
         async with ctx.channel.typing():
-            im = self.client.gif.flip(av)
+            im = ctx.bot.gif.flip(av)
             return await ctx.send(file=discord.File(im, 'flip.gif'))
 
     @command('edit')
@@ -43,10 +43,10 @@ class fun(commands.Cog):
     @command('howlove,friendship,fs')
     @cooldown(2)
     async def lovelevel(self, ctx, *args):
-        res = self.client.utils.split_parameter_to_two(args)
-        if res is None: raise self.client.utils.send_error_message('Please send a valid two user ids/names/mentions!')
-        user1, user2 = self.client.utils.getUser(res[0]), self.client.utils.getUser(res[1])
-        result = self.client.algorithm.love_finder(user1.id, user2.id)
+        res = ctx.bot.utils.split_parameter_to_two(args)
+        if res is None: raise ctx.bot.utils.send_error_message('Please send a valid two user ids/names/mentions!')
+        user1, user2 = ctx.bot.utils.utils.getUser(res[0]), ctx.bot.utils.utils.getUser(res[1])
+        result = ctx.bot.algorithm.love_finder(user1.id, user2.id)
         await ctx.send('Love level of {} and {} is **{}%!**'.format(ctx.message.mentions[0].name, ctx.message.mentions[1].name, str(result)))
     
     @command('echo,reply')
@@ -60,7 +60,7 @@ class fun(commands.Cog):
     @command()
     @cooldown(1)
     async def joke(self, ctx):
-        data = self.client.utils.fetchJSON("https://official-joke-api.appspot.com/jokes/general/random")
+        data = ctx.bot.utils.fetchJSON("https://official-joke-api.appspot.com/jokes/general/random")
         embed = discord.Embed(
             title = str(data[0]["setup"]),
             description = '||'+str(data[0]["punchline"])+'||',
@@ -71,24 +71,24 @@ class fun(commands.Cog):
     @command("howgay")
     @cooldown(5)
     async def gaylevel(self, ctx, *args):
-        data = self.client.utils.getUser(ctx, args)
+        data = ctx.bot.utils.utils.getUser(ctx, args)
         name = data.name+'\'s' if data!=ctx.author else 'Your'
-        await ctx.send('{} gay level is currently {}%!'.format(name, str(self.client.algorithm.gay_finder(data.id))))
+        await ctx.send('{} gay level is currently {}%!'.format(name, str(ctx.bot.algorithm.gay_finder(data.id))))
 
     @command()
     @cooldown(5)
     async def randomavatar(self, ctx, *args):
         if len(args)<1: name = 'your mom'
         else: name = ' '.join(args)
-        url= 'https://api.adorable.io/avatars/285/{}.png'.format(self.client.utils.encode_uri(name))
-        await ctx.send(file=discord.File(self.client.canvas.urltoimage(url), 'random_avatar.png'))
+        url= 'https://api.adorable.io/avatars/285/{}.png'.format(ctx.bot.utils.encode_uri(name))
+        await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage(url), 'random_avatar.png'))
 
     @command('inspiringquotes,lolquote,aiquote,imagequote,imgquote')
     @cooldown(10)
     async def inspirobot(self, ctx):
         async with ctx.channel.typing():
-            img = self.client.utils.inspect_element('https://inspirobot.me/api?generate=true')
-            await ctx.send(file=discord.File(self.client.canvas.urltoimage(img), 'inspirobot.png'))
+            img = ctx.bot.utils.inspect_element('https://inspirobot.me/api?generate=true')
+            await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage(img), 'inspirobot.png'))
     
     @command('randomcase')
     @cooldown(1)
@@ -100,15 +100,15 @@ class fun(commands.Cog):
     @cooldown(3)
     async def _8ball(self, ctx):
         async with ctx.channel.typing():
-            data = self.client.utils.fetchJSON("https://yesno.wtf/api")
-            async with self.client.bot_session.get(data['image']) as r:
+            data = ctx.bot.utils.fetchJSON("https://yesno.wtf/api")
+            async with ctx.bot.bot_session.get(data['image']) as r:
                 res = await r.read()
                 await ctx.send(content='**'+data['answer'].upper()+'**', file=discord.File(fp=BytesIO(res), filename=data['answer'].upper()+".gif"))
 
     @command('serverdeathnote,dn')
     @cooldown(10)
     async def deathnote(self, ctx):
-        if ctx.guild.member_count>500: raise self.client.utils.send_error_message('This server has soo many members')
+        if ctx.guild.member_count>500: raise ctx.bot.utils.send_error_message('This server has soo many members')
         member, in_the_note, notecount, membercount = [], "", 0, 0
         for i in range(ctx.guild.member_count):
             if ctx.guild.members[i].name!=ctx.author.name:
@@ -133,25 +133,25 @@ class fun(commands.Cog):
     async def uselesswebs(self, ctx):
         try:
             url = requests.get('https://useless-api.vierofernando.repl.co/useless-sites').json()['url']
-            await ctx.send(self.client.success_emoji+f' | **{url}**')
+            await ctx.send(ctx.bot.success_emoji+f' | **{url}**')
         except:
-            raise self.client.utils.send_error_message(f'oops. there is some error, meanwhile look at this useless site: <https://top.gg/bot/{self.client.user.id}/vote>')
+            raise ctx.bot.utils.send_error_message(f'oops. there is some error, meanwhile look at this useless site: <https://top.gg/bot/{ctx.bot.user.id}/vote>')
     
     @command()
     @cooldown(2)
     async def choose(self, ctx, *args):
         if len(args)==0 or ',' not in ''.join(args):
-            raise self.client.utils.send_error_message(f'send in something!\nLike: `{self.client.command_prefix}choose he is cool, he is not cool`')
+            raise ctx.bot.utils.send_error_message(f'send in something!\nLike: `{ctx.bot.command_prefix}choose he is cool, he is not cool`')
         else:
             await ctx.send(random.choice(' '.join(args).split(',')))
     
     @command()
     @cooldown(2)
     async def temmie(self, ctx, *args):
-        if len(args)==0: raise self.client.utils.send_error_message('Please send something to be encoded.')
+        if len(args)==0: raise ctx.bot.utils.send_error_message('Please send something to be encoded.')
         else:
             link, num = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/temmie.json', 1
-            data = self.client.utils.fetchJSON(link)
+            data = ctx.bot.utils.fetchJSON(link)
             keyz = list(data.keys())
             total = ''
             for j in range(num, len(keyz)):
@@ -162,7 +162,7 @@ class fun(commands.Cog):
     @command('fact-core,fact-sphere,factsphere')
     @cooldown(2)
     async def factcore(self, ctx):
-        data = self.client.utils.fetchJSON('https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fact-core.json')
+        data = ctx.bot.utils.fetchJSON('https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fact-core.json')
         embed = discord.Embed(title='Fact Core', description=random.choice(data), colour=ctx.guild.me.roles[::-1][0].color)
         embed.set_thumbnail(url='https://i1.theportalwiki.net/img/thumb/5/55/FactCore.png/300px-FactCore.png')
         await ctx.send(embed=embed)

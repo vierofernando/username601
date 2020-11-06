@@ -17,27 +17,28 @@ mods = 'weebs'
 
 class owner(commands.Cog):
     def __init__(self, client):
-        self.client = client
+        pass
         self.protected_files = [ # CONFIDENTIAL FILES
             os.environ['DISCORD_TOKEN'],
             os.environ['DBL_TOKEN'],
             os.environ['DB_LINK'],
             os.environ['USELESSAPI']
         ]
+        
     @command()
     @cooldown(1)
     async def leave(self, ctx, *args):
         if ctx.author.id not in [661200758510977084, 766952708602331137]: return
-        server_id = int(args[1])
-        await self.client.get_guild(server_id).leave()
+        server_id = int(list(args)[1])
+        await ctx.bot.get_guild(server_id).leave()
         return await ctx.send('ok')
     
     @command('ann,announcement')
     @cooldown(2)
     async def announce(self, ctx, *args):
         if ctx.author.id not in [661200758510977084, 766952708602331137]: return
-        await ctx.message.add_reaction(self.client.loading_emoji)
-        data, wr, sc = self.client.db.Dashboard.get_subscribers(), 0, 0
+        await ctx.message.add_reaction(ctx.bot.loading_emoji)
+        data, wr, sc = ctx.bot.db.Dashboard.get_subscribers(), 0, 0
         for i in data:
             try:
                 web = discord.Webhook.from_url(
@@ -46,28 +47,28 @@ class owner(commands.Cog):
                 web.send(
                     embed=discord.Embed(title=f'Username601 News: {str(t.now())[:-7]}', description=' '.join(args).replace('\\n', '\n'), color=discord.Color.green()),
                     username='Username601 News',
-                    avatar_url=self.client.user.avatar_url
+                    avatar_url=ctx.bot.user.avatar_url
                 )
                 sc += 1
             except:
                 wr += 1
-                self.client.db.Dashboard.subscribe(None, i['serverid'], reset=True)
+                ctx.bot.db.Dashboard.subscribe(None, i['serverid'], reset=True)
             await sleep(1)
         await ctx.send(f'Done with {sc} success and {wr} fails')
     
     @command('src')
     async def source(self, ctx, *args):
         try:
-            assert ctx.author.id == self.client.utils.config('OWNER_ID', integer=True), 'Source code not available'
+            assert ctx.author.id == ctx.bot.utils.config('OWNER_ID', integer=True), 'Source code not available'
             source = eval("getsource({})".format(' '.join(args)))
             return await ctx.send('```py\n'+str(source)[0:1900]+'```')
         except Exception as e:
-            raise self.client.utils.send_error_message(str(e))
+            raise ctx.bot.utils.send_error_message(str(e))
     
     @command('pm')
     async def postmeme(self, ctx, *args):
-        if ctx.author.id!=self.client.utils.config('OWNER_ID', integer=True):
-            return await ctx.message.add_reaction(self.client.error_emoji)
+        if ctx.author.id!=ctx.bot.utils.config('OWNER_ID', integer=True):
+            return await ctx.message.add_reaction(ctx.bot.error_emoji)
         url = ''.join(args)
         if url.startswith('<'): url = url[1:]
         if url.endswith('>'): url = url[:-1]
@@ -76,38 +77,38 @@ class owner(commands.Cog):
             'url': url
         }).json()
         try:
-            if data['success']: return await ctx.message.add_reaction(self.client.success_emoji)
+            if data['success']: return await ctx.message.add_reaction(ctx.bot.success_emoji)
         except Exception as e:
             await ctx.author.send(str(e))
 
     @command()
     async def rp(self, ctx, *args):
-        if ctx.author.id==self.client.utils.config('OWNER_ID', integer=True):
+        if ctx.author.id==ctx.bot.utils.config('OWNER_ID', integer=True):
             try:
-                user_to_send = self.client.get_user(int(args[0]))
+                user_to_send = ctx.bot.get_user(int(args[0]))
                 em = discord.Embed(title="Hi, "+user_to_send.name+"! the bot owner sent a response for your feedback.", description=' '.join(args[1:]), colour=ctx.guild.me.roles[::-1][0].color)
                 await user_to_send.send(embed=em)
                 await ctx.message.add_reaction('✅')
             except Exception as e:
-                raise self.client.utils.send_error_message(f'Error: `{str(e)}`')
+                raise ctx.bot.utils.send_error_message(f'Error: `{str(e)}`')
         else:
             await ctx.send('You are not the bot owner. Go get a life.')
 
     @command()
     async def fban(self, ctx, *args):
-        if ctx.author.id==self.client.utils.config('OWNER_ID', integer=True):
-            self.client.db.selfDB.feedback_ban(int(args[0]), str(' '.join(args[1:])))
-            await ctx.message.add_reaction(self.client.success_emoji)
+        if ctx.author.id==ctx.bot.utils.config('OWNER_ID', integer=True):
+            ctx.bot.db.selfDB.feedback_ban(int(args[0]), str(' '.join(list(args)[1:])))
+            await ctx.message.add_reaction(ctx.bot.success_emoji)
         else:
-            raise self.client.utils.send_error_message('You are not the owner, nerd.')
+            raise ctx.bot.utils.send_error_message('You are not the owner, nerd.')
     @command()
     async def funban(self, ctx, *args):
-        if ctx.author.id==self.client.utils.config('OWNER_ID', integer=True):
-            data = self.client.db.selfDB.feedback_unban(int(args[0]))
-            if data=='200': await ctx.message.add_reaction(self.client.success_emoji)
-            else: await ctx.message.add_reaction(self.client.error_emoji)
+        if ctx.author.id==ctx.bot.utils.config('OWNER_ID', integer=True):
+            data = ctx.bot.db.selfDB.feedback_unban(int(args[0]))
+            if data=='200': await ctx.message.add_reaction(ctx.bot.success_emoji)
+            else: await ctx.message.add_reaction(ctx.bot.error_emoji)
         else:
-            raise self.client.utils.send_error_message('Invalid person.')
+            raise ctx.bot.utils.send_error_message('Invalid person.')
     @command('ex,eval')
     async def evaluate(self, ctx, *args):
         iwanttostealsometoken = False
@@ -148,7 +149,7 @@ class owner(commands.Cog):
     async def bash(self, ctx, *args):
         unprefixed = ' '.join(args)
         if unprefixed == '': unprefixed = 'echo hello world'
-        if ctx.author.id==self.client.utils.config('OWNER_ID', integer=True):
+        if ctx.author.id==ctx.bot.utils.config('OWNER_ID', integer=True):
             try:
                 if len(args)==0: raise OSError('you are gay')
                 if len(unprefixed.split())==1: data = run([unprefixed], stdout=PIPE).stdout.decode('utf-8')
