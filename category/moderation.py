@@ -47,7 +47,7 @@ class moderation(commands.Cog):
             desc += string.format(
                 i + 1, name, ctx.bot.utils.lapsed_time_from_seconds(current_time - full_arr[index]['ja'])
             )
-        return await wait.edit(embed=discord.Embed(title=title, description=desc, color=ctx.guild.me.roles[::-1][0].color))
+        return await wait.edit(content='', embed=discord.Embed(title=title, description=desc, color=ctx.guild.me.roles[::-1][0].color))
         
     @command()
     @cooldown(1)
@@ -136,7 +136,7 @@ class moderation(commands.Cog):
                 ctx.bot.db.Dashboard.addStarboardChannel(channel, 1)
                 success = ctx.bot.success_emoji
                 return await wait.edit(content=f'{success} | OK. Created a channel <#{str(channel.id)}>. Every starboard will be set there.\nTo remove starboard, type `{ctx.bot.command_prefix}starboard remove`.\nBy default, starboard requirements are set to 1 reaction. To increase, type `{ctx.bot.command_prefix}starboard limit <number>`.')
-            return await wait.edit(embed=discord.Embed(
+            return await wait.edit(content='', embed=discord.Embed(
                 title=f'Starboard for {ctx.guild.name}',
                 description='Channel: <#{}>\nStars required to reach: {}'.format(
                     starboard_channel['channelid'], starboard_channel['starlimit']

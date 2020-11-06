@@ -168,7 +168,7 @@ class economy(commands.Cog):
         else:
             obj = ctx.bot.db.Economy.can_vote(ctx.author.id)
             if obj['bool']:
-                # await wait.edit(embed=discord.Embed(
+                # await wait.edit(content='', embed=discord.Embed(
                 #     title='Vote us at top.gg!',
                 #     description='**[VOTE HERE](https://top.gg/bot/'+str(ctx.bot.user.id)+'/vote)**\nBy voting, we will give you rewards such as ***LOTS of bobux!***',
                 #     color = discord.Colour.green()
@@ -176,7 +176,7 @@ class economy(commands.Cog):
                 rewards = ctx.bot.db.Economy.daily(ctx.author.id)
                 await ctx.send("{} | Congrats! You got **{} bobux** as a daily reward! You can try again in 12 hours.".format(ctx.bot.success_emoji, rewards))
             else:
-                await wait.edit(embed=discord.Embed(
+                await wait.edit(content='', embed=discord.Embed(
                     title='You can get rewards again in '+str(obj['time'])+'!',
                     colour=discord.Colour.red()
                 ))
@@ -240,7 +240,7 @@ class economy(commands.Cog):
                             color = discord.Colour.red()
                         )
                         embed.set_footer(text=statement)
-                        await wait.edit(embed=embed)
+                        await wait.edit(content='', embed=embed)
     
     @command('dep')
     @cooldown(10)
@@ -297,7 +297,7 @@ class economy(commands.Cog):
                 total.append('{}. {}#{} - **{}** :gem:'.format(
                     a+1, user.name, user.discriminator, person['bal']
                 ))
-            await wait.edit(embed=discord.Embed(
+            await wait.edit(content='', embed=discord.Embed(
                 title = ctx.guild.name+'\'s leaderboard',
                 description = '\n'.join(total),
                 color = ctx.guild.me.roles[::-1][0].color

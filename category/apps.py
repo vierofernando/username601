@@ -75,14 +75,14 @@ class apps(commands.Cog):
             if ctx.bot.utils.parse_parameter(tuple(args), '--list')['available']:
                 lang = "\n".join([str(i)+' ('+str(LANGUAGES[i])+')' for i in LANGUAGES])
                 embed = discord.Embed(title='List of supported languages', description=lang, colour=ctx.guild.me.roles[::-1][0].color)
-                await wait.edit(embed=embed)
+                await wait.edit(content='', embed=embed)
             elif len(args)>1:
                 destination = args[0].lower()
                 try:
                     toTrans = ' '.join(args[1:])
                     if len(destination) > 2:
                         q = ctx.bot.utils.query(
-                            list(map(lambda x: LANGUAGES[x], list(LANGUAGES))), destination
+                            [LANGUAGES[x] for x in list(LANGUAGES)], destination
                         )
                         assert q is not None
                         destination = q
@@ -92,7 +92,7 @@ class apps(commands.Cog):
                     translation = self.translator.translate(toTrans, dest=destination)
                     embed = discord.Embed(description=translation.text, colour=ctx.guild.me.roles[::-1][0].color)
                     embed.set_footer(text=f'Translated {LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}.')
-                    await wait.edit(embed=embed)
+                    await wait.edit(content="", embed=embed)
                 except Exception as e:
                     raise ctx.bot.utils.send_error_message(f'An error occurred! ```py\n{str(e)}```')
             else:
@@ -135,7 +135,7 @@ class apps(commands.Cog):
                     if list(page.summary)[i]=='.':
                         count = int(count) + 1
             embed = discord.Embed(title=pageTitle, url=str(page.fullurl), description=str(explain), colour=ctx.guild.me.roles[::-1][0].color)
-            await wait.edit(embed=embed)
+            await wait.edit(content='', embed=embed)
     @command()
     @cooldown(5)
     async def imdb(self, ctx, *args):
@@ -143,7 +143,7 @@ class apps(commands.Cog):
         if len(args)==0 or ctx.bot.utils.parse_parameter(args, 'help')['available']:
             embed = discord.Embed(title='IMDb command help', description='Searches through the IMDb Movie database.\n{} are Parameters that is **REQUIRED** to get the info.\n\n', colour=ctx.guild.me.roles[::-1][0].color)
             embed.add_field(name='Commands', value=ctx.bot.command_prefix+'imdb --top {NUMBER}\n'+ctx.bot.command_prefix+'imdb help\n'+ctx.bot.command_prefix+'imdb --movie {MOVIE_ID or MOVIE_NAME}', inline='False')
-            return await wait.edit(embed=embed)
+            return await wait.edit(content='', embed=embed)
         top = ctx.bot.utils.parse_parameter(args, '--top', get_second_element=True, singular=True)
         if top['available']:
             try:
@@ -152,7 +152,7 @@ class apps(commands.Cog):
                 arr = ia.get_top250_movies()
                 total = '\n'.join(map(lambda x: str(int(x)+1) + '. '+str(arr[x]['title'])+' (`'+str(arr[x].movieID)+'`)', range(num)))
                 embed = discord.Embed(title='IMDb Top '+str(num)+':', description=str(total), colour=ctx.guild.me.roles[::-1][0].color)
-                return await wait.edit(embed=embed)
+                return await wait.edit(content='', embed=embed)
             except:
                 raise ctx.bot.utils.send_error_message('Is the top thing you inputted REALLY a number?\nlike, Not top TEN, but top 10.\nGET IT?')
         movie_param = ctx.bot.utils.parse_parameter(args, '--movie', get_second_element=True)
@@ -173,7 +173,7 @@ class apps(commands.Cog):
                 embed.add_field(name='General Information', value=f'[IMDb URL here]({imdb_url})\n**Upload date: **{upload_date}\n**Written by: **'+main_data['data']['writer'][0]['name']+'\n**Directed by: **'+main_data['data']['director'][0]['name'])
                 embed.add_field(name='Ratings', value=emoteStar+'\n**Overall rating: **'+str(rating)+'\n**Rated by '+str(vote_count)+' people**')
                 if cover is not None: embed.set_image(url=cover)
-                return await wait.edit(embed=embed)
+                return await wait.edit(content='', embed=embed)
             except Exception as e:
                 print(e)
                 raise ctx.bot.utils.send_error_message('Oopsies! please input a valid ID/parameter...')

@@ -261,7 +261,7 @@ class games(commands.Cog):
             embed.set_author(name="Playing Rock Paper Scissors with "+ctx.author.name)
             embed.add_field(name=ctx.author.name, value=':'+given+':', inline="True")
             embed.add_field(name='Username601', value=':'+str(emojiArray[ran])+':', inline="True")
-            await main.edit(embed=embed)
+            await main.edit(content='', embed=embed)
             if msgId==1 and ctx.bot.db.Economy.get(ctx.author.id) is not None:
                 reward = random.randint(5, 100)
                 ctx.bot.db.Economy.addbal(ctx.author.id, reward)
@@ -351,7 +351,7 @@ class games(commands.Cog):
             else:
                 question += corr_order + ' ' + correct + '\n'
         embed = discord.Embed(title='Geography: '+str(topic)+' quiz!', description=':nerd: Click on the reaction! **You have 20 seconds.**\n\nWhich '+str(topic)+' belongs to '+str(chosen_nation['name'])+'?\n'+str(question), colour=ctx.guild.me.roles[::-1][0].color)
-        await wait.edit(embed=embed)
+        await wait.edit(content='', embed=embed)
         for i in range(len(static_emot)):
             await wait.add_reaction(static_emot[i])
         def check(reaction, user):
@@ -529,7 +529,7 @@ class games(commands.Cog):
                 choices = choices + al[i] +' '+ q['options'][i]+'\n'
             embed = discord.Embed(title='Trivia!', description='**'+q['question']+'**\n'+choices, colour=ctx.guild.me.roles[::-1][0].color)
             embed.set_footer(text='Answer by clicking the reaction! You have 60 seconds.')
-            await wait.edit(embed=embed)
+            await wait.edit(content='', embed=embed)
             for i in range(len(al)):
                 await wait.add_reaction(al[i])
         except Exception as e:

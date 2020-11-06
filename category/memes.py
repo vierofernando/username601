@@ -476,7 +476,7 @@ class memes(commands.Cog):
         def check_chosen(m):
             return ((m.channel == ctx.channel) and (m.author == ctx.author) and (len(m.content) == 1) and m.content.lower() in ['a', 'b'])
         message = await ctx.bot.utils.wait_for_message(self, ctx, message=None, timeout=60.0)
-        if message is None: return await m.edit(embed=discord.Embed(title="Meme-making process canceled.", color=discord.Color.red()))
+        if message is None: return await m.edit(content='', embed=discord.Embed(title="Meme-making process canceled.", color=discord.Color.red()))
         elif message.content.lower() == 'a': res = await self.top_bottom_text_meme(ctx, *args)
         elif message.content.lower() == 'c': res = await self.custom_image_meme(ctx, *args)
         else: res = await self.modern_meme(ctx, *args)

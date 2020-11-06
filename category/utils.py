@@ -205,7 +205,7 @@ class utils(commands.Cog):
                 if len(words)>1950:
                     words = limitify(words)
                 embed = discord.Embed(title='Words that rhymes with '+str(' '.join(args))+':', description=words, colour=ctx.guild.me.roles[::-1][0].color)
-                await wait.edit(embed=embed)
+                await wait.edit(content='', embed=embed)
 
     @command('sof')
     @cooldown(12)
@@ -263,7 +263,7 @@ class utils(commands.Cog):
                 color = ctx.guild.me.roles[::-1][0].color
             )
             embed.set_footer(text='Type `'+str(ctx.bot.command_prefix)+'ghibli <number>` to get each movie info.')
-            await wait.edit(embed=embed)
+            await wait.edit(content='', embed=embed)
         else:
             try:
                 num = int([i for i in list(args) if i.isnumeric()][0])-1
@@ -274,7 +274,7 @@ class utils(commands.Cog):
                 )
                 embed.add_field(name='Directed by', value=data[num]['director'], inline='True')
                 embed.add_field(name='Produced by', value=data[num]['producer'], inline='True')
-                await wait.edit(embed=embed)
+                await wait.edit(content='', embed=embed)
             except: raise ctx.bot.utils.send_error_message('the movie you requested does not exist!?')
 
     @command()
@@ -322,7 +322,7 @@ class utils(commands.Cog):
         embed.set_footer(text='Event date: '+str('/'.join(
             [str(i) for i in data['run_date_array'][::-1]]
         )))
-        await wait.edit(embed=embed)
+        await wait.edit(content='', embed=embed)
 
     @command()
     @cooldown(10)

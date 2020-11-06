@@ -106,7 +106,7 @@ class bothelp(commands.Cog):
                     feedbackCh = ctx.bot.get_channel(ctx.bot.utils.config('FEEDBACK_CHANNEL', integer=True))
                     await feedbackCh.send('<@'+ctx.bot.utils.config('OWNER_ID')+'>, User with ID: '+str(ctx.author.id)+' sent a feedback: **"'+str(fb)+'"**')
                     embed = discord.Embed(title='Feedback Successful', description=ctx.bot.success_emoji + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+ctx.bot.utils.config('SERVER_INVITE')+')',colour=ctx.guild.me.roles[::-1][0].color)
-                    await wait.edit(embed=embed)
+                    await wait.edit(content='', embed=embed)
                 except:
                     raise ctx.bot.utils.send_error_message('There was an error while sending your feedback. Sorry! :(')
             else:
@@ -121,7 +121,7 @@ class bothelp(commands.Cog):
         wsping = str(round(ctx.bot.ws.latency*1000))
         embed = discord.Embed(title=f'Pong!', description=f'**Message latency: **{msgping} ms.\n**Client Latency:** {wsping} ms.\n**Database latency:** {dbping} ms.', colour=ctx.guild.me.roles[::-1][0].color)
         embed.set_thumbnail(url='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif')
-        await wait.edit(embed=embed)
+        await wait.edit(content='', embed=embed)
     
     @command('botstats,meta')
     @cooldown(10)
