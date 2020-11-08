@@ -20,6 +20,14 @@ class image(commands.Cog):
         await wait.delete()
         await ctx.send(file=discord.File(BytesIO(data), 'brrr.gif'))
 
+    @command('illuminati,illuminati-confirmed')
+    @cooldown(5)
+    async def triangle(self, ctx, *args):
+        url = ctx.bot.utils.getUserAvatar(ctx, args, size=512)
+        async with ctx.channel.typing():
+            data = get(f"https://useless-api.vierofernando.repl.co/triangle?image={url}").content
+            return await ctx.send(file=discord.File(BytesIO(data), "triangle.png"))
+
     @command('explode')
     @cooldown(9)
     async def implode(self, ctx, *args):

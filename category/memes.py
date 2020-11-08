@@ -19,6 +19,43 @@ class memes(commands.Cog):
         self.frogMetadata = self.rawMetadata[1].split(':')
         self.meme_templates = loads(open(client.utils.config('JSON_DIR')+'/memes.json', 'r').read())
 
+    @command()
+    @cooldown(3)
+    async def durv(self, ctx, *args):
+        url = ctx.bot.utils.getUserAvatar(ctx, args)
+        async with ctx.channel.typing():
+            buffer = ctx.bot.canvas.trans_merge({
+                'url': url,
+                'filename': 'durv.png',
+                'pos': (3, 1),
+                'size': (158, 226)
+            })
+            return await ctx.send(file=discord.File(buffer, "durv.png"))
+
+    @command()
+    @cooldown(7)
+    async def clint(self, ctx, *args):
+        url = ctx.bot.utils.getUserAvatar(ctx, args)
+        async with ctx.channel.typing():
+            res = get("https://useless-api.vierofernando.repl.co/clint?image="+url, headers={"superdupersecretkey": environ["USELESSAPI"]}).content
+            await ctx.send(file=discord.File(BytesIO(res), "clint.png"))
+
+    @command("ltt,lienus")
+    @cooldown(7)
+    async def linus(self, ctx, *args):
+        url = ctx.bot.utils.getUserAvatar(ctx, args)
+        async with ctx.channel.typing():
+            res = get("https://useless-api.vierofernando.repl.co/linus?image="+url, headers={"superdupersecretkey": environ["USELESSAPI"]}).content
+            await ctx.send(file=discord.File(BytesIO(res), "lienus.png"))
+    
+    @command()
+    @cooldown(7)
+    async def folder(self, ctx, *args):
+        url = ctx.bot.utils.getUserAvatar(ctx, args)
+        async with ctx.channel.typing():
+            res = get("https://useless-api.vierofernando.repl.co/folder?image="+url, headers={"superdupersecretkey": environ["USELESSAPI"]}).content
+            await ctx.send(file=discord.File(BytesIO(res), "your_homework_folder.png"))
+
     @command('fakemsgbox,fakemessagebox,messagebox,message-box,msg-box')
     @cooldown(3)
     async def msgbox(self, ctx, *args):
@@ -90,11 +127,11 @@ class memes(commands.Cog):
     @command('gruplan,plan')
     @cooldown(4)
     async def gru(self, ctx, *args):
-        if '; ' not in ' '.join(args): raise ctx.bot.utils.send_error_message('Please send something like:\n`'+ctx.bot.command_prefix+'gru test word 1; test word 2; test word 3` (with semicolons)')
+        if '; ' not in ' '.join(args): raise ctx.bot.utils.send_error_message('Please send something like:\n`'+ctx.bot.command_prefix[0]+'gru test word 1; test word 2; test word 3` (with semicolons)')
         try:
             text1, text2, text3 = tuple(' '.join(args).split('; '))
         except:
-            raise ctx.bot.utils.send_error_message("Invalid arguments. use something like\n`"+ctx.bot.command_prefix+"gru text 1; text2; text3` (with semicolons)")
+            raise ctx.bot.utils.send_error_message("Invalid arguments. use something like\n`"+ctx.bot.command_prefix[0]+"gru text 1; text2; text3` (with semicolons)")
         async with ctx.channel.typing():
             im = ctx.bot.canvas.gru(text1, text2, text3)
             return await ctx.send(file=discord.File(im, 'gru.png'))
@@ -330,7 +367,7 @@ class memes(commands.Cog):
             capt = 'username601' if len(args)==0 else ' '.join(args)
             await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage('https://useless-api.vierofernando.repl.co/captcha?text={}'.format(capt)), 'captcha.png'))
 
-    @command('baby,clint,wolverine,disgusting,f,studying,starvstheforcesof')
+    @command('baby,wolverine,disgusting,f,studying,starvstheforcesof')
     @cooldown(10)
     async def door(self, ctx, *args):
         # yanderedev OwO
@@ -338,7 +375,6 @@ class memes(commands.Cog):
             ava = ctx.bot.utils.getUserAvatar(ctx, args)
             if 'door' in ctx.message.content: size, pos = (496, 483), (247, 9)
             elif 'studying' in ctx.message.content: size, pos = (290, 315), (85, 160)
-            elif 'clint' in ctx.message.content: size, pos = (339, 629), (777, 29)
             elif 'starvstheforcesof' in ctx.message.content: size, pos = (995, 1079), (925, 0)
             elif 'wolverine' in ctx.message.content: size, pos = (368, 316), (85, 373)
             elif 'disgusting' in ctx.message.content: size, pos = (614, 407), (179, 24)
