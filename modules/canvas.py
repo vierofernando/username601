@@ -777,7 +777,7 @@ class GifGenerator:
         self.triggered_red = Image.new(mode="RGBA", size=(216, 216), color=(255, 0, 0, 100))
         self.triggered_bg = Image.new(mode="RGBA", size=(216, 216), color=(0, 0, 0, 0))
     
-    def bufferGIF(self, images, duration, optimize=False):
+    def bufferGIF(self, images, duration, optimize=True):
         arr = BytesIO()
         images[0].save(arr, "GIF", save_all=True, append_images=images[1:], optimize=optimize, duration=duration, loop=0)
         arr.seek(0)
@@ -822,7 +822,7 @@ class GifGenerator:
             try: cnv.paste(im, (303, 7), im)
             except: cnv.paste(im, (303, 7))
             images.append(cnv)
-        return self.bufferGIF(images, 5)
+        return self.bufferGIF(images, 15)
 
     def flip(self, pic):
         im = self.buffer_from_url(pic).resize((400,400))
@@ -835,7 +835,8 @@ class GifGenerator:
             cnv.paste(image.resize((400, 400-stretch)), (0, round(stretch/2)))
             images.append(cnv)
         images += images[::-1]
-        return self.bufferGIF(images, 5)
+        return self.bufferGIF(images, 20)
+        
     def crazy_frog_dance(self, pic, metadata):
         im = self.get_image('crazyfrog.gif')
         ava = self.buffer_from_url(pic)

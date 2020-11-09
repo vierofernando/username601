@@ -181,6 +181,14 @@ class image(commands.Cog):
     async def goat(self, ctx):
         await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage('https://placegoat.com/'+str(random.randint(500, 700))), 'goat.png'))
 
+    @command("flop")
+    @cooldown(7)
+    async def flip(self, ctx, *args):
+        async with ctx.channel.typing():
+            ava = ctx.bot.utils.getUserAvatar(ctx, args, size=512)
+            data = ctx.bot.gif.flip(ava)
+            await ctx.send(file=discord.File(data, 'flip.gif'))
+
     @command()
     @cooldown(7)
     async def rotate(self, ctx, *args):

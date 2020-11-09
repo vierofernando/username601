@@ -137,7 +137,7 @@ class memes(commands.Cog):
             return await ctx.send(file=discord.File(im, 'gru.png'))
 
     @command('worships,worshipping')
-    @cooldown(3)
+    @cooldown(7)
     async def worship(self, ctx, *args):
         av = ctx.bot.utils.getUserAvatar(ctx, args)
         async with ctx.channel.typing():
