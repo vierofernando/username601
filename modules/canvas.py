@@ -876,7 +876,7 @@ class GifGenerator:
 
     def rotate(self, pic):
         image = self.buffer_from_url(pic).resize((216, 216))
-        images = []
+        frames = []
         for i in range(1, 91):
             background = self.triggered_bg.copy()
             background.paste(image.rotate(i * 4), (0, 0))
