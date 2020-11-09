@@ -20,6 +20,16 @@ class image(commands.Cog):
         await wait.delete()
         await ctx.send(file=discord.File(BytesIO(data), 'brrr.gif'))
 
+    @command('barell,barrel,barrell')
+    @cooldown(4)
+    async def bump(self, ctx, *args):
+        res = ctx.bot.Parser.parameter_exists(args, "--inverse")
+        if res is not None: args = res
+        async with ctx.channel.typing():
+            url = ctx.bot.utils.getUserAvatar(ctx, args)
+            buffer = ctx.bot.canvas.urltoimage("https://useless-api.vierofernando.repl.co/bump?image={}&inverse={}".format(url, str((res is not None))))
+            return await ctx.send(file=discord.File(buffer, "bump.png"))
+
     @command('illuminati,illuminati-confirmed')
     @cooldown(5)
     async def triangle(self, ctx, *args):
@@ -44,7 +54,7 @@ class image(commands.Cog):
     @cooldown(8)
     async def charcoal(self, ctx, *args):
         async with ctx.channel.typing():
-            command_name = ctx.message.content.split()[0][1:].lower()
+            command_name = ctx.message.content.split("1")[1].split(" ")[0].lower()
             url = ctx.bot.utils.getUserAvatar(ctx, args)
             return await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage(f"https://useless-api.vierofernando.repl.co/{command_name}?image={url}"), "image.png"))    
 
@@ -172,7 +182,7 @@ class image(commands.Cog):
         await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage('https://placegoat.com/'+str(random.randint(500, 700))), 'goat.png'))
 
     @command()
-    @cooldown(1)
+    @cooldown(7)
     async def rotate(self, ctx, *args):
         async with ctx.channel.typing():
             ava = ctx.bot.utils.getUserAvatar(ctx, args, size=512)

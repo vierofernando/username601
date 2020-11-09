@@ -513,17 +513,6 @@ class Painter:
         im = self.buffer_from_url(url).filter(ImageFilter.BLUR)
         return self.buffer(im)
     
-    def glitch(self, url):
-        img = self.buffer_from_url(url).resize((200, 200))
-        p = img.load()
-        for i in range(img.width):
-            if random.randint(0, 1)==1:
-                size = random.randint(0, img.height)
-                for j in range(img.height):
-                    getloc = i+size
-                    if getloc >= img.width: getloc -= img.width
-                    p[i, j] = img.getpixel((getloc, j))
-        return self.buffer(img)
     def imagetoASCII(self, url):
         im = self.buffer_from_url(url).resize((300, 300)).rotate(90).convert('RGB')
         im = im.resize((int(list(im.size)[0]/3)-60, int(list(im.size)[1]/3)))
@@ -759,8 +748,12 @@ class Painter:
         data = self.buffer(pic)
         return data
     
-    def urltoimage(self, url, stream=False):
-        return BytesIO(get(url).content)
+    def urltoimage(self, url):
+        get_re = get(url)
+        if get_re.text.startswith('{"oops":'):
+            raise send_error_message("There was an error on sending the image, probably the API is on drugs or something")
+            print("ERROR: "+get_re.text)
+        return BytesIO(get_re.content)
     
     def smallURL(self, url):
         image = self.buffer_from_url(url)
@@ -780,6 +773,9 @@ class GifGenerator:
         self.buffer_from_url = buffer_from_url
         self.assetpath = assetpath
         self.fontpath = fontpath
+        self.triggered_text = Image.open(f"{assetpath}/triggered.jpg")
+        self.triggered_red = Image.new(mode="RGBA", size=(216, 216), color=(255, 0, 0, 100))
+        self.triggered_bg = Image.new(mode="RGBA", size=(216, 216), color=(0, 0, 0, 0))
     
     def bufferGIF(self, images, duration, optimize=False):
         arr = BytesIO()
@@ -879,32 +875,25 @@ class GifGenerator:
         return self.bufferGIF(images, 3)
 
     def rotate(self, pic):
-        image = self.buffer_from_url(pic)
-        image = image.resize((216, 216))
-        images, num = [], 0
-        while num<360:
-            images.append(image.rotate(num))
-            num += 5
-        data = self.bufferGIF(images, 5)
-        return data
+        image = self.buffer_from_url(pic).resize((216, 216))
+        images = []
+        for i in range(1, 91):
+            background = self.triggered_bg.copy()
+            background.paste(image.rotate(i * 4), (0, 0))
+            frames.append(background)
+        return self.bufferGIF(frames, 30)
     
-    def triggered(self, pic, increment):
-        image = self.buffer_from_url(pic)
-        image = image.resize((216, 216))
-        red = Image.new(mode='RGB', size=(216, 216), color=(255, 0, 0))
-        image = Image.blend(image, red, alpha=0.25)
-        text = self.get_image('triggered.jpg')
+    def triggered(self, pic):
+        reference = self.buffer_from_url(pic).resize((226, 226))
+        frames = []
 
-        canvas = Image.new(mode='RGB',size=image.size ,color=(0, 0, 0))
-        images, num = [], 0
-        while num<100:
-            canvas.paste(image, (random.randint(-increment, increment), random.randint(-increment, increment)))
-            images.append(canvas)
-            canvas.paste(text, (random.randint(-increment, increment), (216-39)+(random.randint(-increment, increment))))
-            canvas = Image.new(mode='RGB',size=image.size ,color=(0, 0, 0))
-            num += 5
-        data = self.bufferGIF(images, 3)
-        return data
+        for i in range(100):
+            background = self.triggered_bg.copy()
+            background.paste(reference.copy(), (random.randint(-5, 5) - 5, random.randint(-5, 5) - 5))
+            background.paste(self.triggered_red, (0, 0), self.triggered_red)
+            background.paste(self.triggered_text.copy(), (random.randint(-5, 5) - 5, 177))
+            frames.append(background)
+        return self.bufferGIF(frames, 30)
 
     def communist(self, comrade):
         flag = self.get_image('blyat.jpg').convert('RGB')

@@ -139,19 +139,5 @@ class bothelp(commands.Cog):
         ), color=ctx.guild.me.roles[::-1][0].color)
         await ctx.send(embed=embed)
 
-    @command('botinfo,aboutbot,bot,info,information')
-    @cooldown(2)
-    async def about(self, ctx):
-        if str(ctx.bot.get_guild(ctx.bot.utils.config('SERVER_ID', integer=True)).get_member(ctx.bot.utils.config('OWNER_ID', integer=True)).status)=='offline': devstatus = 'Offline'
-        else: devstatus = 'Online'
-        embed = discord.Embed(title = 'About '+str(ctx.guild.me.display_name), colour = ctx.guild.me.roles[::-1][0].color)
-        embed.add_field(name='Bot general Info', value='**Bot name: ** Username601\n**Library: **Discord.py\n**Default prefix: **'+ctx.bot.command_prefix[0])
-        embed.add_field(name='Programmer info', value='**Programmed by: **'+str(ctx.bot.get_user(ctx.bot.utils.config('OWNER_ID', integer=True)))+'\n(Indie developed)\n**Current Discord Status:** '+devstatus)
-        embed.add_field(name='Version Info', value='**Bot version: ** '+ctx.bot.utils.config('VERSION')+'\n**Changelog: **'+ctx.bot.utils.config('CHANGELOG'))#+'\n'+str(osinfo))
-        embed.add_field(name='Links', value='[Invite this bot to your server!]('+ctx.bot.utils.config('BOT_INVITE')+')\n[The support server!]('+ctx.bot.utils.config('SERVER_INVITE')+')\n[Vote us on top.gg](https://top.gg/bot/'+str(ctx.bot.user.id)+'/vote)\n[Official Website]('+ctx.bot.utils.config('WEBSITE_MAIN')+')')
-        embed.set_thumbnail(url=ctx.bot.utils.config('WEBSITE_MAIN')+'/assets/pics/pfp.png')
-        embed.set_footer(text='© '+str(ctx.bot.get_user(ctx.bot.utils.config('OWNER_ID', integer=True)))+' Programming, 2020. All rights reserved.')
-        await ctx.send(embed=embed)
-
 def setup(client):
     client.add_cog(bothelp(client))

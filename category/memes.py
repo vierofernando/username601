@@ -272,13 +272,11 @@ class memes(commands.Cog):
             await ctx.send(file=discord.File(ctx.bot.canvas.ifearnoman(by, source), 'i_fear_no_man.png'))
 
     @command()
-    @cooldown(5)
+    @cooldown(10)
     async def triggered(self, ctx, *args):
         ava = ctx.bot.utils.getUserAvatar(ctx, args)
-        test_arr = [i for i in list(args) if i.isnumeric()]
-        increment = 5 if len(test_arr)==0 else test_arr[0]
         async with ctx.channel.typing():
-            data = ctx.bot.gif.triggered(ava, int(increment))
+            data = ctx.bot.gif.triggered(ava)
             await ctx.send(file=discord.File(data, 'triggered.gif'))
 
     @command('communism,ussr,soviet,cykablyat,cyka-blyat,blyat')
