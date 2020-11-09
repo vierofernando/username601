@@ -24,14 +24,6 @@ class fun(commands.Cog):
         res.seek(0)
         await ctx.send(file=discord.File(fp=res, filename='tts.mp3'))
 
-    @command()
-    @cooldown(6)
-    async def flip(self, ctx, *args):
-        av = ctx.bot.utils.getUserAvatar(ctx, args)
-        async with ctx.channel.typing():
-            im = ctx.bot.gif.flip(av)
-            return await ctx.send(file=discord.File(im, 'flip.gif'))
-
     @command('edit')
     @cooldown(2)
     async def edited(self, ctx, *args):
