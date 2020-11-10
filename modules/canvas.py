@@ -21,6 +21,19 @@ def buffer_from_url(url, *args, **kwargs):
     try: return Image.open(BytesIO(get(url, timeout=5).content))
     except: return Image.new(mode='RGB', size=(500, 500), color=(0, 0, 0))
 
+def add_corners(im, rad, top_only=False, bottom_only=False):
+    circle = Image.new('L', (rad * 2, rad * 2), 0)
+    draw = ImageDraw.Draw(circle)
+    draw.ellipse((0, 0, rad * 2, rad * 2), fill=255)
+    alpha = Image.new('L', im.size, 255)
+    w, h = im.size
+    alpha.paste(circle.crop((0, 0, rad, rad)), (0, 0))
+    alpha.paste(circle.crop((0, rad, rad, rad * 2)), (0, h-rad))
+    alpha.paste(circle.crop((rad, 0, rad * 2, rad)), (w-rad, 0))
+    alpha.paste(circle.crop((rad, rad, rad * 2, rad * 2)), (w-rad, h-rad))
+    im.putalpha(alpha)
+    return im
+
 class Painter:
 
     def __init__(self, assetpath, fontpath): # lmao wtf is this
@@ -30,6 +43,7 @@ class Painter:
         self.flags = json.loads(open(config('JSON_DIR')+'/flags.json', 'r').read())
         self.region = json.loads(open(config('JSON_DIR')+'/regions.json', 'r').read())
         self.gd_assets = json.loads(open(config('JSON_DIR')+'/gd.json', 'r').read())
+        self.add_corners = add_corners
 
     def drawtext(self, draw, thefont, text, x, y, col):
         draw.text((x, y), text, fill =col, font=thefont, align ="left")
@@ -44,18 +58,6 @@ class Painter:
     def invert(self, tupl):
         if (sum(tupl)/3) < 127.5: return (255, 255, 255)
         return (0, 0, 0)
-
-    def add_corners(self, im, rad, top_only=False, bottom_only=False):
-        circle = Image.new('L', (rad * 2, rad * 2), 0)
-        draw = ImageDraw.Draw(circle)
-        draw.ellipse((0, 0, rad * 2, rad * 2), fill=255)
-        alpha = Image.new('L', im.size, 255)
-        w, h = im.size
-        alpha.paste(circle.crop((0, 0, rad, rad)), (0, 0))
-        alpha.paste(circle.crop((0, rad, rad, rad * 2)), (0, h-rad))
-        alpha.paste(circle.crop((rad, 0, rad * 2, rad)), (w-rad, 0))
-        alpha.paste(circle.crop((rad, rad, rad * 2, rad * 2)), (w-rad, h-rad))
-        im.putalpha(alpha)
 
     def wrap_text(self, text, width, font, array=False):
         res, temp = [], ""
@@ -184,8 +186,8 @@ class Painter:
         return self.buffer(main)
 
     def blend(self, user1, user2):
-        pic1 = self.buffer_from_url(user1).resize((500, 500))
-        pic2 = self.buffer_from_url(user2).resize((500, 500))
+        pic1 = self.buffer_from_url(user1).resize((500, 500)).convert("RGB")
+        pic2 = self.buffer_from_url(user2).resize((500, 500)).convert("RGB")
         res = Image.blend(pic1, pic2, alpha=0.5)
         return self.buffer(res)
 
@@ -318,7 +320,7 @@ class Painter:
             draw.text((round((W-25)/2)+105, sym_cursor+5), str(data[i]), font=pusab_smoler, stroke_width=2, stroke_fill="black")
             sym_cursor += 30
         
-        self.add_corners(main, 20)
+        main = self.add_corners(main, 20)
         return self.buffer(main)
 
     def invert_image(self, im):
@@ -434,7 +436,7 @@ class Painter:
                 lambda i: i.replace('_', ' ').lower(), data['features']
             ))
             draw.text((margin_left + 5, rect_y_cursor + 5), self.wrap_text(text, (margin_right-5) - (margin_left+5), medium), fill=self.invert(bg_arr[4]), font=medium)
-        self.add_corners(main, 25)
+        main = self.add_corners(main, 25)
         return self.buffer(main)
 
     def usercard(self, roles, user, ava, bg, nitro, booster, booster_since):
@@ -447,7 +449,7 @@ class Painter:
             if getattr(user.public_flags, i): flags.append(self.flags['badges'][i])
         foreground_col = self.invert(bg)
         avatar = self.buffer_from_url(ava).resize((100, 100))
-        self.add_corners(avatar, round(avatar.width/2))
+        avatar = self.add_corners(avatar, round(avatar.width/2))
         if not booster_since: details_text = 'Created account {}\nJoined server {}'.format(lapsed_time_from_seconds(t.now().timestamp()-user.created_at.timestamp())+' ago', lapsed_time_from_seconds(t.now().timestamp()-user.joined_at.timestamp())+' ago')
         else: details_text = 'Created account {}\nJoined server {}\nBoosting since {}'.format(lapsed_time_from_seconds(t.now().timestamp()-user.created_at.timestamp())+' ago', lapsed_time_from_seconds(t.now().timestamp()-user.joined_at.timestamp())+' ago', lapsed_time_from_seconds(booster_since)+' ago')
         rect_y_pos = 180 + ((bigfont.getsize(details_text)[1]+20))
@@ -471,7 +473,7 @@ class Painter:
             rect_y_pos += 50
         try: main.paste(avatar, (40, 30), avatar)
         except: main.paste(avatar, (40, 30))
-        self.add_corners(main, 25)
+        main = self.add_corners(main, 25)
         return self.buffer(main)
 
     def get_palette(self, temp_data):
@@ -630,7 +632,7 @@ class Painter:
                 percentage = margin_right
             draw.rectangle([(margin_left, 370), (percentage, 400)], fill=(0, 255, 0))
             draw.text((margin_left + 2, 349), after['delta']+" bobux left before reaching next rank ("+after['nextrank']+")", font=smolerfont, fill=self.invert(ava_col[6]))
-        self.add_corners(main, 25)
+        main = self.add_corners(main, 25)
         return self.buffer(main)
     
     def evol(self, url):

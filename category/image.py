@@ -66,7 +66,7 @@ class image(commands.Cog):
             parsed_args = ctx.bot.utils.split_parameter_to_two(args)
             if parsed_args is None: 
                 first, second = ctx.author.avatar_url_as(format='png'), ctx.bot.utils.getUserAvatar(ctx, args)
-            else: first, second = ctx.bot.utils.getUserAvatar(ctx, parsed_args[0]), ctx.bot.utils.getUserAvatar(ctx, parsed_args[1])
+            else: first, second = ctx.bot.utils.getUserAvatar(ctx, (parsed_args[0],)), ctx.bot.utils.getUserAvatar(ctx, (parsed_args[1],))
             return await ctx.send(file=discord.File(ctx.bot.canvas.blend(first, second), 'blend.png'))
             
     @command('pika')
@@ -189,7 +189,7 @@ class image(commands.Cog):
             data = ctx.bot.gif.flip(ava)
             await ctx.send(file=discord.File(data, 'flip.gif'))
 
-    @command()
+    @command("spin")
     @cooldown(7)
     async def rotate(self, ctx, *args):
         async with ctx.channel.typing():

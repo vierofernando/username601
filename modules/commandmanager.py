@@ -43,7 +43,10 @@ class BotCommands:
         if category is None: return None
         return [i for i in self.commands if i['category'].lower() == category.lower()]
     def get_commands_auto(self, parameter):
+        res = self.get_commands_from_category(parameter)
+        if res is not None:
+            return res
         command_type = self._get_type(parameter, self.commands, self.categories)
         if command_type is None: return None
         if command_type == "command": return self._get_command(parameter, self.commands)
-        return self.get_commands_from_category(parameter)
+        return res

@@ -1,4 +1,5 @@
 import aiohttp
+from emoji import UNICODE_EMOJI
 from random import choice
 from discord import Color, Embed
 from discord.message import Message
@@ -11,8 +12,15 @@ from urllib.parse import quote_plus
 from configparser import ConfigParser
 class send_error_message(Exception): pass
 
+emoji_unicodes = UNICODE_EMOJI.keys()
 main_cfg = ConfigParser()
 main_cfg.read('config.ini')
+class emojiutils:
+    def __init__(self):
+        pass
+
+def import_emoji_function(func):
+    setattr(emojiutils, "emoji_to_url", func)
 
 async def wait_for_message(this, ctx, message, func=None, timeout=5.0, *args, **kwargs):
     if message is not None: await ctx.send(message)
@@ -91,6 +99,12 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
             temp[0] = res
             args = list(temp)
         if inspect_image_url(args[0]): return args[0]
+    if len(args)==1:
+        if args[0] in emoji_unicodes:
+            res = emojiutils.emoji_to_url(args[0])
+            if res is not None:
+                return res
+    
     if len(msg.mentions)>0:
         if not allowgif: return str(msg.mentions[0].avatar_url_as(format='png', size=size))
         return str(msg.mentions[0].avatar_url_as(size=size))
