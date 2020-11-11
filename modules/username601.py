@@ -78,6 +78,18 @@ def get_id_from_mention(mention):
     if mention.startswith('<@!'): return int(mention[3:(len(mention)-1)])
     return int(mention[2:(len(mention)-1)])
 
+def parse_custom_emoji(text):
+    text = text.replace(" ", "")
+    if not text.endswith(">"): return None
+    elif (not text.startswith("<:")) and (not text.startswith("<a:")): return None
+    try:
+        _id = int(text.split(":")[2].split(">")[0])
+        extension = ".gif" if text.startswith("<a:") else ".png"
+        assert inspect_image_url("https://cdn.discordapp.com/emojis/"+str(_id)+extension)
+    except:
+        return None
+    return "https://cdn.discordapp.com/emojis/"+str(_id)+extension
+
 def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
     args = [str(get_id_from_mention(args))] if isinstance(args, str) else list(args)
     msg = ctx if isinstance(ctx, Message) else ctx.message
@@ -104,6 +116,9 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
             res = emojiutils.emoji_to_url(args[0])
             if res is not None:
                 return res
+        custom_emoji_url = parse_custom_emoji(args[0])
+        if custom_emoji_url is not None:
+            return custom_emoji_url
     
     if len(msg.mentions)>0:
         if not allowgif: return str(msg.mentions[0].avatar_url_as(format='png', size=size))
