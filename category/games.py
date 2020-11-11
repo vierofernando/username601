@@ -71,7 +71,7 @@ class games(commands.Cog):
             embed.description = "["+str(characters[current])+"'s ("+game.current_turn+") turn]```" + game.show() + "```"
             await embed.edit_to(message)
     
-    def get_name_history(self, uuid):
+    def get_name_history(self, uuid, ctx):
         data = ctx.bot.utils.fetchJSON("https://api.mojang.com/user/profiles/"+uuid+"/names")
         res = ["**Latest: **`"+data[0]["name"]+"`"]
         if len(data) < 2: return res[0]
@@ -92,7 +92,7 @@ class games(commands.Cog):
         data = data.json()
         body, head = discord.File(ctx.bot.canvas.minecraft_body(f"https://mc-heads.net/body/{name}/600", data['id']), "body.png"), discord.File(ctx.bot.canvas.urltoimage(f"https://mc-heads.net/head/{name}/600"), "head.png")
         accent_color = ctx.bot.canvas.get_color_accent(f"https://mc-heads.net/head/{name}/600")
-        names = self.get_name_history(data['id'])
+        names = self.get_name_history(data['id'], ctx)
         embed = discord.Embed(title=name, url='https://namemc.com/profile/'+data['id'], description="UUID: `"+data['id']+"`", color=discord.Color.from_rgb(*accent_color))
         embed.set_image(url="attachment://body.png")
         embed.set_thumbnail(url="attachment://head.png")
@@ -396,8 +396,8 @@ class games(commands.Cog):
     @cooldown(60)
     async def hangman(self, ctx):
         wait = await ctx.send(ctx.bot.loading_emoji + ' | Please wait... generating...')
-        the_word = ctx.bot.utils.fetchJSON("https://random-word-api.herokuapp.com/word?number=1")
-        main_guess_cor, main_guess_hid = list(the_word[0]), []
+        the_word = ctx.bot.utils.fetchJSON("https://useless-api.vierofernando.repl.co/randomword")["word"]
+        main_guess_cor, main_guess_hid = list(the_word), []
         server_id, wrong_guesses = ctx.guild.id, ''
         for i in range(len(main_guess_cor)):
             main_guess_hid.append('\_ ')

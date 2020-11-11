@@ -109,10 +109,10 @@ def getUserAvatar(ctx, args, size=1024, user=None, allowgif=False):
         if not allowgif: return str(msg.mentions[0].avatar_url_as(format='png', size=size))
         return str(msg.mentions[0].avatar_url_as(size=size))
     name = str(' '.join(args)).lower().split('#')[0] # disable discriminator if found
-    user = query(list(map(lambda x: x.display_name, msg.guild.members)), name)
-    if user is not None:
-        if not allowgif: return str(user.avatar_url_as(format='png', size=size))
-        return str(user.avatar_url_as(size=size))
+    user = [i for i in ctx.guild.members if name in i.display_name.lower()]
+    if len(user) > 0:
+        if not allowgif: return str(user[0].avatar_url_as(format='png', size=size))
+        return str(user[0].avatar_url_as(size=size))
     if not allowgif: return str(ctx.author.avatar_url_as(format='png', size=size))
     return str(ctx.author.avatar_url_as(size=size))
 
