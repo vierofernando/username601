@@ -1,74 +1,73 @@
-body {
-  background-color: #555;
+html , body {
+    height: 100%;
+    margin: 0;
+    background-color: gray;
+    user-select: none;
 }
-#left {
-  background-color: #555;
-  width: 20%;
-  left: 0;
+#categoryList {
+    height: 100%;
+    float: left;
+    min-width: 200px;
+    max-width: 250px;
+    width: 25%;
+    background-color: gray;
 }
-#right {
-  background-color: #444;
-  width: 80%;
-  left: 20%;
-  overflow: auto;
+#categoryButton {
+    color: white;
+    background-color: gray;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: 20px;
+    padding: 10px 0px;
+    border: none;
+    outline: none;
+    width: 100%;
 }
-null {
-  font-family: Roboto;
-  font-size: 20px;
-  font-weight: bold;
-  text-align: center;
-  top: 50%;
-  left: 0;
-  color: white;
-  right: 0;
-  position: absolute;
+#categoryButton:hover , #commandInfo:hover {
+    transition: 0.2s linear;
+    background-color: gray;
+    cursor: pointer;
 }
-.leftright {
-  top: 10%;
-  bottom: 0;
-  right: 0;
-  position: absolute;
+#categoryButton:focus , #commandInfo:focus {
+    transition: 0.2s;
+    background-color: red;
 }
-button {
-  border: none;
-  outline: none;
-  cursor: pointer;
-  font-family: Roboto;
-  transition: 0.3s linear;
+#main {
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    display: flex;
 }
-.categoryButton {
-  width: 100%;
-  height: 50px;
-  text-align: right;
-  font-size: 80%;
-  color: white;
-  background-color: #555;
+#displayCommandsList {
+    height: 100%;
+    width: 100%;
+    background-color: #555;
 }
-.categoryButton:hover {
-  background-color: #333;
+#commandInfo {
+    width: 100%;
+    padding: 15px;
+    background-color: #666;
 }
-.commandDisplay {
-  width: 100%;
-  height: 50px;
-  color: white;
-  font-family: Roboto;
-  cursor: pointer;
-  background-color: #333;
-  transition: 0.3s linear;
+#commandTitle {
+    color: white;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-weight: bold;
+    font-size: 20px;
 }
-.commandDisplay:hover {
-  background-color: #222;
+#commandDesc {
+    color: white;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: 15px;
 }
-cmdname , cmddesc {
-  left: 10px;
-  top: 5%;
-  position: relative;
-  font-size: 100%;
-  text-align: left;
-}
-cmdname {
-  font-weight: bold;
+#commandExtraDesc {
+    padding: 15px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color: white;
+    font-size: 12px;
+    width: 100%;
+    background-color: #555;
 }
 
-/* henlo */
-somebody { display: none; }
+#commandExtraDesc b {
+    font-size: 15px;
+}

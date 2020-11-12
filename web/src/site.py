@@ -1,5 +1,7 @@
 from flask import *
-from os import listdir
+from os import listdir, getenv
+from json import loads
+from random import choice
 from requests import get
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -29,17 +31,22 @@ class Website:
       "github": "https://github.com/vierofernando/username601",
       "api": "https://useless-api.vierofernando.repl.co/docs"
     }
+    self.raw_command_template = open('./templates/commands.html', 'r').read().replace('\n', '').replace("`%CATEGORIES%`", str([
+        list(i.keys())[0] for i in self.commands
+    ])).replace("%COMMANDS%", str(self.commands).replace("'", '"'))
     self.raw_index_template = open('./templates/index.html', 'r').read().replace('\n', '')
-
+    self.title_messages = loads(open("./src/site_description.json", "r").read())
+  
   def render_index_template(self):
     try:
-      data = get('https://useless-api.vierofernando.repl.co/get_bot_stats').json()
+      msg = choice(self.title_messages)
+      data = get('https://useless-api.vierofernando.repl.co/get_bot_stats', headers={"superdupersecretkey": getenv("CHKDB")}).json()
       return self.raw_index_template.replace(
         "'flex'>",
         "'flex'>Serving <b>{}</b> discord servers with <b>{}</b> users as of <b>{} ago</b>".format(
           data['guild_count'], data['user_count'], data['last_updated']
         )
-      )
+      ).replace("{{FLEX}}", msg).replace("{{TITLE}}", msg if ('<a' not in msg) else "601 the bot")
     except Exception as e:
       print("ERROR: "+str(e))
       return self.raw_index_template.replace(

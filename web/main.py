@@ -8,6 +8,10 @@ web = Website("username601's webshite")
 def not_found(err):
   return render_template("404.html")
 
+@web.page('/.env')
+def env():
+    return "TOKEN=Ng5NDU4MjY5NTI2Mjk0MTc1.AkxrpC.MyB2BEHJLXuZ8h0wY0Qro6Pwi8"
+
 @web.page('/github')
 def github():
   return web.redirect('github')
@@ -30,7 +34,7 @@ def support():
 
 @web.page('/commands')
 def commands():
-  return render_template("commands.html")
+  return web.raw_command_template
 
 @web.page('/')
 def home():
