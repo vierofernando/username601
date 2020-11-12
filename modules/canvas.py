@@ -45,6 +45,14 @@ class Painter:
         self.gd_assets = json.loads(open(config('JSON_DIR')+'/gd.json', 'r').read())
         self.add_corners = add_corners
 
+    def mask_circle(self, im):
+        bigsize = (im.size[0] * 3, im.size[1] * 3)
+        mask = Image.new('L', bigsize, 0)
+        draw = ImageDraw.Draw(mask) 
+        draw.ellipse((0, 0) + bigsize, fill=255)
+        mask = mask.resize(im.size, Image.ANTIALIAS)
+        im.putalpha(mask)
+
     def drawtext(self, draw, thefont, text, x, y, col):
         draw.text((x, y), text, fill =col, font=thefont, align ="left")
 
@@ -385,6 +393,7 @@ class Painter:
             subtitle = data['description']
         title_width = bigfont.getsize(server_title)[0]
         ava = self.buffer_from_url(icon).resize((100, 100))
+        self.mask_circle(ava)
         bg_arr = [(i['r'], i['g'], i['b']) for i in self.get_multiple_accents(icon)]
         desc_width = medium.getsize(subtitle)[0]
         if desc_width > title_width: title_width = desc_width # :^)
@@ -449,7 +458,7 @@ class Painter:
             if getattr(user.public_flags, i): flags.append(self.flags['badges'][i])
         foreground_col = self.invert(bg)
         avatar = self.buffer_from_url(ava).resize((100, 100))
-        avatar = self.add_corners(avatar, round(avatar.width/2))
+        self.mask_circle(avatar)
         if not booster_since: details_text = 'Created account {}\nJoined server {}'.format(lapsed_time_from_seconds(t.now().timestamp()-user.created_at.timestamp())+' ago', lapsed_time_from_seconds(t.now().timestamp()-user.joined_at.timestamp())+' ago')
         else: details_text = 'Created account {}\nJoined server {}\nBoosting since {}'.format(lapsed_time_from_seconds(t.now().timestamp()-user.created_at.timestamp())+' ago', lapsed_time_from_seconds(t.now().timestamp()-user.joined_at.timestamp())+' ago', lapsed_time_from_seconds(booster_since)+' ago')
         rect_y_pos = 180 + ((bigfont.getsize(details_text)[1]+20))
@@ -779,6 +788,14 @@ class GifGenerator:
         self.triggered_red = Image.new(mode="RGBA", size=(216, 216), color=(255, 0, 0, 100))
         self.triggered_bg = Image.new(mode="RGBA", size=(216, 216), color=(0, 0, 0, 0))
     
+    def mask_circle(self, im):
+        bigsize = (im.size[0] * 3, im.size[1] * 3)
+        mask = Image.new('L', bigsize, 0)
+        draw = ImageDraw.Draw(mask) 
+        draw.ellipse((0, 0) + bigsize, fill=255)
+        mask = mask.resize(im.size, Image.ANTIALIAS)
+        im.putalpha(mask)
+    
     def bufferGIF(self, images, duration, optimize=True):
         arr = BytesIO()
         images[0].save(arr, "GIF", save_all=True, append_images=images[1:], optimize=optimize, duration=duration, loop=0)
@@ -879,11 +896,14 @@ class GifGenerator:
 
     def rotate(self, pic):
         image = self.buffer_from_url(pic).resize((216, 216))
+        if image.mode != "RGBA": self.mask_circle(image)
         frames = []
-        for i in range(1, 91):
+        i = 1
+        while i < 360:
             background = self.triggered_bg.copy()
-            background.paste(image.rotate(i * 4), (0, 0))
+            background.paste(image.rotate(i), (0, 0))
             frames.append(background)
+            i += 7
         return self.bufferGIF(frames, 30)
     
     def triggered(self, pic):
