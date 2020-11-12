@@ -11,7 +11,6 @@ class Paginator:
         embeds: list,
         ratelimit: int = 2,
         max_time: int = 30,
-        show_page_count: bool = False,
         next_emoji: str = "▶️",
         previous_emoji: str = "◀️",
         start_emoji: str = "⏮",
@@ -134,5 +133,5 @@ class embed:
         """ Appends the embed to a discord.Message object """
         _embed, _attachment = self.get_embed()
         if _attachment is None:
-            await message.edit(content='', embed=_embed)
+            return await message.edit(content='', embed=_embed)
         await message.edit(content='', embed=_embed, file=_attachment)
