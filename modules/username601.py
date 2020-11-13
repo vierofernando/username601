@@ -22,12 +22,12 @@ class emojiutils:
 def import_emoji_function(func):
     setattr(emojiutils, "emoji_to_url", func)
 
-async def wait_for_message(this, ctx, message, func=None, timeout=5.0, *args, **kwargs):
+async def wait_for_message(ctx, message, func=None, timeout=5.0, *args, **kwargs):
     if message is not None: await ctx.send(message)
     def wait_check(m): return ((m.author == ctx.author) and (m.channel == ctx.channel))
     _function = wait_check if (func is None) else func
     try:
-        message = await this.client.wait_for("message", check=_function, timeout=timeout)
+        message = await ctx.bot.wait_for("message", check=_function, timeout=timeout)
     except:
         message = None
     finally:
