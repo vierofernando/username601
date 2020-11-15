@@ -71,6 +71,8 @@ class owner(commands.Cog):
         url = ''.join(args)
         if url.startswith('<'): url = url[1:]
         if url.endswith('>'): url = url[:-1]
+        if "/https/" in url:
+            url = "https://" + url.split("/https/")[1].split("?")[0]
         data = requests.post('https://useless-api--vierofernando.repl.co/postprogrammermeme', headers={
             'superdupersecretkey': os.getenv('USELESSAPI'),
             'url': url

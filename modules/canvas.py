@@ -2,24 +2,26 @@ from PIL import (
     Image,
     ImageFont,
     ImageDraw,
-    GifImagePlugin,
+    ImageSequence,
     ImageOps,
     ImageFilter,
-    ImageColor
+    ImageColor,
+    GifImagePlugin
 )
+import json
+import random
+from numpy import zeros, uint8
 from time import strftime, gmtime
 from io import BytesIO
 from datetime import datetime as t
 from requests import get
-import json
-import random
 from .smart_colorthief import Smart_ColorThief
 from .username601 import *
 from colorthief import ColorThief
 
 def buffer_from_url(url, *args, **kwargs):
     try: return Image.open(BytesIO(get(url, timeout=5).content))
-    except: return Image.new(mode='RGB', size=(500, 500), color=(0, 0, 0))
+    except: raise TypeError(f"Oopsies there was an error on fetching: {url}")
 
 def add_corners(im, rad, top_only=False, bottom_only=False):
     circle = Image.new('L', (rad * 2, rad * 2), 0)
@@ -151,6 +153,20 @@ class Painter:
     def get_color_accent(self, url, right=False):
         res = Smart_ColorThief(url).get_color(right=right)
         return res[0], res[1], res[2]
+
+    def gradient(self, color_left, color_right):
+        if color_right is not None:
+            main = Image.new("RGB", (1000, 500), color=color_right)
+        array = zeros([500, 1000, 4], dtype=uint8)
+        for y in range(1000):
+            arr = [color_left[0], color_left[1], color_left[2], round((1000 - y)/1000 * 255)]
+            for x in range(500):
+                array[x, y] = arr
+        image_overlay = Image.fromarray(array)
+        if color_right is None:
+            return self.buffer(image_overlay)
+        main.paste(image_overlay, (0, 0), image_overlay)
+        return self.buffer(main)
 
     def get_multiple_accents(self, image):
         b = BytesIO(get(image).content)
@@ -761,8 +777,8 @@ class Painter:
     
     def urltoimage(self, url):
         get_re = get(url)
-        if get_re.text.startswith('{"oops":'):
-            raise send_error_message("There was an error on sending the image, probably the API is on drugs or something")
+        if "oops" in get_re.text:
+            raise send_error_message("Error: Please input a valid image. `"+get_re.text.split(',"why":"')[1].split('"}')[0]+"`")
             print("ERROR: "+get_re.text)
         return BytesIO(get_re.content)
     
@@ -787,6 +803,11 @@ class GifGenerator:
         self.triggered_text = Image.open(f"{assetpath}/triggered.jpg")
         self.triggered_red = Image.new(mode="RGBA", size=(216, 216), color=(255, 0, 0, 100))
         self.triggered_bg = Image.new(mode="RGBA", size=(216, 216), color=(0, 0, 0, 0))
+        
+        self.ussr_frames = []
+        for frame in ImageSequence.Iterator(Image.open(f"{assetpath}/ussr.gif")):
+            self.ussr_frames.append(frame.convert("RGB"))
+        self.ussr_frames_size = len(self.ussr_frames)
     
     def mask_circle(self, im):
         bigsize = (im.size[0] * 3, im.size[1] * 3)
@@ -796,9 +817,12 @@ class GifGenerator:
         mask = mask.resize(im.size, Image.ANTIALIAS)
         im.putalpha(mask)
     
-    def bufferGIF(self, images, duration, optimize=True):
+    def bufferGIF(self, images, duration, transparent=False):
         arr = BytesIO()
-        images[0].save(arr, "GIF", save_all=True, append_images=images[1:], optimize=optimize, duration=duration, loop=0)
+        if transparent:
+            images[0].save(arr, "GIF", transparency=255, save_all=True, append_images=images[1:], duration=duration, loop=0, disposal=2)
+        else:
+            images[0].save(arr, "GIF", save_all=True, append_images=images[1:], duration=duration, loop=0)
         arr.seek(0)
         return arr
 
@@ -846,7 +870,7 @@ class GifGenerator:
     def flip(self, pic):
         im = self.buffer_from_url(pic).resize((400,400))
         inv_im = ImageOps.flip(im)
-        speed, images = [3,6,13,25,50,100,200,399], []
+        speed, images = [3,6,13,25,50,100,200,399], []                                                                                                                                               
         for i in range(len(speed)*2):
             stretch = speed[i] if i < len(speed) else speed[::-1][i-len(speed)]
             image = im if i < len(speed) else inv_im
@@ -854,7 +878,7 @@ class GifGenerator:
             cnv.paste(image.resize((400, 400-stretch)), (0, round(stretch/2)))
             images.append(cnv)
         images += images[::-1]
-        return self.bufferGIF(images, 20)
+        return self.bufferGIF(images, 20, transparent=True)
         
     def crazy_frog_dance(self, pic, metadata):
         im = self.get_image('crazyfrog.gif')
@@ -894,17 +918,14 @@ class GifGenerator:
             images.append(canvas)
         return self.bufferGIF(images, 3)
 
-    def rotate(self, pic):
+    def rotate(self, pic, change_mode=False):
         image = self.buffer_from_url(pic).resize((216, 216))
-        if image.mode != "RGBA": self.mask_circle(image)
         frames = []
         i = 1
         while i < 360:
-            background = self.triggered_bg.copy()
-            background.paste(image.rotate(i), (0, 0))
-            frames.append(background)
-            i += 7
-        return self.bufferGIF(frames, 30)
+            frames.append(image.rotate(i))
+            i += 8
+        return self.bufferGIF(frames, 30, transparent=True)
     
     def triggered(self, pic):
         reference = self.buffer_from_url(pic).resize((226, 226))
@@ -918,25 +939,15 @@ class GifGenerator:
             frames.append(background)
         return self.bufferGIF(frames, 30)
 
-    def communist(self, comrade):
-        flag = self.get_image('blyat.jpg').convert('RGB')
-        user = self.buffer_from_url(comrade).resize((216, 216)).convert('RGB')
-        images = []
-        opacity = float(0)
-        while int(opacity)!=1:
-            newimage = Image.blend(user, flag, opacity)
-            images.append(newimage)
-            opacity += 0.05
-        extras = 0
-
-        while extras<100:
-            image = flag
-            self.drawtext(ImageDraw.Draw(image), self.get_font('Whitney-Medium', 30), 'COMMUNIST', 216/2-86, 10, 'white')
-            self.drawtext(ImageDraw.Draw(image), self.get_font('Whitney-Medium', 30), 'CONFIRMED', 216/2-84, 170, 'white')
-            images.append(image)
-            extras += 1
-        data = self.bufferGIF(images, 5)
-        return data
+    def communist(self, url):
+        ava = self.buffer_from_url(url).resize((200, 200)).convert("RGB")
+        total_frame = []
+        
+        for frame in range(self.ussr_frames_size):
+            opacity = frame/self.ussr_frames_size
+            res = Image.blend(ava, self.ussr_frames[frame], opacity)
+            total_frame.append(res)
+        return self.bufferGIF(total_frame, 15)
     
     def giffromURL(self, url, compress):
         mygif = self.buffer_from_url(url)

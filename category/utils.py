@@ -10,10 +10,29 @@ from requests import post, get
 from json import loads
 from datetime import datetime as t
 from re import search
+from PIL import ImageColor
 
 class utils(commands.Cog):
     def __init__(self, client):
         pass
+    
+    @command()
+    @cooldown(3)
+    async def gradient(self, ctx, *args):
+        async with ctx.channel.typing():
+            try:
+                assert len(args) > 0
+                if len(args) == 1:
+                    color_left, color_right = ImageColor.getrgb(args[0]), None
+                else:
+                    left, right = ctx.bot.utils.split_parameter_to_two(args)
+                    color_left, color_right = ImageColor.getrgb(left), ImageColor.getrgb(right)
+            except:
+                raise ctx.bot.utils.send_error_message("Please input a valid color.")
+            if color_left == color_right:
+                raise ctx.bot.utils.send_error_message("Those two colors are the same :/")
+            res = ctx.bot.canvas.gradient(color_left, color_right)
+            return await ctx.send(file=discord.File(res, "gradient.png"))
     
     @command('trending,news')
     @cooldown(5)
