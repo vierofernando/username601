@@ -566,15 +566,15 @@ class Painter:
 
     def custom_panel(self, title="Title text", subtitle="Subtitle text", description="Description text here", icon="https://cdn.discordapp.com/embed/avatars/0.png", spt=None):
         SPOTIFY = False if (spt is None) else True
-        TITLE_TEXT = title if not SPOTIFY else spt.title
+        TITLE_TEXT = title if not SPOTIFY else spt["title"]
         TITLE_FONT = self.get_font("NotoSansDisplay-Bold", 30, otf=True)
 
-        SUBTITLE_TEXT = subtitle if not SPOTIFY else "By "+(', '.join(spt.artists))
+        SUBTITLE_TEXT = subtitle if not SPOTIFY else "By "+spt["artists"]
         SUBTITLE_FONT = self.get_font("NotoSansDisplay-Bold", 20, otf=True)
 
-        DESC_TEXT = description if not SPOTIFY else "On "+spt.album
+        DESC_TEXT = description if not SPOTIFY else "On "+spt["album"]
         DESC_FONT = self.get_font("NotoSansDisplay-Bold", 15, otf=True)
-        COVER_URL = icon if not SPOTIFY else spt.album_cover_url
+        COVER_URL = icon if not SPOTIFY else spt["cover"]
         COVER = self.buffer_from_url(COVER_URL).resize((200, 200))
         BACKGROUND_COLOR = self.get_color_accent(COVER_URL, right=True)
         FOREGROUND_COLOR = self.invert(BACKGROUND_COLOR)
@@ -598,10 +598,10 @@ class Painter:
         MAIN = Image.new(mode="RGB", color=BACKGROUND_COLOR, size=(WIDTH, 200))
         DRAW = ImageDraw.Draw(MAIN)
 
-        if SPOTIFY:
-            SEEK = round(round((t.now() - spt.created_at).total_seconds())/round(spt.duration.total_seconds())*100)
-            STR_CURRENT = strftime('%H:%M:%S', gmtime(round((t.now() - spt.created_at).total_seconds())))
-            STR_END = strftime('%H:%M:%S', gmtime(round(spt.duration.total_seconds())))
+        if SPOTIFY and spt["has_duration"]:
+            SEEK = round(round((t.now() - spt["created"]).total_seconds())/round(spt["duration"].total_seconds())*100)
+            STR_CURRENT = strftime('%H:%M:%S', gmtime(round((t.now() - spt["created"]).total_seconds())))
+            STR_END = strftime('%H:%M:%S', gmtime(round(spt["duration"].total_seconds())))
             DURATION_LEFT_SIZE = DRAW.textsize(STR_END, font=SUBTITLE_FONT)[0]
 
             DRAW.rectangle([(MARGIN_LEFT, MARGIN_TOP + 100), (MARGIN_RIGHT, MARGIN_TOP + 120)], fill=tuple(map(lambda x: x - 25, BACKGROUND_COLOR)))

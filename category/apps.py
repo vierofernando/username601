@@ -16,6 +16,31 @@ class apps(commands.Cog):
     def __init__(self, client):
         self.translator = Translator()
 
+    def get_spotify(self, user):
+        activity = [i for i in user.activities if int(i.type) == 2 and i.name == "Spotify"]
+        if len(activity) == 0: return None
+        activity = activity[0]
+        if isinstance(activity, discord.Spotify):
+            return {
+                "title": activity.title,
+                "artists": ", ".join(activity.artists),
+                "album": activity.album,
+                "cover": activity.album_cover_url,
+                "created": activity.created_at,
+                "duration": activity.duration,
+                "has_duration": True
+            }
+        
+        activity = activity.to_dict()
+        return {
+            "title": activity["details"],
+            "artists": str(activity["state"]),
+            "album": activity["assets"]["large_text"],
+            "cover": user.avatar_url_as(format="png", size=512),
+            "created": activity['timestamps']['start'],
+            "has_duration": False
+        }
+
     @command('movie')
     @cooldown(5)
     async def tv(self, ctx, *args):
@@ -39,22 +64,10 @@ class apps(commands.Cog):
     @command('spot,splay,listeningto,sp')
     @cooldown(2)
     async def spotify(self, ctx, *args):
-        source, act = ctx.bot.utils.getUser(ctx, tuple([
-                i for i in args if '--force' not in i
-            ])), None
-        if ''.join(args).endswith('--force'):
-            force = True
-            act = source.activity
-        else:
-            force = False
-            for i in source.activities:
-                if isinstance(i, discord.Spotify): act = i
-            if act is None: raise ctx.bot.utils.send_error_message(f"Sorry, but  {source.display_name} is not listening to spotify.")
+        user = ctx.bot.utils.getUser(ctx, args)
+        act = self.get_spotify(user)
+        if act is None: raise ctx.bot.utils.send_error_message(f"Sorry, but {source.display_name} is not listening to spotify.")
         async with ctx.channel.typing():
-            if force:
-                try:
-                    return await ctx.send(file=discord.File(ctx.bot.canvas.custom_panel(spt=act), 'spotify.png'))
-                except: return 
             await ctx.send(file=discord.File(ctx.bot.canvas.custom_panel(spt=act), 'spotify.png'))
 
     @command()
