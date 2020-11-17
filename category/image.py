@@ -20,6 +20,14 @@ class image(commands.Cog):
         await wait.delete()
         await ctx.send(file=discord.File(BytesIO(data), 'brrr.gif'))
 
+    @command()
+    @cooldown(5)
+    async def lego(self, ctx, *args):
+        async with ctx.channel.typing():
+            image = ctx.bot.utils.getUserAvatar(ctx, args)
+            data = get(f"https://useless-api.vierofernando.repl.co/lego?image={image}", headers={'superdupersecretkey': environ['USELESSAPI']}).content
+            return await ctx.send(file=discord.File(BytesIO(data), "lego.png"))
+
     @command('barell,barrel,barrell')
     @cooldown(4)
     async def bump(self, ctx, *args):

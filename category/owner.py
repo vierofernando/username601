@@ -10,7 +10,9 @@ from datetime import datetime as t
 from subprocess import run, PIPE
 from inspect import isawaitable, getsource
 from asyncio import sleep
+from PIL import Image, ImageFont
 from io import BytesIO
+from twemoji_parser import TwemojiParser
 
 totallyrealtoken = 'Ng5NDU4MjY5NTI2Mjk0MTc1.AkxrpC.MyB2BEHJLXuZ8h0wY0Qro6Pwi8'
 mods = 'weebs'
@@ -23,6 +25,15 @@ class owner(commands.Cog):
             os.environ['DB_LINK'],
             os.environ['USELESSAPI']
         ]
+    
+    @command()
+    async def test(self, ctx, *args):
+        if ctx.author.id not in [661200758510977084, 766952708602331137]: return
+        font = ctx.bot.canvas.get_font('consola', 35)
+        im = Image.new("RGB", (500, 500), color=(255, 255, 255))
+        parser = TwemojiParser(im)
+        parser.draw_text((10, 10), " ".join(args), fill=(0, 0, 0), font=font)
+        await ctx.send(file=discord.File(ctx.bot.canvas.buffer(im), "res.png"))
         
     @command()
     @cooldown(1)

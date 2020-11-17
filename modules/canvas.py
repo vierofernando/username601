@@ -10,6 +10,7 @@ from PIL import (
 )
 import json
 import random
+from os import listdir
 from numpy import zeros, uint8
 from time import strftime, gmtime
 from io import BytesIO
@@ -34,26 +35,34 @@ def add_corners(im, rad, top_only=False, bottom_only=False):
     alpha.paste(circle.crop((rad, 0, rad * 2, rad)), (w-rad, 0))
     alpha.paste(circle.crop((rad, rad, rad * 2, rad * 2)), (w-rad, h-rad))
     im.putalpha(alpha)
+    circle.close()
+    alpha.close()
     return im
 
 class Painter:
 
     def __init__(self, assetpath, fontpath): # lmao wtf is this
         self.buffer_from_url = buffer_from_url
-        self.assetpath = assetpath
         self.fontpath = fontpath
         self.flags = json.loads(open(config('JSON_DIR')+'/flags.json', 'r').read())
         self.region = json.loads(open(config('JSON_DIR')+'/regions.json', 'r').read())
         self.gd_assets = json.loads(open(config('JSON_DIR')+'/gd.json', 'r').read())
         self.add_corners = add_corners
+        
+        # TO BE USED
+        self.templates = {}
+        for image in listdir(assetpath):
+            if image.endswith(".gif"): continue
+            self.templates[image] = Image.open(f"{assetpath}/{image}")
 
     def mask_circle(self, im):
         bigsize = (im.size[0] * 3, im.size[1] * 3)
         mask = Image.new('L', bigsize, 0)
-        draw = ImageDraw.Draw(mask) 
+        draw = ImageDraw.Draw(mask)
         draw.ellipse((0, 0) + bigsize, fill=255)
         mask = mask.resize(im.size, Image.ANTIALIAS)
         im.putalpha(mask)
+        mask.close()
 
     def drawtext(self, draw, thefont, text, x, y, col):
         draw.text((x, y), text, fill =col, font=thefont, align ="left")
@@ -61,9 +70,6 @@ class Painter:
     def get_font(self, fontname, size, otf=False):
         ext = 'ttf' if not otf else 'otf'
         return ImageFont.truetype(f'{self.fontpath}/{fontname}.{ext}', size)
-
-    def get_image(self, imageName):
-        return Image.open(f'{self.assetpath}/{imageName}')
 
     def invert(self, tupl):
         if (sum(tupl)/3) < 127.5: return (255, 255, 255)
@@ -111,7 +117,7 @@ class Painter:
         return "\n".join(res)
     
     def fake_message_box(self, title, description):
-        image = self.get_image("msgbox.png")
+        image = self.templates["msgbox.png"].copy()
         big_font = self.get_font("segoeui", 12)
         small_font = self.get_font("segoeui", 11)
         draw = ImageDraw.Draw(image)
@@ -145,6 +151,7 @@ class Painter:
         arr = BytesIO()
         data.save(arr, format='PNG')
         arr.seek(0)
+        data.close()
         return arr
 
     def toLocaleString(self, num):
@@ -233,7 +240,7 @@ class Painter:
         return self.buffer(main)
 
     def among_us(self, url):
-        bg = self.get_image('among_us.png')
+        bg = self.templates['among_us.png'].copy()
         ava = self.buffer_from_url(url).resize((240, 228))
         col = self.get_color_accent(url)
         cnv = Image.new(mode='RGBA', size=(512, 512), color=(0,0,0))
@@ -243,10 +250,12 @@ class Painter:
         anothercnv = Image.new(mode='RGB', size=(512, 512), color=(0,0,0))
         anothercnv.paste(ava, (47, 129))
         anothercnv.paste(cnv, (0, 0), cnv)
+        bg.close()
+        cnv.close()
         return self.buffer(anothercnv)
 
     def gru(self, text1, text2, text3):
-        main = self.get_image("gru.png")
+        main = self.templates["gru.png"].copy()
         draw = ImageDraw.Draw(main)
         font = self.get_font("Helvetica", 15)
         curs = 60
@@ -265,7 +274,7 @@ class Painter:
         return self.buffer(main)
 
     def presentation(self, text):
-        im = self.get_image('presentation.jpg')
+        im = self.templates['presentation.jpg'].copy()
         font = self.get_font('Helvetica', 25)
         draw, curs = ImageDraw.Draw(im), 65
         for i in self.wrap_text(text, 432, font, array=True)[0:7]:
@@ -275,15 +284,17 @@ class Painter:
 
     def scooby(self, url):
         im = self.buffer_from_url(url)
-        bg = self.get_image('scooby.png')
+        bg = self.templates['scooby.png'].copy()
         cnv = Image.new(mode='RGB', size=(720, 960), color=(0, 0, 0))
         cnv.paste(im.resize((100, 93)), (139, 153))
         cnv.paste(im.resize((194, 213)), (79, 569))
         cnv.paste(bg, (0, 0), bg)
+        im.close()
+        bg.close()
         return self.buffer(cnv)
 
     def password(self, bad_pass, good_pass):
-        im = self.get_image('pass.png')
+        im = self.templates['pass.png'].copy()
         font = self.get_font('Helvetica', 25)
         draw = ImageDraw.Draw(im)
         draw.text((42, 80), self.wrap_text(bad_pass, 396, font, array=True)[0], font=font, fill='black')
@@ -523,17 +534,20 @@ class Painter:
 
     def trans_merge(self, obj):
         av = self.buffer_from_url(obj['url']).resize(obj['size'])
-        bg = self.get_image(obj['filename'].lower())
+        bg = self.templates[obj['filename'].lower()].copy()
         cnv = Image.new(mode='RGB', color=(0,0,0), size=bg.size)
         try: cnv.paste(av, obj['pos'], av)
         except: cnv.paste(av, obj['pos'])
         cnv.paste(bg, (0,0), bg)
+        bg.close()
+        av.close()
         return self.buffer(cnv)
     
     def merge(self, obj):
         av = self.buffer_from_url(obj['url']).resize(obj['size'])
-        bg = self.get_image(obj['filename'].lower())
+        bg = self.templates[obj['filename'].lower()].copy()
         bg.paste(av, obj['pos'])
+        av.close()
         return self.buffer(bg)
 
     def blur(self, url):
@@ -661,12 +675,13 @@ class Painter:
         return self.buffer(main)
     
     def evol(self, url):
-        ava, img = self.buffer_from_url(url).resize((77, 69)), self.get_image("evol.jpg")
+        ava, img = self.buffer_from_url(url).resize((77, 69)), self.templates["evol.jpg"].close()
         img.paste(ava, (255, 175))
+        ava.close()
         return self.buffer(img)
     
     def disconnected(self, msg):
-        im = self.get_image('disconnected.png')
+        im = self.templates['disconnected.png'].copy()
         draw, myFont = ImageDraw.Draw(im), self.get_font('Minecraftia-Regular', 16)
         w, h = myFont.getsize(msg)
         W, H = im.size
@@ -674,9 +689,10 @@ class Painter:
         return self.buffer(im)
     
     def ruin(self, ava):
-        im = self.get_image('destroyimg.png')
-        av = self.buffer_from_url(ava)
+        im = self.templates['destroyimg.png'].copy()
+        av = self.buffer_from_url(ava).resize((512, 512))
         av.paste(im, (0,0), im)
+        im.close()
         return self.buffer(av)
     
     def serverstats(self, guild):
@@ -696,53 +712,62 @@ class Painter:
     
     def lookatthisgraph(self, url):
         img = self.buffer_from_url(url).resize((741, 537)).rotate(20)
-        bg = self.get_image('graph.png')
+        bg = self.templates['graph.png'].copy()
         canvas = Image.new(mode='RGB', size=(1920, 1080), color=(0,0,0))
         canvas.paste(img, (833, 365))
         canvas.paste(bg, (0, 0), bg)
+        bg.close()
+        img.close()
         return self.buffer(canvas)
     
     def squidwardstv(self, avatar):
         cnv = Image.new(mode='RGB', size=(1088, 720), color=(0, 0, 0))
-        img = self.get_image('squidwardstv.png')
+        img = self.templates['squidwardstv.png'].copy()
         ava = self.buffer_from_url(avatar).resize((577, 467))
         cnv.paste(ava.rotate(-27), (381, 125))
         cnv.paste(img, (0, 0), img)
+        img.close()
+        ava.close()
         return self.buffer(cnv)
     
     def waifu(self, avatar):
         cnv = Image.new(mode='RGB', size=(450, 344), color=(0, 0, 0))
-        img = self.get_image('waifu.png')
+        img = self.templates['waifu.png'].copy()
         ava = self.buffer_from_url(avatar).resize((131, 162))
         cnv.paste(ava.rotate(-20), (112, 182))
         cnv.paste(img, (0, 0), img)
+        img.close()
+        ava.close()
         return self.buffer(cnv)
     
     def ifunny(self, avatar):
-        avatar, watermark = self.buffer_from_url(avatar).resize((545, 481)), self.get_image('ifunny.png')
+        avatar, watermark = self.buffer_from_url(avatar).resize((545, 481)), self.templates['ifunny.png'].copy()
         avatar.paste(watermark, (0, 0), watermark)
+        watermark.close()
         return self.buffer(avatar)
         
     def wasted(self, avatar):
-        avatar, wasted = self.buffer_from_url(avatar).resize((240, 240)), self.get_image('wasted.png').resize((240, 240))
+        avatar, wasted = self.buffer_from_url(avatar).resize((240, 240)), self.templates['wasted.png'].copy().resize((240, 240))
         try:
             red = Image.new(mode='RGB', size=(240, 240), color=(255, 0, 0))
             avatar = Image.blend(avatar, red, alpha=0.4)
         except ValueError:
             pass
         avatar.paste(wasted, (0, 0), wasted)
+        wasted.close()
         return self.buffer(avatar)
     
     def ifearnoman(self, url, url2):
         avpic = self.buffer_from_url(url)
         avpic2 = self.buffer_from_url(url2)
-        template = self.get_image('ifearnoman.jpg')
+        template = self.templates['ifearnoman.jpg'].copy()
         template.paste(avpic.resize((173, 159)), (98, 28))
         template.paste(avpic.resize((114, 109)), (60, 536))
         template.paste(avpic.resize((139, 145)), (598, 549))
         template.paste(avpic2.resize((251, 249)), (262, 513))
-        data = self.buffer(template)
-        return data
+        avpic.close()
+        avpic2.close()
+        return self.buffer(template)
     
     def simpletext(self, text):
         image = Image.new(mode='RGB',size=(5+(len(text)*38)+5, 80) ,color=(255, 255, 255))
@@ -751,22 +776,22 @@ class Painter:
         return data
     
     def baby(self, ava):
-        avatar = self.buffer_from_url(ava)
-        canvas = Image.new(mode='RGB',size=(728, 915) ,color=(0, 0, 0))
-        baby = self.get_image("baby.png")
-        avatar = avatar.resize((382, 349))
-        avatar = avatar.rotate(50)
+        avatar = self.buffer_from_url(ava).resize((382, 349)).rotate(50)
+        canvas = Image.new(mode='RGB',size=(728, 915), color=(0, 0, 0))
+        baby = self.templates["baby.png"].copy()
         canvas.paste(avatar, (203, 309))
         canvas.paste(baby, (0, 0), baby)
-        data = self.buffer(canvas)
-        return data
+        avatar.close()
+        baby.close()
+        return self.buffer(canvas)
     
     def art(self, ava):
-        image = self.get_image('art.png')
+        image = self.templates['art.png'].copy()
         cnv, pic = Image.new(mode='RGB', size=(1364, 1534), color=(0,0,0)), self.buffer_from_url(ava)
         cnv.paste(pic.resize((315, 373)), (927, 94))
         cnv.paste(pic.resize((318, 375)), (925, 861))
         cnv.paste(image, (0, 0), image)
+        image.close()
         return self.buffer(cnv)
     
     def resize(self, url, x, y):
@@ -798,7 +823,6 @@ class GifGenerator:
     
     def __init__(self, assetpath, fontpath):
         self.buffer_from_url = buffer_from_url
-        self.assetpath = assetpath
         self.fontpath = fontpath
         self.triggered_text = Image.open(f"{assetpath}/triggered.jpg")
         self.triggered_red = Image.new(mode="RGBA", size=(216, 216), color=(255, 0, 0, 100))
@@ -808,6 +832,11 @@ class GifGenerator:
         for frame in ImageSequence.Iterator(Image.open(f"{assetpath}/ussr.gif")):
             self.ussr_frames.append(frame.convert("RGB"))
         self.ussr_frames_size = len(self.ussr_frames)
+        
+        self.templates = {}
+        for image in listdir(assetpath):
+            if not image.endswith(".gif"): continue
+            self.templates[image] = Image.open(f"{assetpath}/{image}")
     
     def mask_circle(self, im):
         bigsize = (im.size[0] * 3, im.size[1] * 3)
@@ -828,16 +857,13 @@ class GifGenerator:
 
     def drawtext(self, draw, thefont, text, x, y, col):
         draw.text((x, y), text, fill =col, font=thefont, align ="left")
-
-    def get_image(self, imageName):
-        return Image.open(f'{self.assetpath}/{imageName}')
-
+        
     def get_font(self, fontname, size, otf=False):
         ext = 'ttf' if not otf else 'otf'
         return ImageFont.truetype(f'{self.fontpath}/{fontname}.{ext}', size)
 
     def hitler(self, pic):
-        thegif = self.get_image("hitler.gif")
+        thegif = self.templates["hitler.gif"].copy()
         av, images = self.buffer_from_url(pic).resize((79, 103)), []
         size = thegif.size
         for i in range(thegif.n_frames):
@@ -852,11 +878,12 @@ class GifGenerator:
                 cnv.paste(trans, (206, 30), trans)
             except: cnv.paste(av, (206, 30))
             images.append(cnv)
+        thegif.close()
         return self.bufferGIF(images, 1.2)
     
     def worship(self, pic):
         im = self.buffer_from_url(pic).resize((127, 160))
-        gi = self.get_image('worship.gif')
+        gi = self.templates['worship.gif'].copy()
         images = []
         for i in range(gi.n_frames):
             gi.seek(i)
@@ -865,6 +892,7 @@ class GifGenerator:
             try: cnv.paste(im, (303, 7), im)
             except: cnv.paste(im, (303, 7))
             images.append(cnv)
+        gi.close()
         return self.bufferGIF(images, 15)
 
     def flip(self, pic):
@@ -881,7 +909,7 @@ class GifGenerator:
         return self.bufferGIF(images, 20, transparent=True)
         
     def crazy_frog_dance(self, pic, metadata):
-        im = self.get_image('crazyfrog.gif')
+        im = self.templates['crazyfrog.gif'].copy()
         ava = self.buffer_from_url(pic)
         size, images = im.size, []
         for i in range(im.n_frames):
@@ -892,10 +920,11 @@ class GifGenerator:
             cnv.paste(im.convert('RGB'), (0,0))
             cnv.paste(ava.resize(placement), ava_size)
             images.append(cnv)
+        im.close()
         return self.bufferGIF(images, 5)
 
     def destroy_computer(self, pic, metadata):
-        data = self.get_image('rage.gif')
+        data = self.templates['rage.gif'].copy()
         ava = self.buffer_from_url(pic).resize((40, 40))
         imsize = data.size
         images = []
@@ -905,10 +934,11 @@ class GifGenerator:
             cnv.paste(data.convert('RGB'), (0,0))
             cnv.paste(ava, metadata[i])
             images.append(cnv)
+        data.close()
         return self.bufferGIF(images, 4.3)
 
     def death_star(self, pic):
-        gif_template = self.get_image('explosion.gif')
+        gif_template = self.templates['explosion.gif'].copy()
         ava, images, size = self.buffer_from_url(pic).resize((61, 62)), [], gif_template.size
         for i in range(gif_template.n_frames):
             canvas = Image.new(mode='RGB', color=(0,0,0), size=size)
@@ -916,6 +946,7 @@ class GifGenerator:
             gif_template.seek(i)
             if i < 7: canvas.paste(ava, (183, 143))
             images.append(canvas)
+        gif_template.close()
         return self.bufferGIF(images, 3)
 
     def rotate(self, pic, change_mode=False):
