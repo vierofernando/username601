@@ -9,13 +9,15 @@ class Paginator:
         self,
         ctx,
         embeds: list,
-        ratelimit: int = 2,
+        ratelimit: int = 1,
         max_time: int = 30,
         next_emoji: str = "▶️",
         previous_emoji: str = "◀️",
         start_emoji: str = "⏮",
         end_emoji: str = "⏭",
-        close_emoji: str = "❌"
+        close_emoji: str = "❌",
+        show_page_count: bool = False,
+        auto_set_color: bool = False
     ):
         """
         Simple Discord Paginator.
@@ -30,11 +32,20 @@ class Paginator:
         await paginator.execute()
         """
         self.embeds = embeds
+        if auto_set_color:
+            for embed in self.embeds:
+                embed.color = ctx.guild.me.roles[::-1][0].color
+        if show_page_count:
+            _embed_index = 1
+            for embed in self.embeds:
+                embed.set_author(name=f"Page {_embed_index}/{len(embeds)}")
+                self.embeds[_embed_index - 1] = embed
+                _embed_index += 1
         self.max = len(embeds)
         self.last_reaction = time()
         self.ctx, self.max_time, self.ratelimit = ctx, max_time, ratelimit
         self.index = 0
-        self.valid_emojis = [start_emoji, previous_emoji, end_emoji, next_emoji, end_emoji]
+        self.valid_emojis = [start_emoji, previous_emoji, close_emoji, next_emoji, end_emoji]
         self.check = (lambda reaction, user: (str(reaction.emoji) in self.valid_emojis) and (user == self.ctx.author))
     
     async def resolve_reaction(self, reaction):
@@ -44,7 +55,9 @@ class Paginator:
         self.last_reaction = current_time
         if (str(reaction.emoji) == self.valid_emojis[0]) and (self.index > 0): self.index = 0
         elif (str(reaction.emoji) == self.valid_emojis[1]) and (self.index > 0): self.index -= 1
-        elif (str(reaction.emoji) == self.valid_emojis[2]): return await self.delete()
+        elif (str(reaction.emoji) == self.valid_emojis[2]):
+            await self.delete()
+            return -1
         elif (str(reaction.emoji) == self.valid_emojis[3]) and (self.index < (self.max - 1)): self.index += 1
         elif (str(reaction.emoji) == self.valid_emojis[4]) and (self.index < (self.max - 1)): self.index = (self.max - 1)
         else: return
@@ -58,7 +71,8 @@ class Paginator:
         while True:
             try:
                 reaction, user = await self.ctx.bot.wait_for("reaction_add", timeout=self.max_time, check=self.check)
-                await self.resolve_reaction(reaction)
+                resolve = await self.resolve_reaction(reaction)
+                assert resolve != -1
             except:
                 break
     

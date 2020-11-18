@@ -11,8 +11,9 @@ from datetime import datetime as t
 
 class bothelp(commands.Cog):
     def __init__(self, client):
-        pass
-
+        self._categories = "\n".join([f"{i + 2}. `{client.cmds.categories[i]}`" for i in range(len(client.cmds.categories))])
+        self._init_help = [discord.Embed(title="The bot help embed™️", description="Use the reactions to move to the next page.\n\n**PAGES:**\n1. `This page`\n"+self._categories)]
+        
     @command('supportserver,support-server,botserver,bot-server')
     @cooldown(1)
     async def support(self, ctx):
@@ -45,30 +46,29 @@ class bothelp(commands.Cog):
     @command('commands,yardim,yardım')
     @cooldown(1)
     async def help(self, ctx, *args):
-        args = list(args)
         if len(args) == 0:
-            cate = '\n'.join(map(lambda i: '{}. `{}help {}`'.format(i+1, ctx.bot.command_prefix[0], ctx.bot.cmds.categories[i]), range(len(ctx.bot.cmds.categories))))
-            embed = discord.Embed(
-                title='Username601\'s commands',
-                description='[Invite the bot]('+ctx.bot.utils.config('BOT_INVITE')+') | [Vote us on top.gg](https://top.gg/bot/'+str(ctx.bot.user.id)+'/vote)\n\n**[More information on our website here.]('+ctx.bot.utils.config('WEBSITE_COMMANDS')+')**\n**Command Categories:** \n'+str(cate),
-                colour=ctx.guild.me.roles[::-1][0].color
-            )
-            embed.set_footer(text=f'Type {ctx.bot.command_prefix[0]}help <command/category> for more details.')
-            await ctx.send(embed=embed)
-        else:
-            data = ctx.bot.cmds.get_commands_auto(' '.join(args).lower())
-            if data is None: raise ctx.bot.utils.send_error_message("Your command/category name does not exist, sorry!")
-            datatype = 'Category' if isinstance(data, list) else 'Command'
-            desc = '**Command name: **{}\n**Function: **{}\n**Category: **{}'.format(
-                data['name'], data['function'], data['category']
-            ) if datatype=='Command' else '**Commands count: **{}\n**Commands:**```{}```'.format(len(data), ', '.join([i['name'] for i in data]))
-            embed = discord.Embed(title='{} help for query: "{}"'.format(datatype, ' '.join(args)), description=desc, color=ctx.guild.me.roles[::-1][0].color)
-            if datatype=='Command':
-                parameters = 'No parameters required.' if len(data['parameters'])==0 else '\n'.join([i for i in data['parameters']])
-                apis = 'No APIs used.' if len(data['apis'])==0 else '\n'.join(map(lambda x: f"[{x}]({x})", data['apis']))
-                embed.add_field(name='Parameters', value=parameters)
-                embed.add_field(name='APIs used', value=apis)
-            await ctx.send(embed=embed)
+            embeds = self._init_help
+            for category in ctx.bot.cmds.categories:
+                embed = discord.Embed(title=category, description="**Commands:**```"+(", ".join([command['name'] for command in ctx.bot.cmds.get_commands_from_category(category)]))+"```")
+                embed.set_footer(text=f"Type `{ctx.bot.command_prefix[0]}help <command>` to view command in a detailed version.")
+                embeds.append(embed)
+            
+            paginator = ctx.bot.EmbedPaginator(ctx, embeds, show_page_count=True, auto_set_color=True)
+            return await paginator.execute()
+        
+        data = ctx.bot.cmds.get_commands_auto(' '.join(args).lower())
+        if data is None: raise ctx.bot.utils.send_error_message("Your command/category name does not exist, sorry!")
+        datatype = 'Category' if isinstance(data, list) else 'Command'
+        desc = '**Command name: **{}\n**Function: **{}\n**Category: **{}'.format(
+            data['name'], data['function'], data['category']
+        ) if datatype=='Command' else '**Commands count: **{}\n**Commands:**```{}```'.format(len(data), ', '.join([i['name'] for i in data]))
+        embed = discord.Embed(title='{} help for query: "{}"'.format(datatype, ' '.join(args)), description=desc, color=ctx.guild.me.roles[::-1][0].color)
+        if datatype=='Command':
+            parameters = 'No parameters required.' if len(data['parameters'])==0 else '\n'.join([i for i in data['parameters']])
+            apis = 'No APIs used.' if len(data['apis'])==0 else '\n'.join(map(lambda x: f"[{x}]({x})", data['apis']))
+            embed.add_field(name='Parameters', value=parameters)
+            embed.add_field(name='APIs used', value=apis)
+        await ctx.send(embed=embed)
 
     @command()
     @cooldown(1)
