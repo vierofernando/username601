@@ -51,19 +51,23 @@ class dbl(commands.Cog):
         if data.get("error") is not None:
             raise self.client.utils.send_error_message(str(_input) + " does not exist in the [top.gg](https://top.gg/) database.")
         _ext = ".gif" if _input.is_avatar_animated() else ".png"
+        _social = "\n".join([
+            (key + ": " +self._social_prefix[key] + data["social"][key] if data["social"].get(key) else "<?>") for key in self._social_prefix.keys()
+        ])
+        _social = _social.replace("\n<?>", "").replace("<?>", "")
+        if not _social: _social = "`<not provided>`" # lmao this statement
+        _bio = "***\""+data["bio"].replace("*", "\*")+"\"***" if data.get("bio") else "This user has no bio."
         
         return self.client.Embed(
             ctx,
             title=data["username"] + "#" + data["discriminator"],
             image=data.get("banner"),
-            desc="***\"" +str(data.get("bio")).replace("*", "\*") + "\"***\n\nColor: `" + data['color'] + "`",
+            desc="***\""+_bio+"\"***\n\nColor: `" + data['color'] + "`",
             fields={
                 "User Type": "\n".join([
                     (":white_check_mark:" if data[key] else ":x:") + " " + self._dbl_type[key] for key in self._dbl_type.keys()
                 ]),
-                "Social Links": "\n".join([
-                    key + ": " +(self._social_prefix[key] + data["social"][key] if data["social"].get(key) else "`<not available>`") for key in self._social_prefix.keys()
-                ])
+                "Social Links": _social
             },
             thumbnail=(_input.avatar_url if _input.avatar_url is not None else "https://cdn.discordapp.com/avatars/"+data["id"]+"/"+data["avatar"]+".png"),
             url="https://top.gg/user/"+data["id"]
