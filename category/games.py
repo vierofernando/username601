@@ -218,7 +218,7 @@ class games(commands.Cog):
                 else: url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&days=1-second'
                 await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage(url), 'gdcomment.png'))
             except Exception as e:
-                raise ctx.bot.utils.send_error_message(f'Invalid!\nThe flow is this: `{ctx.bot.command_prefix}gdcomment text | name | like count`\nExample: `{ctx.bot.command_prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
+                raise ctx.bot.utils.send_error_message(f'Invalid!\nThe flow is this: `{ctx.bot.command_prefix[0]}gdcomment text | name | like count`\nExample: `{ctx.bot.command_prefix[0]}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
 
     @command('gdweekly')
     @cooldown(2)
@@ -403,7 +403,7 @@ class games(commands.Cog):
             main_guess_hid.append('\_ ')
         guessed, gameplay, playing_with, playing_with_id, level = [], True, ctx.author, ctx.author.id, 0
         while gameplay:
-            if ctx.message.content==ctx.bot.command_prefix+'hangman' and ctx.author.id!=int(playing_with_id) and ctx.guild.id==server_id:
+            if ctx.message.content==ctx.bot.command_prefix[0]+'hangman' and ctx.author.id!=int(playing_with_id) and ctx.guild.id==server_id:
                 await ctx.send('<@'+str(ctx.author.id)+'>, cannot play hangman when a game is currently playing!')
             newembed = discord.Embed(title=''.join(main_guess_hid), description='Wrong guesses: '+str(wrong_guesses), colour=ctx.guild.me.roles[::-1][0].color)
             newembed.set_image(url=f'https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{str(level)}.png')
@@ -533,7 +533,7 @@ class games(commands.Cog):
             for i in range(len(al)):
                 await wait.add_reaction(al[i])
         except Exception as e:
-            raise ctx.bot.utils.send_error_message(f'An error occurred!\nReport this using {ctx.bot.command_prefix}feedback.\n```{str(e)}```')
+            raise ctx.bot.utils.send_error_message(f'An error occurred!\nReport this using {ctx.bot.command_prefix[0]}feedback.\n```{str(e)}```')
         guy = ctx.author
         def check(reaction, user):
             return user == guy

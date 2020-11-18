@@ -281,7 +281,7 @@ class utils(commands.Cog):
                 description = str(films),
                 color = ctx.guild.me.roles[::-1][0].color
             )
-            embed.set_footer(text='Type `'+str(ctx.bot.command_prefix)+'ghibli <number>` to get each movie info.')
+            embed.set_footer(text='Type `'+str(ctx.bot.command_prefix[0])+'ghibli <number>` to get each movie info.')
             await wait.edit(content='', embed=embed)
         else:
             try:
@@ -381,7 +381,7 @@ class utils(commands.Cog):
     @command('col')
     @cooldown(3)
     async def color(self, ctx, *args):
-        if len(args) == 0: raise ctx.bot.utils.send_error_message(f"Invalid argument. use `{ctx.bot.command_prefix}help color` for more info.")
+        if len(args) == 0: raise ctx.bot.utils.send_error_message(f"Invalid argument. use `{ctx.bot.command_prefix[0]}help color` for more info.")
         async with ctx.channel.typing():
             parameter_data = ctx.bot.utils.parse_parameter(args, 'role', get_second_element=True)
             if parameter_data['available']:

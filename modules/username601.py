@@ -74,6 +74,7 @@ def parse_parameter(args, arg, get_second_element=False, singular=False):
     return {"available": False, "parsedarg": args, "secondparam": None}
 
 def get_id_from_mention(mention):
+    mention = mention.replace(" ", "").lower()
     if not mention.startswith('<@'): return mention
     if mention.startswith('<@!'): return int(mention[3:(len(mention)-1)])
     return int(mention[2:(len(mention)-1)])

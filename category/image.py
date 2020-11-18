@@ -312,7 +312,7 @@ class image(commands.Cog):
         av = ctx.bot.utils.getUserAvatar(ctx, args)
         return await ctx.send(file=discord.File(ctx.bot.canvas.invert_image(av), 'invert.png'))
         
-    @command('grayscale,b&w,bw,classic')
+    @command('grayscale,b&w,bw,classic,gray,grey,greyscale,gray-scale,grey-scale')
     @cooldown(1)
     async def blackandwhite(self, ctx, *args):
         av = ctx.bot.utils.getUserAvatar(ctx, args)
