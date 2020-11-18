@@ -59,6 +59,8 @@ class dbl(commands.Cog):
         if not _social: _social = "`<not provided>`" # lmao this statement
         _bio = "***\""+data["bio"].replace("*", "\*")+"\"***" if data.get("bio") else "This user has no bio."
         _color = "`"+data['color']+"`" if (data.get('color') not in self._none) else "`<not set>`"
+        _avatar = "https://cdn.discordapp.com/avatars/"+data["id"]+"/"+data["avatar"]+".png" if data.get("avatar") else None
+        if _avatar is None: raise self.client.utils.send_error_message("That user does not exist in the [top.gg](https://top.gg/) database.")
         
         return self.client.Embed(
             ctx,
@@ -71,11 +73,15 @@ class dbl(commands.Cog):
                 ]),
                 "Social Links": _social
             },
-            thumbnail=(_input.avatar_url if _input.avatar_url else "https://cdn.discordapp.com/avatars/"+data["id"]+"/"+data["avatar"]+".png" if data.get("avatar") else "https://cdn.discordapp.com/embed/avatars/0.png")
+            thumbnail=_avatar,
             url="https://top.gg/user/"+data["id"]
         )
     
     def get_owner_name(self, id):
+        _cached_user = self.client.get_user(int(_id))
+        if _cached_user is not None:
+            return str(_cached_user)
+        
         data = get("https://top.gg/api/users/"+str(id), headers={"Authorization": "Bearer "+environ["DBL_TOKEN"]}).json()
         if data.get("error") is not None: return "<not available>"
         return data["username"] + "#" + data["discriminator"]
