@@ -73,7 +73,7 @@ class economy(commands.Cog):
     @command('addshop')
     @cooldown(5)
     async def addproduct(self, ctx, *args):
-        if len(args)==0: raise ctx.bot.utils.send_error_message(f'Please use the following parameters:\n`{ctx.bot.command_prefix[0]}addshop <price> <name>`')
+        if len(args)==0: raise ctx.bot.utils.send_error_message(f'Please use the following parameters:\n`{ctx.bot.command_prefix}addshop <price> <name>`')
         if not ctx.author.guild_permissions.manage_guild: raise ctx.bot.utils.send_error_message('You do not have the correct permissions to modify the server\'s shop.')
         try:
             price = int(args[0])
@@ -90,7 +90,7 @@ class economy(commands.Cog):
     @command('remshop,delshop')
     @cooldown(5)
     async def delproduct(self, ctx, *args):
-        if len(args)==0: raise ctx.bot.utils.send_error_message(f'Please use the following parameters:\n`{ctx.bot.command_prefix[0]}delproduct <name>`\nor to delete all stored in the shop, use `{ctx.bot.command_prefix[0]}delproduct all`')
+        if len(args)==0: raise ctx.bot.utils.send_error_message(f'Please use the following parameters:\n`{ctx.bot.command_prefix}delproduct <name>`\nor to delete all stored in the shop, use `{ctx.bot.command_prefix}delproduct all`')
         if not ctx.author.guild_permissions.manage_guild: raise ctx.bot.utils.send_error_message('You do not have the correct permissions to modify the server\'s shop.')
         if args[0].lower()=='all':
             ctx.bot.db.Shop.delete_shop(ctx.guild)
@@ -105,7 +105,7 @@ class economy(commands.Cog):
     @command('bought')
     @cooldown(3)
     async def buy(self, ctx, *args):
-        if len(args)==0: raise ctx.bot.utils.send_error_message(f'Please use the following parameters:\n`{ctx.bot.command_prefix[0]}buy <name>`')
+        if len(args)==0: raise ctx.bot.utils.send_error_message(f'Please use the following parameters:\n`{ctx.bot.command_prefix}buy <name>`')
         if ctx.bot.db.Economy.get(ctx.author.id) is None: raise ctx.bot.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         try:
             data = ctx.bot.db.Shop.buy(' '.join(args), ctx.author)
@@ -125,7 +125,7 @@ class economy(commands.Cog):
             ), color=ctx.guild.me.roles[::-1][0].color)
             return await ctx.send(embed=em)
         except Exception as e:
-            raise ctx.bot.utils.send_error_message(f'{str(e)}!\nYou can always add a value using `{ctx.bot.command_prefix[0]}addproduct <price> <name>`')
+            raise ctx.bot.utils.send_error_message(f'{str(e)}!\nYou can always add a value using `{ctx.bot.command_prefix}addproduct <price> <name>`')
 
     @command('delete,deletedata,deldata,del-data,delete-data')
     @cooldown(3600)
@@ -158,7 +158,7 @@ class economy(commands.Cog):
             new_data = ctx.bot.db.Economy.addbal(ctx.author.id, int(reward))
             job = random.choice(loads(open(ctx.bot.utils.config('JSON_DIR')+'/work.json', 'r').read())['works'])
             if new_data=='success': await wait.edit(content=ctx.bot.success_emoji+f" | {ctx.author.name} worked {job} and earned {reward} bobux!")
-            else: raise ctx.bot.utils.send_error_message(f"Oops there was an error... Please report this to the owner using `{ctx.bot.command_prefix[0]}feedback.`\n`{new_data}`")
+            else: raise ctx.bot.utils.send_error_message(f"Oops there was an error... Please report this to the owner using `{ctx.bot.command_prefix}feedback.`\n`{new_data}`")
             
     @command()
     @cooldown(15)
@@ -245,7 +245,7 @@ class economy(commands.Cog):
     @command('dep')
     @cooldown(10)
     async def deposit(self, ctx, *args):
-        if len(args)==0: raise ctx.bot.utils.send_error_message(f'How many money?\nOr use `{ctx.bot.command_prefix[0]}dep all` to deposit all of your money.')
+        if len(args)==0: raise ctx.bot.utils.send_error_message(f'How many money?\nOr use `{ctx.bot.command_prefix}dep all` to deposit all of your money.')
         data = ctx.bot.db.Economy.get(ctx.author.id)
         if data is None: raise ctx.bot.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         if args[0].lower()=='all':
@@ -263,7 +263,7 @@ class economy(commands.Cog):
     @command()
     @cooldown(10)
     async def withdraw(self, ctx, *args):
-        if len(args)==0: raise ctx.bot.utils.send_error_message(f'How many money?\nOr use `{ctx.bot.command_prefix[0]}widthdraw all` to get money from the bank.')
+        if len(args)==0: raise ctx.bot.utils.send_error_message(f'How many money?\nOr use `{ctx.bot.command_prefix}widthdraw all` to get money from the bank.')
         data = ctx.bot.db.Economy.get(ctx.author.id)
         if data is None: raise ctx.bot.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         if args[0].lower()=='all':

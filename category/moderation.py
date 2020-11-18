@@ -117,7 +117,7 @@ class moderation(commands.Cog):
             ctx.bot.db.Dashboard.setDehoister(ctx.guild, True)
             return await ctx.send(embed=discord.Embed(
                 title='Activated dehoister.',
-                description=f'**What is dehoister?**\nDehoister is an automated part of this bot that automatically renames someone that tries to hoist their name (for example: `!ABC`)\n\n**How do i deactivate this?**\nJust type `{ctx.bot.command_prefix[0]}dehoister`.\n\n**It doesn\'t work for me!**\nMaybe because your role position is higher than me, so i don\'t have the permissions required.',
+                description=f'**What is dehoister?**\nDehoister is an automated part of this bot that automatically renames someone that tries to hoist their name (for example: `!ABC`)\n\n**How do i deactivate this?**\nJust type `{ctx.bot.command_prefix}dehoister`.\n\n**It doesn\'t work for me!**\nMaybe because your role position is higher than me, so i don\'t have the permissions required.',
                 color=ctx.guild.me.roles[::-1][0].color
             ))
         ctx.bot.db.Dashboard.setDehoister(ctx.guild, False)
@@ -135,7 +135,7 @@ class moderation(commands.Cog):
                 channel = await ctx.guild.create_text_channel(name='starboard', topic='Server starboard channel. Every funny/cool posts will be here.')
                 ctx.bot.db.Dashboard.addStarboardChannel(channel, 1)
                 success = ctx.bot.success_emoji
-                return await wait.edit(content=f'{success} | OK. Created a channel <#{str(channel.id)}>. Every starboard will be set there.\nTo remove starboard, type `{ctx.bot.command_prefix[0]}starboard remove`.\nBy default, starboard requirements are set to 1 reaction. To increase, type `{ctx.bot.command_prefix[0]}starboard limit <number>`.')
+                return await wait.edit(content=f'{success} | OK. Created a channel <#{str(channel.id)}>. Every starboard will be set there.\nTo remove starboard, type `{ctx.bot.command_prefix}starboard remove`.\nBy default, starboard requirements are set to 1 reaction. To increase, type `{ctx.bot.command_prefix}starboard limit <number>`.')
             return await wait.edit(content='', embed=discord.Embed(
                 title=f'Starboard for {ctx.guild.name}',
                 description='Channel: <#{}>\nStars required to reach: {}'.format(
@@ -217,7 +217,7 @@ class moderation(commands.Cog):
             if len(args)==0:
                 await ctx.send(embed=discord.Embed(
                     title='Command usage',
-                    description='{}welcome <CHANNEL>\n{}welcome disable'.format(ctx.bot.command_prefix[0], ctx.bot.command_prefix[0]),
+                    description='{}welcome <CHANNEL>\n{}welcome disable'.format(ctx.bot.command_prefix, ctx.bot.command_prefix),
                     color=ctx.guild.me.roles[::-1][0].color
                 ))
             else:
@@ -242,7 +242,7 @@ class moderation(commands.Cog):
             if len(args)==0:
                 await ctx.send(embed=discord.Embed(
                     title='Command usage',
-                    description='{}autorole <ROLENAME/ROLEPING>\n{}autorole disable'.format(ctx.bot.command_prefix[0], ctx.bot.command_prefix[0]),
+                    description='{}autorole <ROLENAME/ROLEPING>\n{}autorole disable'.format(ctx.bot.command_prefix, ctx.bot.command_prefix),
                     color=ctx.guild.me.roles[::-1][0].color
                 ))
             else:
@@ -297,7 +297,7 @@ class moderation(commands.Cog):
         if not ctx.author.guild_permissions.manage_roles: raise ctx.bot.utils.send_error_message(f'{ctx.author.mention}, you don\'t have the `Manage Roles` permission!')
         else:
             role_and_guy = ctx.bot.utils.split_parameter_to_two(args)
-            if role_and_guy is None: raise ctx.bot.utils.send_error_message(f"Please make sure you inputted like this: `{ctx.bot.command_prefix[0]}addrole <user id/user mention/username>, <role id/role mention/rolename>`")
+            if role_and_guy is None: raise ctx.bot.utils.send_error_message(f"Please make sure you inputted like this: `{ctx.bot.command_prefix}addrole <user id/user mention/username>, <role id/role mention/rolename>`")
             guy = ctx.bot.utils.getUser(ctx, role_and_guy[0])
             role_array = [i for i in ctx.guild.roles if role_and_guy[1].lower() in i.name.lower()]
             if len(role_array) == 0: raise ctx.bot.utils.send_error_message(f"Role `{role_and_guy[1]}` does not exist.")
@@ -313,7 +313,7 @@ class moderation(commands.Cog):
         if not ctx.author.guild_permissions.manage_roles: raise ctx.bot.utils.send_error_message(f'{ctx.author.mention}, you don\'t have the `Manage Roles` permission!')
         else:
             role_and_guy = ctx.bot.utils.split_parameter_to_two(args)
-            if role_and_guy is None: raise ctx.bot.utils.send_error_message(f"Please make sure you inputted like this: `{ctx.bot.command_prefix[0]}removerole <user id/user mention/username>, <role id/role mention/rolename>`")
+            if role_and_guy is None: raise ctx.bot.utils.send_error_message(f"Please make sure you inputted like this: `{ctx.bot.command_prefix}removerole <user id/user mention/username>, <role id/role mention/rolename>`")
             guy = ctx.bot.utils.getUser(ctx, role_and_guy[0])
             role_array = [i for i in ctx.guild.roles if role_and_guy[1].lower() in i.name.lower()]
             if len(role_array) == 0: raise ctx.bot.utils.send_error_message(f"Role `{role_and_guy[1]}` does not exist.")
@@ -327,7 +327,7 @@ class moderation(commands.Cog):
     @cooldown(10)
     async def ban(self, ctx, *args):
         try:
-            permission_name = 'ban_members' if ctx.message.content.startswith(ctx.bot.command_prefix[0] + "ban") else 'kick_members'
+            permission_name = 'ban_members' if ctx.message.content.startswith(ctx.bot.command_prefix + "ban") else 'kick_members'
             permission = getattr(ctx.author.guild_permissions, permission_name)
             assert permission, "{} does not have the `{}` to {} members.".format(str(ctx.author), permission_name.replace('_', ' '), permission_name.split('_')[0])
             idiot = ctx.bot.utils.getUser(ctx, args)
@@ -379,7 +379,7 @@ class moderation(commands.Cog):
                 except Exception as e:
                     raise ctx.bot.utils.send_error_message(f'For some reason, i cannot change <#{ctx.channel.id}>\'s :(\n\n```{str(e)}```')
         except:
-            raise ctx.bot.utils.send_error_message(f'Invalid parameters. Correct Example: `{ctx.bot.command_prefix[0]}{ctx.message.content.split()[0][1:]} [disable/enable]`')    
+            raise ctx.bot.utils.send_error_message(f'Invalid parameters. Correct Example: `{ctx.bot.command_prefix}{ctx.message.content.split()[0][1:]} [disable/enable]`')    
 
     @command('roles,serverroles,serverchannels,channels')
     @cooldown(2)
@@ -544,7 +544,7 @@ class moderation(commands.Cog):
     @cooldown(10)
     async def makechannel(self, ctx, *args):
         if len(args)<2:
-            raise ctx.bot.utils.send_error_message(f'Oops! Not a valid argument! Please do `{ctx.bot.command_prefix[0]}makechannel <voice/text> <name>`')
+            raise ctx.bot.utils.send_error_message(f'Oops! Not a valid argument! Please do `{ctx.bot.command_prefix}makechannel <voice/text> <name>`')
         else:
             if args[0].lower()!='text' or args[0].lower()!='voice':
                 raise ctx.bot.utils.send_error_message('Oops! Not a valid type of channel!')

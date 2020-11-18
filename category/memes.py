@@ -127,11 +127,11 @@ class memes(commands.Cog):
     @command('gruplan,plan')
     @cooldown(4)
     async def gru(self, ctx, *args):
-        if '; ' not in ' '.join(args): raise ctx.bot.utils.send_error_message('Please send something like:\n`'+ctx.bot.command_prefix[0]+'gru test word 1; test word 2; test word 3` (with semicolons)')
+        if '; ' not in ' '.join(args): raise ctx.bot.utils.send_error_message('Please send something like:\n`'+ctx.bot.command_prefix+'gru test word 1; test word 2; test word 3` (with semicolons)')
         try:
             text1, text2, text3 = tuple(' '.join(args).split('; '))
         except:
-            raise ctx.bot.utils.send_error_message("Invalid arguments. use something like\n`"+ctx.bot.command_prefix[0]+"gru text 1; text2; text3` (with semicolons)")
+            raise ctx.bot.utils.send_error_message("Invalid arguments. use something like\n`"+ctx.bot.command_prefix+"gru text 1; text2; text3` (with semicolons)")
         async with ctx.channel.typing():
             im = ctx.bot.canvas.gru(text1, text2, text3)
             return await ctx.send(file=discord.File(im, 'gru.png'))
