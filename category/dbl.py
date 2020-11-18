@@ -36,6 +36,7 @@ class dbl(commands.Cog):
         }
         self._bot_links = {"invite": "", "website": "", "support": "https://discord.gg/", "github": ""}
         self._bot_subtitution = {"invite": "Invite this Bot", "website": "Official Website", "support": "Support Server", "github": "GitHub Repository"}
+        self._none = ["", None, "#"]
     
     def resolve_user(self, ctx, args):
         if "".join(args[1:]).isnumeric():
@@ -57,19 +58,20 @@ class dbl(commands.Cog):
         _social = _social.replace("\n<?>", "").replace("<?>", "")
         if not _social: _social = "`<not provided>`" # lmao this statement
         _bio = "***\""+data["bio"].replace("*", "\*")+"\"***" if data.get("bio") else "This user has no bio."
+        _color = "`"+data['color']+"`" if (data.get('color') not in self._none) else "`<not set>`"
         
         return self.client.Embed(
             ctx,
             title=data["username"] + "#" + data["discriminator"],
             image=data.get("banner"),
-            desc="***\""+_bio+"\"***\n\nColor: `" + data['color'] + "`",
+            desc="***\""+_bio+"\"***\n\nColor: `"+_color+"`",
             fields={
                 "User Type": "\n".join([
                     (":white_check_mark:" if data[key] else ":x:") + " " + self._dbl_type[key] for key in self._dbl_type.keys()
                 ]),
                 "Social Links": _social
             },
-            thumbnail=(_input.avatar_url if _input.avatar_url is not None else "https://cdn.discordapp.com/avatars/"+data["id"]+"/"+data["avatar"]+".png"),
+            thumbnail=(_input.avatar_url if _input.avatar_url else "https://cdn.discordapp.com/avatars/"+data["id"]+"/"+data["avatar"]+".png" if data.get("avatar") else "https://cdn.discordapp.com/embed/avatars/0.png")
             url="https://top.gg/user/"+data["id"]
         )
     
