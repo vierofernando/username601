@@ -82,7 +82,7 @@ class games(commands.Cog):
             count += 1
         return "\n".join(res)
     
-    @command('mc')
+    @command('mc,skin')
     @cooldown(5)
     async def minecraft(self, ctx, *args):
         msg = await ctx.send(f"{ctx.bot.loading_emoji} | Fetching data from the minecraft servers...")
