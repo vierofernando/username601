@@ -421,7 +421,7 @@ class moderation(commands.Cog):
     @command('roles,serverroles,serverchannels,channels')
     @cooldown(2)
     async def channel(self, ctx):
-        arr = (list(map(lambda x: f"<#{x.id}>", ctx.guild.channels))) if "channel" in ctx.message.content.lower() else (list(map(lambda x: x.mention, ctx.guild.roles)))[1:]
+        arr = [f"<#{x.id}>" for x in ctx.guild.channels if x.type == discord.ChannelType.text] if "channel" in ctx.message.content.lower() else (list(map(lambda x: x.mention, ctx.guild.roles)))[1:]
         await ctx.send(embed=discord.Embed(description=str(", ".join(arr))[0:2000], color=ctx.guild.me.roles[::-1][0].color))
 
     @command('ui,user,usercard,user-info,user-card,whois,user-interface,userinterface')
