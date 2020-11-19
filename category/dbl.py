@@ -78,7 +78,7 @@ class dbl(commands.Cog):
         )
     
     def get_owner_name(self, id):
-        _cached_user = self.client.get_user(int(_id))
+        _cached_user = self.client.get_user(int(id))
         if _cached_user is not None:
             return str(_cached_user)
         
@@ -122,7 +122,7 @@ class dbl(commands.Cog):
         if data.get("error") is not None:
             raise self.client.utils.send_error_message("That bot does not exist in the [top.gg](https://top.gg/) database.")
         _links = "\n".join([("["+self._bot_subtitution[key]+"]("+self._bot_links[key]+data[key]+")" if data.get(key) else "??") for key in self._bot_links.keys()])
-        _links = _links.replace("\n??", "")
+        _links = _links.replace("\n??", "").replace("??", "")
         
         return self.client.Embed(
             ctx,

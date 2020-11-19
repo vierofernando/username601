@@ -261,18 +261,19 @@ class moderation(commands.Cog):
     @command('bigemoji,emojipic,emoji-img')
     @cooldown(3)
     async def emojiimg(self, ctx, *args):
+        text = "".join(args).replace(" ", "").lower()
         try:
-            em = args[0].lower()
-            if em.startswith('<:a:'): _id, an = em.split(':')[3].split('>')[0], True
-            else: _id, an = em.split(':')[2].split('>')[0], False
-            if an:
-                async with ctx.bot.bot_session.get('https://cdn.discordapp.com/emojis/{}.gif'.format(_id)) as r:
-                    res = await r.read()
-                    try:
-                        return await ctx.send(file=discord.File(fp=res, filename='emoji.gif'))
-                    except:
-                        raise ctx.bot.utils.send_error_message('The emoji file size is too big!')
-            else: await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage('https://cdn.discordapp.com/emojis/{}.png'.format(_id)), 'emoji.png'))
+            if text.startswith("<") and text.endswith(">"):
+                is_animated = text.startswith("<a:")
+                _ext = ".gif" if is_animated else ".png"
+                _id = int(text.split(":")[2].split(">")[0])
+                return await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage('https://cdn.discordapp.com/emojis/{}{}'.format(_id, _ext)), f'emoji{_ext}'))
+            
+            _twemoji = ctx.bot.twemoji(text)
+            if _twemoji == text:
+                raise ctx.bot.utils.send_error_message('No emoji found.')
+            return await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage(_twemoji), "emoji.png"))
+            
         except:
             raise ctx.bot.utils.send_error_message('Invalid emoji.')
     
