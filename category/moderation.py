@@ -505,7 +505,7 @@ class moderation(commands.Cog):
                 if data.mentionable==True: men = ':warning: You can mention this role and they can get pinged.'
                 else: men = ':v: You can mention this role and they will not get pinged! ;)'
                 embedrole = discord.Embed(title='Role info for role: '+str(data.name), description='**Role ID: **'+str(data.id)+'\n**Role created at: **'+ctx.bot.utils.lapsed_time_from_seconds(round(t.now().timestamp()-data.created_at.timestamp()))+' ago\n**Role position: **'+str(data.position)+'\n**Members having this role: **'+str(len(data.members))+'\n'+str(men)+'\nPermissions Value: '+str(data.permissions.value)+'\n'+str(perm), colour=data.colour)
-                embedrole.add_field(name='Role Colour', value='**Color hex: **#'+str(ctx.bot.utils.tohex(data.color.value))+'\n**Color integer: **'+str(data.color.value)+'\n**Color RGB: **'+str(', '.join(
+                embedrole.add_field(name='Role Colour', value='**Color hex: **#'+str(data.color.value)+'\n**Color integer: **'+str(data.color.value)+'\n**Color RGB: **'+str(', '.join(
                     list(map(lambda x: str(x), data.color.to_rgb()))
                 )))
                 await ctx.send(embed=embedrole)
