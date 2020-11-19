@@ -3,6 +3,9 @@
 ## DEPRECATED COMMANDS<br>
 these are commands i decided to delete with the reasons.
 
+### 1garfield<br>
+The API no lorger works (same thing has happened to other bots as well)
+
 ### 1wonka, 1fry, 1money, 1doge, 1philosoraptor, 1avmeme<br>
 Have been merged down to `1memegen`
 

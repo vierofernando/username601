@@ -126,23 +126,6 @@ class image(commands.Cog):
 
     @command()
     @cooldown(1)
-    async def garfield(self, ctx):
-        try:
-            year, month, day = str(random.randint(1979, 2019)), str(random.randint(1, 12)), str(random.randint(1, 28))
-            month = month if (len(month)==2) else "0"+month
-            day = day if (len(day)==2) else "0"+day
-            await ctx.send(file=discord.File(
-                ctx.bot.canvas.gif2png(
-                    "https://d1ejxu6vysztl5.cloudfront.net/comics/garfield/{}/{}-{}-{}.gif".format(
-                        year, year, month, day
-                    )
-                ), "garfield.png"
-            ))
-        except:
-            raise ctx.bot.utils.send_error_message("Ooops! We cannot find the image. Please try again.")
-
-    @command()
-    @cooldown(1)
     async def lucario(self, ctx):
         embed = discord.Embed(title='Lucario!', color=ctx.guild.me.roles[::-1][0].color)
         embed.set_image(url=ctx.bot.utils.fetchJSON('http://pics.floofybot.moe/image?token=lucario&category=sfw')['image'])
