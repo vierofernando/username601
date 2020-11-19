@@ -149,3 +149,48 @@ class embed:
         if _attachment is None:
             return await message.edit(content='', embed=_embed)
         await message.edit(content='', embed=_embed, file=_attachment)
+
+class ChooseEmbed(embed):
+    def __init__(self, ctx, reference: list, key = None):
+        """
+        The choose embed, waits for the user to input the number.
+        The key is a method that temporarily shows a reference. Example: (lambda x: x["name"])
+        """
+        
+        reference = reference[0:20]
+        self._pre_res = None if (len(reference) != 1) else reference[0]
+        self.message = None
+        
+        if self._pre_res is None:
+            self._size = len(reference)
+            self._range = range(1, self._size + 1)
+            self._ctx = ctx
+            self.embed = embed(ctx, title=f"Found {self._size} matches.", desc=f"**Send a number between `{self._range[0]}` and `{self._range[::-1][0]}` corresponding to your choice.**\n")
+            self._reference = []
+    
+            _i = 0
+            for choice in reference:
+                self._reference.append(choice)
+                self.embed.description += f"\n`{_i + 1}.` {choice}" if key is None else f"\n`{_i + 1}.` {key(choice)}"
+                _i += 1
+    
+    async def run(self):
+        """ Runs the whole thing. Returns an index of the choice, or None. """
+    
+        if self.message is not None: return
+        elif self._pre_res is not None:
+            return self._pre_res
+        
+        self.message = await self.embed.send()
+        _check = (lambda x: x.channel == self.message.channel and x.author == self._ctx.author)
+        _res = await self._ctx.bot.utils.wait_for_message(self._ctx, message=None, func=_check, timeout=20.0)
+        if (_res is None) or (not _res.content.isnumeric()):
+            await self.message.edit(embed=Embed(title="Canceled.", color=Color.red()))
+            return
+        _user_choice = int(_res.content)
+        if _user_choice not in self._range:
+            await self.message.edit(embed=Embed(title="Invalid range. Please try again.", color=Color.red()))
+            return
+        else:
+            await self.message.delete()
+            return self._reference[_user_choice - 1]

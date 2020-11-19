@@ -15,6 +15,32 @@ from PIL import ImageColor
 class utils(commands.Cog):
     def __init__(self, client):
         pass
+
+    @command('nation')
+    @cooldown(5)
+    async def country(self, ctx, *args):
+        _country = " ".join(args)
+        try:
+            assert _country is not None, "Send a country name!"
+            data = ctx.bot.utils.fetchJSON(f'https://restcountries.eu/rest/v2/name/{ctx.bot.utils.encode_uri(_country)}')
+            assert isinstance(data, list), "No such country with the name `"+_country+"` found."            
+            embed = ctx.bot.ChooseEmbed(ctx, data, key=(lambda x: x["name"]))
+            res = await embed.run()
+            if not res:
+                return
+            embed = ctx.bot.Embed(
+                ctx,
+                title=res["name"],
+                desc="Native name: \""+str(res.get("nativeName"))+"\"",
+                fields={
+                    "Location": "**Latitude Longitude:** `"+(", ".join([str(i) for i in res["latlng"]]))+"`\n**Region:** "+res["region"]+"\n**Subregion: **"+res["subregion"]+"\n**Capital:** "+res["capital"],
+                    "Detailed Info": "**Population Count: **"+str(res["population"])+"\n**Country Area: **"+str(res.get("area"))+" km²\n**Time Zones: **"+(", ".join(res["timezones"])),
+                    "Currency": (("\n".join(["**"+currency["name"]+"** ("+currency["code"]+" `"+currency["symbol"]+"`)" for currency in res["currencies"]])) if len(res["currencies"]) > 0 else "`doesn't have currency :(`")
+                }
+            )
+            return await embed.send()
+        except Exception as e:
+            raise ctx.bot.utils.send_error_message(str(e))
     
     @command()
     @cooldown(3)
@@ -308,22 +334,6 @@ class utils(commands.Cog):
             await ctx.send(embed=embed)
         except:
             raise ctx.bot.utils.send_error_message("Error: profile not found!")
-
-    @command('nation')
-    @cooldown(5)
-    async def country(self, ctx, *args):
-        try:
-            country = ctx.bot.utils.encode_uri(' '.join(args))
-            data = ctx.bot.canvas.country(country)
-            file = discord.File(data['buffer'], 'country.png')
-            embed = discord.Embed(title=' '.join(args), color=discord.Color.from_rgb(
-                data['color'][0], data['color'][1], data['color'][2]
-            ))
-            embed.set_thumbnail(url=data['image'])
-            embed.set_image(url='attachment://country.png')
-            return await ctx.send(file=file, embed=embed)
-        except:
-            raise ctx.bot.utils.send_error_message('Country not found!')
 
     @command()
     @cooldown(5)

@@ -367,47 +367,6 @@ class Painter:
         res = self.buffer_from_url(im).convert('L')
         return self.buffer(res)
 
-    def country(self, query):
-        bigfont = self.get_font('NotoSansDisplay-Bold', 35, otf=True)
-        smolfont = self.get_font('NotoSansDisplay-Bold', 25, otf=True)
-        smolerfont = self.get_font('NotoSansDisplay-Bold', 20, otf=True)
-        data = get('https://restcountries.eu/rest/v2/name/'+query).json()[0]
-        length = bigfont.getsize(data['name'])[0] + 200
-        flagid, flagnotfound = data['alpha2Code'].lower(), False
-        try: cf = [(
-            i['r'], i['g'], i['b']
-        ) for i in self.get_multiple_accents("https://www.worldometers.info/img/flags/"+flagid+"-flag.gif")]
-        except: flagnotfound = True
-        size = (length, 400)
-        if flagnotfound:
-            cf = list(map(lambda: (0,0,0), range(5)))
-        main = Image.new('RGB', color=(0,0,0), size=size)
-        draw = ImageDraw.Draw(main)
-        margin_right, margin_left = main.width, 0
-        draw.rectangle([
-            (margin_left, 0), (margin_right, 50) # nice.
-        ], fill=cf[0])
-        draw.text((margin_left+5, 0), data['name'], font=bigfont, fill=self.invert(cf[0]))
-        draw.rectangle([
-            (margin_left, 50), (margin_right, 81)
-        ], fill=cf[1])
-        draw.text((margin_left+5, 45), data['nativeName'], font=smolfont, fill=self.invert(cf[1]))
-        draw.rectangle([
-            (margin_left, 81), (main.width, 400)
-        ], fill=cf[2])
-        capital = '<not avaliable>' if data['capital']=='' else data['capital']
-        draw.text((margin_left+5, 78), self.wrap_text('Capital: '+capital, main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
-        draw.text((margin_left+5, 103), self.wrap_text('Region: '+data['region'], main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
-        draw.text((margin_left+5, 128), self.wrap_text('Subregion: '+data['subregion'], main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
-        draw.text((margin_left+5, 153), self.wrap_text('Population: '+self.toLocaleString(str(data['population'])), main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
-        draw.text((margin_left+5, 178), self.wrap_text('Area: '+self.toLocaleString(str(round(data['area'])))+' km', main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
-        draw.text((margin_left+5, 203), self.wrap_text('Timezones: '+', '.join(data['timezones']), main.width+90, smolfont), font=smolerfont, fill=self.invert(cf[2]))
-        return {
-            'buffer': self.buffer(main),
-            'color': cf[0],
-            'image': "https://google.com/" if flagnotfound else "https://www.worldometers.info/img/flags/"+flagid+"-flag.gif"
-        }
-
     def server(self, guild, data=None, raw=None):
         bigfont = self.get_font('NotoSansDisplay-Bold', 50, otf=True)
         medium = self.get_font('NotoSansDisplay-Bold', 20, otf=True)

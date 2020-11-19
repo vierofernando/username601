@@ -25,15 +25,6 @@ class owner(commands.Cog):
             os.environ['DB_LINK'],
             os.environ['USELESSAPI']
         ]
-    
-    @command()
-    async def test(self, ctx, *args):
-        if ctx.author.id not in [661200758510977084, 766952708602331137]: return
-        font = ctx.bot.canvas.get_font('consola', 35)
-        im = Image.new("RGB", (500, 500), color=(255, 255, 255))
-        parser = TwemojiParser(im)
-        parser.draw_text((10, 10), " ".join(args), fill=(0, 0, 0), font=font)
-        await ctx.send(file=discord.File(ctx.bot.canvas.buffer(im), "res.png"))
         
     @command()
     @cooldown(1)

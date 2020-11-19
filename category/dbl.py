@@ -88,23 +88,12 @@ class dbl(commands.Cog):
     
     async def search_bots(self, ctx, query):
         data = get("https://top.gg/api/search?q="+str(query)+"&type=bot").json()["results"]
-        _length = len(data)
+        if len(data) == 0: raise self.client.utils.send_error_message("That bot does not exist on the [top.gg](https://top.gg/) database.")
+        embed = self.client.ChooseEmbed(ctx, data, key=(lambda x: "["+x["name"]+"](https://top.gg/bot/"+x["id"]+")"))
+        res = await embed.run()
         
-        if _length == 0: raise self.client.utils.send_error_message("That bot does not exist on the [top.gg](https://top.gg/) database.")
-        elif _length == 1:
-            return data[0]["id"]
-        
-        embed = await self.client.Embed(
-            ctx,
-            title=f"Found {_length} matches.",
-            desc="**Send the number:**\n" + ("\n".join(["`"+str(i + 1)+"` ["+data[i]["name"]+"](https://top.gg/bot/"+data[i]["id"]+")" for i in range(_length)]))
-        ).send()
-        _check = (lambda x: x.channel == ctx.channel and x.author == ctx.author and x.content.isnumeric())
-        message = await self.client.utils.wait_for_message(ctx, message=None, func=_check, timeout=30.0)
-        if message is None: return
-        elif int(message.content) not in range(1, _length + 1): return
-        await embed.delete()
-        return data[int(message.content) - 1]["id"]
+        if res is None: return
+        return res["id"]
     
     async def resolve_bot(self, ctx, args):
         if len(args[1:]) == 0:
