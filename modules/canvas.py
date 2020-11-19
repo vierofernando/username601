@@ -371,12 +371,8 @@ class Painter:
         bigfont = self.get_font('NotoSansDisplay-Bold', 50, otf=True)
         medium = self.get_font('NotoSansDisplay-Bold', 20, otf=True)
         smolerfont = self.get_font('NotoSansDisplay-Bold', 15, otf=True)
-        if data is None:
-            server_title, members, icon = guild.name, guild.members, guild.icon_url
-            subtitle = 'Created {} ago by {}'.format(lapsed_time_from_seconds(t.now().timestamp() - guild.created_at.timestamp()), str(guild.owner))
-        else:
-            server_title, icon = data['name'], "https://cdn.discordapp.com/icons/{}/{}.png?size=1024".format(data['id'], data['icon'])
-            subtitle = data['description']
+        server_title, members, icon = guild.name, guild.members, guild.icon_url
+        subtitle = 'Created {} ago by {}'.format(lapsed_time_from_seconds(t.now().timestamp() - guild.created_at.timestamp()), str(guild.owner))
         title_width = bigfont.getsize(server_title)[0]
         ava = self.buffer_from_url(icon).resize((100, 100))
         self.mask_circle(ava)
@@ -388,49 +384,40 @@ class Painter:
         main = Image.new(mode='RGB', color=main_bg, size=(title_width+250, 480))
         draw, a_third_width = ImageDraw.Draw(main), round((margin_right - margin_left)/3)
         main.paste(ava, (25, 25))
+        ava.close()
         draw.text((135, 20), server_title, fill=self.invert(main_bg), font=bigfont)
         draw.text((135, 90), subtitle, fill=self.invert(main_bg), font=medium)
-        if data is None:
-            rect_y_cursor = self._draw_status_stats(draw, {
-                "online": len([i for i in members if i.status.value.lower()=='online']),
-                "idle": len([i for i in members if i.status.value.lower()=='idle']),
-                "do not disturb": len([i for i in members if i.status.value.lower()=='dnd']),
-                "streaming": len([i for i in members if i.status.value.lower()=='streaming']),
-                "offline": len([i for i in members if i.status.value.lower()=='offline'])
-            }, rect_y_cursor, smolerfont, margin_left, margin_right, bg_arr)
+        rect_y_cursor = self._draw_status_stats(draw, {
+            "online": len([i for i in members if i.status.value.lower()=='online']),
+            "idle": len([i for i in members if i.status.value.lower()=='idle']),
+            "do not disturb": len([i for i in members if i.status.value.lower()=='dnd']),
+            "streaming": len([i for i in members if i.status.value.lower()=='streaming']),
+            "offline": len([i for i in members if i.status.value.lower()=='offline'])
+        }, rect_y_cursor, smolerfont, margin_left, margin_right, bg_arr)
         draw.rectangle([
             (margin_left, rect_y_cursor), (main.width/2, rect_y_cursor + 120)
         ], fill=bg_arr[2])
-        if data is None:
-            draw.rectangle([
-                (main.width/2, rect_y_cursor), (margin_right, rect_y_cursor + 120)
-            ], fill=bg_arr[3])
-            afkname = "???" if guild.afk_channel is None else guild.afk_channel.name
-            main.paste(
-                self.buffer_from_url(self.region[str(guild.region)]).resize((35, 23)),
-                (margin_right - 45, round(rect_y_cursor + 25 + (18 * 3)))
-            )
-            draw.text((margin_left + 5, rect_y_cursor + 3), "Channels: {}\nRoles: {}\nLevel {}\n{} boosters".format(
-                len(guild.channels), len(guild.roles), guild.premium_tier, guild.premium_subscription_count
-            ), fill=self.invert(bg_arr[2]), font=medium)
-            draw.text(((main.width/2) + 5, rect_y_cursor + 3), "Region: {}\nAFK: {}\nAFK time: {}".format(
-                str(guild.region).replace('-', ''), afkname, lapsed_time_from_seconds(guild.afk_timeout).replace('minute', 'min')
-            ), fill=self.invert(bg_arr[3]), font=medium)
-        else:
-            draw.text((margin_left + 5, rect_y_cursor + 3), "Approx. Members: {}\nApprox. Presence: {}".format(raw['approximate_member_count'], raw['approximate_presence_count']), fill=self.invert(bg_arr[2]), font=medium)
+        draw.rectangle([
+            (main.width/2, rect_y_cursor), (margin_right, rect_y_cursor + 120)
+        ], fill=bg_arr[3])
+        afkname = "???" if guild.afk_channel is None else guild.afk_channel.name
+        main.paste(
+            self.buffer_from_url(self.region[str(guild.region)]).resize((35, 23)),
+            (margin_right - 45, round(rect_y_cursor + 25 + (18 * 3)))
+        )
+        draw.text((margin_left + 5, rect_y_cursor + 3), "Channels: {}\nRoles: {}\nLevel {}\n{} boosters".format(
+            len(guild.channels), len(guild.roles), guild.premium_tier, guild.premium_subscription_count
+        ), fill=self.invert(bg_arr[2]), font=medium)
+        draw.text(((main.width/2) + 5, rect_y_cursor + 3), "Region: {}\nAFK: {}\nAFK time: {}".format(
+            str(guild.region).replace('-', ''), afkname, lapsed_time_from_seconds(guild.afk_timeout).replace('minute', 'min')
+        ), fill=self.invert(bg_arr[3]), font=medium)
         rect_y_cursor += 120
         draw.rectangle([
             (margin_left, rect_y_cursor), (margin_right, rect_y_cursor + 90)
         ], fill=bg_arr[4])
-        if data is None:
-            draw.text((margin_left + 5, rect_y_cursor + 3), "{} Humans\n{} Bots\n{} Members in total".format(
-                len([i for i in members if not i.bot]), len([i for i in members if i.bot]), len(members)
-            ), fill=self.invert(bg_arr[4]), font=medium)
-        else:
-            text = ', '.join(map(
-                lambda i: i.replace('_', ' ').lower(), data['features']
-            ))
-            draw.text((margin_left + 5, rect_y_cursor + 5), self.wrap_text(text, (margin_right-5) - (margin_left+5), medium), fill=self.invert(bg_arr[4]), font=medium)
+        draw.text((margin_left + 5, rect_y_cursor + 3), "{} Humans\n{} Bots\n{} Members in total".format(
+            len([i for i in members if not i.bot]), len([i for i in members if i.bot]), len(members)
+        ), fill=self.invert(bg_arr[4]), font=medium)
         main = self.add_corners(main, 25)
         return self.buffer(main)
 

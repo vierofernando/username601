@@ -14,6 +14,42 @@ class moderation(commands.Cog):
     def __init__(self, client):
         self.latest = ["latest", "recent", "last"]
         self.first = ["first", "early", "earliest", "earlyest", "firstmember"]
+        self.permission_attributes = [
+            "add_reactions",
+            "administrator",
+            "attach_files",
+            "ban_members",
+            "change_nickname",
+            "connect",
+            "create_instant_invite",
+            "deafen_members",
+            "embed_links",
+            "external_emojis",
+            "kick_members",
+            "manage_channels",
+            "manage_emojis",
+            "manage_guild",
+            "manage_messages",
+            "manage_nicknames",
+            "manage_permissions",
+            "manage_roles",
+            "manage_webhooks",
+            "mention_everyone",
+            "move_members",
+            "mute_members",
+            "priority_speaker",
+            "read_message_history",
+            "read_messages",
+            "send_messages",
+            "send_tts_messages",
+            "speak",
+            "stream",
+            "use_external_emojis",
+            "use_voice_activation",
+            "view_audit_log",
+            "view_channel",
+            "view_guild_insights"
+        ]
         
     @command('jp,joinpos,joindate,jd,howold')
     @cooldown(5)
@@ -424,22 +460,14 @@ class moderation(commands.Cog):
             if ctx.guild.icon_url is None: raise ctx.bot.utils.send_error_message("This server has no emotes...")
             await ctx.send(ctx.guild.icon_url_as(size=4096))
         else:
-            if len(args)==0:
-                if ctx.guild.member_count>100:
-                    wait = await ctx.send('{} | Fetching guild data... please wait...'.format(ctx.bot.loading_emoji))
-                    im = ctx.bot.canvas.server(ctx.guild)
-                    await wait.delete()
-                else:
-                    await ctx.channel.trigger_typing()
-                    im = ctx.bot.canvas.server(ctx.guild)
-                await ctx.send(file=discord.File(im, 'server.png'))
+            if ctx.guild.member_count>100:
+                wait = await ctx.send('{} | Fetching guild data... please wait...'.format(ctx.bot.loading_emoji))
+                im = ctx.bot.canvas.server(ctx.guild)
+                await wait.delete()
             else:
-                try:
-                    data = ctx.bot.utils.fetchJSON(f"https://discord.com/api/v6/invites/{args[0].lower()}?with_counts=true")
-                    im = ctx.bot.canvas.server(None, data=data['guild'], raw=data)
-                    await ctx.send(file=discord.File(im, 'server_that_has_some_kewl_vanity_url.png'))
-                except:
-                    raise ctx.bot.utils.send_error_message("Please input a valid invite url code.")
+                await ctx.channel.trigger_typing()
+                im = ctx.bot.canvas.server(ctx.guild)
+            await ctx.send(file=discord.File(im, 'server.png'))
 
     @command('serverinvite,create-invite,createinvite,makeinvite,make-invite,server-invite')
     @cooldown(30)
@@ -477,18 +505,15 @@ class moderation(commands.Cog):
 
     @command('perms,perm,permission,permfor,permsfor,perms-for,perm-for')
     @cooldown(10)
-    async def permissions(self, ctx):
-        if len(ctx.message.mentions)==0: source = ctx.author
-        else: source = ctx.message.mentions[0]
-        perms_list = []
-        for i in dir(source.guild_permissions):
-            if str(i).startswith('__'): continue
-            data = eval('source.guild_permissions.{}'.format(i))
-            if str(type(data))=="<class 'bool'>":
-                if data: perms_list.append(':white_check_mark: {}'.format(i.replace('_', ' ')))
-                else: perms_list.append(':x: {}'.format(i.replace('_', ' ')))
-        embed = discord.Embed(title='Guild permissions for '+source.name, description='\n'.join(perms_list), colour=ctx.guild.me.roles[::-1][0].color)
-        await ctx.send(embed=embed)
+    async def permissions(self, ctx, *args):
+        user = ctx.bot.utils.getUser(ctx, args)
+        source = ctx.channel.permissions_for(user)
+        embed = ctx.bot.Embed(ctx, title="Permissions for "+str(user)+" in "+ctx.channel.name)
+        for permission in self.permission_attributes:
+            emoji = ":white_check_mark:" if getattr(source, permission) else ":x:"
+            embed.description += "{} {}\n".format(emoji, permission.replace("_", " "))
+        embed.description = embed.description[:-2]
+        return await embed.send()
 
     @command('mkchannel,mkch,createchannel,make-channel,create-channel')
     @cooldown(5)
@@ -526,20 +551,24 @@ class moderation(commands.Cog):
                         raise ctx.bot.utils.send_error_message("Try making my role higher than the person you are looking for!")
 
     @command('emoji')
-    @cooldown(5)
+    @cooldown(6)
     async def emojiinfo(self, ctx, *args):
+        input = "".join(args).replace(" ", "").lower()
         try:
-            erry, emojiid = int(args[0].split(':')[2][:-1]), False
-            data = ctx.bot.get_emoji(emojiid)
+            if input.startswith("<") and input.endswith(">"):
+                emojiid = int(args[0].split(':')[2][:-1])
+                data = ctx.bot.get_emoji(emojiid)
+            else:
+                _fil = list(filter((lambda x: input in x.name.lower()), ctx.guild.emojis))
+                assert len(_fil) > 0
+                data = _fil[0]
         except:
-            erry = True
             raise ctx.bot.utils.send_error_message('For some reason, we cannot process your emoji ;(')
-        if not erry:
-            if data.animated: anim = 'This emoji is an animated emoji. **Only nitro users can use it.**'
-            else: anim = 'This emoji is a static emoji. **Everyone can use it (except if limited by role)**'
-            embedy = discord.Embed(title='Emoji info for :'+str(data.name)+':', description='**Emoji name:** '+str(data.name)+'\n**Emoji ID: **'+str(data.id)+'\n'+anim+'\n**Emoji\'s server ID: **'+str(data.guild_id)+'\n**Emoji creation time: **'+str(data.created_at)[:-7]+' UTC.', colour=ctx.guild.me.roles[::-1][0].color)
-            embedy.set_thumbnail(url='https://cdn.discordapp.com/emojis/'+str(data.id)+'.png?v=1')
-            await ctx.send(embed=embedy)
+        if data.animated: anim, ext = 'This emoji is an animated emoji. **Only nitro users can use it.**', ".gif"
+        else: anim, ext = 'This emoji is a static emoji. **Everyone can use it (except if limited by role)**', ".png"
+        embedy = discord.Embed(title='Emoji info for :'+str(data.name)+':', description='**Emoji name:** '+str(data.name)+'\n**Emoji ID: **'+str(data.id)+'\n'+anim+'\n**Emoji creation time: **'+str(data.created_at)[:-7]+' UTC ('+ctx.bot.utils.lapsed_time_from_seconds(t.now().timestamp() - data.created_at.timestamp())+' ago).', colour=ctx.guild.me.roles[::-1][0].color)
+        embedy.set_thumbnail(url='https://cdn.discordapp.com/emojis/'+str(data.id)+ext)
+        await ctx.send(embed=embedy)
 
     @command('createchannel,create-channel,ch')
     @cooldown(10)
@@ -550,7 +579,7 @@ class moderation(commands.Cog):
             if args[0].lower()!='text' or args[0].lower()!='voice':
                 raise ctx.bot.utils.send_error_message('Oops! Not a valid type of channel!')
             else:
-                names = list(args)[1:len(args)]
+                names = list(args)[1:]
                 if args[0].lower()=='text': await ctx.guild.create_text_channel(name='-'.join(list(names)))
                 else: await ctx.guild.create_voice_channel(name='-'.join(names))
                 await ctx.send(ctx.bot.success_emoji+" | Successfully created a {} channel named {}.".format(args[0], str('-'.join(names))))
