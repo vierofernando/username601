@@ -421,8 +421,8 @@ class moderation(commands.Cog):
     @command('roles,serverroles,serverchannels,channels')
     @cooldown(2)
     async def channel(self, ctx):
-        total = ', '.join([f'<#{i.id}>' for i in ctx.guild.channels]) if 'channel' in ctx.message.content.lower() else ', '.join([f'<@&{i.id}>' for i in ctx.guild.roles])
-        await ctx.send(embed=discord.Embed(description=total, color=ctx.guild.me.roles[::-1][0].color))
+        arr = (list(map(lambda x: f"<#{x.id}>", ctx.guild.channels))) if "channel" in ctx.message.content.lower() else (list(map(lambda x: x.mention, ctx.guild.roles)))[1:]
+        await ctx.send(embed=discord.Embed(description=str(", ".join(arr))[0:2000], color=ctx.guild.me.roles[::-1][0].color))
 
     @command('ui,user,usercard,user-info,user-card,whois,user-interface,userinterface')
     @cooldown(3)
@@ -488,8 +488,15 @@ class moderation(commands.Cog):
             if '<@&' in ''.join(args):
                 data = ctx.guild.get_role(int(ctx.message.content.split('<@&')[1].split('>')[0]))
             else:
-                for i in ctx.guild.roles:
-                    if ' '.join(args).lower()==str(i.name).lower(): data = i ; break
+                input = " ".join(args).lower()
+                _filter = list(filter((lambda x: input in x.name.lower()), ctx.guild.roles))
+                if len(_filter) > 0:
+                    embed = ctx.bot.ChooseEmbed(ctx, _filter, key=(lambda x: x.mention))
+                    res = await embed.run()
+                    if res is not None:
+                        data = res
+                    else:
+                        return
             if data is None:
                 raise ctx.bot.utils.send_error_message('Role not found!')
             else:
