@@ -49,7 +49,7 @@ class bothelp(commands.Cog):
         if len(args) == 0:
             embeds = self._init_help
             for category in ctx.bot.cmds.categories:
-                embed = discord.Embed(title=category, description="**Commands:**```"+(", ".join([command['name'] for command in ctx.bot.cmds.get_commands_from_category(category)]))+"```")
+                embed = discord.Embed(title=category, description="**Commands:**```"+(", ".join([command['name'] for command in ctx.bot.cmds.get_commands_from_category(category.lower())]))+"```")
                 embed.set_footer(text=f"Type `{ctx.bot.command_prefix[0]}help <command>` to view command in a detailed version.")
                 embeds.append(embed)
             
