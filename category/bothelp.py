@@ -56,19 +56,28 @@ class bothelp(commands.Cog):
             paginator = ctx.bot.EmbedPaginator(ctx, embeds, show_page_count=True, auto_set_color=True)
             return await paginator.execute()
         
-        data = ctx.bot.cmds.get_commands_auto(' '.join(args).lower())
+        data = ctx.bot.cmds.query(' '.join(args).lower())
         if data is None: raise ctx.bot.utils.send_error_message("Your command/category name does not exist, sorry!")
-        datatype = 'Category' if isinstance(data, list) else 'Command'
+        
+        embed = ctx.bot.ChooseEmbed(ctx, data, key=(lambda x: "[`"+x["type"]+"`] `"+x["name"]+"`"))
+        result = await embed.run()
+        
+        if result is None: return
+        is_command = (result["type"] == "COMMAND")
+        data = ctx.bot.cmds.get_command_info(result["name"].lower()) if is_command else ctx.bot.cmds.get_commands_from_category(result["name"].lower())
+        
         desc = '**Command name: **{}\n**Function: **{}\n**Category: **{}'.format(
             data['name'], data['function'], data['category']
-        ) if datatype=='Command' else '**Commands count: **{}\n**Commands:**```{}```'.format(len(data), ', '.join([i['name'] for i in data]))
-        embed = discord.Embed(title='{} help for query: "{}"'.format(datatype, ' '.join(args)), description=desc, color=ctx.guild.me.roles[::-1][0].color)
-        if datatype=='Command':
+        ) if is_command else '**Commands count: **{}\n**Commands:**```{}```'.format(len(data), ', '.join([i['name'] for i in data]))
+        embed = ctx.bot.Embed(ctx, title="Help for "+result["type"].lower()+": "+result["name"], desc=desc)
+        if is_command:
             parameters = 'No parameters required.' if len(data['parameters'])==0 else '\n'.join([i for i in data['parameters']])
             apis = 'No APIs used.' if len(data['apis'])==0 else '\n'.join(map(lambda x: f"[{x}]({x})", data['apis']))
-            embed.add_field(name='Parameters', value=parameters)
-            embed.add_field(name='APIs used', value=apis)
-        await ctx.send(embed=embed)
+            embed.fields = {
+                'Parameters': parameters,
+                'APIs used': apis
+            }
+        return await embed.send()
 
     @command()
     @cooldown(1)

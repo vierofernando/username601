@@ -86,7 +86,7 @@ class games(commands.Cog):
     @cooldown(5)
     async def minecraft(self, ctx, *args):
         msg = await ctx.send(f"{ctx.bot.loading_emoji} | Fetching data from the minecraft servers...")
-        name = ctx.bot.utils.encode_uri("Notch" if len(args)==0 else ' '.join(args))
+        name = ctx.bot.utils.encode_uri(ctx.author.name if len(args)==0 else ' '.join(args))
         data = get(f"https://mc-heads.net/minecraft/profile/{name}")
         if data.status_code != 200: return await msg.edit(content=f"Minecraft for profile: `{name}` not found.")
         data = data.json()

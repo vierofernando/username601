@@ -66,7 +66,7 @@ class apps(commands.Cog):
     async def spotify(self, ctx, *args):
         user = ctx.bot.utils.getUser(ctx, args)
         act = self.get_spotify(user)
-        if act is None: raise ctx.bot.utils.send_error_message(f"Sorry, but {source.display_name} is not listening to spotify.")
+        if act is None: raise ctx.bot.utils.send_error_message(f"Sorry, but {user.display_name} is not listening to spotify.")
         async with ctx.channel.typing():
             await ctx.send(file=discord.File(ctx.bot.canvas.custom_panel(spt=act), 'spotify.png'))
 

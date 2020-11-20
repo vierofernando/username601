@@ -201,8 +201,10 @@ class Painter:
         main.paste(raw_texture.resize((400, 200)), (body_3d.width + 20, 0))
         try:
             cape = self.buffer_from_url(textures["CAPE"]["url"])
-            main.paste(cape.resize((400, 200)), (body_3d.width + 20, 220))
+            main.paste(cape.resize((400, 400)), (body_3d.width + 20, 220))
         except: pass
+        raw_texture.close()
+        body_3d.close()
         return self.buffer(main)
 
     def bottom_image_meme(self, image_url, text):

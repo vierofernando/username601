@@ -7,8 +7,10 @@ sys.path.append(environ['BOT_MODULES_DIR'])
 from decorators import command, cooldown
 from aiohttp import ClientSession
 from io import BytesIO
+from requests import post
 import asyncio
 from gtts import gTTS
+from json import dumps
 
 class fun(commands.Cog):
     def __init__(self, client):
@@ -42,12 +44,23 @@ class fun(commands.Cog):
         await ctx.send('Love level of {} and {} is **{}%!**'.format(ctx.message.mentions[0].name, ctx.message.mentions[1].name, str(result)))
     
     @command('echo,reply')
-    @cooldown(1)
+    @cooldown(5)
     async def say(self, ctx, *args):
-        if '--h' in ''.join(args):
+        if len(args) == 0: return await ctx.send("Send `something`.")
+        text = ' '.join(args).lower()[0:1999]
+        if ctx.message.content.startswith(f"{ctx.bot.command_prefix[0]}reply"):
+            res = post(
+                f'https://discord.com/api/v8/channels/{ctx.channel.id}/messages',
+                headers={'Authorization': 'Bot '+environ['DISCORD_TOKEN'], 'Content-Type': 'application/json'},
+                data=dumps({'content': text, 'message_reference': {'message_id': str(ctx.message.id), 'guild_id': str(ctx.guild.id)}, 'allowed_mentions': {'replied_user': False}})
+            ).status_code
+            if res != 200:
+                return await ctx.send(text, allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False))
+            return
+        if '--h' in text:
             try: await ctx.message.delete()
             except: pass
-        await ctx.send(' '.join(args).replace('--h', ''), allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False))
+        await ctx.send(text.replace('--h', ''), allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False))
     
     @command()
     @cooldown(1)
