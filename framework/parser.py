@@ -1,7 +1,115 @@
 from requests import get
+from .emote import emoji_to_url, valid_src
+from discord import Embed, Color
 
 class Parser:
     ALPHABET = list("abcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[];',./{}|:")
+
+    def __init__(self, text, arguments: list = None) -> None:
+        """
+        An object of a parser.
+        
+        Example:
+        
+        parser = Parser(ctx)
+        parser.add_argument("--argument")
+        parser.add_argument("--required", is_required=True)
+        parser.add_argument("--value", is_required=True, get_value=True, value_placeholder="value_name")
+        
+        result = await parser.parse()
+        
+        if not parser.success:
+            return
+        
+        print(result)
+        
+        """
+        content = ctx.message.content.lower().split()
+        
+        self.ctx = ctx
+        self.args = tuple(content[1:])
+        self.arguments = [] if arguments is None else arguments
+        self.usage = content[0] + " "
+        self.__is_valid_value = (lambda x: x in range(len(self.args)))
+        self._argument_names = []
+        self.success = False
+        
+        if self.arguments != []:
+            for arg in arguments:
+                self.__update_usage(arg)
+    
+    def add_argument(self, argument_name: str, is_required: bool = False, get_value: bool = False, value_placeholder: str = "argument") -> None:
+        """
+        Adds an argument manually.
+        argument_name = the argument name. example `--arg`
+        is_required = if the argument is required.
+        get_value = gets the value after the argument. e.g: `--arg parameter` and returns a `parameter`
+        value_placeholder = the name to show in the usage (in case an error.)
+        
+        """
+        __arg = {
+            "name": argument_name.lower(),
+            "required": is_required,
+            "get": get_value,
+            "value": value_placeholder
+        }
+        
+        self.arguments.append(__arg)
+        self.__update_usage(__arg)
+    
+    def __update_usage(self, element: dict):
+        _end = ">" if element["required"] else "]"
+        __extra = _end if not element["get"] else " " + element["value"] + _end
+        if element["required"]:
+            self.usage += "<" + element["name"] + __extra
+        else:
+            self.usage += "[" + element["name"] + __extra
+        
+        self._argument_names.append(element["name"])
+    
+    def __parse_value(self, index):
+        _res = ""
+    
+        if self.args[index].startswith('"'):
+            for arg in self.args[index:]:
+                _res += arg + " "
+                if arg.endswith('"') or (arg in self._argument_names):
+                    break
+        else:
+            return self.args[index]
+        
+        if _res:
+            return _res[:-1].replace('"', "")
+        return None
+    
+    async def parse(self) -> dict:
+        """ Parses the whole thing. """
+        
+        if self.arguments == []: return
+        
+        _res_dict = {}
+        for argument in self.arguments:
+
+            if (argument["name"] not in self.args):
+                _res_dict[argument["name"]] = {"exists": False, "value": None}
+                if argument["required"]:
+                    await self.ctx.send(embed=Embed(title="Missing required argument", description="This command is missing a `{}`.\nUsage: ```{}```".format(argument["name"], self.usage)).set_footer(text="P.S: <arg> is required and [arg] is optional. Do NOT literally type the [] or <>."))
+                    return _res_dict
+                continue
+                
+            try:
+                assert argument["get"]
+                _index = self.args.index(argument["name"]) + 1
+                assert self.__is_valid_value(_index)
+                _value = self.__parse_value(_index)
+                assert _value is not None
+            except:
+                _value = None
+            
+            _res_dict[argument["name"]] = {"exists": True, "value": _value}
+        
+        self.success = True
+        return _res_dict
 
     @staticmethod
     def __check_url(url: str):
@@ -20,29 +128,46 @@ class Parser:
         """
         name = name.replace(" ", "").lower()
         
-        for char in Parser.ALPHABET:
-            if char in name: return False
-        return True
+        for char in name:
+            if char in Parser.ALPHABET: return True
+        return False
 
     @staticmethod
-    def parse_image(ctx, default_to_png=True, size=1024, *args):
+    def parse_image(ctx, default_to_png=True, size=1024, member_only=True, *args):
         """
         Gets the image from message.
         Either it's attachment, a URL, or just a mention to get someone's avatar.
+        Disabling member_only will also detect URL or attachment.
         """
         if len(args) < 1:
             if default_to_png: return ctx.author.avatar_url_as(format="png", size=size)
             return ctx.author.avatar_url_as(size=size)
         
-        if len(ctx.message.attachments) > 0:
+        if (len(ctx.message.attachments) > 0) and not member_only:
             res = Parser.__check_url(ctx.message.attachments[0].url)
             if res:
                 return str(ctx.message.attachments[0].url)
         
         url = "".join(args).replace("<", "").replace(">", "")
         if ((url.startswith("http")) and ("://" in url)):
-            if Parser.__check_url(url):
+            if (not member_only) and Parser.__check_url(url):
                 return url
+        
+        _filtered = "".join(args).replace(" ", "").lower()
+        
+        if (_filtered.startswith("<") and _filtered.endswith(">")) and (not member_only):
+            _extension = ".gif" if _filtered.startswith("<a") else ".png"
+            try:
+                _id = int(_filtered.split(':')[2].split('>')[0])
+                _url = f"https://cdn.discordapp.com/emojis/{_id}{_extension}"
+                assert valid_src(_url)
+                return _url
+            except: pass
+        
+        if not member_only:
+            _emoji = emoji_to_url(_filtered)
+            if _emoji is not None:
+                return _emoji
         
         user = Parser.parse_user(ctx, *args)
         if not default_to_png: return str(user.avatar_url_as(size=size))
@@ -78,27 +203,3 @@ class Parser:
             elif user_name in str(member).lower(): return member
 
         return ctx.author
-    
-    @staticmethod
-    def parameter_exists(args: tuple, flag: str, return_as_bool=False, return_index=False):
-        """
-        Check if a specific flag exists on a argument.
-        Returns None if it doesn't exist,
-        otherwise returns a tuple without the flag.
-        Example:
-
-        args = ("!say", "hello", "--hidden")
-        res = Parser.parameter_exists(args, "--hidden")
-        if res:
-            await ctx.message.delete()
-        else:
-            res = args
-        return await ctx.send(res)
-
-        """
-        try:
-            statement = list(map(lambda x: x.lower(), args)).index(flag.lower())
-            if return_index: return statement
-            return tuple(filter(lambda x: x != args[statement], args))
-        except:
-            return None
