@@ -109,20 +109,6 @@ class image(commands.Cog):
                 ctx.bot.canvas.ruin(src), 'ruinedavatar.png'
             ))
 
-    #@command('distortion')
-    #@cooldown(1)
-    #async def distort(self, ctx, *args, blacklist=None):
-    #    user, num = ctx.bot.utils.split_parameter_to_two(args)
-    #    if not num.isnumeric(): num = 5
-    #    elif int(num) not in range(999): raise ctx.bot.utils.send_error_message("damn that level is hella weirdd")
-    #    ava = ctx.bot.utils.getUserAvatar(ctx, (user,))
-    #    async with ctx.channel.typing():
-    #        await ctx.send(file=discord.File(
-    #            ctx.bot.canvas.urltoimage('https://nezumiyuiz.glitch.me/api/distort?level={}&image={}'.format(
-    #                str(num), str(ava)
-    #            )), 'distort.png'
-    #        ))
-
     @command()
     @cooldown(1)
     async def lucario(self, ctx):
@@ -204,18 +190,6 @@ class image(commands.Cog):
             else:
                 raise ctx.bot.utils.send_error_message("Where are the parameters?")
 
-    #@command()
-    #@cooldown(10)
-    #async def nature(self, ctx):
-    #    async with ctx.channel.typing():
-    #        await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage('https://source.unsplash.com./1600x900/?nature'), 'nature.png'))
-    #
-    #@command('earth,moon')
-    #@cooldown(10)
-    #async def space(self, ctx):
-    #    async with ctx.channel.typing():
-    #        await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage('https://source.unsplash.com./1600x900/?{}'.format(random.choice(['earth', 'moon', 'space']))), 'space.png'))
-
     @command('cat,fox,sadcat,bird')
     @cooldown(1)
     async def dog(self, ctx):
@@ -280,7 +254,7 @@ class image(commands.Cog):
     async def magik(self, ctx, *args):
         source = ctx.bot.utils.getUserAvatar(ctx, args)
         await ctx.channel.trigger_typing()
-        return await ctx.bot.send_image_attachment(ctx, f'https://nekobot.xyz/api/imagegen?type=magik&image={source}&raw=1')
+        return await ctx.bot.send_image_attachment(ctx, f'https://api.alexflipnote.dev/filter/magik?image={source}', alexflipnote=True)
 
     @command()
     @cooldown(1)

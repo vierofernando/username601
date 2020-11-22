@@ -217,8 +217,9 @@ class Painter:
         try: rgb, brightness = ImageColor.getrgb(string), ImageColor.getcolor(string, 'L')
         except: return None
         
+        _hex = '%02x%02x%02x' % rgb
         main = Image.new(mode='RGB', size=(500, 500), color=rgb)
-        try: color_name = get('https://api.alexflipnote.dev/color/'+string[1:], headers={"Authorization": getenv("ALEXFLIPNOTE_TOKEN")}).json()['name']
+        try: color_name = get('https://api.alexflipnote.dev/color/'+_hex, headers={"Authorization": getenv("ALEXFLIPNOTE_TOKEN")}).json()['name']
         except: color_name = 'Unknown'
         big_font = self.get_font("Aller", 50)
         medium_font = self.get_font("Aller", 30)
