@@ -115,18 +115,7 @@ class Painter:
                 continue
         if res == []: return text
         return "\n".join(res)
-    
-    def fake_message_box(self, title, description):
-        image = self.templates["msgbox.png"].copy()
-        big_font = self.get_font("segoeui", 12)
-        small_font = self.get_font("segoeui", 11)
-        draw = ImageDraw.Draw(image)
-        title = self._process_message_box(title[0:250], big_font)
-        description = self._process_message_box(description[0:250], small_font, content=True)
-        draw.text((9, 7), title, font=big_font)
-        draw.text((63, 57), description, font=small_font, fill=(0, 0, 0))
-        return self.buffer(image)
-
+        
     def _draw_status_stats(self, draw, obj, rect_y_cursor, font, margin_left, margin_right, bg_arr):
         x_pos, colors = margin_left, [(63, 232, 0), (244, 208, 63), (225, 0, 0), (124, 0, 211), (127, 127, 127)]
         total = sum(map(lambda i: obj[i], obj.keys()))
@@ -747,13 +736,6 @@ class Painter:
         pic = pic.resize((x, y))
         data = self.buffer(pic)
         return data
-    
-    def urltoimage(self, url):
-        get_re = get(url)
-        if "oops" in get_re.text:
-            raise send_error_message("Error: Please input a valid image. `"+get_re.text.split(',"why":"')[1].split('"}')[0]+"`")
-            print("ERROR: "+get_re.text)
-        return BytesIO(get_re.content)
     
     def smallURL(self, url):
         image = self.buffer_from_url(url)

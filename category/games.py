@@ -6,13 +6,14 @@ from os import getcwd, name, environ
 sys.path.append(environ['BOT_MODULES_DIR'])
 from decorators import command, cooldown
 import random
+from io import BytesIO
 from datetime import datetime as t
 import discordgames as Games
 import asyncio
 
 class games(commands.Cog):
     def __init__(self, client):
-        pass
+        self.urltoimage = (lambda url: BytesIO(get(url).content))
 
     async def wait_for_user(self, ctx, user):
         check = (lambda x: (x.channel == ctx.channel) and (x.author == user) and (x.content.lower() in ["yes", "no"]))
@@ -90,7 +91,7 @@ class games(commands.Cog):
         data = get(f"https://mc-heads.net/minecraft/profile/{name}")
         if data.status_code != 200: return await msg.edit(content=f"Minecraft for profile: `{name}` not found.")
         data = data.json()
-        body, head = discord.File(ctx.bot.canvas.minecraft_body(f"https://mc-heads.net/body/{name}/600", data['id']), "body.png"), discord.File(ctx.bot.canvas.urltoimage(f"https://mc-heads.net/head/{name}/600"), "head.png")
+        body, head = discord.File(ctx.bot.canvas.minecraft_body(f"https://mc-heads.net/body/{name}/600", data['id']), "body.png"), discord.File(self.urltoimage(f"https://mc-heads.net/head/{name}/600"), "head.png")
         accent_color = ctx.bot.canvas.get_color_accent(f"https://mc-heads.net/head/{name}/600")
         names = self.get_name_history(data['id'], ctx)
         embed = discord.Embed(title=name, url='https://namemc.com/profile/'+data['id'], description="UUID: `"+data['id']+"`", color=discord.Color.from_rgb(*accent_color))
@@ -187,7 +188,7 @@ class games(commands.Cog):
             async with ctx.channel.typing():
                 text = ctx.bot.utils.encode_uri(' '.join(args))
                 url='https://gdcolon.com/tools/gdlogo/img/'+str(text)
-                await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage(url), 'gdlogo.png'))
+                return await ctx.bot.send_image_attachment(ctx, url)
     
     @command()
     @cooldown(3)
@@ -201,7 +202,7 @@ class games(commands.Cog):
                     if not ctx.author.guild_permissions.manage_guild: color = 'brown'
                     else: color = 'blue'
                     url='https://gdcolon.com/tools/gdtextbox/img/'+str(text)+'?color='+color+'&name='+ctx.author.name+'&url='+str(av)+'&resize=1'
-                    await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage(url), 'gdbox.png'))
+                    return await ctx.bot.send_image_attachment(ctx, url)
    
     @command()
     @cooldown(3)
@@ -216,7 +217,7 @@ class games(commands.Cog):
                 gdprof = ctx.bot.utils.encode_uri(byI[1])
                 if ctx.author.guild_permissions.manage_guild: url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&mod=mod&days=1-second'
                 else: url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&days=1-second'
-                await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage(url), 'gdcomment.png'))
+                return await ctx.bot.send_image_attachment(ctx, url)
             except Exception as e:
                 raise ctx.bot.utils.send_error_message(f'Invalid!\nThe flow is this: `{ctx.bot.command_prefix[0]}gdcomment text | name | like count`\nExample: `{ctx.bot.command_prefix[0]}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
 

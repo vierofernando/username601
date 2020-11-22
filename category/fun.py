@@ -86,14 +86,14 @@ class fun(commands.Cog):
         if len(args)<1: name = 'your mom'
         else: name = ' '.join(args)
         url= 'https://api.adorable.io/avatars/285/{}.png'.format(ctx.bot.utils.encode_uri(name))
-        await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage(url), 'random_avatar.png'))
+        return await ctx.bot.send_image_attachment(ctx, url)
 
     @command('inspiringquotes,lolquote,aiquote,imagequote,imgquote')
     @cooldown(10)
     async def inspirobot(self, ctx):
         async with ctx.channel.typing():
             img = ctx.bot.utils.inspect_element('https://inspirobot.me/api?generate=true')
-            await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage(img), 'inspirobot.png'))
+            return await ctx.bot.send_image_attachment(ctx, img)
     
     @command('randomcase')
     @cooldown(1)

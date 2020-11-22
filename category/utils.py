@@ -214,13 +214,13 @@ class utils(commands.Cog):
     async def robohash(self, ctx, *args):
         if len(args)==0: url='https://robohash.org/'+str(src.randomhash())
         else: url = 'https://robohash.org/'+str(ctx.bot.utils.encode_uri(' '.join(args)))
-        await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage(url), 'robohash.png'))
+        return await ctx.bot.send_image_attachment(ctx, url)
 
     @command()
     @cooldown(10)
     async def weather(self, ctx, *args):
         if len(args)==0: raise ctx.bot.utils.send_error_message("Please send a location or a city!")
-        else: await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage('https://wttr.in/'+str(ctx.bot.utils.encode_uri(' '.join(args)))+'.png?m'), 'weather.png'))
+        else: return await ctx.bot.send_image_attachment(ctx, 'https://wttr.in/'+str(ctx.bot.utils.encode_uri(' '.join(args)))+'.png')
 
     @command()
     @cooldown(10)

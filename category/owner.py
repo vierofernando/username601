@@ -15,7 +15,6 @@ from io import BytesIO
 from twemoji_parser import TwemojiParser
 
 totallyrealtoken = 'Ng5NDU4MjY5NTI2Mjk0MTc1.AkxrpC.MyB2BEHJLXuZ8h0wY0Qro6Pwi8'
-mods = 'weebs'
 
 class owner(commands.Cog):
     def __init__(self, client):
@@ -25,7 +24,7 @@ class owner(commands.Cog):
             os.environ['DB_LINK'],
             os.environ['USELESSAPI']
         ]
-        
+    
     @command()
     @cooldown(1)
     async def leave(self, ctx, *args):
@@ -115,9 +114,10 @@ class owner(commands.Cog):
     @command('ex,eval')
     async def evaluate(self, ctx, *args):
         iwanttostealsometoken = False
-        unprefixed = ' '.join(args).replace("`", "").replace('"', "'") if len(args)!=0 else 'undefined'
+        unprefixed = ' '.join(args).replace("`", "").replace('"', "'").replace("--silent", "") if len(args)!=0 else 'undefined'
         if ctx.author.id in [661200758510977084, 766952708602331137]:
             try:
+                is_silent = "--silent" in args
                 time_then = t.now().timestamp()
                 res = eval(unprefixed)
                 time = (t.now().timestamp() - time_then) * 1000
@@ -125,6 +125,7 @@ class owner(commands.Cog):
                     if str(i).lower() in str(res).lower(): res = totallyrealtoken
                     elif str(i).lower() in str(' '.join(args)).lower():
                         res = totallyrealtoken
+                if is_silent: return
                 if isawaitable(res): await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```**Output:**```py\n'+str(await res)[0:1990]+'```\n**Return type:** '+str(type(await res).__name__)+'\n**Execution time: **'+str(time)+' ms.', color=discord.Colour.green()))
                 else: await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```**Output:**```py\n'+str(res)[0:1990]+'```\n**Return type:** '+str(type(res).__name__)+'\n**Execution time: **'+str(time)+' ms.', color=discord.Color.green()))
             except Exception as e:

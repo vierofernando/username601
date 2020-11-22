@@ -303,12 +303,12 @@ class moderation(commands.Cog):
                 is_animated = text.startswith("<a:")
                 _ext = ".gif" if is_animated else ".png"
                 _id = int(text.split(":")[2].split(">")[0])
-                return await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage('https://cdn.discordapp.com/emojis/{}{}'.format(_id, _ext)), f'emoji{_ext}'))
+                return await ctx.bot.send_image_attachment(ctx, 'https://cdn.discordapp.com/emojis/{}{}'.format(_id, _ext))
             
             _twemoji = ctx.bot.twemoji(text)
             if _twemoji == text:
                 raise ctx.bot.utils.send_error_message('No emoji found.')
-            return await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage(_twemoji), "emoji.png"))
+            return await ctx.bot.send_image_attachment(ctx, _twemoji)
             
         except:
             raise ctx.bot.utils.send_error_message('Invalid emoji.')

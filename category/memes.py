@@ -56,16 +56,6 @@ class memes(commands.Cog):
             res = get("https://useless-api.vierofernando.repl.co/folder?image="+url, headers={"superdupersecretkey": environ["USELESSAPI"]}).content
             await ctx.send(file=discord.File(BytesIO(res), "your_homework_folder.png"))
 
-    @command('fakemsgbox,fakemessagebox,messagebox,message-box,msg-box')
-    @cooldown(3)
-    async def msgbox(self, ctx, *args):
-        async with ctx.channel.typing():
-            res = ctx.bot.utils.split_parameter_to_two(args)
-            if res is None:
-                raise ctx.bot.utils.send_error_message("Plesae input two parameters, split by space, comma, semicolon, or |.")
-            buffer = ctx.bot.canvas.fake_message_box(res[0], res[1])
-            return await ctx.send(file=discord.File(buffer, "msgbox.png"))
-
     @command('scoobydoo,reveal,revealed,expose,exposed,scooby-doo')
     @cooldown(2)
     async def scooby(self, ctx, *args):
@@ -214,15 +204,6 @@ class memes(commands.Cog):
                 res = await r.read()
                 await ctx.send(file=discord.File(fp=BytesIO(res), filename="nichijou.gif"))
     
-    @command('ifunny')
-    @cooldown(5)
-    async def wasted(self, ctx, *args):
-        async with ctx.channel.typing():
-            source = ctx.bot.utils.getUserAvatar(ctx, args, size=512)
-            if 'wasted' in ctx.message.content: data, filename = ctx.bot.canvas.wasted(source), 'wasted.png'
-            else: data, filename = ctx.bot.canvas.ifunny(source), 'ifunny.png'
-            await ctx.send(file=discord.File(data, filename))
-    
     @command('achieve,call')
     @cooldown(5)
     async def challenge(self, ctx, *args):
@@ -233,7 +214,7 @@ class memes(commands.Cog):
                 if 'challenge' in ctx.message.content.split(' ')[0][1:]: url='https://api.alexflipnote.dev/challenge?text='+str(txt)
                 elif 'call' in ctx.message.content.split(' ')[0][1:]: url='https://api.alexflipnote.dev/calling?text='+str(txt)
                 else: url='https://api.alexflipnote.dev/achievement?text='+str(txt)
-                await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage(url), 'minecraft_notice.png'))
+                return await ctx.bot.send_image_attachment(ctx, url)
 
     @command('dym')
     @cooldown(2)
@@ -242,8 +223,7 @@ class memes(commands.Cog):
         if params is None: raise ctx.bot.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
         txt1, txt2 = params
         url = f'https://api.alexflipnote.dev/didyoumean?top={txt1}&bottom={txt2}'
-        data = ctx.bot.canvas.urltoimage(url)
-        await ctx.send(file=discord.File(data, 'drake.png'))
+        return await ctx.bot.send_image_attachment(ctx, url)
     
     @command()
     @cooldown(2)
@@ -251,9 +231,7 @@ class memes(commands.Cog):
         params = ctx.bot.utils.split_parameter_to_two(args)
         if params is None: raise ctx.bot.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
         txt1, txt2 = params
-        url = f'https://api.alexflipnote.dev/drake?top={txt1}&bottom={txt2}'
-        data = ctx.bot.canvas.urltoimage(url)
-        await ctx.send(file=discord.File(data, 'drake.png'))
+        return await ctx.bot.send_image_attachment(ctx, url)
             
     @command()
     @cooldown(1)
@@ -261,8 +239,7 @@ class memes(commands.Cog):
         async with ctx.channel.typing():
             av = ctx.bot.utils.getUserAvatar(ctx, args)
             url = 'https://api.alexflipnote.dev/salty?image='+str(av)
-            data = ctx.bot.canvas.urltoimage(url)
-            await ctx.send(file=discord.File(data, 'salty.png'))
+            return await ctx.bot.send_image_attachment(ctx, url)
 
     @command()
     @cooldown(5)
@@ -294,8 +271,7 @@ class memes(commands.Cog):
             av = ctx.author.avatar_url_as(format='png')
             toTrash = ctx.bot.utils.getUserAvatar(ctx, args)
             url='https://api.alexflipnote.dev/trash?face='+str(av)+'&trash='+str(toTrash)
-            data = ctx.bot.canvas.urltoimage(url)
-            await ctx.send(file=discord.File(data, 'trashed.png'))
+            return await ctx.bot.send_image_attachment(ctx, url)
 
     @command()
     @cooldown(8)
@@ -347,23 +323,21 @@ class memes(commands.Cog):
                 scrolltxt = ctx.bot.utils.encode_uri(' '.join(args))
                 embed = discord.Embed(colour=ctx.guild.me.roles[::-1][0].color)
                 url='https://api.alexflipnote.dev/scroll?text='+str(scrolltxt)
-                data = ctx.bot.canvas.urltoimage(url)
-                await ctx.send(file=discord.File(data, 'scroll.png'))
+                return await ctx.bot.send_image_attachment(ctx, url)
     @command()
     @cooldown(10)
     async def imgcaptcha(self, ctx, *args):
         async with ctx.channel.typing():
             av, nm = ctx.bot.utils.getUserAvatar(ctx, args), ctx.bot.utils.getUser(ctx, args).name
             url = 'http://nekobot.xyz/api/imagegen?type=captcha&username='+nm+'&url='+av+'&raw=1'
-            data = ctx.bot.canvas.urltoimage(url)
-            await ctx.send(file=discord.File(data, 'your_captcha.png'))
+            return await ctx.bot.send_image_attachment(ctx, url)
 
     @command('captchatext,captchatxt,generatecaptcha,gen-captcha,gencaptcha,capt')
     @cooldown(10)
     async def captcha(self, ctx, *args):
         async with ctx.channel.typing():
             capt = 'username601' if len(args)==0 else ' '.join(args)
-            await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage('https://useless-api.vierofernando.repl.co/captcha?text={}'.format(capt)), 'captcha.png'))
+            return await ctx.bot.send_image_attachment(ctx, 'https://useless-api.vierofernando.repl.co/captcha?text={}'.format(capt))
 
     @command('baby,wolverine,disgusting,f,studying,starvstheforcesof')
     @cooldown(10)
@@ -392,11 +366,7 @@ class memes(commands.Cog):
         else:
             await ctx.message.add_reaction(ctx.bot.loading_emoji)
             async with ctx.channel.typing():
-                try:
-                    data = ctx.bot.canvas.urltoimage('https://nekobot.xyz/api/imagegen?type=changemymind&text='+ctx.bot.utils.encode_uri(' '.join(args))+'&raw=1')
-                    await ctx.send(file=discord.File(data, 'changemymind.png'))
-                except Exception as e:
-                    raise ctx.bot.utils.send_error_message("Oops! There was an error on generating your meme; `"+str(e)+"`")
+                return await ctx.bot.send_image_attachment(ctx, 'https://nekobot.xyz/api/imagegen?type=changemymind&text='+ctx.bot.utils.encode_uri(' '.join(args))+'&raw=1')
 
     @command('gimme,memz,memey')
     @cooldown(5)
@@ -417,7 +387,7 @@ class memes(commands.Cog):
         else:
             async with ctx.channel.typing():
                 url='https://nekobot.xyz/api/imagegen?type='+ctx.message.content.split(' ')[0][1:]+'&text='+ctx.bot.utils.encode_uri(' '.join(args))+'&raw=1'
-                await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage(url, stream=True), 'yolo.png'))
+                return await ctx.bot.send_image_attachment(ctx, url)
 
     @command()
     @cooldown(10)
@@ -430,7 +400,7 @@ class memes(commands.Cog):
                 auth = str(ctx.message.mentions[0].avatar_url_as(format='png'))
                 if len(args)>2: text = ctx.message.content.split('> ')[1]
                 else: text = 'I forgot to put the arguments, oops'
-            await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage('https://api.alexflipnote.dev/floor?image='+auth+'&text='+ctx.bot.utils.encode_uri(text)), 'floor.png'))
+            return await ctx.bot.send_image_attachment(ctx, 'https://api.alexflipnote.dev/floor?image='+auth+'&text='+ctx.bot.utils.encode_uri(text))
 
     @command('doctor,terrifying,terrified,eye-doctor,eyedoctor,scary,frightening')
     @cooldown(2)
@@ -450,7 +420,7 @@ class memes(commands.Cog):
     async def amiajoke(self, ctx, *args):
         source = ctx.bot.utils.getUserAvatar(ctx, args)
         url = 'https://api.alexflipnote.dev/amiajoke?image='+str(source)
-        await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage(url), 'maymays.png'))
+        return await ctx.bot.send_image_attachment(ctx, url)
 
     async def modern_meme(self, ctx, *args):
         keys = list(self.meme_templates["bottom_image"].keys())
@@ -490,7 +460,7 @@ class memes(commands.Cog):
         text1, text2 = ctx.bot.utils.split_parameter_to_two(format_text.content.split())
         url = link.replace("{TEXT1}", ctx.bot.utils.encode_uri(text1)[0:64]).replace("{TEXT2}", ctx.bot.utils.encode_uri(text2)[0:64])
         async with ctx.channel.typing():
-            return ctx.bot.canvas.urltoimage(url)
+            return await ctx.bot.send_image_attachment(ctx, url)
 
     async def custom_image_meme(self, ctx, *args):
         message = await ctx.bot.utils.wait_for_message(ctx, message="Please send a **Image URL/Attachment**, or\nSend a **ping/user ID/name** to format as an **avatar.**\nOr send `mine` to use your avatar instead.", timeout=60.0)
@@ -501,7 +471,7 @@ class memes(commands.Cog):
         if text is None: raise ctx.bot.utils.send_error_message("You did not input a text. Meme making canceled.")
         text1, text2 = ctx.bot.utils.split_parameter_to_two(tuple(text.content.split()))
         async with ctx.channel.typing():
-            return ctx.bot.canvas.urltoimage("https://api.memegen.link/images/custom/{}/{}.png?background={}".format(ctx.bot.utils.encode_uri(text1)[0:64], ctx.bot.utils.encode_uri(text2)[0:64], url))
+            return await ctx.bot.send_image_attachment(ctx, "https://api.memegen.link/images/custom/{}/{}.png?background={}".format(ctx.bot.utils.encode_uri(text1)[0:64], ctx.bot.utils.encode_uri(text2)[0:64], url))
 
     @command('memegen,meme-gen,gen-meme,generatememe,generate-meme,meme-editor,meme_editor,memeeditor')
     @cooldown(5)

@@ -43,8 +43,8 @@ class encoding(commands.Cog):
         else:
             async with ctx.channel.typing():
                 if 'qr' in ctx.message.content.split(' ')[0][1:]: url = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+str(ctx.bot.utils.encode_uri(str(' '.join(args))))
-                else: url= 'http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data='+str(ctx.bot.utils.encode_uri(str(' '.join(args))))
-                await ctx.send(file=discord.File(ctx.bot.canvas.urltoimage(url), 'qr_or_barcode.png'))
+                else: url = 'http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data='+str(ctx.bot.utils.encode_uri(str(' '.join(args))))
+                return await ctx.bot.send_image_attachment(ctx, url)
     
     @command()
     @cooldown(1)

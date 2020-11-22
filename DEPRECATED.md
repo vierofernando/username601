@@ -3,6 +3,9 @@
 ## DEPRECATED COMMANDS<br>
 these are commands i decided to delete with the reasons.
 
+### 1destroy, 1ifunny, 1msgbox, 1wasted<br>
+Rarely used (also deleted to save RAM)
+
 ### 1garfield<br>
 The API no lorger works (same thing has happened to other bots as well)
 
