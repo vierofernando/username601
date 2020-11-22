@@ -231,7 +231,8 @@ class memes(commands.Cog):
         params = ctx.bot.utils.split_parameter_to_two(args)
         if params is None: raise ctx.bot.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
         txt1, txt2 = params
-        return await ctx.bot.send_image_attachment(ctx, url)
+        url = "https://api.alexflipnote.dev/drake?top"+ctx.bot.utils.encode_uri(txt1)+"&bottom="+ctx.bot.utils.encode_uri(txt2)
+        return await ctx.bot.send_image_attachment(ctx, url, alexflipnote=True)
             
     @command()
     @cooldown(1)

@@ -213,13 +213,12 @@ class Painter:
         res = Image.blend(pic1, pic2, alpha=0.5)
         return self.buffer(res)
 
-    def color(self, string, rgb_input=None):
-        if rgb_input is not None: string = '#%02x%02x%02x' % rgb_input
-        if not string.startswith('#'): string = '#' + string
+    def color(self, string):
         try: rgb, brightness = ImageColor.getrgb(string), ImageColor.getcolor(string, 'L')
         except: return None
+        
         main = Image.new(mode='RGB', size=(500, 500), color=rgb)
-        try: color_name = get('https://api.alexflipnote.dev/color/'+string[1:], headers={"Authorization": os.getenv("ALEXFLIPNOTE_TOKEN")}).json()['name']
+        try: color_name = get('https://api.alexflipnote.dev/color/'+string[1:], headers={"Authorization": getenv("ALEXFLIPNOTE_TOKEN")}).json()['name']
         except: color_name = 'Unknown'
         big_font = self.get_font("Aller", 50)
         medium_font = self.get_font("Aller", 30)
