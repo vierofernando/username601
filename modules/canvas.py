@@ -225,7 +225,7 @@ class Painter:
         medium_font = self.get_font("Aller", 30)
         small_font = self.get_font("Aller", 20)
         draw = ImageDraw.Draw(main)
-        draw.text((10, 10), string, fill=self.invert(rgb), font=big_font)
+        draw.text((10, 10), "#" + _hex.upper(), fill=self.invert(rgb), font=big_font)
         draw.text((10, 75), color_name, fill=self.invert(rgb), font=medium_font)
         draw.text((10, 115), f'RGB: {rgb[0]}, {rgb[1]}, {rgb[2]}\nInteger: {rgb[0]*rgb[1]*rgb[2]}\nBrightness: {brightness}', fill=self.invert(rgb), font=small_font)
         return self.buffer(main)

@@ -244,7 +244,7 @@ class image(commands.Cog):
                 col = int(data['color'])
             elif 'coffee' in ctx.message.content:
                 col, num = int(data['color']), random.randint(0, 1)
-                if num==0: link = ctx.bot.utils.fetchJSON('https://coffee.alexflipnote.dev/random.json')['file']
+                if num==0: link = ctx.bot.utils.fetchJSON('https://coffee.alexflipnote.dev/random.json', alexflipnote=True)['file']
                 else: link = ctx.bot.utils.fetchJSON('https://nekobot.xyz/api/image?type=coffee')['message'].replace('\/', '/')
             async with ctx.channel.typing():
                 return await ctx.bot.send_image_attachment(ctx, link.replace('\/', '/'))

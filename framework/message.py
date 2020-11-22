@@ -7,7 +7,7 @@ from os import getenv
 
 async def send_image_attachment(ctx, url, alexflipnote=False):
     try:
-        data = get(url, timeout=5.0) if (not alexflipnote) else get(url, timeout=5.0, headers={'Authorization': getenv("ALEXFLIPNOTE_TOKEN")})
+        data = get(url, timeout=5.0) if (not alexflipnote) else get(url, timeout=10.0, headers={'Authorization': getenv("ALEXFLIPNOTE_TOKEN")})
         assert data.status_code < 400
         assert data.headers['Content-Type'].startswith("image/")
         extension = "." + data.headers['Content-Type'][6:]
