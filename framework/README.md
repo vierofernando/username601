@@ -1,4 +1,4 @@
-# Custom Framework for username601
+# Custom Framework
 A custom "framework" i made for this bot. You can use this framework!<br>
 (not planning to be added to PyPI, sorry)<br>
 This is the documentation and the examples.<br>
@@ -168,7 +168,7 @@ async def spotify(ctx, *args):
     if user.activity is None:
         return
     
-    panel = CustomPanel(spt=user.activity)
+    panel = CustomPanel(spotify=user.activity)
     panel.draw()
     
     await panel.send_as_attachment(ctx, content=f"This is {user.name}'s spotify card!")
