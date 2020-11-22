@@ -3,6 +3,17 @@ from datetime import datetime
 from io import BytesIO
 from requests import get
 from time import time
+from os import getenv
+
+async def send_image_attachment(ctx, url, alexflipnote=False):
+    try:
+        data = get(url, timeout=5.0) if (not alexflipnote) else get(url, timeout=5.0, headers={'Authorization': os.getenv("ALEXFLIPNOTE_TOKEN")})
+        assert data.status_code < 400
+        assert data.headers['Content-Type'].startswith("image/")
+        extension = "." + data.headers['Content-Type'][6:]
+        return await ctx.send(file=File(BytesIO(data.content), "file"+extension.lower()))
+    except Exception as e:
+        raise ctx.bot.utils.send_error_message("Image not found.\n`"+str(e)+"`")
 
 class Paginator:
     def __init__(

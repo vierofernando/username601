@@ -10,7 +10,7 @@ from PIL import (
 )
 import json
 import random
-from os import listdir
+from os import listdir, getenv
 from numpy import zeros, uint8
 from time import strftime, gmtime
 from io import BytesIO
@@ -219,7 +219,7 @@ class Painter:
         try: rgb, brightness = ImageColor.getrgb(string), ImageColor.getcolor(string, 'L')
         except: return None
         main = Image.new(mode='RGB', size=(500, 500), color=rgb)
-        try: color_name = get('https://api.alexflipnote.dev/color/'+string[1:]).json()['name']
+        try: color_name = get('https://api.alexflipnote.dev/color/'+string[1:], headers={"Authorization": os.getenv("ALEXFLIPNOTE_TOKEN")}).json()['name']
         except: color_name = 'Unknown'
         big_font = self.get_font("Aller", 50)
         medium_font = self.get_font("Aller", 30)

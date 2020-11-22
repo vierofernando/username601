@@ -22,7 +22,8 @@ class owner(commands.Cog):
             os.environ['DISCORD_TOKEN'],
             os.environ['DBL_TOKEN'],
             os.environ['DB_LINK'],
-            os.environ['USELESSAPI']
+            os.environ['USELESSAPI'],
+            os.environ['ALEXFLIPNOTE_TOKEN']
         ]
     
     @command()

@@ -323,19 +323,6 @@ class utils(commands.Cog):
             except: raise ctx.bot.utils.send_error_message('the movie you requested does not exist!?')
 
     @command()
-    @cooldown(10)
-    async def steamprofile(self, ctx, *args):
-        try:
-            getprof = ctx.bot.utils.encode_uri(args[0].lower())
-            data = ctx.bot.utils.fetchJSON('https://api.alexflipnote.dev/steam/user/'+str(getprof))
-            state, privacy, url, username, avatar, custom_url, steam_id = data["state"], data["privacy"], data["url"], data["username"], data["avatarfull"], data["customurl"], data["steamid64"]
-            embed = discord.Embed(title=username, description='**[Profile Link]('+str(url)+')**\n**Current state: **'+str(state)+'\n**Privacy: **'+str(privacy)+'\n**[Profile pic URL]('+str(avatar)+')**', colour = ctx.guild.me.roles[::-1][0].color)
-            embed.set_thumbnail(url=avatar)
-            await ctx.send(embed=embed)
-        except:
-            raise ctx.bot.utils.send_error_message("Error: profile not found!")
-
-    @command()
     @cooldown(5)
     async def bored(self, ctx):
         data = ctx.bot.utils.fetchJSON("https://www.boredapi.com/api/activity?participants=1")

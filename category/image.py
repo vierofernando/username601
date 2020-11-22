@@ -229,7 +229,7 @@ class image(commands.Cog):
             }
             for i in list(links.keys()):
                 if str(ctx.message.content[1:]).lower().replace(' ', '')==i: link = links[i] ; break
-            apiied = ctx.bot.utils.fetchJSON(link.split('|')[0])[link.split('|')[1]]
+            apiied = ctx.bot.utils.fetchJSON(link.split('|')[0], alexflipnote=True)[link.split('|')[1]]
             return await ctx.bot.send_image_attachment(ctx, apiied)
 
     @command()
@@ -258,7 +258,7 @@ class image(commands.Cog):
                 first, second = ctx.author.avatar_url_as(format='png'), ctx.bot.utils.getUserAvatar(ctx, args)
             else: first, second = ctx.bot.utils.getUserAvatar(ctx, parsed_args[0]), ctx.bot.utils.getUserAvatar(ctx, parsed_args[1])
             url = f'https://api.alexflipnote.dev/ship?user={first}&user2={second}'
-            return await ctx.bot.send_image_attachment(ctx, url)
+            return await ctx.bot.send_image_attachment(ctx, url, alexflipnote=True)
 
     @command('coffee')
     @cooldown(1)
@@ -302,7 +302,7 @@ class image(commands.Cog):
             command_name = ctx.message.content.split()[0][1:].lower()
             avatar = ctx.bot.utils.getUserAvatar(ctx, args)
             url = url[command_name].replace("<URL>", avatar).replace("<NUM>", random.choice(["16", "32"]))
-            return await ctx.bot.send_image_attachment(ctx, url)
+            return await ctx.bot.send_image_attachment(ctx, url, alexflipnote=True)
 
 def setup(client):
     client.add_cog(image(client))

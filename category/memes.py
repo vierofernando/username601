@@ -214,7 +214,7 @@ class memes(commands.Cog):
                 if 'challenge' in ctx.message.content.split(' ')[0][1:]: url='https://api.alexflipnote.dev/challenge?text='+str(txt)
                 elif 'call' in ctx.message.content.split(' ')[0][1:]: url='https://api.alexflipnote.dev/calling?text='+str(txt)
                 else: url='https://api.alexflipnote.dev/achievement?text='+str(txt)
-                return await ctx.bot.send_image_attachment(ctx, url)
+                return await ctx.bot.send_image_attachment(ctx, url, alexflipnote=True)
 
     @command('dym')
     @cooldown(2)
@@ -223,7 +223,7 @@ class memes(commands.Cog):
         if params is None: raise ctx.bot.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
         txt1, txt2 = params
         url = f'https://api.alexflipnote.dev/didyoumean?top={txt1}&bottom={txt2}'
-        return await ctx.bot.send_image_attachment(ctx, url)
+        return await ctx.bot.send_image_attachment(ctx, url, alexflipnote=True)
     
     @command()
     @cooldown(2)
@@ -239,7 +239,7 @@ class memes(commands.Cog):
         async with ctx.channel.typing():
             av = ctx.bot.utils.getUserAvatar(ctx, args)
             url = 'https://api.alexflipnote.dev/salty?image='+str(av)
-            return await ctx.bot.send_image_attachment(ctx, url)
+            return await ctx.bot.send_image_attachment(ctx, url, alexflipnote=True)
 
     @command()
     @cooldown(5)
@@ -271,7 +271,7 @@ class memes(commands.Cog):
             av = ctx.author.avatar_url_as(format='png')
             toTrash = ctx.bot.utils.getUserAvatar(ctx, args)
             url='https://api.alexflipnote.dev/trash?face='+str(av)+'&trash='+str(toTrash)
-            return await ctx.bot.send_image_attachment(ctx, url)
+            return await ctx.bot.send_image_attachment(ctx, url, alexflipnote=True)
 
     @command()
     @cooldown(8)
@@ -322,8 +322,8 @@ class memes(commands.Cog):
             async with ctx.channel.typing():
                 scrolltxt = ctx.bot.utils.encode_uri(' '.join(args))
                 embed = discord.Embed(colour=ctx.guild.me.roles[::-1][0].color)
-                url='https://api.alexflipnote.dev/scroll?text='+str(scrolltxt)
-                return await ctx.bot.send_image_attachment(ctx, url)
+                url='https://api.alexflipnote.dev/scroll?text='+scrolltxt
+                return await ctx.bot.send_image_attachment(ctx, url, alexflipnote=True)
     @command()
     @cooldown(10)
     async def imgcaptcha(self, ctx, *args):
@@ -400,7 +400,7 @@ class memes(commands.Cog):
                 auth = str(ctx.message.mentions[0].avatar_url_as(format='png'))
                 if len(args)>2: text = ctx.message.content.split('> ')[1]
                 else: text = 'I forgot to put the arguments, oops'
-            return await ctx.bot.send_image_attachment(ctx, 'https://api.alexflipnote.dev/floor?image='+auth+'&text='+ctx.bot.utils.encode_uri(text))
+            return await ctx.bot.send_image_attachment(ctx, 'https://api.alexflipnote.dev/floor?image='+auth+'&text='+ctx.bot.utils.encode_uri(text), alexflipnote=True)
 
     @command('doctor,terrifying,terrified,eye-doctor,eyedoctor,scary,frightening')
     @cooldown(2)
@@ -420,7 +420,7 @@ class memes(commands.Cog):
     async def amiajoke(self, ctx, *args):
         source = ctx.bot.utils.getUserAvatar(ctx, args)
         url = 'https://api.alexflipnote.dev/amiajoke?image='+str(source)
-        return await ctx.bot.send_image_attachment(ctx, url)
+        return await ctx.bot.send_image_attachment(ctx, url, alexflipnote=True)
 
     async def modern_meme(self, ctx, *args):
         keys = list(self.meme_templates["bottom_image"].keys())

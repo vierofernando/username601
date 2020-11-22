@@ -172,7 +172,9 @@ def run_terminal(command):
     data = run(command.split(), stdout=PIPE).stdout.decode('utf-8')
     return data
 
-def fetchJSON(url): return get(url).json()
+def fetchJSON(url, alexflipnote=False):
+    res = get(url, headers={'Authorization': os.getenv('ALEXFLIPNOTE_TOKEN')}).json() if alexflipnote else get(url).json()
+    return res
 
 def inspect_element(url): return get(url).text
 
