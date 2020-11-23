@@ -142,6 +142,34 @@ async def query(ctx):
     await ctx.send(result)
 ```
 
+### Wait for message
+
+```py
+from framework import WaitForMessage
+
+@bot.command()
+async def choose_a_number(ctx):
+    await ctx.send("Please send a text. I'll wait for 20 seconds")
+	
+	wait_for = WaitForMessage(ctx, timeout=20)
+	result = await wait_for.get_message()
+	
+	if result is None:
+		return await ctx.send("You did not input anything after 20 seconds >:(")
+
+	return await ctx.send("Here is your text: " + result.content)
+```
+
+### Send Image Attachment
+
+```py
+from framework import send_image_attachment
+
+@bot.command()
+async def thispersondoesnotexist(ctx):
+    await send_image_attachment(ctx, "https://thispersondoesnotexist.com/image")
+```
+
 ## Custom Panel
 
 ### Usage

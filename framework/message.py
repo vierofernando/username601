@@ -7,7 +7,7 @@ from os import getenv
 
 async def send_image_attachment(ctx, url, alexflipnote=False):
     try:
-        data = get(url, timeout=5.0) if (not alexflipnote) else get(url, timeout=10.0, headers={'Authorization': getenv("ALEXFLIPNOTE_TOKEN")})
+        data = get(url, timeout=5.0) if (not alexflipnote) else get(url, timeout=10.0, headers={'Authorization': getenv("ALEXFLIPNOTE_TOKEN")})        
         assert data.status_code < 400
         assert data.headers['Content-Type'].startswith("image/")
         extension = "." + data.headers['Content-Type'][6:]
@@ -160,6 +160,21 @@ class embed:
         if _attachment is None:
             return await message.edit(content='', embed=_embed)
         await message.edit(content='', embed=_embed, file=_attachment)
+
+class WaitForMessage:
+    def __init__(self, ctx, timeout=20.0, check=None):
+        """ A wrapper class that waits for message. """
+        self.client = ctx.bot
+        self._check = (lambda x: x.channel == self.ctx.channel and x.author == ctx.author) if check is None else check
+        self._timeout = float(timeout)
+    
+    async def get_message(self):
+        """ Runs the whole thing. """
+        try:
+            text = await self.client.wait_for("message", check=self._check, timeout=self._timeout)
+            return text
+        except:
+            return None
 
 class ChooseEmbed(embed):
     def __init__(self, ctx, reference: list, key = None):

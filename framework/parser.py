@@ -5,7 +5,7 @@ from discord import Embed, Color
 class Parser:
     ALPHABET = list("abcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[];',./{}|:")
 
-    def __init__(self, text, arguments: list = None) -> None:
+    def __init__(self, ctx, arguments: list = None) -> None:
         """
         An object of a parser.
         
