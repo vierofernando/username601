@@ -329,7 +329,8 @@ class memes(commands.Cog):
     @cooldown(10)
     async def imgcaptcha(self, ctx, *args):
         async with ctx.channel.typing():
-            av, nm = ctx.bot.Parser.parse_image(ctx, args), ctx.bot.utils.getUser(ctx, args).name
+            user = ctx.bot.Parser.parse_user(ctx, args)
+            av, nm = av.avatar_url_as(format="png"), user.name
             url = 'http://nekobot.xyz/api/imagegen?type=captcha&username='+nm+'&url='+av+'&raw=1'
             return await ctx.bot.send_image_attachment(ctx, url)
 

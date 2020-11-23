@@ -79,7 +79,7 @@ class utils(commands.Cog):
     @cooldown(3)
     async def presence(self, ctx, *args):
         async with ctx.channel.typing():
-            user = ctx.bot.utils.getUser(ctx, args)
+            user = ctx.bot.Parser.parse_user(ctx, args)
             if isinstance(user.activity, discord.Spotify):
                 return await ctx.send(file=discord.File(ctx.bot.canvas.custom_panel(spt=user.activity), 'activity.png'))
             if user.activity is None: raise ctx.bot.utils.send_error_message(f"Sorry, but {user.display_name} has no activity...")
@@ -95,7 +95,7 @@ class utils(commands.Cog):
     @command('colorthief,getcolor,accent,accentcolor,accent-color,colorpalette,color-palette')
     @cooldown(3)
     async def palette(self, ctx, *args):
-        url, person = ctx.bot.Parser.parse_image(ctx, args), ctx.bot.utils.getUser(ctx, args)
+        url, person = ctx.bot.Parser.parse_image(ctx, args), ctx.bot.Parser.parse_user(ctx, args)
         async with ctx.channel.typing():
             data = ctx.bot.canvas.get_multiple_accents(url)
             return await ctx.send(file=discord.File(ctx.bot.canvas.get_palette(data), 'palette.png'))

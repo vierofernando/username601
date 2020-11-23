@@ -530,7 +530,7 @@ class Painter:
         BACKGROUND_COLOR = self.get_color_accent(COVER_URL, right=True)
         FOREGROUND_COLOR = self.invert(BACKGROUND_COLOR)
 
-        if len(TITLE_TEXT) > 25: TITLE_TEXT = TITLE_TEXT[0:25] + "..."
+        if len(TITLE_TEXT) > 25: TITLE_TEXT = TITLE_TEXT[0:50] + "..."
         if len(SUBTITLE_TEXT) > 35: SUBTITLE_TEXT = SUBTITLE_TEXT[0:35] + "..."
         if len(DESC_TEXT) > 45: DESC_TEXT = DESC_TEXT[0:45] + "..."
 

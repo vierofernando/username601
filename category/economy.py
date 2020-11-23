@@ -324,7 +324,9 @@ class economy(commands.Cog):
     @command('balance,mybal,profile,me,myprofile')
     @cooldown(2)
     async def bal(self, ctx, *args):
-        src, ava = ctx.bot.utils.getUser(ctx, args), ctx.bot.Parser.parse_image(ctx, args)
+        src = ctx.bot.Parser.parse_user(ctx, args)
+        ava = src.avatar_url_as(format="png")
+        
         if ctx.bot.db.Economy.get(src.id) is None:
             raise ctx.bot.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
         else:

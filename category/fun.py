@@ -39,7 +39,7 @@ class fun(commands.Cog):
     async def lovelevel(self, ctx, *args):
         res = ctx.bot.utils.split_parameter_to_two(args)
         if res is None: raise ctx.bot.utils.send_error_message('Please send a valid two user ids/names/mentions!')
-        user1, user2 = ctx.bot.utils.getUser(res[0]), ctx.bot.utils.getUser(res[1])
+        user1, user2 = ctx.bot.Parser.parse_user(res[0]), ctx.bot.Parser.parse_user(res[1])
         result = ctx.bot.algorithm.love_finder(user1.id, user2.id)
         await ctx.send('Love level of {} and {} is **{}%!**'.format(ctx.message.mentions[0].name, ctx.message.mentions[1].name, str(result)))
     
@@ -76,7 +76,7 @@ class fun(commands.Cog):
     @command("howgay")
     @cooldown(5)
     async def gaylevel(self, ctx, *args):
-        data = ctx.bot.utils.getUser(ctx, args)
+        data = ctx.bot.Parser.parse_user(ctx, args)
         name = data.name+'\'s' if data!=ctx.author else 'Your'
         await ctx.send('{} gay level is currently {}%!'.format(name, str(ctx.bot.algorithm.gay_finder(data.id))))
 

@@ -64,7 +64,7 @@ class apps(commands.Cog):
     @command('spot,splay,listeningto,sp')
     @cooldown(2)
     async def spotify(self, ctx, *args):
-        user = ctx.bot.utils.getUser(ctx, args)
+        user = ctx.bot.Parser.parse_user(ctx, args)
         act = self.get_spotify(user)
         if act is None: raise ctx.bot.utils.send_error_message(f"Sorry, but {user.display_name} is not listening to spotify.")
         async with ctx.channel.typing():

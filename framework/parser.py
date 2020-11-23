@@ -181,15 +181,23 @@ class Parser:
         return str(user.avatar_url_as(format="png", size=size))
 
     @staticmethod
-    def parse_user(ctx, args):
+    def parse_user(ctx, args, allownoargs=True):
         """
         Gets the user from message.
         Parameters can be either User ID, username, mention, or just nothing.
+        Disabling allownoargs will raise an Error if there is no arguments.
 
         user = Parser.parse_user(ctx, *args)
         """
         args = tuple(args)
-        if len(args) < 1: return ctx.author
+        if len(args) < 1:
+            if not allownoargs:
+                
+                if hasattr(ctx.bot, "utils"):
+                    raise ctx.bot.utils.send_error_message("Please add a mention, user ID, or a user name.")
+                raise Exception("Please add a mention, user ID, or a user name.")
+            
+            return ctx.author
         elif len(ctx.message.mentions) > 0: return ctx.message.mentions[0]
         
         guild_members = list(map(lambda x: x.id, ctx.guild.members))
@@ -202,7 +210,7 @@ class Parser:
             return ctx.author
         
         user_name = " ".join(args).lower()
-        for member in ctx.guild.members:
-            if str(member).lower().startswith(user_name): return member
-            elif user_name in str(member).lower(): return member
+        member = filter(lambda x: (x.name.lower().startswith(user_name)) or (user_name in x.name.lower()), ctx.guild.members)
+        if len(member) > 0: return member[0]
+        
         return ctx.author
