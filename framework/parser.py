@@ -173,7 +173,7 @@ class Parser:
         
         if (not member_only) and (not cdn_only):
             _emoji = emoji_to_url(_filtered)
-            if _emoji is not None:
+            if _emoji != _filtered:
                 return _emoji
         
         user = Parser.parse_user(ctx, args)
@@ -196,11 +196,8 @@ class Parser:
 
         try:
             if args[0].isnumeric():
-                try:
-                    _temp = guild_members.index(int(args[0]))
-                    return ctx.guild.get_member(int(args[0]))
-                except ValueError:
-                    return ctx.author
+                _temp = guild_members.index(int(args[0]))
+                return ctx.guild.get_member(int(args[0]))
         except:
             return ctx.author
         
@@ -208,5 +205,4 @@ class Parser:
         for member in ctx.guild.members:
             if str(member).lower().startswith(user_name): return member
             elif user_name in str(member).lower(): return member
-
         return ctx.author
