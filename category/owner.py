@@ -27,7 +27,7 @@ class owner(commands.Cog):
         ]
     
     @command()
-    @cooldown(1)
+    @cooldown(2)
     async def leave(self, ctx, *args):
         if ctx.author.id not in [661200758510977084, 766952708602331137]: return
         server_id = int(list(args)[1])

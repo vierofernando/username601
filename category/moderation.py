@@ -86,7 +86,7 @@ class moderation(commands.Cog):
         return await wait.edit(content='', embed=discord.Embed(title=title, description=desc, color=ctx.guild.me.roles[::-1][0].color))
         
     @command()
-    @cooldown(1)
+    @cooldown(2)
     async def config(self, ctx):
         data = ctx.bot.db.Dashboard.getData(ctx.guild.id)
         if data is None: raise ctx.bot.utils.send_error_message('This server does not have any configuration for this bot.')
@@ -440,9 +440,9 @@ class moderation(commands.Cog):
             await ctx.send(file=discord.File(data, str(guy.discriminator)+'.png'))
 
     @command('av,ava')
-    @cooldown(1)
+    @cooldown(2)
     async def avatar(self, ctx, *args):
-        url = ctx.bot.utils.getUserAvatar(ctx, args, allowgif=True, size=4096)
+        url = ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True, member_only=True, size=4096)
         embed = ctx.bot.Embed(ctx, title="Here's ya avatar mate", image=url)
         await embed.send()
 

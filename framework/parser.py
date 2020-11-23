@@ -112,8 +112,11 @@ class Parser:
         return _res_dict
 
     @staticmethod
-    def __check_url(url: str):
+    def __check_url(url: str, cdn_only: bool):
         try:
+            if cdn_only:
+                assert url.startswith("https://cdn.discordapp.com")
+            
             data = get(url, timeout=5)
             assert data.headers['Content-Type'].startswith('image/')
             assert (int(data.headers['Content-Length'])/1024/1024) < 2
@@ -133,24 +136,25 @@ class Parser:
         return False
 
     @staticmethod
-    def parse_image(ctx, default_to_png=True, size=1024, member_only=True, *args):
+    def parse_image(ctx, args, default_to_png=True, size=1024, member_only=False, cdn_only=False):
         """
         Gets the image from message.
         Either it's attachment, a URL, or just a mention to get someone's avatar.
         Disabling member_only will also detect URL or attachment.
+        Enabling cdn_only will only detect cdn.discordapp.com urls.
         """
         if len(args) < 1:
-            if default_to_png: return ctx.author.avatar_url_as(format="png", size=size)
-            return ctx.author.avatar_url_as(size=size)
+            if default_to_png: return str(ctx.author.avatar_url_as(format="png", size=size))
+            return str(ctx.author.avatar_url_as(size=size))
         
-        if (len(ctx.message.attachments) > 0) and not member_only:
-            res = Parser.__check_url(ctx.message.attachments[0].url)
+        if (len(ctx.message.attachments) > 0) and (not member_only):
+            res = Parser.__check_url(ctx.message.attachments[0].url, cdn_only)
             if res:
                 return str(ctx.message.attachments[0].url)
         
         url = "".join(args).replace("<", "").replace(">", "")
-        if ((url.startswith("http")) and ("://" in url)):
-            if (not member_only) and Parser.__check_url(url):
+        if ((url.startswith("http")) and ("://" in url)) and (not member_only):
+            if (not member_only) and Parser.__check_url(url, cdn_only):
                 return url
         
         _filtered = "".join(args).replace(" ", "").lower()
@@ -158,13 +162,16 @@ class Parser:
         if (_filtered.startswith("<") and _filtered.endswith(">")) and (not member_only):
             _extension = ".gif" if _filtered.startswith("<a") else ".png"
             try:
+                if default_to_png:
+                    assert _extension == ".png"
+                
                 _id = int(_filtered.split(':')[2].split('>')[0])
                 _url = f"https://cdn.discordapp.com/emojis/{_id}{_extension}"
                 assert valid_src(_url)
                 return _url
             except: pass
         
-        if not member_only:
+        if (not member_only) and (not cdn_only):
             _emoji = emoji_to_url(_filtered)
             if _emoji is not None:
                 return _emoji
@@ -174,7 +181,7 @@ class Parser:
         return str(user.avatar_url_as(format="png", size=size))
 
     @staticmethod
-    def parse_user(ctx, *args):
+    def parse_user(ctx, args):
         """
         Gets the user from message.
         Parameters can be either User ID, username, mention, or just nothing.

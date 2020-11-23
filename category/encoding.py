@@ -34,7 +34,7 @@ class encoding(commands.Cog):
                 else: data = res['ciphers']['morse']
                 await ctx.send(f'{data}')
     @command('qr,qrcode,qr-code')
-    @cooldown(1)
+    @cooldown(2)
     async def barcode(self, ctx, *args):
         if len(args)==0:
             raise ctx.bot.utils.send_error_message('Please provide a text!')
@@ -47,14 +47,14 @@ class encoding(commands.Cog):
                 return await ctx.bot.send_image_attachment(ctx, url)
     
     @command()
-    @cooldown(1)
+    @cooldown(2)
     async def binary(self, ctx, *args):
         if len(args)==0:
             raise ctx.bot.utils.send_error_message('gimme something.')
         return await ctx.send('```'+str(ctx.bot.utils.binary_from(str(' '.join(args))))[0:2000]+'```')
 
     @command()
-    @cooldown(1)
+    @cooldown(2)
     async def caesar(self, ctx, *args):
         if len(args)<2:
             raise ctx.bot.utils.send_error_message(f'Try something like `{ctx.bot.command_prefix[0]}caesar 3 hello world`')
@@ -68,25 +68,25 @@ class encoding(commands.Cog):
             else:
                 return await ctx.send(ctx.bot.utils.caesar(str(' '.join(args).replace(str(offset), '')), int(offset)))
     @command()
-    @cooldown(1)
+    @cooldown(2)
     async def atbash(self, ctx, *args):
         if len(args)==0: raise ctx.bot.utils.send_error_message('Invalid. Please give us the word to encode...')
         else: await ctx.send(ctx.bot.utils.atbash(' '.join(args)))
 
     @command()
-    @cooldown(1)
+    @cooldown(2)
     async def reverse(self, ctx, *args):
         if len(args)==0: raise ctx.bot.utils.send_error_message('no arguments? rip'[::-1])
         else: await ctx.send(str(' '.join(args))[::-1])
     
     @command('b64')
-    @cooldown(1)
+    @cooldown(2)
     async def base64(self, ctx, *args):
         if len(args)==0: raise ctx.bot.utils.send_error_message('Gimme dat args!')
         else: await ctx.send(ctx.bot.utils.base64_from(' '.join(args)))
     
     @command('leetspeak')
-    @cooldown(1)
+    @cooldown(2)
     async def leet(self, ctx, *args):
         if len(args)==0:
             raise ctx.bot.utils.send_error_message('No arguments? ok then! no service it is!')

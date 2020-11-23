@@ -15,7 +15,7 @@ class bothelp(commands.Cog):
         self._init_help = [discord.Embed(title="The bot help embed™️", description="Use the reactions to move to the next page.\n\n**PAGES:**\n1. `This page`\n"+self._categories)]
         
     @command('supportserver,support-server,botserver,bot-server')
-    @cooldown(1)
+    @cooldown(2)
     async def support(self, ctx):
         return await ctx.send(ctx.bot.utils.config('SERVER_INVITE'))
 
@@ -44,7 +44,7 @@ class bothelp(commands.Cog):
         )
 
     @command('commands,yardim,yardım')
-    @cooldown(1)
+    @cooldown(2)
     async def help(self, ctx, *args):
         if len(args) == 0:
             embeds = self._init_help
@@ -80,19 +80,19 @@ class bothelp(commands.Cog):
         return await embed.send()
 
     @command()
-    @cooldown(1)
+    @cooldown(2)
     async def vote(self, ctx):
         embed = discord.Embed(title='Support by Voting us at top.gg!', description='Sure thing, mate! [Vote us at top.gg by clicking me!](https://top.gg/bot/'+str(ctx.bot.user.id)+'/vote)', colour=ctx.guild.me.roles[::-1][0].color)
         await ctx.send(embed=embed)
     
     @command('sourcecode,source-code,git,repo')
-    @cooldown(1)
+    @cooldown(2)
     async def github(self, ctx):
         embed = discord.Embed(title="Click me to visit the Bot's github page.", colour=ctx.guild.me.roles[::-1][0].color, url=ctx.bot.utils.config('GITHUB_REPO'))
         await ctx.send(embed=embed)
     
     @command('inviteme,invitelink,botinvite,invitebot,addtoserver,addbot')
-    @cooldown(1)
+    @cooldown(2)
     async def invite(self, ctx):
         embed = discord.Embed(
             title='Sure thing! Invite this bot to your server by clicking me.',

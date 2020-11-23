@@ -46,7 +46,7 @@ class CustomPanel(Smart_ColorThief):
         self.BACKGROUND_COLOR = self.__get_color_accent(self.COVER_URL, right=True)
         self.FOREGROUND_COLOR = self.__invert(self.BACKGROUND_COLOR)
 
-        if len(self.TITLE_TEXT) > 25: self.TITLE_TEXT = self.TITLE_TEXT[0:25] + "..."
+        if len(self.TITLE_TEXT) > 25: self.TITLE_TEXT = self.TITLE_TEXT[0:50] + "..."
         if len(self.SUBTITLE_TEXT) > 35: self.SUBTITLE_TEXT = self.SUBTITLE_TEXT[0:35] + "..."
         if len(self.DESC_TEXT) > 45: self.DESC_TEXT = self.DESC_TEXT[0:45] + "..."
 

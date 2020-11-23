@@ -63,7 +63,7 @@ class fun(commands.Cog):
         await ctx.send(text.replace('--h', ''), allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False))
     
     @command()
-    @cooldown(1)
+    @cooldown(2)
     async def joke(self, ctx):
         data = ctx.bot.utils.fetchJSON("https://official-joke-api.appspot.com/jokes/general/random")
         embed = discord.Embed(
@@ -80,14 +80,6 @@ class fun(commands.Cog):
         name = data.name+'\'s' if data!=ctx.author else 'Your'
         await ctx.send('{} gay level is currently {}%!'.format(name, str(ctx.bot.algorithm.gay_finder(data.id))))
 
-    @command()
-    @cooldown(5)
-    async def randomavatar(self, ctx, *args):
-        if len(args)<1: name = 'your mom'
-        else: name = ' '.join(args)
-        url= 'https://api.adorable.io/avatars/285/{}.png'.format(ctx.bot.utils.encode_uri(name))
-        return await ctx.bot.send_image_attachment(ctx, url)
-
     @command('inspiringquotes,lolquote,aiquote,imagequote,imgquote')
     @cooldown(10)
     async def inspirobot(self, ctx):
@@ -96,7 +88,7 @@ class fun(commands.Cog):
             return await ctx.bot.send_image_attachment(ctx, img)
     
     @command('randomcase')
-    @cooldown(1)
+    @cooldown(2)
     async def mock(self, ctx, *args):
         text = 'i am a dumbass that forgot to put the arguments' if len(args)==0 else str(' '.join(args))
         return await ctx.send(''.join([random.choice([i.upper(), i.lower()]) for i in list(text)]))

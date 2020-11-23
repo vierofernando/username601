@@ -105,7 +105,7 @@ class games(commands.Cog):
     @cooldown(3)
     async def amongus(self, ctx, *args):
         async with ctx.channel.typing():
-            url = ctx.bot.utils.getUserAvatar(ctx, args)
+            url = ctx.bot.Parser.parse_image(ctx, args)
             im = ctx.bot.canvas.among_us(url)
             await ctx.send(file=discord.File(im, 'the_impostor.png'))
     
