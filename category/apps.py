@@ -109,9 +109,9 @@ class apps(commands.Cog):
                 except Exception as e:
                     raise ctx.bot.utils.send_error_message(f'An error occurred! ```py\n{str(e)}```')
             else:
-                await wait.edit(content=f'Please add a language! To have the list and their id, type\n`{ctx.bot.command_prefix[0]}translate --list`.')
+                await wait.edit(content=f'Please add a language! To have the list and their id, type\n`{ctx.bot.command_prefix}translate --list`.')
         else:
-            await wait.edit(content=f'Please add translations or\nType `{ctx.bot.command_prefix[0]}translate --list` for supported languages.')
+            await wait.edit(content=f'Please add translations or\nType `{ctx.bot.command_prefix}translate --list` for supported languages.')
     
     @command()
     @cooldown(5)
@@ -155,7 +155,7 @@ class apps(commands.Cog):
         wait, args = await ctx.send(ctx.bot.loading_emoji + ' | Please wait...'), list(args)
         if len(args)==0 or ctx.bot.utils.parse_parameter(args, 'help')['available']:
             embed = discord.Embed(title='IMDb command help', description='Searches through the IMDb Movie database.\n{} are Parameters that is **REQUIRED** to get the info.\n\n', colour=ctx.guild.me.roles[::-1][0].color)
-            embed.add_field(name='Commands', value=ctx.bot.command_prefix[0]+'imdb --top {NUMBER}\n'+ctx.bot.command_prefix[0]+'imdb help\n'+ctx.bot.command_prefix[0]+'imdb --movie {MOVIE_ID or MOVIE_NAME}', inline='False')
+            embed.add_field(name='Commands', value=ctx.bot.command_prefix+'imdb --top {NUMBER}\n'+ctx.bot.command_prefix+'imdb help\n'+ctx.bot.command_prefix+'imdb --movie {MOVIE_ID or MOVIE_NAME}', inline='False')
             return await wait.edit(content='', embed=embed)
         top = ctx.bot.utils.parse_parameter(args, '--top', get_second_element=True, singular=True)
         if top['available']:
@@ -190,7 +190,7 @@ class apps(commands.Cog):
             except Exception as e:
                 print(e)
                 raise ctx.bot.utils.send_error_message('Oopsies! please input a valid ID/parameter...')
-        raise ctx.bot.utils.send_error_message('Wrong syntax. Use `'+ctx.bot.command_prefix[0]+'imdb help` next time.')
+        raise ctx.bot.utils.send_error_message('Wrong syntax. Use `'+ctx.bot.command_prefix+'imdb help` next time.')
 
 def setup(client):
     client.add_cog(apps(client))

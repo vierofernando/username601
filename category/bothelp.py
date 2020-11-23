@@ -23,7 +23,7 @@ class bothelp(commands.Cog):
     @cooldown(5)
     async def sub(self, ctx, *args):
         if len(args)==0 or 'help' in ''.join(args).lower():
-            embed = discord.Embed(title='Get development updates and/or events in your server!', description='Want to get up-to-date development updates? either it is bugfixes, cool events, etc.\nHow do you set up? Use `{}sub <discord webhook url>`.\nIf you still do not understand, [please watch the tutorial video here.](https://vierofernando.is-inside.me/fEhT86EE.mp4)'.format(ctx.bot.command_prefix[0]), color=ctx.guild.me.roles[::-1][0].color)
+            embed = discord.Embed(title='Get development updates and/or events in your server!', description='Want to get up-to-date development updates? either it is bugfixes, cool events, etc.\nHow do you set up? Use `{}sub <discord webhook url>`.\nIf you still do not understand, [please watch the tutorial video here.](https://vierofernando.is-inside.me/fEhT86EE.mp4)'.format(ctx.bot.command_prefix), color=ctx.guild.me.roles[::-1][0].color)
             return await ctx.send(embed=embed)
         elif 'reset' in ''.join(args).lower():
             ctx.bot.db.Dashboard.subscribe(None, ctx.guild.id, reset=True)
@@ -38,7 +38,7 @@ class bothelp(commands.Cog):
         ctx.bot.db.Dashboard.subscribe(url, ctx.guild.id)
         await ctx.message.add_reaction(ctx.bot.success_emoji)
         web.send(
-            embed=discord.Embed(title=f'Congratulations, {str(ctx.author)}!', description='Your webhook is now set! ;)\nNow every development updates or username601 events will be set here.\n\nIf you change your mind, you can do `{}sub reset` to remove the webhook from the database.\n[Join our support server if you still have any questions.]({})'.format(ctx.bot.command_prefix[0], ctx.bot.utils.config('SERVER_INVITE')), color=discord.Color.green()),
+            embed=discord.Embed(title=f'Congratulations, {str(ctx.author)}!', description='Your webhook is now set! ;)\nNow every development updates or username601 events will be set here.\n\nIf you change your mind, you can do `{}sub reset` to remove the webhook from the database.\n[Join our support server if you still have any questions.]({})'.format(ctx.bot.command_prefix, ctx.bot.utils.config('SERVER_INVITE')), color=discord.Color.green()),
             username='Username601 News',
             avatar_url=ctx.bot.user.avatar_url
         )
@@ -50,7 +50,7 @@ class bothelp(commands.Cog):
             embeds = self._init_help
             for category in ctx.bot.cmds.categories:
                 embed = discord.Embed(title=category, description="**Commands:**```"+(", ".join([command['name'] for command in ctx.bot.cmds.get_commands_from_category(category.lower())]))+"```")
-                embed.set_footer(text=f"Type `{ctx.bot.command_prefix[0]}help <command>` to view command in a detailed version.")
+                embed.set_footer(text=f"Type `{ctx.bot.command_prefix}help <command>` to view command in a detailed version.")
                 embeds.append(embed)
             
             paginator = ctx.bot.EmbedPaginator(ctx, embeds, show_page_count=True, auto_set_color=True)

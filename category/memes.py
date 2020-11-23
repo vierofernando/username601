@@ -117,11 +117,11 @@ class memes(commands.Cog):
     @command('gruplan,plan')
     @cooldown(4)
     async def gru(self, ctx, *args):
-        if '; ' not in ' '.join(args): raise ctx.bot.utils.send_error_message('Please send something like:\n`'+ctx.bot.command_prefix[0]+'gru test word 1; test word 2; test word 3` (with semicolons)')
+        if '; ' not in ' '.join(args): raise ctx.bot.utils.send_error_message('Please send something like:\n`'+ctx.bot.command_prefix+'gru test word 1; test word 2; test word 3` (with semicolons)')
         try:
             text1, text2, text3 = tuple(' '.join(args).split('; '))
         except:
-            raise ctx.bot.utils.send_error_message("Invalid arguments. use something like\n`"+ctx.bot.command_prefix[0]+"gru text 1; text2; text3` (with semicolons)")
+            raise ctx.bot.utils.send_error_message("Invalid arguments. use something like\n`"+ctx.bot.command_prefix+"gru text 1; text2; text3` (with semicolons)")
         async with ctx.channel.typing():
             im = ctx.bot.canvas.gru(text1, text2, text3)
             return await ctx.send(file=discord.File(im, 'gru.png'))
@@ -233,7 +233,13 @@ class memes(commands.Cog):
         txt1, txt2 = params
         url = "https://api.alexflipnote.dev/drake?top="+ctx.bot.utils.encode_uri(txt1[0:50])+"&bottom="+ctx.bot.utils.encode_uri(txt2[0:50])
         return await ctx.bot.send_image_attachment(ctx, url, alexflipnote=True)
-            
+        
+    @command()
+    @cooldown(2)
+    async def what(self, ctx, *args):
+        image = ctx.bot.Parser.parse_image(ctx, args, cdn_only=True)
+        return await ctx.bot.send_image_attachment(ctx, "https://api.alexflipnote.dev/what?image="+image, alexflipnote=True)
+    
     @command()
     @cooldown(2)
     async def salty(self, ctx, *args):

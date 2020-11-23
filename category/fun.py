@@ -48,7 +48,7 @@ class fun(commands.Cog):
     async def say(self, ctx, *args):
         if len(args) == 0: return await ctx.send("Send `something`.")
         text = ' '.join(args).lower()[0:1999]
-        if ctx.message.content.startswith(f"{ctx.bot.command_prefix[0]}reply"):
+        if ctx.message.content.startswith(f"{ctx.bot.command_prefix}reply"):
             res = post(
                 f'https://discord.com/api/v8/channels/{ctx.channel.id}/messages',
                 headers={'Authorization': 'Bot '+environ['DISCORD_TOKEN'], 'Content-Type': 'application/json'},
@@ -138,7 +138,7 @@ class fun(commands.Cog):
     @cooldown(2)
     async def choose(self, ctx, *args):
         if len(args)==0 or ',' not in ''.join(args):
-            raise ctx.bot.utils.send_error_message(f'send in something!\nLike: `{ctx.bot.command_prefix[0]}choose he is cool, he is not cool`')
+            raise ctx.bot.utils.send_error_message(f'send in something!\nLike: `{ctx.bot.command_prefix}choose he is cool, he is not cool`')
         else:
             await ctx.send(random.choice(' '.join(args).split(',')))
     

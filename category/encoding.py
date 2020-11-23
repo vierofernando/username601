@@ -57,7 +57,7 @@ class encoding(commands.Cog):
     @cooldown(2)
     async def caesar(self, ctx, *args):
         if len(args)<2:
-            raise ctx.bot.utils.send_error_message(f'Try something like `{ctx.bot.command_prefix[0]}caesar 3 hello world`')
+            raise ctx.bot.utils.send_error_message(f'Try something like `{ctx.bot.command_prefix}caesar 3 hello world`')
         else:
             offset = None
             for i in args:

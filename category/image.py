@@ -260,7 +260,7 @@ class image(commands.Cog):
     @command("df")
     @cooldown(2)
     async def deepfry(self, ctx, *args):
-        source = ctx.bot.Parser.parse_image(ctx, args, cdn_only=True)
+        source = ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
         await ctx.channel.trigger_typing()
         return await ctx.bot.send_image_attachment(ctx, f'https://api.alexflipnote.dev/filter/deepfry?image={source}', alexflipnote=True)
 
@@ -282,7 +282,7 @@ class image(commands.Cog):
         async with ctx.channel.typing():
             url = {"jpeg": "https://api.alexflipnote.dev/filter/jpegify?image=<URL>", "pixelate": "https://useless-api.vierofernando.repl.co/pixelate?image=<URL>&amount=<NUM>"}
             command_name = ctx.message.content.split()[0][1:].lower()
-            avatar = ctx.bot.Parser.parse_image(ctx, args, cdn_only=True)
+            avatar = ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
             url = url[command_name].replace("<URL>", avatar).replace("<NUM>", random.choice(["16", "32"]))
             return await ctx.bot.send_image_attachment(ctx, url, alexflipnote=True)
 
