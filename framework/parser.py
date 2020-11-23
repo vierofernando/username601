@@ -210,7 +210,7 @@ class Parser:
             return ctx.author
         
         user_name = " ".join(args).lower()
-        member = filter(lambda x: (x.name.lower().startswith(user_name)) or (user_name in x.name.lower()), ctx.guild.members)
+        member = list(filter(lambda x: (x.display_name.lower().startswith(user_name)) or (user_name in x.display_name.lower()), ctx.guild.members))
         if len(member) > 0: return member[0]
         
         return ctx.author
