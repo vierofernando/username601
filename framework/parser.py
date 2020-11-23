@@ -176,7 +176,7 @@ class Parser:
             if _emoji is not None:
                 return _emoji
         
-        user = Parser.parse_user(ctx, *args)
+        user = Parser.parse_user(ctx, args)
         if not default_to_png: return str(user.avatar_url_as(size=size))
         return str(user.avatar_url_as(format="png", size=size))
 
