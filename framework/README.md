@@ -14,7 +14,7 @@ client = Client(...)
 # Initiate utilities
 Util(client)
 
-@bot.command():
+@bot.command()
 async def binary(ctx, *args):
     text = " ".join(args)
     binary = client.util.binary(text)
