@@ -247,5 +247,5 @@ class Parser:
     
         result = text.lower()
         for key in Parser.HTML_DICT.keys():
-            result.replace(key, Parser.HTML_DICT[key])
+            result = result.replace(key, Parser.HTML_DICT[key])
         return result

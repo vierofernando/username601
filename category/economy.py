@@ -12,18 +12,19 @@ from asyncio import sleep
 
 class economy(commands.Cog):
     def __init__(self, client):
-        self.fish_json = loads(open(client.utils.config("JSON_DIR")+'/fish.json', 'r').read())
-        self.steal_json = loads(open(client.utils.config('JSON_DIR')+'/steal.json', 'r').read())
+        self.fish_json = loads(open(client.util.json_dir+'/fish.json', 'r').read())
+        self.steal_json = loads(open(client.util.json_dir+'/steal.json', 'r').read())
+        self.works = loads(open(client.util.json_dir+'/work.json', 'r').read())['works']
     
     @command()
     @cooldown(30)
     async def gamble(self, ctx, *args):
-        if len(args)==0: raise ctx.bot.utils.send_error_message('Please input a number.')
+        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, 'Please input a number.')
         lucky = random.choice([False, True])
         try:
             amount = int(args[0])
         except:
-            raise ctx.bot.utils.send_error_message('Please make sure you inputted a number!')
+            return await ctx.bot.util.send_error_message(ctx, 'Please make sure you inputted a number!')
         if not lucky:
             ctx.bot.db.Economy.delbal(ctx.author.id, amount)
             say, emote = "Yikes! %M%, you just lost %A% bobux...", ctx.bot.error_emoji
@@ -36,7 +37,7 @@ class economy(commands.Cog):
     @cooldown(120)
     async def beg(self, ctx):
         c = random.randint(1, 3)
-        if ctx.bot.db.Economy.get(ctx.author.id) is None: raise ctx.bot.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if ctx.bot.db.Economy.get(ctx.author.id) is None: return await ctx.bot.util.send_error_message(ctx, "Doesn't have a profile yet. Try `1new` to have a profile.")
         if c==1:
             award = random.randint(100, 800)
             ctx.bot.db.Economy.addbal(ctx.author.id, award)
@@ -46,7 +47,7 @@ class economy(commands.Cog):
     @command('fishing')
     @cooldown(60)
     async def fish(self, ctx):
-        if ctx.bot.db.Economy.get(ctx.author.id) is None: raise ctx.bot.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if ctx.bot.db.Economy.get(ctx.author.id) is None: return await ctx.bot.util.send_error_message(ctx, "Doesn't have a profile yet. Try `1new` to have a profile.")
         wait = await ctx.send('{} | {}'.format(ctx.bot.loading_emoji, random.choice(
             self.fish_json['waiting']
         )))
@@ -62,19 +63,19 @@ class economy(commands.Cog):
     @cooldown(7)
     async def buylist(self, ctx):
         source = ctx.author if len(ctx.message.mentions)==0 else ctx.message.mentions[0]
-        if ctx.bot.db.Economy.get(ctx.author.id) is None: raise ctx.bot.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if ctx.bot.db.Economy.get(ctx.author.id) is None: return await ctx.bot.util.send_error_message(ctx, "Doesn't have a profile yet. Try `1new` to have a profile.")
         try:
             data = ctx.bot.db.Economy.getBuyList(source)
             assert not data['error'], data['ctx']
             return await ctx.send(embed=discord.Embed(title='{}\'s buy list'.format(source.name), description=data['ctx'], color=ctx.guild.me.roles[::-1][0].color))
         except Exception as e:
-            raise ctx.bot.utils.send_error_message(str(e))
+            return await ctx.bot.util.send_error_message(ctx, str(e))
 
     @command('addshop')
     @cooldown(5)
     async def addproduct(self, ctx, *args):
-        if len(args)==0: raise ctx.bot.utils.send_error_message(f'Please use the following parameters:\n`{ctx.bot.command_prefix}addshop <price> <name>`')
-        if not ctx.author.guild_permissions.manage_guild: raise ctx.bot.utils.send_error_message('You do not have the correct permissions to modify the server\'s shop.')
+        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, f'Please use the following parameters:\n`{ctx.bot.command_prefix}addshop <price> <name>`')
+        if not ctx.author.guild_permissions.manage_guild: return await ctx.bot.util.send_error_message(ctx, 'You do not have the correct permissions to modify the server\'s shop.')
         try:
             price = int(args[0])
             extra = '' if price in range(5, 1000000) else 'Invalid price. Setting price to default: 1000'
@@ -85,13 +86,13 @@ class economy(commands.Cog):
             assert not a['error'], a['ctx']
             return await ctx.send('{} | {}!\n{}'.format(ctx.bot.success_emoji, a['ctx'], extra))
         except Exception as e:
-            raise ctx.bot.utils.send_error_message(str(e))
+            return await ctx.bot.util.send_error_message(ctx, str(e))
     
     @command('remshop,delshop')
     @cooldown(5)
     async def delproduct(self, ctx, *args):
-        if len(args)==0: raise ctx.bot.utils.send_error_message(f'Please use the following parameters:\n`{ctx.bot.command_prefix}delproduct <name>`\nor to delete all stored in the shop, use `{ctx.bot.command_prefix}delproduct all`')
-        if not ctx.author.guild_permissions.manage_guild: raise ctx.bot.utils.send_error_message('You do not have the correct permissions to modify the server\'s shop.')
+        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, f'Please use the following parameters:\n`{ctx.bot.command_prefix}delproduct <name>`\nor to delete all stored in the shop, use `{ctx.bot.command_prefix}delproduct all`')
+        if not ctx.author.guild_permissions.manage_guild: return await ctx.bot.util.send_error_message(ctx, 'You do not have the correct permissions to modify the server\'s shop.')
         if args[0].lower()=='all':
             ctx.bot.db.Shop.delete_shop(ctx.guild)
             return await ctx.send('{} | OK. All data for the shop is deleted.'.format(ctx.bot.success_emoji))
@@ -100,19 +101,19 @@ class economy(commands.Cog):
             assert data['error']==False, data['ctx']
             return await ctx.send('{} | {}!'.format(ctx.bot.success_emoji, data['ctx']))
         except Exception as e:
-            raise ctx.bot.utils.send_error_message(str(e))
+            return await ctx.bot.util.send_error_message(ctx, str(e))
     
     @command('bought')
     @cooldown(3)
     async def buy(self, ctx, *args):
-        if len(args)==0: raise ctx.bot.utils.send_error_message(f'Please use the following parameters:\n`{ctx.bot.command_prefix}buy <name>`')
-        if ctx.bot.db.Economy.get(ctx.author.id) is None: raise ctx.bot.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, f'Please use the following parameters:\n`{ctx.bot.command_prefix}buy <name>`')
+        if ctx.bot.db.Economy.get(ctx.author.id) is None: return await ctx.bot.util.send_error_message(ctx, "Doesn't have a profile yet. Try `1new` to have a profile.")
         try:
             data = ctx.bot.db.Shop.buy(' '.join(args), ctx.author)
             assert not data['error'], data['ctx']
             return await ctx.send('{} | {}!'.format(ctx.bot.success_emoji, data['ctx']))
         except Exception as e:
-            raise ctx.bot.utils.send_error_message(str(e))
+            return await ctx.bot.util.send_error_message(ctx, str(e))
     
     @command('servershop,store,serverstore')
     @cooldown(2)
@@ -125,13 +126,13 @@ class economy(commands.Cog):
             ), color=ctx.guild.me.roles[::-1][0].color)
             return await ctx.send(embed=em)
         except Exception as e:
-            raise ctx.bot.utils.send_error_message(f'{str(e)}!\nYou can always add a value using `{ctx.bot.command_prefix}addproduct <price> <name>`')
+            return await ctx.bot.util.send_error_message(ctx, f'{str(e)}!\nYou can always add a value using `{ctx.bot.command_prefix}addproduct <price> <name>`')
 
     @command('delete,deletedata,deldata,del-data,delete-data')
     @cooldown(3600)
     async def reset(self, ctx):
         data = ctx.bot.db.Economy.get(ctx.author.id)
-        if data is None: raise ctx.bot.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if data is None: return await ctx.bot.util.send_error_message(ctx, "Doesn't have a profile yet. Try `1new` to have a profile.")
         else:
             wait = await ctx.send(ctx.bot.loading_emoji+" | Please wait...")
             await wait.edit(content=':thinking: | Are you sure? This action is irreversible!\n(Reply with yes/no)')
@@ -151,20 +152,20 @@ class economy(commands.Cog):
     @cooldown(450)
     async def work(self, ctx):
         data = ctx.bot.db.Economy.get(ctx.author.id)
-        if data is None: raise ctx.bot.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if data is None: return await ctx.bot.util.send_error_message(ctx, "Doesn't have a profile yet. Try `1new` to have a profile.")
         else:
             wait = await ctx.send(ctx.bot.loading_emoji+" | Please wait...")
             reward = str(random.randint(100, 500))
             new_data = ctx.bot.db.Economy.addbal(ctx.author.id, int(reward))
-            job = random.choice(loads(open(ctx.bot.utils.config('JSON_DIR')+'/work.json', 'r').read())['works'])
+            job = random.choice(self.works)
             if new_data=='success': await wait.edit(content=ctx.bot.success_emoji+f" | {ctx.author.name} worked {job} and earned {reward} bobux!")
-            else: raise ctx.bot.utils.send_error_message(f"Oops there was an error... Please report this to the owner using `{ctx.bot.command_prefix}feedback.`\n`{new_data}`")
+            else: return await ctx.bot.util.send_error_message(ctx, f"Oops there was an error... Please report this to the owner using `{ctx.bot.command_prefix}feedback.`\n`{new_data}`")
             
     @command()
     @cooldown(15)
     async def daily(self, ctx, *args):
         wait = await ctx.send(ctx.bot.loading_emoji+" | Please wait...")
-        if ctx.bot.db.Economy.get(ctx.author.id) is None: raise ctx.bot.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if ctx.bot.db.Economy.get(ctx.author.id) is None: return await ctx.bot.util.send_error_message(ctx, "Doesn't have a profile yet. Try `1new` to have a profile.")
         else:
             obj = ctx.bot.db.Economy.can_vote(ctx.author.id)
             if obj['bool']:
@@ -184,16 +185,16 @@ class economy(commands.Cog):
     @command()
     @cooldown(10)
     async def transfer(self, ctx, *args):
-        if len(args)==0 or len(ctx.message.mentions)==0: raise ctx.bot.utils.send_error_message("Please send a mention and an amount to transfer.")
+        if len(args)==0 or len(ctx.message.mentions)==0: return await ctx.bot.util.send_error_message(ctx, "Please send a mention and an amount to transfer.")
         else:
             wait = await ctx.send(ctx.bot.loading_emoji+' | Please wait...?')
             amount = None
             for i in list(args):
                 if i.isnumeric(): amount = int(i); break
-            if amount is None: raise ctx.bot.utils.send_error_message("Please give a valid amount.")
-            elif amount not in range(1, 500001): raise ctx.bot.utils.send_error_message("Invalid amount range.")
+            if amount is None: return await ctx.bot.util.send_error_message(ctx, "Please give a valid amount.")
+            elif amount not in range(1, 500001): return await ctx.bot.util.send_error_message(ctx, "Invalid amount range.")
             elif ctx.bot.db.Economy.get(ctx.author.id) is None or ctx.bot.db.Economy.get(ctx.message.mentions[0].id) is None:
-                raise ctx.bot.utils.send_error_message("One of them does not have a profile.")
+                return await ctx.bot.util.send_error_message(ctx, "One of them does not have a profile.")
             else:
                 ctx.bot.db.Economy.addbal(ctx.message.mentions[0].id, amount)
                 ctx.bot.db.Economy.delbal(ctx.author.id, amount) # EFFICIENT CODE LMFAO
@@ -203,22 +204,22 @@ class economy(commands.Cog):
     @cooldown(60)
     async def rob(self, ctx, *args):
         if len(ctx.message.mentions)==0 or len(args)==0:
-            raise ctx.bot.utils.send_error_message(f'Rob who? Try `1rob <mention> <amount>`.')
+            return await ctx.bot.util.send_error_message(ctx, f'Rob who? Try `1rob <mention> <amount>`.')
         else:
             if ctx.message.mentions[0].id==ctx.author.id:
-                raise ctx.bot.utils.send_error_message('Seriously? Robbing yourself?')
+                return await ctx.bot.util.send_error_message(ctx, 'Seriously? Robbing yourself?')
             else:
                 amount2rob = None
                 for i in list(args):
                     if i.isnumeric(): amount2rob = int(i) ; break
-                if amount2rob is None: raise ctx.bot.utils.send_error_message('How many bobux shall be robbed?')
-                elif amount2rob>9999: raise ctx.bot.utils.send_error_message('Dude, you must be crazy. That\'s too many bobux!')
-                elif amount2rob<0: raise ctx.bot.utils.send_error_message('minus??? HUH?')
+                if amount2rob is None: return await ctx.bot.util.send_error_message(ctx, 'How many bobux shall be robbed?')
+                elif amount2rob>9999: return await ctx.bot.util.send_error_message(ctx, 'Dude, you must be crazy. That\'s too many bobux!')
+                elif amount2rob<0: return await ctx.bot.util.send_error_message(ctx, 'minus??? HUH?')
                 else:
                     wait = await ctx.send(ctx.bot.loading_emoji+' | *Please wait... robbing...*')
                     victim, stealer = ctx.bot.db.Economy.get(ctx.message.mentions[0].id), ctx.bot.db.Economy.get(ctx.author.id)
                     if victim is None or stealer is None:
-                        raise ctx.bot.utils.send_error_message('you/that guy doesn\'t even have a profile!')
+                        return await ctx.bot.util.send_error_message(ctx, 'you/that guy doesn\'t even have a profile!')
                     else:
                         data = random.choice(self.steal_json)
                         if not str(data['amount']).replace('-', '').isnumeric():
@@ -245,45 +246,45 @@ class economy(commands.Cog):
     @command('dep')
     @cooldown(10)
     async def deposit(self, ctx, *args):
-        if len(args)==0: raise ctx.bot.utils.send_error_message(f'How many money?\nOr use `{ctx.bot.command_prefix}dep all` to deposit all of your money.')
+        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, f'How many money?\nOr use `{ctx.bot.command_prefix}dep all` to deposit all of your money.')
         data = ctx.bot.db.Economy.get(ctx.author.id)
-        if data is None: raise ctx.bot.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if data is None: return await ctx.bot.util.send_error_message(ctx, "Doesn't have a profile yet. Try `1new` to have a profile.")
         if args[0].lower()=='all':
             ctx.bot.db.Economy.deposit(ctx.author.id, data['bal'])
             return await ctx.send('{} | OK. Deposited all of your bobux to the username601 bank.'.format(ctx.bot.success_emoji))
         try:
             num = int(args[0])
             if num > data['bal']:
-                raise ctx.bot.utils.send_error_message('Your bank has more money than in your balance!')
+                return await ctx.bot.util.send_error_message(ctx, 'Your bank has more money than in your balance!')
             ctx.bot.db.Economy.deposit(ctx.author.id, num)
             return await ctx.send('{} | OK. Deposited {} bobux to your bank.'.format(ctx.bot.success_emoji, num))
         except:
-            raise ctx.bot.utils.send_error_message("Invalid number.")
+            return await ctx.bot.util.send_error_message(ctx, "Invalid number.")
     
     @command()
     @cooldown(10)
     async def withdraw(self, ctx, *args):
-        if len(args)==0: raise ctx.bot.utils.send_error_message(f'How many money?\nOr use `{ctx.bot.command_prefix}widthdraw all` to get money from the bank.')
+        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, f'How many money?\nOr use `{ctx.bot.command_prefix}widthdraw all` to get money from the bank.')
         data = ctx.bot.db.Economy.get(ctx.author.id)
-        if data is None: raise ctx.bot.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
+        if data is None: return await ctx.bot.util.send_error_message(ctx, "Doesn't have a profile yet. Try `1new` to have a profile.")
         if args[0].lower()=='all':
             ctx.bot.db.Economy.withdraw(ctx.author.id, data['bankbal'])
             return await ctx.send('{} | OK. Withdrawed all of your bobux from the username601 bank.'.format(ctx.bot.success_emoji))
         try:
             num = int(args[0])
             if num > data['bankbal']:
-                raise ctx.bot.utils.send_error_message('Your number is more than the one in your bank!')
+                return await ctx.bot.util.send_error_message(ctx, 'Your number is more than the one in your bank!')
             ctx.bot.db.Economy.withdraw(ctx.author.id, num)
             return await ctx.send('{} | OK. Withdrawed {} bobux from your bank.'.format(ctx.bot.success_emoji, num))
         except:
-            raise ctx.bot.utils.send_error_message("Invalid number.")
+            return await ctx.bot.util.send_error_message(ctx, "Invalid number.")
 
     @command('lb,leader,leaders,rich,richest,top')
     @cooldown(6)
     async def leaderboard(self, ctx):
         data = ctx.bot.db.Economy.leaderboard(ctx.guild.members)
         if len(data)==0:
-            raise ctx.bot.utils.send_error_message('This server doesn\'t have any members with profiles...')
+            return await ctx.bot.util.send_error_message(ctx, 'This server doesn\'t have any members with profiles...')
         else:
             wait = await ctx.send(ctx.bot.loading_emoji+' | Please wait...')
             total, bals, ids = [], sorted(list(map(lambda x: int(x.split("|")[1]), data)))[::-1][0:20], []
@@ -307,15 +308,15 @@ class economy(commands.Cog):
     @cooldown(2)
     async def setdesc(self, ctx, *args):
         if len(args)==0:
-            raise ctx.bot.utils.send_error_message('What is the new description?')
+            return await ctx.bot.util.send_error_message(ctx, 'What is the new description?')
         else:
-            if len(args)>120: raise ctx.bot.utils.send_error_message('Your description is too long!')
+            if len(args)>120: return await ctx.bot.util.send_error_message(ctx, 'Your description is too long!')
             newdesc = ' '.join(args)
             for i in ['discord.gg', 'discord.com/', 'bit.ly', '://', 'nigga', 'nigger', 'discordapp.com']:
-                if i in newdesc.lower(): raise ctx.bot.utils.send_error_message('Your description has invalid/blocked text!')
+                if i in newdesc.lower(): return await ctx.bot.util.send_error_message(ctx, 'Your description has invalid/blocked text!')
             wait = await ctx.send(ctx.bot.loading_emoji+' | Please wait...')
             if ctx.bot.db.Economy.get(ctx.author.id) is None:
-                raise ctx.bot.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
+                return await ctx.bot.util.send_error_message(ctx, "Doesn't have a profile yet. Try `1new` to have a profile.")
             else:
                 data = ctx.bot.db.Economy.setdesc(ctx.author.id, newdesc)
                 if data=='error': await wait.edit(content=ctx.bot.error_emoji+' | Oopsies! There was an error...')
@@ -328,7 +329,7 @@ class economy(commands.Cog):
         ava = src.avatar_url_as(format="png")
         
         if ctx.bot.db.Economy.get(src.id) is None:
-            raise ctx.bot.utils.send_error_message("Doesn't have a profile yet. Try `1new` to have a profile.")
+            return await ctx.bot.util.send_error_message(ctx, "Doesn't have a profile yet. Try `1new` to have a profile.")
         else:
             wait = await ctx.send(ctx.bot.loading_emoji+" | Please wait...")
             data = ctx.bot.db.Economy.getProfile(src.id, [i.id for i in ctx.guild.members if not i.bot])
@@ -343,11 +344,11 @@ class economy(commands.Cog):
         data = ctx.bot.db.Economy.get(ctx.author.id)
         wait = await ctx.send(ctx.bot.loading_emoji+" | Please wait... creating your profile...")
         if data is not None:
-            raise ctx.bot.utils.send_error_message("You already have a profile!")
+            return await ctx.bot.util.send_error_message(ctx, "You already have a profile!")
         else:
             data = ctx.bot.db.Economy.new(ctx.author.id)
             if data!='done':
-                raise ctx.bot.utils.send_error_message(f"Oops! there was an error: {data}")
+                return await ctx.bot.util.send_error_message(ctx, f"Oops! there was an error: {data}")
             else:
                 await wait.edit(content=ctx.bot.success_emoji+f" | Created your profile!")
 

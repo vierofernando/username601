@@ -11,13 +11,32 @@ from json import loads
 
 class memes(commands.Cog):
     def __init__(self, client):
-        self.rawMetadata = open(client.utils.config('MODULES_DIR')+'/Animation.dat', 'r').read().split('\n')
+        self.rawMetadata = open(client.util.modules_dir+'/Animation.dat', 'r').read().split('\n')
         self.rageMetadata = list(map(
             lambda i: tuple(map(lambda a: int(a), i.split(','))),
             self.rawMetadata[0].split(';')
         ))
         self.frogMetadata = self.rawMetadata[1].split(':')
-        self.meme_templates = loads(open(client.utils.config('JSON_DIR')+'/memes.json', 'r').read())
+        self.meme_templates = loads(open(client.util.json_dir+'/memes.json', 'r').read())
+
+    @command()
+    @cooldown(3)
+    async def oliy(self, ctx, *args):
+        stretch = False
+    
+        if "--stretch" in args:
+            args = tuple(filter(lambda x: "--stretch" not in x.lower(), args))
+            stretch = True
+        
+        url = ctx.bot.Parser.parse_image(ctx, args)
+        async with ctx.channel.typing():
+            buffer = ctx.bot.canvas.trans_merge({
+                'url': url,
+                'filename': 'oliy.png',
+                'pos': (-85, 555),
+                'size': (460, 460)
+            }) if (not stretch) else ctx.bot.canvas.oliy_stretched(url)
+            return await ctx.send(file=discord.File(buffer, "oliy.png"))
 
     @command()
     @cooldown(3)
@@ -76,7 +95,7 @@ class memes(commands.Cog):
     @cooldown(2)
     async def password(self, ctx, *args):
         param = ctx.bot.utils.split_parameter_to_two(args)
-        if param is None: raise ctx.bot.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
+        if param is None: return await ctx.bot.util.send_error_message(ctx, "Please send two parameters, either split by a space, a comma, or a semicolon.")
         async with ctx.channel.typing():
             text1, text2 = param
             i = ctx.bot.canvas.password(text1, text2)
@@ -117,11 +136,11 @@ class memes(commands.Cog):
     @command('gruplan,plan')
     @cooldown(4)
     async def gru(self, ctx, *args):
-        if '; ' not in ' '.join(args): raise ctx.bot.utils.send_error_message('Please send something like:\n`'+ctx.bot.command_prefix+'gru test word 1; test word 2; test word 3` (with semicolons)')
+        if '; ' not in ' '.join(args): return await ctx.bot.util.send_error_message(ctx, 'Please send something like:\n`'+ctx.bot.command_prefix+'gru test word 1; test word 2; test word 3` (with semicolons)')
         try:
             text1, text2, text3 = tuple(' '.join(args).split('; '))
         except:
-            raise ctx.bot.utils.send_error_message("Invalid arguments. use something like\n`"+ctx.bot.command_prefix+"gru text 1; text2; text3` (with semicolons)")
+            return await ctx.bot.util.send_error_message(ctx, "Invalid arguments. use something like\n`"+ctx.bot.command_prefix+"gru text 1; text2; text3` (with semicolons)")
         async with ctx.channel.typing():
             im = ctx.bot.canvas.gru(text1, text2, text3)
             return await ctx.send(file=discord.File(im, 'gru.png'))
@@ -198,7 +217,7 @@ class memes(commands.Cog):
     @cooldown(10)
     async def nichijou(self, ctx, *args):
         text = 'LAZY PERSON' if (len(args)==0) else ' '.join(args)
-        if len(text) > 22: raise ctx.bot.utils.send_error_message("Text too long ;w;")
+        if len(text) > 22: return await ctx.bot.util.send_error_message(ctx, "Text too long ;w;")
         async with ctx.channel.typing():
             async with ctx.bot.bot_session.get("https://i.ode.bz/auto/nichijou?text={}".format(ctx.bot.utils.encode_uri(text))) as r:
                 res = await r.read()
@@ -207,7 +226,7 @@ class memes(commands.Cog):
     @command('achieve,call')
     @cooldown(5)
     async def challenge(self, ctx, *args):
-        if len(args)==0: raise ctx.bot.utils.send_error_message('What is the challenge?')
+        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, 'What is the challenge?')
         else:
             async with ctx.channel.typing():
                 txt = ctx.bot.utils.encode_uri(' '.join(args))[0:50]
@@ -220,7 +239,7 @@ class memes(commands.Cog):
     @cooldown(2)
     async def didyoumean(self, ctx, *args):
         params = ctx.bot.utils.split_parameter_to_two(args)
-        if params is None: raise ctx.bot.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
+        if params is None: return await ctx.bot.util.send_error_message(ctx, "Please send two parameters, either split by a space, a comma, or a semicolon.")
         txt1, txt2 = params
         url = f'https://api.alexflipnote.dev/didyoumean?top={txt1[0:50]}&bottom={txt2[0:50]}'
         return await ctx.bot.send_image_attachment(ctx, url, alexflipnote=True)
@@ -229,7 +248,7 @@ class memes(commands.Cog):
     @cooldown(2)
     async def drake(self, ctx, *args):
         params = ctx.bot.utils.split_parameter_to_two(args)
-        if params is None: raise ctx.bot.utils.send_error_message("Please send two parameters, either split by a space, a comma, or a semicolon.")
+        if params is None: return await ctx.bot.util.send_error_message(ctx, "Please send two parameters, either split by a space, a comma, or a semicolon.")
         txt1, txt2 = params
         url = "https://api.alexflipnote.dev/drake?top="+ctx.bot.utils.encode_uri(txt1[0:50])+"&bottom="+ctx.bot.utils.encode_uri(txt2[0:50])
         return await ctx.bot.send_image_attachment(ctx, url, alexflipnote=True)
@@ -324,7 +343,7 @@ class memes(commands.Cog):
     @command()
     @cooldown(10)
     async def scroll(self, ctx, *args):
-        if len(args)==0: raise ctx.bot.utils.send_error_message("Error! where is your text?")
+        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, "Error! where is your text?")
         else:
             async with ctx.channel.typing():
                 scrolltxt = ctx.bot.utils.encode_uri(' '.join(args))
@@ -370,7 +389,7 @@ class memes(commands.Cog):
     @command('changedmymind')
     @cooldown(10)
     async def changemymind(self, ctx, *args):
-        if len(args)==0: raise ctx.bot.utils.send_error_message("Error! You need a text...")
+        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, "Error! You need a text...")
         else:
             await ctx.message.add_reaction(ctx.bot.loading_emoji)
             async with ctx.channel.typing():
@@ -442,10 +461,10 @@ class memes(commands.Cog):
             str(i + 1)+". " + keys[i] for i in range(len(keys))
         ]), color=ctx.guild.me.roles[::-1][0].color))
         message = await ctx.bot.utils.wait_for_message(ctx, message=None, func=check, timeout=60.0)
-        if message is None: raise ctx.bot.utils.send_error_message("You did not respond in time. Meme-generation canceled.")
+        if message is None: return await ctx.bot.util.send_error_message(ctx, "You did not respond in time. Meme-generation canceled.")
         link = self.meme_templates["bottom_image"][(keys[int(message.content) - 1] if message.content.isnumeric() else message.content)]
         format_text = await ctx.bot.utils.wait_for_message(ctx, message="Now send your text content to be in the meme.", timeout=60.0)
-        if format_text is None: raise ctx.bot.utils.send_error_message("You did not respond in time. Meme-generation canceled.")
+        if format_text is None: return await ctx.bot.util.send_error_message(ctx, "You did not respond in time. Meme-generation canceled.")
         async with ctx.channel.typing():
             return ctx.bot.canvas.bottom_image_meme(link, format_text.content[0:640])
 
@@ -461,10 +480,10 @@ class memes(commands.Cog):
             str(i + 1)+". " + keys[i] for i in range(len(keys))
         ]), color=ctx.guild.me.roles[::-1][0].color))
         message = await ctx.bot.utils.wait_for_message(ctx, message=None, func=check, timeout=60.0)
-        if message is None: raise ctx.bot.utils.send_error_message("You did not respond in time. Meme-generation canceled.")
+        if message is None: return await ctx.bot.util.send_error_message(ctx, "You did not respond in time. Meme-generation canceled.")
         link = self.meme_templates["topbottom"][(keys[int(message.content) - 1] if message.content.isnumeric() else message.content)]
         format_text = await ctx.bot.utils.wait_for_message(ctx, message="Now send your top text and bottom text. Splitted by either spaces, commas, semicolon, or |.", timeout=60.0)
-        if format_text is None: raise ctx.bot.utils.send_error_message("You did not respond in time. Meme-generation canceled.")
+        if format_text is None: return await ctx.bot.util.send_error_message(ctx, "You did not respond in time. Meme-generation canceled.")
         text1, text2 = ctx.bot.utils.split_parameter_to_two(format_text.content.split())
         url = link.replace("{TEXT1}", ctx.bot.utils.encode_uri(text1)[0:64]).replace("{TEXT2}", ctx.bot.utils.encode_uri(text2)[0:64])
         async with ctx.channel.typing():
@@ -472,11 +491,11 @@ class memes(commands.Cog):
 
     async def custom_image_meme(self, ctx, *args):
         message = await ctx.bot.utils.wait_for_message(ctx, message="Please send a **Image URL/Attachment**, or\nSend a **ping/user ID/name** to format as an **avatar.**\nOr send `mine` to use your avatar instead.", timeout=60.0)
-        if message is None: raise ctx.bot.utils.send_error_message("You did not input a text. Meme making canceled.")
+        if message is None: return await ctx.bot.util.send_error_message(ctx, "You did not input a text. Meme making canceled.")
         elif "mine" in message.content.lower(): url = ctx.author.avatar_url_as(size=512, format="png")
         else: url = ctx.bot.Parser.parse_image(message, tuple(message.content.split()))
         text = await ctx.bot.utils.wait_for_message(ctx, message="Send top text and bottom text. Splitted by a space, comma, semicolon, or |.", timeout=60.0)
-        if text is None: raise ctx.bot.utils.send_error_message("You did not input a text. Meme making canceled.")
+        if text is None: return await ctx.bot.util.send_error_message(ctx, "You did not input a text. Meme making canceled.")
         text1, text2 = ctx.bot.utils.split_parameter_to_two(tuple(text.content.split()))
         async with ctx.channel.typing():
             return await ctx.bot.send_image_attachment(ctx, "https://api.memegen.link/images/custom/{}/{}.png?background={}".format(ctx.bot.utils.encode_uri(text1)[0:64], ctx.bot.utils.encode_uri(text2)[0:64], url))

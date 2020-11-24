@@ -44,14 +44,16 @@ class apps(commands.Cog):
     @command('movie')
     @cooldown(5)
     async def tv(self, ctx, *args):
-        if len(args)==0: raise ctx.bot.utils.send_error_message("Please give TV shows as arguments.")
-        query = ctx.bot.utils.encode_uri(' '.join(args))
-        data = get(f'http://api.tvmaze.com/singlesearch/shows?q={query}')
-        if data.status_code==404: raise ctx.bot.utils.send_error_message("Did not found anything.")
+        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, "Please give TV shows as arguments.")
+        data = ctx.bot.util.get_request(
+            f'http://api.tvmaze.com/singlesearch/shows?q={query}',
+            json=True,
+            q=' '.join(args)
+        )
+        if data is None: return await ctx.bot.util.send_error_message(ctx, "Did not found anything.")
         try:
-            data = data.json()
             star = str(':star:'*round(data['rating']['average'])) if data['rating']['average'] is not None else 'No star rating provided.'
-            em = discord.Embed(title=data['name'], url=data['url'], description=ctx.bot.utils.clean_html(data['summary']), color=ctx.guild.me.roles[::-1][0].color)
+            em = discord.Embed(title=data['name'], url=data['url'], description=ctx.bot.Parser.html_to_markdown(data['summary']), color=ctx.guild.me.roles[::-1][0].color)
             em.add_field(name='General Information', value='**Status: **'+data['status']+'\n**Premiered at: **'+data['premiered']+'\n**Type: **'+data['type']+'\n**Language: **'+data['language']+'\n**Rating: **'+str(data['rating']['average'] if data['rating']['average'] is not None else 'None')+'\n'+star)
             em.add_field(name='TV Network', value=data['network']['name']+' at '+data['network']['country']['name']+' ('+data['network']['country']['timezone']+')')
             em.add_field(name='Genre', value=str(', '.join(data['genres']) if len(data['genres'])>0 else 'no genre avaliable'))
@@ -59,24 +61,32 @@ class apps(commands.Cog):
             em.set_image(url=data['image']['original'])
             await ctx.send(embed=em)
         except:
-            raise ctx.bot.utils.send_error_message("There was an error on fetching the info.")
+            return await ctx.bot.util.send_error_message(ctx, "There was an error on fetching the info.")
 
     @command('spot,splay,listeningto,sp')
     @cooldown(2)
     async def spotify(self, ctx, *args):
         user = ctx.bot.Parser.parse_user(ctx, args)
         act = self.get_spotify(user)
-        if act is None: raise ctx.bot.utils.send_error_message(f"Sorry, but {user.display_name} is not listening to spotify.")
+        if act is None: return await ctx.bot.util.send_error_message(ctx, f"Sorry, but {user.display_name} is not listening to spotify.")
         async with ctx.channel.typing():
             await ctx.send(file=discord.File(ctx.bot.canvas.custom_panel(spt=act), 'spotify.png'))
 
     @command()
     @cooldown(5)
     async def itunes(self, ctx, *args):
-        if len(args)==0: raise ctx.bot.utils.send_error_message("Please send a search term.")
+        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, "Please send a search term.")
         async with ctx.channel.typing():
-            data = ctx.bot.utils.fetchJSON('https://itunes.apple.com/search?term={}&media=music&entity=song&limit=1&explicit=no'.format(ctx.bot.utils.encode_uri(' '.join(args))))
-            if len(data['results'])==0: return await ctx.send('{} | No music found... oop'.format(ctx.bot.error_emoji))
+            data = ctx.bot.util.get_request(
+                'https://itunes.apple.com/search',
+                json=True,
+                term=' '.join(args),
+                media='music',
+                entity='song',
+                limit=1,
+                explicit='no'
+            )
+            if (data is None) or len(data['results'])==0: return await ctx.send('{} | No music found... oop'.format(ctx.bot.error_emoji))
             data = data['results'][0]
             return await ctx.send(file=discord.File(ctx.bot.canvas.custom_panel(title=data['trackName'], subtitle=data['artistName'], description=data['primaryGenreName'], icon=data['artworkUrl100']), 'itunes.png'))
 
@@ -100,14 +110,14 @@ class apps(commands.Cog):
                         assert q is not None
                         destination = q
                 except (IndexError, AssertionError):
-                    raise ctx.bot.utils.send_error_message('Gimme something to translate!')
+                    return await ctx.bot.util.send_error_message(ctx, 'Gimme something to translate!')
                 try:
                     translation = self.translator.translate(toTrans, dest=destination)
                     embed = discord.Embed(description=translation.text, colour=ctx.guild.me.roles[::-1][0].color)
                     embed.set_footer(text=f'Translated {LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}.')
                     await wait.edit(content="", embed=embed)
                 except Exception as e:
-                    raise ctx.bot.utils.send_error_message(f'An error occurred! ```py\n{str(e)}```')
+                    return await ctx.bot.util.send_error_message(ctx, f'An error occurred! ```py\n{str(e)}```')
             else:
                 await wait.edit(content=f'Please add a language! To have the list and their id, type\n`{ctx.bot.command_prefix}translate --list`.')
         else:
@@ -117,7 +127,7 @@ class apps(commands.Cog):
     @cooldown(5)
     async def wikipedia(self, ctx, *args):
         if len(args)==0:
-            raise ctx.bot.utils.send_error_message("Please input a page name.")
+            return await ctx.bot.util.send_error_message(ctx, "Please input a page name.")
         wait = await ctx.send(ctx.bot.loading_emoji + ' | Please wait...')
         wikipedia = wikipediaapi.Wikipedia('en')
         page = wikipedia.page(' '.join(args))
@@ -167,7 +177,7 @@ class apps(commands.Cog):
                 embed = discord.Embed(title='IMDb Top '+str(num)+':', description=str(total), colour=ctx.guild.me.roles[::-1][0].color)
                 return await wait.edit(content='', embed=embed)
             except:
-                raise ctx.bot.utils.send_error_message('Is the top thing you inputted REALLY a number?\nlike, Not top TEN, but top 10.\nGET IT?')
+                return await ctx.bot.util.send_error_message(ctx, 'Is the top thing you inputted REALLY a number?\nlike, Not top TEN, but top 10.\nGET IT?')
         movie_param = ctx.bot.utils.parse_parameter(args, '--movie', get_second_element=True)
         if movie_param['available']:
             try:
@@ -189,8 +199,8 @@ class apps(commands.Cog):
                 return await wait.edit(content='', embed=embed)
             except Exception as e:
                 print(e)
-                raise ctx.bot.utils.send_error_message('Oopsies! please input a valid ID/parameter...')
-        raise ctx.bot.utils.send_error_message('Wrong syntax. Use `'+ctx.bot.command_prefix+'imdb help` next time.')
+                return await ctx.bot.util.send_error_message(ctx, 'Oopsies! please input a valid ID/parameter...')
+        return await ctx.bot.util.send_error_message(ctx, 'Wrong syntax. Use `'+ctx.bot.command_prefix+'imdb help` next time.')
 
 def setup(client):
     client.add_cog(apps(client))

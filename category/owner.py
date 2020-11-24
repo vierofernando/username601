@@ -60,15 +60,15 @@ class owner(commands.Cog):
     @command('src')
     async def source(self, ctx, *args):
         try:
-            assert ctx.author.id == ctx.bot.utils.config('OWNER_ID', integer=True), 'Source code not available'
+            assert ctx.author.id == ctx.bot.util.owner_id, 'Source code not available'
             source = eval("getsource({})".format(' '.join(args)))
             return await ctx.send('```py\n'+str(source)[0:1900]+'```')
         except Exception as e:
-            raise ctx.bot.utils.send_error_message(str(e))
+            return await ctx.bot.util.send_error_message(ctx, str(e))
     
     @command('pm')
     async def postmeme(self, ctx, *args):
-        if ctx.author.id!=ctx.bot.utils.config('OWNER_ID', integer=True):
+        if ctx.author.id!=ctx.bot.util.owner_id:
             return await ctx.message.add_reaction(ctx.bot.error_emoji)
         url = ''.join(args)
         if url.startswith('<'): url = url[1:]
@@ -86,32 +86,32 @@ class owner(commands.Cog):
 
     @command()
     async def rp(self, ctx, *args):
-        if ctx.author.id==ctx.bot.utils.config('OWNER_ID', integer=True):
+        if ctx.author.id==ctx.bot.util.owner_id:
             try:
                 user_to_send = ctx.bot.get_user(int(args[0]))
                 em = discord.Embed(title="Hi, "+user_to_send.name+"! the bot owner sent a response for your feedback.", description=' '.join(args[1:]), colour=ctx.guild.me.roles[::-1][0].color)
                 await user_to_send.send(embed=em)
                 await ctx.message.add_reaction('✅')
             except Exception as e:
-                raise ctx.bot.utils.send_error_message(f'Error: `{str(e)}`')
+                return await ctx.bot.util.send_error_message(ctx, f'Error: `{str(e)}`')
         else:
             await ctx.send('You are not the bot owner. Go get a life.')
 
     @command()
     async def fban(self, ctx, *args):
-        if ctx.author.id==ctx.bot.utils.config('OWNER_ID', integer=True):
+        if ctx.author.id==ctx.bot.util.owner_id:
             ctx.bot.db.selfDB.feedback_ban(int(args[0]), str(' '.join(list(args)[1:])))
             await ctx.message.add_reaction(ctx.bot.success_emoji)
         else:
-            raise ctx.bot.utils.send_error_message('You are not the owner, nerd.')
+            return await ctx.bot.util.send_error_message(ctx, 'You are not the owner, nerd.')
     @command()
     async def funban(self, ctx, *args):
-        if ctx.author.id==ctx.bot.utils.config('OWNER_ID', integer=True):
+        if ctx.author.id==ctx.bot.util.owner_id:
             data = ctx.bot.db.selfDB.feedback_unban(int(args[0]))
             if data=='200': await ctx.message.add_reaction(ctx.bot.success_emoji)
             else: await ctx.message.add_reaction(ctx.bot.error_emoji)
         else:
-            raise ctx.bot.utils.send_error_message('Invalid person.')
+            return await ctx.bot.util.send_error_message(ctx, 'Invalid person.')
     @command('ex,eval')
     async def evaluate(self, ctx, *args):
         iwanttostealsometoken = False
@@ -154,7 +154,7 @@ class owner(commands.Cog):
     async def bash(self, ctx, *args):
         unprefixed = ' '.join(args)
         if unprefixed == '': unprefixed = 'echo hello world'
-        if ctx.author.id==ctx.bot.utils.config('OWNER_ID', integer=True):
+        if ctx.author.id==ctx.bot.util.owner_id:
             try:
                 if len(args)==0: raise OSError('you are gay')
                 if len(unprefixed.split())==1: data = run([unprefixed], stdout=PIPE).stdout.decode('utf-8')

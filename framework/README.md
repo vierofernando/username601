@@ -3,24 +3,6 @@ A custom "framework" i made for this bot. You can use this framework!<br>
 (not planning to be added to PyPI, sorry)<br>
 This is the documentation and the examples.<br>
 
-## Bot Utilities
-A bot utility with some useful functions.
-
-```py
-from discord import Client
-from framework import Util
-client = Client(...)
-
-# Initiate utilities
-Util(client)
-
-@bot.command()
-async def binary(ctx, *args):
-    text = " ".join(args)
-    binary = client.util.binary(text)
-    await ctx.send(binary)
-```
-
 ## Argument Parser
 
 ### Using the Parser Object
@@ -35,7 +17,7 @@ async def introduce(ctx):
     parser = Parser(ctx)
     parser.add_argument(
         name="--name",
-        is_required=True,
+        is_required=False,
         get_value=True,
         value_placeholder="your_name"
     )
@@ -125,8 +107,8 @@ async def hello(ctx):
 
 ### Embed Paginator
 ```py
-import discord
 from framework import Paginator
+from discord import Embed
 from discord.ext import commands
 
 @bot.command()

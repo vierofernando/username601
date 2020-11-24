@@ -27,17 +27,17 @@ class games(commands.Cog):
     @command("ttt")
     @cooldown(15)
     async def tictactoe(self, ctx, *args):
-        if len(args) == 0: raise ctx.bot.utils.send_error_message("You need to add a `mention/user ID/username` for someone to join your game as well.")
+        if len(args) == 0: return await ctx.bot.util.send_error_message(ctx, "You need to add a `mention/user ID/username` for someone to join your game as well.")
         user = ctx.bot.Parser.parse_user(ctx, *args)
-        if user == ctx.author: raise ctx.bot.utils.send_error_message("You need to add a `mention/user ID/username` for someone to join your game as well.")
+        if user == ctx.author: return await ctx.bot.util.send_error_message(ctx, "You need to add a `mention/user ID/username` for someone to join your game as well.")
         response = await self.wait_for_user(ctx, user)
-        if response is None: raise ctx.bot.utils.send_error_message(str(user)+" did not respond in 20 seconds! Game invitation ended.")
+        if response is None: return await ctx.bot.util.send_error_message(ctx, str(user)+" did not respond in 20 seconds! Game invitation ended.")
     
         characters = (ctx.author, user)
         game = ctx.bot.TicTacToe()
         
         if user.bot: 
-            raise ctx.bot.utils.send_error_message("Sorry! There was an error on executing the tictactoe:\n`discord.DiscordAPIError: "+str(user)+" is a botum`")
+            return await ctx.bot.util.send_error_message(ctx, "Sorry! There was an error on executing the tictactoe:\n`discord.DiscordAPIError: "+str(user)+" is a botum`")
         
         embed = ctx.bot.Embed(ctx, title="Tic-tac-toe Game", desc="["+str(ctx.author)+"'s (O) turn]```"+game.show()+"```")
         message = await embed.send()
@@ -112,8 +112,8 @@ class games(commands.Cog):
     @command()
     @cooldown(3)
     async def gdlevel(self, ctx, *args):
-        if len(args)==0: raise ctx.bot.utils.send_error_message('Please enter a level ID!')
-        if not args[0].isnumeric(): raise ctx.bot.utils.send_error_message('That is not a level ID!')
+        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, 'Please enter a level ID!')
+        if not args[0].isnumeric(): return await ctx.bot.util.send_error_message(ctx, 'That is not a level ID!')
         toEdit = await ctx.send(ctx.bot.loading_emoji+' | Fetching data from the Geometry Dash servers...')
         try:
             data = ctx.bot.canvas.geometry_dash_level(int(args[0]))
@@ -121,12 +121,12 @@ class games(commands.Cog):
             await ctx.send(file=discord.File(data, 'gdlevel.png'))
         except Exception as e:
             print(e)
-            raise ctx.bot.utils.send_error_message('Sorry! there is an error with the GD servers.')
+            return await ctx.bot.util.send_error_message(ctx, 'Sorry! there is an error with the GD servers.')
     @command()
     @cooldown(3)
     async def gdsearch(self, ctx, *args):
         if len(args)==0:
-            raise ctx.bot.utils.send_error_message('Please input a query!')
+            return await ctx.bot.util.send_error_message(ctx, 'Please input a query!')
         else:
             try:
                 query = ctx.bot.utils.encode_uri(' '.join(args))
@@ -140,12 +140,12 @@ class games(commands.Cog):
                 embedy = discord.Embed(title='Geometry Dash Level searches for "'+str(' '.join(args))+'":', description=levels, colour=ctx.guild.me.roles[::-1][0].color)
                 await ctx.send(embed=embedy)
             except:
-                raise ctx.bot.utils.send_error_message('Error: Not Found. :four::zero::four:')
+                return await ctx.bot.util.send_error_message(ctx, 'Error: Not Found. :four::zero::four:')
 
     @command()
     @cooldown(3)
     async def gdprofile(self, ctx, *args):
-        if len(args)==0: raise ctx.bot.utils.send_error_message('Input a GD Username, (you also can add `--icon` to see the icon kit)')
+        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, 'Input a GD Username, (you also can add `--icon` to see the icon kit)')
         else:
             parsed = ctx.bot.utils.parse_parameter(args, "--icon")
             if parsed["available"]:
@@ -177,13 +177,13 @@ class games(commands.Cog):
                 await ctx.send(embed=embed)
             except Exception as e:
                 print(e)
-                raise ctx.bot.utils.send_error_message('Error, user not found.')
+                return await ctx.bot.util.send_error_message(ctx, 'Error, user not found.')
     
     @command()
     @cooldown(3)
     async def gdlogo(self, ctx, *args):
         if len(args)==0:
-            raise ctx.bot.utils.send_error_message('Please input a text!')
+            return await ctx.bot.util.send_error_message(ctx, 'Please input a text!')
         else:
             async with ctx.channel.typing():
                 text = ctx.bot.utils.encode_uri(' '.join(args))
@@ -193,11 +193,11 @@ class games(commands.Cog):
     @command()
     @cooldown(3)
     async def gdbox(self, ctx, *args):
-        if len(args)==0: raise ctx.bot.utils.send_error_message('Please input a text!')
+        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, 'Please input a text!')
         else:
             async with ctx.channel.typing():
                 text, av = ctx.bot.utils.encode_uri(str(' '.join(args))), ctx.author.avatar_url_as(format='png')
-                if len(text)>100: raise ctx.bot.utils.send_error_message('the text is too long!')
+                if len(text)>100: return await ctx.bot.util.send_error_message(ctx, 'the text is too long!')
                 else:
                     if not ctx.author.guild_permissions.manage_guild: color = 'brown'
                     else: color = 'blue'
@@ -219,7 +219,7 @@ class games(commands.Cog):
                 else: url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&days=1-second'
                 return await ctx.bot.send_image_attachment(ctx, url)
             except Exception as e:
-                raise ctx.bot.utils.send_error_message(f'Invalid!\nThe flow is this: `{ctx.bot.command_prefix}gdcomment text | name | like count`\nExample: `{ctx.bot.command_prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
+                return await ctx.bot.util.send_error_message(ctx, f'Invalid!\nThe flow is this: `{ctx.bot.command_prefix}gdcomment text | name | like count`\nExample: `{ctx.bot.command_prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
 
     @command('gdweekly')
     @cooldown(2)
@@ -290,7 +290,7 @@ class games(commands.Cog):
     async def guessavatar(self, ctx):
         wait = await ctx.send(ctx.bot.loading_emoji + ' | Please wait... generating question...\nThis process may take longer if your server has more members.')
         avatarAll, nameAll = [str(i.avatar_url) for i in ctx.guild.members if i.status.name!='offline'], [i.display_name for i in ctx.guild.members if i.status.name!='offline']
-        if len(avatarAll)<=4: raise ctx.bot.utils.send_error_message('Need more online members! :x:')
+        if len(avatarAll)<=4: return await ctx.bot.util.send_error_message(ctx, 'Need more online members! :x:')
         numCorrect = random.randint(0, len(avatarAll)-1)
         corr_avatar, corr_name = avatarAll[numCorrect], nameAll[numCorrect]
         nameAll.remove(corr_name)
@@ -326,7 +326,7 @@ class games(commands.Cog):
                 ctx.bot.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! You received '+str(reward)+' extra bobux!')
         else:
-            raise ctx.bot.utils.send_error_message(f'<@{ctx.author.id}>, Incorrect. The answer is {corr_order}. {corr_name}')
+            return await ctx.bot.util.send_error_message(ctx, f'<@{ctx.author.id}>, Incorrect. The answer is {corr_order}. {corr_name}')
 
     @command()
     @cooldown(15)
@@ -368,7 +368,7 @@ class games(commands.Cog):
                 ctx.bot.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! You obtained '+str(reward)+' bobux in total!')
         else:
-            raise ctx.bot.utils.send_error_message(f'<@{guy.id}>, You are incorrect. The answer is {corr_order}.')
+            return await ctx.bot.util.send_error_message(ctx, f'<@{guy.id}>, You are incorrect. The answer is {corr_order}.')
 
     @command()
     @cooldown(4)
@@ -391,7 +391,7 @@ class games(commands.Cog):
                 ctx.bot.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! we added an extra '+str(reward)+' bobux to your profile.')
         else:
-            raise ctx.bot.utils.send_error_message(f'<@{ctx.author.id}>, Incorrect. The answer is {answer}.')
+            return await ctx.bot.util.send_error_message(ctx, f'<@{ctx.author.id}>, Incorrect. The answer is {answer}.')
 
     @command()
     @cooldown(60)
@@ -418,7 +418,7 @@ class games(commands.Cog):
                     await ctx.send('thanks for playing! you get an extra '+str(reward)+' bobux!')
                 gameplay = False ; break
             if level>7:
-                raise ctx.bot.utils.send_error_message(f'<@{playing_with_id}> lost! :(\nThe answer is actually "'+''.join(main_guess_cor)+'".')
+                return await ctx.bot.util.send_error_message(ctx, f'<@{playing_with_id}> lost! :(\nThe answer is actually "'+''.join(main_guess_cor)+'".')
                 gameplay = False ; break
             def is_not_stranger(m):
                 return m.author == playing_with
@@ -492,11 +492,11 @@ class games(commands.Cog):
             try:
                 trying = await ctx.bot.wait_for('message', check=check_not_stranger, timeout=20.0)
             except asyncio.TimeoutError:
-                raise ctx.bot.utils.send_error_message('You did not respond for the next 20 seconds!\nGame ended.')
+                return await ctx.bot.util.send_error_message(ctx, 'You did not respond for the next 20 seconds!\nGame ended.')
                 gameplay = False
                 break
             if trying.content.isnumeric()==False:
-                raise ctx.bot.utils.send_error_message('That is not a number!')
+                return await ctx.bot.util.send_error_message(ctx, 'That is not a number!')
                 attempts = int(attempts) - 1
             else:
                 if int(trying.content)<num:
@@ -534,7 +534,7 @@ class games(commands.Cog):
             for i in range(len(al)):
                 await wait.add_reaction(al[i])
         except Exception as e:
-            raise ctx.bot.utils.send_error_message(f'An error occurred!\nReport this using {ctx.bot.command_prefix}feedback.\n```{str(e)}```')
+            return await ctx.bot.util.send_error_message(ctx, f'An error occurred!\nReport this using {ctx.bot.command_prefix}feedback.\n```{str(e)}```')
         guy = ctx.author
         def check(reaction, user):
             return user == guy
@@ -549,7 +549,7 @@ class games(commands.Cog):
                 ctx.bot.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! You get also a '+str(reward)+' bobux as a prize!')
         else:
-            raise ctx.bot.utils.send_error_message(f'<@{guy.id}>, You are incorrect. The answer is {corr}.')
+            return await ctx.bot.util.send_error_message(ctx, f'<@{guy.id}>, You are incorrect. The answer is {corr}.')
 
 def setup(client):
     client.add_cog(games(client))

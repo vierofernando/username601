@@ -17,7 +17,7 @@ class bothelp(commands.Cog):
     @command('supportserver,support-server,botserver,bot-server')
     @cooldown(2)
     async def support(self, ctx):
-        return await ctx.send(ctx.bot.utils.config('SERVER_INVITE'))
+        return await ctx.send(ctx.bot.util.server_invite)
 
     @command('subscribe,dev,development,devupdates,dev-updates,development-updates')
     @cooldown(5)
@@ -34,11 +34,11 @@ class bothelp(commands.Cog):
                 url,
                 adapter=discord.RequestsWebhookAdapter()
             )
-        except: raise ctx.bot.utils.send_error_message("Invalid Webhook URL. Please send the one according to the tutorial.")
+        except: return await ctx.bot.util.send_error_message(ctx, "Invalid Webhook URL. Please send the one according to the tutorial.")
         ctx.bot.db.Dashboard.subscribe(url, ctx.guild.id)
         await ctx.message.add_reaction(ctx.bot.success_emoji)
         web.send(
-            embed=discord.Embed(title=f'Congratulations, {str(ctx.author)}!', description='Your webhook is now set! ;)\nNow every development updates or username601 events will be set here.\n\nIf you change your mind, you can do `{}sub reset` to remove the webhook from the database.\n[Join our support server if you still have any questions.]({})'.format(ctx.bot.command_prefix, ctx.bot.utils.config('SERVER_INVITE')), color=discord.Color.green()),
+            embed=discord.Embed(title=f'Congratulations, {str(ctx.author)}!', description='Your webhook is now set! ;)\nNow every development updates or username601 events will be set here.\n\nIf you change your mind, you can do `{}sub reset` to remove the webhook from the database.\n[Join our support server if you still have any questions.]({})'.format(ctx.bot.command_prefix, ctx.bot.util.server_invite), color=discord.Color.green()),
             username='Username601 News',
             avatar_url=ctx.bot.user.avatar_url
         )
@@ -57,7 +57,7 @@ class bothelp(commands.Cog):
             return await paginator.execute()
         
         data = ctx.bot.cmds.query(' '.join(args).lower())
-        if data is None: raise ctx.bot.utils.send_error_message("Your command/category name does not exist, sorry!")
+        if data is None: return await ctx.bot.util.send_error_message(ctx, "Your command/category name does not exist, sorry!")
         
         embed = ctx.bot.ChooseEmbed(ctx, data, key=(lambda x: "[`"+x["type"]+"`] `"+x["name"]+"`"))
         result = await embed.run()
@@ -88,7 +88,7 @@ class bothelp(commands.Cog):
     @command('sourcecode,source-code,git,repo')
     @cooldown(2)
     async def github(self, ctx):
-        embed = discord.Embed(title="Click me to visit the Bot's github page.", colour=ctx.guild.me.roles[::-1][0].color, url=ctx.bot.utils.config('GITHUB_REPO'))
+        embed = discord.Embed(title="Click me to visit the Bot's github page.", colour=ctx.guild.me.roles[::-1][0].color, url=ctx.bot.util.github_repo)
         await ctx.send(embed=embed)
     
     @command('inviteme,invitelink,botinvite,invitebot,addtoserver,addbot')
@@ -104,22 +104,22 @@ class bothelp(commands.Cog):
     @command('report,suggest,bug,reportbug,bugreport')
     @cooldown(15)
     async def feedback(self, ctx, *args):
-        if ((len(args)==0) or (len(''.join(args))>1000)): raise ctx.bot.utils.send_error_message("Invalid feedback length.")
-        elif (('discord.gg/' in ' '.join(args)) or ('discord.com/invite/' in ' '.join(args))): raise ctx.bot.utils.send_error_message("Please do NOT send invites. This is NOT advertising.")
+        if ((len(args)==0) or (len(''.join(args))>1000)): return await ctx.bot.util.send_error_message(ctx, "Invalid feedback length.")
+        elif (('discord.gg/' in ' '.join(args)) or ('discord.com/invite/' in ' '.join(args))): return await ctx.bot.util.send_error_message(ctx, "Please do NOT send invites. This is NOT advertising.")
         else:
             wait = await ctx.send(ctx.bot.loading_emoji + ' | Please wait... Transmitting data to owner...')
             banned = ctx.bot.db.selfDB.is_banned(ctx.author.id)
             if not banned:
                 try:
                     fb = ' '.join(args)
-                    feedbackCh = ctx.bot.get_channel(ctx.bot.utils.config('FEEDBACK_CHANNEL', integer=True))
-                    await feedbackCh.send('<@'+ctx.bot.utils.config('OWNER_ID')+'>, User with ID: '+str(ctx.author.id)+' sent a feedback: **"'+str(fb)+'"**')
-                    embed = discord.Embed(title='Feedback Successful', description=ctx.bot.success_emoji + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+ctx.bot.utils.config('SERVER_INVITE')+')',colour=ctx.guild.me.roles[::-1][0].color)
+                    feedbackCh = ctx.bot.get_channel(ctx.bot.util.feedback_channel)
+                    await feedbackCh.send(f'<@{ctx.bot.util.owner_id}>, User with ID: {ctx.author.id} sent a feedback: **"'+str(fb)+'"**')
+                    embed = discord.Embed(title='Feedback Successful', description=ctx.bot.success_emoji + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+ctx.bot.util.server_invite+')', colour=ctx.guild.me.roles[::-1][0].color)
                     await wait.edit(content='', embed=embed)
                 except:
-                    raise ctx.bot.utils.send_error_message('There was an error while sending your feedback. Sorry! :(')
+                    return await ctx.bot.util.send_error_message(ctx, 'There was an error while sending your feedback. Sorry! :(')
             else:
-                raise ctx.bot.utils.send_error_message(f"You have been banned from using the Feedback command.\nReason: {str(banned)}")
+                return await ctx.bot.util.send_error_message(ctx, f"You have been banned from using the Feedback command.\nReason: {str(banned)}")
                 
     @command()
     @cooldown(2)

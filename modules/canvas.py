@@ -181,6 +181,16 @@ class Painter:
             curs += (i.width + 25)
         return self.buffer(main)
 
+    def oliy_stretched(self, url):
+        image = self.buffer_from_url(url).resize((227, 449))
+        oily = self.templates["oliy.png"].copy()
+        canvas = Image.new(mode="RGB", size=(739, 1600), color=(0, 0, 0))
+        canvas.paste(image, (37, 565))
+        canvas.paste(oily, (0, 0), oily)
+        image.close()
+        oily.close()
+        return self.buffer(canvas)
+
     def minecraft_body(self, url, uuid):
         body_3d = self.buffer_from_url(url) # LMAO 420 NICE
         main = Image.new(mode="RGBA", size=(body_3d.width + 420, body_3d.height), color=(0, 0, 0, 0))

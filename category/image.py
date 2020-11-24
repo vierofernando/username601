@@ -68,7 +68,7 @@ class image(commands.Cog):
     @command('combine')
     @cooldown(2)
     async def blend(self, ctx, *args):
-        if len(args) == 0: raise ctx.bot.utils.send_error_message("Please input a parameter or something")
+        if len(args) == 0: return await ctx.bot.util.send_error_message(ctx, "Please input a parameter or something")
         async with ctx.channel.typing():
             parsed_args = ctx.bot.utils.split_parameter_to_two(args)
             if parsed_args is None: 
@@ -149,7 +149,7 @@ class image(commands.Cog):
         try:
             return await ctx.bot.send_image_attachment(ctx, url.replace('ABC', code))
         except:
-            raise ctx.bot.utils.send_error_message("404")
+            return await ctx.bot.util.send_error_message(ctx, "404")
 
     @command()
     @cooldown(2)
@@ -183,13 +183,13 @@ class image(commands.Cog):
         async with ctx.channel.typing():
             if correct=='yy':
                 ava = ctx.bot.Parser.parse_image(ctx, args, size=512)
-                if wh[0]>2000 or wh[1]>2000: raise ctx.bot.utils.send_error_message("Your image is too big!")
-                elif wh[0]<300 or wh[1]<300: raise ctx.bot.utils.send_error_message("Your image is too small!")
+                if wh[0]>2000 or wh[1]>2000: return await ctx.bot.util.send_error_message(ctx, "Your image is too big!")
+                elif wh[0]<300 or wh[1]<300: return await ctx.bot.util.send_error_message(ctx, "Your image is too small!")
                 else:
                     data = ctx.bot.canvas.resize(ava, wh[0], wh[1])
                     await ctx.send(file=discord.File(data, 'resize.png'))
             else:
-                raise ctx.bot.utils.send_error_message("Where are the parameters?")
+                return await ctx.bot.util.send_error_message(ctx, "Where are the parameters?")
 
     @command('cat,fox,sadcat,bird')
     @cooldown(2)
@@ -226,7 +226,7 @@ class image(commands.Cog):
     @command()
     @cooldown(2)
     async def ship(self, ctx, *args):
-        if len(args) == 0: raise ctx.bot.utils.send_error_message("Please input a parameter or something")
+        if len(args) == 0: return await ctx.bot.util.send_error_message(ctx, "Please input a parameter or something")
         async with ctx.channel.typing():
             parsed_args = ctx.bot.utils.split_parameter_to_two(args)
             if parsed_args is None: 
