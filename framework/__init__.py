@@ -8,6 +8,7 @@ from .panel import CustomPanel
 from .colorthief import Smart_ColorThief
 from .games import TicTacToe, Quiz
 from .emote import emoji_to_url
+from .util import Util
 
 def initiate(client):
     setattr(client, "Embed", embed)

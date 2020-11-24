@@ -160,16 +160,6 @@ async def choose_a_number(ctx):
 	return await ctx.send("Here is your text: " + result.content)
 ```
 
-### Send Image Attachment
-
-```py
-from framework import send_image_attachment
-
-@bot.command()
-async def thispersondoesnotexist(ctx):
-    await send_image_attachment(ctx, "https://thispersondoesnotexist.com/image")
-```
-
 ## Custom Panel
 
 ### Usage

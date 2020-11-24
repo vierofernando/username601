@@ -5,15 +5,19 @@ from requests import get
 from time import time
 from os import getenv
 
-async def send_image_attachment(ctx, url, alexflipnote=False):
+async def send_image_attachment(ctx, url, alexflipnote=False) -> None:
+    """
+    Sends an image attachment from a URL.
+    Enabling alexflipnote will also add a Authorization header of "ALEXFLIPNOTE_TOKEN" to the GET request method.
+    """
     try:
         data = get(url, timeout=5.0) if (not alexflipnote) else get(url, timeout=10.0, headers={'Authorization': getenv("ALEXFLIPNOTE_TOKEN")})        
-        assert data.status_code < 400
-        assert data.headers['Content-Type'].startswith("image/")
+        assert data.status_code < 400, "API returns a bad status code"
+        assert data.headers['Content-Type'].startswith("image/"), "Content does not have an image."
         extension = "." + data.headers['Content-Type'][6:]
         return await ctx.send(file=File(BytesIO(data.content), "file"+extension.lower()))
     except Exception as e:
-        raise ctx.bot.utils.send_error_message("Image not found.\n`"+str(e)+"`")
+        raise ctx.bot.utils.send_error_message(ctx, "Image not found.\n`"+str(e)+"`")
 
 class Paginator:
     def __init__(

@@ -4,6 +4,17 @@ from discord import Embed, Color
 
 class Parser:
     ALPHABET = list("abcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[];',./{}|:")
+    SPLIT_CHARACTERS = [';', ', ', ',', '|',' | ']
+    HTML_DICT = {
+        "<p>": "",
+        "</p>": "",
+        "<b>": "**",
+        "</b>": "**",
+        "<i>": "*",
+        "</i>": "*",
+        "<br />": "\n",
+        "<br>": "\n"
+    }
 
     def __init__(self, ctx, arguments: list = None) -> None:
         """
@@ -214,3 +225,27 @@ class Parser:
         if len(member) > 0: return member[0]
         
         return ctx.author
+    
+    @staticmethod
+    def split_content_to_two(args: tuple):
+        """
+        Splits a text to two text.
+        Detects comma, |, semicolon, or spaces.
+        """
+        
+        if ((args is None) or (len(args) < 2)): return None
+        if len(args) == 2: return args[0], args[1]
+        
+        args_as_a_string = ' '.join(list(args))
+        for char in Parser.SPLIT_CHARACTERS:
+            if char in args_as_a_string: return args_as_a_string.split(char)[0], char.join(args_as_a_string.split(char)[1:])
+        return args[0], ' '.join(args[1:])
+    
+    @staticmethod
+    def html_to_markdown(text: str) -> str:
+        """ Converts HTML string to markdown string. """
+    
+        result = text.lower()
+        for key in Parser.HTML_DICT.keys():
+            result.replace(key, Parser.HTML_DICT[key])
+        return result
