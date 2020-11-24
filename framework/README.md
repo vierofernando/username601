@@ -35,7 +35,7 @@ async def introduce(ctx):
     parser = Parser(ctx)
     parser.add_argument(
         name="--name",
-        is_required=False,
+        is_required=True,
         get_value=True,
         value_placeholder="your_name"
     )
