@@ -343,13 +343,16 @@ class memes(commands.Cog):
         async with ctx.channel.typing():
             ava = ctx.bot.Parser.parse_image(ctx, args)
             command_name = ctx.bot.util.get_command_name(ctx)
-            size, pos = self._positioning[command_name]
-            image = ctx.bot.canvas.art(ava) if command_name == "art" else ctx.bot.canvas.merge({
-                'filename': command_name+'.jpg',
-                'url': ava,
-                'size': size,
-                'pos': pos
-            })
+            if command_name == "art":
+                image = ctx.bot.canvas.art(ava)
+            else:
+                size, pos = self._positioning[command_name]
+                image = ctx.bot.canvas.merge({
+                    'filename': command_name+'.jpg',
+                    'url': ava,
+                    'size': size,
+                    'pos': pos
+                })
             await ctx.send(file=discord.File(image, 'meme.png'))
 
     
