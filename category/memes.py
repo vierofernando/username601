@@ -19,16 +19,16 @@ class memes(commands.Cog):
         self.frogMetadata = self.rawMetadata[1].split(':')
         self.meme_templates = loads(open(client.util.json_dir+'/memes.json', 'r').read())
         self._positioning = {
-            "wanted": (547, 539), (167, 423),
-            "ferbtv": (362, 278), (364, 189),
-            "chatroulette": (324, 243), (14, 345),
-            "frame": (1025, 715), (137, 141),
-            "door": (496, 483), (247, 9),
-            "studying": (290, 315), (85, 160),
-            "starvstheforcesof": (995, 1079), (925, 0),
-            "wolverine": (368, 316), (85, 373),
-            "disgusting": (614, 407), (179, 24),
-            "f": (82, 111), (361, 86)
+            "wanted": ((547, 539), (167, 423)),
+            "ferbtv": ((362, 278), (364, 189)),
+            "chatroulette": ((324, 243), (14, 345)),
+            "frame": ((1025, 715), (137, 141)),
+            "door": ((496, 483), (247, 9)),
+            "studying": ((290, 315), (85, 160)),
+            "starvstheforcesof": ((995, 1079), (925, 0)),
+            "wolverine": ((368, 316), (85, 373)),
+            "disgusting": ((614, 407), (179, 24)),
+            "f": ((82, 111), (361, 86))
         }
         
     @command()
