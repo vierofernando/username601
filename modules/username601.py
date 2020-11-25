@@ -1,5 +1,3 @@
-from discord import Color, Embed
-from discord.message import Message
 from configparser import ConfigParser
 
 main_cfg = ConfigParser()
