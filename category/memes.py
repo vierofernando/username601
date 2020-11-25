@@ -18,7 +18,19 @@ class memes(commands.Cog):
         ))
         self.frogMetadata = self.rawMetadata[1].split(':')
         self.meme_templates = loads(open(client.util.json_dir+'/memes.json', 'r').read())
-
+        self._positioning = {
+            "wanted": (547, 539), (167, 423),
+            "ferbtv": (362, 278), (364, 189),
+            "chatroulette": (324, 243), (14, 345),
+            "frame": (1025, 715), (137, 141),
+            "door": (496, 483), (247, 9),
+            "studying": (290, 315), (85, 160),
+            "starvstheforcesof": (995, 1079), (925, 0),
+            "wolverine": (368, 316), (85, 373),
+            "disgusting": (614, 407), (179, 24),
+            "f": (82, 111), (361, 86)
+        }
+        
     @command()
     @cooldown(3)
     async def oliy(self, ctx, *args):
@@ -331,19 +343,14 @@ class memes(commands.Cog):
         async with ctx.channel.typing():
             ava = ctx.bot.Parser.parse_image(ctx, args)
             command_name = ctx.bot.util.get_command_name(ctx)
-            
-            if 'wanted' in ctx.message.content: size, pos = (547, 539), (167, 423)
-            elif 'ferbtv' in ctx.message.content: size, pos = (362, 278), (364, 189)
-            elif 'chatroulette' in ctx.message.content: size, pos = (324, 243), (14, 345)
-            elif 'frame' in ctx.message.content: size, pos, ava = (1025, 715), (137, 141), str(ava).replace("=512", "=1024")
-            if 'art' not in ctx.message.content: image = ctx.bot.canvas.merge({
-                'filename': ctx.message.content.split()[0][1:]+'.jpg',
+            size, pos = self._positioning[command_name]
+            image = ctx.bot.canvas.art(ava) if command_name == "art" else ctx.bot.canvas.merge({
+                'filename': command_name+'.jpg',
                 'url': ava,
                 'size': size,
                 'pos': pos
             })
-            else: image = ctx.bot.canvas.art(ava)
-            await ctx.send(file=discord.File(image, 'memey.png'))
+            await ctx.send(file=discord.File(image, 'meme.png'))
 
     
     @command()
@@ -375,21 +382,15 @@ class memes(commands.Cog):
     @command('baby,wolverine,disgusting,f,studying,starvstheforcesof')
     @cooldown(10)
     async def door(self, ctx, *args):
-        # yanderedev OwO
         async with ctx.channel.typing():
             ava = ctx.bot.Parser.parse_image(ctx, args)
             command_name = ctx.bot.util.get_command_name(ctx)
-            
-            if command_name == "door": size, pos = (496, 483), (247, 9)
-            elif command_name == 'studying': size, pos = (290, 315), (85, 160)
-            elif command_name == 'starvstheforcesof': size, pos = (995, 1079), (925, 0)
-            elif command_name == 'wolverine': size, pos = (368, 316), (85, 373)
-            elif command_name == 'disgusting': size, pos = (614, 407), (179, 24)
-            elif command_name == 'f': size, pos = (82, 111), (361, 86)
-            else: return await ctx.send(file=discord.File(ctx.bot.canvas.baby(ava), 'baby.png'))
+            if command_name == "baby":
+                return await ctx.send(file=discord.File(ctx.bot.canvas.baby(ava), 'baby.png'))
+            size, pos = self._positioning[command_name]
             return await ctx.send(file=discord.File(ctx.bot.canvas.trans_merge({
                 'url': ava,
-                'filename': ctx.message.content.split()[0][1:]+'.png',
+                'filename': command_name+'.png',
                 'size': size,
                 'pos': pos
             }), 'meme.png'))

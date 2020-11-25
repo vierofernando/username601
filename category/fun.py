@@ -48,7 +48,7 @@ class fun(commands.Cog):
     async def say(self, ctx, *args):
         if len(args) == 0: return await ctx.send("Send `something`.")
         text = ' '.join(args).lower()[0:1999]
-        if ctx.message.content.startswith(f"{ctx.bot.command_prefix}reply"):
+        if ctx.bot.util.get_command_name(ctx) == "reply":
             res = post(
                 f'https://discord.com/api/v8/channels/{ctx.channel.id}/messages',
                 headers={'Authorization': 'Bot '+environ['DISCORD_TOKEN'], 'Content-Type': 'application/json'},
@@ -135,7 +135,7 @@ class fun(commands.Cog):
     async def uselesswebs(self, ctx):
         try:
             url = requests.get('https://useless-api.vierofernando.repl.co/useless-sites').json()['url']
-            await ctx.send(ctx.bot.success_emoji+f' | **{url}**')
+            await ctx.send(ctx.bot.util.success_emoji+f' | **{url}**')
         except:
             return await ctx.bot.util.send_error_message(ctx, f'oops. there is some error, meanwhile look at this useless site: <https://top.gg/bot/{ctx.bot.user.id}/vote>')
     

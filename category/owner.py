@@ -38,7 +38,7 @@ class owner(commands.Cog):
     @cooldown(2)
     async def announce(self, ctx, *args):
         if ctx.author.id not in [661200758510977084, 766952708602331137]: return
-        await ctx.message.add_reaction(ctx.bot.loading_emoji)
+        await ctx.message.add_reaction(ctx.bot.util.loading_emoji)
         data, wr, sc = ctx.bot.db.Dashboard.get_subscribers(), 0, 0
         for i in data:
             try:
@@ -69,7 +69,7 @@ class owner(commands.Cog):
     @command('pm')
     async def postmeme(self, ctx, *args):
         if ctx.author.id!=ctx.bot.util.owner_id:
-            return await ctx.message.add_reaction(ctx.bot.error_emoji)
+            return await ctx.message.add_reaction(ctx.bot.util.error_emoji)
         url = ''.join(args)
         if url.startswith('<'): url = url[1:]
         if url.endswith('>'): url = url[:-1]
@@ -80,7 +80,7 @@ class owner(commands.Cog):
             'url': url
         }).json()
         try:
-            if data['success']: return await ctx.message.add_reaction(ctx.bot.success_emoji)
+            if data['success']: return await ctx.message.add_reaction(ctx.bot.util.success_emoji)
         except Exception as e:
             await ctx.author.send(str(e))
 
@@ -101,15 +101,15 @@ class owner(commands.Cog):
     async def fban(self, ctx, *args):
         if ctx.author.id==ctx.bot.util.owner_id:
             ctx.bot.db.selfDB.feedback_ban(int(args[0]), str(' '.join(list(args)[1:])))
-            await ctx.message.add_reaction(ctx.bot.success_emoji)
+            await ctx.message.add_reaction(ctx.bot.util.success_emoji)
         else:
             return await ctx.bot.util.send_error_message(ctx, 'You are not the owner, nerd.')
     @command()
     async def funban(self, ctx, *args):
         if ctx.author.id==ctx.bot.util.owner_id:
             data = ctx.bot.db.selfDB.feedback_unban(int(args[0]))
-            if data=='200': await ctx.message.add_reaction(ctx.bot.success_emoji)
-            else: await ctx.message.add_reaction(ctx.bot.error_emoji)
+            if data=='200': await ctx.message.add_reaction(ctx.bot.util.success_emoji)
+            else: await ctx.message.add_reaction(ctx.bot.util.error_emoji)
         else:
             return await ctx.bot.util.send_error_message(ctx, 'Invalid person.')
     @command('ex,eval')

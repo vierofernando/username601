@@ -108,16 +108,16 @@ class utils(commands.Cog):
     @cooldown(2)
     async def isitdown(self, ctx, *args):
         if len(args)==0: return await ctx.bot.util.send_error_message(ctx, "Please send a website link.")
-        wait = await ctx.send('{} | Pinging...'.format(ctx.bot.loading_emoji))
+        wait = await ctx.send('{} | Pinging...'.format(ctx.bot.util.loading_emoji))
         web = args[0].replace('<', '').replace('>', '')
         if not web.startswith('http'): web = 'http://' + web
         try:
             a = t.now()
             ping = get(web, timeout=5)
             pingtime = round((t.now()-a).total_seconds()*1000)
-            await wait.edit(content='{} | That website is up.\nPing: {} ms\nStatus code: {}'.format(ctx.bot.success_emoji, pingtime, ping.status_code))
+            await wait.edit(content='{} | That website is up.\nPing: {} ms\nStatus code: {}'.format(ctx.bot.util.success_emoji, pingtime, ping.status_code))
         except:
-            await wait.edit(content='{} | Yes. that website is down.'.format(ctx.bot.error_emoji))
+            await wait.edit(content='{} | Yes. that website is down.'.format(ctx.bot.util.error_emoji))
     
     @command('img2ascii,imagetoascii,avascii,avatarascii,avatar2ascii,av2ascii')
     @cooldown(10)
@@ -130,7 +130,7 @@ class utils(commands.Cog):
                 res_im = ctx.bot.canvas.imagetoASCII_picture(url)
                 return await ctx.send(file=discord.File(res_im, 'imgascii.png'))
         url = ctx.bot.Parser.parse_image(ctx, args)
-        wait = await ctx.send('{} | Please wait...'.format(ctx.bot.loading_emoji))
+        wait = await ctx.send('{} | Please wait...'.format(ctx.bot.util.loading_emoji))
         text = ctx.bot.canvas.imagetoASCII(url)
         try:
             data = post("https://hastebin.com/documents", data=text, timeout=3)
@@ -138,8 +138,8 @@ class utils(commands.Cog):
         except:
             await wait.delete()
             file = discord.File(BytesIO(bytes(text, 'utf-8')), filename='ascii.txt')
-            return await ctx.send(content="{} | Oops! there was an error on posting it there. Don't worry, instead i send it as an attachment here:\n(Tip: you can also add `--img` so i send it as an image attachment!)".format(ctx.bot.error_emoji), file=file)
-        return await wait.edit(content='{} | You can see the results at **https://hastebin.com/{}**!'.format(ctx.bot.success_emoji, data.json()['key']))
+            return await ctx.send(content="{} | Oops! there was an error on posting it there. Don't worry, instead i send it as an attachment here:\n(Tip: you can also add `--img` so i send it as an image attachment!)".format(ctx.bot.util.error_emoji), file=file)
+        return await wait.edit(content='{} | You can see the results at **https://hastebin.com/{}**!'.format(ctx.bot.util.success_emoji, data.json()['key']))
     
     @command()
     @cooldown(15)
@@ -227,7 +227,7 @@ class utils(commands.Cog):
             if search("[a-zA-Z]", equation): return await ctx.bot.util.send_error_message(ctx, "Please do NOT input something that contains letters. This is not eval, nerd.")
             try:
                 res = eval(equation)
-                return await ctx.send("{} | {} = `{}`".format(ctx.bot.success_emoji, equation, str(res)[0:1000]))
+                return await ctx.send("{} | {} = `{}`".format(ctx.bot.util.success_emoji, equation, str(res)[0:1000]))
             except Exception as e:
                 return await ctx.bot.util.send_error_message(ctx, f"Error: {str(e)}")
     @command()
@@ -274,7 +274,7 @@ class utils(commands.Cog):
     async def rhyme(self, ctx, *args):
         if len(args)==0: await ctx.send('Please input a word! And we will try to find the word that best rhymes with it.')
         else:
-            wait, words = await ctx.send(str(ctx.bot.loading_emoji) + ' | Please wait... Searching...'), []
+            wait, words = await ctx.send(str(ctx.bot.util.loading_emoji) + ' | Please wait... Searching...'), []
             data = ctx.bot.util.get_request(
                 'https://rhymebrain.com/talk?function=getRhymes&word=',
                 json=True,
@@ -351,7 +351,7 @@ class utils(commands.Cog):
     @command('ghibli')
     @cooldown(5)
     async def ghiblifilms(self, ctx, *args):
-        wait = await ctx.send(str(ctx.bot.loading_emoji) + ' | Please wait... Getting data...')
+        wait = await ctx.send(str(ctx.bot.util.loading_emoji) + ' | Please wait... Getting data...')
         data = ctx.bot.util.get_request(
             'https://ghibliapi.herokuapp.com/films',
             json=True,
@@ -395,7 +395,7 @@ class utils(commands.Cog):
     @command()
     @cooldown(20)
     async def googledoodle(self, ctx):
-        wait = await ctx.send(str(ctx.bot.loading_emoji) + ' | Please wait... This may take a few moments...')
+        wait = await ctx.send(str(ctx.bot.util.loading_emoji) + ' | Please wait... This may take a few moments...')
         data = ctx.bot.util.get_request(
             'https://www.google.com/doodles/json/{}/{}'.format(str(t.now().year), str(t.now().month)),
             json=True,
@@ -430,7 +430,7 @@ class utils(commands.Cog):
         try:
             return await ctx.send(embed=discord.Embed(description=' '.join(args)))
         except:
-            return await ctx.message.add_reaction(ctx.bot.error_emoji)
+            return await ctx.message.add_reaction(ctx.bot.util.error_emoji)
             
     @command('col')
     @cooldown(3)

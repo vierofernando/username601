@@ -54,7 +54,7 @@ class moderation(commands.Cog):
     @command('jp,joinpos,joindate,jd,howold')
     @cooldown(5)
     async def joinposition(self, ctx, *args):
-        wait = await ctx.send(f"{ctx.bot.loading_emoji} | Hang tight... collecting data...")
+        wait = await ctx.send(f"{ctx.bot.util.loading_emoji} | Hang tight... collecting data...")
         from_string = False
         current_time, members, user_index, desc = t.now().timestamp(), ctx.guild.members, None, ""
         full_arr = list(map(lambda x: {'ja': x.joined_at.timestamp(), 'da': x}, members))
@@ -106,7 +106,7 @@ class moderation(commands.Cog):
         if not ctx.author.guild_permissions.manage_messages: return await ctx.bot.util.send_error_message(ctx, 'No `manage messages` permission!')
         role = ctx.bot.db.Dashboard.getMuteRole(ctx.guild.id)
         if role is None:
-            await ctx.send('{} | Please wait... Setting up...\nThis may take a while if your server has a lot of channels.'.format(ctx.bot.loading_emoji))
+            await ctx.send('{} | Please wait... Setting up...\nThis may take a while if your server has a lot of channels.'.format(ctx.bot.util.loading_emoji))
             role = await ctx.guild.create_role(name='Muted', color=discord.Colour.from_rgb(0, 0, 1))
             ratelimit_counter = 0
             # BEWARE API ABUSE! ADDED SOME STUFF TO REDUCE RATELIMITS
@@ -125,7 +125,7 @@ class moderation(commands.Cog):
         role = ctx.guild.get_role(role)
         try:
             await toMute.add_roles(role)
-            await ctx.send('{} | Muted. Ductaped {}\'s mouth.'.format(ctx.bot.success_emoji, toMute.name))
+            await ctx.send('{} | Muted. Ductaped {}\'s mouth.'.format(ctx.bot.util.success_emoji, toMute.name))
         except Exception as e:
             print(e)
             return await ctx.bot.util.send_error_message(ctx, 'I cannot mute him... maybe i has less permissions than him.\nHis mouth is too powerful.')
@@ -140,7 +140,7 @@ class moderation(commands.Cog):
             return await ctx.bot.util.send_error_message(ctx, 'That guy is not muted.')
         try:
             await toUnmute.remove_roles(ctx.guild.get_role(roleid))
-            await ctx.send('{} | {} unmuted.'.format(ctx.bot.success_emoji, toUnmute.name))
+            await ctx.send('{} | {} unmuted.'.format(ctx.bot.util.success_emoji, toUnmute.name))
         except:
             return await ctx.bot.util.send_error_message(ctx, f'I cannot unmute {toUnmute.name}!')
 
@@ -157,12 +157,12 @@ class moderation(commands.Cog):
                 color=ctx.guild.me.roles[::-1][0].color
             ))
         ctx.bot.db.Dashboard.setDehoister(ctx.guild, False)
-        await ctx.send('{} | Dehoister deactivated.'.format(ctx.bot.success_emoji))
+        await ctx.send('{} | Dehoister deactivated.'.format(ctx.bot.util.success_emoji))
 
     @command()
     @cooldown(10)
     async def starboard(self, ctx, *args):
-        wait = await ctx.send('{} | Please wait...'.format(ctx.bot.loading_emoji))
+        wait = await ctx.send('{} | Please wait...'.format(ctx.bot.util.loading_emoji))
         if not ctx.author.guild_permissions.manage_channels:
             return await ctx.bot.util.send_error_message(ctx, 'You need the `Manage channels` permission.')
         starboard_channel = ctx.bot.db.Dashboard.getStarboardChannel(ctx.guild)
@@ -170,7 +170,7 @@ class moderation(commands.Cog):
             if starboard_channel['channelid'] is None:
                 channel = await ctx.guild.create_text_channel(name='starboard', topic='Server starboard channel. Every funny/cool posts will be here.')
                 ctx.bot.db.Dashboard.addStarboardChannel(channel, 1)
-                success = ctx.bot.success_emoji
+                success = ctx.bot.util.success_emoji
                 return await wait.edit(content=f'{success} | OK. Created a channel <#{str(channel.id)}>. Every starboard will be set there.\nTo remove starboard, type `{ctx.bot.command_prefix}starboard remove`.\nBy default, starboard requirements are set to 1 reaction. To increase, type `{ctx.bot.command_prefix}starboard limit <number>`.')
             return await wait.edit(content='', embed=discord.Embed(
                 title=f'Starboard for {ctx.guild.name}',
@@ -181,14 +181,14 @@ class moderation(commands.Cog):
         if starboard_channel['channelid'] is None: return
         elif args[0].lower().startswith("rem"):
             ctx.bot.db.Dashboard.removeStarboardChannel(ctx.guild)
-            return await wait.edit(content='{} | OK. Starboard for this server is deleted.'.format(ctx.bot.success_emoji))
+            return await wait.edit(content='{} | OK. Starboard for this server is deleted.'.format(ctx.bot.util.success_emoji))
         elif args[0].lower()=='limit':
             try:
                 num = int(list(args)[1])
                 if not num in range(1, 20):
                     return await ctx.bot.util.send_error_message(ctx, 'Invalid number.')
                 ctx.bot.db.Dashboard.setStarboardLimit(num, ctx.guild)
-                await wait.edit(content='{} | Set the limit to {} reactions.'.format(ctx.bot.success_emoji, str(num)))
+                await wait.edit(content='{} | Set the limit to {} reactions.'.format(ctx.bot.util.success_emoji, str(num)))
             except:
                 return await ctx.bot.util.send_error_message(ctx, 'Invalid number.')
 
@@ -212,7 +212,7 @@ class moderation(commands.Cog):
         if len(reason)>100: reason = reason[0:100]
         warned = ctx.bot.db.Dashboard.addWarn(user_to_warn, ctx.author, reason)
         if warned:
-            error = ctx.bot.success_emoji
+            error = ctx.bot.util.success_emoji
             return await ctx.send(f'{error} | {str(user_to_warn)} was warned by {str(ctx.author)} for the reason *"{reason}"*.')
         return await ctx.bot.util.send_error_message(ctx, "an error occured.")
     
@@ -222,7 +222,7 @@ class moderation(commands.Cog):
         source = ctx.author if (len(ctx.message.mentions)==0) else ctx.message.mentions[0]
         data = ctx.bot.db.Dashboard.getWarns(source)
         if data is None:
-            return await ctx.send(f'{ctx.bot.error_emoji} | Good news! {source.name} does not have any warns!')
+            return await ctx.send(f'{ctx.bot.util.error_emoji} | Good news! {source.name} does not have any warns!')
         warnlist = '\n'.join(map(
             lambda x: '{}. "{}" (warned by <@{}>)'.format(x+1, data[x]['reason'], data[x]['moderator']),
             range(len(data))
@@ -236,11 +236,11 @@ class moderation(commands.Cog):
     @command('deletewarn,clear-all-infractions,clear-infractions,clearinfractions,delinfractions,delwarn,clearwarn,clear-warn')
     @cooldown(5)
     async def unwarn(self, ctx, *args):
-        error = ctx.bot.error_emoji
+        error = ctx.bot.util.error_emoji
         user_to_unwarn = ctx.bot.Parser.parse_user(ctx, args)
         if not ctx.author.guild_permissions.manage_messages: return await ctx.bot.util.send_error_message(ctx, 'You need the `Manage messages` permissions to unwarn someone.')
         unwarned = ctx.bot.db.Dashboard.clearWarn(user_to_unwarn)
-        if unwarned: return await ctx.send('{} | Successfully unwarned {}.'.format(ctx.bot.success_emoji, user_to_unwarn))
+        if unwarned: return await ctx.send('{} | Successfully unwarned {}.'.format(ctx.bot.util.success_emoji, user_to_unwarn))
         await ctx.send(f'{error} | {str(user_to_unwarn)} is not warned.')
 
     @command('welcomelog,setwelcome')
@@ -258,13 +258,13 @@ class moderation(commands.Cog):
             else:
                 if args[0].lower()=='disable':
                     ctx.bot.db.Dashboard.set_welcome(ctx.guild.id, None)
-                    await ctx.send("{} | Welcome disabled!".format(ctx.bot.success_emoji))
+                    await ctx.send("{} | Welcome disabled!".format(ctx.bot.util.success_emoji))
                 else:
                     try:
                         if args[0].startswith("<#") and args[0].endswith('>'): channelid = int(args[0].split('<#')[1].split('>')[0])
                         else: channelid = int([i.id for i in ctx.guild.channels if str(i.name).lower()==str(''.join(args)).lower()][0])
                         ctx.bot.db.Dashboard.set_welcome(ctx.guild.id, channelid)
-                        await ctx.send("{} | Success! set the welcome log to <#{}>!".format(ctx.bot.success_emoji, channelid))
+                        await ctx.send("{} | Success! set the welcome log to <#{}>!".format(ctx.bot.util.success_emoji, channelid))
                     except Exception as e:
                        return await ctx.bot.util.send_error_message(ctx, "Invalid arguments!")
     
@@ -283,13 +283,13 @@ class moderation(commands.Cog):
             else:
                 if args[0].lower()=='disable':
                     ctx.bot.db.Dashboard.set_autorole(ctx.guild.id, None)
-                    await ctx.send("{} | Autorole disabled!".format(ctx.bot.success_emoji))
+                    await ctx.send("{} | Autorole disabled!".format(ctx.bot.util.success_emoji))
                 else:
                     try:
                         if args[0].startswith("<@&") and args[0].endswith('>'): roleid = int(args[0].split('<@&')[1].split('>')[0])
                         else: roleid = int([i.id for i in ctx.guild.roles if str(i.name).lower()==str(' '.join(args)).lower()][0])
                         ctx.bot.db.Dashboard.set_autorole(ctx.guild.id, roleid)
-                        await ctx.send("{} | Success! set the autorole to **{}!**".format(ctx.bot.success_emoji, ctx.guild.get_role(roleid).name))
+                        await ctx.send("{} | Success! set the autorole to **{}!**".format(ctx.bot.util.success_emoji, ctx.guild.get_role(roleid).name))
                     except:
                         return await ctx.bot.util.send_error_message(ctx, "Invalid arguments!")
  
@@ -323,7 +323,7 @@ class moderation(commands.Cog):
                 assert count in range(21599), "Invalid range."
                 assert ctx.author.guild_permissions.manage_channels, "You need the `manage channels` permission to do this.`"
                 await ctx.channel.edit(slowmode_delay=count)
-                return await ctx.send(ctx.bot.success_emoji+" | "+("Disabled channel slowmode." if (count == 0) else f"Successfully set slowmode for <#{ctx.channel.id}> to {count} seconds."))
+                return await ctx.send(ctx.bot.util.success_emoji+" | "+("Disabled channel slowmode." if (count == 0) else f"Successfully set slowmode for <#{ctx.channel.id}> to {count} seconds."))
             except Exception as e:
                 return await ctx.bot.util.send_error_message(ctx, str(e))
             
@@ -339,7 +339,7 @@ class moderation(commands.Cog):
             if len(role_array) == 0: return await ctx.bot.util.send_error_message(ctx, f"Role `{role_and_guy[1]}` does not exist.")
             try:
                 await guy.add_roles(role_array[0])
-                return await ctx.send(ctx.bot.success_emoji+f" | Successfully added `{role_array[0].name}` role to `{str(guy)}`!")
+                return await ctx.send(ctx.bot.util.success_emoji+f" | Successfully added `{role_array[0].name}` role to `{str(guy)}`!")
             except:
                 return await ctx.bot.util.send_error_message(ctx, f"Oops. Please make sure i have the manage roles perms.")
     
@@ -355,21 +355,23 @@ class moderation(commands.Cog):
             if len(role_array) == 0: return await ctx.bot.util.send_error_message(ctx, f"Role `{role_and_guy[1]}` does not exist.")
             try:
                 await guy.remove_roles(role_array[0])
-                return await ctx.send(ctx.bot.success_emoji+f" | Successfully removed `{role_array[0].name}` role from `{str(guy)}`!")
+                return await ctx.send(ctx.bot.util.success_emoji+f" | Successfully removed `{role_array[0].name}` role from `{str(guy)}`!")
             except:
                 return await ctx.bot.util.send_error_message(ctx, "Oops. Please make sure i have the manage roles perms.")
 
     @command('kick')
     @cooldown(10)
     async def ban(self, ctx, *args):
+        command_name = ctx.bot.util.get_command_name(ctx)
+    
         try:
-            permission_name = 'ban_members' if ctx.message.content.startswith(ctx.bot.command_prefix + "ban") else 'kick_members'
+            permission_name = command_name + "_members"
             permission = getattr(ctx.author.guild_permissions, permission_name)
-            assert permission, "{} does not have the `{}` to {} members.".format(str(ctx.author), permission_name.replace('_', ' '), permission_name.split('_')[0])
+            assert permission, "{} does not have the `{}` to {} members.".format(str(ctx.author), permission_name.replace('_', ' '), command_name)
             idiot = ctx.bot.Parser.parse_user(ctx, args, allownoargs=False)
-            assert idiot != ctx.author, "You cannot {} yourself.".format(permission_name.split('_')[0])
-            assert not idiot.guild_permissions.manage_guild, "You cannot {} a moderator.".format(permission_name.split('_')[0])
-            return await ctx.send("{} | Aight. {}ed {} from existence.".format(ctx.bot.success_emoji, permission_name.split('_')[0], str(idiot)))
+            assert idiot != ctx.author, "You cannot {} yourself.".format(command_name)
+            assert not idiot.guild_permissions.manage_guild, "You cannot {} a moderator.".format(command_name)
+            return await ctx.send("{} | Aight. {}ed {} from existence.".format(ctx.bot.util.success_emoji, command_name, str(idiot)))
         except Exception as e:
             return await ctx.bot.util.send_error_message(ctx, str(e))
             
@@ -387,10 +389,10 @@ class moderation(commands.Cog):
                 num = int(args[0])
                 assert (num in range(1, 301)), "invalid arguments, out of range"
                 await ctx.channel.purge(limit=num)
-                return await ctx.send(ctx.bot.success_emoji+f" | Successfully purged {num} messages.", delete_after=3)
+                return await ctx.send(ctx.bot.util.success_emoji+f" | Successfully purged {num} messages.", delete_after=3)
             def check(m): return m.author.id == ctx.message.mentions[0].id
             deleted_messages = await ctx.channel.purge(check=check, limit=500)
-            return await ctx.send(ctx.bot.success_emoji+f" | Successfully purged {len(deleted_messages)} messages.", delete_after=3)
+            return await ctx.send(ctx.bot.util.success_emoji+f" | Successfully purged {len(deleted_messages)} messages.", delete_after=3)
         except Exception as e:
             return await ctx.bot.util.send_error_message(ctx, str(e))
                 
@@ -408,12 +410,12 @@ class moderation(commands.Cog):
                         return await ctx.bot.util.send_error_message(ctx, 'Sorry! Please add `enable` or `disable`.')
                 try:
                     if 'disable' in args[0].lower():
-                        if 'hidechannel' in ctx.message.content.lower(): await ctx.channel.set_permissions(ctx.guild.default_role, read_messages=True)
-                        elif 'lockdown' in ctx.message.content.lower(): await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=True)
+                        if command_name == 'hidechannel': await ctx.channel.set_permissions(ctx.guild.default_role, read_messages=True)
+                        elif command_name == 'lockdown': await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=True)
                     elif 'enable' in args[0].lower():
-                        if 'hidechannel' in ctx.message.content.lower(): await ctx.channel.set_permissions(ctx.guild.default_role, read_messages=False)
-                        elif 'lockdown' in ctx.message.content.lower(): await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=False)
-                    return await ctx.send(ctx.bot.success_emoji +f' | Success! <#{ctx.channel.id}>\'s {command_name} has been {args[0]}d!')
+                        if command_name == 'hidechannel': await ctx.channel.set_permissions(ctx.guild.default_role, read_messages=False)
+                        elif command_name == 'lockdown': await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=False)
+                    return await ctx.send(ctx.bot.util.success_emoji +f' | Success! <#{ctx.channel.id}>\'s {command_name} has been {args[0]}d!')
                 except Exception as e:
                     return await ctx.bot.util.send_error_message(ctx, f'For some reason, i cannot change <#{ctx.channel.id}>\'s :(\n\n```{str(e)}```')
         except:
@@ -457,12 +459,12 @@ class moderation(commands.Cog):
     @command('serverinfo,server,servericon,si,server-info,guild,guildinfo,guild-info')
     @cooldown(10)
     async def servercard(self, ctx, *args):
-        if 'servericon' in ctx.message.content:
+        if ctx.bot.util.get_command_name(ctx) == "servericon":
             if ctx.guild.icon_url is None: return await ctx.bot.util.send_error_message(ctx, "This server has no emotes...")
             await ctx.send(ctx.guild.icon_url_as(size=4096))
         else:
             if ctx.guild.member_count>100:
-                wait = await ctx.send('{} | Fetching guild data... please wait...'.format(ctx.bot.loading_emoji))
+                wait = await ctx.send('{} | Fetching guild data... please wait...'.format(ctx.bot.util.loading_emoji))
                 im = ctx.bot.canvas.server(ctx.guild)
                 await wait.delete()
             else:
@@ -477,7 +479,7 @@ class moderation(commands.Cog):
             return await ctx.bot.util.send_error_message(ctx, 'No create invite permission?')
         else:
             serverinvite = await ctx.channel.create_invite(reason='Requested by '+ctx.author.name)
-            await ctx.send(ctx.bot.success_emoji+' | New invite created! Link: **'+str(serverinvite)+'**')
+            await ctx.send(ctx.bot.util.success_emoji+' | New invite created! Link: **'+str(serverinvite)+'**')
 
     @command()
     @cooldown(3)
@@ -554,7 +556,7 @@ class moderation(commands.Cog):
                     try:
                         newname = ' '.join(args).split('> ')[1]
                         await ctx.message.mentions[0].edit(nick=newname)
-                        await ctx.send(ctx.bot.success_emoji+" | Changed the nickname to {}!".format(newname))
+                        await ctx.send(ctx.bot.util.success_emoji+" | Changed the nickname to {}!".format(newname))
                     except:
                         return await ctx.bot.util.send_error_message(ctx, "Try making my role higher than the person you are looking for!")
 
@@ -590,6 +592,6 @@ class moderation(commands.Cog):
                 names = list(args)[1:]
                 if args[0].lower()=='text': await ctx.guild.create_text_channel(name='-'.join(list(names)))
                 else: await ctx.guild.create_voice_channel(name='-'.join(names))
-                await ctx.send(ctx.bot.success_emoji+" | Successfully created a {} channel named {}.".format(args[0], str('-'.join(names))))
+                await ctx.send(ctx.bot.util.success_emoji+" | Successfully created a {} channel named {}.".format(args[0], str('-'.join(names))))
 def setup(client):
     client.add_cog(moderation(client))

@@ -86,14 +86,14 @@ class apps(commands.Cog):
                 limit=1,
                 explicit='no'
             )
-            if (data is None) or len(data['results'])==0: return await ctx.send('{} | No music found... oop'.format(ctx.bot.error_emoji))
+            if (data is None) or len(data['results'])==0: return await ctx.send('{} | No music found... oop'.format(ctx.bot.util.error_emoji))
             data = data['results'][0]
             return await ctx.send(file=discord.File(ctx.bot.canvas.custom_panel(title=data['trackName'], subtitle=data['artistName'], description=data['primaryGenreName'], icon=data['artworkUrl100']), 'itunes.png'))
 
     @command('tr,trans')
     @cooldown(5)
     async def translate(self, ctx, *args):
-        wait = await ctx.send(ctx.bot.loading_emoji + ' | Please wait...') ; args = list(args)
+        wait = await ctx.send(ctx.bot.util.loading_emoji + ' | Please wait...') ; args = list(args)
         if len(args)>0:
             if ctx.bot.utils.parse_parameter(tuple(args), '--list')['available']:
                 lang = "\n".join([str(i)+' ('+str(LANGUAGES[i])+')' for i in LANGUAGES])
@@ -128,7 +128,7 @@ class apps(commands.Cog):
     async def wikipedia(self, ctx, *args):
         if len(args)==0:
             return await ctx.bot.util.send_error_message(ctx, "Please input a page name.")
-        wait = await ctx.send(ctx.bot.loading_emoji + ' | Please wait...')
+        wait = await ctx.send(ctx.bot.util.loading_emoji + ' | Please wait...')
         wikipedia = wikipediaapi.Wikipedia('en')
         page = wikipedia.page(' '.join(args))
         if page.exists()==False:
@@ -162,7 +162,7 @@ class apps(commands.Cog):
     @command()
     @cooldown(5)
     async def imdb(self, ctx, *args):
-        wait, args = await ctx.send(ctx.bot.loading_emoji + ' | Please wait...'), list(args)
+        wait, args = await ctx.send(ctx.bot.util.loading_emoji + ' | Please wait...'), list(args)
         if len(args)==0 or ctx.bot.utils.parse_parameter(args, 'help')['available']:
             embed = discord.Embed(title='IMDb command help', description='Searches through the IMDb Movie database.\n{} are Parameters that is **REQUIRED** to get the info.\n\n', colour=ctx.guild.me.roles[::-1][0].color)
             embed.add_field(name='Commands', value=ctx.bot.command_prefix+'imdb --top {NUMBER}\n'+ctx.bot.command_prefix+'imdb help\n'+ctx.bot.command_prefix+'imdb --movie {MOVIE_ID or MOVIE_NAME}', inline='False')
@@ -189,7 +189,7 @@ class apps(commands.Cog):
                     rating, cover, vote_count = main_data['data']['rating'], main_data['data']['cover url'], main_data['data']['votes']
                 except KeyError: rating, cover, vote_count = None, None, 0
                 embed = discord.Embed(title=data['title'], colour=ctx.guild.me.roles[::-1][0].color)
-                await wait.edit(content=ctx.bot.loading_emoji + ' | Please wait... Retrieving data... this may take a while depending on how big the movie is.')
+                await wait.edit(content=ctx.bot.util.loading_emoji + ' | Please wait... Retrieving data... this may take a while depending on how big the movie is.')
                 emoteStar = ' '.join(map(lambda x: ':star:', range(round(rating)))) if rating is not None else '???'
                 upload_date = ia.get_movie_release_info(str(theID))['data']['raw release dates'][0]['date']
                 imdb_url = ia.get_imdbURL(data)

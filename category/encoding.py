@@ -43,11 +43,10 @@ class encoding(commands.Cog):
     async def barcode(self, ctx, *args):
         if len(args)==0:
             return await ctx.bot.util.send_error_message(ctx, 'Please provide a text!')
-        elif len(' '.join(args)) > 50:
-            return await ctx.bot.util.send_error_message(ctx, 'too longggggggggg')
         else:
+            command_name = ctx.bot.util.get_command_name(ctx)
             async with ctx.channel.typing():
-                if 'qr' in ctx.message.content.split(' ')[0][1:]: url = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+str(ctx.bot.util.encode_uri(str(' '.join(args))))
+                if command_name.startswith("qr"): url = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+str(ctx.bot.util.encode_uri(str(' '.join(args))))
                 else: url = 'http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data='+str(ctx.bot.util.encode_uri(str(' '.join(args))))
                 return await ctx.bot.util.send_image_attachment(ctx, url)
     

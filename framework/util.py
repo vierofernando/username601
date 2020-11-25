@@ -1,12 +1,13 @@
-from discord import Embed, Color
+from discord import Embed, Color, __version__
 from io import BytesIO
 from requests import get
-from os import getenv
+from os import getenv, name
 from subprocess import run, PIPE
 from base64 import b64encode
 from configparser import ConfigParser
 from urllib.parse import quote_plus
 from time import time
+from platform import python_build, python_compiler, uname
 
 class GetRequestFailedException(Exception): pass
 
@@ -127,20 +128,23 @@ class Util:
         seconds = round(seconds / 31536000)
         return f"{seconds} year" + ("" if seconds == 1 else "s")
     
-    def get_stats(self, gather_os_data: bool = True) -> dict:
+    def get_stats(self, evaluate: bool = True) -> dict:
         """
         Gets the bot stats.
-        disabling `gather_os_data` will not get the RAM/memory data and OS uptime. this makes the process a bit faster.
+        disabling `evaluate` will not get the RAM/memory data and OS uptime. this makes the process a bit faster.
         
-        NOTE: Only works in hosts with Linux
+        NOTE: evaluate will only enable on Linux-based operating systems.
         """
         
-        if gather_os_data:
+        if name != 'nt' and evaluate:
             _ram_eval = list(map(lambda x: int(x), self.execute("free -m").split("\n")[1].split()[1:]))
             _os_uptime = self.execute("uptime -p")[3:]
         else:
             _ram_eval = [None] * 6
             _os_uptime = None
+        
+        _uname = uname()
+        _build = " ".join(python_build())
         
         return {
             "start_time": self._start,
@@ -153,6 +157,12 @@ class Util:
                 "shared": _ram_eval[3],
                 "cache": _ram_eval[4],
                 "available": _ram_eval[5]
+            },
+            "versions": {
+                "os": _uname.system + " ver. " + _uname.version + ", machine" + _uname.machine,
+                "python_build": _build,
+                "python_compilter": python_compiler(),
+                "discord_py": __version__
             }
         }
     

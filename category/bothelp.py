@@ -27,7 +27,7 @@ class bothelp(commands.Cog):
             return await ctx.send(embed=embed)
         elif 'reset' in ''.join(args).lower():
             ctx.bot.db.Dashboard.subscribe(None, ctx.guild.id, reset=True)
-            return await ctx.send('{} | Subscription has been deleted.'.format(ctx.bot.success_emoji))
+            return await ctx.send('{} | Subscription has been deleted.'.format(ctx.bot.util.success_emoji))
         url = args[0].replace('<', '').replace('>', '')
         try:
             web = discord.Webhook.from_url(
@@ -36,7 +36,7 @@ class bothelp(commands.Cog):
             )
         except: return await ctx.bot.util.send_error_message(ctx, "Invalid Webhook URL. Please send the one according to the tutorial.")
         ctx.bot.db.Dashboard.subscribe(url, ctx.guild.id)
-        await ctx.message.add_reaction(ctx.bot.success_emoji)
+        await ctx.message.add_reaction(ctx.bot.util.success_emoji)
         web.send(
             embed=discord.Embed(title=f'Congratulations, {str(ctx.author)}!', description='Your webhook is now set! ;)\nNow every development updates or username601 events will be set here.\n\nIf you change your mind, you can do `{}sub reset` to remove the webhook from the database.\n[Join our support server if you still have any questions.]({})'.format(ctx.bot.command_prefix, ctx.bot.util.server_invite), color=discord.Color.green()),
             username='Username601 News',
@@ -107,14 +107,14 @@ class bothelp(commands.Cog):
         if ((len(args)==0) or (len(''.join(args))>1000)): return await ctx.bot.util.send_error_message(ctx, "Invalid feedback length.")
         elif (('discord.gg/' in ' '.join(args)) or ('discord.com/invite/' in ' '.join(args))): return await ctx.bot.util.send_error_message(ctx, "Please do NOT send invites. This is NOT advertising.")
         else:
-            wait = await ctx.send(ctx.bot.loading_emoji + ' | Please wait... Transmitting data to owner...')
+            wait = await ctx.send(ctx.bot.util.loading_emoji + ' | Please wait... Transmitting data to owner...')
             banned = ctx.bot.db.selfDB.is_banned(ctx.author.id)
             if not banned:
                 try:
                     fb = ' '.join(args)
                     feedbackCh = ctx.bot.get_channel(ctx.bot.util.feedback_channel)
                     await feedbackCh.send(f'<@{ctx.bot.util.owner_id}>, User with ID: {ctx.author.id} sent a feedback: **"'+str(fb)+'"**')
-                    embed = discord.Embed(title='Feedback Successful', description=ctx.bot.success_emoji + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+ctx.bot.util.server_invite+')', colour=ctx.guild.me.roles[::-1][0].color)
+                    embed = discord.Embed(title='Feedback Successful', description=ctx.bot.util.success_emoji + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+ctx.bot.util.server_invite+')', colour=ctx.guild.me.roles[::-1][0].color)
                     await wait.edit(content='', embed=embed)
                 except:
                     return await ctx.bot.util.send_error_message(ctx, 'There was an error while sending your feedback. Sorry! :(')
@@ -135,18 +135,21 @@ class bothelp(commands.Cog):
     @command('botstats,meta')
     @cooldown(10)
     async def stats(self, ctx):
-        bot_uptime = ctx.bot.util.strfsecond(round(t.now().timestamp() - ctx.bot.last_downtime))
-        embed = discord.Embed(description='This bot is serving **{} servers** each with **{} users.**\nBot uptime: {}\nOS uptime: {}\nLast downtime: {} UTC\nCommands run in the past {}: {}\nTotal commands: {}'.format(
-            len(ctx.bot.guilds),
-            len(ctx.bot.users),
-            bot_uptime,
-            ctx.bot.utils.run_terminal('uptime -p')[3:],
-            t.fromtimestamp(ctx.bot.last_downtime),
-            bot_uptime,
-            ctx.bot.command_uses,
-            ctx.bot.cmds.length
-        ), color=ctx.guild.me.roles[::-1][0].color)
-        await ctx.send(embed=embed)
+        async with ctx.channel.typing():
+            data = ctx.bot.util.get_stats()
+            
+            embed = ctx.bot.Embed(
+                ctx,
+                title="Bot Stats",
+                fields={
+                    "Uptime": f"**Bot Uptime: **{data['bot_uptime']}\n**OS Uptime: **{data['os_uptime']}",
+                    "Stats": f"**Server count: **{len(ctx.bot.guilds)}\n**Served users: **{len(ctx.bot.users)}\n**Cached custom emojis: **{len(ctx.bot.emojis)}\n**Seen channels: **{len(ctx.bot.channels)}",
+                    "Memory": f"**Total: **{data['memory']['total']} MB\n**Used: **{data['memory']['used']} MB\n**Free: **{data['memory']['free']} MB\n**Available: **{data['memory']['available']} MB",
+                    "Platform": f"**Machine: **{data['versions']['os']}\n**Python Build: **{data['versions']['python_build']}\n**Python Compiler: **{data['versions']['python_compiler']}\n**Discord.py version: **{data['versions']['discord_py']}"
+                }
+            )
+            
+            await embed.send()
 
 def setup(client):
     client.add_cog(bothelp(client))

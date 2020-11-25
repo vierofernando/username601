@@ -11,10 +11,16 @@ from aiohttp import ClientSession
 
 class image(commands.Cog):
     def __init__(self, client):
-        pass
+        self._links = {
+            "dog": "https://api.alexflipnote.dev/dogs|file",
+            "cat": "https://api.alexflipnote.dev/cats|file",
+            "sadcat": "https://api.alexflipnote.dev/sadcat|file",
+            "bird": "https://api.alexflipnote.dev/sadcat|file",
+            "fox": 'https://randomfox.ca/floof/?ref=apilist.fun|image'
+        }
 
     async def plode_animated(self, ctx, args, command_name):
-        wait = await ctx.send(f"{ctx.bot.loading_emoji} | Please wait... this may take a few seconds.")
+        wait = await ctx.send(f"{ctx.bot.util.loading_emoji} | Please wait... this may take a few seconds.")
         url = ctx.bot.Parser.parse_image(ctx, args, size=128)
         data = get(f"https://useless-api.vierofernando.repl.co/{command_name}/animated?image={url}", headers={'superdupersecretkey': environ['USELESSAPI']}).content
         await wait.delete()
@@ -170,7 +176,7 @@ class image(commands.Cog):
     @cooldown(2)
     async def httpdog(self, ctx, *args):
         code = args[0] if ((len(args)!=0) or (args[0].isnumeric())) else '404'
-        url = 'https://random-d.uk/api/http/ABC.jpg' if ('duck' in ctx.message.content) else 'https://httpstatusdogs.com/img/ABC.jpg'
+        url = 'https://random-d.uk/api/http/ABC.jpg' if (ctx.bot.util.get_command_name(ctx) == "httpduck") else 'https://httpstatusdogs.com/img/ABC.jpg'
         try:
             return await ctx.bot.util.send_image_attachment(ctx, url.replace('ABC', code))
         except:
@@ -220,17 +226,10 @@ class image(commands.Cog):
     @cooldown(2)
     async def dog(self, ctx):
         async with ctx.channel.typing():
-            links = {
-                "dog": "https://api.alexflipnote.dev/dogs|file",
-                "cat": "https://api.alexflipnote.dev/cats|file",
-                "sadcat": "https://api.alexflipnote.dev/sadcat|file",
-                "bird": "https://api.alexflipnote.dev/sadcat|file",
-                "fox": 'https://randomfox.ca/floof/?ref=apilist.fun|image'
-            }
-            for i in list(links.keys()):
-                if str(ctx.message.content[1:]).lower().replace(' ', '')==i: link = links[i] ; break
-            apiied = ctx.bot.util.get_request(link.split('|')[0], alexflipnote=True)[link.split('|')[1]]
-            return await ctx.bot.util.send_image_attachment(ctx, apiied)
+            command_name = ctx.bot.util.get_command_name(ctx)
+            link = self._links[command_name]
+            api_url = ctx.bot.util.get_request(link.split('|')[0])[link.split('|')[1]]
+            return await ctx.bot.util.send_image_attachment(ctx, api_url, alexflipnote=api_url.startswith("https://api.alexflipnote.dev/"))
 
     @command()
     @cooldown(2)
