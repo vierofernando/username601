@@ -35,7 +35,7 @@ class image(commands.Cog):
         if res is not None: args = res
         async with ctx.channel.typing():
             url = ctx.bot.Parser.parse_image(ctx, args)
-            return await ctx.bot.send_image_attachment(ctx, "https://useless-api.vierofernando.repl.co/bump?image={}&inverse={}".format(url, str((res is not None))))
+            return await ctx.bot.util.send_image_attachment(ctx, "https://useless-api.vierofernando.repl.co/bump?image={}&inverse={}".format(url, str((res is not None))))
 
     @command('illuminati,illuminati-confirmed')
     @cooldown(5)
@@ -48,22 +48,22 @@ class image(commands.Cog):
     @command('explode')
     @cooldown(9)
     async def implode(self, ctx, *args):
-        command_name = ctx.message.content.split()[0][1:].lower()
+        command_name = ctx.bot.util.get_command_name(ctx)
         if ("--animated" in args):
             return await self.plode_animated(ctx, args, command_name)
 
         async with ctx.channel.typing():
-            amount = "1" if ("implode" in command_name)  else "-3.5"
+            amount = "1" if (command_name == "implode") else "-3.5"
             url = ctx.bot.Parser.parse_image(ctx, args)
-            return await ctx.bot.send_image_attachment(ctx, f"https://useless-api.vierofernando.repl.co/implode?image={url}&amount={amount}")
+            return await ctx.bot.util.send_image_attachment(ctx, f"https://useless-api.vierofernando.repl.co/implode?image={url}&amount={amount}")
 
     @command('spread,emboss,edge,sketch,swirl,wave')
     @cooldown(8)
     async def charcoal(self, ctx, *args):
         async with ctx.channel.typing():
-            command_name = ctx.message.content.split("1")[1].split(" ")[0].lower()
+            command_name = ctx.bot.util.get_command_name(ctx)
             url = ctx.bot.Parser.parse_image(ctx, args)
-            return await ctx.bot.send_image_attachment(ctx, f"https://useless-api.vierofernando.repl.co/{command_name}?image={url}")
+            return await ctx.bot.util.send_image_attachment(ctx, f"https://useless-api.vierofernando.repl.co/{command_name}?image={url}")
 
     @command('combine')
     @cooldown(2)
@@ -80,7 +80,8 @@ class image(commands.Cog):
     @cooldown(2)
     async def pikachu(self, ctx):
         async with ctx.channel.typing():
-            async with ctx.bot.bot_session.get(ctx.bot.utils.fetchJSON('https://some-random-api.ml/img/pikachu')['link']) as r:
+            link = ctx.bot.util.get_request('https://some-random-api.ml/img/pikachu', json=True, raise_errors=True)['link']
+            async with ctx.bot.bot_session.get(link) as r:
                 res = await r.read()
                 await ctx.send(file=discord.File(fp=BytesIO(res), filename="pikachu.gif"))
 
@@ -112,25 +113,49 @@ class image(commands.Cog):
     @command()
     @cooldown(2)
     async def lucario(self, ctx):
-        embed = discord.Embed(title='Lucario!', color=ctx.guild.me.roles[::-1][0].color)
-        embed.set_image(url=ctx.bot.utils.fetchJSON('http://pics.floofybot.moe/image?token=lucario&category=sfw')['image'])
+        url = ctx.bot.util.get_request(
+            "http://pics.floofybot.moe/image",
+            token="lucario",
+            category="sfw",
+            json=True,
+            raise_errors=True
+        )
+    
+        embed = discord.Embed(title='Here\'s a pic of Lucario.', color=ctx.guild.me.roles[::-1][0].color)
+        embed.set_image(url=url)
         await ctx.send(embed=embed)
     
     @command('ducks,quack,duk')
     @cooldown(2)
     async def duck(self, ctx):
-        _url = ctx.bot.utils.fetchJSON('https://random-d.uk/api/v2/random?format=json')['url']
-        await ctx.bot.send_image_attachment(ctx, _url)
+        _url = ctx.bot.util.get_request(
+            'https://random-d.uk/api/v2/random',
+            format='json',
+            json=True,
+            raise_errors=True
+        )
+        await ctx.bot.util.send_image_attachment(ctx, _url)
 
     @command('snek,snakes,python,py')
     @cooldown(2)
     async def snake(self, ctx):
-        return await ctx.bot.send_image_attachment(ctx, 'https://fur.im/snek/i/'+str(random.randint(1, 874))+'.png')
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://fur.im/snek/i/'+str(random.randint(1, 874))+'.png')
 
     @command('imageoftheday')
-    @cooldown(21600)
+    @cooldown(10)
     async def iotd(self, ctx):
-        data = ctx.bot.utils.fetchJSON('https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=en-US')['images'][0]
+        try:
+            data = ctx.bot.util.get_request(
+                'https://www.bing.com/HPImageArchive.aspx',
+                json=True,
+                raise_errors=True,
+                format='ks',
+                idx=0,
+                n=1,
+                mkt='en-US'
+            )['images'][0]
+        except:
+            return await ctx.bot.util.send_error_message("The API may be down for a while. Try again later!")
         embed = discord.Embed(title=data['copyright'], url=data['copyrightlink'], color=ctx.guild.me.roles[::-1][0].color)
         embed.set_image(url='https://bing.com'+data['url'])
         await ctx.send(embed=embed)
@@ -139,7 +164,7 @@ class image(commands.Cog):
     @cooldown(2)
     async def httpcat(self, ctx, *args):
         code = args[0] if (len(args)!=0) else '404'
-        return await ctx.bot.send_image_attachment(ctx, 'https://http.cat/'+str(code)+'.jpg')
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://http.cat/'+str(code)+'.jpg')
     
     @command('httpduck')
     @cooldown(2)
@@ -147,14 +172,14 @@ class image(commands.Cog):
         code = args[0] if ((len(args)!=0) or (args[0].isnumeric())) else '404'
         url = 'https://random-d.uk/api/http/ABC.jpg' if ('duck' in ctx.message.content) else 'https://httpstatusdogs.com/img/ABC.jpg'
         try:
-            return await ctx.bot.send_image_attachment(ctx, url.replace('ABC', code))
+            return await ctx.bot.util.send_image_attachment(ctx, url.replace('ABC', code))
         except:
             return await ctx.bot.util.send_error_message(ctx, "404")
 
     @command()
     @cooldown(2)
     async def goat(self, ctx):
-        return await ctx.bot.send_image_attachment(ctx, 'https://placegoat.com/'+str(random.randint(500, 700)))
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://placegoat.com/'+str(random.randint(500, 700)))
 
     @command("flop")
     @cooldown(7)
@@ -204,14 +229,14 @@ class image(commands.Cog):
             }
             for i in list(links.keys()):
                 if str(ctx.message.content[1:]).lower().replace(' ', '')==i: link = links[i] ; break
-            apiied = ctx.bot.utils.fetchJSON(link.split('|')[0], alexflipnote=True)[link.split('|')[1]]
-            return await ctx.bot.send_image_attachment(ctx, apiied)
+            apiied = ctx.bot.util.get_request(link.split('|')[0], alexflipnote=True)[link.split('|')[1]]
+            return await ctx.bot.util.send_image_attachment(ctx, apiied)
 
     @command()
     @cooldown(2)
     async def panda(self, ctx):
         link, col, msg = random.choice(["https://some-random-api.ml/img/panda", "https://some-random-api.ml/img/red_panda"]), ctx.guild.me.roles[::-1][0].color, 'Here is some cute pics of pandas.'
-        data = ctx.bot.utils.fetchJSON(link)['link']
+        data = ctx.bot.util.get_request(link, json=True, raise_errors=True)['link']
         embed = discord.Embed(title=msg, color=col)
         embed.set_image(url=data)
         await ctx.send(embed=embed)
@@ -220,7 +245,12 @@ class image(commands.Cog):
     @cooldown(2)
     async def shibe(self, ctx):
         async with ctx.channel.typing():
-            data = ctx.bot.utils.fetchJSON("http://shibe.online/api/shibes?count=1")[0]
+            data = ctx.bot.util.get_request(
+                "http://shibe.online/api/shibes",
+                json=True,
+                raise_errors=True,
+                count=1
+            )[0]
             await ctx.send(file=discord.File(ctx.bot.canvas.smallURL(data), 'shibe.png'))
     
     @command()
@@ -233,36 +263,34 @@ class image(commands.Cog):
                 first, second = ctx.author.avatar_url_as(format='png'), ctx.bot.Parser.parse_image(ctx, args)
             else: first, second = ctx.bot.Parser.parse_image(ctx, parsed_args[0]), ctx.bot.Parser.parse_image(ctx, parsed_args[1])
             url = f'https://api.alexflipnote.dev/ship?user={first}&user2={second}'
-            return await ctx.bot.send_image_attachment(ctx, url, alexflipnote=True)
+            return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
 
     @command('coffee')
     @cooldown(2)
     async def food(self, ctx, *args):
-        if len(args)==0:
-            data = ctx.bot.utils.fetchJSON('https://nekobot.xyz/api/image?type='+str(ctx.message.content[1:]))
-            link = data['message'].replace('\/', '/')
-            if 'food' in ctx.message.content:
-                col = int(data['color'])
-            elif 'coffee' in ctx.message.content:
-                col, num = int(data['color']), random.randint(0, 1)
-                if num==0: link = ctx.bot.utils.fetchJSON('https://coffee.alexflipnote.dev/random.json', alexflipnote=True)['file']
-                else: link = ctx.bot.utils.fetchJSON('https://nekobot.xyz/api/image?type=coffee')['message'].replace('\/', '/')
-            async with ctx.channel.typing():
-                return await ctx.bot.send_image_attachment(ctx, link.replace('\/', '/'))
+        command_name = ctx.bot.util.get_command_name(ctx)
+        data = ctx.bot.util.get_request('https://nekobot.xyz/api/image', json=True, raise_errors=True, type=command_name)
+        link = data['message'].replace('\/', '/')
+        if command_name == 'coffee':
+            _random = random.randint(0, 1)
+            if _random == 0:
+                return await ctx.bot.util.send_image_attachment(ctx, "https://coffee.alexflipnote.dev/random")
+        async with ctx.channel.typing():
+            return await ctx.bot.util.send_image_attachment(ctx, link.replace('\/', '/'))
 
     @command()
     @cooldown(2)
     async def magik(self, ctx, *args):
         source = ctx.bot.Parser.parse_image(ctx, args, cdn_only=True)
         await ctx.channel.trigger_typing()
-        return await ctx.bot.send_image_attachment(ctx, f'https://api.alexflipnote.dev/filter/magik?image={source}', alexflipnote=True)
+        return await ctx.bot.util.send_image_attachment(ctx, f'https://api.alexflipnote.dev/filter/magik?image={source}', alexflipnote=True)
 
     @command("df")
     @cooldown(2)
     async def deepfry(self, ctx, *args):
         source = ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
         await ctx.channel.trigger_typing()
-        return await ctx.bot.send_image_attachment(ctx, f'https://api.alexflipnote.dev/filter/deepfry?image={source}', alexflipnote=True)
+        return await ctx.bot.util.send_image_attachment(ctx, f'https://api.alexflipnote.dev/filter/deepfry?image={source}', alexflipnote=True)
 
     @command()
     @cooldown(2)
@@ -281,10 +309,10 @@ class image(commands.Cog):
     async def jpeg(self, ctx, *args):
         async with ctx.channel.typing():
             url = {"jpeg": "https://api.alexflipnote.dev/filter/jpegify?image=<URL>", "pixelate": "https://useless-api.vierofernando.repl.co/pixelate?image=<URL>&amount=<NUM>"}
-            command_name = ctx.message.content.split()[0][1:].lower()
+            command_name = ctx.bot.util.get_command_name(ctx)
             avatar = ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
             url = url[command_name].replace("<URL>", avatar).replace("<NUM>", random.choice(["16", "32"]))
-            return await ctx.bot.send_image_attachment(ctx, url, alexflipnote=True)
+            return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
 
 def setup(client):
     client.add_cog(image(client))

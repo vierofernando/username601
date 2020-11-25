@@ -8,12 +8,12 @@ from decorators import command, cooldown
 import random
 from io import BytesIO
 from datetime import datetime as t
-import discordgames as Games
 import asyncio
 
 class games(commands.Cog):
     def __init__(self, client):
         self.urltoimage = (lambda url: BytesIO(get(url).content))
+        self.countries = client.util.get_request("https://restcountries.eu/rest/v2", json=True, raise_errors=True)
 
     async def wait_for_user(self, ctx, user):
         check = (lambda x: (x.channel == ctx.channel) and (x.author == user) and (x.content.lower() in ["yes", "no"]))
@@ -73,7 +73,11 @@ class games(commands.Cog):
             await embed.edit_to(message)
     
     def get_name_history(self, uuid, ctx):
-        data = ctx.bot.utils.fetchJSON("https://api.mojang.com/user/profiles/"+uuid+"/names")
+        data = ctx.bot.utils.get_request(
+            f"https://api.mojang.com/user/profiles/{uuid}/names",
+            json=True,
+            raise_errors=True
+        )
         res = ["**Latest: **`"+data[0]["name"]+"`"]
         if len(data) < 2: return res[0]
         count = 0
@@ -87,7 +91,7 @@ class games(commands.Cog):
     @cooldown(5)
     async def minecraft(self, ctx, *args):
         msg = await ctx.send(f"{ctx.bot.loading_emoji} | Fetching data from the minecraft servers...")
-        name = ctx.bot.utils.encode_uri(ctx.author.name if len(args)==0 else ' '.join(args))
+        name = ctx.bot.util.encode_uri(ctx.author.name if len(args)==0 else ' '.join(args))
         data = get(f"https://mc-heads.net/minecraft/profile/{name}")
         if data.status_code != 200: return await msg.edit(content=f"Minecraft for profile: `{name}` not found.")
         data = data.json()
@@ -129,8 +133,12 @@ class games(commands.Cog):
             return await ctx.bot.util.send_error_message(ctx, 'Please input a query!')
         else:
             try:
-                query = ctx.bot.utils.encode_uri(' '.join(args))
-                data = ctx.bot.utils.fetchJSON('https://gdbrowser.com/api/search/'+str(query))
+                query = ctx.bot.util.encode_uri(' '.join(args))
+                data = ctx.bot.util.get_request(
+                    'https://gdbrowser.com/api/search/'+str(query),
+                    json=True,
+                    raise_errors=True
+                )
                 levels, count = '', 0
                 for i in range(len(data)):
                     if data[count]['disliked']: like = ':-1:'
@@ -150,15 +158,19 @@ class games(commands.Cog):
             parsed = ctx.bot.utils.parse_parameter(args, "--icon")
             if parsed["available"]:
                 try:
-                    name = ctx.bot.utils.encode_uri(' '.join(parsed["parsedarg"]))
+                    name = ctx.bot.util.encode_uri(' '.join(parsed["parsedarg"]))
                     wait = await ctx.send(f"{ctx.bot.loading_emoji} | Fetching data from the Geometry Dash servers...\nThis may take a while. Hang tight...")
                     image = ctx.bot.canvas.geometry_dash_icons(name)
                 except: return await wait.edit(f"{ctx.bot.error_emoji} | Please input a valid parameter!")
                 await wait.delete()
                 return await ctx.send(file=discord.File(image, "icon_kit.png"))
             try:
-                url = ctx.bot.utils.encode_uri(str(' '.join(args)))
-                data = ctx.bot.utils.fetchJSON("https://gdbrowser.com/api/profile/"+url)
+                url = ctx.bot.util.encode_uri(str(' '.join(args)))
+                data = ctx.bot.util.get_request(
+                    "https://gdbrowser.com/api/profile/"+url,
+                    json=True,
+                    raise_errors=True
+                )
                 embed = discord.Embed(
                     title = data["username"],
                     description = 'Displays user data for '+data["username"]+'.',
@@ -186,9 +198,9 @@ class games(commands.Cog):
             return await ctx.bot.util.send_error_message(ctx, 'Please input a text!')
         else:
             async with ctx.channel.typing():
-                text = ctx.bot.utils.encode_uri(' '.join(args))
+                text = ctx.bot.util.encode_uri(' '.join(args))
                 url='https://gdcolon.com/tools/gdlogo/img/'+str(text)
-                return await ctx.bot.send_image_attachment(ctx, url)
+                return await ctx.bot.util.send_image_attachment(ctx, url)
     
     @command()
     @cooldown(3)
@@ -196,13 +208,13 @@ class games(commands.Cog):
         if len(args)==0: return await ctx.bot.util.send_error_message(ctx, 'Please input a text!')
         else:
             async with ctx.channel.typing():
-                text, av = ctx.bot.utils.encode_uri(str(' '.join(args))), ctx.author.avatar_url_as(format='png')
+                text, av = ctx.bot.util.encode_uri(str(' '.join(args))), ctx.author.avatar_url_as(format='png')
                 if len(text)>100: return await ctx.bot.util.send_error_message(ctx, 'the text is too long!')
                 else:
                     if not ctx.author.guild_permissions.manage_guild: color = 'brown'
                     else: color = 'blue'
                     url='https://gdcolon.com/tools/gdtextbox/img/'+str(text)+'?color='+color+'&name='+ctx.author.name+'&url='+str(av)+'&resize=1'
-                    return await ctx.bot.send_image_attachment(ctx, url)
+                    return await ctx.bot.util.send_image_attachment(ctx, url)
    
     @command()
     @cooldown(3)
@@ -210,14 +222,14 @@ class games(commands.Cog):
         async with ctx.channel.typing():
             try:
                 byI = str(' '.join(args)).split(' | ')
-                text = ctx.bot.utils.encode_uri(byI[0])
+                text = ctx.bot.util.encode_uri(byI[0])
                 num = int(byI[2])
                 if num>9999: num = 601
                 elif num<-9999: num = -601
-                gdprof = ctx.bot.utils.encode_uri(byI[1])
+                gdprof = ctx.bot.util.encode_uri(byI[1])
                 if ctx.author.guild_permissions.manage_guild: url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&mod=mod&days=1-second'
                 else: url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&days=1-second'
-                return await ctx.bot.send_image_attachment(ctx, url)
+                return await ctx.bot.util.send_image_attachment(ctx, url)
             except Exception as e:
                 return await ctx.bot.util.send_error_message(ctx, f'Invalid!\nThe flow is this: `{ctx.bot.command_prefix}gdcomment text | name | like count`\nExample: `{ctx.bot.command_prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
 
@@ -332,7 +344,7 @@ class games(commands.Cog):
     @cooldown(15)
     async def geoquiz(self, ctx):
         wait = await ctx.send(ctx.bot.loading_emoji + ' | Please wait... generating question...')
-        data, topic = ctx.bot.utils.fetchJSON("https://restcountries.eu/rest/v2/"), random.choice(['capital', 'region', 'subregion', 'population', 'demonym', 'nativeName'])
+        data, topic = self.countries, random.choice(['capital', 'region', 'subregion', 'population', 'demonym', 'nativeName'])
         chosen_nation_num = random.randint(0, len(data))
         chosen_nation, wrongs = data[chosen_nation_num], []
         del data[chosen_nation_num]
@@ -397,7 +409,7 @@ class games(commands.Cog):
     @cooldown(60)
     async def hangman(self, ctx):
         wait = await ctx.send(ctx.bot.loading_emoji + ' | Please wait... generating...')
-        the_word = ctx.bot.utils.fetchJSON("https://useless-api.vierofernando.repl.co/randomword")["word"]
+        the_word = ctx.bot.util.get_request("https://useless-api.vierofernando.repl.co/randomword", json=True, raise_errors=True)["word"]
         main_guess_cor, main_guess_hid = list(the_word), []
         server_id, wrong_guesses = ctx.guild.id, ''
         for i in range(len(main_guess_cor)):
@@ -520,7 +532,7 @@ class games(commands.Cog):
         try:
             wait = await ctx.send(ctx.bot.loading_emoji + ' | Please wait... generating quiz... This may take a while')
             auth = ctx.author
-            data = ctx.bot.utils.fetchJSON('https://wiki-quiz.herokuapp.com/v1/quiz?topics=Science')
+            data = ctx.bot.util.get_request('https://wiki-quiz.herokuapp.com/v1/quiz', json=True, raise_errors=True, topics='science')
             q = random.choice(data['quiz'])
             choices = ''
             for i in range(len(q['options'])):

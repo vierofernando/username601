@@ -104,11 +104,11 @@ class apps(commands.Cog):
                 try:
                     toTrans = ' '.join(args[1:])
                     if len(destination) > 2:
-                        q = ctx.bot.utils.query(
-                            [LANGUAGES[x] for x in list(LANGUAGES)], destination
+                        q = filter(
+                            lambda x: destination in x.lower(), [LANGUAGES[x] for x in list(LANGUAGES)]
                         )
-                        assert q is not None
-                        destination = q
+                        assert len(q) > 0
+                        destination = q[0]
                 except (IndexError, AssertionError):
                     return await ctx.bot.util.send_error_message(ctx, 'Gimme something to translate!')
                 try:

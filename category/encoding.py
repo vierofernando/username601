@@ -14,7 +14,7 @@ class encoding(commands.Cog):
     @command()
     @cooldown(2)
     async def ascii(self, ctx, *args):
-        text = ctx.bot.utils.encode_uri(' '.join(args)) if len(args)>0 else 'ascii%20text'
+        text = ctx.bot.util.encode_uri(' '.join(args)) if len(args)>0 else 'ascii%20text'
         await ctx.send('```{}```'.format(
             str(ctx.bot.utils.inspect_element('http://artii.herokuapp.com/make?text={}'.format(text)))[0:2000]
         ))
@@ -22,15 +22,20 @@ class encoding(commands.Cog):
     @cooldown(5)
     async def morse(self, ctx, *args):
         if len(args)==0: return await ctx.bot.util.send_error_message(ctx, 'no arguments? Really?')
-        elif len(' '.join(args)) > 100:
-            return await ctx.bot.util.send_error_message(ctx, 'too long....')
         else:
             async with ctx.channel.typing():
-                res = ctx.bot.utils.fetchJSON('https://useless-api--vierofernando.repl.co/encode?text='+ctx.bot.utils.encode_uri(' '.join(args)))
-                if 'fliptext' in ctx.message.content.split(' ')[0][1:]: data = res['styles']['upside-down']
-                elif 'cursive' in ctx.message.content.split(' ')[0][1:]: data = res['styles']['cursive']
-                elif 'fancy' in ctx.message.content.split(' ')[0][1:]: data = res['styles']['fancy']
-                elif 'braille' in ctx.message.content.split(' ')[0][1:]: data = res['braille']
+                res = ctx.bot.util.get_request(
+                    'https://useless-api--vierofernando.repl.co/encode',
+                    json=True,
+                    text=str(" ".join(args))[0:100]
+                )
+                if res is None: return await ctx.bot.util.send_error_message("The API is temporarily down. Please try again later.")
+                command_name = ctx.bot.util.get_command_name(ctx)
+                
+                if command_name == "fliptext": data = res['styles']['upside-down']
+                elif command_name == "cursive": data = res['styles']['cursive']
+                elif command_name == "fancy": data = res['styles']['fancy']
+                elif command_name == "braille": data = res['braille']
                 else: data = res['ciphers']['morse']
                 await ctx.send(f'{data}')
     @command('qr,qrcode,qr-code')
@@ -42,9 +47,9 @@ class encoding(commands.Cog):
             return await ctx.bot.util.send_error_message(ctx, 'too longggggggggg')
         else:
             async with ctx.channel.typing():
-                if 'qr' in ctx.message.content.split(' ')[0][1:]: url = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+str(ctx.bot.utils.encode_uri(str(' '.join(args))))
-                else: url = 'http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data='+str(ctx.bot.utils.encode_uri(str(' '.join(args))))
-                return await ctx.bot.send_image_attachment(ctx, url)
+                if 'qr' in ctx.message.content.split(' ')[0][1:]: url = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+str(ctx.bot.util.encode_uri(str(' '.join(args))))
+                else: url = 'http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data='+str(ctx.bot.util.encode_uri(str(' '.join(args))))
+                return await ctx.bot.util.send_image_attachment(ctx, url)
     
     @command()
     @cooldown(2)
@@ -91,14 +96,18 @@ class encoding(commands.Cog):
         if len(args)==0:
             return await ctx.bot.util.send_error_message(ctx, 'No arguments? ok then! no service it is!')
         else:
-            data = ctx.bot.utils.fetchJSON("https://vierofernando.github.io/username601/assets/json/leet.json")
+            data = ctx.bot.util.get_request(
+                "https://vierofernando.github.io/username601/assets/json/leet.json",
+                json=True,
+                raise_errors=True
+            )
+            
             total = ''
-            text = ' '.join(args)
-            for i in list(text):
-                if i.lower() in list('abcdefghijklmnopqrstuvwxyz'):
-                    total += data[i]
-                    continue
-                total += i
+            for i in list(' '.join(args)):
+                if i.isalpha():
+                    total += data[i.lower()]
+                else:
+                    total += i
             await ctx.send(total)
     
 

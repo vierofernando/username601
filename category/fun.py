@@ -65,7 +65,11 @@ class fun(commands.Cog):
     @command()
     @cooldown(2)
     async def joke(self, ctx):
-        data = ctx.bot.utils.fetchJSON("https://official-joke-api.appspot.com/jokes/general/random")
+        data = ctx.bot.util.get_request(
+            "https://official-joke-api.appspot.com/jokes/general/random",
+            json=True,
+            raise_errors=True
+        )
         embed = discord.Embed(
             title = str(data[0]["setup"]),
             description = '||'+str(data[0]["punchline"])+'||',
@@ -85,7 +89,7 @@ class fun(commands.Cog):
     async def inspirobot(self, ctx):
         async with ctx.channel.typing():
             img = ctx.bot.utils.inspect_element('https://inspirobot.me/api?generate=true')
-            return await ctx.bot.send_image_attachment(ctx, img)
+            return await ctx.bot.util.send_image_attachment(ctx, img)
     
     @command('randomcase')
     @cooldown(2)
@@ -97,7 +101,8 @@ class fun(commands.Cog):
     @cooldown(3)
     async def _8ball(self, ctx):
         async with ctx.channel.typing():
-            data = ctx.bot.utils.fetchJSON("https://yesno.wtf/api")
+            data = ctx.bot.util.get_request("https://yesno.wtf/api", json=True)
+            
             async with ctx.bot.bot_session.get(data['image']) as r:
                 res = await r.read()
                 await ctx.send(content='**'+data['answer'].upper()+'**', file=discord.File(fp=BytesIO(res), filename=data['answer'].upper()+".gif"))
@@ -148,7 +153,11 @@ class fun(commands.Cog):
         if len(args)==0: return await ctx.bot.util.send_error_message(ctx, 'Please send something to be encoded.')
         else:
             link, num = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/temmie.json', 1
-            data = ctx.bot.utils.fetchJSON(link)
+            data = ctx.bot.util.get_request(
+                link,
+                json=True,
+                raise_errors=True
+            )
             keyz = list(data.keys())
             total = ''
             for j in range(num, len(keyz)):
@@ -159,7 +168,11 @@ class fun(commands.Cog):
     @command('fact-core,fact-sphere,factsphere')
     @cooldown(2)
     async def factcore(self, ctx):
-        data = ctx.bot.utils.fetchJSON('https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fact-core.json')
+        data = ctx.bot.util.get_request(
+            'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fact-core.json',
+            json=True,
+            raise_errors=True
+        )
         embed = discord.Embed(title='Fact Core', description=random.choice(data), colour=ctx.guild.me.roles[::-1][0].color)
         embed.set_thumbnail(url='https://i1.theportalwiki.net/img/thumb/5/55/FactCore.png/300px-FactCore.png')
         await ctx.send(embed=embed)

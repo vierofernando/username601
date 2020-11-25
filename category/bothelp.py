@@ -135,7 +135,7 @@ class bothelp(commands.Cog):
     @command('botstats,meta')
     @cooldown(10)
     async def stats(self, ctx):
-        bot_uptime = ctx.bot.utils.lapsed_time_from_seconds(round(t.now().timestamp() - ctx.bot.last_downtime))
+        bot_uptime = ctx.bot.util.strfsecond(round(t.now().timestamp() - ctx.bot.last_downtime))
         embed = discord.Embed(description='This bot is serving **{} servers** each with **{} users.**\nBot uptime: {}\nOS uptime: {}\nLast downtime: {} UTC\nCommands run in the past {}: {}\nTotal commands: {}'.format(
             len(ctx.bot.guilds),
             len(ctx.bot.users),

@@ -81,7 +81,7 @@ class moderation(commands.Cog):
             name = str(full_arr[index]['da']).replace('_', '\_').replace('*', '\*').replace('`', '\`')
             string = "{}. {} ({} ago)\n" if i != user_index else "**__{}. {} ({} ago)__**\n"
             desc += string.format(
-                i + 1, name, ctx.bot.utils.lapsed_time_from_seconds(current_time - full_arr[index]['ja'])
+                i + 1, name, ctx.bot.util.strfsecond(current_time - full_arr[index]['ja'])
             )
         return await wait.edit(content='', embed=discord.Embed(title=title, description=desc, color=ctx.guild.me.roles[::-1][0].color))
         
@@ -222,8 +222,7 @@ class moderation(commands.Cog):
         source = ctx.author if (len(ctx.message.mentions)==0) else ctx.message.mentions[0]
         data = ctx.bot.db.Dashboard.getWarns(source)
         if data is None:
-            error = ctx.bot.error_emoji
-            return await ctx.send(f'{error} | Good news! {source.name} does not have any warns!')
+            return await ctx.send(f'{ctx.bot.error_emoji} | Good news! {source.name} does not have any warns!')
         warnlist = '\n'.join(map(
             lambda x: '{}. "{}" (warned by <@{}>)'.format(x+1, data[x]['reason'], data[x]['moderator']),
             range(len(data))
@@ -303,12 +302,12 @@ class moderation(commands.Cog):
                 is_animated = text.startswith("<a:")
                 _ext = ".gif" if is_animated else ".png"
                 _id = int(text.split(":")[2].split(">")[0])
-                return await ctx.bot.send_image_attachment(ctx, 'https://cdn.discordapp.com/emojis/{}{}'.format(_id, _ext))
+                return await ctx.bot.util.send_image_attachment(ctx, 'https://cdn.discordapp.com/emojis/{}{}'.format(_id, _ext))
             
             _twemoji = ctx.bot.twemoji(text)
             if _twemoji == text:
                 return await ctx.bot.util.send_error_message(ctx, 'No emoji found.')
-            return await ctx.bot.send_image_attachment(ctx, _twemoji)
+            return await ctx.bot.util.send_image_attachment(ctx, _twemoji)
             
         except:
             return await ctx.bot.util.send_error_message(ctx, 'Invalid emoji.')
@@ -400,6 +399,8 @@ class moderation(commands.Cog):
     async def lockdown(self, ctx, *args):
         try:
             assert len(args) > 0
+            command_name = ctx.bot.util.get_command_name(ctx)
+            
             if not ctx.author.guild_permissions.administrator: return await ctx.bot.util.send_error_message(ctx, 'You need the `Administrator` permission to do this, unless you are trying to mute yourself.')
             else:
                 if 'enable' not in args[0].lower():
@@ -412,11 +413,11 @@ class moderation(commands.Cog):
                     elif 'enable' in args[0].lower():
                         if 'hidechannel' in ctx.message.content.lower(): await ctx.channel.set_permissions(ctx.guild.default_role, read_messages=False)
                         elif 'lockdown' in ctx.message.content.lower(): await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=False)
-                    return await ctx.send(ctx.bot.success_emoji +f' | Success! <#{ctx.channel.id}>\'s {ctx.message.content.split(" ")[0][1:]} has been {args[0]}d!')
+                    return await ctx.send(ctx.bot.success_emoji +f' | Success! <#{ctx.channel.id}>\'s {command_name} has been {args[0]}d!')
                 except Exception as e:
                     return await ctx.bot.util.send_error_message(ctx, f'For some reason, i cannot change <#{ctx.channel.id}>\'s :(\n\n```{str(e)}```')
         except:
-            return await ctx.bot.util.send_error_message(ctx, f'Invalid parameters. Correct Example: `{ctx.bot.command_prefix}{ctx.message.content.split()[0][1:]} [disable/enable]`')    
+            return await ctx.bot.util.send_error_message(ctx, f'Invalid parameters. Correct Example: `{ctx.bot.command_prefix}{command_name} [disable/enable]`')    
 
     @command('roles,serverroles,serverchannels,channels')
     @cooldown(2)
@@ -504,7 +505,7 @@ class moderation(commands.Cog):
                 else: perm = ':x: Server Administrator'
                 if data.mentionable==True: men = ':warning: You can mention this role and they can get pinged.'
                 else: men = ':v: You can mention this role and they will not get pinged! ;)'
-                embedrole = discord.Embed(title='Role info for role: '+str(data.name), description='**Role ID: **'+str(data.id)+'\n**Role created at: **'+ctx.bot.utils.lapsed_time_from_seconds(round(t.now().timestamp()-data.created_at.timestamp()))+' ago\n**Role position: **'+str(data.position)+'\n**Members having this role: **'+str(len(data.members))+'\n'+str(men)+'\nPermissions Value: '+str(data.permissions.value)+'\n'+str(perm), colour=data.colour)
+                embedrole = discord.Embed(title='Role info for role: '+str(data.name), description='**Role ID: **'+str(data.id)+'\n**Role created at: **'+ctx.bot.util.strfsecond(round(t.now().timestamp()-data.created_at.timestamp()))+' ago\n**Role position: **'+str(data.position)+'\n**Members having this role: **'+str(len(data.members))+'\n'+str(men)+'\nPermissions Value: '+str(data.permissions.value)+'\n'+str(perm), colour=data.colour)
                 embedrole.add_field(name='Role Colour', value='**Color hex: **#'+str(data.color.value)+'\n**Color integer: **'+str(data.color.value)+'\n**Color RGB: **'+str(', '.join(
                     list(map(lambda x: str(x), data.color.to_rgb()))
                 )))
@@ -573,7 +574,7 @@ class moderation(commands.Cog):
             return await ctx.bot.util.send_error_message(ctx, 'For some reason, we cannot process your emoji ;(')
         if data.animated: anim, ext = 'This emoji is an animated emoji. **Only nitro users can use it.**', ".gif"
         else: anim, ext = 'This emoji is a static emoji. **Everyone can use it (except if limited by role)**', ".png"
-        embedy = discord.Embed(title='Emoji info for :'+str(data.name)+':', description='**Emoji name:** '+str(data.name)+'\n**Emoji ID: **'+str(data.id)+'\n'+anim+'\n**Emoji creation time: **'+str(data.created_at)[:-7]+' UTC ('+ctx.bot.utils.lapsed_time_from_seconds(t.now().timestamp() - data.created_at.timestamp())+' ago).', colour=ctx.guild.me.roles[::-1][0].color)
+        embedy = discord.Embed(title='Emoji info for :'+str(data.name)+':', description='**Emoji name:** '+str(data.name)+'\n**Emoji ID: **'+str(data.id)+'\n'+anim+'\n**Emoji creation time: **'+str(data.created_at)[:-7]+' UTC ('+ctx.bot.util.strfsecond(t.now().timestamp() - data.created_at.timestamp())+' ago).', colour=ctx.guild.me.roles[::-1][0].color)
         embedy.set_thumbnail(url='https://cdn.discordapp.com/emojis/'+str(data.id)+ext)
         await ctx.send(embed=embedy)
 

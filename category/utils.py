@@ -14,7 +14,11 @@ from PIL import ImageColor
 
 class utils(commands.Cog):
     def __init__(self, client):
-        pass
+        self._fact_urls = {
+            "cat": ("https://catfact.ninja/fact", "fact", None),
+            "dog": ("https://dog-api.kinduff.com/api/facts", "facts", 0),
+            "fun": ("https://useless-api--vierofernando.repl.co/randomfact", "fact", None)
+        }
 
     @command('nation')
     @cooldown(5)
@@ -22,7 +26,7 @@ class utils(commands.Cog):
         _country = " ".join(args)
         try:
             assert _country is not None, "Send a country name!"
-            data = ctx.bot.utils.fetchJSON(f'https://restcountries.eu/rest/v2/name/{ctx.bot.utils.encode_uri(_country)}')
+            data = ctx.bot.util.get_request(f'https://restcountries.eu/rest/v2/name/{ctx.bot.util.encode_uri(_country)}', json=True, raise_errors=True)
             assert isinstance(data, list), "No such country with the name `"+_country+"` found."            
             embed = ctx.bot.ChooseEmbed(ctx, data, key=(lambda x: x["name"]))
             res = await embed.run()
@@ -140,21 +144,41 @@ class utils(commands.Cog):
     @command()
     @cooldown(15)
     async def nasa(self, ctx, *args):
-        query = 'earth' if len(args)==0 else ctx.bot.utils.encode_uri(' '.join(args))
-        data = ctx.bot.utils.fetchJSON(f'https://images-api.nasa.gov/search?q={query}&media_type=image')
-        await ctx.channel.trigger_typing()
-        if len(data['collection']['items'])==0: return await ctx.bot.util.send_error_message(ctx, "Nothing found.")
-        img = random.choice(data['collection']['items'])
-        em = discord.Embed(title=img['data'][0]['title'], description=img['data'][0]["description"], color=ctx.guild.me.roles[::-1][0].color)
-        em.set_image(url=img['links'][0]['href'])
-        await ctx.send(embed=em)
+        query = 'earth' if len(args)==0 else ' '.join(args)
+        data = ctx.bot.util.get_request(
+            f'https://images-api.nasa.gov/search',
+            json=True,
+            raise_errors=True,
+            q=query[0:100],
+            media_type='image'
+        )
+        async with ctx.channel.typing():
+            if len(data['collection']['items'])==0: return await ctx.bot.util.send_error_message(ctx, "Nothing found.")
+            img = random.choice(data['collection']['items'])
+            em = discord.Embed(title=img['data'][0]['title'], description=img['data'][0]["description"], color=ctx.guild.me.roles[::-1][0].color)
+            em.set_image(url=img['links'][0]['href'])
+            await ctx.send(embed=em)
 
     @command('pokedex,dex,bulbapedia,pokemoninfo,poke-info,poke-dex,pokepedia')
     @cooldown(10)
     async def pokeinfo(self, ctx, *args):
-        query = 'Missingno' if (len(args)==0) else ctx.bot.utils.encode_uri(' '.join(args))
+        query = 'Missingno' if (len(args)==0) else ctx.bot.util.encode_uri(' '.join(args))
         try:
-            data = ctx.bot.utils.fetchJSON('https://bulbapedia.bulbagarden.net/w/api.php?action=query&titles={}&format=json&formatversion=2&pithumbsize=150&prop=extracts|pageimages&explaintext&redirects&exintro'.format(query))
+            data = ctx.bot.util.get_request(
+                'https://bulbapedia.bulbagarden.net/w/api.php',
+                json=True,
+                raise_errors=True,
+                action='query',
+                titles=query,
+                format='json',
+                formatversion=2,
+                pithumbsize=150,
+                prop='extracts|pageimages',
+                explaintext='',
+                redirects='',
+                exintro=''
+            )
+            
             embed = discord.Embed(
                 url='https://bulbapedia.bulbagarden.net/wiki/{}'.format(query),
                 color=ctx.guild.me.roles[::-1][0].color,
@@ -175,7 +199,12 @@ class utils(commands.Cog):
         if len(args)==0:
             await ctx.send(embed=discord.Embed(title='Here is a recipe to cook nothing:', description='1. Do nothing\n2. Profit'))
         else:
-            data = ctx.bot.utils.fetchJSON("http://www.recipepuppy.com/api/?q={}".format(ctx.bot.utils.encode_uri(' '.join(args))))
+            data = ctx.bot.util.get_request(
+                "http://www.recipepuppy.com/api/",
+                json=True,
+                raise_errors=True,
+                q=' '.join(args)
+            )
             if len(data['results'])==0: 
                 return await ctx.bot.util.send_error_message(ctx, "I did not find anything.")
             elif len([i for i in data['results'] if i['thumbnail']!=''])==0:
@@ -213,20 +242,25 @@ class utils(commands.Cog):
     @cooldown(10)
     async def robohash(self, ctx, *args):
         if len(args)==0: url='https://robohash.org/'+str(src.randomhash())
-        else: url = 'https://robohash.org/'+str(ctx.bot.utils.encode_uri(' '.join(args)))
-        return await ctx.bot.send_image_attachment(ctx, url)
+        else: url = 'https://robohash.org/'+str(ctx.bot.util.encode_uri(' '.join(args)))
+        return await ctx.bot.util.send_image_attachment(ctx, url)
 
     @command()
     @cooldown(10)
     async def weather(self, ctx, *args):
         if len(args)==0: return await ctx.bot.util.send_error_message(ctx, "Please send a location or a city!")
-        else: return await ctx.bot.send_image_attachment(ctx, 'https://wttr.in/'+str(ctx.bot.utils.encode_uri(' '.join(args)))+'.png')
+        else: return await ctx.bot.util.send_image_attachment(ctx, 'https://wttr.in/'+str(ctx.bot.util.encode_uri(' '.join(args)))+'.png')
 
     @command()
     @cooldown(10)
     async def ufo(self, ctx):
         num = str(random.randint(50, 100))
-        data = ctx.bot.utils.fetchJSON('http://ufo-api.herokuapp.com/api/sightings/search?limit='+num)
+        data = ctx.bot.util.get_request(
+            'http://ufo-api.herokuapp.com/api/sightings/search',
+            json=True,
+            raise_errors=True,
+            limit=num
+        )
         if data['status']!='OK':
             return await ctx.bot.util.send_error_message(ctx, 'There was a problem on retrieving the info.\nThe server said: "'+str(data['status'])+'" :eyes:')
         else:
@@ -241,7 +275,14 @@ class utils(commands.Cog):
         if len(args)==0: await ctx.send('Please input a word! And we will try to find the word that best rhymes with it.')
         else:
             wait, words = await ctx.send(str(ctx.bot.loading_emoji) + ' | Please wait... Searching...'), []
-            data = ctx.bot.utils.fetchJSON('https://rhymebrain.com/talk?function=getRhymes&word='+str(ctx.bot.utils.encode_uri(' '.join(args))))
+            data = ctx.bot.util.get_request(
+                'https://rhymebrain.com/talk?function=getRhymes&word=',
+                json=True,
+                raise_errors=True,
+                function='getRhymes',
+                word=' '.join(args)
+            )
+            
             if len(data)<1: await wait.edit(content='We did not find any rhyming words corresponding to that letter.')
             else:
                 for i in range(len(data)):
@@ -259,8 +300,18 @@ class utils(commands.Cog):
             return await ctx.bot.util.send_error_message(ctx, 'Hey fellow developer, Try add a question!')
         else:
             try:
-                query = ctx.bot.utils.encode_uri(' '.join(args))
-                data = ctx.bot.utils.fetchJSON("https://api.stackexchange.com/2.2/search/advanced?q="+str(query)+"&site=stackoverflow&page=1&answers=1&order=asc&sort=relevance")
+                query = ctx.bot.util.encode_uri(' '.join(args))
+                data = ctx.bot.util.get_request(
+                    "https://api.stackexchange.com/2.2/search/advanced",
+                    json=True,
+                    raise_errors=True,
+                    q=' '.join(args),
+                    site='stackoverflow',
+                    page=1,
+                    answers=1,
+                    order='asc',
+                    sort='relevance'
+                )
                 leng = len(data['items'])
                 ques = data['items'][0]
                 tags = ''
@@ -279,15 +330,19 @@ class utils(commands.Cog):
     @command('birbfact,birdfact')
     @cooldown(7)
     async def pandafact(self, ctx):
-        if 'pandafact' in ctx.message.content.lower(): link = 'https://some-random-api.ml/facts/panda'
+        if ctx.bot.util.get_command_name(ctx) == 'pandafact': link = 'https://some-random-api.ml/facts/panda'
         else: link = 'https://some-random-api.ml/facts/bird'
-        data = ctx.bot.utils.fetchJSON(link)['fact']
+        data = ctx.bot.util.get_request(link, json=True, raise_errors=True)['fact']
         await ctx.send(embed=discord.Embed(title='Did you know?', description=data, colour=ctx.guild.me.roles[::-1][0].color))
 
     @command()
     @cooldown(2)
     async def iss(self, ctx):
-        iss, ppl, total = ctx.bot.utils.fetchJSON('https://open-notify-api.herokuapp.com/iss-now.json'), ctx.bot.utils.fetchJSON('https://open-notify-api.herokuapp.com/astros.json'), '```'
+        iss, ppl, total = ctx.bot.util.get_request(
+            'https://open-notify-api.herokuapp.com/iss-now.json', json=True, raise_errors=True
+        ), ctx.bot.util.get_request(
+            'https://open-notify-api.herokuapp.com/astros.json', json=True, raise_errors=True
+        ), '```'
         for i in range(len(ppl['people'])):
             total += str(i+1) + '. ' + ppl['people'][i]['name'] + ((20-(len(ppl['people'][i]['name'])))*' ') + ppl['people'][i]['craft'] + '\n'
         embed = discord.Embed(title='Position: '+str(iss['iss_position']['latitude'])+' '+str(iss['iss_position']['longitude']), description='**People at craft:**\n\n'+str(total)+'```', colour=ctx.guild.me.roles[::-1][0].color)
@@ -297,17 +352,21 @@ class utils(commands.Cog):
     @cooldown(5)
     async def ghiblifilms(self, ctx, *args):
         wait = await ctx.send(str(ctx.bot.loading_emoji) + ' | Please wait... Getting data...')
-        data = ctx.bot.utils.fetchJSON('https://ghibliapi.herokuapp.com/films')
+        data = ctx.bot.util.get_request(
+            'https://ghibliapi.herokuapp.com/films',
+            json=True,
+            raise_errors=True
+        )
         if len(args)==0:
             films = ""
-            for i in range(int(len(data))):
+            for i in range(len(data)):
                 films = films+'('+str(int(i)+1)+') '+str(data[i]['title']+' ('+str(data[i]['release_date'])+')\n')
             embed = discord.Embed(
                 title = 'List of Ghibli Films',
                 description = str(films),
                 color = ctx.guild.me.roles[::-1][0].color
             )
-            embed.set_footer(text='Type `'+str(ctx.bot.command_prefix)+'ghibli <number>` to get each movie info.')
+            embed.set_footer(text='Type `'+ctx.bot.command_prefix+'ghibli <number>` to get each movie info.')
             await wait.edit(content='', embed=embed)
         else:
             try:
@@ -325,14 +384,23 @@ class utils(commands.Cog):
     @command()
     @cooldown(5)
     async def bored(self, ctx):
-        data = ctx.bot.utils.fetchJSON("https://www.boredapi.com/api/activity?participants=1")
+        data = ctx.bot.util.get_request(
+            "https://www.boredapi.com/api/activity",
+            json=True,
+            raise_errors=True,
+            participants=1
+        )
         await ctx.send('**Feeling bored?**\nWhy don\'t you '+str(data['activity'])+'? :wink::ok_hand:')
 
     @command()
     @cooldown(20)
     async def googledoodle(self, ctx):
         wait = await ctx.send(str(ctx.bot.loading_emoji) + ' | Please wait... This may take a few moments...')
-        data = ctx.bot.utils.fetchJSON('https://www.google.com/doodles/json/{}/{}'.format(str(t.now().year), str(t.now().month)))[0]
+        data = ctx.bot.util.get_request(
+            'https://www.google.com/doodles/json/{}/{}'.format(str(t.now().year), str(t.now().month)),
+            json=True,
+            raise_errors=True
+        )[0]
         embed = discord.Embed(title=data['title'], colour=ctx.guild.me.roles[::-1][0].color, url='https://www.google.com/doodles/'+data['name'])
         embed.set_image(url='https:'+data['high_res_url'])
         embed.set_footer(text='Event date: '+str('/'.join(
@@ -340,33 +408,22 @@ class utils(commands.Cog):
         )))
         await wait.edit(content='', embed=embed)
 
-    @command()
-    @cooldown(10)
-    async def steamapp(self, ctx, *args):
-        data = ctx.bot.utils.fetchJSON('https://store.steampowered.com/api/storesearch?term='+ctx.bot.utils.encode_uri(str(' '.join(args)))+'&cc=us&l=en')
-        if data['total']==0: return await ctx.bot.util.send_error_message(ctx, 'Did not found anything. Maybe that app *doesn\'t exist...*')
-        else:
-            try:
-                prize = data['items'][0]['price']['initial']
-                prize = str(prize / 100)+ ' ' + data['items'][0]['price']['currency']
-            except KeyError: prize = 'FREE'
-            if data['items'][0]['metascore']=="": rate = '???'
-            else: rate = str(data['items'][0]['metascore'])
-            oss_raw = []
-            for i in range(len(data['items'][0]['platforms'])):
-                if data['items'][0]['platforms'][str(list(data['items'][0]['platforms'].keys())[i])]==True:
-                    oss_raw.append(str(list(data['items'][0]['platforms'].keys())[i]))
-            embed = discord.Embed(title=data['items'][0]['name'], url='https://store.steampowered.com/'+str(data['items'][0]['type'])+'/'+str(data['items'][0]['id']), description='**Price tag:** '+str(prize)+'\n**Metascore: **'+str(rate)+'\n**This app supports the following OSs: **'+str(dearray(oss_raw)), colour=ctx.guild.me.roles[::-1][0].color)
-            embed.set_image(url=data['items'][0]['tiny_image'])
-            await ctx.send(embed=embed)
-
     @command('dogfact,funfact')
     @cooldown(6)
     async def catfact(self, ctx):
-        if 'cat' in ctx.message.content.lower(): await ctx.send('**Did you know?**\n'+str(ctx.bot.utils.fetchJSON("https://catfact.ninja/fact")['fact']))
-        elif 'dog' in ctx.message.content.lower(): await ctx.send('**Did you know?**\n'+str(ctx.bot.utils.fetchJSON("https://dog-api.kinduff.com/api/facts")['facts'][0]))
-        else:
-            await ctx.send('**Did you know?**\n'+str(ctx.bot.utils.fetchJSON("https://useless-api--vierofernando.repl.co/randomfact")['fact']))
+        key = ctx.bot.util.get_command_name(ctx)[:-4]
+        url = self._fact_urls[key]
+
+        result = ctx.bot.util.get_request(
+            url[0], json=True, raise_errors=True
+        )[url[1]]
+
+        if url[2] is not None:
+            result = result[url[2]]
+        
+        embed = ctx.bot.Embed(ctx, title=key + " fact!", desc=result)
+        return await embed.send()
+    
     @command('em')
     @cooldown(2)
     async def embed(self, ctx, *args):
@@ -394,8 +451,13 @@ class utils(commands.Cog):
     @cooldown(10)
     async def typingtest(self, ctx):
         async with ctx.channel.typing():
-            data = ctx.bot.utils.fetchJSON("https://random-word-api.herokuapp.com/word?number=5")
-            text, guy, first = arrspace(data), ctx.author, t.now().timestamp()
+            data = ctx.bot.util.get_request(
+                "https://random-word-api.herokuapp.com/word",
+                json=True,
+                raise_errors=True,
+                number=5
+            )
+            text, guy, first = " ".join(data), ctx.author, t.now().timestamp()
             main = await ctx.send(content='**Type the text on the image. (Only command invoker can play)**\nYou have 2 minutes.\n', file=discord.File(ctx.bot.canvas.simpletext(text), 'test.png'))
         def check(m):
             return m.author == guy
