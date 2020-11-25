@@ -143,7 +143,7 @@ class bothelp(commands.Cog):
                 title="Bot Stats",
                 fields={
                     "Uptime": f"**Bot Uptime: **{data['bot_uptime']}\n**OS Uptime: **{data['os_uptime']}",
-                    "Stats": f"**Server count: **{len(ctx.bot.guilds)}\n**Served users: **{len(ctx.bot.users)}\n**Cached custom emojis: **{len(ctx.bot.emojis)}\n**Seen channels: **{len(ctx.bot.channels)}",
+                    "Stats": f"**Server count: **{len(ctx.bot.guilds)}\n**Served users: **{len(ctx.bot.users)}\n**Cached custom emojis: **{len(ctx.bot.emojis)}",
                     "Memory": f"**Total: **{data['memory']['total']} MB\n**Used: **{data['memory']['used']} MB\n**Free: **{data['memory']['free']} MB\n**Available: **{data['memory']['available']} MB",
                     "Platform": f"**Machine: **{data['versions']['os']}\n**Python Build: **{data['versions']['python_build']}\n**Python Compiler: **{data['versions']['python_compiler']}\n**Discord.py version: **{data['versions']['discord_py']}"
                 }
