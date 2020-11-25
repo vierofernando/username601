@@ -41,12 +41,12 @@ def add_corners(im, rad, top_only=False, bottom_only=False):
 
 class Painter:
 
-    def __init__(self, assetpath, fontpath): # lmao wtf is this
+    def __init__(self, assetpath, fontpath, jsondir): # lmao wtf is this
         self.buffer_from_url = buffer_from_url
         self.fontpath = fontpath
-        self.flags = json.loads(open(config('JSON_DIR')+'/flags.json', 'r').read())
-        self.region = json.loads(open(config('JSON_DIR')+'/regions.json', 'r').read())
-        self.gd_assets = json.loads(open(config('JSON_DIR')+'/gd.json', 'r').read())
+        self.flags = json.loads(open(jsondir+'/flags.json', 'r').read())
+        self.region = json.loads(open(jsondir+'/regions.json', 'r').read())
+        self.gd_assets = json.loads(open(jsondir+'/gd.json', 'r').read())
         self.add_corners = add_corners
         
         # TO BE USED

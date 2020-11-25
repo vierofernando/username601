@@ -26,3 +26,19 @@ def parse_parameter(args, arg, get_second_element=False, singular=False):
             return {"available": True, "parsedarg": parsed, "secondparam": list(args)[index]}
         return {"available": True, "parsedarg": parsed, "secondparam": None}
     return {"available": False, "parsedarg": args, "secondparam": None}
+
+def lapsed_time_from_seconds(sec):
+    time_type, newsec = 'seconds', int(sec)
+    # YANDEREDEV.EXE
+    if sec>60:
+        newsec, time_type = round(sec/60), 'minutes'
+        if sec>3600: 
+            newsec, time_type = round(sec/3600), 'hours'
+            if sec>86400:
+                newsec, time_type = round(sec/86400), 'days'
+                if sec>2592000:
+                    newsec, time_type = round(sec/2592000), 'months'
+                    if sec>31536000:
+                        newsec, time_type = round(sec/31536000), 'years'
+    if str(newsec) == '1': return str(str(newsec)+' '+time_type[:-1])
+    return str(str(newsec)+' '+time_type)

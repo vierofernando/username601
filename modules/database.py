@@ -4,8 +4,7 @@ from sys import path
 from datetime import datetime as t
 from random import choice
 import requests
-try: from modules.username601 import lapsed_time_from_seconds
-except: from .username601 import lapsed_time_from_seconds
+from .username601 import lapsed_time_from_seconds
 database = MongoClient(os.getenv('DB_LINK'))['username601']
 
 class Dashboard:

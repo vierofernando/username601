@@ -8,24 +8,17 @@ from os import environ
 
 def pre_ready_initiation(client):
     client.remove_command('help')
-    setattr(client, 'blacklisted_ids', [
-        593774699654283265
-    ])
-    setattr(client, 'canvas', Painter(config('ASSETS_DIR'), config('FONTS_DIR')))
-    setattr(client, 'gif', GifGenerator(config('ASSETS_DIR'), config('FONTS_DIR')))
-    setattr(client, 'last_downtime', t.now().timestamp())
+    setattr(client, 'canvas', Painter(client.util.assets_dir, client.util.fonts_dir, client.util.json_dir))
+    setattr(client, 'gif', GifGenerator(client.util.assets_dir, client.util.fonts_dir))
     setattr(client, 'command_uses', 0)
     setattr(client, 'utils', username601)
     setattr(client, 'db', database)
     setattr(client, 'games', discordgames)
     setattr(client, 'algorithm', algorithm)
-    setattr(client, 'cmds', BotCommands())
+    setattr(client, 'cmds', BotCommands(client))
     setattr(client, 'bot_session', ClientSession())
 
 def post_ready_initiation(client):
-    setattr(client, 'error_emoji',   str(client.get_emoji(client.utils.config('EMOJI_ERROR', integer=True))))
-    setattr(client, 'loading_emoji', str(client.get_emoji(client.utils.config('EMOJI_LOADING', integer=True))))
-    setattr(client, 'success_emoji', str(client.get_emoji(client.utils.config('EMOJI_SUCCESS', integer=True))))
     test = post("https://useless-api.vierofernando.repl.co/update_bot_stats", headers={
         'superdupersecretkey': environ["USELESSAPI"],
         'guild_count': str(len(client.guilds)),

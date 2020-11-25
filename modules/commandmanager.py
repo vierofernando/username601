@@ -1,8 +1,7 @@
-from .username601 import config
 import requests
 
 class BotCommands:
-    def __init__(self):
+    def __init__(self, client):
         try:
             self.raw_data = requests.get("https://raw.githubusercontent.com/vierofernando/username601/master/assets/json/commands.json").json()
             self.categories = list(map(lambda i: list(i.keys())[0], self.raw_data))
