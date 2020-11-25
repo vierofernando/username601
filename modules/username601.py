@@ -1,7 +1,6 @@
 from discord import Color, Embed
 from discord.message import Message
 from configparser import ConfigParser
-class send_error_message(Exception): pass
 
 main_cfg = ConfigParser()
 main_cfg.read('config.ini')

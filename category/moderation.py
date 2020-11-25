@@ -202,7 +202,7 @@ class moderation(commands.Cog):
     @command()
     @cooldown(5)
     async def warn(self, ctx, *args):
-        params = ctx.bot.util.split_content_to_two(args)
+        params = ctx.bot.Parser.split_content_to_two(args)
         if not ctx.author.guild_permissions.manage_messages:
             return await ctx.bot.util.send_error_message(ctx, 'You need to have manage messages permissions to do this man. Sad.')
         elif len(args) == 0: return await ctx.send('{} | Invalid arguments. do `{}warn <userid/username> <reason optional>`')
@@ -332,7 +332,7 @@ class moderation(commands.Cog):
     async def ar(self, ctx, *args):
         if not ctx.author.guild_permissions.manage_roles: return await ctx.bot.util.send_error_message(ctx, f'{ctx.author.mention}, you don\'t have the `Manage Roles` permission!')
         else:
-            role_and_guy = ctx.bot.util.split_content_to_two(args)
+            role_and_guy = ctx.bot.Parser.split_content_to_two(args)
             if role_and_guy is None: return await ctx.bot.util.send_error_message(ctx, f"Please make sure you inputted like this: `{ctx.bot.command_prefix}addrole <user id/user mention/username>, <role id/role mention/rolename>`")
             guy = ctx.bot.Parser.parse_user(ctx, role_and_guy[0])
             role_array = [i for i in ctx.guild.roles if role_and_guy[1].lower() in i.name.lower()]
@@ -348,7 +348,7 @@ class moderation(commands.Cog):
     async def rr(self, ctx, *args):
         if not ctx.author.guild_permissions.manage_roles: return await ctx.bot.util.send_error_message(ctx, f'{ctx.author.mention}, you don\'t have the `Manage Roles` permission!')
         else:
-            role_and_guy = ctx.bot.util.split_content_to_two(args)
+            role_and_guy = ctx.bot.Parser.split_content_to_two(args)
             if role_and_guy is None: return await ctx.bot.util.send_error_message(ctx, f"Please make sure you inputted like this: `{ctx.bot.command_prefix}removerole <user id/user mention/username>, <role id/role mention/rolename>`")
             guy = ctx.bot.Parser.parse_user(ctx, role_and_guy[0])
             role_array = [i for i in ctx.guild.roles if role_and_guy[1].lower() in i.name.lower()]
