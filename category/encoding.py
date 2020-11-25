@@ -14,9 +14,15 @@ class encoding(commands.Cog):
     @command()
     @cooldown(2)
     async def ascii(self, ctx, *args):
-        text = ctx.bot.util.encode_uri(' '.join(args)) if len(args)>0 else 'ascii%20text'
+        text = ' '.join(args) if len(args)>0 else 'ascii text'
+        ascii = ctx.bot.util.get_request(
+            "http://artii.herokuapp.com/make",
+            raise_errors=True,
+            text=text
+        )
+        
         await ctx.send('```{}```'.format(
-            str(ctx.bot.utils.inspect_element('http://artii.herokuapp.com/make?text={}'.format(text)))[0:2000]
+            ascii[0:2000]
         ))
     @command('fliptext,fancy,cursive,braille')
     @cooldown(5)

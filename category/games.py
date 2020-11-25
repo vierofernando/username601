@@ -73,7 +73,7 @@ class games(commands.Cog):
             await embed.edit_to(message)
     
     def get_name_history(self, uuid, ctx):
-        data = ctx.bot.utils.get_request(
+        data = ctx.bot.util.get_request(
             f"https://api.mojang.com/user/profiles/{uuid}/names",
             json=True,
             raise_errors=True

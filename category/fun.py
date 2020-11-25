@@ -37,7 +37,7 @@ class fun(commands.Cog):
     @command('howlove,friendship,fs')
     @cooldown(2)
     async def lovelevel(self, ctx, *args):
-        res = ctx.bot.utils.split_parameter_to_two(args)
+        res = ctx.bot.util.split_content_to_two(args)
         if res is None: return await ctx.bot.util.send_error_message(ctx, 'Please send a valid two user ids/names/mentions!')
         user1, user2 = ctx.bot.Parser.parse_user(res[0]), ctx.bot.Parser.parse_user(res[1])
         result = ctx.bot.algorithm.love_finder(user1.id, user2.id)
@@ -88,7 +88,7 @@ class fun(commands.Cog):
     @cooldown(10)
     async def inspirobot(self, ctx):
         async with ctx.channel.typing():
-            img = ctx.bot.utils.inspect_element('https://inspirobot.me/api?generate=true')
+            img = ctx.bot.util.get_request('https://inspirobot.me/api', raise_errors=True, generate="true")
             return await ctx.bot.util.send_image_attachment(ctx, img)
     
     @command('randomcase')

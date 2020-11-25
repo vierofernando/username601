@@ -55,7 +55,7 @@ class utils(commands.Cog):
                 if len(args) == 1:
                     color_left, color_right = ImageColor.getrgb(args[0]), None
                 else:
-                    left, right = ctx.bot.utils.split_parameter_to_two(args)
+                    left, right = ctx.bot.util.split_content_to_two(args)
                     color_left, color_right = ImageColor.getrgb(left), ImageColor.getrgb(right)
             except:
                 return await ctx.bot.util.send_error_message(ctx, "Please input a valid color.")
@@ -68,7 +68,14 @@ class utils(commands.Cog):
     @cooldown(5)
     async def msn(self, ctx, *args):
         try:
-            data = ctx.bot.utils.inspect_element("http://cdn.content.prod.cms.msn.com/singletile/summary/alias/experiencebyname/today?market=en-GB&source=appxmanifest&tenant=amp&vertical=news")
+            data = ctx.bot.util.get_request(
+                "http://cdn.content.prod.cms.msn.com/singletile/summary/alias/experiencebyname/today",
+                raise_errors=True,
+                market="en-GB",
+                source="appxmanifest",
+                tenant="amp",
+                vertical="news"
+            )
             imageURL = data.split('baseUri="')[1].split('"')[0] + data.split('src="')[1].split('?')[0].replace(".img", ".png")
             content = data.split('hint-wrap="true">')[1].split('<')[0]
             embed = discord.Embed(title=content, color=ctx.guild.me.roles[::-1][0].color)
@@ -234,7 +241,7 @@ class utils(commands.Cog):
     @cooldown(7)
     async def quote(self, ctx):
         async with ctx.channel.typing():
-            data = ctx.bot.utils.inspect_element('https://quotes.herokuapp.com/libraries/math/random')
+            data = ctx.bot.util.get_request('https://quotes.herokuapp.com/libraries/math/random', raise_errors=True)
             text, quoter = data.split(' -- ')[0], data.split(' -- ')[1]
             await ctx.send(embed=discord.Embed(description=f'***{text}***\n\n-- {quoter} --', color=ctx.guild.me.roles[::-1][0].color))
 

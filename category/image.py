@@ -76,7 +76,7 @@ class image(commands.Cog):
     async def blend(self, ctx, *args):
         if len(args) == 0: return await ctx.bot.util.send_error_message(ctx, "Please input a parameter or something")
         async with ctx.channel.typing():
-            parsed_args = ctx.bot.utils.split_parameter_to_two(args)
+            parsed_args = ctx.bot.util.split_content_to_two(args)
             if parsed_args is None: 
                 first, second = ctx.author.avatar_url_as(format='png'), ctx.bot.Parser.parse_image(ctx, args)
             else: first, second = ctx.bot.Parser.parse_image(ctx, (parsed_args[0],)), ctx.bot.Parser.parse_image(ctx, (parsed_args[1],))
@@ -257,7 +257,7 @@ class image(commands.Cog):
     async def ship(self, ctx, *args):
         if len(args) == 0: return await ctx.bot.util.send_error_message(ctx, "Please input a parameter or something")
         async with ctx.channel.typing():
-            parsed_args = ctx.bot.utils.split_parameter_to_two(args)
+            parsed_args = ctx.bot.util.split_content_to_two(args)
             if parsed_args is None: 
                 first, second = ctx.author.avatar_url_as(format='png'), ctx.bot.Parser.parse_image(ctx, args)
             else: first, second = ctx.bot.Parser.parse_image(ctx, parsed_args[0]), ctx.bot.Parser.parse_image(ctx, parsed_args[1])

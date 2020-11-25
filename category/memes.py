@@ -106,7 +106,7 @@ class memes(commands.Cog):
     @command('pass')
     @cooldown(2)
     async def password(self, ctx, *args):
-        param = ctx.bot.utils.split_parameter_to_two(args)
+        param = ctx.bot.util.split_content_to_two(args)
         if param is None: return await ctx.bot.util.send_error_message(ctx, "Please send two parameters, either split by a space, a comma, or a semicolon.")
         async with ctx.channel.typing():
             text1, text2 = param
@@ -254,7 +254,7 @@ class memes(commands.Cog):
     @command('dym')
     @cooldown(2)
     async def didyoumean(self, ctx, *args):
-        params = ctx.bot.utils.split_parameter_to_two(args)
+        params = ctx.bot.util.split_content_to_two(args)
         if params is None: return await ctx.bot.util.send_error_message(ctx, "Please send two parameters, either split by a space, a comma, or a semicolon.")
         txt1, txt2 = params
         url = f'https://api.alexflipnote.dev/didyoumean?top={txt1[0:50]}&bottom={txt2[0:50]}'
@@ -263,7 +263,7 @@ class memes(commands.Cog):
     @command()
     @cooldown(2)
     async def drake(self, ctx, *args):
-        params = ctx.bot.utils.split_parameter_to_two(args)
+        params = ctx.bot.util.split_content_to_two(args)
         if params is None: return await ctx.bot.util.send_error_message(ctx, "Please send two parameters, either split by a space, a comma, or a semicolon.")
         txt1, txt2 = params
         url = "https://api.alexflipnote.dev/drake?top="+ctx.bot.util.encode_uri(txt1[0:50])+"&bottom="+ctx.bot.util.encode_uri(txt2[0:50])
@@ -497,7 +497,7 @@ class memes(commands.Cog):
         link = self.meme_templates["topbottom"][(keys[int(message.content) - 1] if message.content.isnumeric() else message.content)]
         format_text = await ctx.bot.utils.wait_for_message(ctx, message="Now send your top text and bottom text. Splitted by either spaces, commas, semicolon, or |.", timeout=60.0)
         if format_text is None: return await ctx.bot.util.send_error_message(ctx, "You did not respond in time. Meme-generation canceled.")
-        text1, text2 = ctx.bot.utils.split_parameter_to_two(format_text.content.split())
+        text1, text2 = ctx.bot.util.split_content_to_two(format_text.content.split())
         url = link.replace("{TEXT1}", ctx.bot.util.encode_uri(text1)[0:64]).replace("{TEXT2}", ctx.bot.util.encode_uri(text2)[0:64])
         async with ctx.channel.typing():
             return await ctx.bot.util.send_image_attachment(ctx, url)
@@ -509,7 +509,7 @@ class memes(commands.Cog):
         else: url = ctx.bot.Parser.parse_image(message, tuple(message.content.split()))
         text = await ctx.bot.utils.wait_for_message(ctx, message="Send top text and bottom text. Splitted by a space, comma, semicolon, or |.", timeout=60.0)
         if text is None: return await ctx.bot.util.send_error_message(ctx, "You did not input a text. Meme making canceled.")
-        text1, text2 = ctx.bot.utils.split_parameter_to_two(tuple(text.content.split()))
+        text1, text2 = ctx.bot.util.split_content_to_two(tuple(text.content.split()))
         async with ctx.channel.typing():
             return await ctx.bot.util.send_image_attachment(ctx, "https://api.memegen.link/images/custom/{}/{}.png?background={}".format(ctx.bot.util.encode_uri(text1)[0:64], ctx.bot.util.encode_uri(text2)[0:64], url))
 
