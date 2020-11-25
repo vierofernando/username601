@@ -8,6 +8,8 @@ from configparser import ConfigParser
 from urllib.parse import quote_plus
 from time import time
 
+class GetRequestFailedException(Exception): pass
+
 class Util:
     def __init__(
         self,
@@ -71,23 +73,35 @@ class Util:
     def get_request(self, url, **kwargs):
         """ Does a GET request to a specific URL with a query parameters."""
 
-        return_json = False
+        return_json, raise_errors, using_alexflipnote_token = False, False, False
 
         if len(kwargs.keys()) > 0:
             if kwargs.get("json") is not None:
                 return_json = True
                 kwargs.pop("json")
+            elif kwargs.get("raise_errors") is not None:
+                raise_errors = True
+                kwargs.pop("raise_errors")
+            elif kwargs.get("alexflipnote") is not None:
+                using_alexflipnote_token = True
+                kwargs.pop("alexflipnote")
         
             query_param = "?" + "&".join([i + "=" + quote_plus(str(kwargs[i])).replace("+", "%20") for i in kwargs.keys()])
         else:
             query_param = ""
         
         try:
-            data = get(url + query_param, timeout=10.0)
+            data = get(url + query_param, timeout=10.0, headers={'Authorization': getenv("ALEXFLIPNOTE_TOKEN")}) if using_alexflipnote_token else get(url + query_param, timeout=10.0)
             assert data.status_code < 400
             return (data.json() if return_json else data.text)
         except:
+            if raise_errors:
+                raise GetRequestFailedException("Request Failed")
             return None
+    
+    def encode_uri(self, text: str) -> str:
+        """ Encodes a string to URI text. """
+        return quote_plus(text).replace("+", "%20")
     
     def binary(self, text: str) -> str:
         """ Encodes a text to binary. """
