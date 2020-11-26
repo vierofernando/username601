@@ -28,22 +28,22 @@ class encoding(commands.Cog):
     @cooldown(5)
     async def morse(self, ctx, *args):
         if len(args)==0: return await ctx.bot.util.send_error_message(ctx, 'no arguments? Really?')
-        else:
-            async with ctx.channel.typing():
-                res = ctx.bot.util.get_request(
-                    'https://useless-api--vierofernando.repl.co/encode',
-                    json=True,
-                    text=str(" ".join(args))[0:100]
-                )
-                if res is None: return await ctx.bot.util.send_error_message("The API is temporarily down. Please try again later.")
-                command_name = ctx.bot.util.get_command_name(ctx)
-                
-                if command_name == "fliptext": data = res['styles']['upside-down']
-                elif command_name == "cursive": data = res['styles']['cursive']
-                elif command_name == "fancy": data = res['styles']['fancy']
-                elif command_name == "braille": data = res['braille']
-                else: data = res['ciphers']['morse']
-                await ctx.send(f'{data}')
+        await ctx.trigger_typing()
+        res = ctx.bot.util.get_request(
+            'https://useless-api--vierofernando.repl.co/encode',
+            json=True,
+            text=str(" ".join(args))[0:100]
+        )
+        if res is None: return await ctx.bot.util.send_error_message("The API is temporarily down. Please try again later.")
+        command_name = ctx.bot.util.get_command_name(ctx)
+        
+        if command_name == "fliptext": data = res['styles']['upside-down']
+        elif command_name == "cursive": data = res['styles']['cursive']
+        elif command_name == "fancy": data = res['styles']['fancy']
+        elif command_name == "braille": data = res['braille']
+        else: data = res['ciphers']['morse']
+        await ctx.send(f'{data}')
+    
     @command('qr,qrcode,qr-code')
     @cooldown(2)
     async def barcode(self, ctx, *args):
@@ -51,10 +51,10 @@ class encoding(commands.Cog):
             return await ctx.bot.util.send_error_message(ctx, 'Please provide a text!')
         else:
             command_name = ctx.bot.util.get_command_name(ctx)
-            async with ctx.channel.typing():
-                if command_name.startswith("qr"): url = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+str(ctx.bot.util.encode_uri(str(' '.join(args))))
-                else: url = 'http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data='+str(ctx.bot.util.encode_uri(str(' '.join(args))))
-                return await ctx.bot.util.send_image_attachment(ctx, url)
+            await ctx.trigger_typing()
+            if command_name.startswith("qr"): url = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+str(ctx.bot.util.encode_uri(str(' '.join(args))))
+            else: url = 'http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data='+str(ctx.bot.util.encode_uri(str(' '.join(args))))
+            return await ctx.bot.util.send_image_attachment(ctx, url)
     
     @command()
     @cooldown(2)

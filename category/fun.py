@@ -87,9 +87,9 @@ class fun(commands.Cog):
     @command('inspiringquotes,lolquote,aiquote,imagequote,imgquote')
     @cooldown(10)
     async def inspirobot(self, ctx):
-        async with ctx.channel.typing():
-            img = ctx.bot.util.get_request('https://inspirobot.me/api', raise_errors=True, generate="true")
-            return await ctx.bot.util.send_image_attachment(ctx, img)
+        await ctx.trigger_typing()
+        img = ctx.bot.util.get_request('https://inspirobot.me/api', raise_errors=True, generate="true")
+        return await ctx.bot.util.send_image_attachment(ctx, img)
     
     @command('randomcase')
     @cooldown(2)
@@ -100,12 +100,12 @@ class fun(commands.Cog):
     @command('8ball,8b')
     @cooldown(3)
     async def _8ball(self, ctx):
-        async with ctx.channel.typing():
-            data = ctx.bot.util.get_request("https://yesno.wtf/api", json=True)
-            
-            async with ctx.bot.bot_session.get(data['image']) as r:
-                res = await r.read()
-                await ctx.send(content='**'+data['answer'].upper()+'**', file=discord.File(fp=BytesIO(res), filename=data['answer'].upper()+".gif"))
+        await ctx.trigger_typing()
+        data = ctx.bot.util.get_request("https://yesno.wtf/api", json=True)
+        
+        async with ctx.bot.bot_session.get(data['image']) as r:
+            res = await r.read()
+            await ctx.send(content='**'+data['answer'].upper()+'**', file=discord.File(fp=BytesIO(res), filename=data['answer'].upper()+".gif"))
 
     @command('serverdeathnote,dn')
     @cooldown(10)

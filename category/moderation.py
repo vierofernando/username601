@@ -425,22 +425,22 @@ class moderation(commands.Cog):
     @cooldown(2)
     async def channel(self, ctx):
         arr = [f"<#{x.id}>" for x in ctx.guild.channels if x.type == discord.ChannelType.text] if "channel" in ctx.message.content.lower() else (list(map(lambda x: x.mention, ctx.guild.roles)))[1:]
-        await ctx.send(embed=discord.Embed(description=str(", ".join(arr))[0:2000], color=ctx.guild.me.roles[::-1][0].color))
+        await ctx.send(str(", ".join(arr))[0:2000], allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False))
 
     @command('ui,user,usercard,user-info,user-card,whois,user-interface,userinterface')
     @cooldown(3)
     async def userinfo(self, ctx, *args):
         guy, nitro = ctx.bot.Parser.parse_user(ctx, args), False
-        async with ctx.channel.typing():
-            if guy.id in [i.id for i in ctx.guild.premium_subscribers]: nitro = True
-            elif guy.is_avatar_animated(): nitro = True
-            booster = True if guy in ctx.guild.premium_subscribers else False
-            booster_since = round(t.now().timestamp() - guy.premium_since.timestamp()) if guy.premium_since is not None else False
-            bg_col = ctx.bot.canvas.get_color_accent(str(guy.avatar_url_as(format="png")))
-            data = ctx.bot.canvas.usercard(list(map(lambda x: {
-                'name': x.name, 'color': x.color.to_rgb()
-            }, guy.roles))[::-1][0:5], guy, str(guy.avatar_url_as(format="png")), bg_col, nitro, booster, booster_since)
-            await ctx.send(file=discord.File(data, str(guy.discriminator)+'.png'))
+        await ctx.trigger_typing()
+        if guy.id in [i.id for i in ctx.guild.premium_subscribers]: nitro = True
+        elif guy.is_avatar_animated(): nitro = True
+        booster = True if guy in ctx.guild.premium_subscribers else False
+        booster_since = round(t.now().timestamp() - guy.premium_since.timestamp()) if guy.premium_since is not None else False
+        bg_col = ctx.bot.canvas.get_color_accent(str(guy.avatar_url_as(format="png")))
+        data = ctx.bot.canvas.usercard(list(map(lambda x: {
+            'name': x.name, 'color': x.color.to_rgb()
+        }, guy.roles))[::-1][0:5], guy, str(guy.avatar_url_as(format="png")), bg_col, nitro, booster, booster_since)
+        return await ctx.send(file=discord.File(data, str(guy.discriminator)+'.png'))
 
     @command('av,ava')
     @cooldown(2)

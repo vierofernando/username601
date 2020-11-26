@@ -108,51 +108,12 @@ class games(commands.Cog):
     @command('imposter,among-us,among_us,impostor,crew,crewmate,crew-mate')
     @cooldown(3)
     async def amongus(self, ctx, *args):
-        async with ctx.channel.typing():
-            url = ctx.bot.Parser.parse_image(ctx, args)
-            im = ctx.bot.canvas.among_us(url)
-            await ctx.send(file=discord.File(im, 'the_impostor.png'))
-    
-    @command()
-    @cooldown(3)
-    async def gdlevel(self, ctx, *args):
-        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, 'Please enter a level ID!')
-        if not args[0].isnumeric(): return await ctx.bot.util.send_error_message(ctx, 'That is not a level ID!')
-        toEdit = await ctx.send(ctx.bot.util.loading_emoji+' | Fetching data from the Geometry Dash servers...')
-        try:
-            data = ctx.bot.canvas.geometry_dash_level(int(args[0]))
-            await toEdit.delete()
-            await ctx.send(file=discord.File(data, 'gdlevel.png'))
-        except Exception as e:
-            print(e)
-            return await ctx.bot.util.send_error_message(ctx, 'Sorry! there is an error with the GD servers.')
-    @command()
-    @cooldown(3)
-    async def gdsearch(self, ctx, *args):
-        if len(args)==0:
-            return await ctx.bot.util.send_error_message(ctx, 'Please input a query!')
-        else:
-            try:
-                query = ctx.bot.util.encode_uri(' '.join(args))
-                data = ctx.bot.util.get_request(
-                    'https://gdbrowser.com/api/search/'+str(query),
-                    json=True,
-                    raise_errors=True
-                )
-                levels, count = '', 0
-                for i in range(len(data)):
-                    if data[count]['disliked']: like = ':-1:'
-                    else: like = ':+1:'
-                    levels += str(count+1)+'. **'+data[count]['name']+'** by '+data[count]['author']+' (`'+data[count]['id']+'`)\n:arrow_down: '+data[count]['downloads']+' | '+like+' '+data[count]['likes']+'\n'
-                    count += 1
-                embedy = discord.Embed(title='Geometry Dash Level searches for "'+str(' '.join(args))+'":', description=levels, colour=ctx.guild.me.roles[::-1][0].color)
-                await ctx.send(embed=embedy)
-            except:
-                return await ctx.bot.util.send_error_message(ctx, 'Error: Not Found. :four::zero::four:')
+        await ctx.trigger_typing()
+        url = ctx.bot.Parser.parse_image(ctx, args)
+        im = ctx.bot.canvas.among_us(url)
+        await ctx.send(file=discord.File(im, 'the_impostor.png'))
 
-    @command()
-    @cooldown(3)
-    async def gdprofile(self, ctx, *args):
+    async def process_geometry_dash_profile(self, ctx, args):
         if len(args)==0: return await ctx.bot.util.send_error_message(ctx, 'Input a GD Username, (you also can add `--icon` to see the icon kit)')
         else:
             parsed = ctx.bot.utils.parse_parameter(args, "--icon")
@@ -174,7 +135,7 @@ class games(commands.Cog):
                 embed = discord.Embed(
                     title = data["username"],
                     description = 'Displays user data for '+data["username"]+'.',
-                    colour = discord.Colour.orange()
+                    colour = ctx.guild.me.roles[::-1][0].color
                 )
                 if data["rank"]=="0": rank = "Not yet defined :("
                 else: rank = str(data["rank"])
@@ -182,13 +143,12 @@ class games(commands.Cog):
                 else: cp = data["cp"]
                 embed.add_field(name='ID Stuff', value='Player ID: '+str(data["playerID"])+'\nAccount ID: '+str(data["accountID"]), inline='True')
                 embed.add_field(name='Rank', value=rank, inline='True')
-                embed.add_field(name='Stats', value=str(data["stars"])+" Stars"+"\n"+str(data["diamonds"])+" bobux\n"+str(data["coins"])+" Secret Coins\n"+str(data["userCoins"])+" User Coins\n"+str(data["demons"])+" Demons beaten", inline='False')
+                embed.add_field(name='Stats', value=str(data["stars"])+" Stars"+"\n"+str(data["diamonds"])+" Diamonds\n"+str(data["coins"])+" Secret Coins\n"+str(data["userCoins"])+" User Coins\n"+str(data["demons"])+" Demons beaten", inline='False')
                 embed.add_field(name='Creator Points', value=cp)
                 embed.set_author(name='Display User Information', icon_url="https://gdbrowser.com/icon/"+url)
                 embed.set_footer(text="TIP: add --icon to see the icon kit!")
                 await ctx.send(embed=embed)
-            except Exception as e:
-                print(e)
+            except:
                 return await ctx.bot.util.send_error_message(ctx, 'Error, user not found.')
     
     @command()
@@ -196,53 +156,89 @@ class games(commands.Cog):
     async def gdlogo(self, ctx, *args):
         if len(args)==0:
             return await ctx.bot.util.send_error_message(ctx, 'Please input a text!')
-        else:
-            async with ctx.channel.typing():
-                text = ctx.bot.util.encode_uri(' '.join(args))
-                url='https://gdcolon.com/tools/gdlogo/img/'+str(text)
-                return await ctx.bot.util.send_image_attachment(ctx, url)
+        await ctx.trigger_typing()
+        text = ctx.bot.util.encode_uri(' '.join(args))
+        url='https://gdcolon.com/tools/gdlogo/img/'+str(text)
+        return await ctx.bot.util.send_image_attachment(ctx, url)
     
     @command()
     @cooldown(3)
     async def gdbox(self, ctx, *args):
         if len(args)==0: return await ctx.bot.util.send_error_message(ctx, 'Please input a text!')
         else:
-            async with ctx.channel.typing():
-                text, av = ctx.bot.util.encode_uri(str(' '.join(args))), ctx.author.avatar_url_as(format='png')
-                if len(text)>100: return await ctx.bot.util.send_error_message(ctx, 'the text is too long!')
-                else:
-                    if not ctx.author.guild_permissions.manage_guild: color = 'brown'
-                    else: color = 'blue'
-                    url='https://gdcolon.com/tools/gdtextbox/img/'+str(text)+'?color='+color+'&name='+ctx.author.name+'&url='+str(av)+'&resize=1'
-                    return await ctx.bot.util.send_image_attachment(ctx, url)
+            await ctx.trigger_typing()
+            text, av = ctx.bot.util.encode_uri(str(' '.join(args))), ctx.author.avatar_url_as(format='png')
+            color = 'blue' if ctx.author.guild_permissions.manage_guild else 'brown'
+            url='https://gdcolon.com/tools/gdtextbox/img/'+text[0:100]+'?color='+color+'&name='+ctx.author.name+'&url='+str(av)+'&resize=1'
+            return await ctx.bot.util.send_image_attachment(ctx, url)
    
     @command()
     @cooldown(3)
     async def gdcomment(self, ctx, *args):
-        async with ctx.channel.typing():
-            try:
-                byI = str(' '.join(args)).split(' | ')
-                text = ctx.bot.util.encode_uri(byI[0])
-                num = int(byI[2])
-                if num>9999: num = 601
-                elif num<-9999: num = -601
-                gdprof = ctx.bot.util.encode_uri(byI[1])
-                if ctx.author.guild_permissions.manage_guild: url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&mod=mod&days=1-second'
-                else: url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&days=1-second'
-                return await ctx.bot.util.send_image_attachment(ctx, url)
-            except Exception as e:
-                return await ctx.bot.util.send_error_message(ctx, f'Invalid!\nThe flow is this: `{ctx.bot.command_prefix}gdcomment text | name | like count`\nExample: `{ctx.bot.command_prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
-
-    @command('gdweekly')
-    @cooldown(2)
-    async def gddaily(self, ctx):
-        toEdit = await ctx.send(ctx.bot.util.loading_emoji+' | Fetching data from the Geometry Dash servers...')
+        await ctx.trigger_typing()
         try:
-            data = ctx.bot.canvas.geometry_dash_level(None, daily=True) if ctx.bot.util.get_command_name(ctx) == "gddaily" else ctx.bot.canvas.geometry_dash_level(None, weekly=True)
-            await toEdit.delete()
-            await ctx.send(file=discord.File(data, 'gdnivel.png'))
+            byI = str(' '.join(args)).split(' | ')
+            text = ctx.bot.util.encode_uri(byI[0])
+            num = int(byI[2])
+            if num>9999: num = 601
+            elif num<-9999: num = -601
+            gdprof = ctx.bot.util.encode_uri(byI[1])
+            if ctx.author.guild_permissions.manage_guild: url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&mod=mod&days=1-second'
+            else: url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&days=1-second'
+            return await ctx.bot.util.send_image_attachment(ctx, url)
+        except Exception as e:
+            return await ctx.bot.util.send_error_message(ctx, f'Invalid!\nThe flow is this: `{ctx.bot.command_prefix}gdcomment text | name | like count`\nExample: `{ctx.bot.command_prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
+
+    async def process_geometry_dash_level(self, ctx, args):
+        await ctx.trigger_typing()
+        
+        try: _input = args[0].lower()
+        except: return
+
+        if _input == "daily":
+            try:
+                return await ctx.send(file=discord.File(ctx.bot.canvas.geometry_dash_level(None, daily=True), "level.png"))
+            except:
+                return await ctx.bot.util.send_error_message(ctx, "The Geometry dash servers seems to be down. Please try again later.")
+        elif _input == "weekly":
+            try:
+                return await ctx.send(file=discord.File(ctx.bot.canvas.geometry_dash_level(None, weekly=True), "level.png"))
+            except:
+                return await ctx.bot.util.send_error_message(ctx, "The Geometry dash servers seems to be down. Please try again later.")
+        elif _input.isnumeric():
+            try:
+                return await ctx.send(file=discord.File(ctx.bot.canvas.geometry_dash_level(int(_input)), "level.png"))
+            except:
+                return await ctx.bot.util.send_error_message(ctx, f"Level with the ID: {_input} not found.")
+        
+        result = ctx.bot.util.get_request(
+            "https://gdbrowser.com/api/search/" + ctx.bot.util.encode_uri(" ".join(args)),
+            json=True,
+            raise_errors=True
+        )
+
+        embed = ctx.bot.ChooseEmbed(ctx, result, key=(lambda x: "**"+x['name']+"** by "+x['author']))
+        result = await embed.run()
+
+        if result is None:
+            return
+        
+        await ctx.trigger_typing()
+        try:
+            return await ctx.send(file=discord.File(ctx.bot.canvas.geometry_dash_level(int(result['id'])), "level.png"))
         except:
-            await toEdit.edit(content=ctx.bot.util.error_emoji+ ' | Sorry! Geometry dash servers seems to doing... something wrong.')
+            return await ctx.bot.util.send_error_message(ctx, "The Geometry Dash servers may be down. Please blame RobTop for this :)")
+
+    @command('geometrydash,geometry-dash,gmd')
+    @cooldown(5)
+    async def gd(self, ctx, *args):
+        if len(args) == 0: return await ctx.bot.util.send_error_message("Please input `daily`, `weekly`, `<levelName>` or `<levelID>`.")
+
+        _input = args[0].lower()
+        if _input.startswith("level"):
+            return await self.process_geometry_dash_level(ctx, args[1:])
+        elif _input.startswith("profile") or _input.startswith("user"):
+            return await self.process_geometry_dash_profile(ctx, args[1:])
 
     @command('rockpaperscissors')
     @cooldown(5)

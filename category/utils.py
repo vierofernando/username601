@@ -49,20 +49,20 @@ class utils(commands.Cog):
     @command()
     @cooldown(3)
     async def gradient(self, ctx, *args):
-        async with ctx.channel.typing():
-            try:
-                assert len(args) > 0
-                if len(args) == 1:
-                    color_left, color_right = ImageColor.getrgb(args[0]), None
-                else:
-                    left, right = ctx.bot.Parser.split_content_to_two(args)
-                    color_left, color_right = ImageColor.getrgb(left), ImageColor.getrgb(right)
-            except:
-                return await ctx.bot.util.send_error_message(ctx, "Please input a valid color.")
-            if color_left == color_right:
-                return await ctx.bot.util.send_error_message(ctx, "Those two colors are the same :/")
-            res = ctx.bot.canvas.gradient(color_left, color_right)
-            return await ctx.send(file=discord.File(res, "gradient.png"))
+        await ctx.trigger_typing()
+        try:
+            assert len(args) > 0
+            if len(args) == 1:
+                color_left, color_right = ImageColor.getrgb(args[0]), None
+            else:
+                left, right = ctx.bot.Parser.split_content_to_two(args)
+                color_left, color_right = ImageColor.getrgb(left), ImageColor.getrgb(right)
+        except:
+            return await ctx.bot.util.send_error_message(ctx, "Please input a valid color.")
+        if color_left == color_right:
+            return await ctx.bot.util.send_error_message(ctx, "Those two colors are the same :/")
+        res = ctx.bot.canvas.gradient(color_left, color_right)
+        return await ctx.send(file=discord.File(res, "gradient.png"))
     
     @command('trending,news')
     @cooldown(5)
@@ -89,27 +89,28 @@ class utils(commands.Cog):
     @command('prsc,psrc,act,activity')
     @cooldown(3)
     async def presence(self, ctx, *args):
-        async with ctx.channel.typing():
-            user = ctx.bot.Parser.parse_user(ctx, args)
-            if isinstance(user.activity, discord.Spotify):
-                return await ctx.send(file=discord.File(ctx.bot.canvas.custom_panel(spt=user.activity), 'activity.png'))
-            if user.activity is None: return await ctx.bot.util.send_error_message(ctx, f"Sorry, but {user.display_name} has no activity...")
-            title = "" if (not hasattr(user.activity, 'name')) else user.activity.name
-            subtitle = "" if (not hasattr(user.activity, 'details')) else user.activity.details
-            desc = "" if (not hasattr(user.activity, 'state')) else user.activity.state
-            if ((subtitle == "") and (not desc == "")):
-                temp = desc
-                subtitle = temp
-                desc = ""
-            url = "https://cdn.discordapp.com/embed/avatars/0.png" if (not hasattr(user.activity, 'large_image_url')) else user.activity.large_image_url
-            return await ctx.send(file=discord.File(ctx.bot.canvas.custom_panel(title=title, subtitle=subtitle, description=desc, icon=url), 'activity.png'))
+        await ctx.trigger_typing()
+        user = ctx.bot.Parser.parse_user(ctx, args)
+        if isinstance(user.activity, discord.Spotify):
+            return await ctx.send(file=discord.File(ctx.bot.canvas.custom_panel(spt=user.activity), 'activity.png'))
+        if user.activity is None: return await ctx.bot.util.send_error_message(ctx, f"Sorry, but {user.display_name} has no activity...")
+        title = "" if (not hasattr(user.activity, 'name')) else user.activity.name
+        subtitle = "" if (not hasattr(user.activity, 'details')) else user.activity.details
+        desc = "" if (not hasattr(user.activity, 'state')) else user.activity.state
+        if ((subtitle == "") and (not desc == "")):
+            temp = desc
+            subtitle = temp
+            desc = ""
+        url = "https://cdn.discordapp.com/embed/avatars/0.png" if (not hasattr(user.activity, 'large_image_url')) else user.activity.large_image_url
+        return await ctx.send(file=discord.File(ctx.bot.canvas.custom_panel(title=title, subtitle=subtitle, description=desc, icon=url), 'activity.png'))
+    
     @command('colorthief,getcolor,accent,accentcolor,accent-color,colorpalette,color-palette')
     @cooldown(3)
     async def palette(self, ctx, *args):
         url, person = ctx.bot.Parser.parse_image(ctx, args), ctx.bot.Parser.parse_user(ctx, args)
-        async with ctx.channel.typing():
-            data = ctx.bot.canvas.get_multiple_accents(url)
-            return await ctx.send(file=discord.File(ctx.bot.canvas.get_palette(data), 'palette.png'))
+        await ctx.trigger_typing()
+        data = ctx.bot.canvas.get_multiple_accents(url)
+        return await ctx.send(file=discord.File(ctx.bot.canvas.get_palette(data), 'palette.png'))
 
     @command('isitup,webstatus')
     @cooldown(2)
@@ -133,9 +134,9 @@ class utils(commands.Cog):
         if parsed_arg['available']:
             args = parsed_arg['parsedarg']
             url = ctx.bot.Parser.parse_image(ctx, args)
-            async with ctx.channel.typing():
-                res_im = ctx.bot.canvas.imagetoASCII_picture(url)
-                return await ctx.send(file=discord.File(res_im, 'imgascii.png'))
+            await ctx.trigger_typing()
+            res_im = ctx.bot.canvas.imagetoASCII_picture(url)
+            return await ctx.send(file=discord.File(res_im, 'imgascii.png'))
         url = ctx.bot.Parser.parse_image(ctx, args)
         wait = await ctx.send('{} | Please wait...'.format(ctx.bot.util.loading_emoji))
         text = ctx.bot.canvas.imagetoASCII(url)
@@ -159,12 +160,12 @@ class utils(commands.Cog):
             q=query[0:100],
             media_type='image'
         )
-        async with ctx.channel.typing():
-            if len(data['collection']['items'])==0: return await ctx.bot.util.send_error_message(ctx, "Nothing found.")
-            img = random.choice(data['collection']['items'])
-            em = discord.Embed(title=img['data'][0]['title'], description=img['data'][0]["description"], color=ctx.guild.me.roles[::-1][0].color)
-            em.set_image(url=img['links'][0]['href'])
-            await ctx.send(embed=em)
+        await ctx.trigger_typing()
+        if len(data['collection']['items'])==0: return await ctx.bot.util.send_error_message(ctx, "Nothing found.")
+        img = random.choice(data['collection']['items'])
+        em = discord.Embed(title=img['data'][0]['title'], description=img['data'][0]["description"], color=ctx.guild.me.roles[::-1][0].color)
+        em.set_image(url=img['links'][0]['href'])
+        return await ctx.send(embed=em)
 
     @command('pokedex,dex,bulbapedia,pokemoninfo,poke-info,poke-dex,pokepedia')
     @cooldown(10)
@@ -240,10 +241,10 @@ class utils(commands.Cog):
     @command()
     @cooldown(7)
     async def quote(self, ctx):
-        async with ctx.channel.typing():
-            data = ctx.bot.util.get_request('https://quotes.herokuapp.com/libraries/math/random', raise_errors=True)
-            text, quoter = data.split(' -- ')[0], data.split(' -- ')[1]
-            await ctx.send(embed=discord.Embed(description=f'***{text}***\n\n-- {quoter} --', color=ctx.guild.me.roles[::-1][0].color))
+        await ctx.trigger_typing()
+        data = ctx.bot.util.get_request('https://quotes.herokuapp.com/libraries/math/random', raise_errors=True)
+        text, quoter = data.split(' -- ')[0], data.split(' -- ')[1]
+        await ctx.send(embed=discord.Embed(description=f'***{text}***\n\n-- {quoter} --', color=ctx.guild.me.roles[::-1][0].color))
 
     @command()
     @cooldown(10)
@@ -443,29 +444,29 @@ class utils(commands.Cog):
     @cooldown(3)
     async def color(self, ctx, *args):
         if len(args) == 0: return await ctx.bot.util.send_error_message(ctx, f"Invalid argument. use `{ctx.bot.command_prefix}help color` for more info.")
-        async with ctx.channel.typing():
-            parameter_data = ctx.bot.utils.parse_parameter(args, 'role', get_second_element=True)
-            if parameter_data['available']:
-                iterate_result = [i.id for i in ctx.guild.roles if parameter_data['secondparam'].lower() in i.name.lower()]
-                if len(iterate_result) == 0: return await ctx.bot.util.send_error_message(ctx, "Role not found.")
-                colim = ctx.bot.canvas.color(str(ctx.guild.get_role(iterate_result[0]).colour))
-            else:
-                colim = ctx.bot.canvas.color(None, (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))) if ctx.bot.utils.parse_parameter(args, 'random')['available'] else ctx.bot.canvas.color(' '.join(args))
-            if colim is None: return await ctx.bot.util.send_error_message(ctx, "Please insert a valid Hex.")
-            return await ctx.send(file=discord.File(colim, 'color.png'))
+        await ctx.trigger_typing()
+        parameter_data = ctx.bot.utils.parse_parameter(args, 'role', get_second_element=True)
+        if parameter_data['available']:
+            iterate_result = [i.id for i in ctx.guild.roles if parameter_data['secondparam'].lower() in i.name.lower()]
+            if len(iterate_result) == 0: return await ctx.bot.util.send_error_message(ctx, "Role not found.")
+            colim = ctx.bot.canvas.color(str(ctx.guild.get_role(iterate_result[0]).colour))
+        else:
+            colim = ctx.bot.canvas.color(None, (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))) if ctx.bot.utils.parse_parameter(args, 'random')['available'] else ctx.bot.canvas.color(' '.join(args))
+        if colim is None: return await ctx.bot.util.send_error_message(ctx, "Please insert a valid Hex.")
+        return await ctx.send(file=discord.File(colim, 'color.png'))
     
     @command('fast')
     @cooldown(10)
     async def typingtest(self, ctx):
-        async with ctx.channel.typing():
-            data = ctx.bot.util.get_request(
-                "https://random-word-api.herokuapp.com/word",
-                json=True,
-                raise_errors=True,
-                number=5
-            )
-            text, guy, first = " ".join(data), ctx.author, t.now().timestamp()
-            main = await ctx.send(content='**Type the text on the image. (Only command invoker can play)**\nYou have 2 minutes.\n', file=discord.File(ctx.bot.canvas.simpletext(text), 'test.png'))
+        await ctx.trigger_typing()
+        data = ctx.bot.util.get_request(
+            "https://random-word-api.herokuapp.com/word",
+            json=True,
+            raise_errors=True,
+            number=5
+        )
+        text, guy, first = " ".join(data), ctx.author, t.now().timestamp()
+        main = await ctx.send(content='**Type the text on the image. (Only command invoker can play)**\nYou have 2 minutes.\n', file=discord.File(ctx.bot.canvas.simpletext(text), 'test.png'))
         def check(m):
             return m.author == guy
         try:

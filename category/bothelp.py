@@ -7,7 +7,6 @@ from os import getcwd, name, environ
 sys.path.append(environ['BOT_MODULES_DIR'])
 from decorators import command, cooldown
 from datetime import datetime as t
-# import selfDB, Dashboard
 
 class bothelp(commands.Cog):
     def __init__(self, client):
@@ -135,20 +134,20 @@ class bothelp(commands.Cog):
     @command('botstats,meta')
     @cooldown(10)
     async def stats(self, ctx):
-        async with ctx.channel.typing():
-            data = ctx.bot.util.get_stats()
-            
-            embed = ctx.bot.Embed(
-                ctx,
-                title="Bot Stats",
-                fields={
-                    "Uptime": f"**Bot Uptime: **{client.util.strfsecond(data['bot_uptime'])}\n**OS Uptime: **{data['os_uptime']}",
-                    "Stats": f"**Server count: **{len(ctx.bot.guilds)}\n**Served users: **{len(ctx.bot.users)}\n**Cached custom emojis: **{len(ctx.bot.emojis)}",
-                    "Platform": f"**Machine: **{data['versions']['os']}\n**Python Build: **{data['versions']['python_build']}\n**Python Compiler: **{data['versions']['python_compiler']}\n**Discord.py version: **{data['versions']['discord_py']}"
-                }
-            )
-            
-            await embed.send()
+        await ctx.trigger_typing()
+        data = ctx.bot.util.get_stats()
+        
+        embed = ctx.bot.Embed(
+            ctx,
+            title="Bot Stats",
+            fields={
+                "Uptime": f"**Bot Uptime: **{ctx.bot.util.strfsecond(data['bot_uptime'])}\n**OS Uptime: **{data['os_uptime']}",
+                "Stats": f"**Server count: **{len(ctx.bot.guilds)}\n**Served users: **{len(ctx.bot.users)}\n**Cached custom emojis: **{len(ctx.bot.emojis)}",
+                "Platform": f"**Machine: **{data['versions']['os']}\n**Python Build: **{data['versions']['python_build']}\n**Python Compiler: **{data['versions']['python_compiler']}\n**Discord.py version: **{data['versions']['discord_py']}"
+            }
+        )
+        
+        await embed.send()
 
 def setup(client):
     client.add_cog(bothelp(client))

@@ -69,26 +69,26 @@ class apps(commands.Cog):
         user = ctx.bot.Parser.parse_user(ctx, args)
         act = self.get_spotify(user)
         if act is None: return await ctx.bot.util.send_error_message(ctx, f"Sorry, but {user.display_name} is not listening to spotify.")
-        async with ctx.channel.typing():
-            await ctx.send(file=discord.File(ctx.bot.canvas.custom_panel(spt=act), 'spotify.png'))
+        await ctx.trigger_typing()
+        return await ctx.send(file=discord.File(ctx.bot.canvas.custom_panel(spt=act), 'spotify.png'))
 
     @command()
     @cooldown(5)
     async def itunes(self, ctx, *args):
         if len(args)==0: return await ctx.bot.util.send_error_message(ctx, "Please send a search term.")
-        async with ctx.channel.typing():
-            data = ctx.bot.util.get_request(
-                'https://itunes.apple.com/search',
-                json=True,
-                term=' '.join(args),
-                media='music',
-                entity='song',
-                limit=1,
-                explicit='no'
-            )
-            if (data is None) or len(data['results'])==0: return await ctx.send('{} | No music found... oop'.format(ctx.bot.util.error_emoji))
-            data = data['results'][0]
-            return await ctx.send(file=discord.File(ctx.bot.canvas.custom_panel(title=data['trackName'], subtitle=data['artistName'], description=data['primaryGenreName'], icon=data['artworkUrl100']), 'itunes.png'))
+        await ctx.trigger_typing()
+        data = ctx.bot.util.get_request(
+            'https://itunes.apple.com/search',
+            json=True,
+            term=' '.join(args),
+            media='music',
+            entity='song',
+            limit=1,
+            explicit='no'
+        )
+        if (data is None) or len(data['results'])==0: return await ctx.send('{} | No music found... oop'.format(ctx.bot.util.error_emoji))
+        data = data['results'][0]
+        return await ctx.send(file=discord.File(ctx.bot.canvas.custom_panel(title=data['trackName'], subtitle=data['artistName'], description=data['primaryGenreName'], icon=data['artworkUrl100']), 'itunes.png'))
 
     @command('tr,trans')
     @cooldown(5)
@@ -104,9 +104,9 @@ class apps(commands.Cog):
                 try:
                     toTrans = ' '.join(args[1:])
                     if len(destination) > 2:
-                        q = filter(
+                        q = list(filter(
                             lambda x: destination in x.lower(), [LANGUAGES[x] for x in list(LANGUAGES)]
-                        )
+                        ))
                         assert len(q) > 0
                         destination = q[0]
                 except (IndexError, AssertionError):
