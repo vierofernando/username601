@@ -1,7 +1,7 @@
-from discord import Embed, Color, __version__
+from discord import Embed, Color, File, __version__
 from io import BytesIO
 from requests import get
-from os import getenv, name
+from os import getenv, name, listdir
 from subprocess import run, PIPE
 from base64 import b64encode
 from configparser import ConfigParser
@@ -48,6 +48,34 @@ class Util:
         delattr(self, "_config")
         setattr(client, attribute_name, self)
     
+    def load_cog(self, cog_folder: str = None, exclude: list = []):
+        """ Loads the cogs from a directory. """
+
+        try:
+            _cog_folder = self.bot.cogs_dirname
+        except:
+            _cog_folder = cog_folder
+        
+        for i in listdir(cog_folder):
+            if not i.endswith(".py") or i in exclude: continue
+            try:
+                print("Loading cog", i)
+                self.bot.load_extension('{}.{}'.format(_cog_folder, i[:-3]))
+            except Exception as e:
+                print("Error while loading cog:", str(e))
+
+    def post_ready(self):
+        """ A method to be executed after the client is ready on on_ready event."""
+        try:
+            setattr(self, "loading_emoji", str(self.bot.get_emoji(self.emoji_loading)))
+            setattr(self, "error_emoji", str(self.bot.get_emoji(self.emoji_error)))
+            setattr(self, "success_emoji", str(self.bot.get_emoji(self.emoji_success)))
+            delattr(self, "emoji_loading")
+            delattr(self, "emoji_error")
+            delattr(self, "emoji_success")
+        except:
+            return
+
     async def send_image_attachment(self, ctx, url, alexflipnote=False) -> None:
         """
         Sends an image attachment from a URL.
@@ -80,10 +108,10 @@ class Util:
             if kwargs.get("json") is not None:
                 return_json = True
                 kwargs.pop("json")
-            elif kwargs.get("raise_errors") is not None:
+            if kwargs.get("raise_errors") is not None:
                 raise_errors = True
                 kwargs.pop("raise_errors")
-            elif kwargs.get("alexflipnote") is not None:
+            if kwargs.get("alexflipnote") is not None:
                 using_alexflipnote_token = True
                 kwargs.pop("alexflipnote")
         
@@ -159,9 +187,9 @@ class Util:
                 "available": _ram_eval[5]
             },
             "versions": {
-                "os": _uname.system + " ver. " + _uname.version + ", machine" + _uname.machine,
+                "os": _uname.system + " ver. " + _uname.version + ", machine " + _uname.machine,
                 "python_build": _build,
-                "python_compilter": python_compiler(),
+                "python_compiler": python_compiler(),
                 "discord_py": __version__
             }
         }

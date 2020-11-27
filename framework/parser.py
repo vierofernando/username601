@@ -154,14 +154,14 @@ class Parser:
         Disabling member_only will also detect URL or attachment.
         Enabling cdn_only will only detect cdn.discordapp.com urls.
         """
-        if len(args) < 1:
-            if default_to_png: return str(ctx.author.avatar_url_as(format="png", size=size))
-            return str(ctx.author.avatar_url_as(size=size))
-        
         if (len(ctx.message.attachments) > 0) and (not member_only):
             res = Parser.__check_url(ctx.message.attachments[0].url, cdn_only)
             if res:
                 return str(ctx.message.attachments[0].url)
+        
+        if len(args) < 1:
+            if default_to_png: return str(ctx.author.avatar_url_as(format="png", size=size))
+            return str(ctx.author.avatar_url_as(size=size))
         
         url = "".join(args).replace("<", "").replace(">", "")
         if ((url.startswith("http")) and ("://" in url)) and (not member_only):

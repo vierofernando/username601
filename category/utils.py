@@ -161,7 +161,7 @@ class utils(commands.Cog):
             media_type='image'
         )
         await ctx.trigger_typing()
-        if len(data['collection']['items'])==0: return await ctx.bot.util.send_error_message(ctx, "Nothing found.")
+        if (data is None) or len(data['collection']['items'])==0: return await ctx.bot.util.send_error_message(ctx, "Nothing found.")
         img = random.choice(data['collection']['items'])
         em = discord.Embed(title=img['data'][0]['title'], description=img['data'][0]["description"], color=ctx.guild.me.roles[::-1][0].color)
         em.set_image(url=img['links'][0]['href'])

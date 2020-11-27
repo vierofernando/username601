@@ -376,7 +376,7 @@ class Painter:
         subtitle = 'Created {} ago by {}'.format(lapsed_time_from_seconds(t.now().timestamp() - guild.created_at.timestamp()), str(guild.owner))
         title_width = bigfont.getsize(server_title)[0]
         ava = self.buffer_from_url(icon).resize((100, 100))
-        self.mask_circle(ava)
+
         bg_arr = [(i['r'], i['g'], i['b']) for i in self.get_multiple_accents(icon)]
         desc_width = medium.getsize(subtitle)[0]
         if desc_width > title_width: title_width = desc_width # :^)
@@ -432,7 +432,6 @@ class Painter:
             if getattr(user.public_flags, i): flags.append(self.flags['badges'][i])
         foreground_col = self.invert(bg)
         avatar = self.buffer_from_url(ava).resize((100, 100))
-        self.mask_circle(avatar)
         if not booster_since: details_text = 'Created account {}\nJoined server {}'.format(lapsed_time_from_seconds(t.now().timestamp()-user.created_at.timestamp())+' ago', lapsed_time_from_seconds(t.now().timestamp()-user.joined_at.timestamp())+' ago')
         else: details_text = 'Created account {}\nJoined server {}\nBoosting since {}'.format(lapsed_time_from_seconds(t.now().timestamp()-user.created_at.timestamp())+' ago', lapsed_time_from_seconds(t.now().timestamp()-user.joined_at.timestamp())+' ago', lapsed_time_from_seconds(booster_since)+' ago')
         rect_y_pos = 180 + ((bigfont.getsize(details_text)[1]+20))

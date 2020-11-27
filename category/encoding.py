@@ -87,7 +87,7 @@ class encoding(commands.Cog):
     @cooldown(2)
     async def reverse(self, ctx, *args):
         if len(args)==0: return await ctx.bot.util.send_error_message(ctx, 'no arguments? rip'[::-1])
-        else: await ctx.send(str(' '.join(args))[::-1])
+        else: await ctx.send(str(' '.join(args))[::-1], allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False))
     
     @command('b64')
     @cooldown(2)
