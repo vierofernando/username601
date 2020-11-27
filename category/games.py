@@ -91,7 +91,7 @@ class games(commands.Cog):
     @cooldown(5)
     async def minecraft(self, ctx, *args):
         msg = await ctx.send(f"{ctx.bot.util.loading_emoji} | Fetching data from the minecraft servers...")
-        name = ctx.bot.util.encode_uri(ctx.author.name if len(args)==0 else ' '.join(args))
+        name = ctx.bot.util.encode_uri(ctx.author.display_name if len(args)==0 else ' '.join(args))
         data = get(f"https://mc-heads.net/minecraft/profile/{name}")
         if data.status_code != 200: return await msg.edit(content=f"Minecraft for profile: `{name}` not found.")
         data = data.json()
@@ -169,7 +169,7 @@ class games(commands.Cog):
             await ctx.trigger_typing()
             text, av = ctx.bot.util.encode_uri(str(' '.join(args))), ctx.author.avatar_url_as(format='png')
             color = 'blue' if ctx.author.guild_permissions.manage_guild else 'brown'
-            url='https://gdcolon.com/tools/gdtextbox/img/'+text[0:100]+'?color='+color+'&name='+ctx.author.name+'&url='+str(av)+'&resize=1'
+            url='https://gdcolon.com/tools/gdtextbox/img/'+text[0:100]+'?color='+color+'&name='+ctx.author.display_name+'&url='+str(av)+'&resize=1'
             return await ctx.bot.util.send_image_attachment(ctx, url)
    
     @command()
@@ -259,16 +259,16 @@ class games(commands.Cog):
             res = ctx.bot.games.rps(emotes[num])
             given, msgId = emotes[num], res[0]
             emojiArray, ran = emotes, res[1]
-        messages = ["Congratulations! "+ctx.author.name+" WINS!", "It's a draw.", "Oops, "+ctx.author.name+" lost!"]
+        messages = ["Congratulations! "+ctx.author.display_name+" WINS!", "It's a draw.", "Oops, "+ctx.author.display_name+" lost!"]
         colors = [ctx.guild.me.roles[::-1][0].color, discord.Colour.orange(), ctx.guild.me.roles[::-1][0].color]
         if beginGame:
             embed = discord.Embed(
                 title = messages[msgId],
                 colour = colors[msgId]
             )
-            embed.set_footer(text='Playin\' rock paper scissors w/ '+ctx.author.name)
-            embed.set_author(name="Playing Rock Paper Scissors with "+ctx.author.name)
-            embed.add_field(name=ctx.author.name, value=':'+given+':', inline="True")
+            embed.set_footer(text='Playin\' rock paper scissors w/ '+ctx.author.display_name)
+            embed.set_author(name="Playing Rock Paper Scissors with "+ctx.author.display_name)
+            embed.add_field(name=ctx.author.display_name, value=':'+given+':', inline="True")
             embed.add_field(name='Username601', value=':'+str(emojiArray[ran])+':', inline="True")
             await main.edit(content='', embed=embed)
             if msgId==1 and ctx.bot.db.Economy.get(ctx.author.id) is not None:

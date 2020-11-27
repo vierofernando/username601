@@ -99,7 +99,7 @@ class memes(commands.Cog):
     @cooldown(2)
     async def presentation(self, ctx, *args):
         await ctx.trigger_typing()
-        text = f'Petition for {ctx.author.name} to insert parameters' if len(args)==0 else ' '.join(args)
+        text = f'Petition for {ctx.author.display_name} to insert parameters' if len(args)==0 else ' '.join(args)
         im = ctx.bot.canvas.presentation(text)
         return await ctx.send(file=discord.File(im, 'presentation.png'))
 
@@ -369,7 +369,7 @@ class memes(commands.Cog):
     async def imgcaptcha(self, ctx, *args):
         await ctx.trigger_typing()
         user = ctx.bot.Parser.parse_user(ctx, args)
-        av, nm = av.avatar_url_as(format="png"), user.name
+        av, nm = av.avatar_url_as(format="png"), user.display_name
         url = 'http://nekobot.xyz/api/imagegen?type=captcha&username='+nm+'&url='+av+'&raw=1'
         return await ctx.bot.util.send_image_attachment(ctx, url)
 

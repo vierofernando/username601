@@ -70,13 +70,13 @@ class Dashboard:
         }})
     def send_welcome(member, discord):
         if not Dashboard.exist(member.guild.id): return None
-        embed = discord.Embed(timestamp=t.now(), title=member.name, description="Welcome to *{}!*".format(member.guild.name), color=discord.Colour.green())
+        embed = discord.Embed(timestamp=t.now(), title=member.display_name, description="Welcome to *{}!*".format(member.guild.name), color=discord.Colour.green())
         embed.set_footer(text='ID: {}'.format(str(member.id)))
         embed.set_thumbnail(url=member.avatar_url)
         return embed
     def send_goodbye(member, discord):
         if not Dashboard.exist(member.guild.id): return None
-        embed = discord.Embed(timestamp=t.now(), title=member.name, description="Left *{}*...".format(member.guild.name), color=discord.Colour.red())
+        embed = discord.Embed(timestamp=t.now(), title=member.display_name, description="Left *{}*...".format(member.guild.name), color=discord.Colour.red())
         embed.set_footer(text='ID: {}'.format(str(member.id)))
         embed.set_thumbnail(url=member.avatar_url)
         return embed
@@ -97,7 +97,7 @@ class Dashboard:
             }
         except: return None
     def sendStarboard(discord, message):
-        embed = discord.Embed(title=f':star: {message.channel.name} | {message.author.name}#{message.author.discriminator}', description=message.content, color=discord.Colour.from_rgb(255, 255, 0), url=f'https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id}')
+        embed = discord.Embed(title=f':star: {message.channel.name} | {message.author.display_name}#{message.author.discriminator}', description=message.content, color=discord.Colour.from_rgb(255, 255, 0), url=f'https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id}')
         embed.set_footer(text='Click on the URL to jump to the message!')
         if len(message.attachments)>0: embed.set_image(url=message.attachments[0].url)
         return embed
@@ -335,7 +335,7 @@ class Economy:
             return e
     def getBuyList(author, raw=False):
         data = Economy.get(author.id)
-        if data is None: return {'error': True, 'ctx': f'{author.name} has no profile'}
+        if data is None: return {'error': True, 'ctx': f'{author.display_name} has no profile'}
         elif len(data['buyList'])==0: return {'error': True, 'ctx': 'No buylist found'}
         if raw: return {'error': False, 'ctx': data['buyList']}
         return {'error': False, 'ctx': '\n'.join([str(i+1)+'. "'+' '.join(data['buyList'][i].split('.')[3:60])+'" (Price: '+str(data['buyList'][i].split('.')[2])+' :gem:)' for i in range(len(data['buyList']))])}

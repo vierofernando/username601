@@ -423,7 +423,7 @@ class Painter:
         return self.buffer(main)
 
     def usercard(self, roles, user, ava, bg, nitro, booster, booster_since):
-        name, flags, flag_x = user.name, [], 170
+        name, flags, flag_x = user.display_name, [], 170
         bigfont = self.get_font('NotoSansDisplay-Bold', 50, otf=True)
         mediumfont = self.get_font('NotoSansDisplay-Bold', 25, otf=True)
         if nitro: flags.append(self.flags['nitro'])

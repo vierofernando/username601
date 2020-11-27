@@ -478,7 +478,7 @@ class moderation(commands.Cog):
         if not ctx.author.guild_permissions.create_instant_invite:
             return await ctx.bot.util.send_error_message(ctx, 'No create invite permission?')
         else:
-            serverinvite = await ctx.channel.create_invite(reason='Requested by '+ctx.author.name)
+            serverinvite = await ctx.channel.create_invite(reason='Requested by '+ctx.author.display_name)
             await ctx.send(ctx.bot.util.success_emoji+' | New invite created! Link: **'+str(serverinvite)+'**')
 
     @command()

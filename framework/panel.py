@@ -25,7 +25,7 @@ class CustomPanel(Smart_ColorThief):
 
         spotify = CustomPanel(spotify=ctx.author.activity)
         spotify.draw()
-        await spotify.send_as_attachment(ctx, content=f"This is your spotify activity, {ctx.author.name}!")
+        await spotify.send_as_attachment(ctx, content=f"This is your spotify activity, {ctx.author.display_name}!")
         """
         
         self.FONT = font

@@ -41,7 +41,7 @@ class fun(commands.Cog):
         if res is None: return await ctx.bot.util.send_error_message(ctx, 'Please send a valid two user ids/names/mentions!')
         user1, user2 = ctx.bot.Parser.parse_user(res[0]), ctx.bot.Parser.parse_user(res[1])
         result = ctx.bot.algorithm.love_finder(user1.id, user2.id)
-        await ctx.send('Love level of {} and {} is **{}%!**'.format(ctx.message.mentions[0].name, ctx.message.mentions[1].name, str(result)))
+        await ctx.send('Love level of {} and {} is **{}%!**'.format(user1.display_name, user2.display_name, result))
     
     @command('echo,reply')
     @cooldown(5)
@@ -81,7 +81,7 @@ class fun(commands.Cog):
     @cooldown(5)
     async def gaylevel(self, ctx, *args):
         data = ctx.bot.Parser.parse_user(ctx, args)
-        name = data.name+'\'s' if data!=ctx.author else 'Your'
+        name = data.display_name+'\'s' if data!=ctx.author else 'Your'
         await ctx.send('{} gay level is currently {}%!'.format(name, str(ctx.bot.algorithm.gay_finder(data.id))))
 
     @command('inspiringquotes,lolquote,aiquote,imagequote,imgquote')
@@ -113,7 +113,7 @@ class fun(commands.Cog):
         if ctx.guild.member_count>500: return await ctx.bot.util.send_error_message(ctx, 'This server has soo many members')
         member, in_the_note, notecount, membercount = [], "", 0, 0
         for i in range(ctx.guild.member_count):
-            if ctx.guild.members[i].name!=ctx.author.name:
+            if ctx.guild.members[i].display_name!=ctx.author.display_name:
                 member.append(ctx.guild.members[i].name)
                 membercount = int(membercount) + 1
         chances = ['ab', 'abc', 'abcd']

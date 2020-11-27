@@ -67,7 +67,7 @@ class economy(commands.Cog):
         try:
             data = ctx.bot.db.Economy.getBuyList(source)
             assert not data['error'], data['ctx']
-            return await ctx.send(embed=discord.Embed(title='{}\'s buy list'.format(source.name), description=data['ctx'], color=ctx.guild.me.roles[::-1][0].color))
+            return await ctx.send(embed=discord.Embed(title='{}\'s buy list'.format(source.display_name), description=data['ctx'], color=ctx.guild.me.roles[::-1][0].color))
         except Exception as e:
             return await ctx.bot.util.send_error_message(ctx, str(e))
 
@@ -158,7 +158,7 @@ class economy(commands.Cog):
             reward = str(random.randint(100, 500))
             new_data = ctx.bot.db.Economy.addbal(ctx.author.id, int(reward))
             job = random.choice(self.works)
-            if new_data=='success': await wait.edit(content=ctx.bot.util.success_emoji+f" | {ctx.author.name} worked {job} and earned {reward} bobux!")
+            if new_data=='success': await wait.edit(content=ctx.bot.util.success_emoji+f" | {ctx.author.display_name} worked {job} and earned {reward} bobux!")
             else: return await ctx.bot.util.send_error_message(ctx, f"Oops there was an error... Please report this to the owner using `{ctx.bot.command_prefix}feedback.`\n`{new_data}`")
             
     @command()
@@ -198,7 +198,7 @@ class economy(commands.Cog):
             else:
                 ctx.bot.db.Economy.addbal(ctx.message.mentions[0].id, amount)
                 ctx.bot.db.Economy.delbal(ctx.author.id, amount) # EFFICIENT CODE LMFAO
-                await wait.edit(content=ctx.bot.util.success_emoji+f' | Done! Transferred {str(amount)} bobux to {ctx.message.mentions[0].name}!')
+                await wait.edit(content=ctx.bot.util.success_emoji+f' | Done! Transferred {amount} bobux to {ctx.message.mentions[0].display_name}!')
 
     @command('steal,crime,stole,robs')
     @cooldown(60)
@@ -236,8 +236,8 @@ class economy(commands.Cog):
                             ctx.bot.db.Economy.delbal(ctx.author.id, robamount*-1) ; ctx.bot.db.Economy.addbal(ctx.message.mentions[0].id, robamount*-1)
                             statement = f'You lost {str(robamount)} bobux.'
                         embed = discord.Embed(
-                            title = f'{ctx.author.name} robbing {ctx.message.mentions[0].name} scene be like',
-                            description = data['statement'].replace('{NL}', '\n').replace('{D1}', ctx.author.name).replace('{D2}', ctx.message.mentions[0].name),
+                            title = f'{ctx.author.display_name} robbing {ctx.message.mentions[0].display_name} scene be like',
+                            description = data['statement'].replace('{NL}', '\n').replace('{D1}', ctx.author.display_name).replace('{D2}', ctx.message.mentions[0].display_name),
                             color = discord.Colour.red()
                         )
                         embed.set_footer(text=statement)
@@ -296,7 +296,7 @@ class economy(commands.Cog):
                 ids.append(person['userid'])
                 user = ctx.guild.get_member(person['userid'])
                 total.append('{}. {}#{} - **{}** :gem:'.format(
-                    a+1, user.name, user.discriminator, person['bal']
+                    a+1, user.display_name, user.discriminator, person['bal']
                 ))
             await wait.edit(content='', embed=discord.Embed(
                 title = ctx.guild.name+'\'s leaderboard',
