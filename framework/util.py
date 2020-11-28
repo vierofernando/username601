@@ -89,7 +89,7 @@ class Util:
         try:
             if alexflipnote: session = self.alex_client
             elif uselessapi: session = self.useless_client
-            else: session = self.default_session
+            else: session = self.default_client
             
             async with session.get(url) as data:
                 _bytes = await data.read()
