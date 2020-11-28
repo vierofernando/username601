@@ -334,7 +334,7 @@ class economy(commands.Cog):
             wait = await ctx.send(ctx.bot.util.loading_emoji+" | Please wait...")
             data = ctx.bot.db.Economy.getProfile(src.id, [i.id for i in ctx.guild.members if not i.bot])
             bfr, aft = data['main'], data['after']
-            img = ctx.bot.canvas.profile(src.name, ava, bfr, aft)
+            img = await ctx.bot.canvas.profile(src.name, ava, bfr, aft)
             await wait.delete()
             await ctx.send(file=discord.File(img, 'profile.png'))
     

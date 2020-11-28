@@ -38,7 +38,7 @@ class dbl(commands.Cog):
         self._bot_subtitution = {"invite": "Invite this Bot", "website": "Official Website", "support": "Support Server", "github": "GitHub Repository"}
         self._none = ["", None, "#"]
     
-    def resolve_user(self, ctx, args):
+    async def resolve_user(self, ctx, args):
         if "".join(args[1:]).isnumeric():
             _input = DummyUserClass(id=int("".join(args[1])), avatar_url=None, bot=False, is_avatar_animated=(lambda: False))
         elif len(ctx.message.mentions) > 0:
@@ -46,11 +46,14 @@ class dbl(commands.Cog):
         else:
             _input = self.client.utils.getUser(ctx, args[1:])
         
-        if _input.bot: raise self.client.utils.send_error_message(str(_input) + " is a bot.")
+        if _input.bot:
+            await self.client.util.send_error_message(ctx, str(_input) + " is a bot.")
+            return
         data = get(self.api_url + "/users/" + str(_input.id), headers={"Authorization": "Bearer "+environ["DBL_TOKEN"]}).json()
         
         if data.get("error") is not None:
-            raise self.client.utils.send_error_message(str(_input) + " does not exist in the [top.gg](https://top.gg/) database.")
+            await self.client.util.send_error_message(ctx, str(_input) + " does not exist in the [top.gg](https://top.gg/) database.")
+            return
         _ext = ".gif" if _input.is_avatar_animated() else ".png"
         _social = "\n".join([
             (key + ": " +self._social_prefix[key] + data["social"][key] if data["social"].get(key) else "<?>") for key in self._social_prefix.keys()
@@ -77,7 +80,7 @@ class dbl(commands.Cog):
             url="https://top.gg/user/"+data["id"]
         )
     
-    def get_owner_name(self, id):
+    async def get_owner_name(self, id):
         _cached_user = self.client.get_user(int(id))
         if _cached_user is not None:
             return str(_cached_user)
@@ -103,7 +106,7 @@ class dbl(commands.Cog):
         elif "".join(args[1:]).isnumeric():
             _id = "".join(args[1:])
         else:
-            _id = await self.search_bots(ctx, self.client.utils.encode_uri(" ".join(args[1:])))
+            _id = await self.search_bots(ctx, self.client.util.encode_uri(" ".join(args[1:])))
             if _id is None: return
         
         data = get(self.api_url + "/bots/" + _id, headers={"Authorization": "Bearer "+environ["DBL_TOKEN"]}).json()
@@ -112,6 +115,10 @@ class dbl(commands.Cog):
             raise self.client.utils.send_error_message("That bot does not exist in the [top.gg](https://top.gg/) database.")
         _links = "\n".join([("["+self._bot_subtitution[key]+"]("+self._bot_links[key]+data[key]+")" if data.get(key) else "??") for key in self._bot_links.keys()])
         _links = _links.replace("\n??", "").replace("??", "")
+        bot_devs = ""
+        for _id in data['owners']:
+            name = await self.get_owner_name(str(_id))
+            bot_devs += f"[{name}](https://top.gg/user/{_id})\n"
         
         return self.client.Embed(
             ctx,
@@ -123,7 +130,7 @@ class dbl(commands.Cog):
                     " - ".join(["["+key+"](https://top.gg/tag/"+key.lower().replace(" ", "-")+")" for key in data["tags"]])
                 ),
                 "Bot Stats": "**Server Count: **`"+(str(data["server_count"]) if data.get("server_count") else "<not shown>")+"`\n**Shard Count: **`"+str(len(data["shards"]))+"`\n"+(":white_check_mark:" if data["certifiedBot"] else ":x:")+" Certified DBL Bot\n**"+str(data["points"])+"** Upvotes\n**"+str(data["monthlyPoints"])+"** Upvotes in this month",
-                "Bot Developers": ", ".join(["["+self.get_owner_name(_id)+"](https://top.gg/user/"+str(_id)+")" for _id in data["owners"]]),
+                "Bot Developers": bot_devs[:-2],
                 "Links": _links
             },
             thumbnail="https://cdn.discordapp.com/avatars/{}/{}.png".format(data["id"], data["avatar"])
@@ -138,7 +145,7 @@ class dbl(commands.Cog):
         _type = args[0].lower() if (args[0].lower().endswith("s")) else args[0].lower() + "s"
         if _type == "users":
             embed = self.resolve_user(ctx, args)
-            return await embed.send()    
+            return await embed.send() 
         else:
             embed = await self.resolve_bot(ctx, args)
             if embed is None: return

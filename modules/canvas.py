@@ -92,7 +92,7 @@ class Painter:
         if array: return res
         return '\n'.join(res)
 
-    def _process_message_box(self, text, font, content=False):
+    async def _process_message_box(self, text, font, content=False):
         if not content:
             size, index, hit_max, res = 0, 0, True, ""
             while size < 360:
@@ -116,7 +116,7 @@ class Painter:
         if res == []: return text
         return "\n".join(res)
         
-    def _draw_status_stats(self, draw, obj, rect_y_cursor, font, margin_left, margin_right, bg_arr):
+    async def _draw_status_stats(self, draw, obj, rect_y_cursor, font, margin_left, margin_right, bg_arr):
         x_pos, colors = margin_left, [(63, 232, 0), (244, 208, 63), (225, 0, 0), (124, 0, 211), (127, 127, 127)]
         total = sum(map(lambda i: obj[i], obj.keys()))
         draw.rectangle([
@@ -150,7 +150,7 @@ class Painter:
         res = Smart_ColorThief(url).get_color(right=right)
         return res[0], res[1], res[2]
 
-    def gradient(self, color_left, color_right):
+    async def gradient(self, color_left, color_right):
         if color_right is not None:
             main = Image.new("RGB", (1000, 500), color=color_right)
         array = zeros([500, 1000, 4], dtype=uint8)
@@ -164,13 +164,13 @@ class Painter:
         main.paste(image_overlay, (0, 0), image_overlay)
         return self.buffer(main)
 
-    def get_multiple_accents(self, image):
+    async def get_multiple_accents(self, image):
         b = BytesIO(get(image).content)
         return list(map(lambda i: {
             'r': i[0], 'g': i[1], 'b': i[2]
         }, ColorThief(b).get_palette(color_count=10)))
 
-    def geometry_dash_icons(self, name):
+    async def geometry_dash_icons(self, name):
         GD_FORMS = ('cube', 'ship', 'ball', 'ufo', 'wave', 'robot', 'spider')
         forms = [self.buffer_from_url(f"https://gdbrowser.com/icon/{name}?form={i}") for i in GD_FORMS]
         width = sum(map(lambda i: i.width, forms)) + (len(GD_FORMS) * 25) + 25
@@ -181,7 +181,7 @@ class Painter:
             curs += (i.width + 25)
         return self.buffer(main)
 
-    def oliy_stretched(self, url):
+    async def oliy_stretched(self, url):
         image = self.buffer_from_url(url).resize((227, 449))
         oily = self.templates["oliy.png"].copy()
         canvas = Image.new(mode="RGB", size=(739, 1600), color=(0, 0, 0))
@@ -191,7 +191,7 @@ class Painter:
         oily.close()
         return self.buffer(canvas)
 
-    def minecraft_body(self, url, uuid):
+    async def minecraft_body(self, url, uuid):
         body_3d = self.buffer_from_url(url) # LMAO 420 NICE
         main = Image.new(mode="RGBA", size=(body_3d.width + 420, body_3d.height), color=(0, 0, 0, 0))
         main.paste(body_3d, (0, 0))
@@ -206,7 +206,7 @@ class Painter:
         body_3d.close()
         return self.buffer(main)
 
-    def bottom_image_meme(self, image_url, text):
+    async def bottom_image_meme(self, image_url, text):
         main = Image.new("RGB", size=(500, 500), color=(255, 255, 255))
         font = self.get_font("Helvetica", 35)
         draw = ImageDraw.Draw(main)
@@ -217,13 +217,13 @@ class Painter:
         main.paste(self.buffer_from_url(image_url).resize((500, 300)), (0, 200))
         return self.buffer(main)
 
-    def blend(self, user1, user2):
+    async def blend(self, user1, user2):
         pic1 = self.buffer_from_url(user1).resize((500, 500)).convert("RGB")
         pic2 = self.buffer_from_url(user2).resize((500, 500)).convert("RGB")
         res = Image.blend(pic1, pic2, alpha=0.5)
         return self.buffer(res)
 
-    def color(self, string):
+    async def color(self, string):
         try: rgb, brightness = ImageColor.getrgb(string), ImageColor.getcolor(string, 'L')
         except: return None
         
@@ -240,7 +240,7 @@ class Painter:
         draw.text((10, 115), f'RGB: {rgb[0]}, {rgb[1]}, {rgb[2]}\nInteger: {rgb[0]*rgb[1]*rgb[2]}\nBrightness: {brightness}', fill=self.invert(rgb), font=small_font)
         return self.buffer(main)
 
-    def among_us(self, url):
+    async def among_us(self, url):
         bg = self.templates['among_us.png'].copy()
         ava = self.buffer_from_url(url).resize((240, 228))
         col = self.get_color_accent(url)
@@ -255,7 +255,7 @@ class Painter:
         cnv.close()
         return self.buffer(anothercnv)
 
-    def gru(self, text1, text2, text3):
+    async def gru(self, text1, text2, text3):
         main = self.templates["gru.png"].copy()
         draw = ImageDraw.Draw(main)
         font = self.get_font("Helvetica", 15)
@@ -274,7 +274,7 @@ class Painter:
             curs += 15
         return self.buffer(main)
 
-    def presentation(self, text):
+    async def presentation(self, text):
         im = self.templates['presentation.jpg'].copy()
         font = self.get_font('Helvetica', 25)
         draw, curs = ImageDraw.Draw(im), 65
@@ -283,7 +283,7 @@ class Painter:
             curs += 30
         return self.buffer(im)
 
-    def scooby(self, url):
+    async def scooby(self, url):
         im = self.buffer_from_url(url)
         bg = self.templates['scooby.png'].copy()
         cnv = Image.new(mode='RGB', size=(720, 960), color=(0, 0, 0))
@@ -294,7 +294,7 @@ class Painter:
         bg.close()
         return self.buffer(cnv)
 
-    def password(self, bad_pass, good_pass):
+    async def password(self, bad_pass, good_pass):
         im = self.templates['pass.png'].copy()
         font = self.get_font('Helvetica', 25)
         draw = ImageDraw.Draw(im)
@@ -302,7 +302,7 @@ class Painter:
         draw.text((42, 311), self.wrap_text(good_pass, 396, font, array=True)[0], font=font, fill='black')
         return self.buffer(im)
 
-    def geometry_dash_level(self, levelid, daily=False, weekly=False):
+    async def geometry_dash_level(self, levelid, daily=False, weekly=False):
         # a shit ton of declarations first xd
         if daily: query = 'daily'
         elif weekly: query = 'weekly'
@@ -359,16 +359,16 @@ class Painter:
         main = self.add_corners(main, 20)
         return self.buffer(main)
 
-    def invert_image(self, im):
+    async def invert_image(self, im):
         ava = self.buffer_from_url(im).convert('RGB')
         im_invert = ImageOps.invert(ava)
         return self.buffer(im_invert)
     
-    def grayscale(self, im):
+    async def grayscale(self, im):
         res = self.buffer_from_url(im).convert('L')
         return self.buffer(res)
 
-    def server(self, guild, data=None, raw=None):
+    async def server(self, guild, data=None, raw=None):
         bigfont = self.get_font('NotoSansDisplay-Bold', 50, otf=True)
         medium = self.get_font('NotoSansDisplay-Bold', 20, otf=True)
         smolerfont = self.get_font('NotoSansDisplay-Bold', 15, otf=True)
@@ -422,7 +422,7 @@ class Painter:
         main = self.add_corners(main, 25)
         return self.buffer(main)
 
-    def usercard(self, roles, user, ava, bg, nitro, booster, booster_since):
+    async def usercard(self, roles, user, ava, bg, nitro, booster, booster_since):
         name, flags, flag_x = user.display_name, [], 170
         bigfont = self.get_font('NotoSansDisplay-Bold', 50, otf=True)
         mediumfont = self.get_font('NotoSansDisplay-Bold', 25, otf=True)
@@ -458,7 +458,7 @@ class Painter:
         main = self.add_corners(main, 25)
         return self.buffer(main)
 
-    def get_palette(self, temp_data):
+    async def get_palette(self, temp_data):
         font = self.get_font('Minecraftia-Regular', 30) 
         main = Image.new(mode='RGB', size=(1800, 500), color=(0, 0, 0))
         draw, loc = ImageDraw.Draw(main), 0
@@ -478,7 +478,7 @@ class Painter:
             loc += 200
         return self.buffer(main)
 
-    def trans_merge(self, obj):
+    async def trans_merge(self, obj):
         av = self.buffer_from_url(obj['url']).resize(obj['size'])
         bg = self.templates[obj['filename'].lower()].copy()
         cnv = Image.new(mode='RGB', color=(0,0,0), size=bg.size)
@@ -489,18 +489,18 @@ class Painter:
         av.close()
         return self.buffer(cnv)
     
-    def merge(self, obj):
+    async def merge(self, obj):
         av = self.buffer_from_url(obj['url']).resize(obj['size'])
         bg = self.templates[obj['filename'].lower()].copy()
         bg.paste(av, obj['pos'])
         av.close()
         return self.buffer(bg)
 
-    def blur(self, url):
+    async def blur(self, url):
         im = self.buffer_from_url(url).filter(ImageFilter.BLUR)
         return self.buffer(im)
     
-    def imagetoASCII(self, url):
+    async def imagetoASCII(self, url):
         im = self.buffer_from_url(url).resize((300, 300)).rotate(90).convert('RGB')
         im = im.resize((int(list(im.size)[0]/3)-60, int(list(im.size)[1]/3)))
         total_str = ""
@@ -517,14 +517,14 @@ class Painter:
                 else: total_str += "@"
             total_str += '\n'
         return '\n'.join(map(lambda i: i[::-1], total_str.split('\n')))
-    def imagetoASCII_picture(self, url):
+    async def imagetoASCII_picture(self, url):
         font = self.get_font("consola", 11)
         image = Image.new(mode='RGB', size=(602, 523), color=(0, 0, 0))
         draw, string = ImageDraw.Draw(image), self.imagetoASCII(url)
         draw.text((0, 0), string, font=font, fill=(255, 255, 255))
         return self.buffer(image)
 
-    def custom_panel(self, title="Title text", subtitle="Subtitle text", description="Description text here", icon="https://cdn.discordapp.com/embed/avatars/0.png", spt=None):
+    async def custom_panel(self, title="Title text", subtitle="Subtitle text", description="Description text here", icon="https://cdn.discordapp.com/embed/avatars/0.png", spt=None):
         SPOTIFY = False if (spt is None) else True
         TITLE_TEXT = title if not SPOTIFY else spt["title"]
         TITLE_FONT = self.get_font("NotoSansDisplay-Bold", 30, otf=True)
@@ -577,7 +577,7 @@ class Painter:
         
         return self.buffer(MAIN)
     
-    def profile(self, username, avatar, details, after):
+    async def profile(self, username, avatar, details, after):
         # yanderedev was here
         ava, ava_col = self.buffer_from_url(avatar).resize((100, 100)), [(i['r'], i['g'], i['b']) for i in self.get_multiple_accents(avatar)]
         font, smolfont, smolerfont = self.get_font('NotoSansDisplay-Bold', 50, otf=True), self.get_font('NotoSansDisplay-Bold', 20, otf=True), self.get_font('NotoSansDisplay-Bold', 15, otf=True)
@@ -620,13 +620,13 @@ class Painter:
         main = self.add_corners(main, 25)
         return self.buffer(main)
     
-    def evol(self, url):
+    async def evol(self, url):
         ava, img = self.buffer_from_url(url).resize((77, 69)), self.templates["evol.jpg"].close()
         img.paste(ava, (255, 175))
         ava.close()
         return self.buffer(img)
     
-    def disconnected(self, msg):
+    async def disconnected(self, msg):
         im = self.templates['disconnected.png'].copy()
         draw, myFont = ImageDraw.Draw(im), self.get_font('Minecraftia-Regular', 16)
         w, h = myFont.getsize(msg)
@@ -634,14 +634,14 @@ class Painter:
         draw.text(((W-w)/2,336), msg, font=myFont, fill="white")
         return self.buffer(im)
     
-    def ruin(self, ava):
+    async def ruin(self, ava):
         im = self.templates['destroyimg.png'].copy()
         av = self.buffer_from_url(ava).resize((512, 512))
         av.paste(im, (0,0), im)
         im.close()
         return self.buffer(av)
     
-    def serverstats(self, guild):
+    async def serverstats(self, guild):
         start = "https://quickchart.io/chart?c="
         data1 = [
             str(len([i for i in guild.members if i.status.value.lower()=='online'])),
@@ -656,7 +656,7 @@ class Painter:
         cnv.paste(img, (0, 0), img)
         return self.buffer(cnv)
     
-    def lookatthisgraph(self, url):
+    async def lookatthisgraph(self, url):
         img = self.buffer_from_url(url).resize((741, 537)).rotate(20)
         bg = self.templates['graph.png'].copy()
         canvas = Image.new(mode='RGB', size=(1920, 1080), color=(0,0,0))
@@ -666,7 +666,7 @@ class Painter:
         img.close()
         return self.buffer(canvas)
     
-    def squidwardstv(self, avatar):
+    async def squidwardstv(self, avatar):
         cnv = Image.new(mode='RGB', size=(1088, 720), color=(0, 0, 0))
         img = self.templates['squidwardstv.png'].copy()
         ava = self.buffer_from_url(avatar).resize((577, 467))
@@ -676,7 +676,7 @@ class Painter:
         ava.close()
         return self.buffer(cnv)
     
-    def waifu(self, avatar):
+    async def waifu(self, avatar):
         cnv = Image.new(mode='RGB', size=(450, 344), color=(0, 0, 0))
         img = self.templates['waifu.png'].copy()
         ava = self.buffer_from_url(avatar).resize((131, 162))
@@ -686,13 +686,13 @@ class Painter:
         ava.close()
         return self.buffer(cnv)
     
-    def ifunny(self, avatar):
+    async def ifunny(self, avatar):
         avatar, watermark = self.buffer_from_url(avatar).resize((545, 481)), self.templates['ifunny.png'].copy()
         avatar.paste(watermark, (0, 0), watermark)
         watermark.close()
         return self.buffer(avatar)
         
-    def wasted(self, avatar):
+    async def wasted(self, avatar):
         avatar, wasted = self.buffer_from_url(avatar).resize((240, 240)), self.templates['wasted.png'].copy().resize((240, 240))
         try:
             red = Image.new(mode='RGB', size=(240, 240), color=(255, 0, 0))
@@ -703,7 +703,7 @@ class Painter:
         wasted.close()
         return self.buffer(avatar)
     
-    def ifearnoman(self, url, url2):
+    async def ifearnoman(self, url, url2):
         avpic = self.buffer_from_url(url)
         avpic2 = self.buffer_from_url(url2)
         template = self.templates['ifearnoman.jpg'].copy()
@@ -715,13 +715,13 @@ class Painter:
         avpic2.close()
         return self.buffer(template)
     
-    def simpletext(self, text):
+    async def simpletext(self, text):
         image = Image.new(mode='RGB',size=(5+(len(text)*38)+5, 80) ,color=(255, 255, 255))
         self.drawtext(ImageDraw.Draw(image), self.get_font('consola', 60), text, 10, 10, "black")
         data = self.buffer(image)
         return data
     
-    def baby(self, ava):
+    async def baby(self, ava):
         avatar = self.buffer_from_url(ava).resize((382, 349)).rotate(50)
         canvas = Image.new(mode='RGB',size=(728, 915), color=(0, 0, 0))
         baby = self.templates["baby.png"].copy()
@@ -731,7 +731,7 @@ class Painter:
         baby.close()
         return self.buffer(canvas)
     
-    def art(self, ava):
+    async def art(self, ava):
         image = self.templates['art.png'].copy()
         cnv, pic = Image.new(mode='RGB', size=(1364, 1534), color=(0,0,0)), self.buffer_from_url(ava)
         cnv.paste(pic.resize((315, 373)), (927, 94))
@@ -740,20 +740,20 @@ class Painter:
         image.close()
         return self.buffer(cnv)
     
-    def resize(self, url, x, y):
+    async def resize(self, url, x, y):
         pic = self.buffer_from_url(url)
         pic = pic.resize((x, y))
         data = self.buffer(pic)
         return data
     
-    def smallURL(self, url):
+    async def smallURL(self, url):
         image = self.buffer_from_url(url)
         size = list(image.size)
         pic = image.resize((round(size[0]/4), round(size[1]/4)))
         data = self.buffer(pic)
         return data
     
-    def gif2png(self, url):
+    async def gif2png(self, url):
         img = self.buffer_from_url(url)
         img.seek(0)
         return self.buffer(img)
@@ -801,7 +801,7 @@ class GifGenerator:
         ext = 'ttf' if not otf else 'otf'
         return ImageFont.truetype(f'{self.fontpath}/{fontname}.{ext}', size)
 
-    def hitler(self, pic):
+    async def hitler(self, pic):
         thegif = self.templates["hitler.gif"].copy()
         av, images = self.buffer_from_url(pic).resize((79, 103)), []
         size = thegif.size
@@ -820,7 +820,7 @@ class GifGenerator:
         thegif.close()
         return self.bufferGIF(images, 1.2)
     
-    def worship(self, pic):
+    async def worship(self, pic):
         im = self.buffer_from_url(pic).resize((127, 160))
         gi = self.templates['worship.gif'].copy()
         images = []
@@ -834,7 +834,7 @@ class GifGenerator:
         gi.close()
         return self.bufferGIF(images, 15)
 
-    def flip(self, pic):
+    async def flip(self, pic):
         im = self.buffer_from_url(pic).resize((400,400))
         inv_im = ImageOps.flip(im)
         speed, images = [3,6,13,25,50,100,200,399], []                                                                                                                                               
@@ -847,7 +847,7 @@ class GifGenerator:
         images += images[::-1]
         return self.bufferGIF(images, 20, transparent=True)
         
-    def crazy_frog_dance(self, pic, metadata):
+    async def crazy_frog_dance(self, pic, metadata):
         im = self.templates['crazyfrog.gif'].copy()
         ava = self.buffer_from_url(pic)
         size, images = im.size, []
@@ -862,7 +862,7 @@ class GifGenerator:
         im.close()
         return self.bufferGIF(images, 5)
 
-    def destroy_computer(self, pic, metadata):
+    async def destroy_computer(self, pic, metadata):
         data = self.templates['rage.gif'].copy()
         ava = self.buffer_from_url(pic).resize((40, 40))
         imsize = data.size
@@ -876,7 +876,7 @@ class GifGenerator:
         data.close()
         return self.bufferGIF(images, 4.3)
 
-    def death_star(self, pic):
+    async def death_star(self, pic):
         gif_template = self.templates['explosion.gif'].copy()
         ava, images, size = self.buffer_from_url(pic).resize((61, 62)), [], gif_template.size
         for i in range(gif_template.n_frames):
@@ -888,7 +888,7 @@ class GifGenerator:
         gif_template.close()
         return self.bufferGIF(images, 3)
 
-    def rotate(self, pic, change_mode=False):
+    async def rotate(self, pic, change_mode=False):
         image = self.buffer_from_url(pic).resize((216, 216))
         frames = []
         i = 1
@@ -897,7 +897,7 @@ class GifGenerator:
             i += 8
         return self.bufferGIF(frames, 30, transparent=True)
     
-    def triggered(self, pic):
+    async def triggered(self, pic):
         reference = self.buffer_from_url(pic).resize((226, 226))
         frames = []
 
@@ -909,7 +909,7 @@ class GifGenerator:
             frames.append(background)
         return self.bufferGIF(frames, 30)
 
-    def communist(self, url):
+    async def communist(self, url):
         ava = self.buffer_from_url(url).resize((200, 200)).convert("RGB")
         total_frame = []
         
@@ -919,7 +919,7 @@ class GifGenerator:
             total_frame.append(res)
         return self.bufferGIF(total_frame, 15)
     
-    def giffromURL(self, url, compress):
+    async def giffromURL(self, url, compress):
         mygif = self.buffer_from_url(url)
         frames = []
         for i in range(mygif.n_frames):

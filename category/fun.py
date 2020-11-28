@@ -65,7 +65,7 @@ class fun(commands.Cog):
     @command()
     @cooldown(2)
     async def joke(self, ctx):
-        data = ctx.bot.util.get_request(
+        data = await ctx.bot.util.get_request(
             "https://official-joke-api.appspot.com/jokes/general/random",
             json=True,
             raise_errors=True
@@ -88,7 +88,7 @@ class fun(commands.Cog):
     @cooldown(10)
     async def inspirobot(self, ctx):
         await ctx.trigger_typing()
-        img = ctx.bot.util.get_request('https://inspirobot.me/api', raise_errors=True, generate="true")
+        img = await ctx.bot.util.get_request('https://inspirobot.me/api', raise_errors=True, generate="true")
         return await ctx.bot.util.send_image_attachment(ctx, img)
     
     @command('randomcase')
@@ -101,7 +101,7 @@ class fun(commands.Cog):
     @cooldown(3)
     async def _8ball(self, ctx):
         await ctx.trigger_typing()
-        data = ctx.bot.util.get_request("https://yesno.wtf/api", json=True)
+        data = await ctx.bot.util.get_request("https://yesno.wtf/api", json=True)
         
         async with ctx.bot.bot_session.get(data['image']) as r:
             res = await r.read()
@@ -153,7 +153,7 @@ class fun(commands.Cog):
         if len(args)==0: return await ctx.bot.util.send_error_message(ctx, 'Please send something to be encoded.')
         else:
             link, num = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/temmie.json', 1
-            data = ctx.bot.util.get_request(
+            data = await ctx.bot.util.get_request(
                 link,
                 json=True,
                 raise_errors=True
@@ -168,7 +168,7 @@ class fun(commands.Cog):
     @command('fact-core,fact-sphere,factsphere')
     @cooldown(2)
     async def factcore(self, ctx):
-        data = ctx.bot.util.get_request(
+        data = await ctx.bot.util.get_request(
             'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fact-core.json',
             json=True,
             raise_errors=True

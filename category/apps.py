@@ -45,7 +45,7 @@ class apps(commands.Cog):
     @cooldown(5)
     async def tv(self, ctx, *args):
         if len(args)==0: return await ctx.bot.util.send_error_message(ctx, "Please give TV shows as arguments.")
-        data = ctx.bot.util.get_request(
+        data = await ctx.bot.util.get_request(
             f'http://api.tvmaze.com/singlesearch/shows?q={query}',
             json=True,
             q=' '.join(args)
@@ -70,14 +70,15 @@ class apps(commands.Cog):
         act = self.get_spotify(user)
         if act is None: return await ctx.bot.util.send_error_message(ctx, f"Sorry, but {user.display_name} is not listening to spotify.")
         await ctx.trigger_typing()
-        return await ctx.send(file=discord.File(ctx.bot.canvas.custom_panel(spt=act), 'spotify.png'))
+        _buffer = await ctx.bot.canvas.custom_panel(spt=act)
+        return await ctx.send(file=discord.File(_buffer, 'spotify.png'))
 
     @command()
     @cooldown(5)
     async def itunes(self, ctx, *args):
         if len(args)==0: return await ctx.bot.util.send_error_message(ctx, "Please send a search term.")
         await ctx.trigger_typing()
-        data = ctx.bot.util.get_request(
+        data = await ctx.bot.util.get_request(
             'https://itunes.apple.com/search',
             json=True,
             term=' '.join(args),
@@ -88,7 +89,8 @@ class apps(commands.Cog):
         )
         if (data is None) or len(data['results'])==0: return await ctx.send('{} | No music found... oop'.format(ctx.bot.util.error_emoji))
         data = data['results'][0]
-        return await ctx.send(file=discord.File(ctx.bot.canvas.custom_panel(title=data['trackName'], subtitle=data['artistName'], description=data['primaryGenreName'], icon=data['artworkUrl100']), 'itunes.png'))
+        _buffer = await ctx.bot.canvas.custom_panel(title=data['trackName'], subtitle=data['artistName'], description=data['primaryGenreName'], icon=data['artworkUrl100'])
+        return await ctx.send(file=discord.File(_buffer, 'itunes.png'))
 
     @command('tr,trans')
     @cooldown(5)

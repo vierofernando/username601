@@ -15,7 +15,7 @@ class encoding(commands.Cog):
     @cooldown(2)
     async def ascii(self, ctx, *args):
         text = ' '.join(args) if len(args)>0 else 'ascii text'
-        ascii = ctx.bot.util.get_request(
+        ascii = await ctx.bot.util.get_request(
             "http://artii.herokuapp.com/make",
             raise_errors=True,
             text=text
@@ -29,7 +29,7 @@ class encoding(commands.Cog):
     async def morse(self, ctx, *args):
         if len(args)==0: return await ctx.bot.util.send_error_message(ctx, 'no arguments? Really?')
         await ctx.trigger_typing()
-        res = ctx.bot.util.get_request(
+        res = await ctx.bot.util.get_request(
             'https://useless-api--vierofernando.repl.co/encode',
             json=True,
             text=str(" ".join(args))[0:100]
@@ -101,7 +101,7 @@ class encoding(commands.Cog):
         if len(args)==0:
             return await ctx.bot.util.send_error_message(ctx, 'No arguments? ok then! no service it is!')
         else:
-            data = ctx.bot.util.get_request(
+            data = await ctx.bot.util.get_request(
                 "https://vierofernando.github.io/username601/assets/json/leet.json",
                 json=True,
                 raise_errors=True

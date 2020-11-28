@@ -10,7 +10,6 @@ from datetime import datetime as t
 from subprocess import run, PIPE
 from inspect import isawaitable, getsource
 from asyncio import sleep
-from PIL import Image, ImageFont
 from io import BytesIO
 from twemoji_parser import TwemojiParser
 
@@ -25,7 +24,7 @@ class owner(commands.Cog):
             os.environ['USELESSAPI'],
             os.environ['ALEXFLIPNOTE_TOKEN']
         ]
-    
+
     @command()
     @cooldown(2)
     async def leave(self, ctx, *args):
@@ -156,10 +155,11 @@ class owner(commands.Cog):
         if unprefixed == '': unprefixed = 'echo hello world'
         if ctx.author.id==ctx.bot.util.owner_id:
             try:
-                if len(args)==0: raise OSError('you are gay')
-                if len(unprefixed.split())==1: data = run([unprefixed], stdout=PIPE).stdout.decode('utf-8')
-                else: data = run(args, stdout=PIPE).stdout.decode('utf-8')
-                await ctx.send(embed=discord.Embed(title='Bash Terminal', description='Input:```sh\n'+str(unprefixed)+'```**Output:**```sh\n'+str(data)+'```', color=discord.Color.green()))
+                if len(args) == 0: raise OSError('you are gay')
+                
+                await ctx.message.add_reaction(ctx.bot.util.loading_emoji)
+                data = await ctx.bot.util.execute(" ".join(args))
+                await ctx.send(embed=discord.Embed(title='Bash Terminal', description='Input:```sh\n'+str(unprefixed)+'```**Output:**```sh\n'+str(data)[0:2000]+'```', color=discord.Color.green()))
             except Exception as e:
                 await ctx.send(embed=discord.Embed(title='Error on execution', description='Input:```sh\n'+str(unprefixed)+'```**Error:**```py\n'+str(e)+'```', color=discord.Color.red()))
         else:

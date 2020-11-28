@@ -135,7 +135,7 @@ class bothelp(commands.Cog):
     @cooldown(10)
     async def stats(self, ctx):
         await ctx.trigger_typing()
-        data = ctx.bot.util.get_stats()
+        data = await ctx.bot.util.get_stats()
         
         embed = ctx.bot.Embed(
             ctx,

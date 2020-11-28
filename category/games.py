@@ -13,7 +13,7 @@ import asyncio
 class games(commands.Cog):
     def __init__(self, client):
         self.urltoimage = (lambda url: BytesIO(get(url).content))
-        self.countries = client.util.get_request("https://restcountries.eu/rest/v2", json=True, raise_errors=True)
+        self.countries = get("https://restcountries.eu/rest/v2").json()
 
     async def wait_for_user(self, ctx, user):
         check = (lambda x: (x.channel == ctx.channel) and (x.author == user) and (x.content.lower() in ["yes", "no"]))
@@ -72,8 +72,8 @@ class games(commands.Cog):
             embed.description = "["+str(characters[current])+"'s ("+game.current_turn+") turn]```" + game.show() + "```"
             await embed.edit_to(message)
     
-    def get_name_history(self, uuid, ctx):
-        data = ctx.bot.util.get_request(
+    async def get_name_history(self, uuid, ctx):
+        data = await ctx.bot.util.get_request(
             f"https://api.mojang.com/user/profiles/{uuid}/names",
             json=True,
             raise_errors=True
@@ -95,9 +95,10 @@ class games(commands.Cog):
         data = get(f"https://mc-heads.net/minecraft/profile/{name}")
         if data.status_code != 200: return await msg.edit(content=f"Minecraft for profile: `{name}` not found.")
         data = data.json()
-        body, head = discord.File(ctx.bot.canvas.minecraft_body(f"https://mc-heads.net/body/{name}/600", data['id']), "body.png"), discord.File(self.urltoimage(f"https://mc-heads.net/head/{name}/600"), "head.png")
-        accent_color = ctx.bot.canvas.get_color_accent(f"https://mc-heads.net/head/{name}/600")
-        names = self.get_name_history(data['id'], ctx)
+        _buffer = await ctx.bot.canvas.minecraft_body(f"https://mc-heads.net/body/{name}/600", data['id'])
+        body, head = discord.File(_buffer, "body.png"), discord.File(self.urltoimage(f"https://mc-heads.net/head/{name}/600"), "head.png")
+        accent_color = await ctx.bot.canvas.get_color_accent(f"https://mc-heads.net/head/{name}/600")
+        names = await self.get_name_history(data['id'], ctx)
         embed = discord.Embed(title=name, url='https://namemc.com/profile/'+data['id'], description="UUID: `"+data['id']+"`", color=discord.Color.from_rgb(*accent_color))
         embed.set_image(url="attachment://body.png")
         embed.set_thumbnail(url="attachment://head.png")
@@ -110,7 +111,7 @@ class games(commands.Cog):
     async def amongus(self, ctx, *args):
         await ctx.trigger_typing()
         url = ctx.bot.Parser.parse_image(ctx, args)
-        im = ctx.bot.canvas.among_us(url)
+        im = await ctx.bot.canvas.among_us(url)
         await ctx.send(file=discord.File(im, 'the_impostor.png'))
 
     async def process_geometry_dash_profile(self, ctx, args):
@@ -121,13 +122,13 @@ class games(commands.Cog):
                 try:
                     name = ctx.bot.util.encode_uri(' '.join(parsed["parsedarg"]))
                     wait = await ctx.send(f"{ctx.bot.util.loading_emoji} | Fetching data from the Geometry Dash servers...\nThis may take a while. Hang tight...")
-                    image = ctx.bot.canvas.geometry_dash_icons(name)
+                    image = await ctx.bot.canvas.geometry_dash_icons(name)
                 except: return await wait.edit(f"{ctx.bot.util.error_emoji} | Please input a valid parameter!")
                 await wait.delete()
                 return await ctx.send(file=discord.File(image, "icon_kit.png"))
             try:
                 url = ctx.bot.util.encode_uri(str(' '.join(args)))
-                data = ctx.bot.util.get_request(
+                data = await ctx.bot.util.get_request(
                     "https://gdbrowser.com/api/profile/"+url,
                     json=True,
                     raise_errors=True
@@ -197,21 +198,24 @@ class games(commands.Cog):
 
         if _input == "daily":
             try:
-                return await ctx.send(file=discord.File(ctx.bot.canvas.geometry_dash_level(None, daily=True), "level.png"))
+                daily = await ctx.bot.canvas.geometry_dash_level(None, daily=True)
+                return await ctx.send(file=discord.File(daily, "level.png"))
             except:
                 return await ctx.bot.util.send_error_message(ctx, "The Geometry dash servers seems to be down. Please try again later.")
         elif _input == "weekly":
             try:
-                return await ctx.send(file=discord.File(ctx.bot.canvas.geometry_dash_level(None, weekly=True), "level.png"))
+                weekly = await ctx.bot.canvas.geometry_dash_level(None, weekly=True)
+                return await ctx.send(file=discord.File(weekly, "level.png"))
             except:
                 return await ctx.bot.util.send_error_message(ctx, "The Geometry dash servers seems to be down. Please try again later.")
         elif _input.isnumeric():
             try:
-                return await ctx.send(file=discord.File(ctx.bot.canvas.geometry_dash_level(int(_input)), "level.png"))
+                level = await ctx.bot.canvas.geometry_dash_level(int(_input))
+                return await ctx.send(file=discord.File(level, "level.png"))
             except:
                 return await ctx.bot.util.send_error_message(ctx, f"Level with the ID: {_input} not found.")
         
-        result = ctx.bot.util.get_request(
+        result = await ctx.bot.util.get_request(
             "https://gdbrowser.com/api/search/" + ctx.bot.util.encode_uri(" ".join(args)),
             json=True,
             raise_errors=True
@@ -225,7 +229,8 @@ class games(commands.Cog):
         
         await ctx.trigger_typing()
         try:
-            return await ctx.send(file=discord.File(ctx.bot.canvas.geometry_dash_level(int(result['id'])), "level.png"))
+            buffer = await ctx.bot.canvas.geometry_dash_level(int(result['id']))
+            return await ctx.send(file=discord.File(buffer, "level.png"))
         except:
             return await ctx.bot.util.send_error_message(ctx, "The Geometry Dash servers may be down. Please blame RobTop for this :)")
 
@@ -405,7 +410,7 @@ class games(commands.Cog):
     @cooldown(60)
     async def hangman(self, ctx):
         wait = await ctx.send(ctx.bot.util.loading_emoji + ' | Please wait... generating...')
-        the_word = ctx.bot.util.get_request("https://useless-api.vierofernando.repl.co/randomword", json=True, raise_errors=True)["word"]
+        the_word = await ctx.bot.util.get_request("https://useless-api.vierofernando.repl.co/randomword", json=True, raise_errors=True)["word"]
         main_guess_cor, main_guess_hid = list(the_word), []
         server_id, wrong_guesses = ctx.guild.id, ''
         for i in range(len(main_guess_cor)):
@@ -528,7 +533,7 @@ class games(commands.Cog):
         try:
             wait = await ctx.send(ctx.bot.util.loading_emoji + ' | Please wait... generating quiz... This may take a while')
             auth = ctx.author
-            data = ctx.bot.util.get_request('https://wiki-quiz.herokuapp.com/v1/quiz', json=True, raise_errors=True, topics='science')
+            data = await ctx.bot.util.get_request('https://wiki-quiz.herokuapp.com/v1/quiz', json=True, raise_errors=True, topics='science')
             q = random.choice(data['quiz'])
             choices = ''
             for i in range(len(q['options'])):

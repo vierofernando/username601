@@ -196,7 +196,7 @@ class moderation(commands.Cog):
     @cooldown(10)
     async def serverstats(self, ctx):
         await ctx.send(file=discord.File(
-            ctx.bot.canvas.serverstats(ctx.guild), "serverstats.png"
+            await ctx.bot.canvas.serverstats(ctx.guild), "serverstats.png"
         ))
     
     @command()
@@ -436,8 +436,8 @@ class moderation(commands.Cog):
         elif guy.is_avatar_animated(): nitro = True
         booster = True if guy in ctx.guild.premium_subscribers else False
         booster_since = round(t.now().timestamp() - guy.premium_since.timestamp()) if guy.premium_since is not None else False
-        bg_col = ctx.bot.canvas.get_color_accent(str(guy.avatar_url_as(format="png")))
-        data = ctx.bot.canvas.usercard(list(map(lambda x: {
+        bg_col = await ctx.bot.canvas.get_color_accent(str(guy.avatar_url_as(format="png")))
+        data = await ctx.bot.canvas.usercard(list(map(lambda x: {
             'name': x.name, 'color': x.color.to_rgb()
         }, guy.roles))[::-1][0:5], guy, str(guy.avatar_url_as(format="png")), bg_col, nitro, booster, booster_since)
         return await ctx.send(file=discord.File(data, str(guy.discriminator)+'.png'))
@@ -465,11 +465,11 @@ class moderation(commands.Cog):
         else:
             if ctx.guild.member_count>100:
                 wait = await ctx.send('{} | Fetching guild data... please wait...'.format(ctx.bot.util.loading_emoji))
-                im = ctx.bot.canvas.server(ctx.guild)
+                im = await ctx.bot.canvas.server(ctx.guild)
                 await wait.delete()
             else:
                 await ctx.channel.trigger_typing()
-                im = ctx.bot.canvas.server(ctx.guild)
+                im = await ctx.bot.canvas.server(ctx.guild)
             await ctx.send(file=discord.File(im, 'server.png'))
 
     @command('serverinvite,create-invite,createinvite,makeinvite,make-invite,server-invite')

@@ -26,7 +26,7 @@ class utils(commands.Cog):
         _country = " ".join(args)
         try:
             assert _country is not None, "Send a country name!"
-            data = ctx.bot.util.get_request(f'https://restcountries.eu/rest/v2/name/{ctx.bot.util.encode_uri(_country)}', json=True, raise_errors=True)
+            data = await ctx.bot.util.get_request(f'https://restcountries.eu/rest/v2/name/{ctx.bot.util.encode_uri(_country)}', json=True, raise_errors=True)
             assert isinstance(data, list), "No such country with the name `"+_country+"` found."            
             embed = ctx.bot.ChooseEmbed(ctx, data, key=(lambda x: x["name"]))
             res = await embed.run()
@@ -61,14 +61,14 @@ class utils(commands.Cog):
             return await ctx.bot.util.send_error_message(ctx, "Please input a valid color.")
         if color_left == color_right:
             return await ctx.bot.util.send_error_message(ctx, "Those two colors are the same :/")
-        res = ctx.bot.canvas.gradient(color_left, color_right)
+        res = await ctx.bot.canvas.gradient(color_left, color_right)
         return await ctx.send(file=discord.File(res, "gradient.png"))
     
     @command('trending,news')
     @cooldown(5)
     async def msn(self, ctx, *args):
         try:
-            data = ctx.bot.util.get_request(
+            data = await ctx.bot.util.get_request(
                 "http://cdn.content.prod.cms.msn.com/singletile/summary/alias/experiencebyname/today",
                 raise_errors=True,
                 market="en-GB",
@@ -92,7 +92,8 @@ class utils(commands.Cog):
         await ctx.trigger_typing()
         user = ctx.bot.Parser.parse_user(ctx, args)
         if isinstance(user.activity, discord.Spotify):
-            return await ctx.send(file=discord.File(ctx.bot.canvas.custom_panel(spt=user.activity), 'activity.png'))
+            spotify = await ctx.bot.canvas.custom_panel(spt=user.activity)
+            return await ctx.send(file=discord.File(spotify, 'activity.png'))
         if user.activity is None: return await ctx.bot.util.send_error_message(ctx, f"Sorry, but {user.display_name} has no activity...")
         title = "" if (not hasattr(user.activity, 'name')) else user.activity.name
         subtitle = "" if (not hasattr(user.activity, 'details')) else user.activity.details
@@ -102,15 +103,17 @@ class utils(commands.Cog):
             subtitle = temp
             desc = ""
         url = "https://cdn.discordapp.com/embed/avatars/0.png" if (not hasattr(user.activity, 'large_image_url')) else user.activity.large_image_url
-        return await ctx.send(file=discord.File(ctx.bot.canvas.custom_panel(title=title, subtitle=subtitle, description=desc, icon=url), 'activity.png'))
+        panel = await ctx.bot.canvas.custom_panel(title=title, subtitle=subtitle, description=desc, icon=url)
+        return await ctx.send(file=discord.File(panel, 'activity.png'))
     
     @command('colorthief,getcolor,accent,accentcolor,accent-color,colorpalette,color-palette')
     @cooldown(3)
     async def palette(self, ctx, *args):
         url, person = ctx.bot.Parser.parse_image(ctx, args), ctx.bot.Parser.parse_user(ctx, args)
         await ctx.trigger_typing()
-        data = ctx.bot.canvas.get_multiple_accents(url)
-        return await ctx.send(file=discord.File(ctx.bot.canvas.get_palette(data), 'palette.png'))
+        data = await ctx.bot.canvas.get_multiple_accents(url)
+        palette = await ctx.bot.canvas.get_palette(data)
+        return await ctx.send(file=discord.File(palette, 'palette.png'))
 
     @command('isitup,webstatus')
     @cooldown(2)
@@ -135,11 +138,11 @@ class utils(commands.Cog):
             args = parsed_arg['parsedarg']
             url = ctx.bot.Parser.parse_image(ctx, args)
             await ctx.trigger_typing()
-            res_im = ctx.bot.canvas.imagetoASCII_picture(url)
+            res_im = await ctx.bot.canvas.imagetoASCII_picture(url)
             return await ctx.send(file=discord.File(res_im, 'imgascii.png'))
         url = ctx.bot.Parser.parse_image(ctx, args)
         wait = await ctx.send('{} | Please wait...'.format(ctx.bot.util.loading_emoji))
-        text = ctx.bot.canvas.imagetoASCII(url)
+        text = await ctx.bot.canvas.imagetoASCII(url)
         try:
             data = post("https://hastebin.com/documents", data=text, timeout=3)
             assert data.status_code == 200
@@ -153,7 +156,7 @@ class utils(commands.Cog):
     @cooldown(15)
     async def nasa(self, ctx, *args):
         query = 'earth' if len(args)==0 else ' '.join(args)
-        data = ctx.bot.util.get_request(
+        data = await ctx.bot.util.get_request(
             f'https://images-api.nasa.gov/search',
             json=True,
             raise_errors=True,
@@ -172,7 +175,7 @@ class utils(commands.Cog):
     async def pokeinfo(self, ctx, *args):
         query = 'Missingno' if (len(args)==0) else ctx.bot.util.encode_uri(' '.join(args))
         try:
-            data = ctx.bot.util.get_request(
+            data = await ctx.bot.util.get_request(
                 'https://bulbapedia.bulbagarden.net/w/api.php',
                 json=True,
                 raise_errors=True,
@@ -207,7 +210,7 @@ class utils(commands.Cog):
         if len(args)==0:
             await ctx.send(embed=discord.Embed(title='Here is a recipe to cook nothing:', description='1. Do nothing\n2. Profit'))
         else:
-            data = ctx.bot.util.get_request(
+            data = await ctx.bot.util.get_request(
                 "http://www.recipepuppy.com/api/",
                 json=True,
                 raise_errors=True,
@@ -242,7 +245,7 @@ class utils(commands.Cog):
     @cooldown(7)
     async def quote(self, ctx):
         await ctx.trigger_typing()
-        data = ctx.bot.util.get_request('https://quotes.herokuapp.com/libraries/math/random', raise_errors=True)
+        data = await ctx.bot.util.get_request('https://quotes.herokuapp.com/libraries/math/random', raise_errors=True)
         text, quoter = data.split(' -- ')[0], data.split(' -- ')[1]
         await ctx.send(embed=discord.Embed(description=f'***{text}***\n\n-- {quoter} --', color=ctx.guild.me.roles[::-1][0].color))
 
@@ -263,7 +266,7 @@ class utils(commands.Cog):
     @cooldown(10)
     async def ufo(self, ctx):
         num = str(random.randint(50, 100))
-        data = ctx.bot.util.get_request(
+        data = await ctx.bot.util.get_request(
             'http://ufo-api.herokuapp.com/api/sightings/search',
             json=True,
             raise_errors=True,
@@ -283,7 +286,7 @@ class utils(commands.Cog):
         if len(args)==0: await ctx.send('Please input a word! And we will try to find the word that best rhymes with it.')
         else:
             wait, words = await ctx.send(str(ctx.bot.util.loading_emoji) + ' | Please wait... Searching...'), []
-            data = ctx.bot.util.get_request(
+            data = await ctx.bot.util.get_request(
                 'https://rhymebrain.com/talk?function=getRhymes&word=',
                 json=True,
                 raise_errors=True,
@@ -309,7 +312,7 @@ class utils(commands.Cog):
         else:
             try:
                 query = ctx.bot.util.encode_uri(' '.join(args))
-                data = ctx.bot.util.get_request(
+                data = await ctx.bot.util.get_request(
                     "https://api.stackexchange.com/2.2/search/advanced",
                     json=True,
                     raise_errors=True,
@@ -340,15 +343,15 @@ class utils(commands.Cog):
     async def pandafact(self, ctx):
         if ctx.bot.util.get_command_name(ctx) == 'pandafact': link = 'https://some-random-api.ml/facts/panda'
         else: link = 'https://some-random-api.ml/facts/bird'
-        data = ctx.bot.util.get_request(link, json=True, raise_errors=True)['fact']
+        data = await ctx.bot.util.get_request(link, json=True, raise_errors=True)['fact']
         await ctx.send(embed=discord.Embed(title='Did you know?', description=data, colour=ctx.guild.me.roles[::-1][0].color))
 
     @command()
     @cooldown(2)
     async def iss(self, ctx):
-        iss, ppl, total = ctx.bot.util.get_request(
+        iss, ppl, total = await ctx.bot.util.get_request(
             'https://open-notify-api.herokuapp.com/iss-now.json', json=True, raise_errors=True
-        ), ctx.bot.util.get_request(
+        ), await ctx.bot.util.get_request(
             'https://open-notify-api.herokuapp.com/astros.json', json=True, raise_errors=True
         ), '```'
         for i in range(len(ppl['people'])):
@@ -360,7 +363,7 @@ class utils(commands.Cog):
     @cooldown(5)
     async def ghiblifilms(self, ctx, *args):
         wait = await ctx.send(str(ctx.bot.util.loading_emoji) + ' | Please wait... Getting data...')
-        data = ctx.bot.util.get_request(
+        data = await ctx.bot.util.get_request(
             'https://ghibliapi.herokuapp.com/films',
             json=True,
             raise_errors=True
@@ -392,7 +395,7 @@ class utils(commands.Cog):
     @command()
     @cooldown(5)
     async def bored(self, ctx):
-        data = ctx.bot.util.get_request(
+        data = await ctx.bot.util.get_request(
             "https://www.boredapi.com/api/activity",
             json=True,
             raise_errors=True,
@@ -404,7 +407,7 @@ class utils(commands.Cog):
     @cooldown(20)
     async def googledoodle(self, ctx):
         wait = await ctx.send(str(ctx.bot.util.loading_emoji) + ' | Please wait... This may take a few moments...')
-        data = ctx.bot.util.get_request(
+        data = await ctx.bot.util.get_request(
             'https://www.google.com/doodles/json/{}/{}'.format(str(t.now().year), str(t.now().month)),
             json=True,
             raise_errors=True
@@ -422,7 +425,7 @@ class utils(commands.Cog):
         key = ctx.bot.util.get_command_name(ctx)[:-4]
         url = self._fact_urls[key]
 
-        result = ctx.bot.util.get_request(
+        result = await ctx.bot.util.get_request(
             url[0], json=True, raise_errors=True
         )[url[1]]
 
@@ -449,9 +452,9 @@ class utils(commands.Cog):
         if parameter_data['available']:
             iterate_result = [i.id for i in ctx.guild.roles if parameter_data['secondparam'].lower() in i.name.lower()]
             if len(iterate_result) == 0: return await ctx.bot.util.send_error_message(ctx, "Role not found.")
-            colim = ctx.bot.canvas.color(str(ctx.guild.get_role(iterate_result[0]).colour))
+            colim = await ctx.bot.canvas.color(str(ctx.guild.get_role(iterate_result[0]).colour))
         else:
-            colim = ctx.bot.canvas.color(None, (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))) if ctx.bot.utils.parse_parameter(args, 'random')['available'] else ctx.bot.canvas.color(' '.join(args))
+            colim = await ctx.bot.canvas.color(None, (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))) if ctx.bot.utils.parse_parameter(args, 'random')['available'] else await ctx.bot.canvas.color(' '.join(args))
         if colim is None: return await ctx.bot.util.send_error_message(ctx, "Please insert a valid Hex.")
         return await ctx.send(file=discord.File(colim, 'color.png'))
     
@@ -459,14 +462,15 @@ class utils(commands.Cog):
     @cooldown(10)
     async def typingtest(self, ctx):
         await ctx.trigger_typing()
-        data = ctx.bot.util.get_request(
+        data = await ctx.bot.util.get_request(
             "https://random-word-api.herokuapp.com/word",
             json=True,
             raise_errors=True,
             number=5
         )
         text, guy, first = " ".join(data), ctx.author, t.now().timestamp()
-        main = await ctx.send(content='**Type the text on the image. (Only command invoker can play)**\nYou have 2 minutes.\n', file=discord.File(ctx.bot.canvas.simpletext(text), 'test.png'))
+        text = await ctx.bot.canvas.simpletext(text)
+        main = await ctx.send(content='**Type the text on the image. (Only command invoker can play)**\nYou have 2 minutes.\n', file=discord.File(text, 'test.png'))
         def check(m):
             return m.author == guy
         try:

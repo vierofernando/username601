@@ -1,6 +1,7 @@
 from discord import Embed, Color, File, __version__
 from io import BytesIO
 from requests import get
+from aiohttp import ClientSession
 from os import getenv, name, listdir
 from subprocess import run, PIPE
 from base64 import b64encode
@@ -27,6 +28,10 @@ class Util:
         self.prefix_length = len(client.command_prefix)
         self._alphabet = list('abcdefghijklmnopqrstuvwxyz')
         self._start = time()
+
+        self.useless_client = ClientSession(headers={"superdupersecretkey": getenv("USELESSAPI")})
+        self.alex_client = ClientSession(headers={'Authorization': getenv("ALEXFLIPNOTE_TOKEN")})
+        self.default_client = ClientSession()
         
         self._time = {
             31536000: "year",
@@ -76,17 +81,22 @@ class Util:
         except:
             return
 
-    async def send_image_attachment(self, ctx, url, alexflipnote=False) -> None:
+    async def send_image_attachment(self, ctx, url, alexflipnote=False, uselessapi=False) -> None:
         """
         Sends an image attachment from a URL.
         Enabling alexflipnote will also add a Authorization header of "ALEXFLIPNOTE_TOKEN" to the GET request method.
         """
         try:
-            data = get(url, timeout=5.0) if (not alexflipnote) else get(url, timeout=10.0, headers={'Authorization': getenv("ALEXFLIPNOTE_TOKEN")})        
-            assert data.status_code < 400, "API returns a bad status code"
-            assert data.headers['Content-Type'].startswith("image/"), "Content does not have an image."
-            extension = "." + data.headers['Content-Type'][6:]
-            return await ctx.send(file=File(BytesIO(data.content), "file"+extension.lower()))
+            if alexflipnote: session = self.alex_client
+            elif uselessapi: session = self.useless_client
+            else: session = self.default_session
+            
+            async with session.get(url) as data:
+                _bytes = await data.read()
+                assert data.status < 400, "API returns a bad status code"
+                assert data.headers['Content-Type'].startswith("image/"), "Content does not have an image."
+                extension = "." + data.headers['Content-Type'][6:]
+                return await ctx.send(file=File(BytesIO(_bytes), "file"+extension.lower()))
         except Exception as e:
             return await self.send_error_message(ctx, "Image not found.\n`"+str(e)+"`")
     
@@ -156,7 +166,7 @@ class Util:
         seconds = round(seconds / 31536000)
         return f"{seconds} year" + ("" if seconds == 1 else "s")
     
-    def get_stats(self, evaluate: bool = True) -> dict:
+    async def get_stats(self, evaluate: bool = True) -> dict:
         """
         Gets the bot stats.
         disabling `evaluate` will not get the RAM/memory data and OS uptime. this makes the process a bit faster.
@@ -165,8 +175,11 @@ class Util:
         """
         
         if name != 'nt' and evaluate:
-            _ram_eval = list(map(lambda x: int(x), self.execute("free -m").split("\n")[1].split()[1:]))
-            _os_uptime = self.execute("uptime -p")[3:]
+            free = await self.execute("free -m")
+            free = free.split("\n")[1].split()[1:]
+            _ram_eval = list(map(lambda x: int(x), free))
+            _os_uptime = await self.execute("uptime -p")
+            _os_uptime = _os_uptime[3:]
         else:
             _ram_eval = [None] * 6
             _os_uptime = None
@@ -194,7 +207,7 @@ class Util:
             }
         }
     
-    def execute(self, command: str) -> str:
+    async def execute(self, command: str) -> str:
         """ Evaluates a terminal command and returns an output. """
         
         return run(command.split(), stdout=PIPE).stdout.decode('utf-8')
