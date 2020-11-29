@@ -15,13 +15,15 @@ def pre_ready_initiation(client):
     setattr(client, 'db', database)
     setattr(client, 'games', discordgames)
     setattr(client, 'algorithm', algorithm)
-    setattr(client, 'cmds', BotCommands(client))
     setattr(client, 'bot_session', ClientSession())
 
-def post_ready_initiation(client):
+async def post_ready_initiation(client):
     test = post("https://useless-api.vierofernando.repl.co/update_bot_stats", headers={
         'superdupersecretkey': environ["USELESSAPI"],
         'guild_count': str(len(client.guilds)),
         'users_count': str(len(client.users))
     }).json()
     if test['success']: print("Successfully made a POST request stats to the API.")
+    bot_commands = BotCommands(client)
+    await bot_commands.initiate()
+    setattr(client, "cmds", bot_commands)

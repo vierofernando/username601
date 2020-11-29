@@ -6,6 +6,7 @@ from os import getenv, name, listdir
 from subprocess import run, PIPE
 from base64 import b64encode
 from configparser import ConfigParser
+from json import loads
 from urllib.parse import quote_plus
 from time import time
 from platform import python_build, python_compiler, uname
@@ -109,10 +110,10 @@ class Util:
         first_line = ctx.message.content.split()[0]
         return first_line[self.prefix_length:].lower()
     
-    def get_request(self, url, **kwargs):
+    async def get_request(self, url, **kwargs):
         """ Does a GET request to a specific URL with a query parameters."""
 
-        return_json, raise_errors, using_alexflipnote_token = False, False, False
+        return_json, raise_errors, using_alexflipnote_token, force_json = False, False, False, False
 
         if len(kwargs.keys()) > 0:
             if kwargs.get("json") is not None:
@@ -124,7 +125,10 @@ class Util:
             if kwargs.get("alexflipnote") is not None:
                 using_alexflipnote_token = True
                 kwargs.pop("alexflipnote")
-        
+            if kwargs.get("force_json") is not None:
+                force_json = True
+                kwargs.pop("force_json")
+
             query_param = "?" + "&".join([i + "=" + quote_plus(str(kwargs[i])).replace("+", "%20") for i in kwargs.keys()])
         else:
             query_param = ""
@@ -134,11 +138,15 @@ class Util:
             result = await session.get(url + query_param)
             assert result.status < 400
             if return_json:
+                if force_json:
+                    result = await result.read()
+                    return loads(result)
+
                 return await result.json()
             return await result.text()
-        except:
+        except Exception as e:
             if raise_errors:
-                raise GetRequestFailedException("Request Failed")
+                raise GetRequestFailedException("Request Failed. Exception: " + str(e))
             return None
     
     def encode_uri(self, text: str) -> str:
