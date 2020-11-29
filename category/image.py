@@ -46,12 +46,11 @@ class image(commands.Cog):
     @command('explode')
     @cooldown(9)
     async def implode(self, ctx, *args):
+        await ctx.trigger_typing()
         command_name = ctx.bot.util.get_command_name(ctx)
         url = ctx.bot.Parser.parse_image(ctx, args)
         if ("--animated" in args):
             return await ctx.bot.util.send_image_attachment(ctx, f"https://useless-api.vierofernando.repl.co/{command_name}/animated?image={url}", uselessapi=True)
-
-        await ctx.trigger_typing()
         amount = "1" if (command_name == "implode") else "-3.5"
         return await ctx.bot.util.send_image_attachment(ctx, f"https://useless-api.vierofernando.repl.co/implode?image={url}&amount={amount}")
 

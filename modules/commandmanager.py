@@ -5,6 +5,7 @@ class BotCommands:
         try:
             self.raw_data = client.util.get_request("https://raw.githubusercontent.com/vierofernando/username601/master/assets/json/commands.json", json=True, raise_errors=True)
             self.categories = list(map(lambda i: list(i.keys())[0], self.raw_data))
+            self.categories = self.categories[:-1]
             self.commands = []
             for i in range(len(self.categories)):
                 for j in self.raw_data[i][self.categories[i]]:

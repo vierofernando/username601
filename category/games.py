@@ -237,7 +237,10 @@ class games(commands.Cog):
     @command('geometrydash,geometry-dash,gmd')
     @cooldown(5)
     async def gd(self, ctx, *args):
-        if len(args) == 0: return await ctx.bot.util.send_error_message("Please input `daily`, `weekly`, `<levelName>` or `<levelID>`.")
+        if len(args) == 0: return await ctx.bot.util.send_error_message(f"""Invalid arguments. Usage:
+        `{ctx.bot.command_prefix}gd level <daily/weekly/levelID/levelName>`
+        `{ctx.bot.command_prefix}gd profile <userName>`
+        """)
 
         _input = args[0].lower()
         if _input.startswith("level"):

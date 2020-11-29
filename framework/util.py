@@ -89,7 +89,7 @@ class Util:
         try:
             if alexflipnote: session = self.alex_client
             elif uselessapi: session = self.useless_client
-            else: session = self.default_session
+            else: session = self.default_client
             
             async with session.get(url) as data:
                 _bytes = await data.read()
@@ -130,9 +130,12 @@ class Util:
             query_param = ""
         
         try:
-            data = get(url + query_param, timeout=10.0, headers={'Authorization': getenv("ALEXFLIPNOTE_TOKEN")}) if using_alexflipnote_token else get(url + query_param, timeout=10.0)
-            assert data.status_code < 400
-            return (data.json() if return_json else data.text)
+            session = self.alex_client if using_alexflipnote_token else self.default_client
+            result = await session.get(url + query_param)
+            assert result.status < 400
+            if return_json:
+                return await result.json()
+            return await result.text()
         except:
             if raise_errors:
                 raise GetRequestFailedException("Request Failed")

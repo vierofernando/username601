@@ -44,7 +44,7 @@ class dbl(commands.Cog):
         elif len(ctx.message.mentions) > 0:
             _input = ctx.message.mentions[0] if (not ctx.message.mentions[0].bot) else ctx.author
         else:
-            _input = self.client.utils.getUser(ctx, args[1:])
+            _input = self.client.Parser.parse_user(ctx, args[1:])
         
         if _input.bot:
             await self.client.util.send_error_message(ctx, str(_input) + " is a bot.")
@@ -126,11 +126,11 @@ class dbl(commands.Cog):
             url="https://top.gg/bot/" + data["id"],
             desc="***\"" + data["shortdesc"] + "\"***",
             fields={
-                "General Information": "**Published at: **"+data["date"][:-5].replace("T", " ")+"\n**Bot Prefix: **`"+data["prefix"]+"`\n**Discord Library: **`"+data["lib"]+"`\n**Tags: **"+(
+                "General Information": "**Published at: **"+data["date"][:-5].replace("T", " ")+"\n**Bot Prefix: **`"+data["prefix"]+"`\n**Tags: **"+(
                     " - ".join(["["+key+"](https://top.gg/tag/"+key.lower().replace(" ", "-")+")" for key in data["tags"]])
                 ),
                 "Bot Stats": "**Server Count: **`"+(str(data["server_count"]) if data.get("server_count") else "<not shown>")+"`\n**Shard Count: **`"+str(len(data["shards"]))+"`\n"+(":white_check_mark:" if data["certifiedBot"] else ":x:")+" Certified DBL Bot\n**"+str(data["points"])+"** Upvotes\n**"+str(data["monthlyPoints"])+"** Upvotes in this month",
-                "Bot Developers": bot_devs[:-2],
+                "Bot Developers": bot_devs[:-1],
                 "Links": _links
             },
             thumbnail="https://cdn.discordapp.com/avatars/{}/{}.png".format(data["id"], data["avatar"])
@@ -144,7 +144,7 @@ class dbl(commands.Cog):
             return await embed.send()
         _type = args[0].lower() if (args[0].lower().endswith("s")) else args[0].lower() + "s"
         if _type == "users":
-            embed = self.resolve_user(ctx, args)
+            embed = await self.resolve_user(ctx, args)
             return await embed.send() 
         else:
             embed = await self.resolve_bot(ctx, args)
