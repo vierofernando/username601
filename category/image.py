@@ -78,8 +78,8 @@ class image(commands.Cog):
     @cooldown(2)
     async def pikachu(self, ctx):
         await ctx.trigger_typing()
-        link = await ctx.bot.util.get_request('https://some-random-api.ml/img/pikachu', json=True, raise_errors=True)['link']
-        return await ctx.bot.util.send_image_attachment(ctx, link)
+        link = await ctx.bot.util.get_request('https://some-random-api.ml/img/pikachu', json=True, raise_errors=True)
+        return await ctx.bot.util.send_image_attachment(ctx, link['link'])
 
     @command()
     @cooldown(2)
@@ -140,11 +140,11 @@ class image(commands.Cog):
                 idx=0,
                 n=1,
                 mkt='en-US'
-            )['images'][0]
+            )
         except:
             return await ctx.bot.util.send_error_message("The API may be down for a while. Try again later!")
         embed = discord.Embed(title=data['copyright'], url=data['copyrightlink'], color=ctx.guild.me.roles[::-1][0].color)
-        embed.set_image(url='https://bing.com'+data['url'])
+        embed.set_image(url='https://bing.com'+data['images'][0]['url'])
         await ctx.send(embed=embed)
 
     @command()
@@ -216,9 +216,9 @@ class image(commands.Cog):
     @cooldown(2)
     async def panda(self, ctx):
         link, col, msg = random.choice(["https://some-random-api.ml/img/panda", "https://some-random-api.ml/img/red_panda"]), ctx.guild.me.roles[::-1][0].color, 'Here is some cute pics of pandas.'
-        data = await ctx.bot.util.get_request(link, json=True, raise_errors=True)['link']
+        data = await ctx.bot.util.get_request(link, json=True, raise_errors=True)
         embed = discord.Embed(title=msg, color=col)
-        embed.set_image(url=data)
+        embed.set_image(url=data['link'])
         await ctx.send(embed=embed)
     
     @command()
@@ -230,8 +230,8 @@ class image(commands.Cog):
             json=True,
             raise_errors=True,
             count=1
-        )[0]
-        _shibe = await ctx.bot.canvas.smallURL(data)
+        )
+        _shibe = await ctx.bot.canvas.smallURL(data[0])
         return await ctx.send(file=discord.File(_shibe, 'shibe.png'))
     
     @command()

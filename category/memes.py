@@ -117,8 +117,8 @@ class memes(commands.Cog):
             'https://useless-api.vierofernando.repl.co/programmermeme',
             json=True,
             raise_errors=True
-        )['url']
-        return await ctx.send(embed=discord.Embed(title='Programmer meme', color=ctx.guild.me.roles[::-1][0].color).set_image(url=data))
+        )
+        return await ctx.send(embed=discord.Embed(title='Programmer meme', color=ctx.guild.me.roles[::-1][0].color).set_image(url=data['url']))
 
     @command('shred,burn,spongebobpaper,paper,spongepaper,sponge-paper,spongebob-paper,spongebob')
     @cooldown(2)

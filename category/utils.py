@@ -343,8 +343,8 @@ class utils(commands.Cog):
     async def pandafact(self, ctx):
         if ctx.bot.util.get_command_name(ctx) == 'pandafact': link = 'https://some-random-api.ml/facts/panda'
         else: link = 'https://some-random-api.ml/facts/bird'
-        data = await ctx.bot.util.get_request(link, json=True, raise_errors=True)['fact']
-        await ctx.send(embed=discord.Embed(title='Did you know?', description=data, colour=ctx.guild.me.roles[::-1][0].color))
+        data = await ctx.bot.util.get_request(link, json=True, raise_errors=True)
+        await ctx.send(embed=discord.Embed(title='Did you know?', description=data['fact'], colour=ctx.guild.me.roles[::-1][0].color))
 
     @command()
     @cooldown(2)
@@ -411,11 +411,11 @@ class utils(commands.Cog):
             'https://www.google.com/doodles/json/{}/{}'.format(str(t.now().year), str(t.now().month)),
             json=True,
             raise_errors=True
-        )[0]
-        embed = discord.Embed(title=data['title'], colour=ctx.guild.me.roles[::-1][0].color, url='https://www.google.com/doodles/'+data['name'])
-        embed.set_image(url='https:'+data['high_res_url'])
+        )
+        embed = discord.Embed(title=data[0]['title'], colour=ctx.guild.me.roles[::-1][0].color, url='https://www.google.com/doodles/'+data[0]['name'])
+        embed.set_image(url='https:'+data[0]['high_res_url'])
         embed.set_footer(text='Event date: '+str('/'.join(
-            [str(i) for i in data['run_date_array'][::-1]]
+            [str(i) for i in data[0]['run_date_array'][::-1]]
         )))
         await wait.edit(content='', embed=embed)
 
@@ -427,7 +427,8 @@ class utils(commands.Cog):
 
         result = await ctx.bot.util.get_request(
             url[0], json=True, raise_errors=True
-        )[url[1]]
+        )
+        result = result[url[1]]
 
         if url[2] is not None:
             result = result[url[2]]

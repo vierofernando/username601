@@ -413,7 +413,8 @@ class games(commands.Cog):
     @cooldown(60)
     async def hangman(self, ctx):
         wait = await ctx.send(ctx.bot.util.loading_emoji + ' | Please wait... generating...')
-        the_word = await ctx.bot.util.get_request("https://useless-api.vierofernando.repl.co/randomword", json=True, raise_errors=True)["word"]
+        the_word = await ctx.bot.util.get_request("https://useless-api.vierofernando.repl.co/randomword", json=True, raise_errors=True)
+        the_word = the_word["word"]
         main_guess_cor, main_guess_hid = list(the_word), []
         server_id, wrong_guesses = ctx.guild.id, ''
         for i in range(len(main_guess_cor)):
