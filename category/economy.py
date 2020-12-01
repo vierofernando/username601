@@ -309,18 +309,16 @@ class economy(commands.Cog):
     async def setdesc(self, ctx, *args):
         if len(args)==0:
             return await ctx.bot.util.send_error_message(ctx, 'What is the new description?')
-        else:
-            if len(args)>120: return await ctx.bot.util.send_error_message(ctx, 'Your description is too long!')
-            newdesc = ' '.join(args)
-            for i in ['discord.gg', 'discord.com/', 'bit.ly', '://', 'nigga', 'nigger', 'discordapp.com']:
-                if i in newdesc.lower(): return await ctx.bot.util.send_error_message(ctx, 'Your description has invalid/blocked text!')
-            wait = await ctx.send(ctx.bot.util.loading_emoji+' | Please wait...')
-            if ctx.bot.db.Economy.get(ctx.author.id) is None:
-                return await ctx.bot.util.send_error_message(ctx, "Doesn't have a profile yet. Try `1new` to have a profile.")
-            else:
-                data = ctx.bot.db.Economy.setdesc(ctx.author.id, newdesc)
-                if data=='error': await wait.edit(content=ctx.bot.util.error_emoji+' | Oopsies! There was an error...')
-                else: await wait.edit(content=ctx.bot.util.success_emoji+' | Updated your description!')
+        if len(args)>120: return await ctx.bot.util.send_error_message(ctx, 'Your description is too long!')
+        newdesc = ' '.join(args)
+        for i in ['discord.gg', 'discord.com/', 'bit.ly', '://', 'nigga', 'nigger', 'discordapp.com']:
+            if i in newdesc.lower(): return await ctx.bot.util.send_error_message(ctx, 'Your description has invalid/blocked text!')
+        wait = await ctx.send(ctx.bot.util.loading_emoji+' | Please wait...')
+        if ctx.bot.db.Economy.get(ctx.author.id) is None:
+            return await ctx.bot.util.send_error_message(ctx, "Doesn't have a profile yet. Try `1new` to have a profile.")
+        data = ctx.bot.db.Economy.setdesc(ctx.author.id, newdesc)
+        if data=='error': return await wait.edit(content=ctx.bot.util.error_emoji+' | Oopsies! There was an error...')
+        return await wait.edit(content=ctx.bot.util.success_emoji+' | Updated your description!')
     
     @command('balance,mybal,profile,me,myprofile')
     @cooldown(2)
@@ -330,13 +328,12 @@ class economy(commands.Cog):
         
         if ctx.bot.db.Economy.get(src.id) is None:
             return await ctx.bot.util.send_error_message(ctx, "Doesn't have a profile yet. Try `1new` to have a profile.")
-        else:
-            wait = await ctx.send(ctx.bot.util.loading_emoji+" | Please wait...")
-            data = ctx.bot.db.Economy.getProfile(src.id, [i.id for i in ctx.guild.members if not i.bot])
-            bfr, aft = data['main'], data['after']
-            img = await ctx.bot.canvas.profile(src.name, ava, bfr, aft)
-            await wait.delete()
-            await ctx.send(file=discord.File(img, 'profile.png'))
+        wait = await ctx.send(ctx.bot.util.loading_emoji+" | Please wait...")
+        data = ctx.bot.db.Economy.getProfile(src.id, [i.id for i in ctx.guild.members if not i.bot])
+        bfr, aft = data['main'], data['after']
+        img = await ctx.bot.canvas.profile(src.name, ava, bfr, aft)
+        await wait.delete()
+        await ctx.send(file=discord.File(img, 'profile.png'))
     
     @command('newprofile')
     @cooldown(10)
@@ -345,12 +342,10 @@ class economy(commands.Cog):
         wait = await ctx.send(ctx.bot.util.loading_emoji+" | Please wait... creating your profile...")
         if data is not None:
             return await ctx.bot.util.send_error_message(ctx, "You already have a profile!")
-        else:
-            data = ctx.bot.db.Economy.new(ctx.author.id)
-            if data!='done':
-                return await ctx.bot.util.send_error_message(ctx, f"Oops! there was an error: {data}")
-            else:
-                await wait.edit(content=ctx.bot.util.success_emoji+f" | Created your profile!")
+        data = ctx.bot.db.Economy.new(ctx.author.id)
+        if data!='done':
+            return await ctx.bot.util.send_error_message(ctx, f"Oops! there was an error: {data}")
+        return await wait.edit(content=ctx.bot.util.success_emoji+f" | Created your profile!")
 
 def setup(client):
     client.add_cog(economy(client))

@@ -142,7 +142,7 @@ class image(commands.Cog):
                 mkt='en-US'
             )
         except:
-            return await ctx.bot.util.send_error_message("The API may be down for a while. Try again later!")
+            return await ctx.bot.util.send_error_message(ctx, "The API may be down for a while. Try again later!")
         embed = discord.Embed(title=data['copyright'], url=data['copyrightlink'], color=ctx.guild.me.roles[::-1][0].color)
         embed.set_image(url='https://bing.com'+data['images'][0]['url'])
         await ctx.send(embed=embed)
@@ -150,7 +150,7 @@ class image(commands.Cog):
     @command()
     @cooldown(2)
     async def httpcat(self, ctx, *args):
-        code = args[0] if (len(args)!=0) else '404'
+        code = args[0] if (len(args)!=0) or (not args[0].isnumeric()) else '404'
         return await ctx.bot.util.send_image_attachment(ctx, 'https://http.cat/'+str(code)+'.jpg')
     
     @command('httpduck')
@@ -209,8 +209,8 @@ class image(commands.Cog):
         await ctx.trigger_typing()
         command_name = ctx.bot.util.get_command_name(ctx)
         link = self._links[command_name]
-        api_url = await ctx.bot.util.get_request(link.split('|')[0])[link.split('|')[1]]
-        return await ctx.bot.util.send_image_attachment(ctx, api_url, alexflipnote=api_url.startswith("https://api.alexflipnote.dev/"))
+        api_url = await ctx.bot.util.get_request(link.split('|')[0], json=True, raise_errors=True, alexflipnote=link.split('|')[0].startswith("https://api.alexflipnote.dev/"))
+        return await ctx.bot.util.send_image_attachment(ctx, api_url[link.split('|')[1]])
 
     @command()
     @cooldown(2)
@@ -276,16 +276,16 @@ class image(commands.Cog):
     @command()
     @cooldown(2)
     async def invert(self, ctx, *args):
-        av = ctx.bot.Parser.parse_image(ctx, args)
-        _inv = await ctx.bot.canvas.invert_image(av)
-        return await ctx.send(file=discord.File(_inv, 'invert.png'))
+        source = ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
+        await ctx.channel.trigger_typing()
+        return await ctx.bot.util.send_image_attachment(ctx, f'https://api.alexflipnote.dev/filter/invert?image={source}', alexflipnote=True)
         
     @command('grayscale,b&w,bw,classic,gray,grey,greyscale,gray-scale,grey-scale')
     @cooldown(2)
     async def blackandwhite(self, ctx, *args):
-        av = ctx.bot.Parser.parse_image(ctx, args)
-        gray = await ctx.bot.canvas.grayscale(av)
-        return await ctx.send(file=discord.File(gray, 'invert.png'))
+        source = ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
+        await ctx.channel.trigger_typing()
+        return await ctx.bot.util.send_image_attachment(ctx, f'https://api.alexflipnote.dev/filter/b&w?image={source}', alexflipnote=True)
 
     @command('pixelate')
     @cooldown(5)

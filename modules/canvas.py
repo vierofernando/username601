@@ -164,7 +164,7 @@ class Painter:
         main.paste(image_overlay, (0, 0), image_overlay)
         return self.buffer(main)
 
-    async def get_multiple_accents(self, image):
+    def get_multiple_accents(self, image):
         b = BytesIO(get(image).content)
         return list(map(lambda i: {
             'r': i[0], 'g': i[1], 'b': i[2]

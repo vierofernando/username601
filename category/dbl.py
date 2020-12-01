@@ -63,7 +63,7 @@ class dbl(commands.Cog):
         _bio = "***\""+data["bio"].replace("*", "\*")+"\"***" if data.get("bio") else "This user has no bio."
         _color = "`"+data['color']+"`" if (data.get('color') not in self._none) else "`<not set>`"
         _avatar = "https://cdn.discordapp.com/avatars/"+data["id"]+"/"+data["avatar"]+".png" if data.get("avatar") else None
-        if _avatar is None: raise self.client.utils.send_error_message("That user does not exist in the [top.gg](https://top.gg/) database.")
+        if _avatar is None: return await self.client.util.send_error_message(ctx, "That user does not exist in the [top.gg](https://top.gg/) database.")
         
         return self.client.Embed(
             ctx,
@@ -91,7 +91,7 @@ class dbl(commands.Cog):
     
     async def search_bots(self, ctx, query):
         data = get("https://top.gg/api/search?q="+str(query)+"&type=bot").json()["results"]
-        if len(data) == 0: raise self.client.utils.send_error_message("That bot does not exist on the [top.gg](https://top.gg/) database.")
+        if len(data) == 0: return await self.client.util.send_error_message(ctx, "That bot does not exist on the [top.gg](https://top.gg/) database.")
         embed = self.client.ChooseEmbed(ctx, data, key=(lambda x: "["+x["name"]+"](https://top.gg/bot/"+x["id"]+")"))
         res = await embed.run()
         
