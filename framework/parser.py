@@ -203,10 +203,7 @@ class Parser:
         args = tuple(args)
         if len(args) < 1:
             if not allownoargs:
-                
-                if hasattr(ctx.bot, "utils"):
-                    raise ctx.bot.utils.send_error_message("Please add a mention, user ID, or a user name.")
-                raise Exception("Please add a mention, user ID, or a user name.")
+                raise Excception("Please add a mention, user ID, or a user name.")
             
             return ctx.author
         elif len(ctx.message.mentions) > 0: return ctx.message.mentions[0]
