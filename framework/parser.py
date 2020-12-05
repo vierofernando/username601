@@ -1,5 +1,4 @@
-from requests import get
-from .emote import emoji_to_url, valid_src
+from twemoji_parser import emoji_to_url
 from discord import Embed, Color
 
 class Parser:
@@ -123,12 +122,15 @@ class Parser:
         return _res_dict
 
     @staticmethod
-    def __check_url(url: str, cdn_only: bool):
+    async def __check_url(ctx, url: str, cdn_only: bool, custom_emoji: bool = False):
         try:
-            if cdn_only:
+            if (not custom_emoji) and cdn_only:
                 assert url.startswith("https://cdn.discordapp.com")
             
-            data = get(url, timeout=5)
+            data = await ctx.bot.util.default_client.get(url)
+            assert data.status_code == 200
+            if custom_emoji: return True
+            
             assert data.headers['Content-Type'].startswith('image/')
             assert (int(data.headers['Content-Length'])/1024/1024) < 2
             return True
@@ -147,7 +149,7 @@ class Parser:
         return False
 
     @staticmethod
-    def parse_image(ctx, args, default_to_png=True, size=1024, member_only=False, cdn_only=False):
+    async def parse_image(ctx, args, default_to_png=True, size=1024, member_only=False, cdn_only=False):
         """
         Gets the image from message.
         Either it's attachment, a URL, or just a mention to get someone's avatar.
@@ -155,7 +157,7 @@ class Parser:
         Enabling cdn_only will only detect cdn.discordapp.com urls.
         """
         if (len(ctx.message.attachments) > 0) and (not member_only):
-            res = Parser.__check_url(ctx.message.attachments[0].url, cdn_only)
+            res = await Parser.__check_url(ctx, ctx.message.attachments[0].url, cdn_only)
             if res:
                 return str(ctx.message.attachments[0].url)
         
@@ -165,7 +167,8 @@ class Parser:
         
         url = "".join(args).replace("<", "").replace(">", "")
         if ((url.startswith("http")) and ("://" in url)) and (not member_only):
-            if (not member_only) and Parser.__check_url(url, cdn_only):
+            is_valid = await Parser.__check_url(ctx, url, cdn_only)
+            if (not member_only) and is_valid:
                 return url
         
         _filtered = "".join(args).replace(" ", "").lower()
@@ -178,7 +181,8 @@ class Parser:
                 
                 _id = int(_filtered.split(':')[2].split('>')[0])
                 _url = f"https://cdn.discordapp.com/emojis/{_id}{_extension}"
-                assert valid_src(_url)
+                is_valid = await Parser.__check_url(ctx, _url, custom_emoji=True)
+                assert is_valid
                 return _url
             except: pass
         

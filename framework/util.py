@@ -1,6 +1,6 @@
 from discord import Embed, Color, File, __version__
 from io import BytesIO
-from aiohttp import ClientSession
+from aiohttp import ClientSession, ClientTimeout
 from os import getenv, name, listdir
 from subprocess import run, PIPE
 from base64 import b64encode
@@ -29,9 +29,9 @@ class Util:
         self._alphabet = list('abcdefghijklmnopqrstuvwxyz')
         self._start = time()
 
-        self.useless_client = ClientSession(headers={"superdupersecretkey": getenv("USELESSAPI")})
-        self.alex_client = ClientSession(headers={'Authorization': getenv("ALEXFLIPNOTE_TOKEN")})
-        self.default_client = ClientSession()
+        self.useless_client = ClientSession(headers={"superdupersecretkey": getenv("USELESSAPI")}, timeout=ClientTimeout(total=10.0))
+        self.alex_client = ClientSession(headers={'Authorization': getenv("ALEXFLIPNOTE_TOKEN")}, timeout=ClientTimeout(total=10.0))
+        self.default_client = ClientSession(timeout=ClientTimeout(total=10.0))
         
         self._time = {
             31536000: "year",
