@@ -144,7 +144,5 @@ class CustomPanel(Smart_ColorThief):
             self.TITLE_SIZE,
             self.TITLE_TEXT,
             self.WIDTH,
-            self.ctx,
-            self.__get_color_accent,
-            self.__get_font
+            self.ctx
         )
