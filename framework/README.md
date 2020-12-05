@@ -38,7 +38,7 @@ from discord.ext import commands
 
 @bot.command()
 async def avatar(ctx, *args):
-    image = Parser.parse_image(ctx, *args)
+    image = Parser.parse_image(ctx, args)
     return await ctx.send(f"Here is the avatar: {image}")
 ```
 
@@ -49,7 +49,7 @@ from discord.ext import commands
 
 @bot.command()
 async def userinfo(ctx, *args):
-    user = Parser.parse_user(ctx, *args)
+    user = Parser.parse_user(ctx, args)
     return await ctx.send(f"User name: {user.name}\nUser ID: {user.id}\nUser Avatar URL: {user.avatar_url}")
 ```
 
@@ -60,7 +60,7 @@ Works best for blending image with background color.<br>
 ```py
 from framework import Smart_ColorThief
 
-async def main():
+async def main(ctx): # ctx is a discord.py context object.
     colorthief = Smart_ColorThief(ctx, "https://example.com/image.png")
     r, g, b = await colorthief.get_color()
     print(r, g, b)
