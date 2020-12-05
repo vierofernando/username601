@@ -23,7 +23,7 @@ class image(commands.Cog):
     @cooldown(5)
     async def lego(self, ctx, *args):
         await ctx.trigger_typing()
-        image = ctx.bot.Parser.parse_image(ctx, args)
+        image = await ctx.bot.Parser.parse_image(ctx, args)
         return await ctx.bot.util.send_image_attachment(ctx, "https://useless-api.vierofernando.repl.co/lego?image=" + image, uselessapi=True)
 
     @command('barell,barrel,barrell')
@@ -32,13 +32,13 @@ class image(commands.Cog):
         res = None if ("--inverse" not in args) else tuple([i for i in args if "--inverse" not in i])
         if res is not None: args = res
         await ctx.trigger_typing()
-        url = ctx.bot.Parser.parse_image(ctx, args)
+        url = await ctx.bot.Parser.parse_image(ctx, args)
         return await ctx.bot.util.send_image_attachment(ctx, "https://useless-api.vierofernando.repl.co/bump?image={}&inverse={}".format(url, str((res is not None))))
 
     @command('illuminati,illuminati-confirmed')
     @cooldown(5)
     async def triangle(self, ctx, *args):
-        url = ctx.bot.Parser.parse_image(ctx, args, size=512)
+        url = await ctx.bot.Parser.parse_image(ctx, args, size=512)
         await ctx.trigger_typing()
         data = get(f"https://useless-api.vierofernando.repl.co/triangle?image={url}").content
         return await ctx.send(file=discord.File(BytesIO(data), "triangle.png"))
@@ -48,7 +48,7 @@ class image(commands.Cog):
     async def implode(self, ctx, *args):
         await ctx.trigger_typing()
         command_name = ctx.bot.util.get_command_name(ctx)
-        url = ctx.bot.Parser.parse_image(ctx, args)
+        url = await ctx.bot.Parser.parse_image(ctx, args)
         if ("--animated" in args):
             return await ctx.bot.util.send_image_attachment(ctx, f"https://useless-api.vierofernando.repl.co/{command_name}/animated?image={url}", uselessapi=True)
         amount = "1" if (command_name == "implode") else "-3.5"
@@ -59,7 +59,7 @@ class image(commands.Cog):
     async def charcoal(self, ctx, *args):
         await ctx.trigger_typing()
         command_name = ctx.bot.util.get_command_name(ctx)
-        url = ctx.bot.Parser.parse_image(ctx, args)
+        url = await ctx.bot.Parser.parse_image(ctx, args)
         return await ctx.bot.util.send_image_attachment(ctx, f"https://useless-api.vierofernando.repl.co/{command_name}?image={url}")
 
     @command('combine')
@@ -69,8 +69,8 @@ class image(commands.Cog):
         await ctx.trigger_typing()
         parsed_args = ctx.bot.Parser.split_content_to_two(args)
         if parsed_args is None: 
-            first, second = ctx.author.avatar_url_as(format='png'), ctx.bot.Parser.parse_image(ctx, args)
-        else: first, second = ctx.bot.Parser.parse_image(ctx, (parsed_args[0],)), ctx.bot.Parser.parse_image(ctx, (parsed_args[1],))
+            first, second = ctx.author.avatar_url_as(format='png'), await ctx.bot.Parser.parse_image(ctx, args)
+        else: first, second = await ctx.bot.Parser.parse_image(ctx, (parsed_args[0],)), await ctx.bot.Parser.parse_image(ctx, (parsed_args[1],))
         blended = await ctx.bot.canvas.blend(first, second)
         return await ctx.send(file=discord.File(blended, 'blend.png'))
             
@@ -84,7 +84,7 @@ class image(commands.Cog):
     @command()
     @cooldown(2)
     async def blur(self, ctx, *args):
-        ava = ctx.bot.Parser.parse_image(ctx, args, size=512)
+        ava = await ctx.bot.Parser.parse_image(ctx, args, size=512)
         await ctx.trigger_typing()
         im = await ctx.bot.canvas.blur(ava)
         await ctx.send(file=discord.File(im, 'blur.png'))
@@ -92,7 +92,7 @@ class image(commands.Cog):
     @command('glitchify,matrix')
     @cooldown(5)
     async def glitch(self, ctx, *args):
-        ava = ctx.bot.Parser.parse_image(ctx, args, size=128)
+        ava = await ctx.bot.Parser.parse_image(ctx, args, size=128)
         await ctx.trigger_typing()
         im = BytesIO(get("https://useless-api.vierofernando.repl.co/glitch/noratelimit?image="+ava, headers={'token': environ["USELESSAPI"]}).content)
         await ctx.send(file=discord.File(im, 'glitch.png'))
@@ -172,7 +172,7 @@ class image(commands.Cog):
     @cooldown(7)
     async def flip(self, ctx, *args):
         await ctx.trigger_typing()
-        ava = ctx.bot.Parser.parse_image(ctx, args, size=512)
+        ava = await ctx.bot.Parser.parse_image(ctx, args, size=512)
         data = await ctx.bot.gif.flip(ava)
         return await ctx.send(file=discord.File(data, 'flip.gif'))
 
@@ -180,7 +180,7 @@ class image(commands.Cog):
     @cooldown(7)
     async def rotate(self, ctx, *args):
         await ctx.trigger_typing()
-        ava = ctx.bot.Parser.parse_image(ctx, args, size=512)
+        ava = await ctx.bot.Parser.parse_image(ctx, args, size=512)
         data = await ctx.bot.gif.rotate(ava)
         return await ctx.send(file=discord.File(data, 'rotate.gif'))
 
@@ -194,7 +194,7 @@ class image(commands.Cog):
                 wh.append(int(i))
         await ctx.trigger_typing()
         if correct=='yy':
-            ava = ctx.bot.Parser.parse_image(ctx, args, size=512)
+            ava = await ctx.bot.Parser.parse_image(ctx, args, size=512)
             if wh[0]>2000 or wh[1]>2000: return await ctx.bot.util.send_error_message(ctx, "Your image is too big!")
             elif wh[0]<300 or wh[1]<300: return await ctx.bot.util.send_error_message(ctx, "Your image is too small!")
             else:
@@ -241,8 +241,8 @@ class image(commands.Cog):
         await ctx.trigger_typing()
         parsed_args = ctx.bot.Parser.split_content_to_two(args)
         if parsed_args is None: 
-            first, second = ctx.author.avatar_url_as(format='png'), ctx.bot.Parser.parse_image(ctx, args)
-        else: first, second = ctx.bot.Parser.parse_image(ctx, parsed_args[0]), ctx.bot.Parser.parse_image(ctx, parsed_args[1])
+            first, second = ctx.author.avatar_url_as(format='png'), await ctx.bot.Parser.parse_image(ctx, args)
+        else: first, second = await ctx.bot.Parser.parse_image(ctx, parsed_args[0]), await ctx.bot.Parser.parse_image(ctx, parsed_args[1])
         url = f'https://api.alexflipnote.dev/ship?user={first}&user2={second}'
         return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
 
@@ -262,28 +262,28 @@ class image(commands.Cog):
     @command()
     @cooldown(2)
     async def magik(self, ctx, *args):
-        source = ctx.bot.Parser.parse_image(ctx, args, cdn_only=True)
+        source = await ctx.bot.Parser.parse_image(ctx, args, cdn_only=True)
         await ctx.channel.trigger_typing()
         return await ctx.bot.util.send_image_attachment(ctx, f'https://api.alexflipnote.dev/filter/magik?image={source}', alexflipnote=True)
 
     @command("df")
     @cooldown(2)
     async def deepfry(self, ctx, *args):
-        source = ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
+        source = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
         await ctx.channel.trigger_typing()
         return await ctx.bot.util.send_image_attachment(ctx, f'https://api.alexflipnote.dev/filter/deepfry?image={source}', alexflipnote=True)
 
     @command()
     @cooldown(2)
     async def invert(self, ctx, *args):
-        source = ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
+        source = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
         await ctx.channel.trigger_typing()
         return await ctx.bot.util.send_image_attachment(ctx, f'https://api.alexflipnote.dev/filter/invert?image={source}', alexflipnote=True)
         
     @command('grayscale,b&w,bw,classic,gray,grey,greyscale,gray-scale,grey-scale')
     @cooldown(2)
     async def blackandwhite(self, ctx, *args):
-        source = ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
+        source = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
         await ctx.channel.trigger_typing()
         return await ctx.bot.util.send_image_attachment(ctx, f'https://api.alexflipnote.dev/filter/b&w?image={source}', alexflipnote=True)
 
@@ -293,7 +293,7 @@ class image(commands.Cog):
         await ctx.trigger_typing()
         url = {"jpeg": "https://api.alexflipnote.dev/filter/jpegify?image=<URL>", "pixelate": "https://useless-api.vierofernando.repl.co/pixelate?image=<URL>&amount=<NUM>"}
         command_name = ctx.bot.util.get_command_name(ctx)
-        avatar = ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
+        avatar = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
         url = url[command_name].replace("<URL>", avatar).replace("<NUM>", random.choice(["16", "32"]))
         return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
 

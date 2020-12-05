@@ -110,7 +110,7 @@ class games(commands.Cog):
     @cooldown(3)
     async def amongus(self, ctx, *args):
         await ctx.trigger_typing()
-        url = ctx.bot.Parser.parse_image(ctx, args)
+        url = await ctx.bot.Parser.parse_image(ctx, args)
         im = await ctx.bot.canvas.among_us(ctx, url)
         await ctx.send(file=discord.File(im, 'the_impostor.png'))
 

@@ -446,7 +446,7 @@ class moderation(commands.Cog):
     @command('av,ava')
     @cooldown(2)
     async def avatar(self, ctx, *args):
-        url = ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True, member_only=True, size=4096)
+        url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True, member_only=True, size=4096)
         embed = ctx.bot.Embed(ctx, title="Here's ya avatar mate", image=url)
         await embed.send()
 

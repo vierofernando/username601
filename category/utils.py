@@ -115,7 +115,7 @@ class utils(commands.Cog):
     @command('colorthief,getcolor,accent,accentcolor,accent-color,colorpalette,color-palette')
     @cooldown(3)
     async def palette(self, ctx, *args):
-        url, person = ctx.bot.Parser.parse_image(ctx, args), ctx.bot.Parser.parse_user(ctx, args)
+        url, person = await ctx.bot.Parser.parse_image(ctx, args), ctx.bot.Parser.parse_user(ctx, args)
         await ctx.trigger_typing()
         data = await ctx.bot.canvas.get_multiple_accents(url)
         palette = await ctx.bot.canvas.get_palette(data)
@@ -142,11 +142,11 @@ class utils(commands.Cog):
         parsed_arg = ctx.bot.utils.parse_parameter(args, '--img')
         if parsed_arg['available']:
             args = parsed_arg['parsedarg']
-            url = ctx.bot.Parser.parse_image(ctx, args)
+            url = await ctx.bot.Parser.parse_image(ctx, args)
             await ctx.trigger_typing()
             res_im = await ctx.bot.canvas.imagetoASCII_picture(url)
             return await ctx.send(file=discord.File(res_im, 'imgascii.png'))
-        url = ctx.bot.Parser.parse_image(ctx, args)
+        url = await ctx.bot.Parser.parse_image(ctx, args)
         wait = await ctx.send('{} | Please wait...'.format(ctx.bot.util.loading_emoji))
         text = await ctx.bot.canvas.imagetoASCII(url)
         try:
