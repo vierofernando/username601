@@ -1,6 +1,5 @@
 from discord import Embed, Color, File, __version__
 from io import BytesIO
-from requests import get
 from aiohttp import ClientSession
 from os import getenv, name, listdir
 from subprocess import run, PIPE
@@ -51,7 +50,7 @@ class Util:
             else:
                 setattr(self, key, self._config["bot"][key])
         
-        delattr(self, "_config")
+        del self._config
         setattr(client, attribute_name, self)
     
     def load_cog(self, cog_folder: str = None, exclude: list = []):
@@ -103,7 +102,7 @@ class Util:
     
     async def send_error_message(self, ctx, message):
         """ Sends an error message embed. """
-        await ctx.send(embed=Embed(title="Error", description=message, color=Color.red()))
+        return await ctx.send(embed=Embed(title="Error", description=message, color=Color.red()))
     
     def get_command_name(self, ctx) -> str:
         """ Gets the command name from a discord context object """

@@ -92,8 +92,12 @@ class utils(commands.Cog):
         await ctx.trigger_typing()
         user = ctx.bot.Parser.parse_user(ctx, args)
         if isinstance(user.activity, discord.Spotify):
-            spotify = await ctx.bot.canvas.custom_panel(spt=user.activity)
-            return await ctx.send(file=discord.File(spotify, 'activity.png'))
+            spotify = ctx.bot.Panel(ctx, spotify=user.activity)
+            await spotify.draw()
+            await spotify.send_as_attachment()
+            spotify.close()
+            return
+        
         if user.activity is None: return await ctx.bot.util.send_error_message(ctx, f"Sorry, but {user.display_name} has no activity...")
         title = "" if (not hasattr(user.activity, 'name')) else user.activity.name
         subtitle = "" if (not hasattr(user.activity, 'details')) else user.activity.details
@@ -103,8 +107,10 @@ class utils(commands.Cog):
             subtitle = temp
             desc = ""
         url = "https://cdn.discordapp.com/embed/avatars/0.png" if (not hasattr(user.activity, 'large_image_url')) else user.activity.large_image_url
-        panel = await ctx.bot.canvas.custom_panel(title=title, subtitle=subtitle, description=desc, icon=url)
-        return await ctx.send(file=discord.File(panel, 'activity.png'))
+        panel = ctx.bot.Panel(ctx, title=title, subtitle=subtitle, description=desc, icon=url)
+        await panel.draw()
+        await panel.send_as_attachment()
+        panel.close()
     
     @command('colorthief,getcolor,accent,accentcolor,accent-color,colorpalette,color-palette')
     @cooldown(3)

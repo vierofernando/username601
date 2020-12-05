@@ -26,6 +26,12 @@ class owner(commands.Cog):
         ]
 
     @command()
+    @cooldown(1)
+    async def test(self, ctx):
+        if ctx.author.id not in [661200758510977084, 766952708602331137]: return
+        return
+
+    @command()
     @cooldown(2)
     async def leave(self, ctx, *args):
         if ctx.author.id not in [661200758510977084, 766952708602331137]: return

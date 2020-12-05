@@ -97,7 +97,7 @@ class games(commands.Cog):
         data = data.json()
         _buffer = await ctx.bot.canvas.minecraft_body(f"https://mc-heads.net/body/{name}/600", data['id'])
         body, head = discord.File(_buffer, "body.png"), discord.File(self.urltoimage(f"https://mc-heads.net/head/{name}/600"), "head.png")
-        accent_color = await ctx.bot.canvas.get_color_accent(f"https://mc-heads.net/head/{name}/600")
+        accent_color = await ctx.bot.canvas.get_color_accent(ctx, f"https://mc-heads.net/head/{name}/600")
         names = await self.get_name_history(data['id'], ctx)
         embed = discord.Embed(title=name, url='https://namemc.com/profile/'+data['id'], description="UUID: `"+data['id']+"`", color=discord.Color.from_rgb(*accent_color))
         embed.set_image(url="attachment://body.png")
@@ -111,7 +111,7 @@ class games(commands.Cog):
     async def amongus(self, ctx, *args):
         await ctx.trigger_typing()
         url = ctx.bot.Parser.parse_image(ctx, args)
-        im = await ctx.bot.canvas.among_us(url)
+        im = await ctx.bot.canvas.among_us(ctx, url)
         await ctx.send(file=discord.File(im, 'the_impostor.png'))
 
     async def process_geometry_dash_profile(self, ctx, args):

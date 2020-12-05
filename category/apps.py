@@ -70,8 +70,10 @@ class apps(commands.Cog):
         act = self.get_spotify(user)
         if act is None: return await ctx.bot.util.send_error_message(ctx, f"Sorry, but {user.display_name} is not listening to spotify.")
         await ctx.trigger_typing()
-        _buffer = await ctx.bot.canvas.custom_panel(spt=act)
-        return await ctx.send(file=discord.File(_buffer, 'spotify.png'))
+        panel = ctx.bot.Panel(ctx, spotify=act)
+        await panel.draw()
+        await panel.send_as_attachment()
+        panel.close()
 
     @command()
     @cooldown(5)
@@ -81,16 +83,23 @@ class apps(commands.Cog):
         data = await ctx.bot.util.get_request(
             'https://itunes.apple.com/search',
             json=True,
+            raise_errors=True,
+            force_json=True,
             term=' '.join(args),
             media='music',
             entity='song',
-            limit=1,
+            limit=10,
             explicit='no'
         )
-        if (data is None) or len(data['results'])==0: return await ctx.send('{} | No music found... oop'.format(ctx.bot.util.error_emoji))
-        data = data['results'][0]
-        _buffer = await ctx.bot.canvas.custom_panel(title=data['trackName'], subtitle=data['artistName'], description=data['primaryGenreName'], icon=data['artworkUrl100'])
-        return await ctx.send(file=discord.File(_buffer, 'itunes.png'))
+        if len(data['results'])==0: return await ctx.send('{} | No music found... oop'.format(ctx.bot.util.error_emoji))
+        choose = ctx.bot.ChooseEmbed(ctx, data['results'], key=(lambda x: "["+x["trackName"]+"]("+x["trackViewUrl"]+")"))
+        data = await choose.run()
+        if not data: return
+        
+        panel = ctx.bot.Panel(ctx, title=data['trackName'], subtitle=data['artistName'], description=data['primaryGenreName'], icon=data['artworkUrl100'])
+        await panel.draw()
+        await panel.send_as_attachment()
+        panel.close()
 
     @command('tr,trans')
     @cooldown(5)

@@ -9,6 +9,7 @@ sys.path.append(environ['BOT_MODULES_DIR'])
 from aiohttp import ClientSession
 from decorators import command, cooldown
 from datetime import datetime as t
+from twemoji_parser import emoji_to_url
 
 class moderation(commands.Cog):
     def __init__(self, client):
@@ -304,7 +305,7 @@ class moderation(commands.Cog):
                 _id = int(text.split(":")[2].split(">")[0])
                 return await ctx.bot.util.send_image_attachment(ctx, 'https://cdn.discordapp.com/emojis/{}{}'.format(_id, _ext))
             
-            _twemoji = ctx.bot.twemoji(text)
+            _twemoji = await emoji_to_url(text)
             if _twemoji == text:
                 return await ctx.bot.util.send_error_message(ctx, 'No emoji found.')
             return await ctx.bot.util.send_image_attachment(ctx, _twemoji)
@@ -436,7 +437,7 @@ class moderation(commands.Cog):
         elif guy.is_avatar_animated(): nitro = True
         booster = True if guy in ctx.guild.premium_subscribers else False
         booster_since = round(t.now().timestamp() - guy.premium_since.timestamp()) if guy.premium_since is not None else False
-        bg_col = await ctx.bot.canvas.get_color_accent(str(guy.avatar_url_as(format="png")))
+        bg_col = await ctx.bot.canvas.get_color_accent(ctx, str(guy.avatar_url_as(format="png")))
         data = await ctx.bot.canvas.usercard(list(map(lambda x: {
             'name': x.name, 'color': x.color.to_rgb()
         }, guy.roles))[::-1][0:5], guy, str(guy.avatar_url_as(format="png")), bg_col, nitro, booster, booster_since)

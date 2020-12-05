@@ -60,8 +60,10 @@ Works best for blending image with background color.<br>
 ```py
 from framework import Smart_ColorThief
 
-colorthief = Smart_ColorThief("https://example.com/image.png")
-r, g, b = colorthief.get_color()
+async def main():
+    colorthief = Smart_ColorThief(ctx, "https://example.com/image.png")
+    r, g, b = await colorthief.get_color()
+    print(r, g, b)
 ```
 
 ## Twemoji Parser
@@ -169,10 +171,10 @@ from discord import File
 
 @bot.command()
 async def card(ctx, *args):
-    card = CustomPanel(title="This is a title", subtitle="This is a subtitle.", description="This is a card", icon="https://example.com/image.png", font="/path/to/font.ttf")
+    card = CustomPanel(ctx, title="This is a title", subtitle="This is a subtitle.", description="This is a card", icon="https://example.com/image.png", font="/path/to/font.ttf")
     card.draw()
     
-    await card.send_as_attachment(ctx)
+    await card.send_as_attachment()
 ```
 
 ### Spotify Card
@@ -186,8 +188,8 @@ async def spotify(ctx, *args):
     if user.activity is None:
         return
     
-    panel = CustomPanel(spt=user.activity)
-    panel.draw()
-    
-    await panel.send_as_attachment(ctx, content=f"This is {user.name}'s spotify card!")
+    panel = CustomPanel(ctx, spt=user.activity)
+    await panel.draw()
+    await panel.send_as_attachment(content=f"This is {user.name}'s spotify card!")
+    panel.close()
 ```

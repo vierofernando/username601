@@ -11,14 +11,15 @@ from PIL import (
 import json
 import random
 from os import listdir, getenv
+__import__("sys").path.append(__import__("os").path.abspath("./framework"))
 from numpy import zeros, uint8
 from time import strftime, gmtime
 from io import BytesIO
 from datetime import datetime as t
 from requests import get
-from .smart_colorthief import Smart_ColorThief
 from .username601 import *
 from colorthief import ColorThief
+from framework import Smart_ColorThief
 
 def buffer_from_url(url, *args, **kwargs):
     try: return Image.open(BytesIO(get(url, timeout=5).content))
@@ -146,9 +147,10 @@ class Painter:
     def toLocaleString(self, num):
         return f'{str(num):,}'
     
-    def get_color_accent(self, url, right=False):
-        res = Smart_ColorThief(url).get_color(right=right)
-        return res[0], res[1], res[2]
+    async def get_color_accent(self, ctx, url, right=False):
+        res = Smart_ColorThief(ctx, url)
+        res = await res.get_color(right=right)
+        return res[:3]
 
     async def gradient(self, color_left, color_right):
         if color_right is not None:
@@ -240,10 +242,10 @@ class Painter:
         draw.text((10, 115), f'RGB: {rgb[0]}, {rgb[1]}, {rgb[2]}\nInteger: {rgb[0]*rgb[1]*rgb[2]}\nBrightness: {brightness}', fill=self.invert(rgb), font=small_font)
         return self.buffer(main)
 
-    async def among_us(self, url):
+    async def among_us(self, ctx, url):
         bg = self.templates['among_us.png'].copy()
         ava = self.buffer_from_url(url).resize((240, 228))
-        col = self.get_color_accent(url)
+        col = await self.get_color_accent(ctx, url)
         cnv = Image.new(mode='RGBA', size=(512, 512), color=(0,0,0))
         draw = ImageDraw.Draw(cnv)
         draw.rectangle([(0, 0), (512, 512)], fill=col)
@@ -523,59 +525,6 @@ class Painter:
         draw, string = ImageDraw.Draw(image), self.imagetoASCII(url)
         draw.text((0, 0), string, font=font, fill=(255, 255, 255))
         return self.buffer(image)
-
-    async def custom_panel(self, title="Title text", subtitle="Subtitle text", description="Description text here", icon="https://cdn.discordapp.com/embed/avatars/0.png", spt=None):
-        SPOTIFY = False if (spt is None) else True
-        TITLE_TEXT = title if not SPOTIFY else spt["title"]
-        TITLE_FONT = self.get_font("NotoSansDisplay-Bold", 30, otf=True)
-
-        SUBTITLE_TEXT = subtitle if not SPOTIFY else "By "+spt["artists"]
-        SUBTITLE_FONT = self.get_font("NotoSansDisplay-Bold", 20, otf=True)
-
-        DESC_TEXT = description if not SPOTIFY else "On "+spt["album"]
-        DESC_FONT = self.get_font("NotoSansDisplay-Bold", 15, otf=True)
-        COVER_URL = icon if not SPOTIFY else spt["cover"]
-        COVER = self.buffer_from_url(COVER_URL).resize((200, 200))
-        BACKGROUND_COLOR = self.get_color_accent(COVER_URL, right=True)
-        FOREGROUND_COLOR = self.invert(BACKGROUND_COLOR)
-
-        if len(TITLE_TEXT) > 25: TITLE_TEXT = TITLE_TEXT[0:50] + "..."
-        if len(SUBTITLE_TEXT) > 35: SUBTITLE_TEXT = SUBTITLE_TEXT[0:35] + "..."
-        if len(DESC_TEXT) > 45: DESC_TEXT = DESC_TEXT[0:45] + "..."
-
-        TITLE_SIZE = TITLE_FONT.getsize(TITLE_TEXT)
-        SUBTITLE_SIZE = SUBTITLE_FONT.getsize(SUBTITLE_TEXT)
-        DESC_SIZE = DESC_FONT.getsize(DESC_TEXT)
-        WIDTH = max([TITLE_SIZE[0], SUBTITLE_SIZE[0], DESC_SIZE[0]]) + 270
-        
-        if WIDTH < 500:
-            WIDTH = 500
-
-        MARGIN_LEFT = 220
-        MARGIN_RIGHT = WIDTH - 20
-        MARGIN_TOP = 20
-
-        MAIN = Image.new(mode="RGB", color=BACKGROUND_COLOR, size=(WIDTH, 200))
-        DRAW = ImageDraw.Draw(MAIN)
-
-        if SPOTIFY and spt["has_duration"]:
-            SEEK = round(round((t.now() - spt["created"]).total_seconds())/round(spt["duration"].total_seconds())*100)
-            STR_CURRENT = strftime('%H:%M:%S', gmtime(round((t.now() - spt["created"]).total_seconds())))
-            STR_END = strftime('%H:%M:%S', gmtime(round(spt["duration"].total_seconds())))
-            DURATION_LEFT_SIZE = DRAW.textsize(STR_END, font=SUBTITLE_FONT)[0]
-
-            DRAW.rectangle([(MARGIN_LEFT, MARGIN_TOP + 100), (MARGIN_RIGHT, MARGIN_TOP + 120)], fill=tuple(map(lambda x: x - 25, BACKGROUND_COLOR)))
-            DRAW.rectangle([(MARGIN_LEFT, MARGIN_TOP + 100), ((SEEK / 100 * (MARGIN_RIGHT - MARGIN_LEFT)) + MARGIN_LEFT, MARGIN_TOP + 120)], fill=FOREGROUND_COLOR)
-            DRAW.text((MARGIN_LEFT, MARGIN_TOP + 130), STR_CURRENT, font=SUBTITLE_FONT, fill=FOREGROUND_COLOR)
-            DRAW.text((MARGIN_RIGHT - DURATION_LEFT_SIZE, MARGIN_TOP + 130), STR_END, font=SUBTITLE_FONT, fill=FOREGROUND_COLOR)
-
-        DRAW.text((MARGIN_LEFT, MARGIN_TOP), TITLE_TEXT, font=TITLE_FONT, fill=FOREGROUND_COLOR)
-        DRAW.text((MARGIN_LEFT, MARGIN_TOP + 38), SUBTITLE_TEXT, font=SUBTITLE_FONT, fill=FOREGROUND_COLOR)
-        DRAW.text((MARGIN_LEFT, MARGIN_TOP + 65), DESC_TEXT, font=DESC_FONT, fill=FOREGROUND_COLOR)
-
-        MAIN.paste(COVER, (0, 0))
-        
-        return self.buffer(MAIN)
     
     async def profile(self, username, avatar, details, after):
         # yanderedev was here
