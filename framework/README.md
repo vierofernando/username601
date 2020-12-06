@@ -45,6 +45,18 @@ async def base64(ctx, *args):
     await ctx.send(result)
 ```
 
+### Magic 8 Ball
+```py
+@bot.command(aliases=["8-ball", "8ball"])
+async def _8ball(ctx, *args):
+	if len(args) < 1:
+	    return await ctx.send("Please send a question.")
+	
+	result = ctx.bot.util.eight_ball(ctx)
+	
+	return await ctx.send(f"The magik 8 ball says: ***{result}***")
+```
+
 ### Sending image attachment from URL.
 ```py
 @bot.command()

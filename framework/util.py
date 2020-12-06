@@ -9,6 +9,7 @@ from json import loads
 from urllib.parse import quote_plus
 from time import time
 from platform import python_build, python_compiler, uname
+from random import choice
 
 class GetRequestFailedException(Exception): pass
 
@@ -50,8 +51,40 @@ class Util:
             else:
                 setattr(self, key, self._config["bot"][key])
         
+        self._8ball_template = [
+            "As I see it, ??",
+            "My reply is ??",
+            "My sources say ??",
+            "??",
+            "Of course ??",
+            "Well, ??. Of course",
+            "??, definitely",
+            "Signs point to ??",
+            "??. Without a doubt",
+            "Hell ??",
+            "Well... ??",
+            "Why did you ask me for this. The answer is always ??",
+            "The answer is always ??",
+            "Shut up. The answer is ??",
+            "Stop asking me that question. The answer is definitely ??",
+            "Heck ??",
+            "That question's answer is always ??",
+            "??. ??!!!",
+            "Someone told me the answer is ??",
+            "Sorry, but the answer is ??"
+        ]
+        
         del self._config
         setattr(client, attribute_name, self)
+    
+    def eight_ball(self, ctx):
+        """ Gets the eight ball answer. """
+        code = hash(ctx.message.content.lower().replace(" ", "").replace("?", ""))
+        if code < 0: code *= -1
+        
+        response = ((code + ctx.author.id) % 2 == 0)
+        del code, ctx
+        return choice(self._8ball_template).replace("??", ("yes" if response else "no"))
     
     def load_cog(self, cog_folder: str = None, exclude: list = []):
         """ Loads the cogs from a directory. """

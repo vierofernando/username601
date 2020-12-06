@@ -102,10 +102,12 @@ class fun(commands.Cog):
     async def _8ball(self, ctx, *args):
         if len(args) == 0: return await ctx.bot.util.send_error_message(ctx, "Please send a question!")
         
-        await ctx.trigger_typing()
-        data = await ctx.bot.util.get_request("https://yesno.wtf/api", json=True)
-        
-        return await ctx.bot.util.send_image_attachment(ctx, data['image'])
+        res = ctx.bot.util.eight_ball(ctx)
+        embed = ctx.bot.Embed(ctx, title="The 8-Ball", fields={
+            "Question": '*"'+ discord.utils.escape_markdown(" ".join(args)) +'"*',
+            "Answer": f'***{res}***'
+        })
+        return await embed.send()
 
     @command('serverdeathnote,dn')
     @cooldown(10)
