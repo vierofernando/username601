@@ -80,36 +80,27 @@ class apps(commands.Cog):
     @command('tr,trans')
     @cooldown(5)
     async def translate(self, ctx, *args):
-        wait = await ctx.send(ctx.bot.util.loading_emoji + ' | Please wait...') ; args = list(args)
-        if len(args)>0:
-            if ctx.bot.utils.parse_parameter(tuple(args), '--list')['available']:
-                lang = "\n".join([str(i)+' ('+str(LANGUAGES[i])+')' for i in LANGUAGES])
-                embed = discord.Embed(title='List of supported languages', description=lang, colour=ctx.guild.me.roles[::-1][0].color)
-                await wait.edit(content='', embed=embed)
-            elif len(args)>1:
-                destination = args[0].lower()
-                try:
-                    toTrans = ' '.join(args[1:])
-                    if len(destination) > 2:
-                        q = list(filter(
-                            lambda x: destination in x.lower(), [LANGUAGES[x] for x in list(LANGUAGES)]
-                        ))
-                        assert len(q) > 0
-                        destination = q[0]
-                except (IndexError, AssertionError):
-                    return await ctx.bot.util.send_error_message(ctx, 'Gimme something to translate!')
-                try:
-                    translation = self.translator.translate(toTrans, dest=destination)
-                    embed = discord.Embed(description=translation.text, colour=ctx.guild.me.roles[::-1][0].color)
-                    embed.set_footer(text=f'Translated {LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}.')
-                    await wait.edit(content="", embed=embed)
-                except Exception as e:
-                    return await ctx.bot.util.send_error_message(ctx, f'An error occurred! ```py\n{str(e)}```')
-            else:
-                await wait.edit(content=f'Please add a language! To have the list and their id, type\n`{ctx.bot.command_prefix}translate --list`.')
-        else:
-            await wait.edit(content=f'Please add translations or\nType `{ctx.bot.command_prefix}translate --list` for supported languages.')
-    
+        await ctx.trigger_typing()
+        if len(args)>1:
+            destination = args[0].lower()
+            try:
+                toTrans = ' '.join(args[1:])
+                if len(destination) > 2:
+                    q = list(filter(
+                        lambda x: destination in x.lower(), [LANGUAGES[x] for x in list(LANGUAGES)]
+                    ))
+                    assert len(q) > 0
+                    destination = q[0]
+            except (IndexError, AssertionError):
+                return await ctx.bot.util.send_error_message(ctx, 'Please insert a valid language.')
+            try:
+                translation = self.translator.translate(toTrans[0:1000], dest=destination)
+                embed = ctx.bot.Embed(ctx, title=f"{LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}", desc=translation.text[0:1900])
+                return await embed.send()
+            except Exception as e:
+                return await ctx.bot.util.send_error_message(ctx, f'An error occurred! ```py\n{str(e)}```')
+        return await ctx.bot.util.send_error_message(ctx, f'Please add a language and a text!')
+
     @command()
     @cooldown(5)
     async def wikipedia(self, ctx, *args):
