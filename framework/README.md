@@ -144,14 +144,14 @@ from framework import WaitForMessage
 @bot.command()
 async def choose_a_number(ctx):
     await ctx.send("Please send a text. I'll wait for 20 seconds")
-	
-	wait_for = WaitForMessage(ctx, timeout=20)
-	result = await wait_for.get_message()
-	
-	if result is None:
-		return await ctx.send("You did not input anything after 20 seconds >:(")
+    
+    wait_for = WaitForMessage(ctx, timeout=20)
+    result = await wait_for.get_message()
+    
+    if result is None:
+        return await ctx.send("You did not input anything after 20 seconds >:(")
 
-	return await ctx.send("Here is your text: " + result.content)
+    return await ctx.send("Here is your text: " + result.content)
 ```
 
 ## Custom Panel
