@@ -4,7 +4,6 @@ import sys
 from os import getcwd, name, environ
 sys.path.append(environ['BOT_MODULES_DIR'])
 import imdb
-ia = imdb.IMDb()
 from datetime import datetime as t
 from decorators import command, cooldown
 from requests import get
@@ -14,39 +13,16 @@ from googletrans import Translator, LANGUAGES
 
 class apps(commands.Cog):
     def __init__(self, client):
-        self.translator = Translator()
-
-    def get_spotify(self, user):
-        activity = [i for i in user.activities if int(i.type) == 2 and i.name == "Spotify"]
-        if len(activity) == 0: return None
-        activity = activity[0]
-        if isinstance(activity, discord.Spotify):
-            return {
-                "title": activity.title,
-                "artists": ", ".join(activity.artists),
-                "album": activity.album,
-                "cover": activity.album_cover_url,
-                "created": activity.created_at,
-                "duration": activity.duration,
-                "has_duration": True
-            }
-        
-        activity = activity.to_dict()
-        return {
-            "title": activity["details"],
-            "artists": str(activity["state"]),
-            "album": activity["assets"]["large_text"],
-            "cover": user.avatar_url_as(format="png", size=512),
-            "created": activity['timestamps']['start'],
-            "has_duration": False
-        }
+        self.translator = Translator(service_urls=['translate.googleapis.com'])
+        self.Wikipedia = wikipediaapi.Wikipedia('en')
+        self.ia = imdb.IMDb()
 
     @command('movie')
     @cooldown(5)
     async def tv(self, ctx, *args):
         if len(args)==0: return await ctx.bot.util.send_error_message(ctx, "Please give TV shows as arguments.")
         data = await ctx.bot.util.get_request(
-            f'http://api.tvmaze.com/singlesearch/shows?q={query}',
+            f'http://api.tvmaze.com/singlesearch/shows',
             json=True,
             q=' '.join(args)
         )
@@ -63,14 +39,14 @@ class apps(commands.Cog):
         except:
             return await ctx.bot.util.send_error_message(ctx, "There was an error on fetching the info.")
 
-    @command('spot,splay,listeningto,sp')
+    @command('spy,spot,splay,listeningto,sp')
     @cooldown(2)
     async def spotify(self, ctx, *args):
         user = ctx.bot.Parser.parse_user(ctx, args)
-        act = self.get_spotify(user)
-        if act is None: return await ctx.bot.util.send_error_message(ctx, f"Sorry, but {user.display_name} is not listening to spotify.")
+        act = [i for i in user.activities if isinstance(i, discord.Spotify)]
+        if len(act) == 0: return await ctx.bot.util.send_error_message(ctx, f"Sorry, but {user.display_name} is not listening to spotify.")
         await ctx.trigger_typing()
-        panel = ctx.bot.Panel(ctx, spotify=act)
+        panel = ctx.bot.Panel(ctx, spotify=act[0])
         await panel.draw()
         await panel.send_as_attachment()
         panel.close()
@@ -137,81 +113,55 @@ class apps(commands.Cog):
     @command()
     @cooldown(5)
     async def wikipedia(self, ctx, *args):
-        if len(args)==0:
+        if len(args) == 0:
             return await ctx.bot.util.send_error_message(ctx, "Please input a page name.")
-        wait = await ctx.send(ctx.bot.util.loading_emoji + ' | Please wait...')
-        wikipedia = wikipediaapi.Wikipedia('en')
-        page = wikipedia.page(' '.join(args))
-        if page.exists()==False:
-            await wait.edit(content='That page does not exist!')
-        else:
-            if ' may refer to:' in page.text:
-                byCategory = page.text.split('\n\n')
-                del byCategory[0]
-                temp = ''
-                totalCount = 0
-                for b in byCategory:
-                    if b.startswith('See also') or len(temp)>950:
-                        break
-                    totalCount = int(totalCount)+1
-                    temp = temp + str(totalCount)+'. ' + str(b) + '\n\n'
-                explain = temp
-                pageTitle = 'The page you may be refering to may be;'
-            else:
-                pageTitle = page.title
-                explain = ''
-                count = 0
-                limit = random.choice(list(range(2, 4)))
-                for i in range(len(page.summary)):
-                    if count==limit or len(explain)>900:
-                        break
-                    explain = explain + str(list(page.summary)[i])
-                    if list(page.summary)[i]=='.':
-                        count = int(count) + 1
-            embed = discord.Embed(title=pageTitle, url=str(page.fullurl), description=str(explain), colour=ctx.guild.me.roles[::-1][0].color)
-            await wait.edit(content='', embed=embed)
+        await ctx.trigger_typing()
+        
+        page = self.Wikipedia.page(' '.join(args))
+        if not page.exists():
+            return await ctx.send(content='That page does not exist!')
+        
+        embed = ctx.bot.Embed(ctx, title=page.title, url=page.fullurl, desc=page.summary[0:2000])
+        return await embed.send()
+    
     @command()
     @cooldown(5)
     async def imdb(self, ctx, *args):
-        wait, args = await ctx.send(ctx.bot.util.loading_emoji + ' | Please wait...'), list(args)
-        if len(args)==0 or ctx.bot.utils.parse_parameter(args, 'help')['available']:
-            embed = discord.Embed(title='IMDb command help', description='Searches through the IMDb Movie database.\n{} are Parameters that is **REQUIRED** to get the info.\n\n', colour=ctx.guild.me.roles[::-1][0].color)
-            embed.add_field(name='Commands', value=ctx.bot.command_prefix+'imdb --top {NUMBER}\n'+ctx.bot.command_prefix+'imdb help\n'+ctx.bot.command_prefix+'imdb --movie {MOVIE_ID or MOVIE_NAME}', inline='False')
-            return await wait.edit(content='', embed=embed)
-        top = ctx.bot.utils.parse_parameter(args, '--top', get_second_element=True, singular=True)
-        if top['available']:
-            try:
-                num = int(top['secondparam'])
-                if num>30 or num<2: num = 20
-                arr = ia.get_top250_movies()
-                total = '\n'.join(map(lambda x: str(int(x)+1) + '. '+str(arr[x]['title'])+' (`'+str(arr[x].movieID)+'`)', range(num)))
-                embed = discord.Embed(title='IMDb Top '+str(num)+':', description=str(total), colour=ctx.guild.me.roles[::-1][0].color)
-                return await wait.edit(content='', embed=embed)
-            except:
-                return await ctx.bot.util.send_error_message(ctx, 'Is the top thing you inputted REALLY a number?\nlike, Not top TEN, but top 10.\nGET IT?')
-        movie_param = ctx.bot.utils.parse_parameter(args, '--movie', get_second_element=True)
-        if movie_param['available']:
-            try:
-                movieId = int(movie_param['secondparam']) if movie_param['secondparam'].isnumeric() else ia.search_movie(movie_param['secondparam'])[0].movieID
-                theID = str(movieId)
-                data = ia.get_movie(str(movieId))
-                main_data = ia.get_movie_main(theID)
-                try:
-                    rating, cover, vote_count = main_data['data']['rating'], main_data['data']['cover url'], main_data['data']['votes']
-                except KeyError: rating, cover, vote_count = None, None, 0
-                embed = discord.Embed(title=data['title'], colour=ctx.guild.me.roles[::-1][0].color)
-                await wait.edit(content=ctx.bot.util.loading_emoji + ' | Please wait... Retrieving data... this may take a while depending on how big the movie is.')
-                emoteStar = ' '.join(map(lambda x: ':star:', range(round(rating)))) if rating is not None else '???'
-                upload_date = ia.get_movie_release_info(str(theID))['data']['raw release dates'][0]['date']
-                imdb_url = ia.get_imdbURL(data)
-                embed.add_field(name='General Information', value=f'[IMDb URL here]({imdb_url})\n**Upload date: **{upload_date}\n**Written by: **'+main_data['data']['writer'][0]['name']+'\n**Directed by: **'+main_data['data']['director'][0]['name'])
-                embed.add_field(name='Ratings', value=emoteStar+'\n**Overall rating: **'+str(rating)+'\n**Rated by '+str(vote_count)+' people**')
-                if cover is not None: embed.set_image(url=cover)
-                return await wait.edit(content='', embed=embed)
-            except Exception as e:
-                print(e)
-                return await ctx.bot.util.send_error_message(ctx, 'Oopsies! please input a valid ID/parameter...')
-        return await ctx.bot.util.send_error_message(ctx, 'Wrong syntax. Use `'+ctx.bot.command_prefix+'imdb help` next time.')
+        await ctx.trigger_typing()
+        if len(args) < 2 or args[0] == "help":
+            return await ctx.bot.util.send_error_message(ctx, "Please input a movie name.")
+        
+        try:
+            query = " ".join(args[1:])
+            res = self.ia.search_movie(query)
+            
+            choose = ctx.bot.ChooseEmbed(ctx, res[0:10], key=(lambda x: x["long imdb title"]))
+            movie = await choose.run()
+            
+            if not movie:
+                return
+            await ctx.trigger_typing()
+            
+            data = self.ia.get_movie_main(movie.movieID)["data"]
+            votes = (":star:" * round(data["rating"])) + f' ({data["rating"]}, {data["votes"]} votes)' if (data.get("votes") and data.get("rating")) else "<data not available>"
 
+            embed = ctx.bot.Embed(
+                ctx,
+                title=movie["long imdb title"],
+                url=self.ia.get_imdbURL(movie),
+                image=movie["full-size cover url"],
+                fields={
+                    "Plot": data["plot outline"],
+                    "Movie Ratings": votes,
+                    "Directors": ", ".join(map(lambda x: x["name"], data["directors"])),
+                    "Producers": ", ".join(map(lambda x: x["name"], data["producers"])),
+                    "Writers": ", ".join(map(lambda x: x["name"], data["writers"]))
+                }
+            )
+            await embed.send()
+            del res, data, embed, votes, choose, movie, query
+        except:
+            return await ctx.bot.util.send_error_message(ctx, "The movie query does not exist.")
+        
 def setup(client):
     client.add_cog(apps(client))
