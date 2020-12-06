@@ -3,7 +3,6 @@ from .canvas import Painter, GifGenerator
 from .commandmanager import BotCommands
 from . import algorithm, discordgames, database, username601
 from requests import post
-from aiohttp import ClientSession
 from os import environ
 
 def pre_ready_initiation(client):
@@ -15,7 +14,6 @@ def pre_ready_initiation(client):
     setattr(client, 'db', database)
     setattr(client, 'games', discordgames)
     setattr(client, 'algorithm', algorithm)
-    setattr(client, 'bot_session', ClientSession())
 
 async def post_ready_initiation(client):
     test = post("https://useless-api.vierofernando.repl.co/update_bot_stats", headers={

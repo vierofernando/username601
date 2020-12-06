@@ -99,13 +99,13 @@ class fun(commands.Cog):
 
     @command('8ball,8b')
     @cooldown(3)
-    async def _8ball(self, ctx):
+    async def _8ball(self, ctx, *args):
+        if len(args) == 0: return await ctx.bot.util.send_error_message(ctx, "Please send a question!")
+        
         await ctx.trigger_typing()
         data = await ctx.bot.util.get_request("https://yesno.wtf/api", json=True)
         
-        async with ctx.bot.bot_session.get(data['image']) as r:
-            res = await r.read()
-            await ctx.send(content='**'+data['answer'].upper()+'**', file=discord.File(fp=BytesIO(res), filename=data['answer'].upper()+".gif"))
+        return await ctx.bot.util.send_image_attachment(ctx, data['image'])
 
     @command('serverdeathnote,dn')
     @cooldown(10)
