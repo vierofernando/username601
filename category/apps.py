@@ -153,15 +153,15 @@ class apps(commands.Cog):
                 fields={
                     "Plot": data["plot outline"],
                     "Movie Ratings": votes,
-                    "Directors": ", ".join(map(lambda x: x["name"], data["directors"])),
-                    "Producers": ", ".join(map(lambda x: x["name"], data["producers"])),
-                    "Writers": ", ".join(map(lambda x: x["name"], data["writers"]))
+                    "Directors": ", ".join([i["name"] for i in data["directors"] if i.get("name")]),
+                    "Producers": ", ".join([i["name"] for i in data["producers"] if i.get("name")]),
+                    "Writers": ", ".join([i["name"] for i in data["writers"] if i.get("name")])
                 }
             )
             await embed.send()
             del res, data, embed, votes, choose, movie, query
-        except:
-            return await ctx.bot.util.send_error_message(ctx, "The movie query does not exist.")
+        except Exception as e:
+            return await ctx.bot.util.send_error_message(ctx, "The movie query does not exist.\n" + str(e))
         
 def setup(client):
     client.add_cog(apps(client))
