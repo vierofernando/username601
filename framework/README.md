@@ -3,6 +3,91 @@ A custom "framework" i made for this bot. You can use this framework!<br>
 (not planning to be added to PyPI, sorry)<br>
 This is the documentation and the examples.<br>
 
+## Initiation
+This will make a copy of itself to the client object.<br>
+Which means that the functions/classes can be accessed by `client` or `ctx.bot`.<br>
+```py
+import framework
+import discord
+
+client = discord.Client(...)
+framework.initiate(client)
+```
+
+## Utilities
+The main bot utilities.<br>
+Here are snippets for some of the functions:<br>
+NOTE: the following snippets work <b>after the function above is called.</b><br>
+
+### Getting time lapsed from seconds.
+```py
+from time import time
+
+@bot.command()
+async def how_old_am_i(ctx):
+    delta = time() - ctx.author.created_at.timestamp()
+    res = ctx.bot.util.strfsecond(delta)
+    await ctx.send(f"You made you account in discord {res} ago!")
+```
+
+### Converting stuff.
+```py
+@bot.command()
+async def binary(ctx, *args):
+    text = " ".join(args) if len(args) > 0 else "text"
+    result = ctx.bot.util.binary(text)
+    await ctx.send(result)
+
+@bot.command()
+async def base64(ctx, *args):
+    text = " ".join(args) if len(args) > 0 else "text"
+    result = ctx.bot.util.base64(text)
+    await ctx.send(result)
+```
+
+### Sending image attachment from URL.
+```py
+@bot.command()
+async def httpcat(ctx, *args):
+    input = args[0] if (len(args) > 0) and (args[0].isnumeric()) else "404"
+    await ctx.bot.util.send_image_attachment(ctx, "https://http.cat/" + input)
+```
+
+### Get request to an API.
+```py
+@bot.command()
+async def cat(ctx):
+    result = await ctx.bot.util.get_request(
+        "https://aws.random.cat/meow",
+        json=True
+    )
+    
+    if not result:
+        return await ctx.send("The API may be down. Try again later!")
+    
+    await ctx.send(result["file"])
+```
+
+### Executing terminal code.
+```py
+@bot.command()
+async def execute(ctx, *args):
+    if ctx.author.id != OWNER_ID:
+        return
+    
+    command = " ".join(args)
+    result = await ctx.bot.util.execute(command)
+    await ctx.send("```" + result + "```")
+```
+
+### Getting bot stats.
+```py
+@bot.command()
+async def stats(ctx):
+    stats = await ctx.bot.util.get_stats()
+    await ctx.send("Bot uptime: " + stats["bot_uptime"] + "\nDiscord.py version: " + stats["versions"]["discord_py"])
+```
+
 ## Argument Parser
 
 ### Using the Parser Object
@@ -180,7 +265,7 @@ async def spotify(ctx, *args):
     if user.activity is None:
         return
     
-    panel = CustomPanel(ctx, spt=user.activity)
+    panel = CustomPanel(ctx, spotify=user.activity)
     await panel.draw()
     await panel.send_as_attachment(content=f"This is {user.name}'s spotify card!")
     panel.close()
