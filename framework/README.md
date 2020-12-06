@@ -164,9 +164,9 @@ from discord import File
 @bot.command()
 async def card(ctx, *args):
     card = CustomPanel(ctx, title="This is a title", subtitle="This is a subtitle.", description="This is a card", icon="https://example.com/image.png", font="/path/to/font.ttf")
-    card.draw()
-    
+    await card.draw()
     await card.send_as_attachment()
+    card.close()
 ```
 
 ### Spotify Card
