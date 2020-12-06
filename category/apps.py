@@ -151,7 +151,7 @@ class apps(commands.Cog):
                 url=self.ia.get_imdbURL(movie),
                 image=movie["full-size cover url"],
                 fields={
-                    "Plot": data["plot outline"],
+                    "Plot": data["plot outline"].split(".")[0][0:1000],
                     "Movie Ratings": votes,
                     "Directors": ", ".join([i["name"] for i in data["directors"] if i.get("name")]),
                     "Producers": ", ".join([i["name"] for i in data["producers"] if i.get("name")]),
