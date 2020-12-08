@@ -1,10 +1,9 @@
 import discord
 import sys
+import PIL as p
 import os
-import requests
 import random
-sys.path.append(os.environ['BOT_MODULES_DIR'])
-from decorators import command, cooldown
+from category.decorators import command, cooldown
 from discord.ext import commands
 from datetime import datetime as t
 from subprocess import run, PIPE
@@ -16,7 +15,7 @@ from twemoji_parser import TwemojiParser
 totallyrealtoken = 'Ng5NDU4MjY5NTI2Mjk0MTc1.AkxrpC.MyB2BEHJLXuZ8h0wY0Qro6Pwi8'
 
 class owner(commands.Cog):
-    def __init__(self, client):
+    def __init__(self):
         self.protected_files = [ # CONFIDENTIAL FILES
             os.environ['DISCORD_TOKEN'],
             os.environ['DBL_TOKEN'],
@@ -27,9 +26,15 @@ class owner(commands.Cog):
 
     @command()
     @cooldown(1)
-    async def test(self, ctx):
+    async def test(self, ctx, *args):
         if ctx.author.id not in [661200758510977084, 766952708602331137]: return
-        return
+        a = p.Image.new("RGB", (500, 500), color=(255, 255, 255))
+        _p = TwemojiParser(a, parse_discord_emoji=True)
+        f = p.ImageFont.truetype("/app/assets/fonts/NotoSansDisplay-Bold.otf", 20)
+        await _p.draw_text((5, 5), " ".join(args), font=f, fill=(0, 0, 0))
+        await _p.close()
+        buff = ctx.bot.canvas.buffer(a)
+        return await ctx.send(file=discord.File(buff, "test.png"))
 
     @command()
     @cooldown(2)
@@ -80,10 +85,10 @@ class owner(commands.Cog):
         if url.endswith('>'): url = url[:-1]
         if "/https/" in url:
             url = "https://" + url.split("/https/")[1].split("?")[0]
-        data = requests.post('https://useless-api--vierofernando.repl.co/postprogrammermeme', headers={
-            'superdupersecretkey': os.getenv('USELESSAPI'),
-            'url': url
-        }).json()
+        data = await ctx.bot.util.useless_client.post('https://useless-api--vierofernando.repl.co/postprogrammermeme?url=' + url, headers={
+            'superdupersecretkey': os.environ['USELESSAPI']
+        })
+        data = await data.json()
         try:
             if data['success']: return await ctx.message.add_reaction(ctx.bot.util.success_emoji)
         except Exception as e:
@@ -172,4 +177,4 @@ class owner(commands.Cog):
             await ctx.send(embed=discord.Embed(title='Error on execution', description='Input:```sh\n'+str(unprefixed)+'```**Error:**```py\nDenied by username601.sh```', color=discord.Color.red()).set_footer(text='It is because it is owner only you dumbass'))
 
 def setup(client):
-    client.add_cog(owner(client))
+    client.add_cog(owner())

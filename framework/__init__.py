@@ -8,6 +8,7 @@ from .panel import CustomPanel
 from .colorthief import Smart_ColorThief
 from .games import TicTacToe, Quiz
 from .util import Util, GetRequestFailedException
+from .cache import CacheManager
 
 def initiate(client):
     setattr(client, "Embed", embed)
@@ -19,4 +20,5 @@ def initiate(client):
     setattr(client, "Quiz", Quiz)
     setattr(client, "ChooseEmbed", ChooseEmbed)
     setattr(client, "WaitForMessage", WaitForMessage)
+    setattr(client, "cache_manager", CacheManager)
     Util(client)

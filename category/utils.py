@@ -1,19 +1,15 @@
 import discord
-import sys
 import random
 from discord.ext import commands
-from os import getcwd, name, environ
-sys.path.append(environ['BOT_MODULES_DIR'])
-from decorators import command, cooldown
+from category.decorators import command, cooldown
 from io import BytesIO
-from requests import post, get
 from json import loads
 from datetime import datetime as t
 from re import search
 from PIL import ImageColor
 
 class utils(commands.Cog):
-    def __init__(self, client):
+    def __init__(self):
         self._fact_urls = {
             "cat": ("https://catfact.ninja/fact", "fact", None),
             "dog": ("https://dog-api.kinduff.com/api/facts", "facts", 0),
@@ -150,8 +146,8 @@ class utils(commands.Cog):
         wait = await ctx.send('{} | Please wait...'.format(ctx.bot.util.loading_emoji))
         text = await ctx.bot.canvas.imagetoASCII(url)
         try:
-            data = post("https://hastebin.com/documents", data=text, timeout=3)
-            assert data.status_code == 200
+            data = await ctx.bot.util.default_client.post("https://hastebin.com/documents", data=text)
+            assert data.status == 200
         except:
             await wait.delete()
             file = discord.File(BytesIO(bytes(text, 'utf-8')), filename='ascii.txt')
@@ -496,4 +492,4 @@ class utils(commands.Cog):
             await ctx.send(embed=discord.Embed(title='TYPING TEST RESULTS', description='**Your time: **'+str(round(offset))+' seconds.\n**Your accuracy: **'+str(accuracy)+'%\n**Your speed: **'+str(cps)+' Characters per second.', colour=ctx.guild.me.roles[::-1][0].color))
 
 def setup(client):
-    client.add_cog(utils(client))
+    client.add_cog(utils())

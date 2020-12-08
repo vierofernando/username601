@@ -1,9 +1,9 @@
 print('Please wait...')
-from modules import *
 from datetime import datetime as t
 from discord.ext import commands
 from os import environ, listdir
 from PIL import UnidentifiedImageError
+from modules import *
 import discord
 import framework
 
@@ -13,21 +13,13 @@ intents = discord.Intents(
 
 client = commands.Bot(command_prefix="1", intents=intents, activity=discord.Activity(type=5, name="2020 survival competition"))
 framework.initiate(client)
-framework.Util(client)
 pre_ready_initiation(client)
-environ['BOT_MODULES_DIR'] = client.util.modules_dir
-environ['BOT_JSON_DIR'] = client.util.json_dir
 
-async def ready():
-    for i in listdir('./{}'.format(client.util.cogs_dirname)):
-        if not i.endswith('.py'): continue
-        print('[BOT] Loaded cog: '+str(i[:-3]))
-        try:
-            client.load_extension('{}.{}'.format(client.util.cogs_dirname, i[:-3]))
-        except Exception as e:
-            print('error on loading cog '+str(i[:-3])+': '+str(e))
-            pass
-    post_ready_initiation(client)
+@client.event
+async def on_ready():
+    await post_ready_initiation(client)
+    client.util.load_cog("category", exclude=["decorators.py"])
+    client.util.post_ready()
     print('Bot is online.')
 
 @client.event
@@ -131,7 +123,7 @@ async def on_command_error(ctx, error):
         except: return
     elif isinstance(error, UnidentifiedImageError): return await ctx.send(str(emote(client, 'error'))+' | Error, it seemed i can\'t load/send the image! Check your arguments and try again. Else, report this to the bot owner using `'+client.command_prefix+'feedback.`')
     elif isinstance(error, framework.GetRequestFailedException):
-        return await ctx.bot.util.send_error_message("A request failed to the API. Please try again later!")
+        return await ctx.bot.util.send_error_message(ctx, "A request failed to the API. Please try again later!\nError: " + str(error))
     else:
         await client.get_channel(client.util.feedback_channel).send(content='<@{}> there was an error!'.format(client.util.owner_id), embed=discord.Embed(
             title='Error', color=discord.Colour.red(), description=f'Content:\n```{ctx.message.content}```\n\nError:\n```{str(error)}```'
@@ -142,11 +134,10 @@ def isdblvote(author):
     if not author.bot: return False
     elif author.id==479688142908162059: return False
     return True
-
 @client.event
 async def on_message(message):
     if isdblvote(message.author) or message.guild is None: return
-    if message.author.bot: return
+    if message.author.bot or (message.reference is not None): return
     #if message.author.id in client.blacklisted_ids: return
     if message.content.startswith(f'<@{client.user.id}>') or message.content.startswith(f'<@!{client.user.id}>'): return await message.channel.send(f'Hello, {message.author.name}! My prefix is `1`. use `1help` for help')
     #if message.guild.id==client.util.server_id and message.author.id==479688142908162059:
@@ -159,6 +150,5 @@ async def on_message(message):
 
 def Username601():
     print('Logging in to discord...')
-    client.loop.create_task(ready())
     client.run(environ['DISCORD_TOKEN'])
 if __name__ == "__main__": Username601()

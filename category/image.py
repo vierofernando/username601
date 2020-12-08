@@ -1,16 +1,12 @@
 import discord
 from discord.ext import commands
-import sys
-from requests import get
-from os import getcwd, name, environ
-sys.path.append(environ['BOT_MODULES_DIR'])
-from decorators import command, cooldown
+from category.decorators import command, cooldown
 import random
 from io import BytesIO
 from aiohttp import ClientSession
 
 class image(commands.Cog):
-    def __init__(self, client):
+    def __init__(self):
         self._links = {
             "dog": "https://api.alexflipnote.dev/dogs|file",
             "cat": "https://api.alexflipnote.dev/cats|file",
@@ -94,8 +90,7 @@ class image(commands.Cog):
     async def glitch(self, ctx, *args):
         ava = await ctx.bot.Parser.parse_image(ctx, args, size=128)
         await ctx.trigger_typing()
-        im = BytesIO(get("https://useless-api.vierofernando.repl.co/glitch/noratelimit?image="+ava, headers={'token': environ["USELESSAPI"]}).content)
-        await ctx.send(file=discord.File(im, 'glitch.png'))
+        return await ctx.bot.util.send_image_attachment(ctx, "https://useless-api.vierofernando.repl.co/glitch/noratelimit?image=" + ava, uselessapi=True)
 
     @command()
     @cooldown(2)
@@ -298,4 +293,4 @@ class image(commands.Cog):
         return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
 
 def setup(client):
-    client.add_cog(image(client))
+    client.add_cog(image())

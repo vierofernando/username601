@@ -1,10 +1,7 @@
 from os import environ
 from discord.ext import commands, tasks
-from sys import path
-from os import environ
-path.append(environ['BOT_MODULES_DIR'])
-from decorators import command, cooldown
-from requests import get
+from category.decorators import command, cooldown
+from aiohttp import ClientSession
 import dbl as topgg
 import discord
 
@@ -37,6 +34,11 @@ class dbl(commands.Cog):
         self._bot_links = {"invite": "", "website": "", "support": "https://discord.gg/", "github": ""}
         self._bot_subtitution = {"invite": "Invite this Bot", "website": "Official Website", "support": "Support Server", "github": "GitHub Repository"}
         self._none = ["", None, "#"]
+        self._connection = ClientSession(headers={"Authorization": "Bearer "+environ["DBL_TOKEN"]})
+    
+    async def get(self, url):
+        res = await self._connection.get(url)
+        return await res.json()
     
     async def resolve_user(self, ctx, args):
         if "".join(args[1:]).isnumeric():
@@ -49,7 +51,7 @@ class dbl(commands.Cog):
         if _input.bot:
             await self.client.util.send_error_message(ctx, str(_input) + " is a bot.")
             return
-        data = get(self.api_url + "/users/" + str(_input.id), headers={"Authorization": "Bearer "+environ["DBL_TOKEN"]}).json()
+        data = await self.get(self.api_url + "/users/" + str(_input.id))
         
         if data.get("error") is not None:
             await self.client.util.send_error_message(ctx, str(_input) + " does not exist in the [top.gg](https://top.gg/) database.")
@@ -85,12 +87,14 @@ class dbl(commands.Cog):
         if _cached_user is not None:
             return str(_cached_user)
         
-        data = get("https://top.gg/api/users/"+str(id), headers={"Authorization": "Bearer "+environ["DBL_TOKEN"]}).json()
+        data = await self.get("https://top.gg/api/users/"+str(id))
         if data.get("error") is not None: return "<not available>"
         return data["username"] + "#" + data["discriminator"]
     
     async def search_bots(self, ctx, query):
-        data = get("https://top.gg/api/search?q="+str(query)+"&type=bot").json()["results"]
+        data = await self.get("https://top.gg/api/search?q="+str(query)+"&type=bot")
+        data = data["results"] # why
+        
         if len(data) == 0: return await self.client.util.send_error_message(ctx, "That bot does not exist on the [top.gg](https://top.gg/) database.")
         embed = self.client.ChooseEmbed(ctx, data, key=(lambda x: "["+x["name"]+"](https://top.gg/bot/"+x["id"]+")"))
         res = await embed.run()
@@ -109,7 +113,7 @@ class dbl(commands.Cog):
             _id = await self.search_bots(ctx, self.client.util.encode_uri(" ".join(args[1:])))
             if _id is None: return
         
-        data = get(self.api_url + "/bots/" + _id, headers={"Authorization": "Bearer "+environ["DBL_TOKEN"]}).json()
+        data = await self.get(self.api_url + "/bots/" + _id)
         
         if data.get("error") is not None:
             raise self.client.utils.send_error_message("That bot does not exist in the [top.gg](https://top.gg/) database.")

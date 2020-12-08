@@ -1,18 +1,14 @@
 import discord
 from discord.ext import commands
-import sys
-from os import getcwd, name, environ
-sys.path.append(environ['BOT_MODULES_DIR'])
 import imdb
 from datetime import datetime as t
-from decorators import command, cooldown
-from requests import get
+from category.decorators import command, cooldown
 import random
 import wikipediaapi
 from googletrans import Translator, LANGUAGES
 
 class apps(commands.Cog):
-    def __init__(self, client):
+    def __init__(self):
         self.translator = Translator(service_urls=['translate.googleapis.com'])
         self.Wikipedia = wikipediaapi.Wikipedia('en')
         self.ia = imdb.IMDb()
@@ -155,4 +151,4 @@ class apps(commands.Cog):
             return await ctx.bot.util.send_error_message(ctx, "The movie query does not exist.\n" + str(e))
         
 def setup(client):
-    client.add_cog(apps(client))
+    client.add_cog(apps())

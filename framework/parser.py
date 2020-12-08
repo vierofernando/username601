@@ -187,7 +187,7 @@ class Parser:
             except: pass
         
         if (not member_only) and (not cdn_only):
-            _emoji = emoji_to_url(_filtered)
+            _emoji = await emoji_to_url(_filtered)
             if _emoji != _filtered:
                 return _emoji
         

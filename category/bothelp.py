@@ -1,11 +1,7 @@
 import discord
 from discord.ext import commands
-import sys
-import requests
 from json import loads
-from os import getcwd, name, environ
-sys.path.append(environ['BOT_MODULES_DIR'])
-from decorators import command, cooldown
+from category.decorators import command, cooldown
 from datetime import datetime as t
 
 class bothelp(commands.Cog):

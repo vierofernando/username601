@@ -1,20 +1,17 @@
 import discord
-import sys
 import random
+from os import environ
 from discord.ext import commands
-from os import getcwd, name, environ
-sys.path.append(environ['BOT_MODULES_DIR'])
-from decorators import command, cooldown
+from category.decorators import command, cooldown
 from aiohttp import ClientSession
 from io import BytesIO
-from requests import post
 import asyncio
 from gtts import gTTS
 from json import dumps
 
 class fun(commands.Cog):
-    def __init__(self, client):
-        pass        
+    def __init__(self):
+        self.connection = ClientSession(headers={'Authorization': 'Bot '+environ['DISCORD_TOKEN'], 'Content-Type': 'application/json'})      
 
     @command('talk,gtts,texttospeech,text-to-speech')
     @cooldown(5)
@@ -49,12 +46,11 @@ class fun(commands.Cog):
         if len(args) == 0: return await ctx.send("Send `something`.")
         text = ' '.join(args).lower()[0:1999]
         if ctx.bot.util.get_command_name(ctx) == "reply":
-            res = post(
+            res = await self.connection.post(
                 f'https://discord.com/api/v8/channels/{ctx.channel.id}/messages',
-                headers={'Authorization': 'Bot '+environ['DISCORD_TOKEN'], 'Content-Type': 'application/json'},
                 data=dumps({'content': text, 'message_reference': {'message_id': str(ctx.message.id), 'guild_id': str(ctx.guild.id)}, 'allowed_mentions': {'replied_user': False}})
-            ).status_code
-            if res != 200:
+            )
+            if res.status != 200:
                 return await ctx.send(text, allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False))
             return
         if '--h' in text:
@@ -136,8 +132,12 @@ class fun(commands.Cog):
     @cooldown(3)
     async def uselesswebs(self, ctx):
         try:
-            url = requests.get('https://useless-api.vierofernando.repl.co/useless-sites').json()['url']
-            await ctx.send(ctx.bot.util.success_emoji+f' | **{url}**')
+            url = await ctx.bot.util.get_request(
+                'https://useless-api.vierofernando.repl.co/uselesssites',
+                json=True,
+                raise_errors=True
+            )
+            await ctx.send(ctx.bot.util.success_emoji+f' | **{url["url"]}**')
         except:
             return await ctx.bot.util.send_error_message(ctx, f'oops. there is some error, meanwhile look at this useless site: <https://top.gg/bot/{ctx.bot.user.id}/vote>')
     
@@ -179,4 +179,4 @@ class fun(commands.Cog):
         embed.set_thumbnail(url='https://i1.theportalwiki.net/img/thumb/5/55/FactCore.png/300px-FactCore.png')
         await ctx.send(embed=embed)
 def setup(client):
-    client.add_cog(fun(client))
+    client.add_cog(fun())

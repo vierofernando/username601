@@ -1,19 +1,20 @@
 import discord
 from discord.ext import commands
-import sys
-from requests import get
-from os import getcwd, name, environ
-sys.path.append(environ['BOT_MODULES_DIR'])
-from decorators import command, cooldown
+from category.decorators import command, cooldown
 import random
 from io import BytesIO
 from datetime import datetime as t
 import asyncio
 
 class games(commands.Cog):
-    def __init__(self, client):
+    def __init__(self):
         self.urltoimage = (lambda url: BytesIO(get(url).content))
-        self.countries = get("https://restcountries.eu/rest/v2").json()
+        self.countries = None
+    
+    async def generate_countries(self, ctx):
+        res = await ctx.bot.util.default_client.get("https://restcountries.eu/rest/v2")
+        self.countries = await res.json()
+        del res
 
     async def wait_for_user(self, ctx, user):
         check = (lambda x: (x.channel == ctx.channel) and (x.author == user) and (x.content.lower() in ["yes", "no"]))
@@ -347,6 +348,9 @@ class games(commands.Cog):
     @command()
     @cooldown(15)
     async def geoquiz(self, ctx):
+        if not self.countries:
+            await self.generate_countries(ctx)
+    
         wait = await ctx.send(ctx.bot.util.loading_emoji + ' | Please wait... generating question...')
         data, topic = self.countries, random.choice(['capital', 'region', 'subregion', 'population', 'demonym', 'nativeName'])
         chosen_nation_num = random.randint(0, len(data))
@@ -569,4 +573,4 @@ class games(commands.Cog):
             return await ctx.bot.util.send_error_message(ctx, f'<@{guy.id}>, You are incorrect. The answer is {corr}.')
 
 def setup(client):
-    client.add_cog(games(client))
+    client.add_cog(games())

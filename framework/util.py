@@ -129,7 +129,9 @@ class Util:
                 assert data.status < 400, "API returns a bad status code"
                 assert data.headers['Content-Type'].startswith("image/"), "Content does not have an image."
                 extension = "." + data.headers['Content-Type'][6:]
-                return await ctx.send(file=File(BytesIO(_bytes), "file"+extension.lower()))
+                msg = await ctx.send(file=File(BytesIO(_bytes), "file"+extension.lower()))
+                del extension, _bytes
+                return msg
         except Exception as e:
             return await self.send_error_message(ctx, "Image not found.\n`"+str(e)+"`")
     

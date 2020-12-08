@@ -1,18 +1,15 @@
 import discord
 from discord.ext import commands
-import sys
 import time
 import random
 import asyncio
-from os import getcwd, name, environ
-sys.path.append(environ['BOT_MODULES_DIR'])
 from aiohttp import ClientSession
-from decorators import command, cooldown
+from category.decorators import command, cooldown
 from datetime import datetime as t
 from twemoji_parser import emoji_to_url
 
 class moderation(commands.Cog):
-    def __init__(self, client):
+    def __init__(self):
         self.latest = ["latest", "recent", "last"]
         self.first = ["first", "early", "earliest", "earlyest", "firstmember"]
         self.permission_attributes = [
@@ -595,4 +592,4 @@ class moderation(commands.Cog):
                 else: await ctx.guild.create_voice_channel(name='-'.join(names))
                 await ctx.send(ctx.bot.util.success_emoji+" | Successfully created a {} channel named {}.".format(args[0], str('-'.join(names))))
 def setup(client):
-    client.add_cog(moderation(client))
+    client.add_cog(moderation())

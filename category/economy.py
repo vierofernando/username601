@@ -1,11 +1,7 @@
 import discord
 import random
 from discord.ext import commands
-from sys import path
-from os import getcwd, name, environ
-path.append(environ['BOT_MODULES_DIR'])
-path.append(environ['BOT_JSON_DIR'])
-from decorators import command, cooldown
+from category.decorators import command, cooldown
 from json import loads
 from datetime import datetime
 from asyncio import sleep

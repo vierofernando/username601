@@ -3,7 +3,6 @@ import os
 from sys import path
 from datetime import datetime as t
 from random import choice
-import requests
 from .username601 import lapsed_time_from_seconds
 database = MongoClient(os.getenv('DB_LINK'))['username601']
 

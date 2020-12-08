@@ -1,14 +1,9 @@
 import discord
 from discord.ext import commands
-import sys
-from os import getcwd, name, environ
-sys.path.append(environ['BOT_MODULES_DIR'])
-##from username601 import *
-
-from decorators import command, cooldown
+from category.decorators import command, cooldown
 
 class encoding(commands.Cog):
-    def __init__(self, client):
+    def __init__(self):
         pass
     
     @command()
@@ -117,4 +112,4 @@ class encoding(commands.Cog):
     
 
 def setup(client):
-    client.add_cog(encoding(client))
+    client.add_cog(encoding())

@@ -1,7 +1,6 @@
 from discord import Embed, Color, File
 from datetime import datetime
 from io import BytesIO
-from requests import get
 from time import time
 from os import getenv
 
@@ -117,7 +116,7 @@ class embed:
         elif ((isinstance(self.color, str)) and (self.color.startswith("#"))):
             self._convert_hex_to_rgb()
 
-    def get_embed(self) -> tuple:
+    async def get_embed(self) -> tuple:
         """ Gets the embed and the attachment in it, returns a tuple(discord.Embed, Union[discord.File, None]) """
         _embed = Embed(title=self.title, description=self.description, color=self.color, url=self.url)
         if self.fields is not None:
@@ -131,7 +130,9 @@ class embed:
 
         if self.attachment_url is not None:
             if isinstance(self.attachment_url, str):
-                self.attachment_url = BytesIO(get(self.attachment_url).content)
+                _bytes = await self.ctx.bot.util.default_client.get(self.attachment_url)
+                _bytes = await _bytes.read()
+                self.attachment_url = BytesIO(_bytes)
             _file = File(self.attachment_url, "image.png")
             _embed.set_image(url="attachment://image.png")
 
@@ -139,14 +140,14 @@ class embed:
 
     async def send(self):
         """ Sends the embed to the current channel. """
-        _embed, _attachment = self.get_embed()
+        _embed, _attachment = await self.get_embed()
         if _attachment is None:
             return await self.ctx.send(embed=_embed)
         return await self.ctx.send(embed=_embed, file=_attachment)
     
     async def edit_to(self, message):
         """ Appends the embed to a discord.Message object """
-        _embed, _attachment = self.get_embed()
+        _embed, _attachment = await self.get_embed()
         if _attachment is None:
             return await message.edit(content='', embed=_embed)
         await message.edit(content='', embed=_embed, file=_attachment)

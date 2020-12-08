@@ -1,11 +1,7 @@
 import discord
 from discord.ext import commands
-import sys
-from os import environ
-sys.path.append(environ['BOT_MODULES_DIR'])
 from io import BytesIO
-from decorators import command, cooldown
-from requests import get
+from category.decorators import command, cooldown
 from aiohttp import ClientSession
 from json import loads
 
@@ -517,10 +513,9 @@ class memes(commands.Cog):
             return ((m.channel == ctx.channel) and (m.author == ctx.author) and (len(m.content) == 1) and m.content.lower() in ['a', 'b'])
         message = await ctx.bot.utils.wait_for_message(ctx, message=None, timeout=60.0)
         if message is None: return await m.edit(content='', embed=discord.Embed(title="Meme-making process canceled.", color=discord.Color.red()))
-        elif message.content.lower() == 'a': res = await self.top_bottom_text_meme(ctx, *args)
-        elif message.content.lower() == 'c': res = await self.custom_image_meme(ctx, *args)
-        else: res = await self.modern_meme(ctx, *args)
-        return await ctx.send(file=discord.File(res, "meme.png"))
+        elif message.content.lower() == 'a': await self.top_bottom_text_meme(ctx, *args)
+        elif message.content.lower() == 'c': await self.custom_image_meme(ctx, *args)
+        else: await self.modern_meme(ctx, *args)
 
 def setup(client):
     client.add_cog(memes(client))

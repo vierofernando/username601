@@ -16,10 +16,10 @@ from numpy import zeros, uint8
 from time import strftime, gmtime
 from io import BytesIO
 from datetime import datetime as t
-from requests import get
 from .username601 import *
 from colorthief import ColorThief
 from framework import Smart_ColorThief
+from requests import get
 
 def buffer_from_url(url, *args, **kwargs):
     try: return Image.open(BytesIO(get(url, timeout=5).content))
