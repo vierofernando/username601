@@ -181,6 +181,8 @@ class Painter:
         for i in forms:
             main.paste(i, (curs, round((main.height - i.height) / 2)))
             curs += (i.width + 25)
+        del forms
+        del curs
         return self.buffer(main)
 
     async def oliy_stretched(self, url):

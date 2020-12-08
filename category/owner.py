@@ -28,13 +28,14 @@ class owner(commands.Cog):
     @cooldown(1)
     async def test(self, ctx, *args):
         if ctx.author.id not in [661200758510977084, 766952708602331137]: return
-        a = p.Image.new("RGB", (500, 500), color=(255, 255, 255))
+        a = p.Image.new("RGB", (1000, 500), color=(255, 255, 255))
         _p = TwemojiParser(a, parse_discord_emoji=True)
-        f = p.ImageFont.truetype("/app/assets/fonts/NotoSansDisplay-Bold.otf", 20)
+        f = p.ImageFont.truetype("/app/assets/fonts/NotoSansDisplay-Bold.otf", 40)
         await _p.draw_text((5, 5), " ".join(args), font=f, fill=(0, 0, 0))
         await _p.close()
         buff = ctx.bot.canvas.buffer(a)
-        return await ctx.send(file=discord.File(buff, "test.png"))
+        await ctx.send(file=discord.File(buff, "test.png"))
+        del buff
 
     @command()
     @cooldown(2)

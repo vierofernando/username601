@@ -124,11 +124,13 @@ class embed:
                 _embed.add_field(name=i, value=self.fields[i])
         _embed.timestamp = self.current_time
         _embed.set_footer(text=self.footer, icon_url=self.footer_icon)
-        if self.image_url is not None: _embed.set_image(url=str(self.image_url))
-        if self.thumbnail_url is not None: _embed.set_thumbnail(url=str(self.thumbnail_url))
+        if self.image_url:
+            _embed.set_image(url=str(self.image_url))
+        if self.thumbnail_url:
+            _embed.set_thumbnail(url=str(self.thumbnail_url))
         _file = None
 
-        if self.attachment_url is not None:
+        if self.attachment_url:
             if isinstance(self.attachment_url, str):
                 _bytes = await self.ctx.bot.util.default_client.get(self.attachment_url)
                 _bytes = await _bytes.read()

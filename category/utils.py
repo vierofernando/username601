@@ -113,8 +113,7 @@ class utils(commands.Cog):
     async def palette(self, ctx, *args):
         url, person = await ctx.bot.Parser.parse_image(ctx, args), ctx.bot.Parser.parse_user(ctx, args)
         await ctx.trigger_typing()
-        data = await ctx.bot.canvas.get_multiple_accents(url)
-        palette = await ctx.bot.canvas.get_palette(data)
+        palette = await ctx.bot.canvas.get_palette(ctx.bot.canvas.get_multiple_accents(url))
         return await ctx.send(file=discord.File(palette, 'palette.png'))
 
     @command('isitup,webstatus')

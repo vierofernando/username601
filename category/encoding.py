@@ -29,7 +29,7 @@ class encoding(commands.Cog):
             json=True,
             text=str(" ".join(args))[0:100]
         )
-        if res is None: return await ctx.bot.util.send_error_message("The API is temporarily down. Please try again later.")
+        if res is None: return await ctx.bot.util.send_error_message(ctx, "The API is temporarily down. Please try again later.")
         command_name = ctx.bot.util.get_command_name(ctx)
         
         if command_name == "fliptext": data = res['styles']['upside-down']

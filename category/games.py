@@ -118,38 +118,29 @@ class games(commands.Cog):
     async def process_geometry_dash_profile(self, ctx, args):
         if len(args)==0: return await ctx.bot.util.send_error_message(ctx, 'Input a GD Username, (you also can add `--icon` to see the icon kit)')
         else:
-            parsed = ctx.bot.utils.parse_parameter(args, "--icon")
-            if parsed["available"]:
-                try:
-                    name = ctx.bot.util.encode_uri(' '.join(parsed["parsedarg"]))
-                    wait = await ctx.send(f"{ctx.bot.util.loading_emoji} | Fetching data from the Geometry Dash servers...\nThis may take a while. Hang tight...")
-                    image = await ctx.bot.canvas.geometry_dash_icons(name)
-                except: return await wait.edit(f"{ctx.bot.util.error_emoji} | Please input a valid parameter!")
-                await wait.delete()
-                return await ctx.send(file=discord.File(image, "icon_kit.png"))
+            await ctx.trigger_typing()
             try:
-                url = ctx.bot.util.encode_uri(str(' '.join(args)))
                 data = await ctx.bot.util.get_request(
-                    "https://gdbrowser.com/api/profile/"+url,
+                    "https://gdbrowser.com/api/profile/"+str(' '.join(args))[0:32],
                     json=True,
                     raise_errors=True
                 )
-                embed = discord.Embed(
-                    title = data["username"],
-                    description = 'Displays user data for '+data["username"]+'.',
-                    colour = ctx.guild.me.roles[::-1][0].color
+                
+                icons = await ctx.bot.canvas.geometry_dash_icons(data["username"])
+                
+                embed = ctx.bot.Embed(
+                    ctx,
+                    title=data["username"],
+                    fields={
+                        "Account info": f"**Player ID: **{data['playerID']}\n**Account ID: **{data['accountID']}",
+                        "Stats": f"**Rank: **{('`<not available>`' if data['rank'] == 0 else data['rank'])}\n**Stars: **{data['stars']}\n**Diamonds: **{data['diamonds']}\n**Secret Coins: **{data['coins']}\n**Demons: **{data['demons']}\n**Creator Points: **{data['cp']}",
+                        "Links": f"{('[YouTube channel](https://youtube.com/channel/'+data['youtube']+')' if data['youtube'] else '`<YouTube not available>`')}\n{('[Twitter Profile](https://twitter.com/'+data['twitter']+')' if data['twitter'] else '`<Twitter not available>`')}\n{('[Twitch Channel](https://twitch.tv/'+data['twitch']+')' if data['twitch'] else '`<Twitch not available>`')}"
+                    },
+                    attachment=icons
                 )
-                if data["rank"]=="0": rank = "Not yet defined :("
-                else: rank = str(data["rank"])
-                if data["cp"]=="0": cp = "This user don't have Creator Points :("
-                else: cp = data["cp"]
-                embed.add_field(name='ID Stuff', value='Player ID: '+str(data["playerID"])+'\nAccount ID: '+str(data["accountID"]), inline='True')
-                embed.add_field(name='Rank', value=rank, inline='True')
-                embed.add_field(name='Stats', value=str(data["stars"])+" Stars"+"\n"+str(data["diamonds"])+" Diamonds\n"+str(data["coins"])+" Secret Coins\n"+str(data["userCoins"])+" User Coins\n"+str(data["demons"])+" Demons beaten", inline='False')
-                embed.add_field(name='Creator Points', value=cp)
-                embed.set_author(name='Display User Information', icon_url="https://gdbrowser.com/icon/"+url)
-                embed.set_footer(text="TIP: add --icon to see the icon kit!")
-                await ctx.send(embed=embed)
+                message = await embed.send()
+                del embed
+                return message
             except:
                 return await ctx.bot.util.send_error_message(ctx, 'Error, user not found.')
     
@@ -238,7 +229,7 @@ class games(commands.Cog):
     @command('geometrydash,geometry-dash,gmd')
     @cooldown(5)
     async def gd(self, ctx, *args):
-        if len(args) == 0: return await ctx.bot.util.send_error_message(f"""Invalid arguments. Usage:
+        if len(args) == 0: return await ctx.bot.util.send_error_message(ctx, f"""Invalid arguments. Usage:
         `{ctx.bot.command_prefix}gd level <daily/weekly/levelID/levelName>`
         `{ctx.bot.command_prefix}gd profile <userName>`
         """)

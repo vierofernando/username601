@@ -17,20 +17,6 @@ class dbl(commands.Cog):
         self.dblpy = topgg.DBLClient(client, self.token, autopost=True)
         self.types = ["bots", "users", "bot", "user"]
         self.api_url = "https://top.gg/api/"
-        self._dbl_type = {
-            "admin": "DBL Administrator",
-            "webMod": "DBL Website Moderator",
-            "mod": "DBL Moderator",
-            "certifiedDev": "Certified DBL Developer",
-            "supporter": "DBL Supporter"
-        }
-        self._social_prefix = {
-            "github": "/",
-            "instagram": "@",
-            "reddit": "u/",
-            "twitter": "@",
-            "youtube": "/"
-        }
         self._bot_links = {"invite": "", "website": "", "support": "https://discord.gg/", "github": ""}
         self._bot_subtitution = {"invite": "Invite this Bot", "website": "Official Website", "support": "Support Server", "github": "GitHub Repository"}
         self._none = ["", None, "#"]
@@ -57,11 +43,6 @@ class dbl(commands.Cog):
             await self.client.util.send_error_message(ctx, str(_input) + " does not exist in the [top.gg](https://top.gg/) database.")
             return
         _ext = ".gif" if _input.is_avatar_animated() else ".png"
-        _social = "\n".join([
-            (key + ": " +self._social_prefix[key] + data["social"][key] if data["social"].get(key) else "<?>") for key in self._social_prefix.keys()
-        ])
-        _social = _social.replace("\n<?>", "").replace("<?>", "")
-        if not _social: _social = "`<not provided>`" # lmao this statement
         _bio = "***\""+data["bio"].replace("*", "\*")+"\"***" if data.get("bio") else "This user has no bio."
         _color = "`"+data['color']+"`" if (data.get('color') not in self._none) else "`<not set>`"
         _avatar = "https://cdn.discordapp.com/avatars/"+data["id"]+"/"+data["avatar"]+".png" if data.get("avatar") else None
@@ -71,13 +52,7 @@ class dbl(commands.Cog):
             ctx,
             title=data["username"] + "#" + data["discriminator"],
             image=data.get("banner"),
-            desc="***\""+_bio+"\"***\n\nColor: `"+_color+"`",
-            fields={
-                "User Type": "\n".join([
-                    (":white_check_mark:" if data[key] else ":x:") + " " + self._dbl_type[key] for key in self._dbl_type.keys()
-                ]),
-                "Social Links": _social
-            },
+            desc="**"+discord.utils.escape_markdown(_bio)+"**\n\nColor: `"+_color+"`",
             thumbnail=_avatar,
             url="https://top.gg/user/"+data["id"]
         )
