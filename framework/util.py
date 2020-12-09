@@ -105,7 +105,7 @@ class Util:
         elif isinstance(error, GetRequestFailedException):
             return await ctx.send(embed=Embed(description="A request failed to the API. Please try again later!\nError: " + str(error), color=Color.red()))
         else:
-            await ctx.bot.get_channel(client.util.feedback_channel).send(content='<@{}> there was an error!'.format(client.util.owner_id), embed=discord.Embed(
+            await self.bot.get_channel(self.feedback_channel).send(content='<@{}> there was an error!'.format(self.owner_id), embed=Embed(
                 title='Error', color=discord.Colour.red(), description=f'Content:\n```{ctx.message.content}```\n\nError:\n```{str(error)}```'
             ).set_footer(text='Bug made by user: {} (ID of {})'.format(str(ctx.author), ctx.author.id)))
             return await ctx.send('Sorry, there was an error while executing this command.\nThis message has been reported to the developer of the bot.', delete_after=3)
