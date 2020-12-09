@@ -14,7 +14,7 @@ class RockPaperScissors:
     async def play(self):
         self.message = await self.ctx.send(embed=Embed(title="Rock, paper, scissors!", color=self.ctx.guild.me.roles[::-1][0].color))
         for emoji in self.emojis:
-            await message.add_reaction(emoji)
+            await self.message.add_reaction(emoji)
             await sleep(0.5) # 3 emojis may be not much but this is to reduce ratelimit
         
         try:

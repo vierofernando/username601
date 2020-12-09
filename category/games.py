@@ -157,7 +157,7 @@ class games(commands.Cog):
             if num not in range(-99999, 100000): num = 601
             return await ctx.bot.util.send_image_attachment(ctx, f'https://gdcolon.com/tools/gdcomment/img/{text}?name={user_name}&likes={num}&days=1-second{("&mod=mod" if ctx.author.guild_permissions.manage_guild else "")}')
         except Exception as e:
-            raise ctx.bot.util.BasicCommandException(f'Invalid arguments!\nThe flow is this: {ctx.bot.command_prefix}gdcomment <text> | <username> | <like count>')
+            raise ctx.bot.util.BasicCommandException(f'Invalid arguments!\nThe flow is this: {ctx.bot.command_prefix}gd comment <text> | <username> | <like count>')
 
     async def geometry_dash_level(self, ctx, args):
         _input = args[0].lower()
@@ -216,7 +216,6 @@ class games(commands.Cog):
             return await ctx.bot.util.send_image_attachment(ctx, 'https://gdcolon.com/tools/gdtextbox/img/'+ctx.bot.util.encode_uri(' '.join(args))[0:100]+'?color='+('blue' if ctx.author.guild_permissions.manage_guild else 'brown')+'&name='+ctx.author.display_name+'&url='+str(ctx.author.avatar_url_as(format='png'))+'&resize=1')
         elif _input.startswith("comment"):
             return await self.geometry_dash_comment(ctx, args[1:])
-
 
     @command('rockpaperscissors')
     @cooldown(5)
