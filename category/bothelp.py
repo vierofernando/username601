@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from json import loads
 from category.decorators import command, cooldown
-from datetime import datetime as t
+from time import time
 
 class bothelp(commands.Cog):
     def __init__(self, client):
@@ -10,7 +10,7 @@ class bothelp(commands.Cog):
         self._init_help = [discord.Embed(title="The bot help embed™️", description="Use the reactions to move to the next page.\n\n**PAGES:**\n1. `This page`\n"+self._categories)]
         
     @command('supportserver,support-server,botserver,bot-server')
-    @cooldown(2)
+    @cooldown(1)
     async def support(self, ctx):
         return await ctx.send(ctx.bot.util.server_invite)
 
@@ -18,8 +18,13 @@ class bothelp(commands.Cog):
     @cooldown(5)
     async def sub(self, ctx, *args):
         if len(args)==0 or 'help' in args:
-            embed = discord.Embed(title='Get development updates and/or events in your server!', description='Want to get up-to-date development updates? either it is bugfixes, cool events, etc.\nHow do you set up? Use `{}sub <discord webhook url>`.\nIf you still do not understand, [please watch the tutorial video here.](https://vierofernando.is-inside.me/fEhT86EE.mp4)'.format(ctx.bot.command_prefix), color=ctx.guild.me.roles[::-1][0].color)
-            return await ctx.send(embed=embed)
+            embed = ctx.bot.Embed(
+                ctx,
+                title='Get development updates and/or events in your server!',
+                desc='Want to get up-to-date development updates? either it is bugfixes, cool events, etc.\nHow do you set up? Use `{}sub <discord webhook url>`.\nIf you still do not understand, [please watch the tutorial video here.](https://vierofernando.is-inside.me/fEhT86EE.mp4)'.format(ctx.bot.command_prefix),
+            )
+            await embed.send()
+            del embed
         elif 'reset' in args:
             ctx.bot.db.Dashboard.subscribe(None, ctx.guild.id, reset=True)
             return await ctx.send('{} | Subscription has been deleted.'.format(ctx.bot.util.success_emoji))
@@ -77,24 +82,35 @@ class bothelp(commands.Cog):
     @command()
     @cooldown(2)
     async def vote(self, ctx):
-        embed = discord.Embed(title='Support by Voting us at top.gg!', description='Sure thing, mate! [Vote us at top.gg by clicking me!](https://top.gg/bot/'+str(ctx.bot.user.id)+'/vote)', colour=ctx.guild.me.roles[::-1][0].color)
-        await ctx.send(embed=embed)
+        embed = ctx.bot.Embed(
+            ctx,
+            title=f'{ctx.guild.me.display_name} seems sus. let\'s vote for him!',
+            url=f'https://top.gg/bot/{ctx.bot.user.id}/vote'
+        )
+        await embed.send()
+        del embed
     
     @command('sourcecode,source-code,git,repo')
     @cooldown(2)
     async def github(self, ctx):
-        embed = discord.Embed(title="Click me to visit the Bot's github page.", colour=ctx.guild.me.roles[::-1][0].color, url=ctx.bot.util.github_repo)
-        await ctx.send(embed=embed)
+        embed = ctx.bot.Embed(
+            ctx,
+            title="Contribute to the development or copy the bot's code here.",
+            url=ctx.bot.util.github_repo
+        )
+        await embed.send()
+        del embed
     
     @command('inviteme,invitelink,botinvite,invitebot,addtoserver,addbot')
     @cooldown(2)
     async def invite(self, ctx):
-        embed = discord.Embed(
-            title='Sure thing! Invite this bot to your server by clicking me.',
-            url='https://discord.com/api/oauth2/authorize?client_id='+str(ctx.bot.user.id)+'&permissions=8&scope=bot',
-            colour=ctx.guild.me.roles[::-1][0].color
+        embed = ctx.bot.Embed(
+            ctx,
+            title='invite this bot please the bot developer is desperate',
+            url=f'https://discord.com/api/oauth2/authorize?client_id={ctx.bot.user.id}&permissions=8&scope=bot'
         )
-        await ctx.send(embed=embed)
+        await embed.send()
+        del embed
     
     @command('report,suggest,bug,reportbug,bugreport')
     @cooldown(15)
@@ -120,14 +136,22 @@ class bothelp(commands.Cog):
     @command()
     @cooldown(2)
     async def ping(self, ctx):
-        msgping = str(round((t.now().timestamp() - ctx.message.created_at.timestamp())*1000))
-        wait = await ctx.send('pinging...')
-        dbping, extras = ctx.bot.db.selfDB.ping(), ''
-        wsping = str(round(ctx.bot.ws.latency*1000))
-        embed = discord.Embed(title=f'Pong!', description=f'**Message latency: **{msgping} ms.\n**Client Latency:** {wsping} ms.\n**Database latency:** {dbping} ms.', colour=ctx.guild.me.roles[::-1][0].color)
-        embed.set_thumbnail(url='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif')
-        await wait.edit(content='', embed=embed)
-    
+        msgping = round((time() - ctx.message.created_at.timestamp())*1000)
+        await ctx.trigger_typing()
+        dbping = ctx.bot.db.selfDB.ping()
+        wsping = round(ctx.bot.ws.latency*1000)
+        embed = ctx.bot.Embed(
+            ctx,
+            title="PongChamp!",
+            desc=f"**Message latency:** `{msgping}ms`\n**Websocket latency:** `{wsping}ms`\n**Database latency:** `{dbping}ms`",
+            thumbnail='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif'
+        )
+        await embed.send()
+        del embed
+        del dbping
+        del wsping
+        del msgping
+
     @command('botstats,meta')
     @cooldown(10)
     async def stats(self, ctx):

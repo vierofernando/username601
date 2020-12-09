@@ -23,16 +23,24 @@ class apps(commands.Cog):
             json=True,
             q=' '.join(args)
         )
-        if data is None: raise ctx.bot.util.BasicCommandException("Did not found anything.")
+        if not data: raise ctx.bot.util.BasicCommandException("Did not found anything.")
         try:
             star = str(':star:'*round(data['rating']['average'])) if data['rating']['average'] is not None else 'No star rating provided.'
-            em = discord.Embed(title=data['name'], url=data['url'], description=ctx.bot.Parser.html_to_markdown(data['summary']), color=ctx.guild.me.roles[::-1][0].color)
-            em.add_field(name='General Information', value='**Status: **'+data['status']+'\n**Premiered at: **'+data['premiered']+'\n**Type: **'+data['type']+'\n**Language: **'+data['language']+'\n**Rating: **'+str(data['rating']['average'] if data['rating']['average'] is not None else 'None')+'\n'+star)
-            em.add_field(name='TV Network', value=data['network']['name']+' at '+data['network']['country']['name']+' ('+data['network']['country']['timezone']+')')
-            em.add_field(name='Genre', value=str(', '.join(data['genres']) if len(data['genres'])>0 else 'no genre avaliable'))
-            em.add_field(name='Schedule', value=', '.join(data['schedule']['days'])+' at '+data['schedule']['time'])
-            em.set_image(url=data['image']['original'])
-            await ctx.send(embed=em)
+            embed = ctx.bot.Embed(
+                ctx,
+                title=data['name'],
+                url=data['url'],
+                desc=ctx.bot.Parser.html_to_markdown(data['summary']),
+                fields={
+                    'General Information': '**Status: **'+data['status']+'\n**Premiered at: **'+data['premiered']+'\n**Type: **'+data['type']+'\n**Language: **'+data['language']+'\n**Rating: **'+str(data['rating']['average'] if data['rating']['average'] is not None else '`<not available>`')+'\n'+star,
+                    'TV Network': data['network']['name']+' at '+data['network']['country']['name']+' ('+data['network']['country']['timezone']+')',
+                    'Genre': str(', '.join(data['genres']) if len(data['genres'])>0 else 'no genre avaliable'),
+                    'Schedule': ', '.join(data['schedule']['days'])+' at '+data['schedule']['time']
+                },
+                image=data['image']['original']
+            )
+            await embed.send()
+            del embed
         except:
             raise ctx.bot.util.BasicCommandException("There was an error on fetching the info.")
 
