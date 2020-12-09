@@ -40,7 +40,7 @@ class utils(commands.Cog):
             )
             return await embed.send()
         except Exception as e:
-            return await ctx.bot.util.send_error_message(ctx, str(e))
+            raise ctx.bot.util.BasicCommandException(str(e))
     
     @command()
     @cooldown(3)
@@ -54,9 +54,9 @@ class utils(commands.Cog):
                 left, right = ctx.bot.Parser.split_content_to_two(args)
                 color_left, color_right = ImageColor.getrgb(left), ImageColor.getrgb(right)
         except:
-            return await ctx.bot.util.send_error_message(ctx, "Please input a valid color.")
+            raise ctx.bot.util.BasicCommandException("Please input a valid color.")
         if color_left == color_right:
-            return await ctx.bot.util.send_error_message(ctx, "Those two colors are the same :/")
+            raise ctx.bot.util.BasicCommandException("Those two colors are the same :/")
         res = await ctx.bot.canvas.gradient(color_left, color_right)
         return await ctx.send(file=discord.File(res, "gradient.png"))
     
@@ -80,7 +80,7 @@ class utils(commands.Cog):
             return await ctx.send(embed=embed)
         except Exception as e:
             await ctx.bot.get_user(ctx.bot.util.owner_id).send(f"yo, theres an error: `{str(e)}`")
-            return await ctx.bot.util.send_error_message(ctx, "Oopsies, there was an error on searching the news.")
+            raise ctx.bot.util.BasicCommandException("Oopsies, there was an error on searching the news.")
     
     @command('prsc,psrc,act,activity')
     @cooldown(3)
@@ -94,7 +94,7 @@ class utils(commands.Cog):
             spotify.close()
             return
         
-        if user.activity is None: return await ctx.bot.util.send_error_message(ctx, f"Sorry, but {user.display_name} has no activity...")
+        if user.activity is None: raise ctx.bot.util.BasicCommandException(f"Sorry, but {user.display_name} has no activity...")
         title = "" if (not hasattr(user.activity, 'name')) else user.activity.name
         subtitle = "" if (not hasattr(user.activity, 'details')) else user.activity.details
         desc = "" if (not hasattr(user.activity, 'state')) else user.activity.state
@@ -119,7 +119,8 @@ class utils(commands.Cog):
     @command('isitup,webstatus')
     @cooldown(2)
     async def isitdown(self, ctx, *args):
-        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, "Please send a website link.")
+        ctx.bot.Parser.require_args(ctx, args)
+        
         wait = await ctx.send('{} | Pinging...'.format(ctx.bot.util.loading_emoji))
         web = args[0].replace('<', '').replace('>', '')
         if not web.startswith('http'): web = 'http://' + web
@@ -134,13 +135,17 @@ class utils(commands.Cog):
     @command('img2ascii,imagetoascii,avascii,avatarascii,avatar2ascii,av2ascii')
     @cooldown(10)
     async def imgascii(self, ctx, *args):
-        parsed_arg = ctx.bot.utils.parse_parameter(args, '--img')
-        if parsed_arg['available']:
-            args = parsed_arg['parsedarg']
+        input = ctx.bot.Parser.get_input(args)
+        
+        if "--img" in input:
+            args = ctx.bot.Parser.without("--img")
             url = await ctx.bot.Parser.parse_image(ctx, args)
             await ctx.trigger_typing()
             res_im = await ctx.bot.canvas.imagetoASCII_picture(url)
-            return await ctx.send(file=discord.File(res_im, 'imgascii.png'))
+            await ctx.send(file=discord.File(res_im, 'imgascii.png'))
+            del res_im
+            return
+        
         url = await ctx.bot.Parser.parse_image(ctx, args)
         wait = await ctx.send('{} | Please wait...'.format(ctx.bot.util.loading_emoji))
         text = await ctx.bot.canvas.imagetoASCII(url)
@@ -150,13 +155,15 @@ class utils(commands.Cog):
         except:
             await wait.delete()
             file = discord.File(BytesIO(bytes(text, 'utf-8')), filename='ascii.txt')
-            return await ctx.send(content="{} | Oops! there was an error on posting it there. Don't worry, instead i send it as an attachment here:\n(Tip: you can also add `--img` so i send it as an image attachment!)".format(ctx.bot.util.error_emoji), file=file)
+            return await ctx.send(file=file)
         return await wait.edit(content='{} | You can see the results at **https://hastebin.com/{}**!'.format(ctx.bot.util.success_emoji, data.json()['key']))
     
     @command()
     @cooldown(15)
     async def nasa(self, ctx, *args):
         query = 'earth' if len(args)==0 else ' '.join(args)
+        await ctx.trigger_typing()
+        
         data = await ctx.bot.util.get_request(
             f'https://images-api.nasa.gov/search',
             json=True,
@@ -164,8 +171,8 @@ class utils(commands.Cog):
             q=query[0:100],
             media_type='image'
         )
-        await ctx.trigger_typing()
-        if (data is None) or len(data['collection']['items'])==0: return await ctx.bot.util.send_error_message(ctx, "Nothing found.")
+        if (data is None) or len(data['collection']['items'])==0:
+            raise ctx.bot.util.BasicCommandException("Nothing found.")
         img = random.choice(data['collection']['items'])
         em = discord.Embed(title=img['data'][0]['title'], description=img['data'][0]["description"], color=ctx.guild.me.roles[::-1][0].color)
         em.set_image(url=img['links'][0]['href'])
@@ -203,45 +210,42 @@ class utils(commands.Cog):
             await ctx.send(embed=embed)
         except Exception as e:
             print(e)
-            return await ctx.bot.util.send_error_message(ctx, "Pokemon not found.")
+            raise ctx.bot.util.BasicCommandException("Pokemon not found.")
 
     @command('recipes,cook')
     @cooldown(2)
     async def recipe(self, ctx, *args):
-        if len(args)==0:
-            await ctx.send(embed=discord.Embed(title='Here is a recipe to cook nothing:', description='1. Do nothing\n2. Profit'))
-        else:
-            data = await ctx.bot.util.get_request(
-                "http://www.recipepuppy.com/api/",
-                json=True,
-                raise_errors=True,
-                q=' '.join(args)
-            )
-            if len(data['results'])==0: 
-                return await ctx.bot.util.send_error_message(ctx, "I did not find anything.")
-            elif len([i for i in data['results'] if i['thumbnail']!=''])==0:
-                return await ctx.bot.util.send_error_message(ctx, "Did not found anything with a delicious picture.")
-            else:
-                total = random.choice([i for i in data['results'] if i['thumbnail']!=''])
-                embed = discord.Embed(title=total['title'], url=total['href'], description='Ingredients:\n{}'.format(total['ingredients']), color=ctx.guild.me.roles[::-1][0].color)
-                embed.set_image(url=total['thumbnail'])
-                await ctx.send(embed=embed)
+        ctx.bot.Parser.require_args(ctx, args)
+        data = await ctx.bot.util.get_request(
+            "http://www.recipepuppy.com/api/",
+            json=True,
+            raise_errors=True,
+            q=' '.join(args)
+        )
+        if len(data['results'])==0: 
+            raise ctx.bot.util.BasicCommandException("I did not find anything.")
+        
+        total = random.choice([i for i in data['results'] if i['thumbnail']!=''])
+        embed = discord.Embed(title=total['title'], url=total['href'], description='Ingredients:\n{}'.format(total['ingredients']), color=ctx.guild.me.roles[::-1][0].color)
+        if total['thumbnail'] != "":
+            embed.set_image(url=total['thumbnail'])
+        await ctx.send(embed=embed)
 
     @command('calculator,equ,equation,calculate')
     @cooldown(3)
     async def calc(self, ctx, *args):
-        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, "You need something... i smell no args nearby.")
-        else:
-            equation = ' '.join(args)
-            replaceWith = "x>*;.>*;?>*;?>/;?>*;plus>+;minus>-;divide>/;multiply>*;divide by>/;times>*;subtract>-;add>+;power>**;powers>**;^>**"
-            for rep in replaceWith.split(";"):
-                equation = equation.replace(rep.split('>')[0], rep.split('>')[1])
-            if search("[a-zA-Z]", equation): return await ctx.bot.util.send_error_message(ctx, "Please do NOT input something that contains letters. This is not eval, nerd.")
-            try:
-                res = eval(equation)
-                return await ctx.send("{} | {} = `{}`".format(ctx.bot.util.success_emoji, equation, str(res)[0:1000]))
-            except Exception as e:
-                return await ctx.bot.util.send_error_message(ctx, f"Error: {str(e)}")
+        ctx.bot.Parser.require_args(ctx, args)
+        
+        equation = ' '.join(args)
+        replaceWith = "x>*;.>*;?>*;?>/;?>*;plus>+;minus>-;divide>/;multiply>*;divide by>/;times>*;subtract>-;add>+;power>**;powers>**;^>**"
+        for rep in replaceWith.split(";"):
+            equation = equation.replace(rep.split('>')[0], rep.split('>')[1])
+        if search("[a-zA-Z]", equation): raise ctx.bot.util.BasicCommandException("Please do NOT input something that contains letters. This is not eval, nerd.")
+        try:
+            res = eval(equation)
+            return await ctx.send("{} | {} = `{}`".format(ctx.bot.util.success_emoji, equation, str(res)[0:1000]))
+        except Exception as e:
+            raise ctx.bot.util.BasicCommandException(f"Error: {str(e)}")
     @command()
     @cooldown(7)
     async def quote(self, ctx):
@@ -260,8 +264,8 @@ class utils(commands.Cog):
     @command()
     @cooldown(10)
     async def weather(self, ctx, *args):
-        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, "Please send a location or a city!")
-        else: return await ctx.bot.util.send_image_attachment(ctx, 'https://wttr.in/'+str(ctx.bot.util.encode_uri(' '.join(args)))+'.png')
+        ctx.bot.Parser.require_args(ctx, args)
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://wttr.in/'+str(ctx.bot.util.encode_uri(' '.join(args)))+'.png')
 
     @command()
     @cooldown(10)
@@ -274,7 +278,7 @@ class utils(commands.Cog):
             limit=num
         )
         if data['status']!='OK':
-            return await ctx.bot.util.send_error_message(ctx, 'There was a problem on retrieving the info.\nThe server said: "'+str(data['status'])+'" :eyes:')
+            raise ctx.bot.util.BasicCommandException('There was a problem on retrieving the info.\nThe server said: "'+str(data['status'])+'" :eyes:')
         else:
             ufo = random.choice(data['sightings'])
             embed = discord.Embed(title='UFO Sighting in '+str(ufo['city'])+', '+str(ufo['state']), description='**Summary:** '+str(ufo['summary'])+'\n\n**Shape:** '+str(ufo['shape'])+'\n**Sighting Date: **'+str(ufo['date'])[:-8].replace('T', ' ')+'\n**Duration: **'+str(ufo['duration'])+'\n\n[Article Source]('+str(ufo['url'])+')', colour=ctx.guild.me.roles[::-1][0].color)
@@ -284,60 +288,54 @@ class utils(commands.Cog):
     @command('rhymes')
     @cooldown(7)
     async def rhyme(self, ctx, *args):
-        if len(args)==0: await ctx.send('Please input a word! And we will try to find the word that best rhymes with it.')
+        ctx.bot.Parser.require_args(ctx, args)
+        await ctx.bot.trigger_typing()
+        
+        data = await ctx.bot.util.get_request(
+            'https://rhymebrain.com/talk?function=getRhymes&word=',
+            json=True,
+            raise_errors=True,
+            function='getRhymes',
+            word=' '.join(args)
+        )
+        
+        if len(data)<1: await wait.edit(content='We did not find any rhyming words corresponding to that letter.')
         else:
-            wait, words = await ctx.send(str(ctx.bot.util.loading_emoji) + ' | Please wait... Searching...'), []
-            data = await ctx.bot.util.get_request(
-                'https://rhymebrain.com/talk?function=getRhymes&word=',
-                json=True,
-                raise_errors=True,
-                function='getRhymes',
-                word=' '.join(args)
-            )
-            
-            if len(data)<1: await wait.edit(content='We did not find any rhyming words corresponding to that letter.')
-            else:
-                for i in range(len(data)):
-                    if data[i]['flags']=='bc': words.append(data[i]['word'])
-                words = dearray(words)
-                if len(words)>1950:
-                    words = limitify(words)
-                embed = discord.Embed(title='Words that rhymes with '+str(' '.join(args))+':', description=words, colour=ctx.guild.me.roles[::-1][0].color)
-                await wait.edit(content='', embed=embed)
+            words = [word['word'] for word in data if word['flags'] == 'bc']
+            embed = discord.Embed(title='Words that rhymes with '+str(' '.join(args))+':', description=str(' '.join(words))[0:1950], colour=ctx.guild.me.roles[::-1][0].color)
+            await wait.edit(content='', embed=embed)
 
     @command('sof')
     @cooldown(12)
     async def stackoverflow(self, ctx, *args):
-        if len(args)==0:
-            return await ctx.bot.util.send_error_message(ctx, 'Hey fellow developer, Try add a question!')
-        else:
-            try:
-                query = ctx.bot.util.encode_uri(' '.join(args))
-                data = await ctx.bot.util.get_request(
-                    "https://api.stackexchange.com/2.2/search/advanced",
-                    json=True,
-                    raise_errors=True,
-                    q=' '.join(args),
-                    site='stackoverflow',
-                    page=1,
-                    answers=1,
-                    order='asc',
-                    sort='relevance'
-                )
-                leng = len(data['items'])
-                ques = data['items'][0]
-                tags = ''
-                for i in range(len(ques['tags'])):
-                    if i==len(ques['tags'])-1:
-                        tags += '['+str(ques['tags'][i])+'](https://stackoverflow.com/questions/tagged/'+str(ques['tags'][i])+')'
-                        break
-                    tags += '['+str(ques['tags'][i])+'](https://stackoverflow.com/questions/tagged/'+str(ques['tags'][i])+') | '
-                embed = discord.Embed(title=ques['title'], description='**'+str(ques['view_count'])+' *desperate* developers looked into this post.**\n**TAGS:** '+str(tags), url=ques['link'], colour=ctx.guild.me.roles[::-1][0].color)
-                embed.set_author(name=ques['owner']['display_name'], url=ques['owner']['link'], icon_url=ques['owner']['profile_image'])
-                embed.set_footer(text='Shown 1 result out of '+str(leng)+' results!')
-                await ctx.send(embed=embed)
-            except:
-                return await ctx.bot.util.send_error_message(ctx, 'There was an error on searching! Please check your spelling :eyes:')
+        ctx.bot.Parser.require_args(ctx, args)
+        try:
+            query = ctx.bot.util.encode_uri(' '.join(args))
+            data = await ctx.bot.util.get_request(
+                "https://api.stackexchange.com/2.2/search/advanced",
+                json=True,
+                raise_errors=True,
+                q=' '.join(args),
+                site='stackoverflow',
+                page=1,
+                answers=1,
+                order='asc',
+                sort='relevance'
+            )
+            leng = len(data['items'])
+            ques = data['items'][0]
+            tags = ''
+            for i in range(len(ques['tags'])):
+                if i==len(ques['tags'])-1:
+                    tags += '['+str(ques['tags'][i])+'](https://stackoverflow.com/questions/tagged/'+str(ques['tags'][i])+')'
+                    break
+                tags += '['+str(ques['tags'][i])+'](https://stackoverflow.com/questions/tagged/'+str(ques['tags'][i])+') | '
+            embed = discord.Embed(title=ques['title'], description='**'+str(ques['view_count'])+' *desperate* developers looked into this post.**\n**TAGS:** '+str(tags), url=ques['link'], colour=ctx.guild.me.roles[::-1][0].color)
+            embed.set_author(name=ques['owner']['display_name'], url=ques['owner']['link'], icon_url=ques['owner']['profile_image'])
+            embed.set_footer(text='Shown 1 result out of '+str(leng)+' results!')
+            await ctx.send(embed=embed)
+        except:
+            raise ctx.bot.util.BasicCommandException('There was an error on searching! Please check your spelling :eyes:')
 
     @command('birbfact,birdfact')
     @cooldown(7)
@@ -391,7 +389,7 @@ class utils(commands.Cog):
                 embed.add_field(name='Directed by', value=data[num]['director'], inline='True')
                 embed.add_field(name='Produced by', value=data[num]['producer'], inline='True')
                 await wait.edit(content='', embed=embed)
-            except: return await ctx.bot.util.send_error_message(ctx, 'the movie you requested does not exist!?')
+            except: raise ctx.bot.util.BasicCommandException('the movie you requested does not exist!?')
 
     @command()
     @cooldown(5)
@@ -448,17 +446,22 @@ class utils(commands.Cog):
     @command('col')
     @cooldown(3)
     async def color(self, ctx, *args):
-        if len(args) == 0: return await ctx.bot.util.send_error_message(ctx, f"Invalid argument. use `{ctx.bot.command_prefix}help color` for more info.")
+        ctx.bot.Parser.require_args(ctx, args)
         await ctx.trigger_typing()
-        parameter_data = ctx.bot.utils.parse_parameter(args, 'role', get_second_element=True)
-        if parameter_data['available']:
-            iterate_result = [i.id for i in ctx.guild.roles if parameter_data['secondparam'].lower() in i.name.lower()]
-            if len(iterate_result) == 0: return await ctx.bot.util.send_error_message(ctx, "Role not found.")
-            colim = await ctx.bot.canvas.color(str(ctx.guild.get_role(iterate_result[0]).colour))
+        role_name = ctx.bot.Parser.get_value("role")
+        if role_name:
+            iterate_result = [i.id for i in ctx.guild.roles if role_name.lower() in i.name.lower()]
+            if len(iterate_result) == 0:
+                raise ctx.bot.util.BasicCommandException("Role not found.")
+            color_image = await ctx.bot.canvas.color(str(ctx.guild.get_role(iterate_result[0]).colour))
+            del iterate_result
         else:
-            colim = await ctx.bot.canvas.color(None, (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))) if ctx.bot.utils.parse_parameter(args, 'random')['available'] else await ctx.bot.canvas.color(' '.join(args))
-        if colim is None: return await ctx.bot.util.send_error_message(ctx, "Please insert a valid Hex.")
-        return await ctx.send(file=discord.File(colim, 'color.png'))
+            color_image = await ctx.bot.canvas.color(None, (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))) if ctx.bot.utils.parse_parameter(args, 'random')['available'] else await ctx.bot.canvas.color(' '.join(args))
+        if not color_image:
+            raise ctx.bot.util.BasicCommandException("Please insert a valid Hex.")
+        await ctx.send(file=discord.File(color_image, 'color.png'))
+        del color_image
+        del role_name
     
     @command('fast')
     @cooldown(10)

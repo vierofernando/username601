@@ -1,8 +1,6 @@
 from twemoji_parser import emoji_to_url
-from discord import Embed, Color
 
 class Parser:
-    ALPHABET = list("abcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[];',./{}|:")
     SPLIT_CHARACTERS = [';', ', ', ',', '|',' | ']
     HTML_DICT = {
         "<p>": "",
@@ -15,111 +13,54 @@ class Parser:
         "<br>": "\n"
     }
 
-    def __init__(self, ctx, arguments: list = None) -> None:
-        """
-        An object of a parser.
+    @staticmethod
+    def get_numbers(args: tuple, count: int = 1):
+        """ Get numbers from args """
         
-        Example:
+        try: return [int(i) for i in args if i.isnumeric()][0:count]
+        except: return None
+
+    @staticmethod
+    def require_args(ctx, args: tuple):
+        """ The function name says it all. """
+        if (len(args) == 0) or ("".join(args).replace("‏‏‎ ‎", "").replace("‏‏‎ ", "").replace("‏‏‎‎", "")) == "":
+            raise ctx.bot.util.BasicCommandException(f"This command requires at least an argument. Try `{ctx.bot.command_prefix}help {ctx.command.name}`")
+        return
+
+    @staticmethod
+    def get_input(args: tuple) -> tuple:
+        """ Returns all inputs from a args """
+        return tuple([i for i in args if i.startswith("--")])
+    
+    @staticmethod
+    def get_input_values(args: tuple) -> dict:
+        """ Returns all inputs with their values as a dict. """
+        res = {}
+        for i in range(len(args)):
+            if not args[i].startswith("--"): continue
+            try: res[args[i]] = args[i + 1]
+            except: res[args[i]] = None
+        return (res if res != {} else None)
+
+    @staticmethod
+    def get_value(args: tuple, text: str) -> tuple:
+        """ Gets the value from a key. """
         
-        parser = Parser(ctx)
-        parser.add_argument("--argument")
-        parser.add_argument("--required", is_required=True)
-        parser.add_argument("--value", is_required=True, get_value=True, value_placeholder="value_name")
-        
-        result = await parser.parse()
-        
-        if not parser.success:
+        res, has_quotation_mark = [], False
+        try:
+            index = args.index(text)
+            for arg in args[(index + 1):]:
+                if arg.startswith('"') and (not has_quotation_mark):
+                    res.append(arg[1:])
+                    has_quotation_mark = True
+                elif has_quotation_mark and arg.endswith('"'):
+                    res.append(arg[:-1])
+                    break
+                else:
+                    return arg
+        except:
             return
         
-        print(result)
-        
-        """
-        content = ctx.message.content.lower().split()
-        
-        self.ctx = ctx
-        self.args = tuple(content[1:])
-        self.arguments = [] if arguments is None else arguments
-        self.usage = content[0] + " "
-        self.__is_valid_value = (lambda x: x in range(len(self.args)))
-        self._argument_names = []
-        self.success = False
-        
-        if self.arguments != []:
-            for arg in arguments:
-                self.__update_usage(arg)
-    
-    def add_argument(self, argument_name: str, is_required: bool = False, get_value: bool = False, value_placeholder: str = "argument") -> None:
-        """
-        Adds an argument manually.
-        argument_name = the argument name. example `--arg`
-        is_required = if the argument is required.
-        get_value = gets the value after the argument. e.g: `--arg parameter` and returns a `parameter`
-        value_placeholder = the name to show in the usage (in case an error.)
-        
-        """
-        __arg = {
-            "name": argument_name.lower(),
-            "required": is_required,
-            "get": get_value,
-            "value": value_placeholder
-        }
-        
-        self.arguments.append(__arg)
-        self.__update_usage(__arg)
-    
-    def __update_usage(self, element: dict):
-        _end = ">" if element["required"] else "]"
-        __extra = _end if not element["get"] else " " + element["value"] + _end
-        if element["required"]:
-            self.usage += "<" + element["name"] + __extra
-        else:
-            self.usage += "[" + element["name"] + __extra
-        
-        self._argument_names.append(element["name"])
-    
-    def __parse_value(self, index):
-        _res = ""
-    
-        if self.args[index].startswith('"'):
-            for arg in self.args[index:]:
-                _res += arg + " "
-                if arg.endswith('"') or (arg in self._argument_names):
-                    break
-        else:
-            return self.args[index]
-        
-        if _res:
-            return _res[:-1].replace('"', "")
-        return None
-    
-    async def parse(self) -> dict:
-        """ Parses the whole thing. """
-        
-        if self.arguments == []: return
-        
-        _res_dict = {}
-        for argument in self.arguments:
-
-            if (argument["name"] not in self.args):
-                _res_dict[argument["name"]] = {"exists": False, "value": None}
-                if argument["required"]:
-                    await self.ctx.send(embed=Embed(title="Missing required argument", description="This command is missing a `{}`.\nUsage: ```{}```".format(argument["name"], self.usage)).set_footer(text="P.S: <arg> is required and [arg] is optional. Do NOT literally type the [] or <>."))
-                    return _res_dict
-                continue
-                
-            try:
-                assert argument["get"]
-                _index = self.args.index(argument["name"]) + 1
-                assert self.__is_valid_value(_index)
-                _value = self.__parse_value(_index)
-                assert _value is not None
-            except:
-                _value = None
-            
-            _res_dict[argument["name"]] = {"exists": True, "value": _value}
-        
-        self.success = True
-        return _res_dict
 
     @staticmethod
     async def __check_url(ctx, url: str, cdn_only: bool, custom_emoji: bool = False):
@@ -128,7 +69,7 @@ class Parser:
                 assert url.startswith("https://cdn.discordapp.com")
             
             data = await ctx.bot.util.default_client.get(url)
-            assert data.status_code == 200
+            assert data.status == 200
             if custom_emoji: return True
             
             assert data.headers['Content-Type'].startswith('image/')
@@ -136,17 +77,6 @@ class Parser:
             return True
         except:
             return False
-
-    @staticmethod
-    def is_mentionable(name: str):
-        """
-        Checks if a name is mentionable.
-        """
-        name = name.replace(" ", "").lower()
-        
-        for char in name:
-            if char in Parser.ALPHABET: return True
-        return False
 
     @staticmethod
     async def parse_image(ctx, args, default_to_png=True, size=1024, member_only=False, cdn_only=False):
@@ -250,3 +180,8 @@ class Parser:
         for key in Parser.HTML_DICT.keys():
             result = result.replace(key, Parser.HTML_DICT[key])
         return result
+    
+    @staticmethod
+    def without(args: tuple, key: str) -> tuple:
+        """ Returns an arg without a specific key. """
+        return tuple([i for i in args if key not in i])

@@ -28,17 +28,17 @@ class games(commands.Cog):
     @command("ttt")
     @cooldown(15)
     async def tictactoe(self, ctx, *args):
-        if len(args) == 0: return await ctx.bot.util.send_error_message(ctx, "You need to add a `mention/user ID/username` for someone to join your game as well.")
+        if len(args) == 0: raise ctx.bot.util.BasicCommandException("You need to add a `mention/user ID/username` for someone to join your game as well.")
         user = ctx.bot.Parser.parse_user(ctx, *args)
-        if user == ctx.author: return await ctx.bot.util.send_error_message(ctx, "You need to add a `mention/user ID/username` for someone to join your game as well.")
+        if user == ctx.author: raise ctx.bot.util.BasicCommandException("You need to add a `mention/user ID/username` for someone to join your game as well.")
         response = await self.wait_for_user(ctx, user)
-        if response is None: return await ctx.bot.util.send_error_message(ctx, str(user)+" did not respond in 20 seconds! Game invitation ended.")
+        if response is None: raise ctx.bot.util.BasicCommandException(str(user)+" did not respond in 20 seconds! Game invitation ended.")
     
         characters = (ctx.author, user)
         game = ctx.bot.TicTacToe()
         
         if user.bot: 
-            return await ctx.bot.util.send_error_message(ctx, "Sorry! There was an error on executing the tictactoe:\n`discord.DiscordAPIError: "+str(user)+" is a botum`")
+            raise ctx.bot.util.BasicCommandException("Sorry! There was an error on executing the tictactoe:\n`discord.DiscordAPIError: "+str(user)+" is a botum`")
         
         embed = ctx.bot.Embed(ctx, title="Tic-tac-toe Game", desc="["+str(ctx.author)+"'s (O) turn]```"+game.show()+"```")
         message = await embed.send()
@@ -116,39 +116,38 @@ class games(commands.Cog):
         await ctx.send(file=discord.File(im, 'the_impostor.png'))
 
     async def process_geometry_dash_profile(self, ctx, args):
-        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, 'Input a GD Username, (you also can add `--icon` to see the icon kit)')
-        else:
-            await ctx.trigger_typing()
-            try:
-                data = await ctx.bot.util.get_request(
-                    "https://gdbrowser.com/api/profile/"+str(' '.join(args))[0:32],
-                    json=True,
-                    raise_errors=True
-                )
-                
-                icons = await ctx.bot.canvas.geometry_dash_icons(data["username"])
-                
-                embed = ctx.bot.Embed(
-                    ctx,
-                    title=data["username"],
-                    fields={
-                        "Account info": f"**Player ID: **{data['playerID']}\n**Account ID: **{data['accountID']}",
-                        "Stats": f"**Rank: **{('`<not available>`' if data['rank'] == 0 else data['rank'])}\n**Stars: **{data['stars']}\n**Diamonds: **{data['diamonds']}\n**Secret Coins: **{data['coins']}\n**Demons: **{data['demons']}\n**Creator Points: **{data['cp']}",
-                        "Links": f"{('[YouTube channel](https://youtube.com/channel/'+data['youtube']+')' if data['youtube'] else '`<YouTube not available>`')}\n{('[Twitter Profile](https://twitter.com/'+data['twitter']+')' if data['twitter'] else '`<Twitter not available>`')}\n{('[Twitch Channel](https://twitch.tv/'+data['twitch']+')' if data['twitch'] else '`<Twitch not available>`')}"
-                    },
-                    attachment=icons
-                )
-                message = await embed.send()
-                del embed
-                return message
-            except:
-                return await ctx.bot.util.send_error_message(ctx, 'Error, user not found.')
+        ctx.bot.Parser.require_args(ctx, args)
+        
+        await ctx.trigger_typing()
+        try:
+            data = await ctx.bot.util.get_request(
+                "https://gdbrowser.com/api/profile/"+str(' '.join(args))[0:32],
+                json=True,
+                raise_errors=True
+            )
+            
+            icons = await ctx.bot.canvas.geometry_dash_icons(data["username"])
+            
+            embed = ctx.bot.Embed(
+                ctx,
+                title=data["username"],
+                fields={
+                    "Account info": f"**Player ID: **{data['playerID']}\n**Account ID: **{data['accountID']}",
+                    "Stats": f"**Rank: **{('`<not available>`' if data['rank'] == 0 else data['rank'])}\n**Stars: **{data['stars']}\n**Diamonds: **{data['diamonds']}\n**Secret Coins: **{data['coins']}\n**Demons: **{data['demons']}\n**Creator Points: **{data['cp']}",
+                    "Links": f"{('[YouTube channel](https://youtube.com/channel/'+data['youtube']+')' if data['youtube'] else '`<YouTube not available>`')}\n{('[Twitter Profile](https://twitter.com/'+data['twitter']+')' if data['twitter'] else '`<Twitter not available>`')}\n{('[Twitch Channel](https://twitch.tv/'+data['twitch']+')' if data['twitch'] else '`<Twitch not available>`')}"
+                },
+                attachment=icons
+            )
+            message = await embed.send()
+            del embed
+            return message
+        except:
+            raise ctx.bot.util.BasicCommandException('Error, user not found.')
     
     @command()
     @cooldown(3)
     async def gdlogo(self, ctx, *args):
-        if len(args)==0:
-            return await ctx.bot.util.send_error_message(ctx, 'Please input a text!')
+        ctx.bot.Parser.require_args(ctx, args)
         await ctx.trigger_typing()
         text = ctx.bot.util.encode_uri(' '.join(args))
         url='https://gdcolon.com/tools/gdlogo/img/'+str(text)
@@ -157,13 +156,12 @@ class games(commands.Cog):
     @command()
     @cooldown(3)
     async def gdbox(self, ctx, *args):
-        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, 'Please input a text!')
-        else:
-            await ctx.trigger_typing()
-            text, av = ctx.bot.util.encode_uri(str(' '.join(args))), ctx.author.avatar_url_as(format='png')
-            color = 'blue' if ctx.author.guild_permissions.manage_guild else 'brown'
-            url='https://gdcolon.com/tools/gdtextbox/img/'+text[0:100]+'?color='+color+'&name='+ctx.author.display_name+'&url='+str(av)+'&resize=1'
-            return await ctx.bot.util.send_image_attachment(ctx, url)
+        ctx.bot.Parser.require_args(ctx, args)
+        await ctx.trigger_typing()
+        text, av = ctx.bot.util.encode_uri(str(' '.join(args))), ctx.author.avatar_url_as(format='png')
+        color = 'blue' if ctx.author.guild_permissions.manage_guild else 'brown'
+        url='https://gdcolon.com/tools/gdtextbox/img/'+text[0:100]+'?color='+color+'&name='+ctx.author.display_name+'&url='+str(av)+'&resize=1'
+        return await ctx.bot.util.send_image_attachment(ctx, url)
    
     @command()
     @cooldown(3)
@@ -180,7 +178,7 @@ class games(commands.Cog):
             else: url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&days=1-second'
             return await ctx.bot.util.send_image_attachment(ctx, url)
         except Exception as e:
-            return await ctx.bot.util.send_error_message(ctx, f'Invalid!\nThe flow is this: `{ctx.bot.command_prefix}gdcomment text | name | like count`\nExample: `{ctx.bot.command_prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
+            raise ctx.bot.util.BasicCommandException(f'Invalid!\nThe flow is this: `{ctx.bot.command_prefix}gdcomment text | name | like count`\nExample: `{ctx.bot.command_prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
 
     async def process_geometry_dash_level(self, ctx, args):
         await ctx.trigger_typing()
@@ -193,19 +191,19 @@ class games(commands.Cog):
                 daily = await ctx.bot.canvas.geometry_dash_level(None, daily=True)
                 return await ctx.send(file=discord.File(daily, "level.png"))
             except:
-                return await ctx.bot.util.send_error_message(ctx, "The Geometry dash servers seems to be down. Please try again later.")
+                raise ctx.bot.util.BasicCommandException("The Geometry dash servers seems to be down. Please try again later.")
         elif _input == "weekly":
             try:
                 weekly = await ctx.bot.canvas.geometry_dash_level(None, weekly=True)
                 return await ctx.send(file=discord.File(weekly, "level.png"))
             except:
-                return await ctx.bot.util.send_error_message(ctx, "The Geometry dash servers seems to be down. Please try again later.")
+                raise ctx.bot.util.BasicCommandException("The Geometry dash servers seems to be down. Please try again later.")
         elif _input.isnumeric():
             try:
                 level = await ctx.bot.canvas.geometry_dash_level(int(_input))
                 return await ctx.send(file=discord.File(level, "level.png"))
             except:
-                return await ctx.bot.util.send_error_message(ctx, f"Level with the ID: {_input} not found.")
+                raise ctx.bot.util.BasicCommandException(f"Level with the ID: {_input} not found.")
         
         result = await ctx.bot.util.get_request(
             "https://gdbrowser.com/api/search/" + ctx.bot.util.encode_uri(" ".join(args)),
@@ -224,12 +222,12 @@ class games(commands.Cog):
             buffer = await ctx.bot.canvas.geometry_dash_level(int(result['id']))
             return await ctx.send(file=discord.File(buffer, "level.png"))
         except:
-            return await ctx.bot.util.send_error_message(ctx, "The Geometry Dash servers may be down. Please blame RobTop for this :)")
+            raise ctx.bot.util.BasicCommandException("The Geometry Dash servers may be down. Please blame RobTop for this :)")
 
     @command('geometrydash,geometry-dash,gmd')
     @cooldown(5)
     async def gd(self, ctx, *args):
-        if len(args) == 0: return await ctx.bot.util.send_error_message(ctx, f"""Invalid arguments. Usage:
+        if len(args) == 0: raise ctx.bot.util.BasicCommandException(f"""Invalid arguments. Usage:
         `{ctx.bot.command_prefix}gd level <daily/weekly/levelID/levelName>`
         `{ctx.bot.command_prefix}gd profile <userName>`
         """)
@@ -298,7 +296,7 @@ class games(commands.Cog):
     async def guessavatar(self, ctx):
         wait = await ctx.send(ctx.bot.util.loading_emoji + ' | Please wait... generating question...\nThis process may take longer if your server has more members.')
         avatarAll, nameAll = [str(i.avatar_url) for i in ctx.guild.members if i.status.name!='offline'], [i.display_name for i in ctx.guild.members if i.status.name!='offline']
-        if len(avatarAll)<=4: return await ctx.bot.util.send_error_message(ctx, 'Need more online members! :x:')
+        if len(avatarAll)<=4: raise ctx.bot.util.BasicCommandException('Need more online members! :x:')
         numCorrect = random.randint(0, len(avatarAll)-1)
         corr_avatar, corr_name = avatarAll[numCorrect], nameAll[numCorrect]
         nameAll.remove(corr_name)
@@ -334,7 +332,7 @@ class games(commands.Cog):
                 ctx.bot.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! You received '+str(reward)+' extra bobux!')
         else:
-            return await ctx.bot.util.send_error_message(ctx, f'<@{ctx.author.id}>, Incorrect. The answer is {corr_order}. {corr_name}')
+            raise ctx.bot.util.BasicCommandException(f'<@{ctx.author.id}>, Incorrect. The answer is {corr_order}. {corr_name}')
 
     @command()
     @cooldown(15)
@@ -379,7 +377,7 @@ class games(commands.Cog):
                 ctx.bot.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! You obtained '+str(reward)+' bobux in total!')
         else:
-            return await ctx.bot.util.send_error_message(ctx, f'<@{guy.id}>, You are incorrect. The answer is {corr_order}.')
+            raise ctx.bot.util.BasicCommandException(f'<@{guy.id}>, You are incorrect. The answer is {corr_order}.')
 
     @command()
     @cooldown(4)
@@ -402,7 +400,7 @@ class games(commands.Cog):
                 ctx.bot.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! we added an extra '+str(reward)+' bobux to your profile.')
         else:
-            return await ctx.bot.util.send_error_message(ctx, f'<@{ctx.author.id}>, Incorrect. The answer is {answer}.')
+            raise ctx.bot.util.BasicCommandException(f'<@{ctx.author.id}>, Incorrect. The answer is {answer}.')
 
     @command()
     @cooldown(60)
@@ -430,7 +428,7 @@ class games(commands.Cog):
                     await ctx.send('thanks for playing! you get an extra '+str(reward)+' bobux!')
                 gameplay = False ; break
             if level>7:
-                return await ctx.bot.util.send_error_message(ctx, f'<@{playing_with_id}> lost! :(\nThe answer is actually "'+''.join(main_guess_cor)+'".')
+                raise ctx.bot.util.BasicCommandException(f'<@{playing_with_id}> lost! :(\nThe answer is actually "'+''.join(main_guess_cor)+'".')
                 gameplay = False ; break
             def is_not_stranger(m):
                 return m.author == playing_with
@@ -504,11 +502,11 @@ class games(commands.Cog):
             try:
                 trying = await ctx.bot.wait_for('message', check=check_not_stranger, timeout=20.0)
             except asyncio.TimeoutError:
-                return await ctx.bot.util.send_error_message(ctx, 'You did not respond for the next 20 seconds!\nGame ended.')
+                raise ctx.bot.util.BasicCommandException('You did not respond for the next 20 seconds!\nGame ended.')
                 gameplay = False
                 break
             if trying.content.isnumeric()==False:
-                return await ctx.bot.util.send_error_message(ctx, 'That is not a number!')
+                raise ctx.bot.util.BasicCommandException('That is not a number!')
                 attempts = int(attempts) - 1
             else:
                 if int(trying.content)<num:
@@ -546,7 +544,7 @@ class games(commands.Cog):
             for i in range(len(al)):
                 await wait.add_reaction(al[i])
         except Exception as e:
-            return await ctx.bot.util.send_error_message(ctx, f'An error occurred!\nReport this using {ctx.bot.command_prefix}feedback.\n```{str(e)}```')
+            raise ctx.bot.util.BasicCommandException(f'An error occurred!\nReport this using {ctx.bot.command_prefix}feedback.\n```{str(e)}```')
         guy = ctx.author
         def check(reaction, user):
             return user == guy
@@ -561,7 +559,7 @@ class games(commands.Cog):
                 ctx.bot.db.Economy.addbal(ctx.author.id, reward)
                 await ctx.send('thanks for playing! You get also a '+str(reward)+' bobux as a prize!')
         else:
-            return await ctx.bot.util.send_error_message(ctx, f'<@{guy.id}>, You are incorrect. The answer is {corr}.')
+            raise ctx.bot.util.BasicCommandException(f'<@{guy.id}>, You are incorrect. The answer is {corr}.')
 
 def setup(client):
     client.add_cog(games())

@@ -16,13 +16,14 @@ class apps(commands.Cog):
     @command('movie')
     @cooldown(5)
     async def tv(self, ctx, *args):
-        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, "Please give TV shows as arguments.")
+        ctx.bot.Parser.require_args(ctx, args)
+        
         data = await ctx.bot.util.get_request(
             f'http://api.tvmaze.com/singlesearch/shows',
             json=True,
             q=' '.join(args)
         )
-        if data is None: return await ctx.bot.util.send_error_message(ctx, "Did not found anything.")
+        if data is None: raise ctx.bot.util.BasicCommandException("Did not found anything.")
         try:
             star = str(':star:'*round(data['rating']['average'])) if data['rating']['average'] is not None else 'No star rating provided.'
             em = discord.Embed(title=data['name'], url=data['url'], description=ctx.bot.Parser.html_to_markdown(data['summary']), color=ctx.guild.me.roles[::-1][0].color)
@@ -33,14 +34,14 @@ class apps(commands.Cog):
             em.set_image(url=data['image']['original'])
             await ctx.send(embed=em)
         except:
-            return await ctx.bot.util.send_error_message(ctx, "There was an error on fetching the info.")
+            raise ctx.bot.util.BasicCommandException("There was an error on fetching the info.")
 
     @command('spy,spot,splay,listeningto,sp')
     @cooldown(2)
     async def spotify(self, ctx, *args):
         user = ctx.bot.Parser.parse_user(ctx, args)
         act = [i for i in user.activities if isinstance(i, discord.Spotify)]
-        if len(act) == 0: return await ctx.bot.util.send_error_message(ctx, f"Sorry, but {user.display_name} is not listening to spotify.")
+        if len(act) == 0: raise ctx.bot.util.BasicCommandException(f"Sorry, but {user.display_name} is not listening to spotify.")
         await ctx.trigger_typing()
         panel = ctx.bot.Panel(ctx, spotify=act[0])
         await panel.draw()
@@ -50,7 +51,8 @@ class apps(commands.Cog):
     @command()
     @cooldown(5)
     async def itunes(self, ctx, *args):
-        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, "Please send a search term.")
+        ctx.bot.Parser.require_args(ctx, args)
+        
         await ctx.trigger_typing()
         data = await ctx.bot.util.get_request(
             'https://itunes.apple.com/search',
@@ -88,20 +90,19 @@ class apps(commands.Cog):
                     assert len(q) > 0
                     destination = q[0]
             except (IndexError, AssertionError):
-                return await ctx.bot.util.send_error_message(ctx, 'Please insert a valid language.')
+                raise ctx.bot.util.BasicCommandException('Please insert a valid language.')
             try:
                 translation = self.translator.translate(toTrans[0:1000], dest=destination)
                 embed = ctx.bot.Embed(ctx, title=f"{LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}", desc=translation.text[0:1900])
                 return await embed.send()
             except Exception as e:
-                return await ctx.bot.util.send_error_message(ctx, f'An error occurred! ```py\n{str(e)}```')
-        return await ctx.bot.util.send_error_message(ctx, f'Please add a language and a text!')
+                raise ctx.bot.util.BasicCommandException(f'An error occurred! ```py\n{str(e)}```')
+        raise ctx.bot.util.BasicCommandException(f'Please add a language and a text!')
 
     @command()
     @cooldown(5)
     async def wikipedia(self, ctx, *args):
-        if len(args) == 0:
-            return await ctx.bot.util.send_error_message(ctx, "Please input a page name.")
+        ctx.bot.Parser.require_args(ctx, args)
         await ctx.trigger_typing()
         
         page = self.Wikipedia.page(' '.join(args))
@@ -114,10 +115,9 @@ class apps(commands.Cog):
     @command()
     @cooldown(5)
     async def imdb(self, ctx, *args):
-        await ctx.trigger_typing()
-        if len(args) < 2 or args[0] == "help":
-            return await ctx.bot.util.send_error_message(ctx, "Please input a movie name.")
+        ctx.bot.Parser.require_args(ctx, args)
         
+        await ctx.trigger_typing()
         try:
             query = " ".join(args[1:])
             res = self.ia.search_movie(query)
@@ -148,7 +148,7 @@ class apps(commands.Cog):
             await embed.send()
             del res, data, embed, votes, choose, movie, query
         except Exception as e:
-            return await ctx.bot.util.send_error_message(ctx, "The movie query does not exist.\n" + str(e))
+            raise ctx.bot.util.BasicCommandException("The movie query does not exist.\n" + str(e))
         
 def setup(client):
     client.add_cog(apps())

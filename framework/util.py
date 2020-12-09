@@ -1,4 +1,5 @@
-from discord import Embed, Color, File, __version__
+from discord import Embed, Color, File, __version__, Forbidden
+from discord.ext import commands
 from io import BytesIO
 from aiohttp import ClientSession, ClientTimeout
 from os import getenv, name, listdir
@@ -12,6 +13,7 @@ from platform import python_build, python_compiler, uname
 from random import choice
 
 class GetRequestFailedException(Exception): pass
+class BasicCommandException(Exception): pass
 
 class Util:
     def __init__(
@@ -85,6 +87,28 @@ class Util:
         response = ((code + ctx.author.id) % 2 == 0)
         del code, ctx
         return choice(self._8ball_template).replace("??", ("yes" if response else "no"))
+    
+    async def handle_error(self, ctx, error):
+        """ Handles errors like a boss. """
+        if isinstance(error, commands.CommandNotFound): return
+        elif isinstance(error, commands.CommandOnCooldown): return await ctx.send("You are on cooldown. You can do the command again in {}.".format(lapsed_time_from_seconds(round(error.retry_after))), delete_after=2)
+        # put both of this on first because it's the most common exception
+        
+        if hasattr(error, "original"): # discord.py is weird
+            error = error.original
+        
+        if isinstance(error, Forbidden): 
+            try: return await ctx.send("I don't have the permission required to use that command!")
+            except: return
+        elif isinstance(error, BasicCommandException):
+            return await ctx.send(embed=Embed(description=str(error), color=Color.red()))
+        elif isinstance(error, GetRequestFailedException):
+            return await ctx.send(embed=Embed(description="A request failed to the API. Please try again later!\nError: " + str(error), color=Color.red()))
+        else:
+            await ctx.bot.get_channel(client.util.feedback_channel).send(content='<@{}> there was an error!'.format(client.util.owner_id), embed=discord.Embed(
+                title='Error', color=discord.Colour.red(), description=f'Content:\n```{ctx.message.content}```\n\nError:\n```{str(error)}```'
+            ).set_footer(text='Bug made by user: {} (ID of {})'.format(str(ctx.author), ctx.author.id)))
+            return await ctx.send('Sorry, there was an error while executing this command.\nThis message has been reported to the developer of the bot.', delete_after=3)
     
     def load_cog(self, cog_folder: str = None, exclude: list = []):
         """ Loads the cogs from a directory. """

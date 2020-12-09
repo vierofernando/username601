@@ -1,6 +1,5 @@
 import discord
 import sys
-import PIL as p
 import os
 import random
 from category.decorators import command, cooldown
@@ -9,8 +8,6 @@ from datetime import datetime as t
 from subprocess import run, PIPE
 from inspect import isawaitable, getsource
 from asyncio import sleep
-from io import BytesIO
-from twemoji_parser import TwemojiParser
 
 totallyrealtoken = 'Ng5NDU4MjY5NTI2Mjk0MTc1.AkxrpC.MyB2BEHJLXuZ8h0wY0Qro6Pwi8'
 
@@ -28,14 +25,17 @@ class owner(commands.Cog):
     @cooldown(1)
     async def test(self, ctx, *args):
         if ctx.author.id not in [661200758510977084, 766952708602331137]: return
-        a = p.Image.new("RGB", (1000, 500), color=(255, 255, 255))
-        _p = TwemojiParser(a, parse_discord_emoji=True)
-        f = p.ImageFont.truetype("/app/assets/fonts/NotoSansDisplay-Bold.otf", 40)
-        await _p.draw_text((5, 5), " ".join(args), font=f, fill=(0, 0, 0))
-        await _p.close()
-        buff = ctx.bot.canvas.buffer(a)
-        await ctx.send(file=discord.File(buff, "test.png"))
-        del buff
+        parser = ctx.bot.Parser(ctx)
+        parser.add("--thing", True, False)
+        parser.add("--get-content", True, True, "content_thingy")
+        parser.add("--optional-content", False, True, "content_thingy_2")
+        parser.add("--optional", False, False)
+        await parser.parse()
+        
+        if not parser.success:
+            return
+        
+        print(parser.thing, parser.get_content)
 
     @command()
     @cooldown(2)
@@ -75,7 +75,7 @@ class owner(commands.Cog):
             source = eval("getsource({})".format(' '.join(args)))
             return await ctx.send('```py\n'+str(source)[0:1900]+'```')
         except Exception as e:
-            return await ctx.bot.util.send_error_message(ctx, str(e))
+            raise ctx.bot.util.BasicCommandException(str(e))
     
     @command('pm')
     async def postmeme(self, ctx, *args):
@@ -104,7 +104,7 @@ class owner(commands.Cog):
                 await user_to_send.send(embed=em)
                 await ctx.message.add_reaction('✅')
             except Exception as e:
-                return await ctx.bot.util.send_error_message(ctx, f'Error: `{str(e)}`')
+                raise ctx.bot.util.BasicCommandException(f'Error: `{str(e)}`')
         else:
             await ctx.send('You are not the bot owner. Go get a life.')
 
@@ -114,7 +114,7 @@ class owner(commands.Cog):
             ctx.bot.db.selfDB.feedback_ban(int(args[0]), str(' '.join(list(args)[1:])))
             await ctx.message.add_reaction(ctx.bot.util.success_emoji)
         else:
-            return await ctx.bot.util.send_error_message(ctx, 'You are not the owner, nerd.')
+            raise ctx.bot.util.BasicCommandException('You are not the owner, nerd.')
     @command()
     async def funban(self, ctx, *args):
         if ctx.author.id==ctx.bot.util.owner_id:
@@ -122,7 +122,7 @@ class owner(commands.Cog):
             if data=='200': await ctx.message.add_reaction(ctx.bot.util.success_emoji)
             else: await ctx.message.add_reaction(ctx.bot.util.error_emoji)
         else:
-            return await ctx.bot.util.send_error_message(ctx, 'Invalid person.')
+            raise ctx.bot.util.BasicCommandException('Invalid person.')
     @command('ex,eval')
     async def evaluate(self, ctx, *args):
         iwanttostealsometoken = False

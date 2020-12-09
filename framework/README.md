@@ -102,32 +102,6 @@ async def stats(ctx):
 
 ## Argument Parser
 
-### Using the Parser Object
-```py
-from framework import Parser
-from discord.ext import commands
-
-@bot.command()
-async def introduce(ctx):
-    # Example: !introduce --name Andy
-
-    parser = Parser(ctx)
-    parser.add_argument(
-        name="--name",
-        is_required=False,
-        get_value=True,
-        value_placeholder="your_name"
-    )
-    result = await parser.parse()
-    name = result["--name"]["value"]
-
-    if (not parser.success) or (name is None):
-        return await ctx.send("You need to provide your name >:(")
-
-    await ctx.send(f"Your name is: {name}")
-    # Sends "Your name is: Andy"
-```
-
 ### Parsing an image:
 ```py
 from framework import Parser

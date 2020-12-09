@@ -7,7 +7,7 @@ from .parser import Parser
 from .panel import CustomPanel
 from .colorthief import Smart_ColorThief
 from .games import TicTacToe, Quiz
-from .util import Util, GetRequestFailedException
+from .util import Util, GetRequestFailedException, BasicCommandException
 from .cache import CacheManager
 
 def initiate(client):

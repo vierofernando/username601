@@ -61,7 +61,7 @@ class image(commands.Cog):
     @command('combine')
     @cooldown(2)
     async def blend(self, ctx, *args):
-        if len(args) == 0: return await ctx.bot.util.send_error_message(ctx, "Please input a parameter or something")
+        if len(args) == 0: raise ctx.bot.util.BasicCommandException("Please input a parameter or something")
         await ctx.trigger_typing()
         parsed_args = ctx.bot.Parser.split_content_to_two(args)
         if parsed_args is None: 
@@ -137,7 +137,7 @@ class image(commands.Cog):
                 mkt='en-US'
             )
         except:
-            return await ctx.bot.util.send_error_message(ctx, "The API may be down for a while. Try again later!")
+            raise ctx.bot.util.BasicCommandException("The API may be down for a while. Try again later!")
         embed = discord.Embed(title=data['copyright'], url=data['copyrightlink'], color=ctx.guild.me.roles[::-1][0].color)
         embed.set_image(url='https://bing.com'+data['images'][0]['url'])
         await ctx.send(embed=embed)
@@ -156,7 +156,7 @@ class image(commands.Cog):
         try:
             return await ctx.bot.util.send_image_attachment(ctx, url.replace('ABC', code))
         except:
-            return await ctx.bot.util.send_error_message(ctx, "404")
+            raise ctx.bot.util.BasicCommandException("404")
 
     @command()
     @cooldown(2)
@@ -190,13 +190,13 @@ class image(commands.Cog):
         await ctx.trigger_typing()
         if correct=='yy':
             ava = await ctx.bot.Parser.parse_image(ctx, args, size=512)
-            if wh[0]>2000 or wh[1]>2000: return await ctx.bot.util.send_error_message(ctx, "Your image is too big!")
-            elif wh[0]<300 or wh[1]<300: return await ctx.bot.util.send_error_message(ctx, "Your image is too small!")
+            if wh[0]>2000 or wh[1]>2000: raise ctx.bot.util.BasicCommandException("Your image is too big!")
+            elif wh[0]<300 or wh[1]<300: raise ctx.bot.util.BasicCommandException("Your image is too small!")
             else:
                 data = await ctx.bot.canvas.resize(ava, wh[0], wh[1])
                 await ctx.send(file=discord.File(data, 'resize.png'))
         else:
-            return await ctx.bot.util.send_error_message(ctx, "Where are the parameters?")
+            raise ctx.bot.util.BasicCommandException("Where are the parameters?")
 
     @command('cat,fox,sadcat,bird')
     @cooldown(2)
@@ -232,7 +232,7 @@ class image(commands.Cog):
     @command()
     @cooldown(2)
     async def ship(self, ctx, *args):
-        if len(args) == 0: return await ctx.bot.util.send_error_message(ctx, "Please input a parameter or something")
+        if len(args) == 0: raise ctx.bot.util.BasicCommandException("Please input a parameter or something")
         await ctx.trigger_typing()
         parsed_args = ctx.bot.Parser.split_content_to_two(args)
         if parsed_args is None: 

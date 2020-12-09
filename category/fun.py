@@ -16,12 +16,14 @@ class fun(commands.Cog):
     @command('talk,gtts,texttospeech,text-to-speech')
     @cooldown(5)
     async def tts(self, ctx, *args):
-        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, 'Please send arguments!')
+        ctx.bot.Parser.require_args(ctx, args)
         res = BytesIO()
         tts = gTTS(text=' '.join(args), lang='en', slow=False)
         tts.write_to_fp(res)
         res.seek(0)
         await ctx.send(file=discord.File(fp=res, filename='tts.mp3'))
+        del res
+        del tts
 
     @command('edit')
     @cooldown(2)
@@ -35,7 +37,7 @@ class fun(commands.Cog):
     @cooldown(2)
     async def lovelevel(self, ctx, *args):
         res = ctx.bot.Parser.split_content_to_two(args)
-        if res is None: return await ctx.bot.util.send_error_message(ctx, 'Please send a valid two user ids/names/mentions!')
+        if res is None: raise ctx.bot.util.BasicCommandException('Please send a valid two user ids/names/mentions!')
         user1, user2 = ctx.bot.Parser.parse_user(res[0]), ctx.bot.Parser.parse_user(res[1])
         result = ctx.bot.algorithm.love_finder(user1.id, user2.id)
         await ctx.send('Love level of {} and {} is **{}%!**'.format(user1.display_name, user2.display_name, result))
@@ -96,7 +98,7 @@ class fun(commands.Cog):
     @command('8ball,8b')
     @cooldown(3)
     async def _8ball(self, ctx, *args):
-        if len(args) == 0: return await ctx.bot.util.send_error_message(ctx, "Please send a question!")
+        if len(args) == 0: raise ctx.bot.util.BasicCommandException("Please send a question!")
         
         res = ctx.bot.util.eight_ball(ctx)
         embed = ctx.bot.Embed(ctx, title="The 8-Ball", fields={
@@ -108,7 +110,7 @@ class fun(commands.Cog):
     @command('serverdeathnote,dn')
     @cooldown(10)
     async def deathnote(self, ctx):
-        if ctx.guild.member_count>500: return await ctx.bot.util.send_error_message(ctx, 'This server has soo many members')
+        if ctx.guild.member_count>500: raise ctx.bot.util.BasicCommandException('This server has soo many members')
         member, in_the_note, notecount, membercount = [], "", 0, 0
         for i in range(ctx.guild.member_count):
             if ctx.guild.members[i].display_name!=ctx.author.display_name:
@@ -139,33 +141,31 @@ class fun(commands.Cog):
             )
             await ctx.send(ctx.bot.util.success_emoji+f' | **{url["url"]}**')
         except:
-            return await ctx.bot.util.send_error_message(ctx, f'oops. there is some error, meanwhile look at this useless site: <https://top.gg/bot/{ctx.bot.user.id}/vote>')
+            raise ctx.bot.util.BasicCommandException(f'oops. there is some error, meanwhile look at this useless site: <https://top.gg/bot/{ctx.bot.user.id}/vote>')
     
     @command()
     @cooldown(2)
     async def choose(self, ctx, *args):
         if len(args)==0 or ',' not in ''.join(args):
-            return await ctx.bot.util.send_error_message(ctx, f'send in something!\nLike: `{ctx.bot.command_prefix}choose he is cool, he is not cool`')
-        else:
-            await ctx.send(random.choice(' '.join(args).split(',')))
+            raise ctx.bot.util.BasicCommandException(f'send in something!\nLike: `{ctx.bot.command_prefix}choose he is cool, he is not cool`')
+        return await ctx.send(random.choice(' '.join(args).split(',')))
     
     @command()
     @cooldown(2)
     async def temmie(self, ctx, *args):
-        if len(args)==0: return await ctx.bot.util.send_error_message(ctx, 'Please send something to be encoded.')
-        else:
-            link, num = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/temmie.json', 1
-            data = await ctx.bot.util.get_request(
-                link,
-                json=True,
-                raise_errors=True
-            )
-            keyz = list(data.keys())
-            total = ''
-            for j in range(num, len(keyz)):
-                if total=='': total = ' '.join(args)
-                total = total.replace(keyz[j], data[keyz[j]])
-            await ctx.send(total)
+        ctx.bot.Parser.require_args(ctx, args)
+        link, num = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/temmie.json', 1
+        data = await ctx.bot.util.get_request(
+            link,
+            json=True,
+            raise_errors=True
+        )
+        keyz = list(data.keys())
+        total = ''
+        for j in range(num, len(keyz)):
+            if total=='': total = ' '.join(args)
+            total = total.replace(keyz[j], data[keyz[j]])
+        await ctx.send(total)
     
     @command('fact-core,fact-sphere,factsphere')
     @cooldown(2)
