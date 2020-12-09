@@ -28,7 +28,8 @@ class games(commands.Cog):
     @command("ttt")
     @cooldown(15)
     async def tictactoe(self, ctx, *args):
-        if len(args) == 0: raise ctx.bot.util.BasicCommandException("You need to add a `mention/user ID/username` for someone to join your game as well.")
+        ctx.bot.Parser.require_args(ctx, args)
+        
         user = ctx.bot.Parser.parse_user(ctx, *args)
         if user == ctx.author: raise ctx.bot.util.BasicCommandException("You need to add a `mention/user ID/username` for someone to join your game as well.")
         response = await self.wait_for_user(ctx, user)
@@ -91,21 +92,29 @@ class games(commands.Cog):
     @command('mc,skin')
     @cooldown(5)
     async def minecraft(self, ctx, *args):
-        msg = await ctx.send(f"{ctx.bot.util.loading_emoji} | Fetching data from the minecraft servers...")
+        await ctx.trigger_typing()
         name = ctx.bot.util.encode_uri(ctx.author.display_name if len(args)==0 else ' '.join(args))
-        data = get(f"https://mc-heads.net/minecraft/profile/{name}")
-        if data.status_code != 200: return await msg.edit(content=f"Minecraft for profile: `{name}` not found.")
-        data = data.json()
+        data = await ctx.bot.util.default_client.get(f"https://mc-heads.net/minecraft/profile/{name}")
+        if data.status != 200:
+            raise ctx.bot.util.BasicCommandException(f"Minecraft for profile: `{name}` not found.")
+        data = await data.json()
+        
         _buffer = await ctx.bot.canvas.minecraft_body(f"https://mc-heads.net/body/{name}/600", data['id'])
-        body, head = discord.File(_buffer, "body.png"), discord.File(self.urltoimage(f"https://mc-heads.net/head/{name}/600"), "head.png")
-        accent_color = await ctx.bot.canvas.get_color_accent(ctx, f"https://mc-heads.net/head/{name}/600")
+        body = discord.File(_buffer, "body.png")
         names = await self.get_name_history(data['id'], ctx)
-        embed = discord.Embed(title=name, url='https://namemc.com/profile/'+data['id'], description="UUID: `"+data['id']+"`", color=discord.Color.from_rgb(*accent_color))
-        embed.set_image(url="attachment://body.png")
-        embed.set_thumbnail(url="attachment://head.png")
-        embed.add_field(name="Name history", value=names)
-        await msg.delete()
-        return await ctx.send(embed=embed, files=[body, head])
+        embed = ctx.bot.Embed(
+            ctx,
+            title=name,
+            url='https://namemc.com/profile/'+data['id'],
+            attachment=body,
+            thumbnail=f"https://mc-heads.net/head/{name}/600",
+            fields={
+                'UUID': data['id'],
+                'Name history': names
+            }
+        )
+        await embed.send()
+        del embed, body, names, _buffer, data
     
     @command('imposter,among-us,among_us,impostor,crew,crewmate,crew-mate')
     @cooldown(3)
@@ -114,6 +123,7 @@ class games(commands.Cog):
         url = await ctx.bot.Parser.parse_image(ctx, args)
         im = await ctx.bot.canvas.among_us(ctx, url)
         await ctx.send(file=discord.File(im, 'the_impostor.png'))
+        del im, url
 
     async def process_geometry_dash_profile(self, ctx, args):
         ctx.bot.Parser.require_args(ctx, args)
@@ -138,31 +148,11 @@ class games(commands.Cog):
                 },
                 attachment=icons
             )
-            message = await embed.send()
-            del embed
-            return message
+            await embed.send()
+            del embed, icons
         except:
             raise ctx.bot.util.BasicCommandException('Error, user not found.')
     
-    @command()
-    @cooldown(3)
-    async def gdlogo(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        await ctx.trigger_typing()
-        text = ctx.bot.util.encode_uri(' '.join(args))
-        url='https://gdcolon.com/tools/gdlogo/img/'+str(text)
-        return await ctx.bot.util.send_image_attachment(ctx, url)
-    
-    @command()
-    @cooldown(3)
-    async def gdbox(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        await ctx.trigger_typing()
-        text, av = ctx.bot.util.encode_uri(str(' '.join(args))), ctx.author.avatar_url_as(format='png')
-        color = 'blue' if ctx.author.guild_permissions.manage_guild else 'brown'
-        url='https://gdcolon.com/tools/gdtextbox/img/'+text[0:100]+'?color='+color+'&name='+ctx.author.display_name+'&url='+str(av)+'&resize=1'
-        return await ctx.bot.util.send_image_attachment(ctx, url)
-   
     @command()
     @cooldown(3)
     async def gdcomment(self, ctx, *args):
@@ -182,10 +172,7 @@ class games(commands.Cog):
 
     async def process_geometry_dash_level(self, ctx, args):
         await ctx.trigger_typing()
-        
-        try: _input = args[0].lower()
-        except: return
-
+        _input = args[0].lower()
         if _input == "daily":
             try:
                 daily = await ctx.bot.canvas.geometry_dash_level(None, daily=True)
@@ -227,16 +214,18 @@ class games(commands.Cog):
     @command('geometrydash,geometry-dash,gmd')
     @cooldown(5)
     async def gd(self, ctx, *args):
-        if len(args) == 0: raise ctx.bot.util.BasicCommandException(f"""Invalid arguments. Usage:
-        `{ctx.bot.command_prefix}gd level <daily/weekly/levelID/levelName>`
-        `{ctx.bot.command_prefix}gd profile <userName>`
-        """)
+        ctx.bot.Parser.require_args(ctx, args)
 
+        await ctx.trigger_typing()
         _input = args[0].lower()
         if _input.startswith("level"):
             return await self.process_geometry_dash_level(ctx, args[1:])
         elif _input.startswith("profile") or _input.startswith("user"):
             return await self.process_geometry_dash_profile(ctx, args[1:])
+        elif _input.startswith("logo"):
+            return await ctx.bot.util.send_image_attachment(ctx, 'https://gdcolon.com/tools/gdlogo/img/'+ctx.bot.util.encode_uri(' '.join(args)))
+        elif _input.startswith("box"):
+            return await ctx.bot.util.send_image_attachment(ctx, 'https://gdcolon.com/tools/gdtextbox/img/'+ctx.bot.util.encode_uri(' '.join(args))[0:100]+'?color='+('blue' if ctx.author.guild_permissions.manage_guild else 'brown')+'&name='+ctx.author.display_name+'&url='+str(ctx.author.avatar_url_as(format='png'))+'&resize=1')
 
     @command('rockpaperscissors')
     @cooldown(5)

@@ -32,7 +32,6 @@ class Util:
         self.prefix_length = len(client.command_prefix)
         self._alphabet = list('abcdefghijklmnopqrstuvwxyz')
         self._start = time()
-        self._hundred_range = range(0, 101)
         self.no_mentions = AllowedMentions(everyone=False, users=False, roles=False)
         self.BasicCommandException = BasicCommandException
 
