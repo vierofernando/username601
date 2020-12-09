@@ -205,17 +205,20 @@ class games(commands.Cog):
         ctx.bot.Parser.require_args(ctx, args)
 
         await ctx.trigger_typing()
-        _input = args[0].lower()
-        if _input.startswith("level"):
-            return await self.geometry_dash_level(ctx, args[1:])
-        elif _input.startswith("profile") or _input.startswith("user"):
-            return await self.geometry_dash_profile(ctx, args[1:])
-        elif _input.startswith("logo"):
-            return await ctx.bot.util.send_image_attachment(ctx, 'https://gdcolon.com/tools/gdlogo/img/'+ctx.bot.util.encode_uri(' '.join(args)))
-        elif _input.startswith("box"):
-            return await ctx.bot.util.send_image_attachment(ctx, 'https://gdcolon.com/tools/gdtextbox/img/'+ctx.bot.util.encode_uri(' '.join(args))[0:100]+'?color='+('blue' if ctx.author.guild_permissions.manage_guild else 'brown')+'&name='+ctx.author.display_name+'&url='+str(ctx.author.avatar_url_as(format='png'))+'&resize=1')
-        elif _input.startswith("comment"):
-            return await self.geometry_dash_comment(ctx, args[1:])
+        try:
+            _input = args[0].lower()
+            if _input.startswith("level"):
+                return await self.geometry_dash_level(ctx, args[1:])
+            elif _input.startswith("profile") or _input.startswith("user"):
+                return await self.geometry_dash_profile(ctx, args[1:])
+            elif _input.startswith("logo"):
+                return await ctx.bot.util.send_image_attachment(ctx, 'https://gdcolon.com/tools/gdlogo/img/'+ctx.bot.util.encode_uri(' '.join(args[1:])))
+            elif _input.startswith("box"):
+                return await ctx.bot.util.send_image_attachment(ctx, 'https://gdcolon.com/tools/gdtextbox/img/'+ctx.bot.util.encode_uri(' '.join(args[1:]))[0:100]+'?color='+('blue' if ctx.author.guild_permissions.manage_guild else 'brown')+'&name='+ctx.author.display_name+'&url='+str(ctx.author.avatar_url_as(format='png'))+'&resize=1')
+            elif _input.startswith("comment"):
+                return await self.geometry_dash_comment(ctx, args[1:])
+        except:
+            raise ctx.bot.util.BasicCommandException("Invalid arguments.")
 
     @command('rockpaperscissors')
     @cooldown(5)
