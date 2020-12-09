@@ -37,16 +37,17 @@ class fun(commands.Cog):
     @cooldown(2)
     async def lovelevel(self, ctx, *args):
         res = ctx.bot.Parser.split_content_to_two(args)
-        if res is None: raise ctx.bot.util.BasicCommandException('Please send a valid two user ids/names/mentions!')
+        if not res:
+            raise ctx.bot.util.BasicCommandException('Please send a valid two user ids/names/mentions!')
         user1, user2 = ctx.bot.Parser.parse_user(res[0]), ctx.bot.Parser.parse_user(res[1])
-        result = ctx.bot.algorithm.love_finder(user1.id, user2.id)
-        await ctx.send('Love level of {} and {} is **{}%!**'.format(user1.display_name, user2.display_name, result))
-    
+        result = ctx.bot.util.friendship(user1, user2)
+        await ctx.send(f'Love level of {user1.display_name} and {user2.display_name} is **{result}%!**')
+        del user1, user2, result, res
+
     @command('echo,reply')
     @cooldown(5)
     async def say(self, ctx, *args):
-        if len(args) == 0: return await ctx.send("Send `something`.")
-        text = ' '.join(args).lower()[0:1999]
+        text = ' '.join(args).lower()[0:1999] if len(args) > 0 else "***undefined***"
         if ctx.bot.util.get_command_name(ctx) == "reply":
             res = await self.connection.post(
                 f'https://discord.com/api/v8/channels/{ctx.channel.id}/messages',
@@ -59,21 +60,24 @@ class fun(commands.Cog):
             try: await ctx.message.delete()
             except: pass
         await ctx.send(text.replace('--h', ''), allowed_mentions=ctx.bot.util.no_mentions)
+        del text
     
     @command()
     @cooldown(2)
     async def joke(self, ctx):
+        await ctx.trigger_typing()
         data = await ctx.bot.util.get_request(
             "https://official-joke-api.appspot.com/jokes/general/random",
             json=True,
             raise_errors=True
         )
-        embed = discord.Embed(
-            title = str(data[0]["setup"]),
-            description = '||'+str(data[0]["punchline"])+'||',
-            colour = ctx.guild.me.roles[::-1][0].color
+        embed = ctx.bot.Embed(
+            ctx,
+            title = data[0]["setup"],
+            desc = '||'+data[0]["punchline"]+'||'
         )
-        await ctx.send(embed=embed)
+        await embed.send()
+        del embed, data
 
     @command("howgay")
     @cooldown(5)
@@ -87,7 +91,8 @@ class fun(commands.Cog):
     async def inspirobot(self, ctx):
         await ctx.trigger_typing()
         img = await ctx.bot.util.get_request('https://inspirobot.me/api', raise_errors=True, generate="true")
-        return await ctx.bot.util.send_image_attachment(ctx, img)
+        await ctx.bot.util.send_image_attachment(ctx, img)
+        del img
     
     @command('randomcase')
     @cooldown(2)
@@ -106,42 +111,6 @@ class fun(commands.Cog):
             "Answer": f'***{res}***'
         })
         return await embed.send()
-
-    @command('serverdeathnote,dn')
-    @cooldown(10)
-    async def deathnote(self, ctx):
-        if ctx.guild.member_count>500: raise ctx.bot.util.BasicCommandException('This server has soo many members')
-        member, in_the_note, notecount, membercount = [], "", 0, 0
-        for i in range(ctx.guild.member_count):
-            if ctx.guild.members[i].display_name!=ctx.author.display_name:
-                member.append(ctx.guild.members[i].name)
-                membercount = int(membercount) + 1
-        chances = ['ab', 'abc', 'abcd']
-        strRandomizer = random.choice(chances)
-        for i in range(int(membercount)):
-            if random.choice(list(strRandomizer))=='b':
-                notecount = int(notecount) + 1
-                in_the_note = in_the_note+str(notecount)+'. '+ str(member[i]) + '\n'
-        death, count = random.choice(member), random.choice(list(range(int(membercount))))
-        embed = discord.Embed(
-            title=ctx.guild.name+'\'s death note',
-            description=str(in_the_note),
-            colour = ctx.guild.me.roles[::-1][0].color
-        )
-        await ctx.send(embed=embed)
-    
-    @command('useless,uselesssites,uselessweb,uselesswebsites,uselesswebsite')
-    @cooldown(3)
-    async def uselesswebs(self, ctx):
-        try:
-            url = await ctx.bot.util.get_request(
-                'https://useless-api.vierofernando.repl.co/uselesssites',
-                json=True,
-                raise_errors=True
-            )
-            await ctx.send(ctx.bot.util.success_emoji+f' | **{url["url"]}**')
-        except:
-            raise ctx.bot.util.BasicCommandException(f'oops. there is some error, meanwhile look at this useless site: <https://top.gg/bot/{ctx.bot.user.id}/vote>')
     
     @command()
     @cooldown(2)
@@ -175,8 +144,13 @@ class fun(commands.Cog):
             json=True,
             raise_errors=True
         )
-        embed = discord.Embed(title='Fact Core', description=random.choice(data), colour=ctx.guild.me.roles[::-1][0].color)
-        embed.set_thumbnail(url='https://i1.theportalwiki.net/img/thumb/5/55/FactCore.png/300px-FactCore.png')
-        await ctx.send(embed=embed)
+        embed = ctx.bot.Embed(
+            ctx,
+            title='Fact Core',
+            desc=random.choice(data),
+            thumbnail='https://i1.theportalwiki.net/img/thumb/5/55/FactCore.png/300px-FactCore.png'
+        )
+        await embed.send()
+        del data, embed
 def setup(client):
     client.add_cog(fun())

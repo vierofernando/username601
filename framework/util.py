@@ -31,6 +31,7 @@ class Util:
         self.prefix_length = len(client.command_prefix)
         self._alphabet = list('abcdefghijklmnopqrstuvwxyz')
         self._start = time()
+        self._hundred_range = range(0, 101)
         self.no_mentions = AllowedMentions(everyone=False, users=False, roles=False)
 
         self.useless_client = ClientSession(headers={"superdupersecretkey": getenv("USELESSAPI")}, timeout=ClientTimeout(total=10.0))
@@ -88,6 +89,12 @@ class Util:
         response = ((code + ctx.author.id) % 2 == 0)
         del code, ctx
         return choice(self._8ball_template).replace("??", ("yes" if response else "no"))
+    
+    def friendship(user_id1: int, user_id2: int) -> int:
+        """ Gets the most accurate value of friendship in all of discord bots using the finding love algorithm. """
+        
+        a, b = (user_id2, user_id1) if (user_id2 > user_id1) else (user_id1, user_id2)
+        return int(str(a)[0] + str(b)[::-1][0])
     
     async def handle_error(self, ctx, error):
         """ Handles errors like a boss. """
@@ -154,15 +161,10 @@ class Util:
                 assert data.status < 400, "API returns a bad status code"
                 assert data.headers['Content-Type'].startswith("image/"), "Content does not have an image."
                 extension = "." + data.headers['Content-Type'][6:]
-                msg = await ctx.send(file=File(BytesIO(_bytes), "file"+extension.lower()))
+                await ctx.send(file=File(BytesIO(_bytes), "file"+extension.lower()))
                 del extension, _bytes
-                return msg
         except Exception as e:
-            return await self.send_error_message(ctx, "Image not found.\n`"+str(e)+"`")
-    
-    async def send_error_message(self, ctx, message):
-        """ Sends an error message embed. """
-        return await ctx.send(embed=Embed(title="Error", description=message, color=Color.red()))
+            raise BasicCommandException("Image not found.\n`"+str(e)+"`")
     
     def get_command_name(self, ctx) -> str:
         """ Gets the command name from a discord context object """
