@@ -125,10 +125,7 @@ class games(commands.Cog):
         await ctx.send(file=discord.File(im, 'the_impostor.png'))
         del im, url
 
-    async def process_geometry_dash_profile(self, ctx, args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
-        await ctx.trigger_typing()
+    async def geometry_dash_profile(self, ctx, args):
         try:
             data = await ctx.bot.util.get_request(
                 "https://gdbrowser.com/api/profile/"+str(' '.join(args))[0:32],
@@ -153,25 +150,16 @@ class games(commands.Cog):
         except:
             raise ctx.bot.util.BasicCommandException('Error, user not found.')
     
-    @command()
-    @cooldown(3)
-    async def gdcomment(self, ctx, *args):
-        await ctx.trigger_typing()
+    async def geometry_dash_comment(self, ctx, args):
         try:
-            byI = str(' '.join(args)).split(' | ')
-            text = ctx.bot.util.encode_uri(byI[0])
-            num = int(byI[2])
-            if num>9999: num = 601
-            elif num<-9999: num = -601
-            gdprof = ctx.bot.util.encode_uri(byI[1])
-            if ctx.author.guild_permissions.manage_guild: url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&mod=mod&days=1-second'
-            else: url='https://gdcolon.com/tools/gdcomment/img/'+str(text)+'?name='+str(gdprof)+'&likes='+str(num)+'&days=1-second'
-            return await ctx.bot.util.send_image_attachment(ctx, url)
+            _split = ' '.join(args).split(' | ')
+            text, num, user_name = ctx.bot.util.encode_uri(_split[0])[0:100], int(_split[2]), ctx.bot.util.encode_uri(_split[1])[0:32]
+            if num not in range(-99999, 100000): num = 601
+            return await ctx.bot.util.send_image_attachment(ctx, f'https://gdcolon.com/tools/gdcomment/img/{text}?name={user_name}&likes={num}&days=1-second{("&mod=mod" if ctx.author.guild_permissions.manage_guild else "")}')
         except Exception as e:
-            raise ctx.bot.util.BasicCommandException(f'Invalid!\nThe flow is this: `{ctx.bot.command_prefix}gdcomment text | name | like count`\nExample: `{ctx.bot.command_prefix}gdcomment I am cool | RobTop | 601`.\n\nFor developers: ```{e}```')
+            raise ctx.bot.util.BasicCommandException(f'Invalid arguments!\nThe flow is this: {ctx.bot.command_prefix}gdcomment <text> | <username> | <like count>')
 
-    async def process_geometry_dash_level(self, ctx, args):
-        await ctx.trigger_typing()
+    async def geometry_dash_level(self, ctx, args):
         _input = args[0].lower()
         if _input == "daily":
             try:
@@ -226,42 +214,23 @@ class games(commands.Cog):
             return await ctx.bot.util.send_image_attachment(ctx, 'https://gdcolon.com/tools/gdlogo/img/'+ctx.bot.util.encode_uri(' '.join(args)))
         elif _input.startswith("box"):
             return await ctx.bot.util.send_image_attachment(ctx, 'https://gdcolon.com/tools/gdtextbox/img/'+ctx.bot.util.encode_uri(' '.join(args))[0:100]+'?color='+('blue' if ctx.author.guild_permissions.manage_guild else 'brown')+'&name='+ctx.author.display_name+'&url='+str(ctx.author.avatar_url_as(format='png'))+'&resize=1')
+        elif _input.startswith("comment"):
+            return await self.geometry_dash_comment(ctx, args[1:])
+
 
     @command('rockpaperscissors')
     @cooldown(5)
     async def rps(self, ctx):
-        main = await ctx.send(embed=discord.Embed(title='Rock Paper Scissors game.', description='Click the reaction below. And game will begin.', colour=ctx.guild.me.roles[::-1][0].color))
-        exp = ['✊', '🖐️', '✌']
-        for i in range(len(exp)):
-            await main.add_reaction(exp[i])
-        def check(reaction, user):
-            return user == ctx.author
-        try:
-            reaction, user = await ctx.bot.wait_for('reaction_add', timeout=15.0, check=check)
-        except asyncio.TimeoutError:
-            await main.add_reaction('😔')
-        emojiArray, ran, given, beginGame = None, None, None, False
-        if str(reaction.emoji) in exp:
-            emotes, num, beginGame = ["fist", "hand_splayed", "v"], exp.index(str(reaction.emoji)), True
-            res = ctx.bot.games.rps(emotes[num])
-            given, msgId = emotes[num], res[0]
-            emojiArray, ran = emotes, res[1]
-        messages = ["Congratulations! "+ctx.author.display_name+" WINS!", "It's a draw.", "Oops, "+ctx.author.display_name+" lost!"]
-        colors = [ctx.guild.me.roles[::-1][0].color, discord.Colour.orange(), ctx.guild.me.roles[::-1][0].color]
-        if beginGame:
-            embed = discord.Embed(
-                title = messages[msgId],
-                colour = colors[msgId]
-            )
-            embed.set_footer(text='Playin\' rock paper scissors w/ '+ctx.author.display_name)
-            embed.set_author(name="Playing Rock Paper Scissors with "+ctx.author.display_name)
-            embed.add_field(name=ctx.author.display_name, value=':'+given+':', inline="True")
-            embed.add_field(name='Username601', value=':'+str(emojiArray[ran])+':', inline="True")
-            await main.edit(content='', embed=embed)
-            if msgId==1 and ctx.bot.db.Economy.get(ctx.author.id) is not None:
-                reward = random.randint(5, 100)
-                ctx.bot.db.Economy.addbal(ctx.author.id, reward)
-                await ctx.send('thank you for playing! you earned '+str(reward)+' as a prize!')
+        game = ctx.bot.rps(ctx)
+        res = await game.play()
+        del game
+
+        if res is None:
+            return
+        if res == 1 and ctx.bot.db.Economy.get(ctx.author.id) is not None:
+            reward = random.randint(5, 100)
+            ctx.bot.db.Economy.addbal(ctx.author.id, reward)
+            return await ctx.send(f'Thanks for playing! you earned {reward} bobux as a prize!')
 
     @command('dice,flipcoin,flipdice,coinflip,diceflip,rolldice')
     @cooldown(3)

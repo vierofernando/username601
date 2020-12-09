@@ -1,5 +1,39 @@
 from aiohttp import ClientSession
 from random import choice, randint
+from discord import Embed, Color
+from random import randint
+from asyncio import sleep
+
+class RockPaperScissors:
+    def __init__(self, ctx, timeout: int = 20):
+        self.emojis = ['✊', '🖐️', '✌']
+        self.ctx = ctx
+        self.check = (lambda r, u: (str(r.emoji) in self.emojis) and (u == self.ctx.author))
+        self.timeout = timeout
+
+    async def play(self):
+        self.message = await self.ctx.send(embed=Embed(title="Rock, paper, scissors!", color=self.ctx.guild.me.roles[::-1][0].color))
+        for emoji in self.emojis:
+            await message.add_reaction(emoji)
+            await sleep(0.5) # 3 emojis may be not much but this is to reduce ratelimit
+        
+        try:
+            r, _ = await self.ctx.bot.wait_for('reaction_add', timeout=self.timeout, check=self.check)
+        except:
+            return None
+        
+        return await self._is_win(self.emojis.index(str(r.emoji)), randint(0, 2))
+
+    async def _is_win(self, user_index: int, bot_index: int):
+        pos = (user_index, bot_index)
+        if pos in [(0, 2), (1, 0), (2, 1)]:
+            await self.message.edit(content="", embed=Embed(title=f"Congratulations, {self.ctx.author.display_name} won against {self.ctx.bot.user.name}!", description=f"**{self.ctx.author.display_name}: **{self.emojis[user_index]}\n**{self.ctx.bot.user.name}: **{self.emojis[bot_index]}", color=Color.green()))
+            return 1
+        elif pos in [(0, 0), (1, 1), (2, 2)]:
+            await self.message.edit(content="", embed=Embed(title=f"It's a draw!", description=f"**{self.ctx.author.display_name}: **{self.emojis[user_index]}\n**{self.ctx.bot.user.name}: **{self.emojis[bot_index]}", color=Color.orange()))
+            return 0
+        await self.message.edit(content="", embed=Embed(title=f"RIP, {self.ctx.author.display_name} lost to {self.ctx.bot.user.name}!", description=f"**{self.ctx.author.display_name}: **{self.emojis[user_index]}\n**{self.ctx.bot.user.name}: **{self.emojis[bot_index]}", color=Color.red()))
+        return -1
 
 class Quiz:
     def __init__(self, players: list, topic: str = "Education", limit: int = 10, _async: bool = True):
