@@ -27,6 +27,19 @@ class memes(commands.Cog):
             "f": ((82, 111), (361, 86))
         }
         
+    @command('oreomeme,oreo-meme')
+    @cooldown(5)
+    async def oreo(self, ctx, *args):
+        try:
+            my_oreo = ctx.bot.oreo(ctx.bot.util.assets_dir, "".join(args)[0:40])
+            meme = my_oreo.meme()
+            
+            await ctx.send(file=discord.File(meme, "oreo.png"))
+            
+            my_oreo.eat()
+        except Exception as e:
+            raise ctx.bot.util.BasicCommandException(str(e))
+    
     @command()
     @cooldown(3)
     async def oliy(self, ctx, *args):

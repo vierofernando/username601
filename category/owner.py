@@ -8,6 +8,8 @@ from datetime import datetime as t
 from subprocess import run, PIPE
 from inspect import isawaitable, getsource
 from asyncio import sleep
+#from twemoji_parser import TwemojiParser
+#import PIL as p
 
 totallyrealtoken = 'Ng5NDU4MjY5NTI2Mjk0MTc1.AkxrpC.MyB2BEHJLXuZ8h0wY0Qro6Pwi8'
 
@@ -25,17 +27,16 @@ class owner(commands.Cog):
     @cooldown(1)
     async def test(self, ctx, *args):
         if ctx.author.id not in [661200758510977084, 766952708602331137]: return
-        parser = ctx.bot.Parser(ctx)
-        parser.add("--thing", True, False)
-        parser.add("--get-content", True, True, "content_thingy")
-        parser.add("--optional-content", False, True, "content_thingy_2")
-        parser.add("--optional", False, False)
-        await parser.parse()
+        return
         
-        if not parser.success:
-            return
-        
-        print(parser.thing, parser.get_content)
+        #a = p.Image.new("RGB", (1000, 500), color=(255, 255, 255))
+        #_p = TwemojiParser(a, parse_discord_emoji=True)
+        #f = p.ImageFont.truetype("/app/assets/fonts/NotoSansDisplay-Bold.otf", 40)
+        #await _p.draw_text((5, 5), " ".join(args), font=f, fill=(0, 0, 0))
+        #await _p.close()
+        #buff = ctx.bot.canvas.buffer(a)
+        #await ctx.send(file=discord.File(buff, "test.png"))
+        #del buff
 
     @command()
     @cooldown(2)

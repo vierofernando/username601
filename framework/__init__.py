@@ -9,6 +9,7 @@ from .colorthief import Smart_ColorThief
 from .games import TicTacToe, Quiz, RockPaperScissors
 from .util import Util, GetRequestFailedException, BasicCommandException
 from .cache import CacheManager
+from .oreo import Oreo
 
 def initiate(client):
     setattr(client, "Embed", embed)
@@ -22,4 +23,5 @@ def initiate(client):
     setattr(client, "WaitForMessage", WaitForMessage)
     setattr(client, "cache_manager", CacheManager)
     setattr(client, "rps", RockPaperScissors)
+    setattr(client, "oreo", Oreo)
     Util(client)
