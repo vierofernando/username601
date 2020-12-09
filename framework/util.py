@@ -1,4 +1,4 @@
-from discord import Embed, Color, File, __version__, Forbidden
+from discord import Embed, Color, File, __version__, Forbidden, AllowedMentions
 from discord.ext import commands
 from io import BytesIO
 from aiohttp import ClientSession, ClientTimeout
@@ -31,6 +31,7 @@ class Util:
         self.prefix_length = len(client.command_prefix)
         self._alphabet = list('abcdefghijklmnopqrstuvwxyz')
         self._start = time()
+        self.no_mentions = AllowedMentions(everyone=False, users=False, roles=False)
 
         self.useless_client = ClientSession(headers={"superdupersecretkey": getenv("USELESSAPI")}, timeout=ClientTimeout(total=10.0))
         self.alex_client = ClientSession(headers={'Authorization': getenv("ALEXFLIPNOTE_TOKEN")}, timeout=ClientTimeout(total=10.0))
