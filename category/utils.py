@@ -51,7 +51,7 @@ class utils(commands.Cog):
             if len(args) == 1:
                 color_left, color_right = ImageColor.getrgb(args[0]), None
             else:
-                left, right = ctx.bot.Parser.split_content_to_two(args)
+                left, right = ctx.bot.Parser.split_args(args)
                 color_left, color_right = ImageColor.getrgb(left), ImageColor.getrgb(right)
         except:
             raise ctx.bot.util.BasicCommandException("Please input a valid color.")

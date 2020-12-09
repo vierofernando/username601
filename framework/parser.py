@@ -1,7 +1,7 @@
 from twemoji_parser import emoji_to_url
 
 class Parser:
-    SPLIT_CHARACTERS = [';', ', ', ',', '|',' | ']
+    SPLIT_CHARACTERS = [';', ', ', ',', '|',' | ', ' ']
     HTML_DICT = {
         "<p>": "",
         "</p>": "",
@@ -158,19 +158,19 @@ class Parser:
         return ctx.author
     
     @staticmethod
-    def split_content_to_two(args: tuple):
+    def split_args(args: tuple, amount: int = 2):
         """
-        Splits a text to two text.
+        Splits a text to multiple text text.
         Detects comma, |, semicolon, or spaces.
         """
         
-        if ((args is None) or (len(args) < 2)): return None
-        if len(args) == 2: return args[0], args[1]
+        _str = " ".join(args)
+        for i in Parser.SPLIT_CHARACTERS:
+            _split = _str.split(i)
+            if (i in _str) and (len(_split) >= amount):
+                return _split[0:amount]
         
-        args_as_a_string = ' '.join(list(args))
-        for char in Parser.SPLIT_CHARACTERS:
-            if char in args_as_a_string: return args_as_a_string.split(char)[0], char.join(args_as_a_string.split(char)[1:])
-        return args[0], ' '.join(args[1:])
+        raise BasicCommandException(f"This command requires at least {amount} arguments.")
     
     @staticmethod
     def html_to_markdown(text: str) -> str:

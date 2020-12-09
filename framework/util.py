@@ -34,6 +34,7 @@ class Util:
         self._start = time()
         self._hundred_range = range(0, 101)
         self.no_mentions = AllowedMentions(everyone=False, users=False, roles=False)
+        self.BasicCommandException = BasicCommandException
 
         self.useless_client = ClientSession(headers={"superdupersecretkey": getenv("USELESSAPI")}, timeout=ClientTimeout(total=10.0))
         self.alex_client = ClientSession(headers={'Authorization': getenv("ALEXFLIPNOTE_TOKEN")}, timeout=ClientTimeout(total=10.0))
@@ -109,7 +110,7 @@ class Util:
         if isinstance(error, Forbidden): 
             try: return await ctx.send("I don't have the permission required to use that command!")
             except: return
-        elif isinstance(error, BasicCommandException):
+        elif isinstance(error, self.BasicCommandException):
             return await ctx.send(embed=Embed(description=str(error), color=Color.red()))
         elif isinstance(error, GetRequestFailedException):
             return await ctx.send(embed=Embed(description="A request failed to the API. Please try again later!\nError: " + str(error), color=Color.red()))
@@ -165,10 +166,10 @@ class Util:
                 await ctx.send(file=File(BytesIO(_bytes), "file"+extension.lower()))
                 del extension, _bytes
         except Exception as e:
-            raise BasicCommandException("Image not found.\n`"+str(e)+"`")
+            raise self.BasicCommandException("Image not found.\n`"+str(e)+"`")
     
     def get_command_name(self, ctx) -> str:
-        """ Gets the command name from a discord context object """
+        """ Gets the command name from a discord context object. This includes the alias used. """
         first_line = ctx.message.content.split()[0]
         return first_line[self.prefix_length:].lower()
     

@@ -101,15 +101,12 @@ class apps(commands.Cog):
                         return None
                 else:
                     destination = args[0].lower()
-            except:
-                raise ctx.bot.util.BasicCommandException('Please insert a valid language and a text to translate.')
-            try:
                 translation = self.translator.translate(toTrans[0:1000], dest=destination)
                 embed = ctx.bot.Embed(ctx, title=f"{LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}", desc=translation.text[0:1900])
                 await embed.send()
                 del embed, translation, _filter, destination, toTrans
-            except Exception as e:
-                raise ctx.bot.util.BasicCommandException(f'An error occurred! ```py\n{str(e)}```')
+            except:
+                raise ctx.bot.util.BasicCommandException('Please insert a valid language and a text to translate.')
         raise ctx.bot.util.BasicCommandException(f'Please add a language and a text!')
 
     @command('wiki')

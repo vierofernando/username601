@@ -12,22 +12,19 @@ class fun(commands.Cog):
         self.connection = ClientSession(headers={'Authorization': 'Bot '+environ['DISCORD_TOKEN'], 'Content-Type': 'application/json'})      
 
     @command('edit')
-    @cooldown(2)
+    @cooldown(3)
     async def edited(self, ctx, *args):
+        res = ctx.bot.Parser.split_args(args)
         msg = await ctx.send('...')
-        if len(args)==0 or '|' not in ' '.join(args):
-            return await msg.edit(content='Please use | to place where the \u202b will be. \u202b')
-        await msg.edit(content=' '.join(args).replace('|', '\u202b')+' \u202b')
+        await msg.edit(content='\u202b '+ ' '.join(args)[0:100] + ' \u202b')
 
-    @command('howlove,friendship,fs')
+    @command('howlove,friendship,fs,love')
     @cooldown(2)
     async def lovelevel(self, ctx, *args):
-        res = ctx.bot.Parser.split_content_to_two(args)
-        if not res:
-            raise ctx.bot.util.BasicCommandException('Please send a valid two user ids/names/mentions!')
-        user1, user2 = ctx.bot.Parser.parse_user(res[0]), ctx.bot.Parser.parse_user(res[1])
+        res = ctx.bot.Parser.split_args(args)
+        user1, user2 = ctx.bot.Parser.parse_user(ctx, res[0]), ctx.bot.Parser.parse_user(ctx, res[1])
         result = ctx.bot.util.friendship(user1, user2)
-        await ctx.send(f'Love level of {user1.display_name} and {user2.display_name} is **{result}%!**')
+        await ctx.send(f'Friendship of {user1.display_name} and {user2.display_name} is **{result}%!**')
         del user1, user2, result, res
 
     @command('echo,reply')
@@ -42,10 +39,7 @@ class fun(commands.Cog):
             if res.status != 200:
                 return await ctx.send(text, allowed_mentions=ctx.bot.util.no_mentions)
             return
-        if '--h' in text:
-            try: await ctx.message.delete()
-            except: pass
-        await ctx.send(text.replace('--h', ''), allowed_mentions=ctx.bot.util.no_mentions)
+        await ctx.send(text, allowed_mentions=ctx.bot.util.no_mentions)
         del text
     
     @command()
@@ -65,13 +59,6 @@ class fun(commands.Cog):
         await embed.send()
         del embed, data
 
-    @command("howgay")
-    @cooldown(5)
-    async def gaylevel(self, ctx, *args):
-        data = ctx.bot.Parser.parse_user(ctx, args)
-        name = data.display_name+'\'s' if data!=ctx.author else 'Your'
-        await ctx.send('{} gay level is currently {}%!'.format(name, str(ctx.bot.algorithm.gay_finder(data.id))))
-
     @command('inspiringquotes,lolquote,aiquote,imagequote,imgquote')
     @cooldown(10)
     async def inspirobot(self, ctx):
@@ -89,8 +76,8 @@ class fun(commands.Cog):
     @command('8ball,8b')
     @cooldown(3)
     async def _8ball(self, ctx, *args):
-        if len(args) == 0: raise ctx.bot.util.BasicCommandException("Please send a question!")
-        
+        ctx.bot.Parser.require_args(ctx, args)
+
         res = ctx.bot.util.eight_ball(ctx)
         embed = ctx.bot.Embed(ctx, title="The 8-Ball", fields={
             "Question": '*"'+ discord.utils.escape_markdown(" ".join(args)) +'"*',
@@ -104,23 +91,6 @@ class fun(commands.Cog):
         if len(args)==0 or ',' not in ''.join(args):
             raise ctx.bot.util.BasicCommandException(f'send in something!\nLike: `{ctx.bot.command_prefix}choose he is cool, he is not cool`')
         return await ctx.send(random.choice(' '.join(args).split(',')))
-    
-    @command()
-    @cooldown(2)
-    async def temmie(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        link, num = 'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/temmie.json', 1
-        data = await ctx.bot.util.get_request(
-            link,
-            json=True,
-            raise_errors=True
-        )
-        keyz = list(data.keys())
-        total = ''
-        for j in range(num, len(keyz)):
-            if total=='': total = ' '.join(args)
-            total = total.replace(keyz[j], data[keyz[j]])
-        await ctx.send(total)
     
     @command('fact-core,fact-sphere,factsphere')
     @cooldown(2)
@@ -138,5 +108,6 @@ class fun(commands.Cog):
         )
         await embed.send()
         del data, embed
+
 def setup(client):
     client.add_cog(fun())
