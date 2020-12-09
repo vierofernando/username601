@@ -18,11 +18,11 @@ Completely pointless and also buggy regex<br>
 ### 1colorinfo, 1randomcolor, 1rolecolor<br>
 Have been merged down to `1color`<br>
 
-### 1search, 1randomword<br>
+### 1search, 1randomword, 1temmie<br>
 Useless and buggy anyway<br>
 
-### 1steamprofile<br>
-API endpoint removed.<br>
+### 1steamprofile, 1tts<br>
+API endpoint removed/no longer working.<br>
 
 ### 1pokequiz<br>
 Quiz was really buggy and API sometimes doesn't work for no reason<br>

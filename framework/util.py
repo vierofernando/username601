@@ -1,16 +1,17 @@
 from discord import Embed, Color, File, __version__, Forbidden, AllowedMentions
-from discord.ext import commands
-from io import BytesIO
+from platform import python_build, python_compiler, uname
 from aiohttp import ClientSession, ClientTimeout
+from configparser import ConfigParser
 from os import getenv, name, listdir
+from urllib.parse import quote_plus
+from googletrans import LANGUAGES
+from discord.ext import commands
 from subprocess import run, PIPE
 from base64 import b64encode
-from configparser import ConfigParser
-from json import loads
-from urllib.parse import quote_plus
-from time import time
-from platform import python_build, python_compiler, uname
 from random import choice
+from json import loads
+from io import BytesIO
+from time import time
 
 class GetRequestFailedException(Exception): pass
 class BasicCommandException(Exception): pass
@@ -99,7 +100,7 @@ class Util:
     async def handle_error(self, ctx, error):
         """ Handles errors like a boss. """
         if isinstance(error, commands.CommandNotFound): return
-        elif isinstance(error, commands.CommandOnCooldown): return await ctx.send("You are on cooldown. You can do the command again in {}.".format(lapsed_time_from_seconds(round(error.retry_after))), delete_after=2)
+        elif isinstance(error, commands.CommandOnCooldown): return await ctx.send("Calm down. Try again in {}.".format(self.strfsecond(round(error.retry_after))), delete_after=2)
         # put both of this on first because it's the most common exception
         
         if hasattr(error, "original"): # discord.py is weird
@@ -114,7 +115,7 @@ class Util:
             return await ctx.send(embed=Embed(description="A request failed to the API. Please try again later!\nError: " + str(error), color=Color.red()))
         else:
             await self.bot.get_channel(self.feedback_channel).send(content='<@{}> there was an error!'.format(self.owner_id), embed=Embed(
-                title='Error', color=discord.Colour.red(), description=f'Content:\n```{ctx.message.content}```\n\nError:\n```{str(error)}```'
+                title='Error', color=Color.red(), description=f'Content:\n```{ctx.message.content}```\n\nError:\n```{str(error)}```'
             ).set_footer(text='Bug made by user: {} (ID of {})'.format(str(ctx.author), ctx.author.id)))
             return await ctx.send('Sorry, there was an error while executing this command.\nThis message has been reported to the developer of the bot.', delete_after=3)
     

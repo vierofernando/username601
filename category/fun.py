@@ -5,25 +5,11 @@ from discord.ext import commands
 from category.decorators import command, cooldown
 from aiohttp import ClientSession
 from io import BytesIO
-import asyncio
-from gtts import gTTS
 from json import dumps
 
 class fun(commands.Cog):
     def __init__(self):
         self.connection = ClientSession(headers={'Authorization': 'Bot '+environ['DISCORD_TOKEN'], 'Content-Type': 'application/json'})      
-
-    @command('talk,gtts,texttospeech,text-to-speech')
-    @cooldown(5)
-    async def tts(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        res = BytesIO()
-        tts = gTTS(text=' '.join(args), lang='en', slow=False)
-        tts.write_to_fp(res)
-        res.seek(0)
-        await ctx.send(file=discord.File(fp=res, filename='tts.mp3'))
-        del res
-        del tts
 
     @command('edit')
     @cooldown(2)

@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 import imdb
-from datetime import datetime as t
 from category.decorators import command, cooldown
 import random
 import wikipediaapi
@@ -88,21 +87,27 @@ class apps(commands.Cog):
     async def translate(self, ctx, *args):
         await ctx.trigger_typing()
         if len(args)>1:
-            destination = args[0].lower()
             try:
                 toTrans = ' '.join(args[1:])
-                if len(destination) > 2:
-                    q = list(filter(
-                        lambda x: destination in x.lower(), [LANGUAGES[x] for x in list(LANGUAGES)]
-                    ))
-                    assert len(q) > 0
-                    destination = q[0]
-            except (IndexError, AssertionError):
-                raise ctx.bot.util.BasicCommandException('Please insert a valid language.')
+                if len(args[0]) > 2:
+                    try:
+                        _filter = list(filter(
+                            lambda x: args[0].lower() in x.lower(), [LANGUAGES[x] for x in list(LANGUAGES)]
+                        ))
+                        assert len(_filter) > 0
+                        del _filter
+                        destination = _filter[0]
+                    except:
+                        return None
+                else:
+                    destination = args[0].lower()
+            except:
+                raise ctx.bot.util.BasicCommandException('Please insert a valid language and a text to translate.')
             try:
                 translation = self.translator.translate(toTrans[0:1000], dest=destination)
                 embed = ctx.bot.Embed(ctx, title=f"{LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}", desc=translation.text[0:1900])
-                return await embed.send()
+                await embed.send()
+                del embed, translation, _filter, destination, toTrans
             except Exception as e:
                 raise ctx.bot.util.BasicCommandException(f'An error occurred! ```py\n{str(e)}```')
         raise ctx.bot.util.BasicCommandException(f'Please add a language and a text!')
