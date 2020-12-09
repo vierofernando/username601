@@ -107,7 +107,7 @@ class apps(commands.Cog):
                 raise ctx.bot.util.BasicCommandException(f'An error occurred! ```py\n{str(e)}```')
         raise ctx.bot.util.BasicCommandException(f'Please add a language and a text!')
 
-    @command()
+    @command('wiki')
     @cooldown(5)
     async def wikipedia(self, ctx, *args):
         ctx.bot.Parser.require_args(ctx, args)

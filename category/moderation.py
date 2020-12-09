@@ -423,7 +423,7 @@ class moderation(commands.Cog):
     @cooldown(2)
     async def channel(self, ctx):
         arr = [f"<#{x.id}>" for x in ctx.guild.channels if x.type == discord.ChannelType.text] if "channel" in ctx.message.content.lower() else (list(map(lambda x: x.mention, ctx.guild.roles)))[1:]
-        await ctx.send(str(", ".join(arr))[0:2000], allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False))
+        await ctx.send(str(", ".join(arr))[0:2000], allowed_mentions=ctx.bot.util.no_mentions)
 
     @command('ui,user,usercard,user-info,user-card,whois,user-interface,userinterface')
     @cooldown(3)

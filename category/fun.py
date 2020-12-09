@@ -53,12 +53,12 @@ class fun(commands.Cog):
                 data=dumps({'content': text, 'message_reference': {'message_id': str(ctx.message.id), 'guild_id': str(ctx.guild.id)}, 'allowed_mentions': {'replied_user': False}})
             )
             if res.status != 200:
-                return await ctx.send(text, allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False))
+                return await ctx.send(text, allowed_mentions=ctx.bot.util.no_mentions)
             return
         if '--h' in text:
             try: await ctx.message.delete()
             except: pass
-        await ctx.send(text.replace('--h', ''), allowed_mentions=discord.AllowedMentions(everyone=False, users=False, roles=False))
+        await ctx.send(text.replace('--h', ''), allowed_mentions=ctx.bot.util.no_mentions)
     
     @command()
     @cooldown(2)
