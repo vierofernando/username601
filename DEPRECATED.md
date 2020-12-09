@@ -3,6 +3,9 @@
 ## DEPRECATED COMMANDS<br>
 these are commands i decided to delete with the reasons.
 
+### 1gdlevel, 1gdsearch, 1gdprofile, 1gdlogo, 1gdcomment<br>
+Merged down to `1gd`
+
 ### 1destroy, 1ifunny, 1msgbox, 1wasted<br>
 Rarely used (also deleted to save RAM)
 

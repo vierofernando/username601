@@ -207,9 +207,9 @@ class games(commands.Cog):
         await ctx.trigger_typing()
         _input = args[0].lower()
         if _input.startswith("level"):
-            return await self.process_geometry_dash_level(ctx, args[1:])
+            return await self.geometry_dash_level(ctx, args[1:])
         elif _input.startswith("profile") or _input.startswith("user"):
-            return await self.process_geometry_dash_profile(ctx, args[1:])
+            return await self.geometry_dash_profile(ctx, args[1:])
         elif _input.startswith("logo"):
             return await ctx.bot.util.send_image_attachment(ctx, 'https://gdcolon.com/tools/gdlogo/img/'+ctx.bot.util.encode_uri(' '.join(args)))
         elif _input.startswith("box"):
