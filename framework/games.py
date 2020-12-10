@@ -4,8 +4,91 @@ from discord import Embed, Color
 from random import randint, choice
 from asyncio import sleep
 
+class GuessAvatar:
+    def __init__(self, ctx) -> None:
+        """ Creates a 'guess what avatar this belongs to' game """
+        members = ctx.guild.members
+        assert len(members) >= 4, "Member count must be more than 4"
+        
+        generator = randint(0, len(members) - 1)
+        self.members = ctx.guild.members[generator:(generator + 4)]
+
+        missing = (len(self.members) - 4) * -1
+        for i in range(missing):
+            self.members.append(members[i])
+        del members
+        self.ctx = ctx
+        self.correct_order = randint(0, 3)
+        self.alpha = list("ABCD")
+    
+    async def start(self) -> bool:
+        """ begin """
+        
+        embed = self.ctx.bot.Embed(
+            self.ctx,
+            title="What does this avatar belong to?",
+            desc="\n".join([f"{self.alpha[i]}. **{self.members[i].display_name}**" for i in range(4)]),
+            image=self.members[self.correct_order].avatar_url_as(format="png")
+        )
+        message = await embed.send()
+        del embed
+
+        waitFor = self.ctx.bot.WaitForMessage(self.ctx, timeout=25.0, check=(lambda x: x.channel == self.ctx.channel and x.author == self.ctx.author and len(x.content) == 1 and (x.content.upper() in self.alpha)))
+        response = await waitFor.get_message()
+        del waitFor
+        if not response:
+            await message.edit(embed=Embed(title="Game canceled bacause you ignored me :(", color=Color.orange()))
+            return
+
+        if self.alpha.index(response.content.upper()) == self.correct_order:
+            await message.edit(embed=Embed(title="Congratulations, you are correct!", color=Color.green()))
+            return True
+        await message.edit(embed=Embed(title=f"Sorry, the correct answer is {self.alpha[self.correct_order]}. {self.members[self.correct_order].display_name}", color=Color.red()))
+        return False
+
+class MathQuiz:
+    def __init__(self) -> None:
+        """ Math quiz, for nerds """
+        self.symbols = {
+            "÷": "//",
+            "+": "+",
+            "-": "-",
+            "×": "*"
+        }
+
+    def generate_question(self) -> None:
+        generator = randint(0, 1)
+        if generator == 0:
+            question, res = self.basic_question()
+            repeat = randint(0, 5)
+            for _ in range(repeat):
+                question, res = self.basic_question(extend_to=question)
+            self.question = question
+            self.answer = res
+            return
+        self.question, self.answer = self.square_root()
+
+    def __pythonic_equation(self, string: str) -> str:
+        for symbol in self.symbols.keys():
+            string = string.replace(symbol, self.symbols[symbol])
+        return string
+
+    def basic_question(self, extend_to: str = None) -> tuple:
+        symbol = choice(list(self.symbols.keys()))
+        num1, num2 = randint(0, 1000), randint(0, 1000)
+
+        if extend_to:
+            res = eval(self.__pythonic_equation(extend_to))
+            return f"{res} {symbol} {num1}", eval(f"{res}{self.symbols[symbol]}{num1}")
+
+        return f"{num1} {symbol} {num2}", eval(f"{num1}{self.symbols[symbol]}{num2}")
+
+    def square_root(self) -> tuple:
+        perfect_number = randint(2, 50)
+        return "√" + str(eval(f"{perfect_number}**2")), perfect_number
+
 class GeographyQuiz:
-    def __init__(self, session = None):
+    def __init__(self, session = None) -> None:
         """ The class that generates geography kind of quizzes using the restcountries API. """
         self.session = session if session else ClientSession()
         self._topics = { # {key: placeholder}
@@ -62,7 +145,7 @@ class GeographyQuiz:
         if alphabet.index(_input.content.upper()) == self.correct_order:
             await message.edit(embed=Embed(title=f'Congratulations! {ctx.author.display_name} is correct!', color=Color.green()))
             return True
-        await message.edit(embed=Embed(title=f'Sorry, {ctx.author.display_name}! The answer is {self.choices[self.correct_order]}', color=Color.red()))
+        await message.edit(embed=Embed(title=f'Sorry, {ctx.author.display_name}! The answer is {alphabet[self.correct_order]}. {self.choices[self.correct_order]}', color=Color.red()))
         return False
     
     async def end(self, end_session: bool = False) -> None:

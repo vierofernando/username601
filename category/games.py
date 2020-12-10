@@ -7,6 +7,9 @@ from datetime import datetime as t
 import asyncio
 
 class games(commands.Cog):
+    def __init__(self):
+        pass
+
     @command("ttt")
     @cooldown(15)
     async def tictactoe(self, ctx, *args):
@@ -239,48 +242,19 @@ class games(commands.Cog):
                 ctx.bot.db.Economy.addbal(ctx.author.id, prize) ; await ctx.send('your bet was right! you get '+str(prize)+' bobux.')
 
     @command('guessav,avatarguess,avguess,avatargame,avgame')
-    @cooldown(30)
+    @cooldown(15)
     async def guessavatar(self, ctx):
-        wait = await ctx.send(ctx.bot.util.loading_emoji + ' | Please wait... generating question...\nThis process may take longer if your server has more members.')
-        avatarAll, nameAll = [str(i.avatar_url) for i in ctx.guild.members if i.status.name!='offline'], [i.display_name for i in ctx.guild.members if i.status.name!='offline']
-        if len(avatarAll)<=4: raise ctx.bot.util.BasicCommandException('Need more online members! :x:')
-        numCorrect = random.randint(0, len(avatarAll)-1)
-        corr_avatar, corr_name = avatarAll[numCorrect], nameAll[numCorrect]
-        nameAll.remove(corr_name)
-        wrongArr = []
-        for i in range(3):
-            wrongArr.append(random.choice(nameAll))
-        abcs, emots = list('🇦🇧🇨🇩'), list('🇦🇧🇨🇩')
-        randomInt = random.randint(0, 3)
-        corr_order = random.choice(abcs[randomInt])
-        abcs[randomInt] = '0'
-        question, chooseCount = '', 0
-        for assign in abcs:
-            if assign!='0':
-                question += '**'+ str(assign) + '.** '+str(wrongArr[chooseCount])+ '\n'
-                chooseCount += 1
-            else:
-                question += '**'+ str(corr_order) + '.** '+str(corr_name)+ '\n'
-        embed = discord.Embed(title='What does the avatar below belongs to?', description=':eyes: Click the reactions! **You have 20 seconds.**\n\n'+str(question), colour=ctx.guild.me.roles[::-1][0].color)
-        embed.set_footer(text='For privacy reasons, the people displayed above are online users.')
-        embed.set_image(url=corr_avatar)
-        main = await ctx.send(embed=embed)
-        for i in emots: await main.add_reaction(i)
-        def is_correct(reaction, user):
-            return user == ctx.author
         try:
-            reaction, user = await ctx.bot.wait_for('reaction_add', check=is_correct, timeout=20.0)
-        except asyncio.TimeoutError:
-            return await ctx.send(':pensive: No one? Okay then, the answer is: '+str(corr_order)+'. '+str(corr_name))
-        if str(reaction.emoji)==str(corr_order):
-            await ctx.send(ctx.bot.util.success_emoji +' | <@'+str(ctx.author.id)+'>, You are correct! :tada:')
-            if ctx.bot.db.Economy.get(ctx.author.id) is not None:
-                reward = random.randint(5, 100)
-                ctx.bot.db.Economy.addbal(ctx.author.id, reward)
-                await ctx.send('thanks for playing! You received '+str(reward)+' extra bobux!')
-        else:
-            raise ctx.bot.util.BasicCommandException(f'<@{ctx.author.id}>, Incorrect. The answer is {corr_order}. {corr_name}')
-
+            game = ctx.bot.GuessAvatar(ctx)
+        except Exception as e:
+            raise ctx.bot.util.BasicCommandException(str(e))
+        win = await game.start()
+        
+        if win and ctx.bot.db.Economy.get(ctx.author.id) is not None:
+            reward = random.randint(5, 100)
+            ctx.bot.db.Economy.addbal(ctx.author.id, reward)
+            await ctx.send(f'Thanks for playing! You received {reward} extra bobux!')
+        
     @command()
     @cooldown(15)
     async def geoquiz(self, ctx):
@@ -303,25 +277,28 @@ class games(commands.Cog):
     @command()
     @cooldown(4)
     async def mathquiz(self, ctx):
-        arrayId, num1, num2, symArray = random.randint(0, 3), random.randint(1, 500), random.randint(1, 500), ['+', '-', 'x', '÷']
-        ansArray = [num1+num2, num1-num2, num1*num2, num1/num2]
-        sym = symArray[arrayId]
-        await ctx.send('**MATH QUIZ (15 seconds, answer rounded)**\n'+str(num1)+' '+str(sym)+' '+str(num2)+' = ???')
-        def is_correct(m):
-            return m.author == ctx.author
-        answer = round(ansArray[arrayId])
-        try:
-            trying = await ctx.bot.wait_for('message', check=is_correct, timeout=15.0)
-        except asyncio.TimeoutError:
-            return await ctx.send(f':pensive: | No one? Okay then, the answer is: {answer}.')
-        if str(trying.content)==str(answer):
-            await ctx.send(ctx.bot.util.success_emoji +' | <@'+str(ctx.author.id)+'>, You are correct! :tada:')
+        quiz = ctx.bot.MathQuiz()
+        quiz.generate_question()
+        
+        embed = ctx.bot.Embed(ctx, title=quiz.question)
+        message = await embed.send()
+        del embed
+        
+        wait_for = ctx.bot.WaitForMessage(ctx, timeout=30.0, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and x.content.isnumeric()))
+        answer = await wait_for.get_message()
+        del wait_for
+        
+        if not answer:
+            del quiz
+            return await message.edit(embed=discord.Embed(title="Quiz canceled.", color=discord.Color.red()))
+        
+        if (int(answer.content) == quiz.answer):
+            await message.edit(embed=discord.Embed(title="Correct!", color=discord.Color.green()))
             if ctx.bot.db.Economy.get(ctx.author.id) is not None:
                 reward = random.randint(5, 50)
                 ctx.bot.db.Economy.addbal(ctx.author.id, reward)
-                await ctx.send('thanks for playing! we added an extra '+str(reward)+' bobux to your profile.')
-        else:
-            raise ctx.bot.util.BasicCommandException(f'<@{ctx.author.id}>, Incorrect. The answer is {answer}.')
+                return await ctx.send(f'Thanks for playing! we added an extra {reward} bobux to your profile.')
+        return await message.edit(embed=discord.Embed(title=f"Wrong. The answer is {quiz.answer}", color=discord.Color.red()))
 
     @command()
     @cooldown(60)
