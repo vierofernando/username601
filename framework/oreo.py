@@ -53,9 +53,6 @@ class Oreo:
         """ Turn the oreo to a meme. """
         
         if self.im_arr == []: return
-        # 10
-        
-        h = len(self.im_arr) * 100
         m = Image.new("RGB", (500, 430), color=(255, 255, 255))
         
         c = 300
@@ -67,7 +64,7 @@ class Oreo:
         m.save(self.b, format="png")
         m.close()
         self.b.seek(0)
-        del m, h, c
+        del m, c
         return self.b
     
     def eat(self) -> None:

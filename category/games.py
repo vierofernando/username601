@@ -7,39 +7,27 @@ from datetime import datetime as t
 import asyncio
 
 class games(commands.Cog):
-    def __init__(self):
-        self.urltoimage = (lambda url: BytesIO(get(url).content))
-        self.countries = None
-    
-    async def generate_countries(self, ctx):
-        res = await ctx.bot.util.default_client.get("https://restcountries.eu/rest/v2")
-        self.countries = await res.json()
-        del res
-
-    async def wait_for_user(self, ctx, user):
-        check = (lambda x: (x.channel == ctx.channel) and (x.author == user) and (x.content.lower() in ["yes", "no"]))
-        await ctx.send(str(user)+", "+str(ctx.author)+" Invited you to a tic-tac-toe game!\nType `yes` to accept, or `no` to decline.")
-        try:
-            response = await ctx.bot.wait_for("message", check=check, timeout=20.0)
-        except:
-            return None
-        return ("yes" in response.content.lower())
-
     @command("ttt")
     @cooldown(15)
     async def tictactoe(self, ctx, *args):
         ctx.bot.Parser.require_args(ctx, args)
         
-        user = ctx.bot.Parser.parse_user(ctx, *args)
-        if user == ctx.author: raise ctx.bot.util.BasicCommandException("You need to add a `mention/user ID/username` for someone to join your game as well.")
-        response = await self.wait_for_user(ctx, user)
-        if response is None: raise ctx.bot.util.BasicCommandException(str(user)+" did not respond in 20 seconds! Game invitation ended.")
-    
+        user = ctx.bot.Parser.parse_user(ctx, args)
+        if user == ctx.author:
+            raise ctx.bot.util.BasicCommandException("You need to add a `mention/user ID/username` for someone to join your game as well.")
+        elif user.bot: 
+            raise ctx.bot.util.BasicCommandException("Sorry! There was an error on executing the tictactoe:\n`discord.DiscordAPIError: "+str(user)+" is a botum`")
+
+        wait_for = ctx.bot.WaitForMessage(ctx, timeout=20.0, check=(lambda x: x.author == ctx.author and x.channel == ctx.channel and (x.content.lower() in ['yes', 'no'])))
+        response = await wait_for.get_message()
+
+        if response is None:
+            raise ctx.bot.util.BasicCommandException(user.display_name+" did not respond in 20 seconds! Game invitation ended.")
+        elif response.content.lower() == "no":
+            raise ctx.bot.util.BasicCommandException(f"Well, {user.display_name} denied your request! Try requesting someone else?")
+
         characters = (ctx.author, user)
         game = ctx.bot.TicTacToe()
-        
-        if user.bot: 
-            raise ctx.bot.util.BasicCommandException("Sorry! There was an error on executing the tictactoe:\n`discord.DiscordAPIError: "+str(user)+" is a botum`")
         
         embed = ctx.bot.Embed(ctx, title="Tic-tac-toe Game", desc="["+str(ctx.author)+"'s (O) turn]```"+game.show()+"```")
         message = await embed.send()
@@ -64,11 +52,9 @@ class games(commands.Cog):
             check = game.check_if_win()
             if check is not None:
                 if check == "?":
-                    await ctx.send(embed=discord.Embed(title="No one wins! It's a draw!", color=discord.Colour.orange()))
-                    break
+                    return await ctx.send(embed=discord.Embed(title="No one wins! It's a draw!", color=discord.Colour.orange()))
                 winner = str(characters[0 if (current == 1) else 1])
-                await ctx.send(embed=discord.Embed(color=discord.Color.green(), title=str(characters[current]) + " won the game!"))
-                break
+                return await ctx.send(embed=discord.Embed(color=discord.Color.green(), title=str(characters[current]) + " won the game!"))
             
             current = 1 if (current == 0) else 0
             embed.description = "["+str(characters[current])+"'s ("+game.current_turn+") turn]```" + game.show() + "```"
@@ -87,6 +73,7 @@ class games(commands.Cog):
             if count > 20: break
             res.append("**["+str(t.fromtimestamp(i["changedToAt"] / 1000))+"]: **`"+i["name"]+"`")
             count += 1
+        del count, data
         return "\n".join(res)
     
     @command('mc,skin')
@@ -297,48 +284,22 @@ class games(commands.Cog):
     @command()
     @cooldown(15)
     async def geoquiz(self, ctx):
-        if not self.countries:
-            await self.generate_countries(ctx)
-    
-        wait = await ctx.send(ctx.bot.util.loading_emoji + ' | Please wait... generating question...')
-        data, topic = self.countries, random.choice(['capital', 'region', 'subregion', 'population', 'demonym', 'nativeName'])
-        chosen_nation_num = random.randint(0, len(data))
-        chosen_nation, wrongs = data[chosen_nation_num], []
-        del data[chosen_nation_num]
-        correct = str(chosen_nation[topic])
-        for i in range(4):
-            integer = random.randint(0, len(data))
-            wrongs.append(str(data[integer][str(topic)]))
-            data.remove(data[integer])
-        emot, static_emot, corr_order_num = list('🇦🇧🇨🇩'), list('🇦🇧🇨🇩'), random.randint(0, 3)
-        corr_order = emot[corr_order_num]
-        emot[corr_order_num], question, guy = '0', '', ctx.author
-        for each_emote in emot:
-            if each_emote!='0':
-                added = random.choice(wrongs)
-                question += each_emote + ' ' + added + '\n'
-                wrongs.remove(added)
-            else:
-                question += corr_order + ' ' + correct + '\n'
-        embed = discord.Embed(title='Geography: '+str(topic)+' quiz!', description=':nerd: Click on the reaction! **You have 20 seconds.**\n\nWhich '+str(topic)+' belongs to '+str(chosen_nation['name'])+'?\n'+str(question), colour=ctx.guild.me.roles[::-1][0].color)
-        await wait.edit(content='', embed=embed)
-        for i in range(len(static_emot)):
-            await wait.add_reaction(static_emot[i])
-        def check(reaction, user):
-            return user == guy
-        try:
-            reaction, user = await ctx.bot.wait_for('reaction_add', timeout=20.0, check=check)
-        except asyncio.TimeoutError:
-            await main.add_reaction('😔')
-        if str(reaction.emoji)==str(corr_order):
-            await ctx.send(ctx.bot.util.success_emoji +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
-            if ctx.bot.db.Economy.get(ctx.author.id) is not None:
-                reward = random.randint(5, 150)
-                ctx.bot.db.Economy.addbal(ctx.author.id, reward)
-                await ctx.send('thanks for playing! You obtained '+str(reward)+' bobux in total!')
-        else:
-            raise ctx.bot.util.BasicCommandException(f'<@{guy.id}>, You are incorrect. The answer is {corr_order}.')
+        await ctx.trigger_typing()
 
+        quizClient = ctx.bot.GeoQuiz(session=ctx.bot.util.default_client)
+        win = await quizClient.play(ctx)
+
+        if win is None:
+            return
+
+        await quizClient.end()
+        del quizClient
+
+        if win and (ctx.bot.db.Economy.get(ctx.author.id) is not None):
+            reward = random.randint(5, 150)
+            ctx.bot.db.Economy.addbal(ctx.author.id, reward)
+            await ctx.send(f'Thanks for playing! You obtained {reward} bobux in total!')
+        
     @command()
     @cooldown(4)
     async def mathquiz(self, ctx):

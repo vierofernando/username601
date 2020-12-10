@@ -6,7 +6,7 @@ from .message import embed, Paginator, ChooseEmbed,  WaitForMessage
 from .parser import Parser
 from .panel import CustomPanel
 from .colorthief import Smart_ColorThief
-from .games import TicTacToe, Quiz, RockPaperScissors
+from .games import TicTacToe, Quiz, RockPaperScissors, GeographyQuiz
 from .util import Util, GetRequestFailedException, BasicCommandException
 from .cache import CacheManager
 from .oreo import Oreo
@@ -23,5 +23,6 @@ def initiate(client):
     setattr(client, "WaitForMessage", WaitForMessage)
     setattr(client, "cache_manager", CacheManager)
     setattr(client, "rps", RockPaperScissors)
+    setattr(client, "GeoQuiz", GeographyQuiz)
     setattr(client, "oreo", Oreo)
     Util(client)

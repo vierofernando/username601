@@ -1,8 +1,83 @@
 from aiohttp import ClientSession
 from random import choice, randint
 from discord import Embed, Color
-from random import randint
+from random import randint, choice
 from asyncio import sleep
+
+class GeographyQuiz:
+    def __init__(self, session = None):
+        """ The class that generates geography kind of quizzes using the restcountries API. """
+        self.session = session if session else ClientSession()
+        self._topics = { # {key: placeholder}
+            'capital': 'Capital City',
+            'region': 'Region',
+            'subregion': 'Sub-region',
+            'population': 'Sub-region',
+            'demonym': 'Demonym',
+            'nativeName': 'Native name'
+        }
+    
+    async def generate_question(self) -> None:
+        """ As the function name says, """
+        topic = choice(list(self._topics.keys()))
+        arrayList = await self.session.get("https://restcountries.eu/rest/v2")
+        arrayList = await arrayList.json() # get request to the country API
+        countries = []
+        
+        for _ in range(4):
+            country = choice(arrayList)
+            del arrayList[arrayList.index(country)]
+            countries.append(country)
+        del arrayList
+        
+        country = choice(countries)
+        del countries[countries.index(country)]
+        self.question = f"What is the {self._topics[topic]} of {country['name']}?"
+        self.correct_order = randint(0, 3)
+        self.choices = [i[topic] for i in countries]
+        self.choices.insert(self.correct_order, country[topic])
+        del countries, topic
+    
+    async def play(self, ctx) -> bool:
+        """ like generate_question() but discord.py edition """
+        
+        if not hasattr(self, "question"):
+            await self.generate_question()
+        
+        alphabet = list("ABCD")
+        embed = ctx.bot.Embed(ctx, title="Geography Quiz!", desc=self.question + "\n" + "\n".join(
+            [f"{alphabet[choice]}. **{self.choices[choice]}**" for choice in range(4)]
+        ))
+        message = await embed.send()
+        del embed
+        
+        WaitFor = ctx.bot.WaitForMessage(ctx, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and len(x.content) == 1 and (x.content.upper() in alphabet)))
+        _input = await WaitFor.get_message()
+        del WaitFor
+        
+        if not message:
+            await message.edit(embed=Embed(title=f'Quiz ended. No response from {ctx.author.display_name}.', color=Color.red()))
+            return
+        
+        if alphabet.index(_input.content.upper()) == self.correct_order:
+            await message.edit(embed=Embed(title=f'Congratulations! {ctx.author.display_name} is correct!', color=Color.green()))
+            return True
+        await message.edit(embed=Embed(title=f'Sorry, {ctx.author.display_name}! The answer is {self.choices[self.correct_order]}', color=Color.red()))
+        return False
+    
+    async def end(self, end_session: bool = False) -> None:
+        """ Ends the quiz. """
+        
+        if end_session:
+            await self.session.close()
+        
+        del (
+            self.session,
+            self.question,
+            self.correct_order,
+            self.choices,
+            self._topics
+        )
 
 class RockPaperScissors:
     def __init__(self, ctx, timeout: int = 20):
