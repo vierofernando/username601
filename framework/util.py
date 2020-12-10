@@ -47,6 +47,7 @@ class Util:
             60: "minute"
         }
         
+        self._on_command_error = None
         self._config = ConfigParser()
         self._config.read(config_file)
         
@@ -81,6 +82,17 @@ class Util:
         
         del self._config
         setattr(client, attribute_name, self)
+    
+    def toggle_debug_mode(self) -> bool:
+        """ Toggles debug mode. Returns a bool whether debug mode is currently ON or not. """
+    
+        if self._on_command_error:
+            setattr(self.bot, "on_command_error", self._on_command_error)
+            self._on_command_error = None
+            return True
+        self._on_command_error = self.bot.on_command_error
+        delattr(self.bot, "on_command_error")
+        return False
     
     def eight_ball(self, ctx):
         """ Gets the eight ball answer. """

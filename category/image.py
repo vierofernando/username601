@@ -15,30 +15,6 @@ class image(commands.Cog):
             "fox": 'https://randomfox.ca/floof/?ref=apilist.fun|image'
         }
 
-    @command()
-    @cooldown(5)
-    async def lego(self, ctx, *args):
-        await ctx.trigger_typing()
-        image = await ctx.bot.Parser.parse_image(ctx, args)
-        return await ctx.bot.util.send_image_attachment(ctx, "https://useless-api.vierofernando.repl.co/lego?image=" + image, uselessapi=True)
-
-    @command('barell,barrel,barrell')
-    @cooldown(4)
-    async def bump(self, ctx, *args):
-        res = None if ("--inverse" not in args) else tuple([i for i in args if "--inverse" not in i])
-        if res is not None: args = res
-        await ctx.trigger_typing()
-        url = await ctx.bot.Parser.parse_image(ctx, args)
-        return await ctx.bot.util.send_image_attachment(ctx, "https://useless-api.vierofernando.repl.co/bump?image={}&inverse={}".format(url, str((res is not None))))
-
-    @command('illuminati,illuminati-confirmed')
-    @cooldown(5)
-    async def triangle(self, ctx, *args):
-        url = await ctx.bot.Parser.parse_image(ctx, args, size=512)
-        await ctx.trigger_typing()
-        data = get(f"https://useless-api.vierofernando.repl.co/triangle?image={url}").content
-        return await ctx.send(file=discord.File(BytesIO(data), "triangle.png"))
-
     @command('explode')
     @cooldown(9)
     async def implode(self, ctx, *args):
@@ -61,7 +37,7 @@ class image(commands.Cog):
     @command('combine')
     @cooldown(2)
     async def blend(self, ctx, *args):
-        if len(args) == 0: raise ctx.bot.util.BasicCommandException("Please input a parameter or something")
+        ctx.bot.Parser.require_args(ctx, args)
         await ctx.trigger_typing()
         parsed_args = ctx.bot.Parser.split_args(args)
         if parsed_args is None: 

@@ -54,6 +54,7 @@ class Painter:
         self.templates = {}
         for image in listdir(assetpath):
             if image.endswith(".gif"): continue
+            elif image.startswith("oreo-"): continue
             self.templates[image] = Image.open(f"{assetpath}/{image}")
 
     def mask_circle(self, im):
@@ -521,6 +522,7 @@ class Painter:
                 else: total_str += "@"
             total_str += '\n'
         return '\n'.join(map(lambda i: i[::-1], total_str.split('\n')))
+    
     async def imagetoASCII_picture(self, url):
         font = self.get_font("consola", 11)
         image = Image.new(mode='RGB', size=(602, 523), color=(0, 0, 0))
