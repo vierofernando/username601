@@ -9,9 +9,10 @@ from .cache import CacheManager
 from .colorthief import Smart_ColorThief
 from .message import embed, Paginator, ChooseEmbed,  WaitForMessage
 from .util import Util, GetRequestFailedException, BasicCommandException
-from .games import TicTacToe, RockPaperScissors, GeographyQuiz, MathQuiz, GuessAvatar, Trivia, GuessMyNumber
+from .games import Slot, TicTacToe, RockPaperScissors, GeographyQuiz, MathQuiz, GuessAvatar, Trivia, GuessMyNumber
 
 def initiate(client):
+    setattr(client, "slot", Slot)
     setattr(client, "oreo", Oreo)
     setattr(client, "Embed", embed)
     setattr(client, "Parser", Parser)
@@ -25,7 +26,7 @@ def initiate(client):
     setattr(client, "ChooseEmbed", ChooseEmbed)
     setattr(client, "EmbedPaginator", Paginator)
     setattr(client, "cache_manager", CacheManager)
-    setattr(cleint, "GuessMyNumber", GuessMyNumber)
+    setattr(client, "GuessMyNumber", GuessMyNumber)
     setattr(client, "ColorThief", Smart_ColorThief)
     setattr(client, "WaitForMessage", WaitForMessage)
     Util(client)

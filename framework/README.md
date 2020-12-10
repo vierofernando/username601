@@ -161,8 +161,8 @@ from framework import Trivia
 # this is an example. don't copy this code, make sure the variable matches with your code.
 @bot.command()
 async def trivia(ctx):
-    trivia = Trivia("Apple")
-    correct = await trivia.play(ctx) # this method runs the game and returns a bool if the user is correct.
+    trivia = Trivia("Apple") # input the trivia topic
+    correct = await trivia.start(ctx) # this method runs the game and returns a bool if the user is correct.
 
     await trivia.session.close()
     if corrent is None:

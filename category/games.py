@@ -208,7 +208,7 @@ class games(commands.Cog):
             elif _input.startswith("comment"):
                 return await self.geometry_dash_comment(ctx, args[1:])
         except:
-            raise ctx.bot.util.BasicCommandException("Invalid arguments.")
+            raise ctx.bot.util.BasicCommandException(f"Invalid arguments. Try `{ctx.bot.command_prefix}help gd`")
 
     @command('rockpaperscissors')
     @cooldown(5)
@@ -356,29 +356,16 @@ class games(commands.Cog):
     @command()
     @cooldown(2)
     async def slot(self, ctx):
-        win, jackpot, slots = False, False, []
-        for i in range(3):
-            newslot = ctx.bot.games.slot()
-            if newslot[1]==newslot[2] and newslot[1]==newslot[3] and newslot[2]==newslot[3]:
-                win = True
-                if newslot[1]==':flushed:':
-                    jackpot = True
-            slots.append(ctx.bot.games.slotify(newslot))
-        if win:
-            msgslot = 'You win!'
-            col = ctx.guild.me.roles[::-1][0].color
-            if jackpot:
-                msgslot = 'JACKPOT!'
-                col = ctx.guild.me.roles[::-1][0].color
-            if ctx.bot.db.Economy.get(ctx.author.id) is not None:
-                reward = random.randint(500, 1000)
-                ctx.bot.db.Economy.addbal(ctx.author.id, reward)
-                await ctx.send('thanks for playing! you received a whopping '+str(reward)+' bobux!')
-        else:
-            msgslot = 'You lose... Try again!'
-            col = ctx.guild.me.roles[::-1][0].color
-        embed = discord.Embed(title=msgslot, description=slots[0]+'\n\n'+slots[1]+'\n\n'+slots[2], colour=col)
-        await ctx.send(embed=embed)
+        slot = ctx.bot.slot()
+        reward = await slot.play()
+        del slot
+        
+        if reward == 0:
+            return
+        
+        if ctx.bot.db.Economy.get(ctx.author.id) is not None:
+            ctx.bot.db.Economy.addbal(ctx.author.id, reward)
+            await ctx.send(f'Thanks for playing! You get also a {reward} bobux as a prize!')
 
     @command('gn,guessnumber')
     @cooldown(30)
@@ -395,11 +382,12 @@ class games(commands.Cog):
     @command()
     @cooldown(30)
     async def trivia(self, ctx, *args):
+        await ctx.trigger_typing()
         try:
-            trivia = ctx.bot.Trivia(" ".join(args) if len(args)>0 else "Apple", session=ctx.bot.util.default_client)
+            trivia = ctx.bot.Trivia(" ".join(args)[0:50] if len(args)>0 else "Apple", session=ctx.bot.util.default_client)
         except Exception as e:
             raise ctx.bot.util.BasicCommandException(str(e))
-        correct = await trivia.play(ctx)
+        correct = await trivia.start(ctx)
         del trivia
         
         if correct and ctx.bot.db.Economy.get(ctx.author.id) is not None:

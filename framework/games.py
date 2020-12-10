@@ -4,9 +4,32 @@ from discord import Embed, Color
 from random import randint, choice
 from asyncio import sleep
 
+class Slot:
+    def __init__(self):
+        self.emojis = [':moyai:', ':flushed:', ':apple:', ':pear:', ':tangerine:', ':lemon:', ':banana:', ':watermelon:', ':grapes:', ':strawberry:']
+    
+    def generate(self) -> tuple:
+        self.generation = [choice(self.emojis), choice(self.emojis), choice(self.emojis)]
+        
+        if ([self.generation[0]] * 3) == self.generation:
+            if self.generation[0] == ':moyai:':
+                return randint(420, 6969), True
+            elif self.generation[0] == ':flushed:':
+                return randint(6969, 69420), True
+            else:
+                return randint(5, 420), False
+        return 0, False
+
+    async def play(self, ctx) -> int:
+        amount, is_jackpot = self.generate()
+        message = "Jackpot!" if is_jackpot else ("You win!" if amount > 0 else "You lost... Try again sometime?")
+        embed = ctx.bot.Embed(ctx, title=message, desc=f"**[ **{' '.join(self.generation)}** ]**")
+        await embed.send()
+        return amount
+
 class GuessMyNumber:
     def __init__(self):
-        self.rounds_left = 5
+        self.rounds_left = 7
         self.my_number = randint(0, 100)
 
     async def play(self, ctx) -> bool:
@@ -22,7 +45,7 @@ class GuessMyNumber:
                 await ctx.send(f"{ctx.author.display_name} went AFK. So i closed the game.")
                 return
 
-            if int(response.content) == my_number:
+            if int(response.content) == self.my_number:
                 await ctx.send(f"You are correct! my number is {self.my_number}")
                 return True
 
@@ -50,7 +73,7 @@ class Trivia:
         embed = ctx.bot.Embed(
             ctx,
             title=f"{self.topic} Trivia",
-            desc="\n".join([f"{alpha[i]}. **{question['options'][i]}**" for i in range(4)])
+            desc=f"**{question['question']}**" + "\n" + "\n".join([f"{alpha[i]}. **{question['options'][i]}**" for i in range(4)])
         )
         message = await embed.send()
         del embed
