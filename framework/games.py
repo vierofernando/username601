@@ -4,6 +4,68 @@ from discord import Embed, Color
 from random import randint, choice
 from asyncio import sleep
 
+class GuessMyNumber:
+    def __init__(self):
+        self.rounds_left = 5
+        self.my_number = randint(0, 100)
+
+    async def play(self, ctx) -> bool:
+        embed = ctx.bot.Embed(ctx, title="Guess my number!", desc="I have a random number between 0 and 100. Guess my number by sending it in the chat! You have 5 turns. Each turn i give you 15 seconds to guess.")
+        await embed.send()
+        check_func = (lambda x: x.channel == ctx.channel and x.author == ctx.author and x.content.isnumeric())
+        while self.rounds_left != 0:
+            wait_for = ctx.bot.WaitForMessage(ctx, timeout=15.0, check=check_func)
+            response = await wait_for.get_message()
+            del wait_for
+
+            if not response:
+                await ctx.send(f"{ctx.author.display_name} went AFK. So i closed the game.")
+                return
+
+            if int(response.content) == my_number:
+                await ctx.send(f"You are correct! my number is {self.my_number}")
+                return True
+
+            await ctx.send("Lower!" if (int(response.content) > self.my_number) else "Higher!")
+            self.rounds_left -= 1
+        await ctx.send(f"You lost! My number is actually {self.my_number}!")
+        return False
+
+class Trivia:
+    def __init__(self, topic: str, session = None) -> None:
+        self.topic = topic
+        self.session = session if session else ClientSession()
+
+    async def generate_question(self, ctx) -> dict:
+        result = await self.session.get(f"https://wiki-quiz.herokuapp.com/v1/quiz?topics={ctx.bot.util.encode_uri(self.topic)}&limit=10")
+        assert result.status == 200, f"API returns a HTTP status code: {result.status}. Please insert a valid topic."
+        result = await result.json()
+        
+        return choice(result["quiz"])
+
+    async def start(self, ctx) -> bool:
+        question = await self.generate_question(ctx)
+        alpha = list("ABCD")
+
+        embed = ctx.bot.Embed(
+            ctx,
+            title=f"{self.topic} Trivia",
+            desc="\n".join([f"{alpha[i]}. **{question['options'][i]}**" for i in range(4)])
+        )
+        message = await embed.send()
+        del embed
+
+        wait = ctx.bot.WaitForMessage(ctx, timeout=25.5, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and len(x.content) == 1 and (x.content.upper() in alpha)))
+        resp = await wait.get_message()
+        if not resp:
+            return
+        del wait
+
+        if alpha.index(resp.content.upper()) == question["options"].index(question["answer"]):
+            await message.edit(embed=Embed(title="Congratulations! You are correct!", color=Color.green()))
+            return True
+        await message.edit(embed=Embed(title=f"Sorry, the correct answer is {alpha[question['options'].index(question['answer'])]}. {question['answer']}"))
+
 class GuessAvatar:
     def __init__(self, ctx) -> None:
         """ Creates a 'guess what avatar this belongs to' game """
@@ -192,75 +254,6 @@ class RockPaperScissors:
             return 0
         await self.message.edit(content="", embed=Embed(title=f"RIP, {self.ctx.author.display_name} lost to {self.ctx.bot.user.name}!", description=f"**{self.ctx.author.display_name}: **{self.emojis[user_index]}\n**{self.ctx.bot.user.name}: **{self.emojis[bot_index]}", color=Color.red()))
         return -1
-
-class Quiz:
-    def __init__(self, players: list, topic: str = "Education", limit: int = 10, _async: bool = True):
-        
-        if not _async:
-            try:
-                from requests import get
-                self.questions = get(f"https://wiki-quiz.herokuapp.com/v1/quiz?topics={topic}&limit={limit}").json()["quiz"]
-            except:
-                raise NameError(f"Topic {topic} not found")
-        else:
-            self.questions = None
-        
-        self.quiz_length = limit
-        self.leaderboard = {}
-        self.asked_questions = []
-        self.current_question = None
-        self.question_index = -1
-        self.is_async = _async
-        self.session = ClientSession() if self.is_async else None
-        self.topic = topic
-
-        for player in players:
-            self.leaderboard[player] = 0
-
-    async def initiate(self):
-        if self.questions is not None or (not self.is_async): return
-        result = await self.session.get(f"https://wiki-quiz.herokuapp.com/v1/quiz?topics={self.topic}&limit={self.quiz_length}")
-        self.questions = await result.json()
-
-    def generate_question(self):
-        if not self.questions:
-            raise AttributeError("Please do `await <object>.initiate()` since this game is async.")
-    
-        if self.is_ended(): return
-        _question_number = randint(0, self.quiz_length - len(self.asked_questions) - 1)
-        self.current_question = self.questions[_question_number]
-        self.asked_questions.append(self.current_question)
-        self.questions.remove(self.current_question)
-        self.question_index += 1
-        return self.current_question
-    
-    def submit(self, answers: dict):
-        _members = self
-        for student in answers.keys():
-            if answers[student] == self.current_question["answer"]:
-                self.leaderboard[student] += 1
-        return self.is_ended()
-
-    def is_ended(self):
-        return (len(self.questions) == 0)
-
-    async def close(self):
-        temp = self.leaderboard.copy()
-        
-        if self._async:
-            await self.session.close()
-        
-        del (
-            self.leaderboard,
-            self.questions,
-            self._async,
-            self.current_question,
-            self.asked_questions,
-            self.question_index,
-            self.session
-        )
-        
-        return temp
 
 class TicTacToe:
     def __init__(self, player: str = "O", opponent: str = "X", default: str = "-"):

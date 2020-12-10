@@ -383,81 +383,29 @@ class games(commands.Cog):
     @command('gn,guessnumber')
     @cooldown(30)
     async def guessnum(self, ctx):
-        num = random.randint(5, 100)
-        username = ctx.author.display_name
-        user_class = ctx.author
-        embed = discord.Embed(title='Starting the game!', description='You have to guess a *secret* number between 5 and 100!\n\nYou have 8 attempts, and 20 second timer in each attempt!\n\n**G O O D  L U C K**', colour=ctx.guild.me.roles[::-1][0].color)
-        await ctx.send(embed=embed)
-        gameplay = True
-        attempts = 8
-        while gameplay:
-            if attempts<1:
-                await ctx.send('Time is up! The answer is **'+str(num)+'.**')
-                gameplay = False
-                break
-            def check_not_stranger(m):
-                return m.author == user_class
-            try:
-                trying = await ctx.bot.wait_for('message', check=check_not_stranger, timeout=20.0)
-            except asyncio.TimeoutError:
-                raise ctx.bot.util.BasicCommandException('You did not respond for the next 20 seconds!\nGame ended.')
-                gameplay = False
-                break
-            if trying.content.isnumeric()==False:
-                raise ctx.bot.util.BasicCommandException('That is not a number!')
-                attempts = int(attempts) - 1
-            else:
-                if int(trying.content)<num:
-                    await ctx.send('Higher!')
-                    attempts = int(attempts) - 1
-                if int(trying.content)>num:
-                    await ctx.send('Lower!')
-                    attempts = int(attempts) - 1
-                if int(trying.content)==num:
-                    await ctx.send(ctx.bot.util.success_emoji +' | You are correct!\n**The answer is '+str(num)+'!**')
-                    if ctx.bot.db.Economy.get(ctx.author.id) is not None:
-                        reward = random.randint(5, 50)
-                        ctx.bot.db.Economy.addbal(ctx.author.id, reward)
-                        await ctx.send('thanks for playing! You get an extra '+str(reward)+' bobux!')
-                    break
+        game = ctx.bot.GuessMyNumber()
+        result = await game.play(ctx)
+        del game
+        
+        if result and ctx.bot.db.Economy.get(ctx.author.id) is not None:
+            reward = random.randint(150, 300)
+            ctx.bot.db.Economy.addbal(ctx.author.id, reward)
+            await ctx.send(f'Thanks for playing! You get also a {reward} bobux as a prize!')
 
     @command()
     @cooldown(30)
-    async def trivia(self, ctx):
-        al = None
+    async def trivia(self, ctx, *args):
         try:
-            wait = await ctx.send(ctx.bot.util.loading_emoji + ' | Please wait... generating quiz... This may take a while')
-            auth = ctx.author
-            data = await ctx.bot.util.get_request('https://wiki-quiz.herokuapp.com/v1/quiz', json=True, raise_errors=True, topics='science')
-            q = random.choice(data['quiz'])
-            choices = ''
-            for i in range(len(q['options'])):
-                al = list('🇦🇧🇨🇩')
-                if q['answer']==q['options'][i]:
-                    corr = al[i]
-                choices = choices + al[i] +' '+ q['options'][i]+'\n'
-            embed = discord.Embed(title='Trivia!', description='**'+q['question']+'**\n'+choices, colour=ctx.guild.me.roles[::-1][0].color)
-            embed.set_footer(text='Answer by clicking the reaction! You have 60 seconds.')
-            await wait.edit(content='', embed=embed)
-            for i in range(len(al)):
-                await wait.add_reaction(al[i])
+            trivia = ctx.bot.Trivia(" ".join(args) if len(args)>0 else "Apple", session=ctx.bot.util.default_client)
         except Exception as e:
-            raise ctx.bot.util.BasicCommandException(f'An error occurred!\nReport this using {ctx.bot.command_prefix}feedback.\n```{str(e)}```')
-        guy = ctx.author
-        def check(reaction, user):
-            return user == guy
-        try:
-            reaction, user = await ctx.bot.wait_for('reaction_add', timeout=60.0, check=check)
-        except asyncio.TimeoutError:
-            await wait.add_reaction('😔')
-        if str(reaction.emoji)==str(corr):
-            await ctx.send(ctx.bot.util.success_emoji +' | <@'+str(guy.id)+'>, Congrats! You are correct. :partying_face:')
-            if ctx.bot.db.Economy.get(ctx.author.id) is not None:
-                reward = random.randint(250, 400)
-                ctx.bot.db.Economy.addbal(ctx.author.id, reward)
-                await ctx.send('thanks for playing! You get also a '+str(reward)+' bobux as a prize!')
-        else:
-            raise ctx.bot.util.BasicCommandException(f'<@{guy.id}>, You are incorrect. The answer is {corr}.')
+            raise ctx.bot.util.BasicCommandException(str(e))
+        correct = await trivia.play(ctx)
+        del trivia
+        
+        if correct and ctx.bot.db.Economy.get(ctx.author.id) is not None:
+            reward = random.randint(250, 400)
+            ctx.bot.db.Economy.addbal(ctx.author.id, reward)
+            await ctx.send(f'Thanks for playing! You get also a {reward} bobux as a prize!')
 
 def setup(client):
     client.add_cog(games())

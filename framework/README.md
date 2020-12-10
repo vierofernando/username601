@@ -140,6 +140,79 @@ async def main(ctx): # ctx is a discord.py context object.
 ## Game Module
 A game module.
 
+### Guess Avatar Quiz
+```py
+from framework import GuessAvatar
+
+# this is an example. don't copy this code, make sure the variable matches with your code.
+@bot.command()
+async def guessavatar(ctx):
+    guessing_game = GuessAvatar(ctx)
+    win = await guessing_game.start() # this method runs the game and returns a bool if the user is correct.
+
+    if win is None:
+        return
+```
+
+### Trivia
+```py
+from framework import Trivia
+
+# this is an example. don't copy this code, make sure the variable matches with your code.
+@bot.command()
+async def trivia(ctx):
+    trivia = Trivia("Apple")
+    correct = await trivia.play(ctx) # this method runs the game and returns a bool if the user is correct.
+
+    await trivia.session.close()
+    if corrent is None:
+        return
+```
+
+### Geography Quiz
+```py
+from framework import GeoQuiz
+
+# this is an example. don't copy this code, make sure the variable matches with your code.
+@bot.command()
+async def geoquiz(ctx):
+    quiz = GeoQuiz()
+    correct = await quiz.play(ctx) # this method runs the game and returns a bool if the user is correct.
+
+    await quiz.session.close()
+    if corrent is None:
+        return
+```
+
+### Math Quiz
+```py
+from framework import MathQuiz, WaitForMessage
+
+# this is an example. don't copy this code, make sure the variable matches with your code.
+@bot.command()
+async def mathquiz(ctx):
+    # class initiation
+    quiz = MathQuiz()
+    quiz.generate_question()
+
+    # send the question
+    await ctx.send(quiz.question)
+
+    # wait for the user to send a response
+    wait = WaitForMessage(ctx, timeout=20.0, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and x.content.isnumeric()))
+    response = await wait.get_message()
+
+    # if the user does not respond in the timeout (20.0 seconds in this example)
+    if not response:
+        return
+
+    # check if answer is correct
+    if int(response.content) == quiz.answer:
+        return await ctx.send("correct!")
+    else:
+        return await ctx.send("wrong.")
+```
+
 ### TicTacToe
 ```py
 from framework import TicTacToe
