@@ -9,7 +9,7 @@ from .cache import CacheManager
 from .colorthief import Smart_ColorThief
 from .message import embed, Paginator, ChooseEmbed,  WaitForMessage
 from .util import Util, GetRequestFailedException, BasicCommandException
-from .games import Slot, TicTacToe, RockPaperScissors, GeographyQuiz, MathQuiz, GuessAvatar, Trivia, GuessMyNumber
+from .games import Slot, TicTacToe, RockPaperScissors, GeographyQuiz, MathQuiz, GuessAvatar, Trivia, GuessMyNumber, Hangman
 
 def initiate(client):
     setattr(client, "slot", Slot)
@@ -17,6 +17,7 @@ def initiate(client):
     setattr(client, "Embed", embed)
     setattr(client, "Parser", Parser)
     setattr(client, "Trivia", Trivia)
+    setattr(client, "Hangman", Hangman)
     setattr(client, "Panel", CustomPanel)
     setattr(client, "MathQuiz", MathQuiz)
     setattr(client, "TicTacToe", TicTacToe)

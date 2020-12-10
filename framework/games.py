@@ -4,6 +4,51 @@ from discord import Embed, Color
 from random import randint, choice
 from asyncio import sleep
 
+class Hangman:
+    def __init__(self, session=None):
+        self.session = session if session else ClientSession()
+        self.tries = 0
+        self.wrong_letters = []
+    
+    async def initiate(self):
+        result = await self.session.get("https://useless-api.vierofernando.repl.co/randomword")
+        result = await result.json()
+        self.word = result['word']
+        self.blacklisted = ["\_"] * len(self.word)
+
+    def process_input(self, text: str) -> str:
+        if (text in self.wrong_letters) or (text in self.blacklisted):
+            return f"The letter '{text.upper()}' has been used before!"
+        
+        if text not in self.word:
+            self.wrong_letters.append(text.upper())
+            return f"The letter '{text.upper()}' does not exist in the text."
+        
+        for i in range(len(self.word)):
+            if self.word[i].lower() == text:
+                self.blacklisted[i] = text.upper()
+        return f"Found {list(self.word).count(text)} matches in the text!"
+
+    async def play(self, ctx):
+        nl = "\n"
+        main_message = await ctx.send(embed=Embed(title="Hangman", description=f"**{' '.join(self.blacklisted)}**{nl}Wrong words: <none>{nl}Turns left: `{7 - self.tries}`", color=ctx.guild.me.roles[::-1][0].color))
+
+        while self.tries < 7:
+            wait_for = ctx.bot.WaitForMessage(ctx, timeout=25.0, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and len(x.content) == 1 and x.content.isalpha()))
+            response = await wait_for.get_message()
+            if not response:
+                await ctx.send(f"{ctx.author.display_name} went AFK. so i closed the game.")
+                return False
+
+            if "\_" not in self.blacklisted:
+                await ctx.send(f"{ctx.author.mention}, You are correct! The answer is ***{self.word}***.", allowed_mentions=ctx.bot.util.no_mentions)
+                return True
+            message = self.process_input(response.content.lower())
+            await main_message.edit(embed=Embed(title=message, description=f"**{' '.join(self.blacklisted)}**{nl}Wrong words: {', '.join(self.wrong_letters)}{nl}Turns left: `{7 - self.tries}`", color=ctx.guild.me.roles[::-1][0].color))
+            self.tries += 1
+        await ctx.send(f"{ctx.author.mention}, You lost the game. The answer is ***{self.word}***.", allowed_mentions=ctx.bot.util.no_mentions)
+        return False
+
 class Slot:
     def __init__(self):
         self.emojis = [':moyai:', ':flushed:', ':apple:', ':pear:', ':tangerine:', ':lemon:', ':banana:', ':watermelon:', ':grapes:', ':strawberry:']
@@ -33,7 +78,7 @@ class GuessMyNumber:
         self.my_number = randint(0, 100)
 
     async def play(self, ctx) -> bool:
-        embed = ctx.bot.Embed(ctx, title="Guess my number!", desc="I have a random number between 0 and 100. Guess my number by sending it in the chat! You have 5 turns. Each turn i give you 15 seconds to guess.")
+        embed = ctx.bot.Embed(ctx, title="Guess my number!", desc="I have a random number between 0 and 100. Guess my number by sending it in the chat! You have 7 turns. Each turn i give you 15 seconds to guess.")
         await embed.send()
         check_func = (lambda x: x.channel == ctx.channel and x.author == ctx.author and x.content.isnumeric())
         while self.rounds_left != 0:

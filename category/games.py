@@ -207,6 +207,7 @@ class games(commands.Cog):
                 return await ctx.bot.util.send_image_attachment(ctx, 'https://gdcolon.com/tools/gdtextbox/img/'+ctx.bot.util.encode_uri(' '.join(args[1:]))[0:100]+'?color='+('blue' if ctx.author.guild_permissions.manage_guild else 'brown')+'&name='+ctx.author.display_name+'&url='+str(ctx.author.avatar_url_as(format='png'))+'&resize=1')
             elif _input.startswith("comment"):
                 return await self.geometry_dash_comment(ctx, args[1:])
+            assert False
         except:
             raise ctx.bot.util.BasicCommandException(f"Invalid arguments. Try `{ctx.bot.command_prefix}help gd`")
 
@@ -303,61 +304,26 @@ class games(commands.Cog):
     @command()
     @cooldown(60)
     async def hangman(self, ctx):
-        wait = await ctx.send(ctx.bot.util.loading_emoji + ' | Please wait... generating...')
-        the_word = await ctx.bot.util.get_request("https://useless-api.vierofernando.repl.co/randomword", json=True, raise_errors=True)
-        the_word = the_word["word"]
-        main_guess_cor, main_guess_hid = list(the_word), []
-        server_id, wrong_guesses = ctx.guild.id, ''
-        for i in range(len(main_guess_cor)):
-            main_guess_hid.append('\_ ')
-        guessed, gameplay, playing_with, playing_with_id, level = [], True, ctx.author, ctx.author.id, 0
-        while gameplay:
-            if ctx.message.content == (ctx.bot.command_prefix + 'hangman') and ctx.author.id!=int(playing_with_id) and ctx.guild.id==server_id:
-                await ctx.send('<@'+str(ctx.author.id)+'>, cannot play hangman when a game is currently playing!')
-            newembed = discord.Embed(title=''.join(main_guess_hid), description='Wrong guesses: '+str(wrong_guesses), colour=ctx.guild.me.roles[::-1][0].color)
-            newembed.set_image(url=f'https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{str(level)}.png')
-            newembed.set_footer(text='Type "showanswer" to show the answer and end the game.')
-            await ctx.send(embed=newembed)
-            if '\_ ' not in ''.join(main_guess_hid):
-                await ctx.send(f'Congratulations! <@{str(playing_with_id)}> win! :tada:\nThe answer is "'+str(''.join(main_guess_cor))+'".')
-                if ctx.bot.db.Economy.get(ctx.author.id) is not None:
-                    reward = random.randint(5, 500)
-                    ctx.bot.db.Economy.addbal(ctx.author.id, reward)
-                    await ctx.send('thanks for playing! you get an extra '+str(reward)+' bobux!')
-                gameplay = False ; break
-            if level>7:
-                raise ctx.bot.util.BasicCommandException(f'<@{playing_with_id}> lost! :(\nThe answer is actually "'+''.join(main_guess_cor)+'".')
-                gameplay = False ; break
-            def is_not_stranger(m):
-                return m.author == playing_with
-            try:
-                trying = await ctx.bot.wait_for('message', check=is_not_stranger, timeout=20.0)
-            except asyncio.TimeoutError:
-                await ctx.send(f'<@{str(playing_with_id)}> did not response in 20 seconds so i ended the game. Keep un-AFK!\nOh and btw, the answer is '+str(''.join(main_guess_cor))+'. :smirk:')
-                gameplay = False ; break
-            if str(trying.content).lower()=='showanswer':
-                await ctx.send('The answer is actually '+str(''.join(main_guess_cor)+'.'))
-                gameplay = False ; break
-            elif len(str(trying.content))>1:
-                await ctx.send('One word at a time. Game ended!')
-                gameplay = False ; break
-            elif str(trying.content).lower() in guessed:
-                await ctx.send(f'<@{str(playing_with_id)}>, You have guessed that letter!')
-                level = int(level)+1
-            elif str(trying.content).lower() in ''.join(main_guess_cor).lower():
-                guessed.append(str(trying.content).lower())
-                for i in range(len(main_guess_cor)):
-                    if main_guess_cor[i].lower()==str(trying.content).lower():
-                        main_guess_hid[i] = str(trying.content).lower()
-            else:
-                level = int(level) + 1
-                wrong_guesses = wrong_guesses + str(trying.content).lower() + ', '
+        await ctx.trigger_typing()
+        
+        game = ctx.bot.Hangman()
+        await game.initiate()
+        result = await game.play(ctx)
+        del game
+        
+        if not result:
+            return
+            
+        if ctx.bot.db.Economy.get(ctx.author.id) is not None:
+            reward = random.randint(150, 300)
+            ctx.bot.db.Economy.addbal(ctx.author.id, reward)
+            await ctx.send(f'Thanks for playing! You get also a {reward} bobux as a prize!')
 
     @command()
     @cooldown(2)
     async def slot(self, ctx):
         slot = ctx.bot.slot()
-        reward = await slot.play()
+        reward = await slot.play(ctx)
         del slot
         
         if reward == 0:
