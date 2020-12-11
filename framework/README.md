@@ -6,11 +6,11 @@ This is the documentation and the examples.<br>
 ### NOTICE:<br>
 Most modules used in the framework requires utilities. So it is very recommended to do this before doing anything:<br>
 ```py
-from framework import Util
+from framework import initiate
 import discord
 
 client = discord.Client(...)
-Util(client)
+initiate(client)
 ```
 
 ## Initiation
