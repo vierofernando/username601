@@ -9,7 +9,7 @@ Merged down to `1gd`
 ### 1destroy, 1ifunny, 1msgbox, 1wasted<br>
 Rarely used (also deleted to save RAM)
 
-### 1garfield<br>
+### 1garfield, 1ufo<br>
 The API no lorger works (same thing has happened to other bots as well)
 
 ### 1wonka, 1fry, 1money, 1doge, 1philosoraptor, 1avmeme<br>
@@ -34,7 +34,7 @@ Quiz was really buggy and API sometimes doesn't work for no reason<br>
 Editing messages too quickly is still API abuse, despite the big slowmode<br>
 soo... no.<br>
 
-### 1hbd, 1slap, 1botmembers, 1deathnote, 1id, 1reactnum, 1bomb<br>
+### 1hbd, 1slap, 1botmembers, 1deathnote, 1id, 1reactnum, 1bomb, 1iss, 1ghibli, 1sof, 1serverstats<br>
 completely useless and barely anyone ever uses it<br>
 
 ### 1newemote<br>
