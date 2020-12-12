@@ -49,7 +49,7 @@ class moderation(commands.Cog):
             "view_guild_insights"
         ]
         
-    @command('jp,joinpos,joindate,jd,howold')
+    @command(['jp', 'joinpos', 'joindate', 'jd', 'howold'])
     @cooldown(5)
     async def joinposition(self, ctx, *args):
         wait = await ctx.send(f"{ctx.bot.util.loading_emoji} | Hang tight... collecting data...")
@@ -142,7 +142,7 @@ class moderation(commands.Cog):
         except:
             raise ctx.bot.util.BasicCommandException(f'I cannot unmute {toUnmute.name}!')
 
-    @command('dehoist')
+    @command(['dehoist'])
     @cooldown(10)
     async def dehoister(self, ctx, *args):
         if not ctx.author.guild_permissions.manage_nicknames: raise ctx.bot.util.BasicCommandException('You need the `Manage Nicknames` permissions!')
@@ -207,7 +207,7 @@ class moderation(commands.Cog):
             return await ctx.send(f'{error} | {str(user_to_warn)} was warned by {str(ctx.author)} for the reason *"{reason}"*.')
         raise ctx.bot.util.BasicCommandException("an error occured.")
     
-    @command('warns,warnslist,warn-list,infractions')
+    @command(['warns', 'warnslist', 'warn-list', 'infractions'])
     @cooldown(5)
     async def warnlist(self, ctx):
         source = ctx.author if (len(ctx.message.mentions)==0) else ctx.message.mentions[0]
@@ -224,7 +224,7 @@ class moderation(commands.Cog):
             color=discord.Colour.red()
         ))
     
-    @command('deletewarn,clear-all-infractions,clear-infractions,clearinfractions,delinfractions,delwarn,clearwarn,clear-warn')
+    @command(['deletewarn', 'clear-all-infractions', 'clear-infractions', 'clearinfractions', 'delinfractions', 'delwarn', 'clearwarn', 'clear-warn'])
     @cooldown(5)
     async def unwarn(self, ctx, *args):
         error = ctx.bot.util.error_emoji
@@ -234,7 +234,7 @@ class moderation(commands.Cog):
         if unwarned: return await ctx.send('{} | Successfully unwarned {}.'.format(ctx.bot.util.success_emoji, user_to_unwarn))
         await ctx.send(f'{error} | {str(user_to_unwarn)} is not warned.')
 
-    @command('welcomelog,setwelcome')
+    @command(['welcomelog', 'setwelcome'])
     @cooldown(15)
     async def welcome(self, ctx, *args):
         if not ctx.author.guild_permissions.manage_channels:
@@ -259,7 +259,7 @@ class moderation(commands.Cog):
                     except Exception as e:
                        raise ctx.bot.util.BasicCommandException("Invalid arguments!")
     
-    @command('auto-role,welcome-role,welcomerole')
+    @command(['auto-role', 'welcome-role', 'welcomerole'])
     @cooldown(12)
     async def autorole(self, ctx, *args):
         if not ctx.author.guild_permissions.manage_roles:
@@ -284,7 +284,7 @@ class moderation(commands.Cog):
                     except:
                         raise ctx.bot.util.BasicCommandException("Invalid arguments!")
  
-    @command('bigemoji,emojipic,emoji-img')
+    @command(['bigemoji', 'emojipic', 'emoji-img'])
     @cooldown(3)
     async def emojiimg(self, ctx, *args):
         text = "".join(args).replace(" ", "").lower()
@@ -317,7 +317,7 @@ class moderation(commands.Cog):
         except Exception as e:
             raise ctx.bot.util.BasicCommandException(str(e))
             
-    @command('addrole,add-role')
+    @command(['addrole', 'add-role'])
     @cooldown(10)
     async def ar(self, ctx, *args):
         if not ctx.author.guild_permissions.manage_roles: raise ctx.bot.util.BasicCommandException(f'{ctx.author.mention}, you don\'t have the `Manage Roles` permission!')
@@ -333,7 +333,7 @@ class moderation(commands.Cog):
             except:
                 raise ctx.bot.util.BasicCommandException(f"Oops. Please make sure i have the manage roles perms.")
     
-    @command('removerole,remove-role')
+    @command(['removerole', 'remove-role'])
     @cooldown(10)
     async def rr(self, ctx, *args):
         if not ctx.author.guild_permissions.manage_roles: raise ctx.bot.util.BasicCommandException(f'{ctx.author.mention}, you don\'t have the `Manage Roles` permission!')
@@ -349,7 +349,7 @@ class moderation(commands.Cog):
             except:
                 raise ctx.bot.util.BasicCommandException("Oops. Please make sure i have the manage roles perms.")
 
-    @command('kick')
+    @command(['kick'])
     @cooldown(10)
     async def ban(self, ctx, *args):
         command_name = ctx.bot.util.get_command_name(ctx)
@@ -365,7 +365,7 @@ class moderation(commands.Cog):
         except Exception as e:
             raise ctx.bot.util.BasicCommandException(str(e))
             
-    @command('purge')
+    @command(['purge'])
     @cooldown(2)
     async def clear(self, ctx, *args):
         try:
@@ -386,7 +386,7 @@ class moderation(commands.Cog):
         except Exception as e:
             raise ctx.bot.util.BasicCommandException(str(e))
                 
-    @command('hidechannel')
+    @command(['hidechannel'])
     @cooldown(5)
     async def lockdown(self, ctx, *args):
         try:
@@ -411,13 +411,13 @@ class moderation(commands.Cog):
         except:
             raise ctx.bot.util.BasicCommandException(f'Invalid parameters. Correct Example: `{ctx.bot.command_prefix}{command_name} [disable/enable]`')    
 
-    @command('roles,serverroles,serverchannels,channels')
+    @command(['roles', 'serverroles', 'serverchannels', 'channels'])
     @cooldown(2)
     async def channel(self, ctx):
         arr = [f"<#{x.id}>" for x in ctx.guild.channels if x.type == discord.ChannelType.text] if "channel" in ctx.message.content.lower() else (list(map(lambda x: x.mention, ctx.guild.roles)))[1:]
         await ctx.send(str(", ".join(arr))[0:2000], allowed_mentions=ctx.bot.util.no_mentions)
 
-    @command('ui,user,usercard,user-info,user-card,whois,user-interface,userinterface')
+    @command(['ui', 'user', 'usercard', 'user-info', 'user-card', 'whois', 'user-interface', 'userinterface'])
     @cooldown(3)
     async def userinfo(self, ctx, *args):
         guy, nitro = ctx.bot.Parser.parse_user(ctx, args), False
@@ -432,21 +432,21 @@ class moderation(commands.Cog):
         }, guy.roles))[::-1][0:5], guy, str(guy.avatar_url_as(format="png")), bg_col, nitro, booster, booster_since)
         return await ctx.send(file=discord.File(data, str(guy.discriminator)+'.png'))
 
-    @command('av,ava')
+    @command(['av', 'ava'])
     @cooldown(2)
     async def avatar(self, ctx, *args):
         url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True, member_only=True, size=4096)
         embed = ctx.bot.Embed(ctx, title="Here's ya avatar mate", image=url)
         await embed.send()
 
-    @command('serveremotes,emotelist,emojilist,emotes,serveremoji')
+    @command(['serveremotes', 'emotelist', 'emojilist', 'emotes', 'serveremoji'])
     @cooldown(10)
     async def serveremojis(self, ctx):
         if len(ctx.guild.emojis)==0: raise ctx.bot.util.BasicCommandException('This server has no emojis!')
         else:
             await ctx.send(str(' '.join(map(lambda x: str(x), ctx.guild.emojis)))[0:2000])
 
-    @command('serverinfo,server,servericon,si,server-info,guild,guildinfo,guild-info')
+    @command(['serverinfo', 'server', 'servericon', 'si', 'server-info', 'guild', 'guildinfo', 'guild-info'])
     @cooldown(10)
     async def servercard(self, ctx, *args):
         if ctx.bot.util.get_command_name(ctx) == "servericon":
@@ -462,7 +462,7 @@ class moderation(commands.Cog):
                 im = await ctx.bot.canvas.server(ctx.guild)
             await ctx.send(file=discord.File(im, 'server.png'))
 
-    @command('serverinvite,create-invite,createinvite,makeinvite,make-invite,server-invite')
+    @command(['serverinvite', 'create-invite', 'createinvite', 'makeinvite', 'make-invite', 'server-invite'])
     @cooldown(30)
     async def getinvite(self, ctx):
         if not ctx.author.guild_permissions.create_instant_invite:
@@ -501,7 +501,7 @@ class moderation(commands.Cog):
             )))
             await ctx.send(embed=embedrole)
 
-    @command('perms,perm,permission,permfor,permsfor,perms-for,perm-for')
+    @command(['perms', 'perm', 'permission', 'permfor', 'permsfor', 'perms-for', 'perm-for'])
     @cooldown(10)
     async def permissions(self, ctx, *args):
         user = ctx.bot.Parser.parse_user(ctx, args)
@@ -513,7 +513,7 @@ class moderation(commands.Cog):
         embed.description = embed.description[:-2]
         return await embed.send()
 
-    @command('mkchannel,mkch,createchannel,make-channel,create-channel')
+    @command(['mkchannel', 'mkch', 'createchannel', 'make-channel', 'create-channel'])
     @cooldown(5)
     async def makechannel(self, ctx, *args):
         if len(args)<2:
@@ -529,7 +529,7 @@ class moderation(commands.Cog):
                 if args[0].lower()=='voice': await ctx.guild.create_voice_channel(name)
                 else: await ctx.guild.create_voice_channel(name)
 
-    @command('nickname')
+    @command(['nickname'])
     @cooldown(10)
     async def nick(self, ctx, *args):
         if len(args)<2:
@@ -547,7 +547,7 @@ class moderation(commands.Cog):
                 except:
                     raise ctx.bot.util.BasicCommandException("Try making my role higher than the person you are looking for!")
 
-    @command('emoji')
+    @command(['emoji'])
     @cooldown(6)
     async def emojiinfo(self, ctx, *args):
         input = "".join(args).replace(" ", "").lower()
@@ -567,7 +567,7 @@ class moderation(commands.Cog):
         embedy.set_thumbnail(url='https://cdn.discordapp.com/emojis/'+str(data.id)+ext)
         await ctx.send(embed=embedy)
 
-    @command('createchannel,create-channel,ch')
+    @command(['createchannel', 'create-channel', 'ch'])
     @cooldown(10)
     async def makechannel(self, ctx, *args):
         if len(args)<2:

@@ -24,7 +24,7 @@ class utils(commands.Cog):
             equation = equation.replace(rep.split('>')[0], rep.split('>')[1])
         return equation
 
-    @command('nation')
+    @command(['nation'])
     @cooldown(5)
     async def country(self, ctx, *args):
         _country = " ".join(args)
@@ -66,7 +66,7 @@ class utils(commands.Cog):
         await ctx.send(file=discord.File(res, "gradient.png"))
         del res, color_left, color_right
     
-    @command('trending,news')
+    @command(['trending', 'news'])
     @cooldown(5)
     async def msn(self, ctx, *args):
         try:
@@ -87,7 +87,7 @@ class utils(commands.Cog):
             await ctx.bot.get_user(ctx.bot.util.owner_id).send(f"yo, theres an error: `{str(e)}`")
             raise ctx.bot.util.BasicCommandException("Oopsies, there was an error on searching the news.")
     
-    @command('colorthief,getcolor,accent,accentcolor,accent-color,colorpalette,color-palette')
+    @command(['colorthief', 'getcolor', 'accent', 'accentcolor', 'accent-color', 'colorpalette', 'color-palette'])
     @cooldown(3)
     async def palette(self, ctx, *args):
         url = await ctx.bot.Parser.parse_image(ctx, args)
@@ -96,7 +96,7 @@ class utils(commands.Cog):
         await ctx.send(file=discord.File(palette, 'palette.png'))
         del palette, url
 
-    @command('isitup,webstatus')
+    @command(['isitup', 'webstatus'])
     @cooldown(2)
     @require_args()
     async def isitdown(self, ctx, *args):
@@ -111,7 +111,7 @@ class utils(commands.Cog):
         except:
             await wait.edit(content='{} | Yes. that website is down.'.format(ctx.bot.util.error_emoji))
     
-    @command('img2ascii,imagetoascii,avascii,avatarascii,avatar2ascii,av2ascii,asciify')
+    @command(['img2ascii', 'imagetoascii', 'avascii', 'avatarascii', 'avatar2ascii', 'av2ascii', 'asciify'])
     @cooldown(10)
     async def imgascii(self, ctx, *args):
         input = ctx.bot.Parser.get_input(args)
@@ -155,7 +155,7 @@ class utils(commands.Cog):
         await embed.send()
         del em, img, data
 
-    @command('pokedex,dex,bulbapedia,pokemoninfo,poke-info,poke-dex,pokepedia')
+    @command(['pokedex', 'dex', 'bulbapedia', 'pokemoninfo', 'poke-info', 'poke-dex', 'pokepedia'])
     @cooldown(10)
     async def pokeinfo(self, ctx, *args):
         try:
@@ -190,7 +190,7 @@ class utils(commands.Cog):
         except:
             raise ctx.bot.util.BasicCommandException("Pokemon not found.")
 
-    @command('recipes,cook')
+    @command(['recipes', 'cook'])
     @cooldown(2)
     @require_args()
     async def recipe(self, ctx, *args):
@@ -214,7 +214,7 @@ class utils(commands.Cog):
         await embed.send()
         del embed, total, data
 
-    @command('calculator,equ,equation,calculate')
+    @command(['calculator', 'equ', 'equation', 'calculate'])
     @cooldown(3)
     @require_args()
     async def calc(self, ctx, *args):
@@ -249,7 +249,7 @@ class utils(commands.Cog):
     async def weather(self, ctx, *args):
         return await ctx.bot.util.send_image_attachment(ctx, 'https://wttr.in/'+str(ctx.bot.util.encode_uri(' '.join(args)))+'.png')
     
-    @command('rhymes')
+    @command(['rhymes'])
     @cooldown(7)
     @require_args()
     async def rhyme(self, ctx, *args):
@@ -281,7 +281,7 @@ class utils(commands.Cog):
         await embed.send()
         del embed, data
     
-    @command('birdfact')
+    @command(['birdfact'])
     @cooldown(7)
     async def birbfact(self, ctx):
         data = await ctx.bot.util.get_request('https://some-random-api.ml/facts/bird', json=True, raise_errors=True)
@@ -322,7 +322,7 @@ class utils(commands.Cog):
         await embed.send()
         del embed, data
 
-    @command('dogfact,funfact')
+    @command(['dogfact', 'funfact'])
     @cooldown(6)
     async def catfact(self, ctx):
         key = ctx.bot.util.get_command_name(ctx)[:-4]
@@ -339,7 +339,7 @@ class utils(commands.Cog):
         embed = ctx.bot.Embed(ctx, title=key + " fact!", desc=result)
         return await embed.send()
     
-    @command('em')
+    @command(['em'])
     @cooldown(2)
     @require_args()
     async def embed(self, ctx, *args):
@@ -347,7 +347,7 @@ class utils(commands.Cog):
         await embed.send()
         del embed
             
-    @command('col')
+    @command(['col'])
     @cooldown(3)
     @require_args()
     async def color(self, ctx, *args):
@@ -367,7 +367,7 @@ class utils(commands.Cog):
         del color_image
         del role_name
     
-    @command('fast')
+    @command(['fast'])
     @cooldown(5)
     async def typingtest(self, ctx):
         await ctx.trigger_typing()
@@ -379,7 +379,7 @@ class utils(commands.Cog):
         buffer = await ctx.bot.canvas.simpletext(data['word'])
         a = time()
         await ctx.send(file=discord.File(buffer, "fast.webp"))
-        wait = ctx.bot.WaitForMessage(ctx, timeout=20.0, check=(lambda x: x.channel == ctx.channel and (not x.bot)))
+        wait = ctx.bot.WaitForMessage(ctx, timeout=20.0, check=(lambda x: x.channel == ctx.channel and (not x.bot) and (x.content.lower() == data['word'])))
         message = await wait.get_message()
         if not message: return
         embed = ctx.bot.Embed(ctx, title=f"Congratulations! {message.author.display_name} got it first!", fields={"Time taken": str((time() - a) * 1000) + " s", "Word": data['word']}, footer="Try again later if you lost lol")

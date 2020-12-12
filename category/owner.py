@@ -46,7 +46,7 @@ class owner(commands.Cog):
         await ctx.bot.get_guild(server_id).leave()
         return await ctx.send('ok')
     
-    @command('ann,announcement')
+    @command(['ann', 'announcement'])
     @cooldown(2)
     @owner_only()
     async def announce(self, ctx, *args):
@@ -69,7 +69,7 @@ class owner(commands.Cog):
             await sleep(1)
         await ctx.send(f'Done with {sc} success and {wr} fails')
     
-    @command('src')
+    @command(['src'])
     @owner_only()
     async def source(self, ctx, *args):
         try:
@@ -78,7 +78,7 @@ class owner(commands.Cog):
         except Exception as e:
             raise ctx.bot.util.BasicCommandException(str(e))
     
-    @command('pm')
+    @command(['pm'])
     @owner_only()
     async def postmeme(self, ctx, *args):
         url = ''.join(args)
@@ -119,7 +119,7 @@ class owner(commands.Cog):
         if data=='200': await ctx.message.add_reaction(ctx.bot.util.success_emoji)
         else: await ctx.message.add_reaction(ctx.bot.util.error_emoji)
     
-    @command('ex,eval')
+    @command(['ex', 'eval'])
     @cooldown(1)
     async def evaluate(self, ctx, *args):
         iwanttostealsometoken = False
@@ -157,7 +157,7 @@ class owner(commands.Cog):
     async def token(self, ctx):
         await ctx.send(totallyrealtoken)
 
-    @command('sh')
+    @command(['sh'])
     @require_args()
     async def bash(self, ctx, *args):
         if ctx.author.id == ctx.bot.util.owner_id:

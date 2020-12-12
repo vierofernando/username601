@@ -26,7 +26,7 @@ class encoding(commands.Cog):
         await ctx.send(f'```{ascii[0:2000]}```')
         del ascii, text
     
-    @command('fliptext,fancy,cursive,braille')
+    @command(['fliptext', 'fancy', 'cursive', 'braille'])
     @cooldown(5)
     @require_args()
     async def morse(self, ctx, *args):
@@ -54,7 +54,7 @@ class encoding(commands.Cog):
         await ctx.trigger_typing()
         return await ctx.bot.util.send_image_attachment(ctx, 'http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data=' + ctx.bot.util.encode_uri(' '.join(args))[0:75])
     
-    @command('qrcode,qr-code')
+    @command(['qrcode', 'qr-code'])
     @cooldown(2)
     @require_args()
     async def qr(self, ctx, *args):
@@ -89,13 +89,13 @@ class encoding(commands.Cog):
     async def reverse(self, ctx, *args):
         return await ctx.send(' '.join(args)[::-1], allowed_mentions=ctx.bot.util.no_mentions)
     
-    @command('b64')
+    @command(['b64'])
     @cooldown(2)
     @require_args()
     async def base64(self, ctx, *args):
         return await ctx.send(ctx.bot.util.base64(' '.join(args)), allowed_mentions=ctx.bot.util.no_mentions)
     
-    @command('leetspeak')
+    @command(['leetspeak'])
     @cooldown(2)
     @require_args()
     async def leet(self, ctx, *args):

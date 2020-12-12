@@ -39,7 +39,7 @@ class economy(commands.Cog):
             return await ctx.send('{} | You begged and got {} bobux!'.format(ctx.bot.util.success_emoji, award))
         await ctx.send('{} | Stop begging! Try again later. There is only 1/3 chance you will get a bobux.'.format(ctx.bot.util.error_emoji))
 
-    @command('fishing')
+    @command(['fishing'])
     @cooldown(60)
     async def fish(self, ctx):
         if ctx.bot.db.Economy.get(ctx.author.id) is None: raise ctx.bot.util.BasicCommandException("Doesn't have a profile yet. Try `1new` to have a profile.")
@@ -66,7 +66,7 @@ class economy(commands.Cog):
         except Exception as e:
             raise ctx.bot.util.BasicCommandException(str(e))
 
-    @command('addshop')
+    @command(['addshop'])
     @cooldown(5)
     @require_args()
     async def addproduct(self, ctx, *args):
@@ -83,7 +83,7 @@ class economy(commands.Cog):
         except Exception as e:
             raise ctx.bot.util.BasicCommandException(str(e))
     
-    @command('remshop,delshop')
+    @command(['remshop', 'delshop'])
     @cooldown(5)
     @require_args()
     async def delproduct(self, ctx, *args):
@@ -98,7 +98,7 @@ class economy(commands.Cog):
         except Exception as e:
             raise ctx.bot.util.BasicCommandException(str(e))
     
-    @command('bought')
+    @command(['bought'])
     @cooldown(3)
     @require_args()
     async def buy(self, ctx, *args):
@@ -110,7 +110,7 @@ class economy(commands.Cog):
         except Exception as e:
             raise ctx.bot.util.BasicCommandException(str(e))
     
-    @command('servershop,store,serverstore')
+    @command(['servershop', 'store', 'serverstore'])
     @cooldown(2)
     async def shop(self, ctx):
         try:
@@ -123,7 +123,7 @@ class economy(commands.Cog):
         except Exception as e:
             raise ctx.bot.util.BasicCommandException(f'{str(e)}!\nYou can always add a value using `{ctx.bot.command_prefix}addproduct <price> <name>`')
 
-    @command('delete,deletedata,deldata,del-data,delete-data')
+    @command(['delete', 'deletedata', 'deldata', 'del-data', 'delete-data'])
     @cooldown(3600)
     async def reset(self, ctx):
         data = ctx.bot.db.Economy.get(ctx.author.id)
@@ -194,7 +194,7 @@ class economy(commands.Cog):
         ctx.bot.db.Economy.delbal(ctx.author.id, amount) # EFFICIENT CODE LMFAO
         await wait.edit(content=ctx.bot.util.success_emoji+f' | Done! Transferred {amount} bobux to {ctx.message.mentions[0].display_name}!')
 
-    @command('steal,crime,stole,robs')
+    @command(['steal', 'crime', 'stole', 'robs'])
     @cooldown(60)
     async def rob(self, ctx, *args):
         if len(ctx.message.mentions)==0 or len(args)==0:
@@ -235,7 +235,7 @@ class economy(commands.Cog):
                         embed.set_footer(text=statement)
                         await wait.edit(content='', embed=embed)
     
-    @command('dep')
+    @command(['dep'])
     @cooldown(10)
     @require_args()
     async def deposit(self, ctx, *args):
@@ -271,7 +271,7 @@ class economy(commands.Cog):
         except:
             raise ctx.bot.util.BasicCommandException("Invalid number.")
 
-    @command('lb,leader,leaders,rich,richest,top')
+    @command(['lb', 'leader', 'leaders', 'rich', 'richest', 'top'])
     @cooldown(6)
     async def leaderboard(self, ctx):
         data = ctx.bot.db.Economy.leaderboard(ctx.guild.members)
@@ -296,7 +296,7 @@ class economy(commands.Cog):
                 color = ctx.guild.me.roles[::-1][0].color
             ))
     
-    @command('desc,description')
+    @command(['desc', 'description'])
     @cooldown(2)
     @require_args()
     async def setdesc(self, ctx, *args):
@@ -311,7 +311,7 @@ class economy(commands.Cog):
         if data=='error': return await wait.edit(content=ctx.bot.util.error_emoji+' | Oopsies! There was an error...')
         return await wait.edit(content=ctx.bot.util.success_emoji+' | Updated your description!')
     
-    @command('balance,mybal,profile,me,myprofile')
+    @command(['balance', 'mybal', 'profile', 'me', 'myprofile'])
     @cooldown(2)
     async def bal(self, ctx, *args):
         src = ctx.bot.Parser.parse_user(ctx, args)
@@ -326,7 +326,7 @@ class economy(commands.Cog):
         await wait.delete()
         await ctx.send(file=discord.File(img, 'profile.png'))
     
-    @command('newprofile')
+    @command(['newprofile'])
     @cooldown(10)
     async def new(self, ctx):
         data = ctx.bot.db.Economy.get(ctx.author.id)

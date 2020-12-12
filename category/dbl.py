@@ -115,7 +115,7 @@ class dbl(commands.Cog):
             thumbnail="https://cdn.discordapp.com/avatars/{}/{}.png".format(data["id"], data["avatar"])
         )
     
-    @command("dbl,top-gg,botlist,discordbotlist") 
+    @command(['dbl', 'top-gg', 'botlist', 'discordbotlist']) 
     @cooldown(7)
     async def topgg(self, ctx, *args):
         if (len(args) == 0) or (args[0].lower() not in self.types):

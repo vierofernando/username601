@@ -9,12 +9,12 @@ class bothelp(commands.Cog):
         self._categories = "\n".join([f"{i + 2}. `{client.cmds.categories[i]}`" for i in range(len(client.cmds.categories))])
         self._init_help = [discord.Embed(title="The bot help embed™️", description="Use the reactions to move to the next page.\n\n**PAGES:**\n1. `This page`\n"+self._categories)]
         
-    @command('supportserver,support-server,botserver,bot-server')
+    @command(['supportserver', 'support-server', 'botserver', 'bot-server'])
     @cooldown(1)
     async def support(self, ctx):
         return await ctx.send(ctx.bot.util.server_invite)
 
-    @command('subscribe,dev,development,devupdates,dev-updates,development-updates')
+    @command(['subscribe', 'dev', 'development', 'devupdates', 'dev-updates', 'development-updates'])
     @cooldown(5)
     async def sub(self, ctx, *args):
         if len(args)==0 or 'help' in args:
@@ -43,7 +43,7 @@ class bothelp(commands.Cog):
             avatar_url=ctx.bot.user.avatar_url
         )
 
-    @command('commands,yardim,yardım')
+    @command(['commands', 'yardim', 'yardım'])
     @cooldown(2)
     async def help(self, ctx, *args):
         if len(args) == 0:
@@ -90,7 +90,7 @@ class bothelp(commands.Cog):
         await embed.send()
         del embed
     
-    @command('sourcecode,source-code,git,repo')
+    @command(['sourcecode', 'source-code', 'git', 'repo'])
     @cooldown(2)
     async def github(self, ctx):
         embed = ctx.bot.Embed(
@@ -101,7 +101,7 @@ class bothelp(commands.Cog):
         await embed.send()
         del embed
     
-    @command('inviteme,invitelink,botinvite,invitebot,addtoserver,addbot')
+    @command(['inviteme', 'invitelink', 'botinvite', 'invitebot', 'addtoserver', 'addbot'])
     @cooldown(2)
     async def invite(self, ctx):
         embed = ctx.bot.Embed(
@@ -112,7 +112,7 @@ class bothelp(commands.Cog):
         await embed.send()
         del embed
     
-    @command('report,suggest,bug,reportbug,bugreport')
+    @command(['report', 'suggest', 'bug', 'reportbug', 'bugreport'])
     @cooldown(15)
     @require_args()
     async def feedback(self, ctx, *args):
@@ -151,7 +151,7 @@ class bothelp(commands.Cog):
         del wsping
         del msgping
 
-    @command('botstats,meta')
+    @command(['botstats', 'meta'])
     @cooldown(10)
     async def stats(self, ctx):
         await ctx.trigger_typing()

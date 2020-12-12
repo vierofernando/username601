@@ -10,7 +10,7 @@ class games(commands.Cog):
     def __init__(self):
         pass
 
-    @command("ttt")
+    @command(['ttt'])
     @cooldown(15)
     @require_args()
     async def tictactoe(self, ctx, *args):
@@ -78,7 +78,7 @@ class games(commands.Cog):
         del count, data
         return "\n".join(res)
     
-    @command('mc,skin')
+    @command(['mc', 'skin'])
     @cooldown(5)
     async def minecraft(self, ctx, *args):
         await ctx.trigger_typing()
@@ -105,7 +105,7 @@ class games(commands.Cog):
         await embed.send()
         del embed, body, names, _buffer, data
     
-    @command('imposter,among-us,among_us,impostor,crew,crewmate,crew-mate')
+    @command(['imposter', 'among-us', 'among_us', 'impostor', 'crew', 'crewmate', 'crew-mate'])
     @cooldown(3)
     async def amongus(self, ctx, *args):
         await ctx.trigger_typing()
@@ -188,7 +188,7 @@ class games(commands.Cog):
         except:
             raise ctx.bot.util.BasicCommandException("The Geometry Dash servers may be down. Please blame RobTop for this :)")
 
-    @command('geometrydash,geometry-dash,gmd')
+    @command(['geometrydash', 'geometry-dash', 'gmd'])
     @cooldown(5)
     @require_args()
     async def gd(self, ctx, *args):
@@ -209,7 +209,7 @@ class games(commands.Cog):
         except:
             raise ctx.bot.util.BasicCommandException(f"Invalid arguments. Try `{ctx.bot.command_prefix}help gd`")
 
-    @command('rockpaperscissors')
+    @command(['rockpaperscissors'])
     @cooldown(5)
     async def rps(self, ctx):
         game = ctx.bot.rps(ctx)
@@ -223,7 +223,7 @@ class games(commands.Cog):
             ctx.bot.db.Economy.addbal(ctx.author.id, reward)
             return await ctx.send(f'Thanks for playing! you earned {reward} bobux as a prize!')
 
-    @command('dice,flipcoin,flipdice,coinflip,diceflip,rolldice')
+    @command(['dice', 'flipcoin', 'flipdice', 'coinflip', 'diceflip', 'rolldice'])
     @cooldown(3)
     async def coin(self, ctx, *args):
         if "coin" in ctx.bot.util.get_command_name(ctx):
@@ -240,7 +240,7 @@ class games(commands.Cog):
                 prize = random.randint(50, 150)
                 ctx.bot.db.Economy.addbal(ctx.author.id, prize) ; await ctx.send('your bet was right! you get '+str(prize)+' bobux.')
 
-    @command('guessav,avatarguess,avguess,avatargame,avgame')
+    @command(['guessav', 'avatarguess', 'avguess', 'avatargame', 'avgame'])
     @cooldown(15)
     async def guessavatar(self, ctx):
         try:
@@ -336,7 +336,7 @@ class games(commands.Cog):
             ctx.bot.db.Economy.addbal(ctx.author.id, reward)
             await ctx.send(f'Thanks for playing! You get also a {reward} bobux as a prize!')
 
-    @command('gn,guessnumber')
+    @command(['gn', 'guessnumber'])
     @cooldown(30)
     async def guessnum(self, ctx):
         game = ctx.bot.GuessMyNumber()

@@ -12,7 +12,7 @@ class apps(commands.Cog):
         self.Wikipedia = wikipediaapi.Wikipedia('en')
         self.ia = imdb.IMDb()
 
-    @command('movie')
+    @command(['movie'])
     @cooldown(5)
     @require_args()
     async def tv(self, ctx, *args):
@@ -42,7 +42,7 @@ class apps(commands.Cog):
         except:
             raise ctx.bot.util.BasicCommandException("There was an error on fetching the info.")
 
-    @command('spy,spot,splay,listeningto,sp')
+    @command(['spy', 'spot', 'splay', 'listeningto', 'sp'])
     @cooldown(2)
     async def spotify(self, ctx, *args):
         user = ctx.bot.Parser.parse_user(ctx, args)
@@ -80,7 +80,7 @@ class apps(commands.Cog):
         await panel.send_as_attachment()
         panel.close()
 
-    @command('tr,trans')
+    @command(['tr', 'trans'])
     @cooldown(5)
     @require_args(2)
     async def translate(self, ctx, *args):
@@ -106,7 +106,7 @@ class apps(commands.Cog):
         except:
             raise ctx.bot.util.BasicCommandException('Please insert a valid language and a text to translate.')
 
-    @command('wiki')
+    @command(['wiki'])
     @cooldown(5)
     @require_args()
     async def wikipedia(self, ctx, *args):

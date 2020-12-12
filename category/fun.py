@@ -11,14 +11,14 @@ class fun(commands.Cog):
     def __init__(self):
         self.connection = ClientSession(headers={'Authorization': 'Bot '+environ['DISCORD_TOKEN'], 'Content-Type': 'application/json'})      
 
-    @command('edit')
+    @command(['edit'])
     @cooldown(3)
     async def edited(self, ctx, *args):
         res = ctx.bot.Parser.split_args(args)
         msg = await ctx.send('...')
         await msg.edit(content='\u202b '+ ' '.join(args)[0:100] + ' \u202b')
 
-    @command('howlove,friendship,fs,love')
+    @command(['howlove', 'friendship', 'fs', 'love'])
     @cooldown(2)
     async def lovelevel(self, ctx, *args):
         res = ctx.bot.Parser.split_args(args)
@@ -27,7 +27,7 @@ class fun(commands.Cog):
         await ctx.send(f'Friendship of {user1.display_name} and {user2.display_name} is **{result}%!**')
         del user1, user2, result, res
 
-    @command('echo,reply')
+    @command(['echo', 'reply'])
     @cooldown(5)
     async def say(self, ctx, *args):
         text = ' '.join(args).lower()[0:1999] if len(args) > 0 else "***undefined***"
@@ -59,7 +59,7 @@ class fun(commands.Cog):
         await embed.send()
         del embed, data
 
-    @command('inspiringquotes,lolquote,aiquote,imagequote,imgquote')
+    @command(['inspiringquotes', 'lolquote', 'aiquote', 'imagequote', 'imgquote'])
     @cooldown(10)
     async def inspirobot(self, ctx):
         await ctx.trigger_typing()
@@ -67,13 +67,13 @@ class fun(commands.Cog):
         await ctx.bot.util.send_image_attachment(ctx, img)
         del img
     
-    @command('randomcase')
+    @command(['randomcase'])
     @cooldown(2)
     async def mock(self, ctx, *args):
         text = 'i am a dumbass that forgot to put the arguments' if len(args)==0 else ' '.join(args)
         return await ctx.send(''.join([random.choice([i.upper(), i.lower()]) for i in list(text)]))
 
-    @command('8ball,8b')
+    @command(['8ball', '8b'])
     @cooldown(3)
     @require_args()
     async def _8ball(self, ctx, *args):
@@ -91,7 +91,7 @@ class fun(commands.Cog):
             raise ctx.bot.util.BasicCommandException(f'send in something!\nLike: `{ctx.bot.command_prefix}choose he is cool, he is not cool`')
         return await ctx.send(random.choice(' '.join(args).split(',')))
     
-    @command('fact-core,fact-sphere,factsphere')
+    @command(['fact-core', 'fact-sphere', 'factsphere'])
     @cooldown(2)
     async def factcore(self, ctx):
         data = await ctx.bot.util.get_request(
