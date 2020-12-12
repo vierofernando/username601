@@ -81,6 +81,8 @@ class Util:
         ]
         
         del self._config
+        self.status_codes = loads(open(self.json_dir + "/status.json", "r", encoding="utf-8").read())
+
         setattr(client, attribute_name, self)
 
     def toggle_debug_mode(self) -> bool:

@@ -107,17 +107,21 @@ class utils(commands.Cog):
             a = time()
             ping = await ctx.bot.util.default_client.get(web)
             pingtime = round((time() - a)*1000)
-            await wait.edit(content='{} | That website is up.\nPing: {} ms\nStatus code: {}'.format(ctx.bot.util.success_emoji, pingtime, ping.status))
+            embed = ctx.bot.Embed(ctx, title="That website is up.", fields={"Ping": f"{pingtime}ms", "HTTP Status Code": f"{ping.status} {ctx.bot.util.status_code[str(ping.status)]}", "Content Type": ping.headers['Content-Type']}, color=discord.Color.green())
+            await embed.edit_to(wait)
+            del embed, pingtime, ping, a, web, wait
         except:
-            await wait.edit(content='{} | Yes. that website is down.'.format(ctx.bot.util.error_emoji))
-    
+            embed = ctx.bot.Embed(ctx, title="That website is down.", color=discord.Color.red())
+            await embed.edit_to(wait)
+            del embed, pingtime, ping, a, web, wait
+
     @command(['img2ascii', 'imagetoascii', 'avascii', 'avatarascii', 'avatar2ascii', 'av2ascii', 'asciify'])
     @cooldown(10)
     async def imgascii(self, ctx, *args):
         input = ctx.bot.Parser.get_input(args)
         
         if "--img" in input:
-            args = ctx.bot.Parser.without("--img")
+            args = ctx.bot.Parser.without(args, "--img")
             url = await ctx.bot.Parser.parse_image(ctx, args)
             await ctx.trigger_typing()
             res_im = await ctx.bot.canvas.imagetoASCII_picture(url)
@@ -133,16 +137,12 @@ class utils(commands.Cog):
     @command()
     @cooldown(15)
     async def nasa(self, ctx, *args):
-        query = 'earth' if len(args)==0 else ' '.join(args)
+        query = ctx.bot.util.encode_uri('earth' if len(args)==0 else ' '.join(args))
         await ctx.trigger_typing()
         
-        data = await ctx.bot.util.get_request(
-            f'https://images-api.nasa.gov/search',
-            json=True,
-            raise_errors=True,
-            q=query[0:100],
-            media_type='image'
-        )
+        data = await ctx.bot.util.default_client.get(f'https://images-api.nasa.gov/search?q={query[0:100]}&media_type=image')
+        try: data = await data.json()
+        except: data = None
         if (data is None) or len(data['collection']['items'])==0:
             raise ctx.bot.util.BasicCommandException("Nothing found.")
         img = random.choice(data['collection']['items'])
@@ -157,6 +157,7 @@ class utils(commands.Cog):
 
     @command(['pokedex', 'dex', 'bulbapedia', 'pokemoninfo', 'poke-info', 'poke-dex', 'pokepedia'])
     @cooldown(10)
+    @require_args()
     async def pokeinfo(self, ctx, *args):
         try:
             data = await ctx.bot.util.get_request(
@@ -173,7 +174,6 @@ class utils(commands.Cog):
                 redirects='',
                 exintro=''
             )
-            data = data[0]
             
             try: image = data['query']['pages'][0]['thumbnail']['source']
             except: image = None
@@ -198,6 +198,7 @@ class utils(commands.Cog):
             "http://www.recipepuppy.com/api/",
             json=True,
             raise_errors=True,
+            force_json=True,
             q=' '.join(args)
         )
         if len(data['results'])==0: 
@@ -256,18 +257,19 @@ class utils(commands.Cog):
         await ctx.trigger_typing()
         
         data = await ctx.bot.util.get_request(
-            'https://rhymebrain.com/talk?function=getRhymes',
+            'https://rhymebrain.com/talk',
             json=True,
             raise_errors=True,
             function='getRhymes',
             word=' '.join(args)
         )
         
-        if len(data) < 1:
-            return await ctx.send('We did not find any rhyming words corresponding to that letter.')
         words = [word['word'] for word in data if word['flags'] == 'bc']
+        if len(words) < 1:
+            return await ctx.send('We did not find any rhyming words corresponding to that letter.')
         embed = ctx.bot.Embed(title='Words that rhymes with '+' '.join(args)+':', descn=str(' '.join(words))[0:1950])
         await embed.send()
+        del embed, words, data
 
     @command()
     @cooldown(7)
@@ -318,7 +320,6 @@ class utils(commands.Cog):
         embed = ctx.bot.Embed(ctx, title=data[0]['title'], url='https://www.google.com/doodles/'+data[0]['name'], image='https:'+data[0]['high_res_url'], fields={"Event Date": '/'.join(
             [str(i) for i in data[0]['run_date_array'][::-1]]
         )})
-        embed.set_image(url='https:'+data[0]['high_res_url'])
         await embed.send()
         del embed, data
 
@@ -379,7 +380,7 @@ class utils(commands.Cog):
         buffer = await ctx.bot.canvas.simpletext(data['word'])
         a = time()
         await ctx.send(file=discord.File(buffer, "fast.webp"))
-        wait = ctx.bot.WaitForMessage(ctx, timeout=20.0, check=(lambda x: x.channel == ctx.channel and (not x.bot) and (x.content.lower() == data['word'])))
+        wait = ctx.bot.WaitForMessage(ctx, timeout=20.0, check=(lambda x: x.channel == ctx.channel and (not x.author.bot) and (x.content.lower() == data['word'])))
         message = await wait.get_message()
         if not message: return
         embed = ctx.bot.Embed(ctx, title=f"Congratulations! {message.author.display_name} got it first!", fields={"Time taken": str((time() - a) * 1000) + " s", "Word": data['word']}, footer="Try again later if you lost lol")
