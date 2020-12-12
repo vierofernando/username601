@@ -127,7 +127,7 @@ class memes(commands.Cog):
             json=True,
             raise_errors=True
         )
-        return await ctx.send(embed=discord.Embed(title='Programmer meme', color=ctx.guild.me.roles[::-1][0].color).set_image(url=data['url']))
+        return await ctx.send(embed=discord.Embed(title='Programmer meme', color=ctx.me.roles[::-1][0].color).set_image(url=data['url']))
 
     @command(['shred', 'burn', 'spongebobpaper', 'paper', 'spongepaper', 'sponge-paper', 'spongebob-paper', 'spongebob'])
     @cooldown(2)
@@ -368,7 +368,7 @@ class memes(commands.Cog):
     async def scroll(self, ctx, *args):
         await ctx.trigger_typing()
         scrolltxt = ctx.bot.util.encode_uri(' '.join(args))
-        embed = discord.Embed(colour=ctx.guild.me.roles[::-1][0].color)
+        embed = discord.Embed(colour=ctx.me.roles[::-1][0].color)
         url='https://api.alexflipnote.dev/scroll?text='+scrolltxt
         return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
     
@@ -417,7 +417,7 @@ class memes(commands.Cog):
     @cooldown(5)
     async def meme(self, ctx):
         data = await ctx.bot.util.get_request("https://meme-api.herokuapp.com/gimme", json=True, raise_errors=True)
-        embed = discord.Embed(colour = ctx.guild.me.roles[::-1][0].color)
+        embed = discord.Embed(colour = ctx.me.roles[::-1][0].color)
         embed.set_author(name=data["title"], url=data["postLink"])
         if data["nsfw"]:
             embed.set_footer(text='WARNING: IMAGE IS NSFW.')
@@ -475,7 +475,7 @@ class memes(commands.Cog):
             return False
         await ctx.send(embed=discord.Embed(title="Please provide your meme template from the available ones below. (in number)", description="\n".join([
             str(i + 1)+". " + keys[i] for i in range(len(keys))
-        ]), color=ctx.guild.me.roles[::-1][0].color))
+        ]), color=ctx.me.roles[::-1][0].color))
         message = await ctx.bot.utils.wait_for_message(ctx, message=None, func=check, timeout=60.0)
         if message is None: raise ctx.bot.util.BasicCommandException("You did not respond in time. Meme-generation canceled.")
         link = self.meme_templates["bottom_image"][(keys[int(message.content) - 1] if message.content.isnumeric() else message.content)]
@@ -494,7 +494,7 @@ class memes(commands.Cog):
             return False
         await ctx.send(embed=discord.Embed(title="Please provide your meme template from the available ones below. (in number)", description="\n".join([
             str(i + 1)+". " + keys[i] for i in range(len(keys))
-        ]), color=ctx.guild.me.roles[::-1][0].color))
+        ]), color=ctx.me.roles[::-1][0].color))
         message = await ctx.bot.utils.wait_for_message(ctx, message=None, func=check, timeout=60.0)
         if message is None: raise ctx.bot.util.BasicCommandException("You did not respond in time. Meme-generation canceled.")
         link = self.meme_templates["topbottom"][(keys[int(message.content) - 1] if message.content.isnumeric() else message.content)]
@@ -519,7 +519,7 @@ class memes(commands.Cog):
     @command(['memegen', 'meme-gen', 'gen-meme', 'generatememe', 'generate-meme', 'meme-editor', 'meme_editor', 'memeeditor'])
     @cooldown(5)
     async def mememaker(self, ctx, *args):
-        m = await ctx.send(embed=discord.Embed(title="Please select your meme format:", description="**[A] **Classic meme, Top text, bottom text, background image.\n**[B] **Modern meme, Top text, bottom image\n**[C] **Custom classic meme, with a custom background.", color=ctx.guild.me.roles[::-1][0].color))
+        m = await ctx.send(embed=discord.Embed(title="Please select your meme format:", description="**[A] **Classic meme, Top text, bottom text, background image.\n**[B] **Modern meme, Top text, bottom image\n**[C] **Custom classic meme, with a custom background.", color=ctx.me.roles[::-1][0].color))
         def check_chosen(m):
             return ((m.channel == ctx.channel) and (m.author == ctx.author) and (len(m.content) == 1) and m.content.lower() in ['a', 'b'])
         message = await ctx.bot.utils.wait_for_message(ctx, message=None, timeout=60.0)

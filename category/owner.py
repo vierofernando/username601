@@ -100,7 +100,7 @@ class owner(commands.Cog):
     async def rp(self, ctx, *args):
         try:
             user_to_send = ctx.bot.get_user(int(args[0]))
-            em = discord.Embed(title="Hi, "+user_to_send.name+"! the bot owner sent a response for your feedback.", description=' '.join(args[1:]), colour=ctx.guild.me.roles[::-1][0].color)
+            em = discord.Embed(title="Hi, "+user_to_send.name+"! the bot owner sent a response for your feedback.", description=' '.join(args[1:]), colour=ctx.me.roles[::-1][0].color)
             await user_to_send.send(embed=em)
             await ctx.message.add_reaction('✅')
         except Exception as e:

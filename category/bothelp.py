@@ -84,7 +84,7 @@ class bothelp(commands.Cog):
     async def vote(self, ctx):
         embed = ctx.bot.Embed(
             ctx,
-            title=f'{ctx.guild.me.display_name} seems sus. let\'s vote for him!',
+            title=f'{ctx.me.display_name} seems sus. let\'s vote for him!',
             url=f'https://top.gg/bot/{ctx.bot.user.id}/vote'
         )
         await embed.send()
@@ -125,7 +125,7 @@ class bothelp(commands.Cog):
             try:
                 feedback_channel = ctx.bot.get_channel(ctx.bot.util.feedback_channel)
                 await feedback_channel.send(f'<@{ctx.bot.util.owner_id}>, User with ID: {ctx.author.id} sent a feedback: **"'+' '.join(args)[0:500]+'"**')
-                embed = discord.Embed(title='Feedback Successful', description=ctx.bot.util.success_emoji + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+ctx.bot.util.server_invite+')', colour=ctx.guild.me.roles[::-1][0].color)
+                embed = discord.Embed(title='Feedback Successful', description=ctx.bot.util.success_emoji + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+ctx.bot.util.server_invite+')', colour=ctx.me.roles[::-1][0].color)
                 await wait.edit(content='', embed=embed)
             except:
                 raise ctx.bot.util.BasicCommandException('There was an error while sending your feedback. Sorry! :(')

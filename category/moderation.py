@@ -54,7 +54,7 @@ class moderation(commands.Cog):
     async def joinposition(self, ctx, *args):
         wait = await ctx.send(f"{ctx.bot.util.loading_emoji} | Hang tight... collecting data...")
         from_string = False
-        current_time, members, user_index, desc = t.now().timestamp(), ctx.guild.members, None, ""
+        current_time, members, user_index, desc = t.now().timestamp(), ctx.members, None, ""
         full_arr = list(map(lambda x: {'ja': x.joined_at.timestamp(), 'da': x}, members))
         raw_unsorted_arr = list(map(lambda x: x['ja'], full_arr))
         sorted_arr = sorted(raw_unsorted_arr)
@@ -62,7 +62,7 @@ class moderation(commands.Cog):
             if args[0].lower() in self.first:
                 from_string, user_index, title = True, 0, f'User join position for the first member in {ctx.guild.name}'
             elif args[0].lower() in self.latest:
-                from_string, user_index, title = True, ctx.guild.member_count - 1, f'User join position for the latest member to join {ctx.guild.name}'
+                from_string, user_index, title = True, ctx.member_count - 1, f'User join position for the latest member to join {ctx.guild.name}'
         
         if not from_string:
             if len(args) > 0 and args[0].isnumeric() and ((int(args[0])-1) in range(len(members))):
@@ -81,7 +81,7 @@ class moderation(commands.Cog):
             desc += string.format(
                 i + 1, name, ctx.bot.util.strfsecond(current_time - full_arr[index]['ja'])
             )
-        return await wait.edit(content='', embed=discord.Embed(title=title, description=desc, color=ctx.guild.me.roles[::-1][0].color))
+        return await wait.edit(content='', embed=discord.Embed(title=title, description=desc, color=ctx.me.roles[::-1][0].color))
         
     @command()
     @cooldown(2)
@@ -95,7 +95,7 @@ class moderation(commands.Cog):
         extras = [len(data['shop']), len(data['warns'])]
         dehoister = 'Enabled :white_check_mark:' if data['dehoister'] else 'Disabled :x:'
         subs = 'Enabled :white_check_mark:' if data['subscription'] is not None else 'Disabled :x:'
-        await ctx.send(embed=discord.Embed(title=f'{ctx.guild.name}\'s configuration', description=f'**Auto role:** {autorole}\n**Welcome channel:** {welcome}\n**Starboard channel: **{starboard}\n**Name/nick dehoister: **{dehoister}\n**Mute role: **{mute}\n**Members warned: **{extras[1]}\n**Shop products sold: **{extras[0]}\n**Development updates/Events subscription: {subs}**', color=ctx.guild.me.roles[::-1][0].color).set_thumbnail(url=ctx.guild.icon_url))
+        await ctx.send(embed=discord.Embed(title=f'{ctx.guild.name}\'s configuration', description=f'**Auto role:** {autorole}\n**Welcome channel:** {welcome}\n**Starboard channel: **{starboard}\n**Name/nick dehoister: **{dehoister}\n**Mute role: **{mute}\n**Members warned: **{extras[1]}\n**Shop products sold: **{extras[0]}\n**Development updates/Events subscription: {subs}**', color=ctx.me.roles[::-1][0].color).set_thumbnail(url=ctx.guild.icon_url))
 
     @command()
     @cooldown(5)
@@ -152,7 +152,7 @@ class moderation(commands.Cog):
             return await ctx.send(embed=discord.Embed(
                 title='Activated dehoister.',
                 description=f'**What is dehoister?**\nDehoister is an automated part of this bot that automatically renames someone that tries to hoist their name (for example: `!ABC`)\n\n**How do i deactivate this?**\nJust type `{ctx.bot.command_prefix}dehoister`.\n\n**It doesn\'t work for me!**\nMaybe because your role position is higher than me, so i don\'t have the permissions required.',
-                color=ctx.guild.me.roles[::-1][0].color
+                color=ctx.me.roles[::-1][0].color
             ))
         ctx.bot.db.Dashboard.setDehoister(ctx.guild, False)
         await ctx.send('{} | Dehoister deactivated.'.format(ctx.bot.util.success_emoji))
@@ -174,7 +174,7 @@ class moderation(commands.Cog):
                 title=f'Starboard for {ctx.guild.name}',
                 description='Channel: <#{}>\nStars required to reach: {}'.format(
                     starboard_channel['channelid'], starboard_channel['starlimit']
-                ), color=ctx.guild.me.roles[::-1][0].color
+                ), color=ctx.me.roles[::-1][0].color
             ))
         if starboard_channel['channelid'] is None: return
         elif args[0].lower().startswith("rem"):
@@ -244,7 +244,7 @@ class moderation(commands.Cog):
                 await ctx.send(embed=discord.Embed(
                     title='Command usage',
                     description='{}welcome <CHANNEL>\n{}welcome disable'.format(ctx.bot.command_prefix, ctx.bot.command_prefix),
-                    color=ctx.guild.me.roles[::-1][0].color
+                    color=ctx.me.roles[::-1][0].color
                 ))
             else:
                 if args[0].lower()=='disable':
@@ -269,7 +269,7 @@ class moderation(commands.Cog):
                 await ctx.send(embed=discord.Embed(
                     title='Command usage',
                     description='{}autorole <ROLENAME/ROLEPING>\n{}autorole disable'.format(ctx.bot.command_prefix, ctx.bot.command_prefix),
-                    color=ctx.guild.me.roles[::-1][0].color
+                    color=ctx.me.roles[::-1][0].color
                 ))
             else:
                 if args[0].lower()=='disable':
@@ -453,7 +453,7 @@ class moderation(commands.Cog):
             if ctx.guild.icon_url is None: raise ctx.bot.util.BasicCommandException("This server has no emotes...")
             await ctx.send(ctx.guild.icon_url_as(size=4096))
         else:
-            if ctx.guild.member_count>100:
+            if ctx.member_count>100:
                 wait = await ctx.send('{} | Fetching guild data... please wait...'.format(ctx.bot.util.loading_emoji))
                 im = await ctx.bot.canvas.server(ctx.guild)
                 await wait.delete()
@@ -563,7 +563,7 @@ class moderation(commands.Cog):
             raise ctx.bot.util.BasicCommandException('For some reason, we cannot process your emoji ;(')
         if data.animated: anim, ext = 'This emoji is an animated emoji. **Only nitro users can use it.**', ".gif"
         else: anim, ext = 'This emoji is a static emoji. **Everyone can use it (except if limited by role)**', ".png"
-        embedy = discord.Embed(title='Emoji info for :'+str(data.name)+':', description='**Emoji name:** '+str(data.name)+'\n**Emoji ID: **'+str(data.id)+'\n'+anim+'\n**Emoji creation time: **'+str(data.created_at)[:-7]+' UTC ('+ctx.bot.util.strfsecond(t.now().timestamp() - data.created_at.timestamp())+' ago).', colour=ctx.guild.me.roles[::-1][0].color)
+        embedy = discord.Embed(title='Emoji info for :'+str(data.name)+':', description='**Emoji name:** '+str(data.name)+'\n**Emoji ID: **'+str(data.id)+'\n'+anim+'\n**Emoji creation time: **'+str(data.created_at)[:-7]+' UTC ('+ctx.bot.util.strfsecond(t.now().timestamp() - data.created_at.timestamp())+' ago).', colour=ctx.me.roles[::-1][0].color)
         embedy.set_thumbnail(url='https://cdn.discordapp.com/emojis/'+str(data.id)+ext)
         await ctx.send(embed=embedy)
 

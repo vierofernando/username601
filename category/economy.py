@@ -62,7 +62,7 @@ class economy(commands.Cog):
         try:
             data = ctx.bot.db.Economy.getBuyList(source)
             assert not data['error'], data['ctx']
-            return await ctx.send(embed=discord.Embed(title='{}\'s buy list'.format(source.display_name), description=data['ctx'], color=ctx.guild.me.roles[::-1][0].color))
+            return await ctx.send(embed=discord.Embed(title='{}\'s buy list'.format(source.display_name), description=data['ctx'], color=ctx.me.roles[::-1][0].color))
         except Exception as e:
             raise ctx.bot.util.BasicCommandException(str(e))
 
@@ -118,7 +118,7 @@ class economy(commands.Cog):
             assert data['error']==False, data['ctx']
             em = discord.Embed(title='{}\'s shop'.format(ctx.guild.name), description='\n'.join(
                 list(map(lambda x: str(x + 1)+". **"+ data['ctx'][x]['name'] + '** (price: '+ str(data['ctx'][x]['price']) + " :gem:)", range(len(data['ctx']))))
-            ), color=ctx.guild.me.roles[::-1][0].color)
+            ), color=ctx.me.roles[::-1][0].color)
             return await ctx.send(embed=em)
         except Exception as e:
             raise ctx.bot.util.BasicCommandException(f'{str(e)}!\nYou can always add a value using `{ctx.bot.command_prefix}addproduct <price> <name>`')
@@ -274,7 +274,7 @@ class economy(commands.Cog):
     @command(['lb', 'leader', 'leaders', 'rich', 'richest', 'top'])
     @cooldown(6)
     async def leaderboard(self, ctx):
-        data = ctx.bot.db.Economy.leaderboard(ctx.guild.members)
+        data = ctx.bot.db.Economy.leaderboard(ctx.members)
         if len(data)==0:
             raise ctx.bot.util.BasicCommandException('This server doesn\'t have any members with profiles...')
         else:
@@ -293,7 +293,7 @@ class economy(commands.Cog):
             await wait.edit(content='', embed=discord.Embed(
                 title = ctx.guild.name+'\'s leaderboard',
                 description = '\n'.join(total),
-                color = ctx.guild.me.roles[::-1][0].color
+                color = ctx.me.roles[::-1][0].color
             ))
     
     @command(['desc', 'description'])
@@ -320,7 +320,7 @@ class economy(commands.Cog):
         if ctx.bot.db.Economy.get(src.id) is None:
             raise ctx.bot.util.BasicCommandException("Doesn't have a profile yet. Try `1new` to have a profile.")
         wait = await ctx.send(ctx.bot.util.loading_emoji+" | Please wait...")
-        data = ctx.bot.db.Economy.getProfile(src.id, [i.id for i in ctx.guild.members if not i.bot])
+        data = ctx.bot.db.Economy.getProfile(src.id, [i.id for i in ctx.members if not i.bot])
         bfr, aft = data['main'], data['after']
         img = await ctx.bot.canvas.profile(src.name, ava, bfr, aft)
         await wait.delete()

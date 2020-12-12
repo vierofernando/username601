@@ -107,11 +107,11 @@ class utils(commands.Cog):
             a = time()
             ping = await ctx.bot.util.default_client.get(web)
             pingtime = round((time() - a)*1000)
-            embed = ctx.bot.Embed(ctx, title="That website is up.", fields={"Ping": f"{pingtime}ms", "HTTP Status Code": f"{ping.status} {ctx.bot.util.status_code[str(ping.status)]}", "Content Type": ping.headers['Content-Type']}, color=discord.Color.green())
+            embed = ctx.bot.Embed(ctx, title="That website is up.", fields={"Ping": f"{pingtime}ms", "HTTP Status Code": f"{ping.status} {ctx.bot.util.status_codes[str(ping.status)]}", "Content Type": ping.headers['Content-Type']}, color=discord.Color.green())
             await embed.edit_to(wait)
             del embed, pingtime, ping, a, web, wait
-        except:
-            embed = ctx.bot.Embed(ctx, title="That website is down.", color=discord.Color.red())
+        except Exception as e:
+            embed = ctx.bot.Embed(ctx, title="That website is down.", desc=f"Exception: `{str(e)}`", color=discord.Color.red())
             await embed.edit_to(wait)
             del embed, pingtime, ping, a, web, wait
 
@@ -266,8 +266,8 @@ class utils(commands.Cog):
         
         words = [word['word'] for word in data if word['flags'] == 'bc']
         if len(words) < 1:
-            return await ctx.send('We did not find any rhyming words corresponding to that letter.')
-        embed = ctx.bot.Embed(title='Words that rhymes with '+' '.join(args)+':', descn=str(' '.join(words))[0:1950])
+            raise ctx.bot.util.BasicCommandException('We did not find any rhyming words corresponding to that letter.')
+        embed = ctx.bot.Embed(ctx, title='Words that rhymes with '+' '.join(args)+':', desc=str(' '.join(words))[0:1950])
         await embed.send()
         del embed, words, data
 
