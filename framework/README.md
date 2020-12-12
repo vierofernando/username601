@@ -3,6 +3,16 @@ A custom "framework" i made for this bot. You can use this framework!<br>
 (not planning to be added to PyPI, sorry)<br>
 This is the documentation and the examples.<br>
 
+### NOTICE:<br>
+Most modules used in the framework requires utilities. So it is very recommended to do this before doing anything:<br>
+```py
+from framework import initiate
+import discord
+
+client = discord.Client(...)
+initiate(client)
+```
+
 ## Initiation
 This will make a copy of itself to the client object.<br>
 Which means that the functions/classes can be accessed by `client` or `ctx.bot`.<br>
