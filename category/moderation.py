@@ -4,7 +4,7 @@ import time
 import random
 import asyncio
 from aiohttp import ClientSession
-from category.decorators import command, cooldown
+from decorators import *
 from datetime import datetime as t
 from twemoji_parser import emoji_to_url
 
@@ -312,9 +312,8 @@ class moderation(commands.Cog):
     
     @command()
     @cooldown(10)
+    @require_args()
     async def slowmode(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         try:
             assert args[0].isnumeric(), "Please add the time in seconds. (number)"
             count = int(args[0])
@@ -481,8 +480,8 @@ class moderation(commands.Cog):
 
     @command()
     @cooldown(3)
+    @require_args()
     async def roleinfo(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
         data = None
         if '<@&' in ''.join(args):
             data = ctx.guild.get_role(int(ctx.message.content.split('<@&')[1].split('>')[0]))

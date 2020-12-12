@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from category.decorators import command, cooldown
+from decorators import *
 
 class encoding(commands.Cog):
     def __init__(self):
@@ -28,9 +28,8 @@ class encoding(commands.Cog):
     
     @command('fliptext,fancy,cursive,braille')
     @cooldown(5)
+    @require_args()
     async def morse(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         await ctx.trigger_typing()
         res = await ctx.bot.util.get_request(
             'https://useless-api.vierofernando.repl.co/encode',
@@ -50,22 +49,22 @@ class encoding(commands.Cog):
     
     @command()
     @cooldown(2)
+    @require_args()
     async def barcode(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
         await ctx.trigger_typing()
         return await ctx.bot.util.send_image_attachment(ctx, 'http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data=' + ctx.bot.util.encode_uri(' '.join(args))[0:75])
     
     @command('qrcode,qr-code')
     @cooldown(2)
+    @require_args()
     async def qr(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
         await ctx.trigger_typing()
         return await ctx.bot.util.send_image_attachment(ctx, 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + ctx.bot.util.encode_uri(' '.join(args))[0:75])
 
     @command()
     @cooldown(2)
+    @require_args()
     async def binary(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
         return await ctx.send('```'+str(ctx.bot.util.binary(str(' '.join(args))))[0:2000]+'```')
 
     @command()
@@ -80,27 +79,26 @@ class encoding(commands.Cog):
     
     @command()
     @cooldown(2)
+    @require_args()
     async def atbash(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
         return await ctx.send(ctx.bot.util.atbash(' '.join(args)), allowed_mentions=ctx.bot.util.no_mentions)
 
     @command()
     @cooldown(2)
+    @require_args()
     async def reverse(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
         return await ctx.send(str(' '.join(args))[::-1], allowed_mentions=ctx.bot.util.no_mentions)
     
     @command('b64')
     @cooldown(2)
+    @require_args()
     async def base64(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
         return await ctx.send(ctx.bot.util.base64(' '.join(args)), allowed_mentions=ctx.bot.util.no_mentions)
     
     @command('leetspeak')
     @cooldown(2)
+    @require_args()
     async def leet(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-
         await ctx.trigger_typing()
         if not self.leet:
             await self._get_leet(ctx)

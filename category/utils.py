@@ -1,7 +1,7 @@
 import discord
 import random
 from discord.ext import commands
-from category.decorators import command, cooldown
+from decorators import *
 from io import BytesIO
 from json import loads
 from datetime import datetime as t
@@ -118,9 +118,8 @@ class utils(commands.Cog):
 
     @command('isitup,webstatus')
     @cooldown(2)
+    @require_args()
     async def isitdown(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         wait = await ctx.send('{} | Pinging...'.format(ctx.bot.util.loading_emoji))
         web = args[0].replace('<', '').replace('>', '')
         if not web.startswith('http'): web = 'http://' + web
@@ -214,8 +213,8 @@ class utils(commands.Cog):
 
     @command('recipes,cook')
     @cooldown(2)
+    @require_args()
     async def recipe(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
         data = await ctx.bot.util.get_request(
             "http://www.recipepuppy.com/api/",
             json=True,
@@ -233,9 +232,8 @@ class utils(commands.Cog):
 
     @command('calculator,equ,equation,calculate')
     @cooldown(3)
+    @require_args()
     async def calc(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         equation = ' '.join(args)
         replaceWith = "x>*;.>*;?>*;?>/;?>*;plus>+;minus>-;divide>/;multiply>*;divide by>/;times>*;subtract>-;add>+;power>**;powers>**;^>**"
         for rep in replaceWith.split(";"):
@@ -263,8 +261,8 @@ class utils(commands.Cog):
 
     @command()
     @cooldown(10)
+    @require_args()
     async def weather(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
         return await ctx.bot.util.send_image_attachment(ctx, 'https://wttr.in/'+str(ctx.bot.util.encode_uri(' '.join(args)))+'.png')
 
     @command()
@@ -287,8 +285,8 @@ class utils(commands.Cog):
     
     @command('rhymes')
     @cooldown(7)
+    @require_args()
     async def rhyme(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
         await ctx.bot.trigger_typing()
         
         data = await ctx.bot.util.get_request(
@@ -307,8 +305,8 @@ class utils(commands.Cog):
 
     @command('sof')
     @cooldown(12)
+    @require_args()
     async def stackoverflow(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
         try:
             query = ctx.bot.util.encode_uri(' '.join(args))
             data = await ctx.bot.util.get_request(
@@ -445,8 +443,8 @@ class utils(commands.Cog):
             
     @command('col')
     @cooldown(3)
+    @require_args()
     async def color(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
         await ctx.trigger_typing()
         role_name = ctx.bot.Parser.get_value("role")
         if role_name:

@@ -5,7 +5,6 @@
 from .oreo import Oreo
 from .parser import Parser
 from .panel import CustomPanel
-from .cache import CacheManager
 from .colorthief import Smart_ColorThief
 from .message import embed, Paginator, ChooseEmbed,  WaitForMessage
 from .util import Util, GetRequestFailedException, BasicCommandException
@@ -26,7 +25,6 @@ def initiate(client):
     setattr(client, "GuessAvatar", GuessAvatar)
     setattr(client, "ChooseEmbed", ChooseEmbed)
     setattr(client, "EmbedPaginator", Paginator)
-    setattr(client, "cache_manager", CacheManager)
     setattr(client, "GuessMyNumber", GuessMyNumber)
     setattr(client, "ColorThief", Smart_ColorThief)
     setattr(client, "WaitForMessage", WaitForMessage)

@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from json import loads
-from category.decorators import command, cooldown
+from decorators import *
 from time import time
 
 class bothelp(commands.Cog):
@@ -114,9 +114,8 @@ class bothelp(commands.Cog):
     
     @command('report,suggest,bug,reportbug,bugreport')
     @cooldown(15)
+    @require_args()
     async def feedback(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         if (('discord.gg/' in ' '.join(args)) or ('discord.com/invite/' in ' '.join(args))):
             raise ctx.bot.util.BasicCommandException("Please do NOT send invites. This is NOT advertising.")
         

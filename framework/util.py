@@ -82,7 +82,7 @@ class Util:
         
         del self._config
         setattr(client, attribute_name, self)
-    
+
     def toggle_debug_mode(self) -> bool:
         """ Toggles debug mode. Returns a bool whether debug mode is currently ON or not. """
     
@@ -111,7 +111,7 @@ class Util:
     
     async def handle_error(self, ctx, error):
         """ Handles errors like a boss. """
-        if isinstance(error, commands.CommandNotFound): return
+        if isinstance(error, commands.CommandNotFound) or isinstance(error, commands.CheckFailure): return
         elif isinstance(error, commands.CommandOnCooldown): return await ctx.send("Calm down. Try again in {}.".format(self.strfsecond(round(error.retry_after))), delete_after=2)
         # put both of this on first because it's the most common exception
         

@@ -31,9 +31,9 @@ class Hangman:
 
     async def play(self, ctx):
         nl = "\n"
-        main_message = await ctx.send(embed=Embed(title="Hangman", description=f"**{' '.join(self.blacklisted)}**{nl}Wrong words: <none>{nl}Turns left: `{7 - self.tries}`", color=ctx.guild.me.roles[::-1][0].color))
+        main_message = await ctx.send(embed=Embed(title="Hangman", description=f"**{' '.join(self.blacklisted)}**{nl}Wrong words: <none>{nl}Turns left: `{7 - self.tries}`", color=ctx.guild.me.roles[::-1][0].color).set_image(url=f"https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{7 - self.tries}.png"))
 
-        while self.tries < 7:
+        while self.tries <= 7:
             wait_for = ctx.bot.WaitForMessage(ctx, timeout=25.0, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and len(x.content) == 1 and x.content.isalpha()))
             response = await wait_for.get_message()
             if not response:
@@ -44,7 +44,7 @@ class Hangman:
                 await ctx.send(f"{ctx.author.mention}, You are correct! The answer is ***{self.word}***.", allowed_mentions=ctx.bot.util.no_mentions)
                 return True
             message = self.process_input(response.content.lower())
-            await main_message.edit(embed=Embed(title=message, description=f"**{' '.join(self.blacklisted)}**{nl}Wrong words: {', '.join(self.wrong_letters)}{nl}Turns left: `{7 - self.tries}`", color=ctx.guild.me.roles[::-1][0].color))
+            await main_message.edit(embed=Embed(title=message, description=f"**{' '.join(self.blacklisted)}**{nl}Wrong words: {', '.join(self.wrong_letters)}{nl}Turns left: `{7 - self.tries}`", color=ctx.guild.me.roles[::-1][0].color).set_image(url=f"https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{7 - self.tries}.png"))
             self.tries += 1
         await ctx.send(f"{ctx.author.mention}, You lost the game. The answer is ***{self.word}***.", allowed_mentions=ctx.bot.util.no_mentions)
         return False
@@ -205,16 +205,16 @@ class MathQuiz:
 
     def basic_question(self, extend_to: str = None) -> tuple:
         symbol = choice(list(self.symbols.keys()))
-        num1, num2 = randint(0, 1000), randint(0, 1000)
+        num1, num2 = randint(0, 10000), randint(0, 10000)
 
         if extend_to:
             res = eval(self.__pythonic_equation(extend_to))
-            return f"{res} {symbol} {num1}", eval(f"{res}{self.symbols[symbol]}{num1}")
+            return f"{extend_to} {symbol} {num1}", eval(f"{res}{self.symbols[symbol]}{num1}")
 
         return f"{num1} {symbol} {num2}", eval(f"{num1}{self.symbols[symbol]}{num2}")
 
     def square_root(self) -> tuple:
-        perfect_number = randint(2, 50)
+        perfect_number = randint(2, 100)
         return "√" + str(eval(f"{perfect_number}**2")), perfect_number
 
 class GeographyQuiz:

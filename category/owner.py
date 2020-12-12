@@ -2,7 +2,7 @@ import discord
 import sys
 import os
 import random
-from category.decorators import command, cooldown
+from decorators import *
 from discord.ext import commands
 from datetime import datetime as t
 from subprocess import run, PIPE
@@ -27,7 +27,7 @@ class owner(commands.Cog):
     @cooldown(1)
     async def test(self, ctx, *args):
         if ctx.author.id not in [661200758510977084, 766952708602331137]: return
-        return
+        return await ctx.send("ook, done")
         
         #a = p.Image.new("RGB", (1000, 500), color=(255, 255, 255))
         #_p = TwemojiParser(a, parse_discord_emoji=True)

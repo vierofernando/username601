@@ -1,6 +1,6 @@
 from os import environ
 from discord.ext import commands, tasks
-from category.decorators import command, cooldown
+from decorators import *
 from aiohttp import ClientSession
 import dbl as topgg
 import discord

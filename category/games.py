@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from category.decorators import command, cooldown
+from decorators import *
 import random
 from io import BytesIO
 from datetime import datetime as t
@@ -12,9 +12,8 @@ class games(commands.Cog):
 
     @command("ttt")
     @cooldown(15)
+    @require_args()
     async def tictactoe(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         user = ctx.bot.Parser.parse_user(ctx, args)
         if user == ctx.author:
             raise ctx.bot.util.BasicCommandException("You need to add a `mention/user ID/username` for someone to join your game as well.")
@@ -191,9 +190,8 @@ class games(commands.Cog):
 
     @command('geometrydash,geometry-dash,gmd')
     @cooldown(5)
+    @require_args()
     async def gd(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-
         await ctx.trigger_typing()
         try:
             _input = args[0].lower()
@@ -285,7 +283,7 @@ class games(commands.Cog):
         message = await embed.send()
         del embed
         
-        wait_for = ctx.bot.WaitForMessage(ctx, timeout=30.0, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and x.content.isnumeric()))
+        wait_for = ctx.bot.WaitForMessage(ctx, timeout=30.0, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and x.content.replace("-", "").isnumeric()))
         answer = await wait_for.get_message()
         del wait_for
         
@@ -293,7 +291,12 @@ class games(commands.Cog):
             del quiz
             return await message.edit(embed=discord.Embed(title="Quiz canceled.", color=discord.Color.red()))
         
-        if (int(answer.content) == quiz.answer):
+        try:
+            correct = (int(answer.content) == quiz.answer)
+        except:
+            correct = False
+        
+        if correct:
             await message.edit(embed=discord.Embed(title="Correct!", color=discord.Color.green()))
             if ctx.bot.db.Economy.get(ctx.author.id) is not None:
                 reward = random.randint(5, 50)

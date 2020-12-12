@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from io import BytesIO
-from category.decorators import command, cooldown
+from decorators import *
 from aiohttp import ClientSession
 from json import loads
 
@@ -246,9 +246,8 @@ class memes(commands.Cog):
     
     @command('achieve,call')
     @cooldown(5)
+    @require_args()
     async def challenge(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         await ctx.trigger_typing()
         txt = ctx.bot.util.encode_uri(str(' '.join(args))[0:50])
         if command_name == "challenge": url = 'https://api.alexflipnote.dev/challenge?text='+txt
@@ -365,9 +364,8 @@ class memes(commands.Cog):
 
     @command()
     @cooldown(10)
+    @require_args()
     async def scroll(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         await ctx.trigger_typing()
         scrolltxt = ctx.bot.util.encode_uri(' '.join(args))
         embed = discord.Embed(colour=ctx.guild.me.roles[::-1][0].color)
@@ -410,9 +408,8 @@ class memes(commands.Cog):
 
     @command('changedmymind')
     @cooldown(10)
+    @require_args()
     async def changemymind(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         await ctx.trigger_typing()
         return await ctx.bot.util.send_image_attachment(ctx, 'https://nekobot.xyz/api/imagegen?type=changemymind&text='+ctx.bot.util.encode_uri(' '.join(args))+'&raw=1')
 
@@ -430,9 +427,8 @@ class memes(commands.Cog):
 
     @command('kannagen')
     @cooldown(12)
+    @require_args()
     async def clyde(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         await ctx.trigger_typing()
         command_name = ctx.bot.util.get_command_name(ctx)
         url='https://nekobot.xyz/api/imagegen?type='+command_name+'&text='+ctx.bot.util.encode_uri(str(' '.join(args))[0:100])+'&raw=1'
@@ -440,9 +436,8 @@ class memes(commands.Cog):
 
     @command()
     @cooldown(10)
+    @require_args()
     async def floor(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         text = str(' '.join(args))
         auth = str(ctx.author.avatar_url_as(format='png'))
         await ctx.trigger_typing()

@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import imdb
-from category.decorators import command, cooldown
+from decorators import *
 import random
 import wikipediaapi
 from googletrans import Translator, LANGUAGES
@@ -14,9 +14,8 @@ class apps(commands.Cog):
 
     @command('movie')
     @cooldown(5)
+    @require_args()
     async def tv(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         data = await ctx.bot.util.get_request(
             f'http://api.tvmaze.com/singlesearch/shows',
             json=True,
@@ -57,9 +56,8 @@ class apps(commands.Cog):
 
     @command()
     @cooldown(5)
+    @require_args()
     async def itunes(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         await ctx.trigger_typing()
         data = await ctx.bot.util.get_request(
             'https://itunes.apple.com/search',
@@ -84,35 +82,34 @@ class apps(commands.Cog):
 
     @command('tr,trans')
     @cooldown(5)
+    @require_args(2)
     async def translate(self, ctx, *args):
         await ctx.trigger_typing()
-        if len(args)>1:
-            try:
-                toTrans = ' '.join(args[1:])
-                if len(args[0]) > 2:
-                    try:
-                        _filter = list(filter(
-                            lambda x: args[0].lower() in x.lower(), [LANGUAGES[x] for x in list(LANGUAGES)]
-                        ))
-                        assert len(_filter) > 0
-                        del _filter
-                        destination = _filter[0]
-                    except:
-                        return None
-                else:
-                    destination = args[0].lower()
-                translation = self.translator.translate(toTrans[0:1000], dest=destination)
-                embed = ctx.bot.Embed(ctx, title=f"{LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}", desc=translation.text[0:1900])
-                await embed.send()
-                del embed, translation, _filter, destination, toTrans
-            except:
-                raise ctx.bot.util.BasicCommandException('Please insert a valid language and a text to translate.')
-        raise ctx.bot.util.BasicCommandException(f'Please add a language and a text!')
+        try:
+            toTrans = ' '.join(args[1:])
+            if len(args[0]) > 2:
+                try:
+                    _filter = list(filter(
+                        lambda x: args[0].lower() in x.lower(), [LANGUAGES[x] for x in list(LANGUAGES)]
+                    ))
+                    assert len(_filter) > 0
+                    del _filter
+                    destination = _filter[0]
+                except:
+                    return None
+            else:
+                destination = args[0].lower()
+            translation = self.translator.translate(toTrans[0:1000], dest=destination)
+            embed = ctx.bot.Embed(ctx, title=f"{LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}", desc=translation.text[0:1900])
+            await embed.send()
+            del embed, translation, _filter, destination, toTrans
+        except:
+            raise ctx.bot.util.BasicCommandException('Please insert a valid language and a text to translate.')
 
     @command('wiki')
     @cooldown(5)
+    @require_args()
     async def wikipedia(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
         await ctx.trigger_typing()
         
         page = self.Wikipedia.page(' '.join(args))
@@ -124,9 +121,8 @@ class apps(commands.Cog):
     
     @command()
     @cooldown(5)
+    @require_args()
     async def imdb(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         await ctx.trigger_typing()
         try:
             query = " ".join(args[1:])

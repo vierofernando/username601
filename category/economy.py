@@ -1,7 +1,7 @@
 import discord
 import random
 from discord.ext import commands
-from category.decorators import command, cooldown
+from decorators import *
 from json import loads
 from datetime import datetime
 from asyncio import sleep
@@ -14,9 +14,8 @@ class economy(commands.Cog):
     
     @command()
     @cooldown(30)
+    @require_args()
     async def gamble(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         lucky = random.choice([False, True])
         try:
             amount = int(args[0])
@@ -69,9 +68,8 @@ class economy(commands.Cog):
 
     @command('addshop')
     @cooldown(5)
+    @require_args()
     async def addproduct(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         if not ctx.author.guild_permissions.manage_guild: raise ctx.bot.util.BasicCommandException('You do not have the correct permissions to modify the server\'s shop.')
         try:
             price = int(args[0])
@@ -87,9 +85,8 @@ class economy(commands.Cog):
     
     @command('remshop,delshop')
     @cooldown(5)
+    @require_args()
     async def delproduct(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         if not ctx.author.guild_permissions.manage_guild: raise ctx.bot.util.BasicCommandException('You do not have the correct permissions to modify the server\'s shop.')
         if args[0].lower()=='all':
             ctx.bot.db.Shop.delete_shop(ctx.guild)
@@ -103,9 +100,8 @@ class economy(commands.Cog):
     
     @command('bought')
     @cooldown(3)
+    @require_args()
     async def buy(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         if ctx.bot.db.Economy.get(ctx.author.id) is None: raise ctx.bot.util.BasicCommandException("Doesn't have a profile yet. Try `1new` to have a profile.")
         try:
             data = ctx.bot.db.Shop.buy(' '.join(args), ctx.author)
@@ -183,9 +179,8 @@ class economy(commands.Cog):
     
     @command()
     @cooldown(10)
+    @require_args()
     async def transfer(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         await ctx.trigger_typing()
         amount = ctx.bot.Parser.get_numbers(count)
         
@@ -242,9 +237,8 @@ class economy(commands.Cog):
     
     @command('dep')
     @cooldown(10)
+    @require_args()
     async def deposit(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         data = ctx.bot.db.Economy.get(ctx.author.id)
         if data is None: raise ctx.bot.util.BasicCommandException("Doesn't have a profile yet. Try `1new` to have a profile.")
         if args[0].lower()=='all':
@@ -261,9 +255,8 @@ class economy(commands.Cog):
     
     @command()
     @cooldown(10)
+    @require_args()
     async def withdraw(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         data = ctx.bot.db.Economy.get(ctx.author.id)
         if data is None: raise ctx.bot.util.BasicCommandException("Doesn't have a profile yet. Try `1new` to have a profile.")
         if args[0].lower()=='all':
@@ -305,9 +298,8 @@ class economy(commands.Cog):
     
     @command('desc,description')
     @cooldown(2)
+    @require_args()
     async def setdesc(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-        
         if len(args)>120: raise ctx.bot.util.BasicCommandException('Your description is too long!')
         newdesc = ' '.join(args)
         for i in ['discord.gg', 'discord.com/', 'bit.ly', '://', 'nigga', 'nigger', 'discordapp.com']:

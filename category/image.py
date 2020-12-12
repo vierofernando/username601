@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from category.decorators import command, cooldown
+from decorators import *
 import random
 from io import BytesIO
 from aiohttp import ClientSession
@@ -36,8 +36,8 @@ class image(commands.Cog):
 
     @command('combine')
     @cooldown(2)
+    @require_args()
     async def blend(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
         await ctx.trigger_typing()
         parsed_args = ctx.bot.Parser.split_args(args)
         if parsed_args is None: 

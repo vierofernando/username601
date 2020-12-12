@@ -2,7 +2,7 @@ import discord
 import random
 from os import environ
 from discord.ext import commands
-from category.decorators import command, cooldown
+from decorators import *
 from aiohttp import ClientSession
 from io import BytesIO
 from json import dumps
@@ -75,9 +75,8 @@ class fun(commands.Cog):
 
     @command('8ball,8b')
     @cooldown(3)
+    @require_args()
     async def _8ball(self, ctx, *args):
-        ctx.bot.Parser.require_args(ctx, args)
-
         res = ctx.bot.util.eight_ball(ctx)
         embed = ctx.bot.Embed(ctx, title="The 8-Ball", fields={
             "Question": '*"'+ discord.utils.escape_markdown(" ".join(args)) +'"*',
