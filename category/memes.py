@@ -249,7 +249,7 @@ class memes(commands.Cog):
     @require_args()
     async def challenge(self, ctx, *args):
         await ctx.trigger_typing()
-        txt = ctx.bot.util.encode_uri(str(' '.join(args))[0:50])
+        txt = ctx.bot.util.encode_uri(' '.join(args)[0:50])
         if command_name == "challenge": url = 'https://api.alexflipnote.dev/challenge?text='+txt
         elif command_name == "call": url = 'https://api.alexflipnote.dev/calling?text='+txt
         else: url = 'https://api.alexflipnote.dev/achievement?text='+txt
@@ -431,21 +431,19 @@ class memes(commands.Cog):
     async def clyde(self, ctx, *args):
         await ctx.trigger_typing()
         command_name = ctx.bot.util.get_command_name(ctx)
-        url='https://nekobot.xyz/api/imagegen?type='+command_name+'&text='+ctx.bot.util.encode_uri(str(' '.join(args))[0:100])+'&raw=1'
+        url='https://nekobot.xyz/api/imagegen?type='+command_name+'&text='+ctx.bot.util.encode_uri(' '.join(args)[0:100])+'&raw=1'
         return await ctx.bot.util.send_image_attachment(ctx, url)
 
     @command()
     @cooldown(10)
     @require_args()
     async def floor(self, ctx, *args):
-        text = str(' '.join(args))
         auth = str(ctx.author.avatar_url_as(format='png'))
         await ctx.trigger_typing()
         if len(ctx.message.mentions)>0:
             auth = str(ctx.message.mentions[0].avatar_url_as(format='png'))
-            if len(args)>2: text = ctx.message.content.split('> ')[1]
-            else: text = 'I forgot to put the arguments, oops'
-        return await ctx.bot.util.send_image_attachment(ctx, 'https://api.alexflipnote.dev/floor?image='+auth+'&text='+ctx.bot.util.encode_uri(text[0:50]), alexflipnote=True)
+            text = " ".join(ctx.message.content.replace(ctx.message.mentions[0].mention, "").split()[1:]) if len(args)>2 else 'I forgot to put the arguments, oops'
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://api.alexflipnote.dev/floor?image='+auth+'&text='+ctx.bot.util.encode_uri(' '.join(args)[0:50]), alexflipnote=True)
 
     @command('doctor,terrifying,terrified,eye-doctor,eyedoctor,scary,frightening')
     @cooldown(2)

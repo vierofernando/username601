@@ -202,13 +202,13 @@ class image(commands.Cog):
             raise_errors=True,
             count=1
         )
-        _shibe = await ctx.bot.canvas.smallURL(data[0])
-        return await ctx.send(file=discord.File(_shibe, 'shibe.png'))
+        await ctx.bot.util.send_image_attachment(ctx, data[0])
+        del data
     
     @command()
     @cooldown(2)
+    @require_args()
     async def ship(self, ctx, *args):
-        if len(args) == 0: raise ctx.bot.util.BasicCommandException("Please input a parameter or something")
         await ctx.trigger_typing()
         parsed_args = ctx.bot.Parser.split_args(args)
         if parsed_args is None: 

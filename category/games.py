@@ -117,7 +117,7 @@ class games(commands.Cog):
     async def geometry_dash_profile(self, ctx, args):
         try:
             data = await ctx.bot.util.get_request(
-                "https://gdbrowser.com/api/profile/"+str(' '.join(args))[0:32],
+                "https://gdbrowser.com/api/profile/"+' '.join(args)[0:32],
                 json=True,
                 raise_errors=True
             )

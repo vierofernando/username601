@@ -65,7 +65,7 @@ class encoding(commands.Cog):
     @cooldown(2)
     @require_args()
     async def binary(self, ctx, *args):
-        return await ctx.send('```'+str(ctx.bot.util.binary(str(' '.join(args))))[0:2000]+'```')
+        return await ctx.send('```'+ctx.bot.util.binary(' '.join(args))[0:2000]+'```')
 
     @command()
     @cooldown(2)
@@ -87,7 +87,7 @@ class encoding(commands.Cog):
     @cooldown(2)
     @require_args()
     async def reverse(self, ctx, *args):
-        return await ctx.send(str(' '.join(args))[::-1], allowed_mentions=ctx.bot.util.no_mentions)
+        return await ctx.send(' '.join(args)[::-1], allowed_mentions=ctx.bot.util.no_mentions)
     
     @command('b64')
     @cooldown(2)

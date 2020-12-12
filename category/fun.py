@@ -70,7 +70,7 @@ class fun(commands.Cog):
     @command('randomcase')
     @cooldown(2)
     async def mock(self, ctx, *args):
-        text = 'i am a dumbass that forgot to put the arguments' if len(args)==0 else str(' '.join(args))
+        text = 'i am a dumbass that forgot to put the arguments' if len(args)==0 else ' '.join(args)
         return await ctx.send(''.join([random.choice([i.upper(), i.lower()]) for i in list(text)]))
 
     @command('8ball,8b')

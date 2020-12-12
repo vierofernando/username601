@@ -138,9 +138,9 @@ class Painter:
         rect_y_cursor += 70
         return rect_y_cursor
 
-    def buffer(self, data):
+    def buffer(self, data, webp=False):
         arr = BytesIO()
-        data.save(arr, format='PNG')
+        data.save(arr, format='PNG' if (not webp) else 'WEBP')
         arr.seek(0)
         data.close()
         return arr
@@ -594,21 +594,6 @@ class Painter:
         im.close()
         return self.buffer(av)
     
-    async def serverstats(self, guild):
-        start = "https://quickchart.io/chart?c="
-        data1 = [
-            str(len([i for i in guild.members if i.status.value.lower()=='online'])),
-            str(len([i for i in guild.members if i.status.value.lower()=='idle'])),
-            str(len([i for i in guild.members if i.status.value.lower()=='dnd'])),
-            str(len([i for i in guild.members if i.status.value.lower()=='offline']))
-        ]
-        img1 = "{type:'pie',data:{labels:['Online', 'Idle', 'Do not Disturb', 'Offline'], datasets:[{data:["+data1[0]+", "+data1[1]+", "+data1[2]+", "+data1[3]+"]}]}}"
-        img = self.buffer_from_url(start+encode_uri(img1))
-        w, h = img.size
-        cnv = Image.new(mode='RGB', size=(w, h), color=(255, 255, 255))
-        cnv.paste(img, (0, 0), img)
-        return self.buffer(cnv)
-    
     async def lookatthisgraph(self, url):
         img = self.buffer_from_url(url).resize((741, 537)).rotate(20)
         bg = self.templates['graph.png'].copy()
@@ -671,8 +656,7 @@ class Painter:
     async def simpletext(self, text):
         image = Image.new(mode='RGB',size=(5+(len(text)*38)+5, 80) ,color=(255, 255, 255))
         self.drawtext(ImageDraw.Draw(image), self.get_font('consola', 60), text, 10, 10, "black")
-        data = self.buffer(image)
-        return data
+        return self.buffer(image, webp=True)
     
     async def baby(self, ava):
         avatar = self.buffer_from_url(ava).resize((382, 349)).rotate(50)
@@ -694,17 +678,7 @@ class Painter:
         return self.buffer(cnv)
     
     async def resize(self, url, x, y):
-        pic = self.buffer_from_url(url)
-        pic = pic.resize((x, y))
-        data = self.buffer(pic)
-        return data
-    
-    async def smallURL(self, url):
-        image = self.buffer_from_url(url)
-        size = list(image.size)
-        pic = image.resize((round(size[0]/4), round(size[1]/4)))
-        data = self.buffer(pic)
-        return data
+        return self.buffer(self.buffer_from_url(url).resize((x, y)))
     
     async def gif2png(self, url):
         img = self.buffer_from_url(url)

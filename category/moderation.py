@@ -189,13 +189,6 @@ class moderation(commands.Cog):
                 await wait.edit(content='{} | Set the limit to {} reactions.'.format(ctx.bot.util.success_emoji, str(num)))
             except:
                 raise ctx.bot.util.BasicCommandException('Invalid number.')
-
-    @command()
-    @cooldown(10)
-    async def serverstats(self, ctx):
-        await ctx.send(file=discord.File(
-            await ctx.bot.canvas.serverstats(ctx.guild), "serverstats.png"
-        ))
     
     @command()
     @cooldown(5)
@@ -285,7 +278,7 @@ class moderation(commands.Cog):
                 else:
                     try:
                         if args[0].startswith("<@&") and args[0].endswith('>'): roleid = int(args[0].split('<@&')[1].split('>')[0])
-                        else: roleid = int([i.id for i in ctx.guild.roles if str(i.name).lower()==str(' '.join(args)).lower()][0])
+                        else: roleid = int([i.id for i in ctx.guild.roles if str(i.name).lower()==' '.join(args).lower()][0])
                         ctx.bot.db.Dashboard.set_autorole(ctx.guild.id, roleid)
                         await ctx.send("{} | Success! set the autorole to **{}!**".format(ctx.bot.util.success_emoji, ctx.guild.get_role(roleid).name))
                     except:
