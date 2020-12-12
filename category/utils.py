@@ -110,10 +110,9 @@ class utils(commands.Cog):
             embed = ctx.bot.Embed(ctx, title="That website is up.", fields={"Ping": f"{pingtime}ms", "HTTP Status Code": f"{ping.status} {ctx.bot.util.status_codes[str(ping.status)]}", "Content Type": ping.headers['Content-Type']}, color=discord.Color.green())
             await embed.edit_to(wait)
             del embed, pingtime, ping, a, web, wait
-        except Exception as e:
-            embed = ctx.bot.Embed(ctx, title="That website is down.", desc=f"Exception: `{str(e)}`", color=discord.Color.red())
+        except:
+            embed = ctx.bot.Embed(ctx, title="That website is down.", color=discord.Color.red())
             await embed.edit_to(wait)
-            del embed, pingtime, ping, a, web, wait
 
     @command(['img2ascii', 'imagetoascii', 'avascii', 'avatarascii', 'avatar2ascii', 'av2ascii', 'asciify'])
     @cooldown(10)
