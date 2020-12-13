@@ -3,6 +3,9 @@
 ## DEPRECATED COMMANDS<br>
 these are commands i decided to delete with the reasons.
 
+### 1emojiimg, 1serveremojis, 1emoji<br>
+Merged down to `1emoji`
+
 ### 1gdlevel, 1gdsearch, 1gdprofile, 1gdlogo, 1gdcomment<br>
 Merged down to `1gd`
 
