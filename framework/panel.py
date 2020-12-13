@@ -26,7 +26,7 @@ class CustomPanel(Smart_ColorThief):
         subtitle: str = "Subtitle text",
         description: str = "Description text here",
         icon: str = "https://cdn.discordapp.com/embed/avatars/0.png",
-        font: str = "NotoSansDisplay-Bold.otf",
+        font_path: str = "/path/to/font.ttf",
         min_width: int = 500,
         margin: int = 20,
         spotify = None,
@@ -44,7 +44,7 @@ class CustomPanel(Smart_ColorThief):
         """
         
         self.ctx = ctx
-        self.__get_font = (lambda s: ImageFont.truetype(self.ctx.bot.util.fonts_dir + "/" + font, s))
+        self.__get_font = (lambda s: ImageFont.truetype(font_path, s))
 
         if (spotify is not None) and (not isinstance(spotify, Spotify)):
             raise TypeError("Spotify argument is not an instance of Spotify")
