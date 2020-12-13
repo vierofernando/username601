@@ -22,13 +22,6 @@ async def on_ready():
     print('Bot is online.')
 
 @client.event
-async def on_guild_join(guild):
-    if 'bot list' in guild.name.lower(): return
-    elif 'test' in guild.name.lower(): return
-    bot_members = [i for i in guild.members if i.bot]
-    if (bot_members//guild.member_count*100) >= 95: await guild.leave()
-
-@client.event
 async def on_raw_reaction_add(payload):
     if str(payload.emoji)!='⭐': return
     if payload.event_type != 'REACTION_ADD': return
