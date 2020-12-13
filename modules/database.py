@@ -407,33 +407,39 @@ class Shop:
 class selfDB:
     def ping():
         a = t.now().timestamp()
-        list(database['dashboard'].find())
+        database['config'].find()
         return round((t.now().timestamp()-a)*1000)
     def feedback_ban(userid, reason):
-        for i in database['config'].find():
-            if 'bans' in list(i.keys()):
-                old_bans = i['bans'] ; break
-        database['config'].update_one({'bans': old_bans}, { '$push': {'bans': str(userid)+'|'+str(reason)} })
+        data = database['config'].find_one({'h': True})
+        database['config'].update_one({'h': True}, { '$push': {'bans': str(userid)+'|'+str(reason)} })
     def feedback_unban(userid):
         try:
-            for i in database['config'].find():
-                if 'bans' in list(i.keys()):
-                    for j in i['bans']:
-                        if j.startswith(str(userid)): reason = j.split('|')[1] ; break
-                    old_bans = i['bans'] ; break
-            database['config'].update_one({'bans': old_bans}, { '$pull': {'bans': str(userid)+'|'+str(reason)} })
+            data, reason = database['config'].find_one({'h': True}), None
+            for j in i['bans']:
+                if j.startswith(str(userid)):
+                    reason = j.split('|')[1] ; break
+            assert reason is not None
+            database['config'].update_one({'h': True}, { '$pull': {'bans': str(userid)+'|'+str(reason)} })
             return '200'
         except:
             return '404'
     def is_banned(user_id):
         banned, reason = False, None
-        for i in database['config'].find():
-            if 'bans' in list(i.keys()):
-                for lists in i['bans']:
-                    if user_id == int(lists.split('|')[0]):
-                        banned, reason = True, lists.split('|')[1] ;break
-                break
-        if banned:
-            return reason
-        else:
-            return False
+        data = database['config'].find_one({"h": True})
+        for lists in data['bans']:
+            if user_id == int(lists.split('|')[0]):
+                return lists.split('|')[1]
+        return False
+    def add_changelog(time, reason):
+        array = database['config'].find_one({'h': True})['changelog']
+        if len(array) > 15:
+            array.remove(array[0])
+        array.insert(len(array), f"`{str(time)[:-7]} UTC` {reason}")
+        database['config'].update_one({"h": True}, {
+            "$set": {
+                "changelog": array
+            }
+        })
+        del array
+    def get_changelog():
+        return "\n".join(database['config'].find_one({'h': True})['changelog'])

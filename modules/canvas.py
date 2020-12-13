@@ -526,7 +526,8 @@ class Painter:
     async def imagetoASCII_picture(self, url):
         font = self.get_font("consola", 11)
         image = Image.new(mode='RGB', size=(602, 523), color=(0, 0, 0))
-        draw, string = ImageDraw.Draw(image), self.imagetoASCII(url)
+        draw = ImageDraw.Draw(image)
+        string = await self.imagetoASCII(url)
         draw.text((0, 0), string, font=font, fill=(255, 255, 255))
         return self.buffer(image)
     
@@ -654,8 +655,10 @@ class Painter:
         return self.buffer(template)
     
     async def simpletext(self, text):
-        image = Image.new(mode='RGB',size=(5+(len(text)*38)+5, 80) ,color=(255, 255, 255))
-        self.drawtext(ImageDraw.Draw(image), self.get_font('consola', 60), text, 10, 10, "black")
+        font = self.get_font('consola', 60)
+        image = Image.new(mode='RGB', size=(font.getsize(text)[0] + 20, 80),color=(255, 255, 255))
+        self.drawtext(ImageDraw.Draw(image), font, text, 10, 10, "black")
+        del font
         return self.buffer(image, webp=True)
     
     async def baby(self, ava):

@@ -486,11 +486,11 @@ class moderation(commands.Cog):
             permissions = ""
             
             for perm in self.permission_attributes:
-                if len(permissions) > 1000:
+                if len(permissions) > 500:
                     break
                 
                 if getattr(role.permissions, perm):
-                    permissions += perm.replace("_", "") + ", "
+                    permissions += perm.replace("_", " ") + ", "
             
             embed = ctx.bot.Embed(
                 ctx,

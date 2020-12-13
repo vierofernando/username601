@@ -105,7 +105,7 @@ class image(commands.Cog):
         try:
             data = await ctx.bot.util.get_request(
                 'https://www.bing.com/HPImageArchive.aspx',
-                json=True,
+                force_json=True,
                 raise_errors=True,
                 format='ks',
                 idx=0,

@@ -52,13 +52,15 @@ class owner(commands.Cog):
     async def announce(self, ctx, *args):
         await ctx.message.add_reaction(ctx.bot.util.loading_emoji)
         data, wr, sc = ctx.bot.db.Dashboard.get_subscribers(), 0, 0
+        current_time = t.now()
+        ctx.bot.db.selfDB.add_changelog(current_time, ' '.join(args))
         for i in data:
             try:
                 web = discord.Webhook.from_url(
                     i['url'], adapter=discord.RequestsWebhookAdapter()
                 )
                 web.send(
-                    embed=discord.Embed(title=f'Username601 News: {str(t.now())[:-7]}', description=' '.join(args).replace('\\n', '\n'), color=discord.Color.green()),
+                    embed=discord.Embed(title=f'Username601 News: {str(current_time)[:-7]}', description=' '.join(args).replace('\\n', '\n'), color=discord.Color.green()),
                     username='Username601 News',
                     avatar_url=ctx.bot.user.avatar_url
                 )

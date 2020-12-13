@@ -14,6 +14,19 @@ class bothelp(commands.Cog):
     async def support(self, ctx):
         return await ctx.send(ctx.bot.util.server_invite)
 
+    @command(['cl', 'history', 'updates'])
+    @cooldown(5)
+    async def changelog(self, ctx, *args):
+        data = ctx.bot.db.selfDB.get_changelog()
+        embed = ctx.bot.Embed(
+            ctx,
+            title="Bot Changelog",
+            desc=data,
+            footer="Sorry if it looks kinda stinky"
+        )
+        await embed.send()
+        del embed, data
+
     @command(['subscribe', 'dev', 'development', 'devupdates', 'dev-updates', 'development-updates'])
     @cooldown(5)
     async def sub(self, ctx, *args):
@@ -25,6 +38,7 @@ class bothelp(commands.Cog):
             )
             await embed.send()
             del embed
+            return
         elif 'reset' in args:
             ctx.bot.db.Dashboard.subscribe(None, ctx.guild.id, reset=True)
             return await ctx.send('{} | Subscription has been deleted.'.format(ctx.bot.util.success_emoji))
