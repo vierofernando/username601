@@ -14,8 +14,8 @@ client = commands.Bot(command_prefix="1", intents=intents, activity=discord.Acti
 framework.initiate(client)
 pre_ready_initiation(client)
 
-if client.command_prefix != client.util.prefix:
-    client.command_prefix = client.util.prefix
+if client.command_prefix != str(client.util.prefix):
+    client.command_prefix = str(client.util.prefix)
 
 @client.event
 async def on_ready():
