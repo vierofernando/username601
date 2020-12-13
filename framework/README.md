@@ -350,8 +350,8 @@ async def spotify(ctx, *args):
     panel.close()
 ```
 
-### Oreo maker
-**REQUIREMENTS: a directory containing pictures of:**
+### [Oreo maker](https://www.youtube.com/watch?v=C694Cdxt9CY)
+**REQUIREMENTS: a directory containing pictures of:**<br>
 [oreo-top.png](https://github.com/vierofernando/username601/blob/master/assets/pics/oreo-top.png)<br>
 [oreo-mid.png](https://github.com/vierofernando/username601/blob/master/assets/pics/oreo-mid.png)<br>
 [oreo-bottom.png](https://github.com/vierofernando/username601/blob/master/assets/pics/oreo-bottom.png)<br>
