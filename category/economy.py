@@ -274,7 +274,7 @@ class economy(commands.Cog):
     @command(['lb', 'leader', 'leaders', 'rich', 'richest', 'top'])
     @cooldown(6)
     async def leaderboard(self, ctx):
-        data = ctx.bot.db.Economy.leaderboard(ctx.members)
+        data = ctx.bot.db.Economy.leaderboard(ctx.guild.members)
         if len(data)==0:
             raise ctx.bot.util.BasicCommandException('This server doesn\'t have any members with profiles...')
         else:
@@ -320,7 +320,7 @@ class economy(commands.Cog):
         if ctx.bot.db.Economy.get(src.id) is None:
             raise ctx.bot.util.BasicCommandException("Doesn't have a profile yet. Try `1new` to have a profile.")
         wait = await ctx.send(ctx.bot.util.loading_emoji+" | Please wait...")
-        data = ctx.bot.db.Economy.getProfile(src.id, [i.id for i in ctx.members if not i.bot])
+        data = ctx.bot.db.Economy.getProfile(src.id, [i.id for i in ctx.guild.members if not i.bot])
         bfr, aft = data['main'], data['after']
         img = await ctx.bot.canvas.profile(src.name, ava, bfr, aft)
         await wait.delete()

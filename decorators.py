@@ -24,3 +24,20 @@ def owner_only():
             return False
         return True
     return commands.check(predicate)
+
+def permissions(author: list = None, bot: list = None):
+    async def predicate(ctx):
+        if author:
+            author_permissions = ctx.channel.permissions_for(ctx.author)
+            for perms in author:
+                if not getattr(author_permissions, perms):
+                    await ctx.send(embed=discord.Embed(description=f"You are missing the `{', '.join(author).replace('_', '')}` permissions. Which is required to run this command."))
+                    return False
+        if bot:
+            bot_permissions = ctx.channel.permissions_for(ctx.me)
+            for perms in bot:
+                if not getattr(bot_permissions, perms):
+                    await ctx.send(embed=discord.Embed(description=f"This bot is missing the `{', '.join(bot).replace('_', '')}` permissions. Which is required to run this command."))
+                    return False
+        return True
+    return commands.check(predicate)

@@ -31,7 +31,7 @@ class Hangman:
 
     async def play(self, ctx):
         nl = "\n"
-        main_message = await ctx.send(embed=Embed(title="Hangman", description=f"**{' '.join(self.blacklisted)}**{nl}Wrong words: <none>{nl}Turns left: `{7 - self.tries}`", color=ctx.guild.me.roles[::-1][0].color).set_image(url=f"https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{7 - self.tries}.png"))
+        main_message = await ctx.send(embed=Embed(title="Hangman", description=f"**{' '.join(self.blacklisted)}**{nl}Wrong words: <none>{nl}Turns left: `{7 - self.tries}`", color=ctx.me.roles[::-1][0].color).set_image(url=f"https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{7 - self.tries}.png"))
 
         while self.tries <= 7:
             wait_for = ctx.bot.WaitForMessage(ctx, timeout=25.0, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and len(x.content) == 1 and x.content.isalpha()))
@@ -44,7 +44,7 @@ class Hangman:
                 await ctx.send(f"{ctx.author.mention}, You are correct! The answer is ***{self.word}***.", allowed_mentions=ctx.bot.util.no_mentions)
                 return True
             message = self.process_input(response.content.lower())
-            await main_message.edit(embed=Embed(title=message, description=f"**{' '.join(self.blacklisted)}**{nl}Wrong words: {', '.join(self.wrong_letters)}{nl}Turns left: `{7 - self.tries}`", color=ctx.guild.me.roles[::-1][0].color).set_image(url=f"https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{7 - self.tries}.png"))
+            await main_message.edit(embed=Embed(title=message, description=f"**{' '.join(self.blacklisted)}**{nl}Wrong words: {', '.join(self.wrong_letters)}{nl}Turns left: `{7 - self.tries}`", color=ctx.me.roles[::-1][0].color).set_image(url=f"https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{7 - self.tries}.png"))
             self.tries += 1
         await ctx.send(f"{ctx.author.mention}, You lost the game. The answer is ***{self.word}***.", allowed_mentions=ctx.bot.util.no_mentions)
         return False
@@ -300,7 +300,7 @@ class RockPaperScissors:
         self.timeout = timeout
 
     async def play(self):
-        self.message = await self.ctx.send(embed=Embed(title="Rock, paper, scissors!", color=self.ctx.guild.me.roles[::-1][0].color))
+        self.message = await self.ctx.send(embed=Embed(title="Rock, paper, scissors!", color=self.ctx.me.roles[::-1][0].color))
         for emoji in self.emojis:
             await self.message.add_reaction(emoji)
             await sleep(0.5) # 3 emojis may be not much but this is to reduce ratelimit
