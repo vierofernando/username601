@@ -34,6 +34,7 @@ class Parser:
                 if role:
                     return role
             res = [i for i in ctx.guild.roles if text.lower() in i.name.lower()]
+            assert len(res) > 0
             if return_array:
                 return res
             return res[0]
@@ -57,6 +58,7 @@ class Parser:
                 if channel:
                     return channel
             res = [i for i in ctx.guild.channels if text.lower() in i.name.lower()]
+            assert len(res) > 0
             if return_array:
                 return res
             return res[0]
