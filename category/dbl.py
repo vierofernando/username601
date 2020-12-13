@@ -35,18 +35,17 @@ class dbl(commands.Cog):
             _input = self.client.Parser.parse_user(ctx, args[1:])
         
         if _input.bot:
-            await self.client.util.send_error_message(ctx, str(_input) + " is a bot.")
-            return
+            raise self.client.util.BasicCommandException(str(_input) + " is a bot.")
         data = await self.get(self.api_url + "/users/" + str(_input.id))
         
         if data.get("error") is not None:
-            await self.client.util.send_error_message(ctx, str(_input) + " does not exist in the [top.gg](https://top.gg/) database.")
-            return
+            raise self.client.util.BasicCommandException(str(_input) + " does not exist in the [top.gg](https://top.gg/) database.")
         _ext = ".gif" if _input.is_avatar_animated() else ".png"
         _bio = "***\""+data["bio"].replace("*", "\*")+"\"***" if data.get("bio") else "This user has no bio."
         _color = "`"+data['color']+"`" if (data.get('color') not in self._none) else "`<not set>`"
         _avatar = "https://cdn.discordapp.com/avatars/"+data["id"]+"/"+data["avatar"]+".png" if data.get("avatar") else None
-        if _avatar is None: return await self.client.util.send_error_message(ctx, "That user does not exist in the [top.gg](https://top.gg/) database.")
+        if _avatar is None:
+            raise self.client.util.BasicCommandException("That user does not exist in the [top.gg](https://top.gg/) database.")
         
         return self.client.Embed(
             ctx,
@@ -70,7 +69,8 @@ class dbl(commands.Cog):
         data = await self.get("https://top.gg/api/search?q="+str(query)+"&type=bot")
         data = data["results"] # why
         
-        if len(data) == 0: return await self.client.util.send_error_message(ctx, "That bot does not exist on the [top.gg](https://top.gg/) database.")
+        if len(data) == 0:
+            raise self.client.util.BasicCommandException("That bot does not exist on the [top.gg](https://top.gg/) database.")
         embed = self.client.ChooseEmbed(ctx, data, key=(lambda x: "["+x["name"]+"](https://top.gg/bot/"+x["id"]+")"))
         res = await embed.run()
         
@@ -91,7 +91,7 @@ class dbl(commands.Cog):
         data = await self.get(self.api_url + "/bots/" + _id)
         
         if data.get("error") is not None:
-            raise self.client.utils.send_error_message("That bot does not exist in the [top.gg](https://top.gg/) database.")
+            raise self.client.util.BasicCommandException("That bot does not exist in the [top.gg](https://top.gg/) database.")
         _links = "\n".join([("["+self._bot_subtitution[key]+"]("+self._bot_links[key]+data[key]+")" if data.get(key) else "??") for key in self._bot_links.keys()])
         _links = _links.replace("\n??", "").replace("??", "")
         bot_devs = ""

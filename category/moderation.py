@@ -66,7 +66,7 @@ class moderation(commands.Cog):
                 continue
             ratelimit_counter += 1
         ctx.bot.db.Dashboard.editMuteRole(ctx.guild.id, role.id)
-        return role.id
+        return role
 
     @command(['jp', 'joinpos', 'joindate', 'jd', 'howold'])
     @cooldown(5)
@@ -198,7 +198,6 @@ class moderation(commands.Cog):
             if starboard_channel['channelid'] is None:
                 channel = await ctx.guild.create_text_channel(name='starboard', topic='Server starboard channel. Every funny/cool posts will be here.')
                 ctx.bot.db.Dashboard.addStarboardChannel(channel, 1)
-                success = ctx.bot.util.success_emoji
                 return await ctx.send(embed=discord.Embed(f'Created a channel <#{channel.id}>. Every starboard will be set there.\nTo remove starboard, type `{ctx.bot.command_prefix}starboard --remove`.\nBy default, starboard requirements are set to 1 reaction. To increase, type `{ctx.bot.command_prefix}starboard --limit <number>`.', color=discord.Color.green()))
             
             nl = "\n"
@@ -329,22 +328,6 @@ class moderation(commands.Cog):
             return await ctx.send(embed=discord.Embed(title=f"Success! set the autorole to <@&{roleid}>!", color=discord.Color.green()))
         except:
             raise ctx.bot.util.BasicCommandException("Invalid arguments!")
- 
-    @command(['enlarge', 'bigemoji', 'emojipic', 'emoji-img'])
-    @cooldown(3)
-    @require_args()
-    async def emojiimg(self, ctx, *args):
-        text = "".join(args).replace(" ", "").lower()
-        try:
-            if text.startswith("<") and text.endswith(">"):
-                return await ctx.bot.util.send_image_attachment(ctx, f'https://cdn.discordapp.com/emojis/{text.split(":")[2].split(">")[0]}{(".gif" if text.startswith("<a:") else ".png")}')
-            
-            _twemoji = await emoji_to_url(text, session=ctx.bot.util.default_client)
-            if _twemoji == text:
-                raise ctx.bot.util.BasicCommandException('No emoji found.')
-            return await ctx.bot.util.send_image_attachment(ctx, _twemoji)
-        except:
-            raise ctx.bot.util.BasicCommandException('Invalid emoji.')
     
     @command()
     @cooldown(10)
@@ -510,15 +493,54 @@ class moderation(commands.Cog):
         await embed.send()
         del embed, url
 
-    @command(['serveremotes', 'emotelist', 'emojilist', 'emotes', 'serveremoji'])
-    @cooldown(10)
-    async def serveremojis(self, ctx):
-        if len(ctx.guild.emojis)==0:
-            raise ctx.bot.util.BasicCommandException('This server has no emojis!')
-        paginator = ctx.bot.EmbedPaginator.from_long_array(ctx, array=[str(i) for i in ctx.guild.emojis], embed_settings={"title": "Server Emojis List"})
-        if not paginator:
-            return await ctx.send(embed=discord.Embed(title="Server Emojis List", description=", ".join([str(i) for i in ctx.guild.emojis]), color=ctx.me.roles[::-1][0].color))
-        return await paginator.execute()
+    @command(['emote', 'emojiinfo', 'emoji-info'])
+    @cooldown(5)
+    @require_args()
+    async def emoji(self, ctx, *args):
+        if args[0].lower() == "list":
+            if len(ctx.guild.emojis)==0:
+                raise ctx.bot.util.BasicCommandException('This server has no emojis!')
+            paginator = ctx.bot.EmbedPaginator.from_long_array(ctx, array=[str(i) for i in ctx.guild.emojis], embed_settings={"title": "Server Emojis List"})
+            if not paginator:
+                return await ctx.send(embed=discord.Embed(title="Server Emojis List", description=", ".join([str(i) for i in ctx.guild.emojis]), color=ctx.me.roles[::-1][0].color))
+            return await paginator.execute()
+        elif args[0].lower() == "info":
+            try:
+                res = await ctx.bot.Parser.parse_emoji(ctx, args[1])
+                assert (res is not None)
+            except:
+                raise ctx.bot.util.BasicCommandException(f"Please add a emoji after the `{ctx.bot.command_prefix}emoji info`")
+            data = ctx.bot.get_emoji(int(res.split("emojis/")[1].split(".")[0])) if res.startswith("https://cdn") else None
+            
+            fields = {
+                "Emoji name": data.name if data else "`<not available>`",
+                "Emoji ID": data.id if data else "`<not available>`",
+                "Emoji creation date": str(data.created_at)[:-7] if data else "`not available`",
+                "Emoji type": "Discord Animated Custom Emoji" if (data and data.animated) else "Discord Custom Emoji",
+                "Emoji source": f"{data.guild.name} ({len(data.guild.emojis)}/{data.guild.emoji_limit} custom emojis)" if (data and data.guild) else "`<source not available>`",
+                "Emoji URL": res
+            } if res.startswith("https://cdn") else {
+                "Emoji type": "Default Discord Emoji", 
+                "Emoji URL": res
+            }
+            
+            embed = ctx.bot.Embed(
+                ctx,
+                title="Emoji Info",
+                fields=fields,
+                image=res
+            )
+            await embed.send()
+            del embed, fields, data, res
+            return
+        elif args[0].lower() == "enlarge":
+            try:
+                res = await ctx.bot.Parser.parse_emoji(ctx, args[1])
+                assert (res is not None)
+            except:
+                raise ctx.bot.util.BasicCommandException(f"Please add a emoji after the `{ctx.bot.command_prefix}emoji enlarge`")
+            return await ctx.bot.util.send_image_attachment(ctx, res)
+        return await ctx.send(embed=discord.Embed(title="Invalid Arguments", description="Valid parameters: `list`, `info <emoji>`, `enlarge <emoji>`", color=discord.Color.red()))
 
     @command(['serverinfo', 'server', 'servericon', 'si', 'server-info', 'guild', 'guildinfo', 'guild-info'])
     @cooldown(10)
@@ -578,26 +600,6 @@ class moderation(commands.Cog):
             embed.description += "{} {}\n".format(emoji, permission.replace("_", " "))
         embed.description = embed.description[:-2]
         return await embed.send()
-
-    @command(['emoji'])
-    @cooldown(6)
-    async def emojiinfo(self, ctx, *args):
-        input = "".join(args).replace(" ", "").lower()
-        try:
-            if input.startswith("<") and input.endswith(">"):
-                emojiid = int(args[0].split(':')[2][:-1])
-                data = ctx.bot.get_emoji(emojiid)
-            else:
-                _fil = list(filter((lambda x: input in x.name.lower()), ctx.guild.emojis))
-                assert len(_fil) > 0
-                data = _fil[0]
-        except:
-            raise ctx.bot.util.BasicCommandException('For some reason, we cannot process your emoji ;(')
-        if data.animated: anim, ext = 'This emoji is an animated emoji. **Only nitro users can use it.**', ".gif"
-        else: anim, ext = 'This emoji is a static emoji. **Everyone can use it (except if limited by role)**', ".png"
-        embedy = discord.Embed(title='Emoji info for :'+str(data.name)+':', description='**Emoji name:** '+str(data.name)+'\n**Emoji ID: **'+str(data.id)+'\n'+anim+'\n**Emoji creation time: **'+str(data.created_at)[:-7]+' UTC ('+ctx.bot.util.strfsecond(t.now().timestamp() - data.created_at.timestamp())+' ago).', colour=ctx.me.roles[::-1][0].color)
-        embedy.set_thumbnail(url='https://cdn.discordapp.com/emojis/'+str(data.id)+ext)
-        await ctx.send(embed=embedy)
 
 def setup(client):
     client.add_cog(moderation())

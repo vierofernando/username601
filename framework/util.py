@@ -177,7 +177,7 @@ class Util:
                 assert data.headers['Content-Type'].startswith("image/"), "Content does not have an image."
                 extension = "." + data.headers['Content-Type'][6:]
                 await ctx.send(file=File(BytesIO(_bytes), "file"+extension.lower()))
-                del extension, _bytes
+                del extension, _bytes, data
         except Exception as e:
             raise self.BasicCommandException("Image not found.\n`"+str(e)+"`")
     

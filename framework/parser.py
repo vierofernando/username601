@@ -1,4 +1,5 @@
 from twemoji_parser import emoji_to_url
+import re
 
 class Parser:
     SPLIT_CHARACTERS = [';', ', ', ',', '|',' | ', ' ']
@@ -12,6 +13,30 @@ class Parser:
         "<br />": "\n",
         "<br>": "\n"
     }
+    EMOJI_REGEX = re.compile("<:(.*?)>")
+
+    @staticmethod
+    async def parse_emoji(ctx, text: str) -> str:
+        """ Gets emoji URL from a text. """
+
+        is_animated = "<a:" in text
+        if is_animated:
+            text = text.replace("<a:", "<:")
+
+        _iter = list(Parser.EMOJI_REGEX.finditer(text))
+        if _iter == []:
+            twemoji = await emoji_to_url(text, session=ctx.bot.util.default_client)
+            if twemoji == text:
+                return
+            return twemoji
+        try:
+            emoji_id = int(_iter[0].group().split(":")[2].split(">")[0])
+            supposed_url = f"https://cdn.discordapp.com/emojis/{emoji_id}{'.gif' if is_animated else '.png'}"
+            is_valid = await Parser.__check_url(ctx, url=supposed_url, cdn_only=True, custom_emoji=True)
+            assert is_valid
+            return supposed_url
+        except:
+            return
 
     @staticmethod
     def get_numbers(args: tuple, count: int = 1):
@@ -19,13 +44,6 @@ class Parser:
         
         try: return [int(i) for i in args if i.isnumeric()][0:count]
         except: return None
-
-    @staticmethod
-    def require_args(ctx, args: tuple):
-        """ The function name says it all. """
-        if (len(args) == 0) or ("".join(args).replace("‏‏‎ ‎", "").replace("‏‏‎ ", "").replace("‏‏‎‎", "")) == "":
-            raise ctx.bot.util.BasicCommandException(f"This command requires at least an argument. Try `{ctx.bot.command_prefix}help {ctx.command.name}`")
-        return
 
     @staticmethod
     def get_input(args: tuple) -> tuple:
