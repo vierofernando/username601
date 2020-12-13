@@ -100,7 +100,7 @@ class moderation(commands.Cog):
             desc += string.format(
                 i + 1, name, ctx.bot.util.strfsecond(current_time - full_arr[index]['ja'])
             )
-        return await wait.edit(content='', embed=discord.Embed(title=title, description=desc, color=ctx.me.roles[::-1][0].color))
+        return await wait.edit(content='', embed=discord.Embed(title=title, description=desc, color=ctx.me.color))
         
     @command()
     @cooldown(2)
@@ -464,11 +464,97 @@ class moderation(commands.Cog):
             await ctx.send(embed=discord.Embed(title=f"Successfully {'Hide' if enable else 'Re-opened'} the channel.", description=f"All members with the default role {'can see messages in this channel again.' if enable else 'cannot read messages in this channel/see messages in this channel'}." + "\nType `" + ctx.bot.command_prefix + f"hide {'enable' if enable else 'disable'}` to {'enable' if enable else 'disable'} this effect again.", color=discord.Color.green()))
         except: return
     
-    @command(['roles', 'serverroles', 'serverchannels', 'channels'])
-    @cooldown(2)
-    async def channel(self, ctx):
-        arr = [f"<#{x.id}>" for x in ctx.guild.channels if x.type == discord.ChannelType.text] if "channel" in ctx.message.content.lower() else (list(map(lambda x: x.mention, ctx.guild.roles)))[1:]
-        await ctx.send(str(", ".join(arr))[0:2000], allowed_mentions=ctx.bot.util.no_mentions)
+    @command(['guild-role', 'server-role'])
+    @cooldown(6)
+    @require_args()
+    async def role(self, ctx, *args):
+        if args[0].lower() == 'info':
+            try:
+                role = ctx.bot.Parser.parse_role(ctx, ' '.join(args[1:]), return_array=True)
+                assert (role is not None)
+            except:
+                raise ctx.bot.util.BasicCommandException(f"Please add role name/mention/ID after the `{ctx.bot.command_prefix}role info`.")
+            if isinstance(role, list):
+                choose = ctx.bot.ChooseEmbed(ctx, role, key=(lambda x: x.mention))
+                res = await choose.run()
+                if not res:
+                    return
+                role = res
+            
+            role_members = "\n".join([f"{i.name}#{i.discriminator}" for i in role.members][0:10]) if len(role.members) > 0 else "<none>"
+            extra = "\n" + f"... and {len(role.members) - 10} others" if len(role.members) > 10 else ""
+            
+            embed = ctx.bot.Embed(
+                ctx,
+                title=role.name,
+                color=role.color,
+                fields={
+                    "Role Info": f"**Display role members seperately from online members: **{':white_check_mark:' if role.hoist else ':x:'}" + "\n" + f"**Mentionable: **{':white_check_mark:' if role.mentionable else ':x:'}" + f"\n**Created At: **{str(role.created_at)[:-7]}",
+                    f"Role Members ({len(role.members)})": role_members + extra,
+                    "Role Color": f"**Hex: {str(role.color)}**" + "\n" + f"**RGB: **{role.color.r}, {role.color.g}, {role.color.b}"
+                }
+            )
+            await embed.send()
+            del embed, role_members, extra, role
+            return
+        raise ctx.bot.util.BasicCommandException(f"Usage: `{ctx.bot.command_prefix}role info <role>`")
+    
+    @command(['guild-channel', 'server-channel'])
+    @cooldown(6)
+    @require_args()
+    async def channel(self, ctx, *args):
+        if args[0].lower() == "list":
+            paginator = ctx.bot.EmbedPaginator.from_long_array(ctx, array=[str(i) for i in ctx.guild.channels], embed_settings={"title": "Server Channels List"})
+            if not paginator:
+                return await ctx.send(embed=discord.Embed(title="Server Channels List", description=", ".join([str(i) for i in ctx.guild.channels]), color=ctx.me.color))
+            return await paginator.execute()
+        elif args[0].lower() == "info":
+            try:
+                channel = ctx.bot.Parser.parse_channel(ctx, ' '.join(args[1:]), return_array=True)
+                assert (channel is not None)
+            except:
+                raise ctx.bot.util.BasicCommandException(f"Please add a valid channel name/ID after `{ctx.bot.command_prefix}channel info`")
+            if isinstance(channel, list):
+                choose = ctx.bot.ChooseEmbed(ctx, channel, key=(lambda x: f"[`{str(x.type)}`] {x.name}"))
+                res = await choose.run()
+                if not res:
+                    return
+                channel = res
+        
+            # PYTHON SHOULD HAVE A SWITCH STATEMENT
+            if channel.type == discord.ChannelType.text:
+                fields = {
+                    "Channel Category": channel.category.name if channel.category else "<no category>",
+                    "Channel Info": f"**Channel ID: **{channel.id}" + "\n" + f"**Channel Topic: **{channel.topic if channel.topic else '<not available>'}" + "\n" + f"**Slowmode Delay: **{channel.slowmode_delay} seconds.",
+                    "Channel Type": "Discord Text Channel"
+                }
+            elif channel.type == discord.ChannelType.voice:
+                channel_members = "\n".join([f"{i.name}#{i.discriminator}" for i in channel.members[:5]]) if len(channel.members) > 0 else "<no members in VC>"
+                other = "\n" + f"... and {len(channel.members) - 5} others" if len(channel.members) > 5 else ""
+                fields = {
+                    "Channel Category": channel.category.name if channel.category else "<no category>",
+                    "Channel Info": f"**Channel ID: **{channel.id}" + "\n" + f"**Bitrate: **{channel.bitrate // 1000} kbps",
+                    f"VC Members ({len(channel.members)}/{channel.user_limit if channel.user_limit != 0 else '∞'})": channel_members + other,
+                    "Channel Type": "Discord Voice Channel (VC)"
+                }
+            elif channel.type == discord.ChannelType.category:
+                channels = "\n".join([i.name for i in channel.channels]) if len(channel.channels) > 0 else "<no channels>"
+                fields = {
+                    "Channel Type": "Discord Category Channel",
+                    f"Channels ({len(channel.channels)})": channels[:1000]
+                }
+            else:
+                raise ctx.bot.util.BasicCommandException("Invalid channel type. Must be either Text, voice, or category channel.")
+            
+            embed = ctx.bot.Embed(
+                ctx,
+                title=channel.name,
+                fields=fields
+            )
+            await embed.send()
+            del embed, channel
+            return
+        raise ctx.bot.util.BasicCommandException(f"Usage: `{ctx.bot.command_prefix}channel list` or `{ctx.bot.command_prefix}channel info <channel>`")
 
     @command(['ui', 'user', 'usercard', 'user-info', 'user-card', 'whois', 'user-interface', 'userinterface'])
     @cooldown(3)
@@ -502,7 +588,7 @@ class moderation(commands.Cog):
                 raise ctx.bot.util.BasicCommandException('This server has no emojis!')
             paginator = ctx.bot.EmbedPaginator.from_long_array(ctx, array=[str(i) for i in ctx.guild.emojis], embed_settings={"title": "Server Emojis List"})
             if not paginator:
-                return await ctx.send(embed=discord.Embed(title="Server Emojis List", description=", ".join([str(i) for i in ctx.guild.emojis]), color=ctx.me.roles[::-1][0].color))
+                return await ctx.send(embed=discord.Embed(title="Server Emojis List", description=", ".join([str(i) for i in ctx.guild.emojis]), color=ctx.me.color))
             return await paginator.execute()
         elif args[0].lower() == "info":
             try:

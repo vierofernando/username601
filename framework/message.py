@@ -34,7 +34,7 @@ class Paginator:
         self.embeds = embeds
         if auto_set_color:
             for embed in self.embeds:
-                embed.color = ctx.me.roles[::-1][0].color
+                embed.color = ctx.me.color
         if show_page_count:
             _embed_index = 1
             for embed in self.embeds:
@@ -103,7 +103,7 @@ class Paginator:
             embed_settings.pop("color")
 
         for string in chunks:
-            embeds.append(Embed(description=string, color=ctx.me.roles[::-1][0].color, **embed_settings))
+            embeds.append(Embed(description=string, color=ctx.me.color, **embed_settings))
         return Paginator(ctx, embeds=embeds, *args, **kwargs)
 
     @staticmethod
@@ -140,7 +140,7 @@ class Paginator:
             embed_settings.pop("color")
 
         for string in input_arr:
-            embeds.append(Embed(description=string, color=ctx.me.roles[::-1][0].color, **embed_settings))
+            embeds.append(Embed(description=string, color=ctx.me.color, **embed_settings))
         del input_arr
         return Paginator(ctx, embeds=embeds, *args, **kwargs)
 
@@ -162,7 +162,7 @@ class embed:
 
     def __init__(self, ctx, author_name=None, attachment=None, author_url=None, url=None, desc=None, footer_icon=None, thumbnail=None, image=None, title=None, color=None, fields={}, footer=None) -> None:
         self.ctx = ctx
-        self.color = self.ctx.me.roles[::-1][0].color if color is None else color
+        self.color = self.ctx.me.color if color is None else color
         self.title = "" if title is None else str(title)
         self.description = "" if desc is None else str(desc)
         self.current_time = datetime.now()

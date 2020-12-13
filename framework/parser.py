@@ -14,6 +14,54 @@ class Parser:
         "<br>": "\n"
     }
     EMOJI_REGEX = re.compile("<:(.*?)>")
+    CHANNEL_REGEX = re.compile("<#(.*?)>")
+    ROLES_REGEX = re.compile("<@&(.*?)>")
+
+    @staticmethod
+    def parse_role(ctx, text: str, return_array: bool = False):
+        parse = list(Parser.ROLES_REGEX.finditer(text))
+        if parse != []:
+            try:
+                role = ctx.guild.get_role(int(parse[0].group()[:3][:-1]))
+                assert (role is not None)
+                return role
+            except:
+                return
+        
+        try:
+            if text.isnumeric():
+                role = ctx.guild.get_role(int(text))
+                if role:
+                    return role
+            res = [i for i in ctx.guild.roles if text.lower() in i.name.lower()]
+            if return_array:
+                return res
+            return res[0]
+        except:
+            return
+
+    @staticmethod
+    def parse_channel(ctx, text: str, return_array: bool = False):
+        parse = list(Parser.CHANNEL_REGEX.finditer(text))
+        if parse != []:
+            try:
+                channel = ctx.guild.get_channel(int(parse[0].group()[:2][:-1]))
+                assert (channel is not None)
+                return channel
+            except:
+                return
+        
+        try:
+            if text.isnumeric():
+                channel = ctx.guild.get_channel(int(text))
+                if channel:
+                    return channel
+            res = [i for i in ctx.guild.channels if text.lower() in i.name.lower()]
+            if return_array:
+                return res
+            return res[0]
+        except:
+            return
 
     @staticmethod
     async def parse_emoji(ctx, text: str) -> str:

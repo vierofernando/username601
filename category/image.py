@@ -79,7 +79,7 @@ class image(commands.Cog):
             raise_errors=True
         )
     
-        embed = discord.Embed(title='Here\'s a pic of Lucario.', color=ctx.me.roles[::-1][0].color)
+        embed = discord.Embed(title='Here\'s a pic of Lucario.', color=ctx.me.color)
         embed.set_image(url=url)
         await ctx.send(embed=embed)
     
@@ -114,7 +114,7 @@ class image(commands.Cog):
             )
         except:
             raise ctx.bot.util.BasicCommandException("The API may be down for a while. Try again later!")
-        embed = discord.Embed(title=data['copyright'], url=data['copyrightlink'], color=ctx.me.roles[::-1][0].color)
+        embed = discord.Embed(title=data['copyright'], url=data['copyrightlink'], color=ctx.me.color)
         embed.set_image(url='https://bing.com'+data['images'][0]['url'])
         await ctx.send(embed=embed)
 
@@ -186,7 +186,7 @@ class image(commands.Cog):
     @command()
     @cooldown(2)
     async def panda(self, ctx):
-        link, col, msg = random.choice(["https://some-random-api.ml/img/panda", "https://some-random-api.ml/img/red_panda"]), ctx.me.roles[::-1][0].color, 'Here is some cute pics of pandas.'
+        link, col, msg = random.choice(["https://some-random-api.ml/img/panda", "https://some-random-api.ml/img/red_panda"]), ctx.me.color, 'Here is some cute pics of pandas.'
         data = await ctx.bot.util.get_request(link, json=True, raise_errors=True)
         embed = discord.Embed(title=msg, color=col)
         embed.set_image(url=data['link'])
