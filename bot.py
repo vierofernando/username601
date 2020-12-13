@@ -10,9 +10,12 @@ intents = discord.Intents(
     guilds=True, members=True, emojis=True, guild_reactions=True, presences=True, guild_messages=True
 )
 
-client = commands.Bot(command_prefix=client.util.prefix, intents=intents, activity=discord.Activity(type=5, name="2020 survival competition"))
+client = commands.Bot(command_prefix="1", intents=intents, activity=discord.Activity(type=5, name="2020 survival competition"))
 framework.initiate(client)
 pre_ready_initiation(client)
+
+if client.command_prefix != client.util.prefix:
+    client.command_prefix = client.util.prefix
 
 @client.event
 async def on_ready():
