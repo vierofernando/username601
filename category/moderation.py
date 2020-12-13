@@ -483,6 +483,14 @@ class moderation(commands.Cog):
             
             role_members = "\n".join([f"{i.name}#{i.discriminator}" for i in role.members][0:10]) if len(role.members) > 0 else "<none>"
             extra = "\n" + f"... and {len(role.members) - 10} others" if len(role.members) > 10 else ""
+            permissions = ""
+            
+            for perm in self.permission_attributes:
+                if len(permissions) > 1000:
+                    break
+                
+                if getattr(role.permissions, perm):
+                    permissions += perm.replace("_", "") + ", "
             
             embed = ctx.bot.Embed(
                 ctx,
@@ -491,13 +499,20 @@ class moderation(commands.Cog):
                 fields={
                     "Role Info": f"**Display role members seperately from online members: **{':white_check_mark:' if role.hoist else ':x:'}" + "\n" + f"**Mentionable: **{':white_check_mark:' if role.mentionable else ':x:'}" + f"\n**Created At: **{str(role.created_at)[:-7]}",
                     f"Role Members ({len(role.members)})": role_members + extra,
+                    "Key Permissions": permissions[:-2],
                     "Role Color": f"**Hex: {str(role.color)}**" + "\n" + f"**RGB: **{role.color.r}, {role.color.g}, {role.color.b}"
                 }
             )
             await embed.send()
-            del embed, role_members, extra, role
+            del embed, role_members, extra, role, permissions
             return
-        raise ctx.bot.util.BasicCommandException(f"Usage: `{ctx.bot.command_prefix}role info <role>`")
+        elif args[0].lower() == "list":
+            paginator = ctx.bot.EmbedPaginator.from_long_string(ctx, ", ".join([i.mention for i in ctx.guild.roles[1:]]), embed_settings={"title": "Server Roles List"})
+            if not paginator:
+                return await ctx.send(embed=discord.Embed(title="Server Roles List", description=", ".join([i.mention for i in ctx.guild.roles[1:]]), color=ctx.me.color))
+            
+            return await paginator.execute()
+        raise ctx.bot.util.BasicCommandException(f"Usage: `{ctx.bot.command_prefix}role info <role>` or `{ctx.bot.command_prefix}role list`")
     
     @command(['guild-channel', 'server-channel'])
     @cooldown(6)
@@ -644,37 +659,7 @@ class moderation(commands.Cog):
                 im = await ctx.bot.canvas.server(ctx.guild)
             await ctx.send(file=discord.File(im, 'server.png'))
             del im
-
-    @command()
-    @cooldown(3)
-    @require_args()
-    async def roleinfo(self, ctx, *args):
-        data = None
-        if '<@&' in ''.join(args):
-            data = ctx.guild.get_role(int(ctx.message.content.split('<@&')[1].split('>')[0]))
-        else:
-            input = " ".join(args).lower()
-            _filter = list(filter((lambda x: input in x.name.lower()), ctx.guild.roles))
-            if len(_filter) > 0:
-                embed = ctx.bot.ChooseEmbed(ctx, _filter, key=(lambda x: x.mention))
-                res = await embed.run()
-                if res is not None:
-                    data = res
-                else:
-                    return
-        if data is None:
-            raise ctx.bot.util.BasicCommandException('Role not found!')
-        else:
-            if data.permissions.administrator: perm = ':white_check_mark: Server Administrator'
-            else: perm = ':x: Server Administrator'
-            if data.mentionable==True: men = ':warning: You can mention this role and they can get pinged.'
-            else: men = ':v: You can mention this role and they will not get pinged! ;)'
-            embedrole = discord.Embed(title='Role info for role: '+str(data.name), description='**Role ID: **'+str(data.id)+'\n**Role created at: **'+ctx.bot.util.strfsecond(round(t.now().timestamp()-data.created_at.timestamp()))+' ago\n**Role position: **'+str(data.position)+'\n**Members having this role: **'+str(len(data.members))+'\n'+str(men)+'\nPermissions Value: '+str(data.permissions.value)+'\n'+str(perm), colour=data.colour)
-            embedrole.add_field(name='Role Colour', value='**Color hex: **#'+str(data.color.value)+'\n**Color integer: **'+str(data.color.value)+'\n**Color RGB: **'+str(', '.join(
-                list(map(lambda x: str(x), data.color.to_rgb()))
-            )))
-            await ctx.send(embed=embedrole)
-
+    
     @command(['perms', 'perm', 'permission', 'permfor', 'permsfor', 'perms-for', 'perm-for'])
     @cooldown(10)
     async def permissions(self, ctx, *args):
