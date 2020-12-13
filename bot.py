@@ -1,24 +1,23 @@
 print('Please wait...')
-from datetime import datetime as t
 from discord.ext import commands
-from os import environ, listdir
-from PIL import UnidentifiedImageError
+from os import environ
 from modules import *
 import discord
 import framework
+import gc
 
 intents = discord.Intents(
     guilds=True, members=True, emojis=True, guild_reactions=True, presences=True, guild_messages=True
 )
 
-client = commands.Bot(command_prefix="1", intents=intents, activity=discord.Activity(type=5, name="2020 survival competition"))
+client = commands.Bot(command_prefix=client.util.prefix, intents=intents, activity=discord.Activity(type=5, name="2020 survival competition"))
 framework.initiate(client)
 pre_ready_initiation(client)
 
 @client.event
 async def on_ready():
     await post_ready_initiation(client)
-    client.util.load_cog("category", exclude=["decorators.py"])
+    client.util.load_cog(client.util.cogs_dir)
     client.util.post_ready()
     print('Bot is online.')
 
@@ -27,7 +26,7 @@ async def on_guild_join(guild):
     if 'bot list' in guild.name.lower(): return
     elif 'test' in guild.name.lower(): return
     bot_members = [i for i in guild.members if i.bot]
-    if round(bot_members/len(guild.members)*100) >= 95: await guild.leave()
+    if (bot_members//guild.member_count*100) >= 95: await guild.leave()
 
 @client.event
 async def on_raw_reaction_add(payload):
@@ -47,6 +46,7 @@ async def on_raw_reaction_add(payload):
 @client.event
 async def on_command_completion(ctx):
     client.command_uses += 1
+    gc.collect()
 
 @client.event
 async def on_member_join(member):
@@ -70,6 +70,7 @@ async def on_member_update(before, after):
         if not database.Dashboard.getDehoister(after.guild.id): return
         try: await after.edit(nick='Dehoisted user')
         except: pass
+
 @client.event
 async def on_member_remove(member):
     database.Dashboard.clearWarn(member)
@@ -78,10 +79,10 @@ async def on_member_remove(member):
 
 @client.event
 async def on_guild_channel_create(channel):
-    if str(channel.type) not in ['text', 'voice']: return
+    if (channel.type != discord.ChannelType.text) and (channel.type != discord.ChannelType.voice): return
     data = database.Dashboard.getMuteRole(channel.guild.id)
     if data is None: return
-    if str(channel.type)=='text': return await channel.set_permissions(channel.guild.get_role(data), send_messages=False)
+    elif channel.type == discord.ChannelType.text: return await channel.set_permissions(channel.guild.get_role(data), send_messages=False)
     await channel.set_permissions(channel.guild.get_role(data), connect=False)
 
 @client.event
@@ -113,22 +114,7 @@ async def on_guild_remove(guild):
 
 @client.event
 async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandNotFound): return
-    elif isinstance(error, commands.CommandOnCooldown): return await ctx.send("You are on cooldown. You can do the command again in {}.".format(lapsed_time_from_seconds(round(error.retry_after))), delete_after=2)
-    if hasattr(error, "original"):
-        error = error.original
-    
-    if isinstance(error, discord.Forbidden): 
-        try: return await ctx.send("I don't have the permission required to use that command!")
-        except: return
-    elif isinstance(error, UnidentifiedImageError): return await ctx.send(str(emote(client, 'error'))+' | Error, it seemed i can\'t load/send the image! Check your arguments and try again. Else, report this to the bot owner using `'+client.command_prefix+'feedback.`')
-    elif isinstance(error, framework.GetRequestFailedException):
-        return await ctx.bot.util.send_error_message(ctx, "A request failed to the API. Please try again later!\nError: " + str(error))
-    else:
-        await client.get_channel(client.util.feedback_channel).send(content='<@{}> there was an error!'.format(client.util.owner_id), embed=discord.Embed(
-            title='Error', color=discord.Colour.red(), description=f'Content:\n```{ctx.message.content}```\n\nError:\n```{str(error)}```'
-        ).set_footer(text='Bug made by user: {} (ID of {})'.format(str(ctx.author), ctx.author.id)))
-        await ctx.send('Sorry, there was an error when executing this command.\nThis message has been reported to the developer of the bot.', delete_after=3)
+    await ctx.bot.util.handle_error(ctx, error)
 
 def isdblvote(author):
     if not author.bot: return False
