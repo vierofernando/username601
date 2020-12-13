@@ -20,7 +20,7 @@ if client.command_prefix != str(client.util.prefix):
 @client.event
 async def on_ready():
     await post_ready_initiation(client)
-    client.util.load_cog(client.util.cogs_dir)
+    client.util.load_cog(client.util.cogs_dirname)
     client.util.post_ready()
     print('Bot is online.')
 
