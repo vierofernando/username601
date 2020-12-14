@@ -118,7 +118,7 @@ class Painter:
         if res == []: return text
         return "\n".join(res)
         
-    async def _draw_status_stats(self, draw, obj, rect_y_cursor, font, margin_left, margin_right, bg_arr):
+    def _draw_status_stats(self, draw, obj, rect_y_cursor, font, margin_left, margin_right, bg_arr):
         x_pos, colors = margin_left, [(63, 232, 0), (244, 208, 63), (225, 0, 0), (124, 0, 211), (127, 127, 127)]
         total = sum(map(lambda i: obj[i], obj.keys()))
         draw.rectangle([

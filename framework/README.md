@@ -280,26 +280,6 @@ async def query(ctx):
     await ctx.send(result)
 ```
 
-#### with keys:
-```py
-from framework import ChooseEmbed
-from discord.ext import commands
-
-@bot.command()
-async def query(ctx):
-    embed = ChooseEmbed(ctx, [
-        "Selection 1",
-        "Selection 2",
-        "Selection 3"
-    ], key=(lambda x: x.split(" ")[1]))
-
-    result = await embed.run()
-    if result is None:
-        return
-    
-    await ctx.send(result)
-```
-
 ### Wait for message
 
 ```py
@@ -348,21 +328,4 @@ async def spotify(ctx, *args):
     await panel.draw()
     await panel.send_as_attachment(content=f"This is {user.name}'s spotify card!")
     panel.close()
-```
-
-### [Oreo maker](https://www.youtube.com/watch?v=C694Cdxt9CY)
-**REQUIREMENTS: a directory containing pictures of:**<br>
-[oreo-top.png](https://github.com/vierofernando/username601/blob/master/assets/pics/oreo-top.png)<br>
-[oreo-mid.png](https://github.com/vierofernando/username601/blob/master/assets/pics/oreo-mid.png)<br>
-[oreo-bottom.png](https://github.com/vierofernando/username601/blob/master/assets/pics/oreo-bottom.png)<br>
-```py
-from framework import Oreo
-import discord
-
-@bot.command()
-async def oreo(ctx, *args):
-	oreo = Oreo("/path/to/dir/with/oreo/pics", "oreorere")
-	image = oreo.meme()
-	await ctx.send(file=discord.File(image, "oreo.png"))
-	oreo.eat()
 ```

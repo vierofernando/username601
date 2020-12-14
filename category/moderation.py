@@ -507,11 +507,10 @@ class moderation(commands.Cog):
             del embed, role_members, extra, role, permissions
             return
         elif args[0].lower() == "list":
-            paginator = ctx.bot.EmbedPaginator.from_long_string(ctx, ", ".join([i.mention for i in ctx.guild.roles[1:]]), embed_settings={"title": "Server Roles List"})
-            if not paginator:
-                return await ctx.send(embed=discord.Embed(title="Server Roles List", description=", ".join([i.mention for i in ctx.guild.roles[1:]]), color=ctx.me.color))
-            
-            return await paginator.execute()
+            embed = ctx.bot.Embed(ctx, title="Server Roles List", description=" ".join([i.mention for i in ctx.guild.roles[1:]])[0:1000])
+            await embed.send()
+            del embed
+            return
         raise ctx.bot.util.BasicCommandException(f"Usage: `{ctx.bot.command_prefix}role info <role>` or `{ctx.bot.command_prefix}role list`")
     
     @command(['guild-channel', 'server-channel'])
@@ -519,10 +518,10 @@ class moderation(commands.Cog):
     @require_args()
     async def channel(self, ctx, *args):
         if args[0].lower() == "list":
-            paginator = ctx.bot.EmbedPaginator.from_long_array(ctx, array=[str(i) for i in ctx.guild.channels], embed_settings={"title": "Server Channels List"})
-            if not paginator:
-                return await ctx.send(embed=discord.Embed(title="Server Channels List", description=", ".join([str(i) for i in ctx.guild.channels]), color=ctx.me.color))
-            return await paginator.execute()
+            embed = ctx.bot.Embed(ctx, title="Server Channels List", description=" ".join([f"<#{i.id}>" for i in ctx.guild.channels if i.type == discord.ChannelType.text or i.type == discord.ChannelType.voice])[0:1000])
+            await embed.send()
+            del embed
+            return
         elif args[0].lower() == "info":
             try:
                 channel = ctx.bot.Parser.parse_channel(ctx, ' '.join(args[1:]), return_array=True)
@@ -601,10 +600,13 @@ class moderation(commands.Cog):
         if args[0].lower() == "list":
             if len(ctx.guild.emojis)==0:
                 raise ctx.bot.util.BasicCommandException('This server has no emojis!')
-            paginator = ctx.bot.EmbedPaginator.from_long_array(ctx, array=[str(i) for i in ctx.guild.emojis], embed_settings={"title": "Server Emojis List"})
-            if not paginator:
-                return await ctx.send(embed=discord.Embed(title="Server Emojis List", description=", ".join([str(i) for i in ctx.guild.emojis]), color=ctx.me.color))
-            return await paginator.execute()
+            emojis, footer_text = "", None
+            for index, emoji in enumerate(ctx.guild.emojis):
+                if len(emojis) >= 1975:
+                    footer_text = f"...and other {len(ctx.guild.emojis) - index} custom emojis (too much to display)"
+                    break
+                emojis += str(emoji) + " "
+            embed = ctx.bot.Embed(ctx, title="Server Custom Emojis List")
         elif args[0].lower() == "info":
             try:
                 res = await ctx.bot.Parser.parse_emoji(ctx, args[1])

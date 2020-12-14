@@ -266,7 +266,7 @@ class utils(commands.Cog):
         words = [word['word'] for word in data if word['flags'] == 'bc']
         if len(words) < 1:
             raise ctx.bot.util.BasicCommandException('We did not find any rhyming words corresponding to that letter.')
-        embed = ctx.bot.Embed(ctx, title='Words that rhymes with '+' '.join(args)+':', desc=str(' '.join(words))[0:1950])
+        embed = ctx.bot.Embed(ctx, title='Words that rhymes with '+' '.join(args)+':', desc=str(' '.join(words))[0:500])
         await embed.send()
         del embed, words, data
 

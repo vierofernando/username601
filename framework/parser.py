@@ -1,4 +1,5 @@
 from twemoji_parser import emoji_to_url
+from .util import BasicCommandException
 import re
 
 class Parser:

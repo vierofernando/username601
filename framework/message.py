@@ -80,69 +80,6 @@ class Paginator:
         if not hasattr(self, "message"):
             raise TypeError("Message has not been sent.")
         return await self.message.delete()
-    
-    @staticmethod
-    def from_long_string(
-        ctx,
-        string: str,
-        chunk_length: int = 1950,
-        limit: int = 10,
-        embed_settings: dict = None,
-        *args,
-        **kwargs
-    ):# -> Paginator:
-        """ Creates a paginator from a long string (longer than 2000 characters for example.) """
-
-        chunks = [string[0+i:chunk_length+i] for i in range(0, len(string), chunk_length)][0:limit] # thanks stackoverflow <3
-        embeds = []
-        if not embed_settings:
-            embed_settings = {"title": "Hello, World!"}
-        if embed_settings.get("description"):
-            embed_settings.pop("description")
-        if embed_settings.get("color"):
-            embed_settings.pop("color")
-
-        for string in chunks:
-            embeds.append(Embed(description=string, color=ctx.me.color, **embed_settings))
-        return Paginator(ctx, embeds=embeds, *args, **kwargs)
-
-    @staticmethod
-    def from_long_array(
-        ctx,
-        array: list,
-        splitter: str = ", ",
-        limit_length: int = 1900,
-        embed_settings: dict = None,
-        *args,
-        **kwargs
-    ):# -> Paginator:
-        """ Creates a paginator from a long array. """
-
-        temp_arr = []
-        input_arr = []
-        for i in array:
-            temp_arr.append(i)
-            if len(splitter.join(temp_arr)) > limit_length:
-                temp_arr = []
-                input_arr.append(splitter.join(temp_arr))
-        if temp_arr != []:
-            if input_arr == []:
-                return
-            input_arr.append(splitter.join(temp_arr))
-        
-        del temp_arr
-        embeds = []
-        if not embed_settings:
-            embed_settings = {"title": "Hello, World!"}
-        if embed_settings.get("description"):
-            embed_settings.pop("description")
-        if embed_settings.get("color"):
-            embed_settings.pop("color")
-
-        for string in input_arr:
-            embeds.append(Embed(description=string, color=ctx.me.color, **embed_settings))
-        del input_arr
-        return Paginator(ctx, embeds=embeds, *args, **kwargs)
 
 class embed:
     """
