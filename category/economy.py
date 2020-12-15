@@ -5,7 +5,7 @@ from decorators import *
 from json import loads
 from datetime import datetime
 from asyncio import sleep
-from random import choice
+from random import choice, randint
 
 class economy(commands.Cog):
     def __init__(self, client):
