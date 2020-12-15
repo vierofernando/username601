@@ -1,10 +1,14 @@
+from json import loads
+
 class BotCommands:
     def __init__(self, client):
         self.client = client
     
     async def initiate(self):
         try:
-            self.raw_data = await self.client.util.get_request("https://raw.githubusercontent.com/vierofernando/username601/master/assets/json/commands.json", json=True, raise_errors=True, force_json=True)
+            raw_data = await self.client.util.default_client.get("https://raw.githubusercontent.com/vierofernando/username601/master/assets/json/commands.json")
+            raw_data = await raw_data.text()
+            self.raw_data = loads(raw_data)
             self.categories = list(map(lambda i: list(i.keys())[0], self.raw_data))
             self.categories = self.categories[:-1]
             self.commands = []

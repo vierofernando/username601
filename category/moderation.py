@@ -5,7 +5,7 @@ import random
 import asyncio
 from aiohttp import ClientSession
 from decorators import *
-from datetime import datetime as t
+from time import time
 from twemoji_parser import emoji_to_url
 
 class moderation(commands.Cog):
@@ -73,7 +73,7 @@ class moderation(commands.Cog):
     async def joinposition(self, ctx, *args):
         wait = await ctx.send(f"{ctx.bot.util.loading_emoji} | Hang tight... collecting data...")
         from_string = False
-        current_time, members, user_index, desc = t.now().timestamp(), ctx.guild.members, None, ""
+        current_time, members, user_index, desc = time(), ctx.guild.members, None, ""
         full_arr = list(map(lambda x: {'ja': x.joined_at.timestamp(), 'da': x}, members))
         raw_unsorted_arr = list(map(lambda x: x['ja'], full_arr))
         sorted_arr = sorted(raw_unsorted_arr)
@@ -578,7 +578,7 @@ class moderation(commands.Cog):
         if guy in ctx.guild.premium_subscribers: nitro = True
         elif guy.is_avatar_animated(): nitro = True
         booster = True if guy in ctx.guild.premium_subscribers else False
-        booster_since = round(t.now().timestamp() - guy.premium_since.timestamp()) if guy.premium_since is not None else False
+        booster_since = round(time() - guy.premium_since.timestamp()) if guy.premium_since is not None else False
         bg_col = await ctx.bot.canvas.get_color_accent(ctx, str(guy.avatar_url_as(format="png")))
         data = await ctx.bot.canvas.usercard(list(map(lambda x: {
             'name': x.name, 'color': x.color.to_rgb()
@@ -645,22 +645,51 @@ class moderation(commands.Cog):
             return await ctx.bot.util.send_image_attachment(ctx, res)
         return await ctx.send(embed=discord.Embed(title="Invalid Arguments", description="Valid parameters: `list`, `info <emoji>`, `enlarge <emoji>`", color=discord.Color.red()))
 
-    @command(['serverinfo', 'server', 'servericon', 'si', 'server-info', 'guild', 'guildinfo', 'guild-info'])
+    @command(['guild'])
     @cooldown(10)
-    async def servercard(self, ctx, *args):
-        if ctx.bot.util.get_command_name(ctx) == "servericon":
-            if ctx.guild.icon_url is None: raise ctx.bot.util.BasicCommandException("This server has no emotes...")
-            await ctx.send(ctx.guild.icon_url_as(size=4096))
+    async def server(self, ctx, *args):
+        _input = ctx.bot.Parser.get_input(args)
+        if "--icon" in _input:
+            embed = ctx.bot.Embed(ctx, title="Server Icon", image=ctx.guild.icon_url)
+            await embed.send()
+            del embed
+        elif "--card" in _input:
+            await ctx.trigger_typing()
+            card = ctx.bot.ServerCard(ctx, f"{ctx.bot.util.fonts_dir}/NotoSansDisplay-Bold.otf", session=ctx.bot.util.default_client)
+            result = await card.draw()
+            
+            await ctx.send(file=discord.File(result, f"{ctx.guild.id}.png"))
+            del result, card
         else:
-            if ctx.guild.member_count>100:
-                wait = await ctx.send('{} | Fetching guild data... please wait...'.format(ctx.bot.util.loading_emoji))
-                im = await ctx.bot.canvas.server(ctx.guild)
-                await wait.delete()
-            else:
-                await ctx.channel.trigger_typing()
-                im = await ctx.bot.canvas.server(ctx.guild)
-            await ctx.send(file=discord.File(im, 'server.png'))
-            del im
+            await ctx.trigger_typing()
+            nl = "\n"
+            embed = ctx.bot.Embed(
+                ctx,
+                title=ctx.guild.name,
+                desc=ctx.guild.description if ctx.guild.description else "",
+                fields={
+                    "General": f"**Created by: **{str(ctx.guild.owner)}{nl}**Created at: **{str(ctx.guild.created_at)[:-7]} ({ctx.bot.util.strfsecond(time() - ctx.guild.created_at.timestamp())} ago){nl}**Server Region: **{str(ctx.guild.region).replace('-', ' ')}{nl}**Server ID: **`{ctx.guild.id}`",
+                    "Stats": f"**Members: **{ctx.guild.member_count:,}{nl}**Online Members: **{len([i for i in ctx.guild.members if i.status != discord.Status.offline]):,}{nl}**Channels: **{len(ctx.guild.channels):,}{nl}**Roles: **{len(ctx.guild.roles):,}{nl}**Custom Emojis: **{len(ctx.guild.emojis):,} ({ctx.guild.emoji_limit - len(ctx.guild.emojis):,} slots left)",
+                    "Boost": f"**Boosters: **{ctx.guild.premium_subscription_count:,}{nl}**Server Boost Level: **{ctx.guild.premium_tier}{nl}"
+                },
+                thumbnail=ctx.guild.icon_url
+            )
+            
+            first_embed, _ = await embed.get_embed()
+            embed = ctx.bot.Embed(
+                ctx,
+                title=ctx.guild.name,
+                fields={
+                    "Server Features": ", ".join([i.lower().replace("_", " ") for i in ctx.guild.features]),
+                    "Community Server Settings": f"**Server Rules Channel: **{f'<#{ctx.guild.rules_channel.id}>' if ctx.guild.rules_channel else '`<not set>`'}{nl}**Public Updates Channel: **{f'<#{ctx.guild.public_updates_channel.id}>' if ctx.guild.public_updates_channel else '`<not set>`'}",
+                    "AFK Settings": f"**AFK Channel: **{f'<#{ctx.guild.afk_channel.id}>' if ctx.guild.afk_channel else '<not set>'}{nl}**AFK Timeout: **{ctx.guild.afk_timeout // 60} minute{'' if (ctx.guild.afk_timeout // 60) == 1 else 's'}",
+                    "Limits": f"**Presence Limit: **{(ctx.guild.max_presences if ctx.guild.max_presences else '`<no limit>`')}{nl}**Bitrate Limit: **{(ctx.guild.bitrate_limit // 1000):,} kbps{nl}**Filesize Limit: **{(ctx.guild.filesize_limit // 1000000):,} MB"
+                }
+            )
+            second_embed, _ = await embed.get_embed()
+            paginator = ctx.bot.EmbedPaginator(ctx, embeds=[first_embed, second_embed])
+            del first_embed, second_embed, nl
+            return await paginator.execute()
     
     @command(['perms', 'perm', 'permission', 'permfor', 'permsfor', 'perms-for', 'perm-for'])
     @cooldown(10)
