@@ -30,6 +30,9 @@ There are two types of parts in this repo. The **website source code** is stored
 # Contribute!
 If you spot a bug, an enhancement idea, or just a little typo, **you can make a pull request, and merge it here!** Feel free to fork and do something with our code.
 
+# About Issues
+If you copied the code entirely and run it your self, there is a 101% chance will be a bug, please don't make a issue out of it when you copied the some snippets of code (without modification to adapt with your code/system)
+
 # Use this for your bot?
 In my opinion, i **do not recommend using this whole code to your bot** since there may be some bugs or something.<br>
 But you still can get small snippets of code from this repository.
