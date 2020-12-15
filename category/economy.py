@@ -5,12 +5,26 @@ from decorators import *
 from json import loads
 from datetime import datetime
 from asyncio import sleep
+from random import choice
 
 class economy(commands.Cog):
     def __init__(self, client):
         self.fish_json = loads(open(client.util.json_dir+'/fish.json', 'r').read())
         self.steal_json = loads(open(client.util.json_dir+'/steal.json', 'r').read())
         self.works = loads(open(client.util.json_dir+'/work.json', 'r').read())['works']
+        self.client = client
+    
+    def getfish(self):
+        found, ctx = False, None
+        for i in self.fish_json['results']['overall']:
+            if randint(1, i['chance'])==1:
+                found, ctx = True, i
+                break
+        if not found: ctx = choice(self.fish_json['results']['else'])
+        return {
+            "catched": found,
+            "ctx": ctx
+        }
     
     @command()
     @cooldown(30)
@@ -47,7 +61,7 @@ class economy(commands.Cog):
             self.fish_json['waiting']
         )))
         await sleep(random.randint(3, 8))
-        res = ctx.bot.algorithm.getfish()
+        res = self.getfish()
         if res['catched']:
             awards = random.randint(res['ctx']['worth']['min'], res['ctx']['worth']['max'])
             ctx.bot.db.Economy.addbal(ctx.author.id, awards)
