@@ -704,7 +704,7 @@ class moderation(commands.Cog):
                     "Stats": f"**Members: **{ctx.guild.member_count:,}{nl}**Online Members: **{len([i for i in ctx.guild.members if i.status != discord.Status.offline]):,}{nl}**Channels: **{len(ctx.guild.channels):,}{nl}**Roles: **{len(ctx.guild.roles):,}{nl}**Custom Emojis: **{len(ctx.guild.emojis):,} ({ctx.guild.emoji_limit - len(ctx.guild.emojis):,} slots left)",
                     "Boost": f"**Boosters: **{ctx.guild.premium_subscription_count:,}{nl}**Server Boost Level: **{ctx.guild.premium_tier}{nl}"
                 },
-                thumbnail=ctx.guild.icon_url
+                thumbnail=ctx.guild.icon_url,
                 image=ctx.guild.banner_url
             )
             
