@@ -116,26 +116,6 @@ class Painter:
                 continue
         if res == []: return text
         return "\n".join(res)
-        
-    def _draw_status_stats(self, draw, obj, rect_y_cursor, font, margin_left, margin_right, bg_arr):
-        x_pos, colors = margin_left, [(63, 232, 0), (244, 208, 63), (225, 0, 0), (124, 0, 211), (127, 127, 127)]
-        total = sum(map(lambda i: obj[i], obj.keys()))
-        draw.rectangle([
-            (margin_left, rect_y_cursor), (margin_right, rect_y_cursor + 25)
-        ], fill=bg_arr[1])
-        draw.text((margin_left + 3, rect_y_cursor + 2), "Member status graph:", fill=self.invert(bg_arr[1]), font=font)
-        rect_y_cursor += 25
-        draw.rectangle([
-            (margin_left, rect_y_cursor), (margin_right, rect_y_cursor + 50)
-        ], fill=(50, 50, 50))
-        for i in range(len(list(obj.keys()))):
-            percentage = round(obj[list(obj.keys())[i]]/total*(margin_right - margin_left))
-            draw.rectangle([
-                (x_pos, rect_y_cursor), (x_pos + percentage, rect_y_cursor + 50)
-            ], fill=colors[i])
-            x_pos += percentage
-        rect_y_cursor += 70
-        return rect_y_cursor
 
     def buffer(self, data, webp=False):
         arr = BytesIO()
