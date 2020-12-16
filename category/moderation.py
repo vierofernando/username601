@@ -705,6 +705,7 @@ class moderation(commands.Cog):
                     "Boost": f"**Boosters: **{ctx.guild.premium_subscription_count:,}{nl}**Server Boost Level: **{ctx.guild.premium_tier}{nl}"
                 },
                 thumbnail=ctx.guild.icon_url
+                image=ctx.guild.banner_url
             )
             
             first_embed, _ = await embed.get_embed()
