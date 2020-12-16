@@ -45,7 +45,6 @@ class Painter:
     def __init__(self, assetpath, fontpath, jsondir): # lmao wtf is this
         self.buffer_from_url = buffer_from_url
         self.fontpath = fontpath
-        self.flags = json.loads(open(jsondir+'/flags.json', 'r').read())
         self.region = json.loads(open(jsondir+'/regions.json', 'r').read())
         self.gd_assets = json.loads(open(jsondir+'/gd.json', 'r').read())
         self.add_corners = add_corners
@@ -372,96 +371,6 @@ class Painter:
     async def grayscale(self, im):
         res = self.buffer_from_url(im).convert('L')
         return self.buffer(res)
-
-    async def server(self, guild, data=None, raw=None):
-        bigfont = self.get_font('NotoSansDisplay-Bold', 50, otf=True)
-        medium = self.get_font('NotoSansDisplay-Bold', 20, otf=True)
-        smolerfont = self.get_font('NotoSansDisplay-Bold', 15, otf=True)
-        server_title, members, icon = guild.name, guild.members, guild.icon_url
-        subtitle = 'Created {} ago by {}'.format(lapsed_time_from_seconds(t.now().timestamp() - guild.created_at.timestamp()), str(guild.owner))
-        title_width = bigfont.getsize(server_title)[0]
-        ava = self.buffer_from_url(icon).resize((100, 100))
-
-        bg_arr = [(i['r'], i['g'], i['b']) for i in self.get_multiple_accents(icon)]
-        desc_width = medium.getsize(subtitle)[0]
-        if desc_width > title_width: title_width = desc_width # :^)
-        main_bg = bg_arr[0]
-        margin_left, margin_right, rect_y_cursor = 25, title_width+225, 150
-        main = Image.new(mode='RGB', color=main_bg, size=(title_width+250, 480))
-        draw, a_third_width = ImageDraw.Draw(main), round((margin_right - margin_left)/3)
-        main.paste(ava, (25, 25))
-        ava.close()
-        draw.text((135, 20), server_title, fill=self.invert(main_bg), font=bigfont)
-        draw.text((135, 90), subtitle, fill=self.invert(main_bg), font=medium)
-        rect_y_cursor = self._draw_status_stats(draw, {
-            "online": len([i for i in members if i.status.value.lower()=='online']),
-            "idle": len([i for i in members if i.status.value.lower()=='idle']),
-            "do not disturb": len([i for i in members if i.status.value.lower()=='dnd']),
-            "streaming": len([i for i in members if i.status.value.lower()=='streaming']),
-            "offline": len([i for i in members if i.status.value.lower()=='offline'])
-        }, rect_y_cursor, smolerfont, margin_left, margin_right, bg_arr)
-        draw.rectangle([
-            (margin_left, rect_y_cursor), (main.width/2, rect_y_cursor + 120)
-        ], fill=bg_arr[2])
-        draw.rectangle([
-            (main.width/2, rect_y_cursor), (margin_right, rect_y_cursor + 120)
-        ], fill=bg_arr[3])
-        afkname = "???" if guild.afk_channel is None else guild.afk_channel.name
-        main.paste(
-            self.buffer_from_url(self.region[str(guild.region)]).resize((35, 23)),
-            (margin_right - 45, round(rect_y_cursor + 25 + (18 * 3)))
-        )
-        draw.text((margin_left + 5, rect_y_cursor + 3), "Channels: {}\nRoles: {}\nLevel {}\n{} boosters".format(
-            len(guild.channels), len(guild.roles), guild.premium_tier, guild.premium_subscription_count
-        ), fill=self.invert(bg_arr[2]), font=medium)
-        draw.text(((main.width/2) + 5, rect_y_cursor + 3), "Region: {}\nAFK: {}\nAFK time: {}".format(
-            str(guild.region).replace('-', ''), afkname, lapsed_time_from_seconds(guild.afk_timeout).replace('minute', 'min')
-        ), fill=self.invert(bg_arr[3]), font=medium)
-        rect_y_cursor += 120
-        draw.rectangle([
-            (margin_left, rect_y_cursor), (margin_right, rect_y_cursor + 90)
-        ], fill=bg_arr[4])
-        draw.text((margin_left + 5, rect_y_cursor + 3), "{} Humans\n{} Bots\n{} Members in total".format(
-            len([i for i in members if not i.bot]), len([i for i in members if i.bot]), len(members)
-        ), fill=self.invert(bg_arr[4]), font=medium)
-        main = self.add_corners(main, 25)
-        return self.buffer(main)
-
-    async def usercard(self, roles, user, ava, bg, nitro, booster, booster_since):
-        name, flags, flag_x = user.display_name, [], 170
-        bigfont = self.get_font('NotoSansDisplay-Bold', 50, otf=True)
-        mediumfont = self.get_font('NotoSansDisplay-Bold', 25, otf=True)
-        if nitro: flags.append(self.flags['nitro'])
-        if booster: flags.append(self.flags['booster'])
-        for i in list(self.flags['badges'].keys()):
-            if getattr(user.public_flags, i): flags.append(self.flags['badges'][i])
-        foreground_col = self.invert(bg)
-        avatar = self.buffer_from_url(ava).resize((100, 100))
-        if not booster_since: details_text = 'Created account {}\nJoined server {}'.format(lapsed_time_from_seconds(t.now().timestamp()-user.created_at.timestamp())+' ago', lapsed_time_from_seconds(t.now().timestamp()-user.joined_at.timestamp())+' ago')
-        else: details_text = 'Created account {}\nJoined server {}\nBoosting since {}'.format(lapsed_time_from_seconds(t.now().timestamp()-user.created_at.timestamp())+' ago', lapsed_time_from_seconds(t.now().timestamp()-user.joined_at.timestamp())+' ago', lapsed_time_from_seconds(booster_since)+' ago')
-        rect_y_pos = 180 + ((bigfont.getsize(details_text)[1]+20))
-        canvas_height = rect_y_pos + len(roles * 50) + 30
-        if bigfont.getsize(name)[0] > 600: main = Image.new(mode='RGB', color=bg, size=(bigfont.getsize(name)[0]+200, canvas_height))
-        else: main = Image.new(mode='RGB', color=bg, size=(600, canvas_height))
-        draw = ImageDraw.Draw(main)
-        margin_right, margin_left = main.width - 40, 40
-        draw.text((170, 20), name, fill=foreground_col, font=bigfont)
-        draw.text((170, 80), f'ID: {user.id}', fill=foreground_col, font=mediumfont)
-        for i in flags:
-            temp_im = self.buffer_from_url(i).resize((25, 25))
-            main.paste(temp_im, (flag_x, 115), temp_im)
-            flag_x += 30
-        draw.text((40, 150), details_text, fill=foreground_col, font=mediumfont)
-        for i in roles:
-            draw.rectangle([
-                (margin_left, rect_y_pos), (margin_right, rect_y_pos+50)
-            ], fill=i['color'])
-            draw.text((margin_left+10, rect_y_pos+7), i['name'], fill=self.invert(i['color']), font=mediumfont)
-            rect_y_pos += 50
-        try: main.paste(avatar, (40, 30), avatar)
-        except: main.paste(avatar, (40, 30))
-        main = self.add_corners(main, 25)
-        return self.buffer(main)
 
     async def get_palette(self, temp_data):
         font = self.get_font('Minecraftia-Regular', 30) 

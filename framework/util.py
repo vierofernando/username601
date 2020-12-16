@@ -96,7 +96,25 @@ class Util:
         delattr(self.bot, "on_command_error")
         return False
     
-    def eight_ball(self, ctx):
+    def has_nitro(self, guild, member) -> bool:
+        
+        if member.bot:
+            return False
+        elif member.is_avatar_animated():
+            return True
+        elif member in guild.premium_subscribers:
+            return True
+        elif hasattr(member.activity, "emoji") and hasattr(member.activity.emoji, "url") and member.activity.emoji.url:
+            return True
+        return False
+    
+    def join_position(self, guild, member) -> int:
+        sorted_array = sorted([i.joined_at.timestamp() for i in guild.members])
+        res = sorted_array.index(member.joined_at.timestamp())
+        del sorted_array, guild, member
+        return res + 1
+   
+    def eight_ball(self, ctx) -> str:
         """ Gets the eight ball answer. """
         code = hash(ctx.message.content.lower().replace(" ", "").replace("?", ""))
         if code < 0: code *= -1

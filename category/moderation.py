@@ -570,21 +570,15 @@ class moderation(commands.Cog):
             return
         raise ctx.bot.util.BasicCommandException(f"Usage: `{ctx.bot.command_prefix}channel list` or `{ctx.bot.command_prefix}channel info <channel>`")
 
-    @command(['ui', 'user', 'usercard', 'user-info', 'user-card', 'whois', 'user-interface', 'userinterface'])
+    @command(['user'])
     @cooldown(3)
-    async def userinfo(self, ctx, *args):
-        guy, nitro = ctx.bot.Parser.parse_user(ctx, args), False
+    async def member(self, ctx, *args):
         await ctx.trigger_typing()
-        if guy in ctx.guild.premium_subscribers: nitro = True
-        elif guy.is_avatar_animated(): nitro = True
-        booster = True if guy in ctx.guild.premium_subscribers else False
-        booster_since = round(time() - guy.premium_since.timestamp()) if guy.premium_since is not None else False
-        bg_col = await ctx.bot.canvas.get_color_accent(ctx, str(guy.avatar_url_as(format="png")))
-        data = await ctx.bot.canvas.usercard(list(map(lambda x: {
-            'name': x.name, 'color': x.color.to_rgb()
-        }, guy.roles))[::-1][0:5], guy, str(guy.avatar_url_as(format="png")), bg_col, nitro, booster, booster_since)
-        return await ctx.send(file=discord.File(data, str(guy.discriminator)+'.png'))
-
+        
+        person = ctx.bot.Parser.parse_user(ctx, args)
+        card = ctx.bot.UserCard(ctx, person, font_path=f"{ctx.bot.util.fonts_dir}/NotoSansDisplay-Bold.otf", session=ctx.bot.util.default_client)
+        return await card.send()
+    
     @command(['av', 'ava'])
     @cooldown(2)
     async def avatar(self, ctx, *args):
