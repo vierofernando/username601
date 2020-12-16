@@ -228,9 +228,9 @@ class ServerCard:
         # commenting everything because codes with comments make it look "tidier" :^)
 
         # get the guild icon
-        server_icon = await self.imagefromURL(str(self.ctx.guild.icon_url_as(format="png", size=128)))
+        server_icon = await self.imagefromURL(str(self.ctx.guild.icon_url_as(format="png", size=128)) if self.ctx.guild.icon_url else "https://cdn.discordapp.com/embed/avatars/0.png")
         server_icon = server_icon.resize((128, 128))
-        _colorthief = Smart_ColorThief(self.ctx, str(self.ctx.guild.icon_url_as(format="png", size=128)))
+        _colorthief = Smart_ColorThief(self.ctx, str(self.ctx.guild.icon_url_as(format="png", size=128)) if self.ctx.guild.icon_url else "https://cdn.discordapp.com/embed/avatars/0.png")
 
         # colors !!!
         background_color = await _colorthief.get_color(right=True)
