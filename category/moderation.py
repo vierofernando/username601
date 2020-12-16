@@ -48,6 +48,13 @@ class moderation(commands.Cog):
             "view_channel",
             "view_guild_insights"
         ]
+        self.presence_prefix = {
+            discord.ActivityType.listening: "Listening to ",
+            discord.ActivityType.watching: "Watching ",
+            discord.ActivityType.playing: "Playing ",
+            discord.ActivityType.streaming: "Streaming ",
+            discord.ActivityType.competing: "Competing in"
+        }
     
     async def create_new_mute_role(self, ctx):
         await ctx.send('{} | Please wait... Setting up...\nThis may take a while if your server has a lot of channels.'.format(ctx.bot.util.loading_emoji))
@@ -573,11 +580,42 @@ class moderation(commands.Cog):
     @command(['user'])
     @cooldown(3)
     async def member(self, ctx, *args):
+        inputs = ctx.bot.Parser.get_input(args)
         await ctx.trigger_typing()
         
-        person = ctx.bot.Parser.parse_user(ctx, args)
-        card = ctx.bot.UserCard(ctx, person, font_path=f"{ctx.bot.util.fonts_dir}/NotoSansDisplay-Bold.otf", session=ctx.bot.util.default_client)
-        return await card.send()
+        if "--card" in inputs:
+            person = ctx.bot.Parser.parse_user(ctx, ctx.bot.Parser.without(args, "--card"))
+            card = ctx.bot.UserCard(ctx, person, font_path=f"{ctx.bot.util.fonts_dir}/NotoSansDisplay-Bold.otf", session=ctx.bot.util.default_client)
+            return await card.send()
+        
+        user, nl = ctx.bot.Parser.parse_user(ctx, args), "\n"
+        online_location = '(Discord Mobile)' if user.mobile_status != discord.Status.offline else (
+            '(Discord App)' if user.desktop_status != discord.Status.offline else (
+                '(Discord Website)' if user.web_status != discord.Status.offline else ''
+            )
+        )
+        
+        join_pos = ctx.bot.util.join_position(ctx.guild, user)
+        current_time = time()
+        embed = ctx.bot.Embed(
+            ctx,
+            title=str(user),
+            fields={
+                "General": f"**User ID: **{user.id}{nl if not user.nick else f'**Nick Name: **{user.nick}{nl}'}**Status: **{'do not disturb' if user.status == discord.Status.dnd else str(user.status)} {online_location}{'' if not user.premium_since else f'**Boosting since: **{str(user.premium_since)[:-7]} ({ctx.bot.util.strfsecond(current_time - user.premium_since.timestamp())})'}",
+                "History": f"**Joined at: **{str(user.joined_at)[:-7]}, {ctx.bot.util.strfsecond(current_time - user.joined_at.timestamp())} ago (Position: {join_pos:,}/{ctx.guild.member_count:,}){nl}**Created at: **{str(user.created_at)[:-7]} ({ctx.bot.util.strfsecond(current_time - user.created_at.timestamp())} ago)",
+                "Color": f"**Hex Color:** {str(user.color)}{nl}**RGB: **{user.color.r}, {user.color.g}, {user.color.b}"
+            },
+            color=user.color,
+            thumbnail=user.avatar_url
+        )
+        
+        if user.activity:
+            embed.fields["Activity"] = "\n".join([f"{self.presence_prefix[i.type]} {i.name}" for i in user.activities if i.name])
+            if embed.fields["Activity"] == "":
+                embed.fields.pop("Activity")
+        
+        await embed.send()
+        del join_pos, current_time, user, nl, embed
     
     @command(['av', 'ava'])
     @cooldown(2)
