@@ -8,7 +8,8 @@ class bothelp(commands.Cog):
     def __init__(self, client):
         self._categories = "\n".join([f"{i + 2}. `{client.cmds.categories[i]}`" for i in range(len(client.cmds.categories))])
         self._init_help = [discord.Embed(title="The bot help embed™️", description="Use the reactions to move to the next page.\n\n**PAGES:**\n1. `This page`\n"+self._categories)]
-        
+        self.db = client.db
+    
     @command(['supportserver', 'support-server', 'botserver', 'bot-server'])
     @cooldown(1)
     async def support(self, ctx):
@@ -17,7 +18,7 @@ class bothelp(commands.Cog):
     @command(['cl', 'history', 'updates'])
     @cooldown(5)
     async def changelog(self, ctx, *args):
-        data = ctx.bot.db.selfDB.get_changelog()
+        data = "\n".join(self.db.get("config", {"h": True})["changelog"])
         embed = ctx.bot.Embed(
             ctx,
             title="Bot Changelog",
@@ -26,36 +27,6 @@ class bothelp(commands.Cog):
         )
         await embed.send()
         del embed, data
-
-    @command(['subscribe', 'dev', 'development', 'devupdates', 'dev-updates', 'development-updates'])
-    @cooldown(5)
-    async def sub(self, ctx, *args):
-        if len(args)==0 or 'help' in args:
-            embed = ctx.bot.Embed(
-                ctx,
-                title='Get development updates and/or events in your server!',
-                desc='Want to get up-to-date development updates? either it is bugfixes, cool events, etc.\nHow do you set up? Use `{}sub <discord webhook url>`.\nIf you still do not understand, [please watch the tutorial video here.](https://vierofernando.is-inside.me/fEhT86EE.mp4)'.format(ctx.bot.command_prefix),
-            )
-            await embed.send()
-            del embed
-            return
-        elif 'reset' in args:
-            ctx.bot.db.Dashboard.subscribe(None, ctx.guild.id, reset=True)
-            return await ctx.send('{} | Subscription has been deleted.'.format(ctx.bot.util.success_emoji))
-        url = args[0].replace('<', '').replace('>', '')
-        try:
-            web = discord.Webhook.from_url(
-                url,
-                adapter=discord.RequestsWebhookAdapter()
-            )
-        except: raise ctx.bot.util.BasicCommandException("Invalid Webhook URL. Please send the one according to the tutorial.")
-        ctx.bot.db.Dashboard.subscribe(url, ctx.guild.id)
-        await ctx.message.add_reaction(ctx.bot.util.success_emoji)
-        web.send(
-            embed=discord.Embed(title=f'Congratulations, {str(ctx.author)}!', description='Your webhook is now set! ;)\nNow every development updates or username601 events will be set here.\n\nIf you change your mind, you can do `{}sub reset` to remove the webhook from the database.\n[Join our support server if you still have any questions.]({})'.format(ctx.bot.command_prefix, ctx.bot.util.server_invite), color=discord.Color.green()),
-            username='Username601 News',
-            avatar_url=ctx.bot.user.avatar_url
-        )
 
     @command(['commands', 'yardim', 'yardım'])
     @cooldown(2)
@@ -134,7 +105,8 @@ class bothelp(commands.Cog):
             raise ctx.bot.util.BasicCommandException("Please do NOT send invites. This is NOT advertising.")
         
         wait = await ctx.send(ctx.bot.util.loading_emoji + ' | Please wait... Transmitting data to owner...')
-        banned = ctx.bot.db.selfDB.is_banned(ctx.author.id)
+        banned = ctx.author.id in [int(i.split("|")[0]) for i in self.db.get("config", {"h": True})["bans"]]
+        
         if not banned:
             try:
                 feedback_channel = ctx.bot.get_channel(ctx.bot.util.feedback_channel)
@@ -151,17 +123,15 @@ class bothelp(commands.Cog):
     async def ping(self, ctx):
         msgping = round((time() - ctx.message.created_at.timestamp())*1000)
         await ctx.trigger_typing()
-        dbping = ctx.bot.db.selfDB.ping()
         wsping = round(ctx.bot.ws.latency*1000)
         embed = ctx.bot.Embed(
             ctx,
             title="PongChamp!",
-            desc=f"**Message latency:** `{msgping}ms`\n**Websocket latency:** `{wsping}ms`\n**Database latency:** `{dbping}ms`",
+            desc=f"**Message latency:** `{msgping}ms`\n**Websocket latency:** `{wsping}ms`",
             thumbnail='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif'
         )
         await embed.send()
         del embed
-        del dbping
         del wsping
         del msgping
 

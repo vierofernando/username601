@@ -8,13 +8,10 @@ from datetime import datetime as t
 from subprocess import run, PIPE
 from inspect import isawaitable, getsource
 from asyncio import sleep
-#from twemoji_parser import TwemojiParser
-#import PIL as p
-
 totallyrealtoken = 'Ng5NDU4MjY5NTI2Mjk0MTc1.AkxrpC.MyB2BEHJLXuZ8h0wY0Qro6Pwi8'
 
 class owner(commands.Cog):
-    def __init__(self):
+    def __init__(self, client):
         self.protected_files = [ # CONFIDENTIAL FILES
             os.environ['DISCORD_TOKEN'],
             os.environ['DBL_TOKEN'],
@@ -22,6 +19,7 @@ class owner(commands.Cog):
             os.environ['USELESSAPI'],
             os.environ['ALEXFLIPNOTE_TOKEN']
         ]
+        self.db = client.db
 
     #@command()
     #@cooldown(1)
@@ -50,27 +48,9 @@ class owner(commands.Cog):
     @cooldown(2)
     @owner_only()
     async def announce(self, ctx, *args):
-        await ctx.message.add_reaction(ctx.bot.util.loading_emoji)
-        data, wr, sc = ctx.bot.db.Dashboard.get_subscribers(), 0, 0
-        current_time = t.now()
-        ctx.bot.db.selfDB.add_changelog(current_time, ' '.join(args))
-        for i in data:
-            try:
-                web = discord.Webhook.from_url(
-                    i['url'], adapter=discord.RequestsWebhookAdapter()
-                )
-                web.send(
-                    embed=discord.Embed(title=f'Username601 News: {str(current_time)[:-7]}', description=' '.join(args).replace('\\n', '\n'), color=discord.Color.green()),
-                    username='Username601 News',
-                    avatar_url=ctx.bot.user.avatar_url
-                )
-                sc += 1
-            except:
-                wr += 1
-                ctx.bot.db.Dashboard.subscribe(None, i['serverid'], reset=True)
-            await sleep(1)
-        await ctx.send(f'Done with {sc} success and {wr} fails')
-    
+        self.db.modify("config", self.db.types.APPEND, {"h": True}, {"changelog": " ".join(args)})
+        await ctx.send("OK, added to db!")
+
     @command(['src'])
     @owner_only()
     async def source(self, ctx, *args):
@@ -111,15 +91,15 @@ class owner(commands.Cog):
     @command()
     @owner_only()
     async def fban(self, ctx, *args):
-        ctx.bot.db.selfDB.feedback_ban(int(args[0]), str(' '.join(list(args)[1:])))
+        self.db.modify("config", self.db.types.APPEND, {"h": True}, {"bans": args[0]+"|"+" ".join(args[1:])})
         await ctx.message.add_reaction(ctx.bot.util.success_emoji)
     
     @command()
     @owner_only()
     async def funban(self, ctx, *args):
-        data = ctx.bot.db.selfDB.feedback_unban(int(args[0]))
-        if data=='200': await ctx.message.add_reaction(ctx.bot.util.success_emoji)
-        else: await ctx.message.add_reaction(ctx.bot.util.error_emoji)
+        data = self.db.get("config", {"h": True})["bans"]
+        self.db.modify("config", self.db.types.CHANGE, {"h": True}, {"bans": [i for i in data if int(args[0]) != int(i.split("|")[0])]})
+        await ctx.message.add_reaction(ctx.bot.util.success_emoji)
     
     @command(['ex', 'eval'])
     @cooldown(1)
@@ -173,4 +153,4 @@ class owner(commands.Cog):
             await ctx.send(embed=discord.Embed(title='Error on execution', description='Input:```sh\n'+' '.join(args)+'```**Error:**```py\nDenied by username601.sh```', color=discord.Color.red()).set_footer(text='It is because it is owner only you dumbass'))
 
 def setup(client):
-    client.add_cog(owner())
+    client.add_cog(owner(client))

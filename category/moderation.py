@@ -9,7 +9,7 @@ from time import time
 from twemoji_parser import emoji_to_url
 
 class moderation(commands.Cog):
-    def __init__(self):
+    def __init__(self, client):
         self.latest = ["latest", "recent", "last"]
         self.first = ["first", "early", "earliest", "earlyest", "firstmember"]
         self.permission_attributes = [
@@ -55,7 +55,8 @@ class moderation(commands.Cog):
             discord.ActivityType.streaming: "Streaming ",
             discord.ActivityType.competing: "Competing in"
         }
-    
+        self.db = client.db
+
     async def create_new_mute_role(self, ctx):
         await ctx.send('{} | Please wait... Setting up...\nThis may take a while if your server has a lot of channels.'.format(ctx.bot.util.loading_emoji))
         role = await ctx.guild.create_role(name='Muted', color=discord.Colour.from_rgb(0, 0, 1))
@@ -72,7 +73,17 @@ class moderation(commands.Cog):
             else:
                 continue
             ratelimit_counter += 1
-        ctx.bot.db.Dashboard.editMuteRole(ctx.guild.id, role.id)
+        
+        # add to database
+        if not self.db.exist("dashboard", {"serverid": ctx.guild.id}):
+            self.db.add("dashboard", {
+                "serverid": guild.id,
+                "mute": role.id,
+                "warns": []
+            })
+        else:
+            self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"mute": role.id})
+        
         return role
 
     @command(['jp', 'joinpos', 'joindate', 'jd', 'howold'])
@@ -112,7 +123,7 @@ class moderation(commands.Cog):
     @command()
     @cooldown(2)
     async def config(self, ctx):
-        data = ctx.bot.db.Dashboard.getData(ctx.guild.id)
+        data = self.db.get("dashboard", {"serverid": ctx.guild.id})
         if data is None:
             raise ctx.bot.util.BasicCommandException('This server does not have any configuration for this bot.')
         
@@ -120,12 +131,11 @@ class moderation(commands.Cog):
             ctx,
             title=f"Server configuration for {ctx.guild.name}",
             fields={
-                "Auto Role": 'Set to <@&{}>'.format(data['autorole']) if data['autorole'] is not None else '<Not set>',
-                "Welcome Channel": 'Set to <#{}>'.format(data['welcome']) if data['welcome'] is not None else '<Not set>',
-                "Starboard Channel": 'Set to <#{}> (with {} reactions required)'.format(data['starboard'], data['star_requirements']) if data['starboard'] is not None else '<Not set>',
-                "Mute Role": 'Set to <@&{}>'.format(data['mute']) if data['mute'] is not None else '<Not set>',
-                "Auto-Dehoist": 'Enabled :white_check_mark:' if data['dehoister'] else 'Disabled :x:',
-                "Bot Updates Subscription": 'Enabled :white_check_mark:' if data['subscription'] is not None else 'Disabled :x:'
+                "Auto Role": 'Set to <@&{}>'.format(data['autorole']) if data.get('autorole') else '<Not set>',
+                "Welcome Channel": 'Set to <#{}>'.format(data['welcome']) if data.get('welcome') else '<Not set>',
+                "Starboard Channel": 'Set to <#{}> (with {} reactions required)'.format(data['starboard'], data['star_requirements']) if data.get('starboard') else '<Not set>',
+                "Mute Role": 'Set to <@&{}>'.format(data['mute']) if data.get('mute') else '<Not set>',
+                "Auto-Dehoist": 'Enabled :white_check_mark:' if data.get('dehoister') else 'Disabled :x:'
             }
         )
         await embed.send()
@@ -137,12 +147,12 @@ class moderation(commands.Cog):
     @permissions(author=['manage_messages'], bot=['manage_roles'])
     async def mute(self, ctx, *args):
         toMute = ctx.bot.Parser.parse_user(ctx, args)
-        role = ctx.bot.db.Dashboard.getMuteRole(ctx.guild.id)
-        if role is None:
-            role = await self.create_new_mute_role(ctx)
+        server = self.db.get("dashboard", {"serverid": ctx.guild.id})
+        if server and server.get("mute"):
+            role = ctx.guild.get_role(server["mute"])
         else:
-            role = ctx.guild.get_role(role)
-        
+            role = await self.create_new_mute_role(ctx)
+
         try:
             await toMute.add_roles(role)
             embed = ctx.bot.Embed(ctx, title=f"Successfully ductaped {toMute.display_name}'s mouth.", color=discord.Color.green())
@@ -157,11 +167,12 @@ class moderation(commands.Cog):
     @permissions(author=['manage_messages'], bot=['manage_roles'])
     async def unmute(self, ctx, *args):
         toUnmute = ctx.bot.Parser.parse_user(ctx, args)
-        roleid = ctx.bot.db.Dashboard.getMuteRole(ctx.guild.id)
-        if roleid is None:
+        roleid = self.db.get("dashboard", {"serverid": ctx.guild.id})
+        if (not roleid) or (not roleid.get("mute")):
             raise ctx.bot.util.BasicCommandException('He is not muted!\nOr maybe you muted this on other bot... which is not compatible.')
-        elif roleid not in list(map(lambda x: x.id, ctx.message.mentions[0].roles)):
+        elif roleid not in list(map(lambda x: x.id, toUnmute)):
             raise ctx.bot.util.BasicCommandException('That guy is not muted.')
+        
         try:
             await toUnmute.remove_roles(ctx.guild.get_role(roleid))
             embed = ctx.bot.Embed(ctx, title=f"Successfully unmuted {toUnmute.display_name}.", color=discord.Color.green())
@@ -175,22 +186,31 @@ class moderation(commands.Cog):
     @cooldown(10)
     @permissions(author=['manage_nicknames'], bot=['manage_nicknames'])
     async def dehoister(self, ctx):
-        if not ctx.author.guild_permissions.manage_nicknames: raise ctx.bot.util.BasicCommandException('You need the `Manage Nicknames` permissions!')
-        data = ctx.bot.db.Dashboard.getDehoister(ctx.guild.id)
+        data = self.db.get("dashboard", {"serverid": ctx.guild.id})
         
         embed = ctx.bot.Embed(
             ctx,
             title='Activated Auto-dehoister.',
             desc=f'Auto-Dehoister is an automated part of this bot that automatically renames someone that tries to hoist their name (for example: `!ABC`)\n\n**How do i deactivate this?**\nJust type `{ctx.bot.command_prefix}dehoister`.\n\n**It doesn\'t work for me!**\nMaybe because your role position is higher than me, so i don\'t have the permissions required.'
-        ) if (not data) else ctx.bot.Embed(ctx, title="Auto-dehoister deactivated.", color=discord.Color.green())
+        ) if ((not data) or (not data.get("dehoister"))) else ctx.bot.Embed(ctx, title="Auto-dehoister deactivated.", color=discord.Color.green())
     
-        if not data: 
-            ctx.bot.db.Dashboard.setDehoister(ctx.guild, True)
+        if (not data) or (not data.get("dehoister")): 
             await embed.send()
+
+            if not data:
+                self.db.add("dashboard", {
+                    "serverid": ctx.guild.id,
+                    "warns": [],
+                    "dehoister": True
+                })
+            else:
+                self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"dehoister": True})
+            
             del embed, data
             return
-        ctx.bot.db.Dashboard.setDehoister(ctx.guild, False)
+        
         await embed.send()
+        self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"dehoister": False})
         del embed, data
 
     @command()
@@ -200,38 +220,56 @@ class moderation(commands.Cog):
         await ctx.trigger_typing()
         _input = ctx.bot.Parser.get_input(args)
 
-        starboard_channel = ctx.bot.db.Dashboard.getStarboardChannel(ctx.guild)
+        data = self.db.get("dashboard", {"serverid": ctx.guild.id})
         if len(_input) == 0:
-            if starboard_channel['channelid'] is None:
+            if (not data) or (not data.get("starboard")):
                 channel = await ctx.guild.create_text_channel(name='starboard', topic='Server starboard channel. Every funny/cool posts will be here.')
-                ctx.bot.db.Dashboard.addStarboardChannel(channel, 1)
-                return await ctx.send(embed=discord.Embed(f'Created a channel <#{channel.id}>. Every starboard will be set there.\nTo remove starboard, type `{ctx.bot.command_prefix}starboard --remove`.\nBy default, starboard requirements are set to 1 reaction. To increase, type `{ctx.bot.command_prefix}starboard --limit <number>`.', color=discord.Color.green()))
-            
+                await ctx.send(embed=discord.Embed(f'Created a channel <#{channel.id}>. Every starboard will be set there.\nTo remove starboard, type `{ctx.bot.command_prefix}starboard --remove`.\nBy default, starboard requirements are set to 1 reaction. To increase, type `{ctx.bot.command_prefix}starboard --limit <number>`.', color=discord.Color.green()))
+                
+                if not data:
+                    self.db.add("dashboard", {
+                        "serverid": ctx.guild.id,
+                        "warns": [],
+                        "starboard": channel.id,
+                        "star_requirements": 3
+                    })
+                else:
+                    self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.channel.id}, {
+                        "starboard": channel.id,
+                        "star_requirements": 3
+                    })
+                return
+
             nl = "\n"
             embed = ctx.bot.Embed(
                 ctx,
                 title=f'Starboard for {ctx.guild.name}',
-                desc='Channel: <#{}>\nStars required to reach: {}'.format(
-                    starboard_channel['channelid'], starboard_channel['starlimit']
-                ),
+                desc=f'Channel: <#{data["starboard"]}>\nStars required to reach: {data["star_requirements"]}',
                 fields={'Commands': f'`{ctx.bot.command_prefix}starboard --remove` **Removes the starboard from this server. (you can also delete the channel yourself)**{nl}`{ctx.bot.command_prefix}starboard --limit <number>` **Changes the amount of star reactions required before a specific message gets to starboard. This defaults to `1` reaction.**'}
             )
             await embed.send()
             del embed, nl
-        
-        if starboard_channel['channelid'] is None:
             return
-        elif "--remove" in _input:
-            ctx.bot.db.Dashboard.removeStarboardChannel(ctx.guild)
-            return await ctx.send(embed=discord.Embed(title='Alright. Starboard for this server is deleted. You can delete the channel.', color=discord.Color.green()))
+        
+        if (not data) or (not data.get("starboard")):
+            raise ctx.bot.util.BasicCommandException("This server does not have any starboard.")
+            
+        if "--remove" in _input:
+            await ctx.send(embed=discord.Embed(title='Alright. Starboard for this server is deleted. You can delete the channel.', color=discord.Color.green()))
+            self.db.modify("dashboard", self.db.types.REMOVE, {"serverid": ctx.guild.id}, {"starboard": data["starboard"]})
+            self.db.modify("dashboard", self.db.types.REMOVE, {"serverid": ctx.guild.id}, {"star_requirements": data["star_requirements"]})
+
         elif "--limit" in _input:
             try:
                 num = args[args.index("--limit") + 1]
                 assert num.isnumeric()
-                ctx.bot.db.Dashboard.setStarboardLimit(num, ctx.guild)
+                assert num in range(1, 10)
                 await ctx.send(embed=discord.Embed(title=f'OK. Changed the limit to {num} star reactions.', color=discord.Color.green()))
+                self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"star_requirements": num})
             except:
                 raise ctx.bot.util.BasicCommandException('Invalid number.')
+        else:
+            raise ctx.bot.util.BasicCommandException("Invalid flag.") # so the bot is not stuck in typing forever.
     
     @command()
     @cooldown(5)
@@ -239,29 +277,36 @@ class moderation(commands.Cog):
     @permissions(author=['manage_messages'])
     async def warn(self, ctx, *args):
         params = ctx.bot.Parser.split_args(args)
-        user_to_warn = ctx.bot.Parser.parse_user(ctx, args[0] if params is None else params[0], allownoargs=False)
+        user_to_warn = ctx.bot.Parser.parse_user(ctx, (params[0] if params else args[0]))
         
         if user_to_warn.guild_permissions.manage_channels:
             raise ctx.bot.util.BasicCommandException("You cannot warn a moderator.")
         reason = 'No reason provided' if (params is None) else params[1][0:100]
 
-        warned = ctx.bot.db.Dashboard.addWarn(user_to_warn, ctx.author, reason)
-        if warned:
-            return await ctx.send(embed=discord.Embed(title=f'{user_to_warn.display_name} was warned by {ctx.author.display_name} for the reason *"{reason}"*.', color=discord.Color.green()))
-        raise ctx.bot.util.BasicCommandException("an error occured.")
+        await ctx.send(embed=discord.Embed(title=f'{user_to_warn.display_name} was warned by {ctx.author.display_name} for the reason *"{reason}"*.', color=discord.Color.green()))
+        if not self.db.exist("dashboard", {"serverid": ctx.guild.id}):
+            self.db.add("dashboard", {
+                "serverid": ctx.guild.id,
+                "warns": [f"{user_to_warn.id}.{ctx.author.id}.{reason}"]
+            })
+        else:
+            self.db.modify("dashboard", self.db.types.APPEND, {"serverid": ctx.guild.id}, {"warns": f"{user_to_warn.id}.{ctx.author.id}.{reason}"})
     
     @command(['warns', 'warnslist', 'warn-list', 'infractions'])
     @cooldown(5)
     @require_args()
     async def warnlist(self, ctx, *args):
         source = ctx.bot.Parser.parse_user(ctx, args)
-        data = ctx.bot.db.Dashboard.getWarns(source)
-        if not data:
+        data = self.db.get("dashboard", {"serverid": ctx.guild.id})
+        if (not data) or (source.id not in [int(i.split(".")[0]) for i in data["warns"]]):
             return await ctx.send(embed=discord.Embed(title=f"{source.display_name} does not have any warns!", color=discord.Color.green()))
+        
+        data = [i for i in data["warns"] if source.id == int(i.split(".")[0])]
         warnlist = '\n'.join(map(
-            lambda x: '{}. "{}" (warned by <@{}>)'.format(x+1, data[x]['reason'], data[x]['moderator']),
+            lambda x: '{}. "{}" (warned by <@{}>)'.format(x+1, ".".join(data[x].split(".")[2:]), data[x].split(".")[1]),
             range(len(data))
         )[0:10])
+
         embed = ctx.bot.Embed(
             ctx,
             title=f'Warn list for {source.display_name}',
@@ -276,35 +321,55 @@ class moderation(commands.Cog):
     @require_args()
     @permissions(author=['manage_messages'])
     async def unwarn(self, ctx, *args):
+        await ctx.trigger_typing()
         user_to_unwarn = ctx.bot.Parser.parse_user(ctx, args)
-        unwarned = ctx.bot.db.Dashboard.clearWarn(user_to_unwarn)
-        if unwarned:
-            return await ctx.send(embed=discord.Embed(title=f"Successfully unwarned {user_to_unwarn.display_name}.", color=discord.Color.green()))
-        return await ctx.send(embed=discord.Embed(title=f"Well, {user_to_warn.display_name} is not warned ***yet***...", color=discord.Color.red()))
+        data = self.db.get("dashboard", {"serverid": ctx.guild.id})
+
+        try:
+            is_warned = (user_to_unwarn.id in [int(i.split(".")[0]) for i in data["warns"]])
+        except:
+            is_warned = False
+
+        if (not data) or (not is_warned):
+            return await ctx.send(embed=discord.Embed(title=f"Well, {user_to_unwarn.display_name} is not warned ***yet***...", color=discord.Color.red()))
+        modified_array = [i for i in data["warns"] if user_to_unwarn.id != int(i.split(".")[0])]
+        await ctx.send(embed=discord.Embed(title=f"Successfully cleared all warns for {user_to_unwarn.display_name}.", color=discord.Color.green()))
+        self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"warns": modified_array})
 
     @command(['welcomelog', 'setwelcome'])
     @cooldown(15)
     @permissions(author=['manage_channels'])
     async def welcome(self, ctx, *args):
-        if len(args)==0:
+        data = self.db.get("dashboard", {"serverid": ctx.guild.id})
+
+        if len(args) == 0:
             embed = ctx.bot.Embed(
                 ctx,
                 title='Command usage',
-                desc=f'{ctx.bot.command_prefix}welcome <CHANNEL>'+'\n'+f'{ctx.bot.command_prefix}welcome disable'
+                desc=f'{ctx.bot.command_prefix}welcome <channel>'+'\n'+f'{ctx.bot.command_prefix}welcome disable'
             )
             await embed.send()
             del embed, args
             return
+        
         if args[0].lower() == 'disable':
-            ctx.bot.db.Dashboard.set_welcome(ctx.guild.id, None)
-            return await ctx.send(embed=discord.Embed(title="Welcome channel disabled for this server!", color=discord.Color.green()))
+            if (not data) or (not data.get("welcome")):
+                raise ctx.bot.util.BasicCommandException("This server does not have any welcome channels se")
+            await ctx.send(embed=discord.Embed(title="Welcome channel disabled for this server!", color=discord.Color.green()))
+            self.db.modify("dashboard", self.db.types.REMOVE, {"serverid": ctx.guild.id}, {"welcome": data["welcome"]})
+            return
+
         try:
-            if args[0].startswith("<#") and args[0].endswith('>'):
-                channelid = int(args[0].split('<#')[1].split('>')[0])
+            channelid = ctx.bot.Parser.parse_channel(ctx, ' '.join(args)).id
+            await ctx.send(embed=discord.Embed(title=f"Success! set the welcome log to <#{channelid}>!", color=discord.Color.green()))
+            if not data:
+                self.db.add("dashboard", {
+                    "serverid": ctx.guild.id,
+                    "warns": [],
+                    "welcome": channelid
+                })
             else:
-                channelid = int([i.id for i in ctx.guild.channels if str(i.name).lower()==str(''.join(args)).lower()][0])
-            ctx.bot.db.Dashboard.set_welcome(ctx.guild.id, channelid)
-            return await ctx.send(embed=discord.Embed(title=f"Success! set the welcome log to <#{channelid}>!", color=discord.Color.green()))
+                self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"welcome": channelid})
         except:
             raise ctx.bot.util.BasicCommandException("Invalid arguments!")
     
@@ -312,7 +377,9 @@ class moderation(commands.Cog):
     @cooldown(12)
     @permissions(author=['manage_roles'], bot=['manage_roles'])
     async def autorole(self, ctx, *args):
-        if len(args)==0:
+        data = self.db.get("dashboard", {"serverid": ctx.guild.id})
+
+        if len(args) == 0:
             embed = ctx.bot.Embed(
                 ctx,
                 title='Command usage',
@@ -323,16 +390,24 @@ class moderation(commands.Cog):
             return
         
         if args[0].lower() == 'disable':
-            ctx.bot.db.Dashboard.set_autorole(ctx.guild.id, None)
-            return await ctx.send(embed=discord.Embed(title="Autorole disabled for this server!", color=discord.Color.green()))
-        try:
-            if args[0].startswith("<@&") and args[0].endswith('>'):
-                roleid = int(args[0].split('<@&')[1].split('>')[0])
-            else:
-                roleid = int([i.id for i in ctx.guild.roles if str(i.name).lower()==' '.join(args).lower()][0])
+            if (not data) or (not data.get("autorole")):
+                raise ctx.bot.util.BasicCommandException("This server does not have any Auto Role set!")
             
-            ctx.bot.db.Dashboard.set_autorole(ctx.guild.id, roleid)
-            return await ctx.send(embed=discord.Embed(title=f"Success! set the autorole to <@&{roleid}>!", color=discord.Color.green()))
+            await ctx.send(embed=discord.Embed(title="OK! Autorole is disabled for this server!", color=discord.Color.green()))
+            self.db.modify("dashboard", self.db.types.REMOVE, {"serverid": ctx.guild.id}, {"autorole": data["autorole"]})
+            return
+
+        try:
+            roleid = ctx.bot.Parser.parse_role(ctx, ' '.join(args)).id
+            await ctx.send(embed=discord.Embed(title=f"Success! set the autorole to <@&{roleid}>!", color=discord.Color.green()))
+            if not data:
+                self.db.add("dashboard", {
+                    "serverid": ctx.guild.id,
+                    "warns": [],
+                    "autorole": roleid
+                })
+            else:
+                self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"autorole": roleid})
         except:
             raise ctx.bot.util.BasicCommandException("Invalid arguments!")
     
@@ -514,7 +589,7 @@ class moderation(commands.Cog):
             del embed, role_members, extra, role, permissions
             return
         elif args[0].lower() == "list":
-            embed = ctx.bot.Embed(ctx, title="Server Roles List", description=" ".join([i.mention for i in ctx.guild.roles[1:]])[0:1000])
+            embed = ctx.bot.Embed(ctx, title="Server Roles List", desc=" ".join([i.mention for i in ctx.guild.roles[1:]])[0:1000])
             await embed.send()
             del embed
             return
@@ -737,4 +812,4 @@ class moderation(commands.Cog):
         return await embed.send()
 
 def setup(client):
-    client.add_cog(moderation())
+    client.add_cog(moderation(client))

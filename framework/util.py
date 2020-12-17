@@ -129,6 +129,16 @@ class Util:
         a, b = (user_id2, user_id1) if (user_id2 > user_id1) else (user_id1, user_id2)
         return int(str(a)[0] + str(b)[::-1][0])
     
+    def resolve_starboard_message(self, message):
+        """ Gets the embed from a message as a form of starboard post. """
+        embed = Embed(title=f"{message.author.display_name}#{message.author.discriminator} | #{str(message.channel)}", description=message.content, url=message.jump_url, color=discord.Color.from_rgb(255, 255, 0))
+        if len(message.embeds) > 0:
+            embed.description = message.embeds[0].description
+        if len(message.attachments) > 0:
+            if message.attachments[0].url.split(".")[::-1] in ["png", "jpeg", "jpg", "gif", "webp"]:
+                embed.set_image(url=message.attachments[0].url)
+        return embed
+    
     async def handle_error(self, ctx, error):
         """ Handles errors like a boss. """
         if isinstance(error, commands.CommandNotFound) or isinstance(error, commands.CheckFailure): return

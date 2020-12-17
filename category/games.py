@@ -7,8 +7,8 @@ from datetime import datetime as t
 import asyncio
 
 class games(commands.Cog):
-    def __init__(self):
-        pass
+    def __init__(self, client):
+        self.db = client.db
 
     @command(['ttt'])
     @cooldown(15)
@@ -216,12 +216,13 @@ class games(commands.Cog):
         res = await game.play()
         del game
 
-        if res is None:
+        if not res:
             return
-        if res == 1 and ctx.bot.db.Economy.get(ctx.author.id) is not None:
+        
+        if res == 1 and self.db.exist("economy", {"userid": ctx.author.id}):
             reward = random.randint(5, 100)
-            ctx.bot.db.Economy.addbal(ctx.author.id, reward)
-            return await ctx.send(f'Thanks for playing! you earned {reward} bobux as a prize!')
+            await ctx.send(embed=discord.Embed(title=f'Thanks for playing! you earned {reward} bobux as a prize!', color=discord.Color.green()))
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 
     @command(['dice', 'flipcoin', 'flipdice', 'coinflip', 'diceflip', 'rolldice'])
     @cooldown(3)
@@ -229,16 +230,18 @@ class games(commands.Cog):
         if "coin" in ctx.bot.util.get_command_name(ctx):
             res = random.choice(['***heads!***', '***tails!***'])
             await ctx.send(res)
-            if len(args)>0 and args[0].lower()==res.replace('*', '').replace('!', '') and ctx.bot.db.Economy.get(ctx.author.id) is not None:
+            if len(args) > 0 and args[0].lower() == res[3:-4] and self.db.exist("economy", {"userid": ctx.author.id}):
                 prize = random.randint(50, 200)
-                ctx.bot.db.Economy.addbal(ctx.author.id, prize) ; await ctx.send('your bet was right! you get '+str(prize)+' bobux.')
+                await ctx.send(embed=discord.Embed(title=f'Your bet was right! you get {prize} bobux.', color=discord.Color.green()))
+                self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": prize})
         else:
             arr = ['one', 'two', 'three', 'four', 'five', 'six']
             res = arr[random.randint(0, 5)]
             await ctx.send(':'+res+':')
-            if len(args)>0 and (args[0].lower()==res.lower() or args[0].lower() == str(arr.index(res)+1)) and ctx.bot.db.Economy.get(ctx.author.id) is not None:
+            if len(args)>0 and (args[0].lower()==res.lower() or args[0].lower() == str(arr.index(res)+1)) and self.db.exist("economy", {"userid": ctx.author.id}):
                 prize = random.randint(50, 150)
-                ctx.bot.db.Economy.addbal(ctx.author.id, prize) ; await ctx.send('your bet was right! you get '+str(prize)+' bobux.')
+                await ctx.send(embed=discord.Embed(title=f'Your bet was right! you get {prize} bobux.', color=discord.Color.green()))
+                self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": prize})
 
     @command(['guessav', 'avatarguess', 'avguess', 'avatargame', 'avgame'])
     @cooldown(15)
@@ -249,10 +252,10 @@ class games(commands.Cog):
             raise ctx.bot.util.BasicCommandException(str(e))
         win = await game.start()
         
-        if win and ctx.bot.db.Economy.get(ctx.author.id) is not None:
+        if win and self.db.exist("economy", {"userid": ctx.author.id}):
             reward = random.randint(5, 100)
-            ctx.bot.db.Economy.addbal(ctx.author.id, reward)
             await ctx.send(f'Thanks for playing! You received {reward} extra bobux!')
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
         
     @command()
     @cooldown(15)
@@ -268,10 +271,10 @@ class games(commands.Cog):
         await quizClient.end()
         del quizClient
 
-        if win and (ctx.bot.db.Economy.get(ctx.author.id) is not None):
+        if win and self.db.exist("economy", {"userid": ctx.author.id}):
             reward = random.randint(5, 150)
-            ctx.bot.db.Economy.addbal(ctx.author.id, reward)
             await ctx.send(f'Thanks for playing! You obtained {reward} bobux in total!')
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
         
     @command()
     @cooldown(4)
@@ -298,10 +301,10 @@ class games(commands.Cog):
         
         if correct:
             await message.edit(embed=discord.Embed(title="Correct!", color=discord.Color.green()))
-            if ctx.bot.db.Economy.get(ctx.author.id) is not None:
+            if self.db.exist("economy", {"userid": ctx.author.id}):
                 reward = random.randint(5, 50)
-                ctx.bot.db.Economy.addbal(ctx.author.id, reward)
-                return await ctx.send(f'Thanks for playing! we added an extra {reward} bobux to your profile.')
+                await ctx.send(f'Thanks for playing! we added an extra {reward} bobux to your profile.')
+                self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
         return await message.edit(embed=discord.Embed(title=f"Wrong. The answer is {quiz.answer}", color=discord.Color.red()))
 
     @command()
@@ -317,10 +320,10 @@ class games(commands.Cog):
         if not result:
             return
             
-        if ctx.bot.db.Economy.get(ctx.author.id) is not None:
+        if self.db.exist("economy", {"userid": ctx.author.id}):
             reward = random.randint(150, 300)
-            ctx.bot.db.Economy.addbal(ctx.author.id, reward)
             await ctx.send(f'Thanks for playing! You get also a {reward} bobux as a prize!')
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 
     @command()
     @cooldown(2)
@@ -332,9 +335,9 @@ class games(commands.Cog):
         if reward == 0:
             return
         
-        if ctx.bot.db.Economy.get(ctx.author.id) is not None:
-            ctx.bot.db.Economy.addbal(ctx.author.id, reward)
+        if self.db.exist("economy", {"userid": ctx.author.id}):
             await ctx.send(f'Thanks for playing! You get also a {reward} bobux as a prize!')
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 
     @command(['gn', 'guessnumber'])
     @cooldown(30)
@@ -343,10 +346,10 @@ class games(commands.Cog):
         result = await game.play(ctx)
         del game
         
-        if result and ctx.bot.db.Economy.get(ctx.author.id) is not None:
+        if result and self.db.exist("economy", {"userid": ctx.author.id}):
             reward = random.randint(150, 300)
-            ctx.bot.db.Economy.addbal(ctx.author.id, reward)
             await ctx.send(f'Thanks for playing! You get also a {reward} bobux as a prize!')
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 
     @command()
     @cooldown(30)
@@ -359,10 +362,10 @@ class games(commands.Cog):
         correct = await trivia.start(ctx)
         del trivia
         
-        if correct and ctx.bot.db.Economy.get(ctx.author.id) is not None:
+        if correct and self.db.exist("economy", {"userid": ctx.author.id}):
             reward = random.randint(250, 400)
-            ctx.bot.db.Economy.addbal(ctx.author.id, reward)
             await ctx.send(f'Thanks for playing! You get also a {reward} bobux as a prize!')
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 
 def setup(client):
-    client.add_cog(games())
+    client.add_cog(games(client))

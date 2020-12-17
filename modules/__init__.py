@@ -1,7 +1,7 @@
 from .username601 import *
 from .canvas import Painter, GifGenerator
 from .commandmanager import BotCommands
-from . import database, username601
+from . import username601
 from os import environ
 
 def pre_ready_initiation(client):
@@ -10,7 +10,6 @@ def pre_ready_initiation(client):
     setattr(client, 'gif', GifGenerator(client.util.assets_dir, client.util.fonts_dir))
     setattr(client, 'command_uses', 0)
     setattr(client, 'utils', username601)
-    setattr(client, 'db', database)
 
 async def post_ready_initiation(client):
     test = await client.util.useless_client.post("https://useless-api.vierofernando.repl.co/update_bot_stats?guild_count=" + str(len(client.guilds)) + "&users_count=" + str(len(client.users)))

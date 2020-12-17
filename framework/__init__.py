@@ -2,6 +2,7 @@
 # You can use the code in this directory for your bot.
 # I am not really planning on uploading it to PyPI though...
 
+from os import getenv
 from .oreo import Oreo
 from .parser import Parser
 from .panel import CustomPanel
@@ -10,11 +11,13 @@ from .message import embed, Paginator, ChooseEmbed,  WaitForMessage
 from .util import Util, GetRequestFailedException, BasicCommandException
 from .games import Slot, TicTacToe, RockPaperScissors, GeographyQuiz, MathQuiz, GuessAvatar, Trivia, GuessMyNumber, Hangman
 from .canvas import ServerCard, UserCard
+from .database import Database
 
-def initiate(client):
+def initiate(client, db_name: str = "username601"):
     setattr(client, "slot", Slot)
     setattr(client, "oreo", Oreo)
     setattr(client, "Embed", embed)
+    setattr(client, "db", Database(getenv("DB_LINK"), db_name))
     setattr(client, "Parser", Parser)
     setattr(client, "Trivia", Trivia)
     setattr(client, "Hangman", Hangman)
