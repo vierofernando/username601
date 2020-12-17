@@ -65,7 +65,7 @@ class economy(commands.Cog):
             award = random.randint(res['ctx']['worth']['min'], res['ctx']['worth']['max'])
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": award})
             return await ctx.send(embed=discord.Embed(description=f"{res['ctx']['emote']} | Congratulations! You caught a {res['ctx']['name']} and sell it worth for {award} bobux!", color=discord.Color.green()))
-        raise ctx.bot.util.BasicCommandException("Yikes! You only caught {res['ctx']}... Try again later!")
+        raise ctx.bot.util.BasicCommandException(f"Yikes! You only caught {res['ctx']}... Try again later!")
 
     @command(['delete', 'deletedata', 'deldata', 'del-data', 'delete-data'])
     @cooldown(3600)
