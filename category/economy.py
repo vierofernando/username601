@@ -49,7 +49,7 @@ class economy(commands.Cog):
         if chance == 1:
             award = random.randint(100, 800)
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": award})
-            return await ctx.send(embed=discord.Embed(title=f'You begged and got {award} bobux!', color=discord.Color.green()))
+            return await ctx.send(embed=discord.Embed(title=f'You begged and got {award:,} bobux!', color=discord.Color.green()))
         raise ctx.bot.util.BasicCommandException('Stop begging! Try again later. There is only 1/3 chance you will get a bobux.')
 
     @command(['fishing'])
@@ -64,7 +64,7 @@ class economy(commands.Cog):
         if res['catched']:
             award = random.randint(res['ctx']['worth']['min'], res['ctx']['worth']['max'])
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": award})
-            return await ctx.send(embed=discord.Embed(description=f"{res['ctx']['emote']} | Congratulations! You caught a {res['ctx']['name']} and sell it worth for {award} bobux!", color=discord.Color.green()))
+            return await ctx.send(embed=discord.Embed(description=f"{res['ctx']['emote']} | Congratulations! You caught a {res['ctx']['name']} and sell it worth for {award:,} bobux!", color=discord.Color.green()))
         raise ctx.bot.util.BasicCommandException(f"Yikes! You only caught {res['ctx']}... Try again later!")
 
     @command(['delete', 'deletedata', 'deldata', 'del-data', 'delete-data'])
@@ -89,7 +89,7 @@ class economy(commands.Cog):
         reward = random.randint(100, 500)
         job = random.choice(self.works)
         self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
-        return await ctx.send(embed=discord.Embed(title=f"{ctx.author.display_name} worked {job} and earned {reward} bobux!", color=discord.Color.green()))
+        return await ctx.send(embed=discord.Embed(title=f"{ctx.author.display_name} worked {job} and earned {reward:,} bobux!", color=discord.Color.green()))
     
     @command()
     @cooldown(15)
@@ -100,8 +100,9 @@ class economy(commands.Cog):
         last_daily = self.db.get("economy", {"userid": ctx.author.id})["lastDaily"]
         if (not last_daily) or ((time() - last_daily) > 43200): # 43200 is 12 hours.
             reward = random.randint(100, 42069)
-            await ctx.send(embed=discord.Embed(title=f"You earned your Daily for {reward} bobux!", color=discord.Color.green()))
+            await ctx.send(embed=discord.Embed(title=f"You earned your Daily for {reward:,} bobux!", color=discord.Color.green()))
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
+            self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"lastDaily": time()})
         else:
             raise ctx.bot.util.BasicCommandException(f"You can earn your daily in {ctx.bot.util.strfsecond((last_daily + 43200) - time())}!")
 

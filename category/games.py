@@ -221,7 +221,7 @@ class games(commands.Cog):
         
         if res == 1 and self.db.exist("economy", {"userid": ctx.author.id}):
             reward = random.randint(5, 100)
-            await ctx.send(embed=discord.Embed(title=f'Thanks for playing! you earned {reward} bobux as a prize!', color=discord.Color.green()))
+            await ctx.send(embed=discord.Embed(title=f'Thanks for playing! you earned {reward:,} bobux as a prize!', color=discord.Color.green()))
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 
     @command(['dice', 'flipcoin', 'flipdice', 'coinflip', 'diceflip', 'rolldice'])
@@ -232,7 +232,7 @@ class games(commands.Cog):
             await ctx.send(res)
             if len(args) > 0 and args[0].lower() == res[3:-4] and self.db.exist("economy", {"userid": ctx.author.id}):
                 prize = random.randint(50, 200)
-                await ctx.send(embed=discord.Embed(title=f'Your bet was right! you get {prize} bobux.', color=discord.Color.green()))
+                await ctx.send(embed=discord.Embed(title=f'Your bet was right! you get {prize:,} bobux.', color=discord.Color.green()))
                 self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": prize})
         else:
             arr = ['one', 'two', 'three', 'four', 'five', 'six']
@@ -240,7 +240,7 @@ class games(commands.Cog):
             await ctx.send(':'+res+':')
             if len(args)>0 and (args[0].lower()==res.lower() or args[0].lower() == str(arr.index(res)+1)) and self.db.exist("economy", {"userid": ctx.author.id}):
                 prize = random.randint(50, 150)
-                await ctx.send(embed=discord.Embed(title=f'Your bet was right! you get {prize} bobux.', color=discord.Color.green()))
+                await ctx.send(embed=discord.Embed(title=f'Your bet was right! you get {prize:,} bobux.', color=discord.Color.green()))
                 self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": prize})
 
     @command(['guessav', 'avatarguess', 'avguess', 'avatargame', 'avgame'])
@@ -254,7 +254,7 @@ class games(commands.Cog):
         
         if win and self.db.exist("economy", {"userid": ctx.author.id}):
             reward = random.randint(5, 100)
-            await ctx.send(f'Thanks for playing! You received {reward} extra bobux!')
+            await ctx.send(f'Thanks for playing! You received {reward:,} extra bobux!')
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
         
     @command()
@@ -273,7 +273,7 @@ class games(commands.Cog):
 
         if win and self.db.exist("economy", {"userid": ctx.author.id}):
             reward = random.randint(5, 150)
-            await ctx.send(f'Thanks for playing! You obtained {reward} bobux in total!')
+            await ctx.send(f'Thanks for playing! You obtained {reward:,} bobux in total!')
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
         
     @command()
@@ -303,7 +303,7 @@ class games(commands.Cog):
             await message.edit(embed=discord.Embed(title="Correct!", color=discord.Color.green()))
             if self.db.exist("economy", {"userid": ctx.author.id}):
                 reward = random.randint(5, 50)
-                await ctx.send(f'Thanks for playing! we added an extra {reward} bobux to your profile.')
+                await ctx.send(f'Thanks for playing! we added an extra {reward:,} bobux to your profile.')
                 self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
         return await message.edit(embed=discord.Embed(title=f"Wrong. The answer is {quiz.answer}", color=discord.Color.red()))
 
@@ -322,7 +322,7 @@ class games(commands.Cog):
             
         if self.db.exist("economy", {"userid": ctx.author.id}):
             reward = random.randint(150, 300)
-            await ctx.send(f'Thanks for playing! You get also a {reward} bobux as a prize!')
+            await ctx.send(f'Thanks for playing! You get also a {reward:,} bobux as a prize!')
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 
     @command()
@@ -336,7 +336,7 @@ class games(commands.Cog):
             return
         
         if self.db.exist("economy", {"userid": ctx.author.id}):
-            await ctx.send(f'Thanks for playing! You get also a {reward} bobux as a prize!')
+            await ctx.send(f'Thanks for playing! You get also a {reward:,} bobux as a prize!')
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 
     @command(['gn', 'guessnumber'])
@@ -348,7 +348,7 @@ class games(commands.Cog):
         
         if result and self.db.exist("economy", {"userid": ctx.author.id}):
             reward = random.randint(150, 300)
-            await ctx.send(f'Thanks for playing! You get also a {reward} bobux as a prize!')
+            await ctx.send(f'Thanks for playing! You get also a {reward:,} bobux as a prize!')
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 
     @command()
@@ -364,7 +364,7 @@ class games(commands.Cog):
         
         if correct and self.db.exist("economy", {"userid": ctx.author.id}):
             reward = random.randint(250, 400)
-            await ctx.send(f'Thanks for playing! You get also a {reward} bobux as a prize!')
+            await ctx.send(f'Thanks for playing! You get also a {reward:,} bobux as a prize!')
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 
 def setup(client):
