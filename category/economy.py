@@ -284,7 +284,7 @@ class economy(commands.Cog):
         )
         if data.get("color"):
             rgb = tuple([int(i) for i in data["color"].split(",")])
-            embed.fields["Color"] = f"**Hex: **{('#%02x%02x%02x' % color).upper()}"+"\n"+f"**RGB: **{rgb[0]}, {rgb[1]}, {rgb[2]}"
+            embed.fields["Color"] = f"**Hex: **{('#%02x%02x%02x' % rgb).upper()}"+"\n"+f"**RGB: **{rgb[0]}, {rgb[1]}, {rgb[2]}"
             del rgb
         
         await embed.send()
