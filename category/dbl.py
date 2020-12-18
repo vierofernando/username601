@@ -2,6 +2,7 @@ from os import environ
 from discord.ext import commands, tasks
 from decorators import *
 from aiohttp import ClientSession
+from PIL import ImageColor
 import dbl as topgg
 import discord
 
@@ -16,14 +17,13 @@ class dbl(commands.Cog):
         self.token = environ['DBL_TOKEN']
         self.dblpy = topgg.DBLClient(client, self.token, autopost=True)
         self.types = ["bots", "users", "bot", "user"]
-        self.api_url = "https://top.gg/api/"
         self._bot_links = {"invite": "", "website": "", "support": "https://discord.gg/", "github": ""}
         self._bot_subtitution = {"invite": "Invite this Bot", "website": "Official Website", "support": "Support Server", "github": "GitHub Repository"}
         self._none = ["", None, "#"]
         self._connection = ClientSession(headers={"Authorization": "Bearer "+environ["DBL_TOKEN"]})
     
-    async def get(self, url):
-        res = await self._connection.get(url)
+    async def get(self, path):
+        res = await self._connection.get("https://top.gg/api" + path)
         return await res.json()
     
     async def resolve_user(self, ctx, args):
@@ -36,24 +36,28 @@ class dbl(commands.Cog):
         
         if _input.bot:
             raise self.client.util.BasicCommandException(str(_input) + " is a bot.")
-        data = await self.get(self.api_url + "/users/" + str(_input.id))
+        data = await self.get(f"/users/{_input.id}")
         
         if data.get("error") is not None:
             raise self.client.util.BasicCommandException(str(_input) + " does not exist in the [top.gg](https://top.gg/) database.")
         _ext = ".gif" if _input.is_avatar_animated() else ".png"
-        _bio = "***\""+data["bio"].replace("*", "\*")+"\"***" if data.get("bio") else "This user has no bio."
-        _color = "`"+data['color']+"`" if (data.get('color') not in self._none) else "`<not set>`"
+        _bio = discord.utils.escape_markdown(data["bio"]) if data.get("bio") else "This user has no bio."
+        _color = "`"+data['color'].upper()+"`" if (data.get('color') not in self._none) else "`<not set>`"
         _avatar = "https://cdn.discordapp.com/avatars/"+data["id"]+"/"+data["avatar"]+".png" if data.get("avatar") else None
-        if _avatar is None:
+        if not _avatar:
             raise self.client.util.BasicCommandException("That user does not exist in the [top.gg](https://top.gg/) database.")
         
         return self.client.Embed(
             ctx,
             title=data["username"] + "#" + data["discriminator"],
             image=data.get("banner"),
-            desc="**"+discord.utils.escape_markdown(_bio)+"**\n\nColor: `"+_color+"`",
+            fields={
+                "Bio": _bio,
+                "Color": _color
+            },
             thumbnail=_avatar,
-            url="https://top.gg/user/"+data["id"]
+            url="https://top.gg/user/"+data["id"],
+            color=discord.Color.from_rgb(*ImageColor.getrgb(data["color"])) if data.get("color") else ctx.me.color
         )
     
     async def get_owner_name(self, id):
@@ -61,19 +65,20 @@ class dbl(commands.Cog):
         if _cached_user is not None:
             return str(_cached_user)
         
-        data = await self.get("https://top.gg/api/users/"+str(id))
+        data = await self.get(f"/users/{id}")
         if data.get("error") is not None: return "<not available>"
         return data["username"] + "#" + data["discriminator"]
     
     async def search_bots(self, ctx, query):
-        data = await self.get("https://top.gg/api/search?q="+str(query)+"&type=bot")
+        data = await self.get(f"/search?q={query}&type=bot")
         data = data["results"] # why
         
         if len(data) == 0:
             raise self.client.util.BasicCommandException("That bot does not exist on the [top.gg](https://top.gg/) database.")
         embed = self.client.ChooseEmbed(ctx, data, key=(lambda x: "["+x["name"]+"](https://top.gg/bot/"+x["id"]+")"))
         res = await embed.run()
-        
+        del embed, data
+
         if res is None: return
         return res["id"]
     
@@ -88,7 +93,7 @@ class dbl(commands.Cog):
             _id = await self.search_bots(ctx, self.client.util.encode_uri(" ".join(args[1:])))
             if _id is None: return
         
-        data = await self.get(self.api_url + "/bots/" + _id)
+        data = await self.get(f"/bots/{_id}")
         
         if data.get("error") is not None:
             raise self.client.util.BasicCommandException("That bot does not exist in the [top.gg](https://top.gg/) database.")

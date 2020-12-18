@@ -99,7 +99,7 @@ class Parser:
     @staticmethod
     def get_input(args: tuple) -> tuple:
         """ Returns all inputs from a args """
-        return tuple([i for i in args if i.startswith("--")])
+        return tuple([i.lower() for i in args if i.startswith("--")])
     
     @staticmethod
     def get_input_values(args: tuple) -> dict:

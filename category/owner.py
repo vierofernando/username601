@@ -48,7 +48,7 @@ class owner(commands.Cog):
     @cooldown(2)
     @owner_only()
     async def announce(self, ctx, *args):
-        self.db.modify("config", self.db.types.APPEND, {"h": True}, {"changelog": " ".join(args)})
+        self.db.modify("config", self.db.types.APPEND, {"h": True}, {"changelog": "`["+str(t.now())[:-7]+" UTC]`"+" ".join(args)})
         await ctx.send("OK, added to db!")
 
     @command(['src'])

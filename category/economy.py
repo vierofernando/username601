@@ -2,6 +2,7 @@ import discord
 import random
 from discord.ext import commands
 from decorators import *
+from PIL import ImageColor
 from json import loads
 from time import time
 from asyncio import sleep
@@ -9,6 +10,19 @@ from random import choice, randint
 
 class economy(commands.Cog):
     def __init__(self, client):
+        self.blacklisted_words = [
+            "nigga",
+            "nigger",
+            "discord.gg",
+            "http://",
+            "https://",
+            "discordapp.com",
+            "discord.com",
+            "fuck",
+            "shit",
+            "bitch"
+        ]
+
         self.fish_json = loads(open(client.util.json_dir+'/fish.json', 'r').read())
         self.steal_json = loads(open(client.util.json_dir+'/steal.json', 'r').read())
         self.works = loads(open(client.util.json_dir+'/work.json', 'r').read())['works']
@@ -92,14 +106,14 @@ class economy(commands.Cog):
         return await ctx.send(embed=discord.Embed(title=f"{ctx.author.display_name} worked {job} and earned {reward:,} bobux!", color=discord.Color.green()))
     
     @command()
-    @cooldown(15)
+    @cooldown(7)
     @require_profile()
     async def daily(self, ctx, *args):
         await ctx.trigger_typing()
 
         last_daily = self.db.get("economy", {"userid": ctx.author.id})["lastDaily"]
         if (not last_daily) or ((time() - last_daily) > 43200): # 43200 is 12 hours.
-            reward = random.randint(100, 42069)
+            reward = random.randint(500, 1000)
             await ctx.send(embed=discord.Embed(title=f"You earned your Daily for {reward:,} bobux!", color=discord.Color.green()))
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
             self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"lastDaily": time()})
@@ -202,32 +216,74 @@ class economy(commands.Cog):
         #        color = ctx.me.color
         #    ))
 
-    @command(['balance', 'mybal', 'profile', 'me', 'myprofile'])
-    @cooldown(2)
-    @require_profile()
+    @command(['balance', 'profile', 'economy'])
+    @cooldown(4)
     async def bal(self, ctx, *args):
-        data = self.db.get("economy", {"userid": ctx.author.id})
+        if (len(args) > 0):
+            await ctx.trigger_typing()
+
+            if (args[0].lower() in ["--desc", "--setdesc", "--description", "--bio"]):
+                await ctx.trigger_typing()
+                try:
+                    text = " ".join(args[1:])
+                    assert text != "", "Please add a text for your new bio."
+                    for blacklisted_word in self.blacklisted_words:
+                        assert blacklisted_word not in text, "Please do not include any links or bad words in your bio!"
+                    data = self.db.get("economy", {"userid": ctx.author.id})
+                    
+                    assert data is not None, f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."
+                    assert data["bal"] > 500, f"You need at least 500 bobux to change bio ({(data['bal'] - 500):,} more bobux required)"
+
+                    await ctx.send(embed=discord.Embed(title=f"Successfully changed your bio to {text[0:32]}", color=discord.Color.green()).set_footer(text="Your bio is too long, so we capped it down to 32 characters." if len(text) > 32 else ""))
+                    self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"desc": text[0:32]})
+                    return
+                except Exception as e:
+                    raise ctx.bot.util.BasicCommandException(str(e))
+            elif (args[0].lower() in ["--color", "--set-color", "--col"]):
+                try:
+                    color = ImageColor.getrgb(' '.join(args[1:]))
+                    data = self.db.get("economy", {"userid": ctx.author.id})
+                    assert (data is not None), f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."
+                    assert data["bal"] > 1000, f"You need at least 1,000 bobux to change bio ({(data['bal'] - 1000):,} more bobux required)"
+                except ValueError:
+                    raise ctx.bot.util.BasicCommandException("Invalid Hex color input.")
+                except AssertionError as e:
+                    raise ctx.bot.util.BasicCommandException(str(e))
+                
+                await ctx.send(embed=discord.Embed(title="Changed the color for your profile to `"+ ('#%02x%02x%02x' % color) +"`.", color=discord.Color.from_rgb(*color)))
+                self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"color": str(color).replace(" ", "")[1:-1]})
+                return
+            elif (args[0].lower() in ["--card", "--image"]):
+                member = ctx.bot.Parser.parse_user(ctx, args[1:])                
+                data = self.db.get("economy", {"userid": member.id})
+
+                if not data:
+                    raise ctx.bot.util.BasicCommandException(f"{member.display_name} does not have any profile.")
+                card = ctx.bot.ProfileCard(ctx, member, profile=data, session=ctx.bot.util.default_client, font_path=ctx.bot.util.fonts_dir + "/NotoSansDisplay-Bold.otf")
+                byte = await card.draw()
+                await ctx.send(file=discord.File(byte, "card.png"))
+                await card.close()
+                del card, byte, data, member
+                return
+
+        member = ctx.bot.Parser.parse_user(ctx, args)
+        data = self.db.get("economy", {"userid": member.id})
+        if not data:
+            raise ctx.bot.util.BasicCommandException(f"{member.display_name} does not have any profile!")
 
         embed = ctx.bot.Embed(
             ctx,
-            title=f"{ctx.author.display_name}'s profile",
-            image=ctx.author.avatar_url,
+            title=f"{member.display_name}'s profile",
+            thumbnail=member.avatar_url,
             fields={
                 "Balance": f"{data['bal']:,} bobux" + "\n" f"{data['bankbal']:,} bobux (bank)",
-                "Description": data["desc"]
-            }
+                "Description": data["desc"],
+                "Daily": f"**[:white_check_mark: can be claimed using `{ctx.bot.command_prefix}daily`]**" if ((not data["lastDaily"]) or ((time() - data["lastDaily"]) > 43200)) else f"Can be claimed in {ctx.bot.util.strfsecond((data['lastDaily'] + 43200) - time())}"
+            },
+            color=discord.Color.from_rgb(*[int(i) for i in data["color"].split(",")]) if data.get("color") else ctx.me.color
         )
         await embed.send()
         del embed, data
-
-        # src = ctx.bot.Parser.parse_user(ctx, args)
-        # ava = src.avatar_url_as(format="png")
-        # 
-        # await ctx.trigger_typing()
-        # data = self.db.Economy.getProfile(src.id, [i.id for i in ctx.guild.members if not i.bot])
-        # bfr, aft = data['main'], data['after']
-        # img = await ctx.bot.canvas.profile(src.name, ava, bfr, aft)
-        # await ctx.send(file=discord.File(img, 'profile.png'))
     
     @command(['newprofile'])
     @cooldown(10)

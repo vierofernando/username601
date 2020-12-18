@@ -1,11 +1,120 @@
-from .colorthief import Smart_ColorThief
+from twemoji_parser import TwemojiParser, emoji_to_url
 from PIL import Image, ImageFont, ImageDraw
-from aiohttp import ClientSession
-from time import time
+from .colorthief import Smart_ColorThief
 from discord import ActivityType, File
+from aiohttp import ClientSession
 from io import BytesIO
-from twemoji_parser import emoji_to_url
+from time import time
 import gc
+
+class ProfileCard:
+    def __init__(self, ctx, member, profile: dict, session, font_path: str):
+        self.bal = profile
+        self.user = member
+        self.ctx = ctx
+        self.session = session
+
+        # measure the width
+        self.big_font = ImageFont.truetype(font_path, 30)
+        self.smol_font = ImageFont.truetype(font_path, 18)
+        self.width = self.big_font.getsize(self.user.display_name)[0] + 230
+
+        if self.width < 700:
+            self.width = 700
+
+    async def imagefromURL(self, url: str):
+        res = await self.session.get(url)
+        res = await res.read()
+        return Image.open(BytesIO(res))
+
+    def __wrap_desc(self):
+        if len(self.bal["desc"]) < 20:
+            return self.bal["desc"]
+
+        text = []
+        current_text = ""
+
+        for char in list(self.bal["desc"]):
+            if (len(current_text) < 20) or (self.smol_font.getsize(current_text)[0] < (self.main.width - 410)):
+                current_text += char
+                continue
+            text.append(current_text)
+            current_text = ""
+        
+        if len(text) < 1:
+            return self.bal["desc"]
+        elif current_text != "":
+            text.append(current_text)
+        
+        return "\n".join(text)
+
+    async def draw(self):
+        # make the image
+        if not self.bal.get("color"):
+            colorthief = Smart_ColorThief(self.ctx, str(self.user.avatar_url_as(format="png", size=128)))
+            self.background_color = await colorthief.get_color(right=True)
+            del colorthief
+        else:
+            self.background_color = tuple([int(i) for i in self.bal["color"].split(",")])
+
+        self.foreground_color = (0, 0, 0) if (sum(self.background_color) // 3) > 127 else (255, 255, 255)
+        self.main = Image.new(mode="RGB", size=(self.width, 190), color=self.background_color)
+        self.d = ImageDraw.Draw(self.main)
+        self.parser = TwemojiParser(self.main, session=self.session)
+        self.lower_brightness = (lambda x: tuple(map(lambda y: y - x, self.background_color)))
+
+        # draw the rectangles
+        self.d.rectangle([(170, 20), (self.main.width - 20, 70)], fill=self.lower_brightness(30))
+        self.d.rectangle([(170, 70), (370, 170)], fill=self.lower_brightness(60))
+        self.d.rectangle([(370, 70), (self.main.width - 20, 170)], fill=self.lower_brightness(90))
+        
+        # get the description
+        description = self.__wrap_desc()
+
+        # draw those text
+        self.d.text((190, 20), self.user.display_name, font=self.big_font, fill=self.foreground_color)
+        await self.parser.draw_text((190, 80), f"💸 {self.bal['bal']:,}", font=self.smol_font, fill=self.foreground_color, with_url_check=False)
+        await self.parser.draw_text((190, 110), f"🏦 {self.bal['bankbal']:,}", font=self.smol_font, fill=self.foreground_color, with_url_check=False)
+        await self.parser.draw_text((380, 80), description, font=self.smol_font, fill=self.foreground_color)
+
+        # get avatar
+        avatar = await self.imagefromURL(str(self.user.avatar_url_as(format="png", size=128)))
+        avatar = avatar.resize((150, 150))
+
+        # paste the avatar
+        if avatar.mode == "RGBA":
+            self.main.paste(avatar, (20, 20), avatar)
+        else:
+            self.main.paste(avatar, (20, 20))
+
+        b = BytesIO()
+        self.main.save(b, format="png")
+        b.seek(0)
+        self.main.close()
+
+        return b
+
+    async def close(self):
+        # close the parser
+        await self.parser.close(close_session=False)
+
+        # delete the garbage and collect it (ew)
+        del (
+            self.main,
+            self.d,
+            self.background_color,
+            self.foreground_color,
+            self.lower_brightness,
+            self.big_font,
+            self.smol_font,
+            self.bal,
+            self.user,
+            self.parser,
+            self.session,
+            self.width,
+            self.ctx
+        )
+        gc.collect()
 
 class UserCard:
     def __init__(self, ctx, member, font_path: str, session = None):
