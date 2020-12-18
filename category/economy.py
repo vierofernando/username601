@@ -217,7 +217,7 @@ class economy(commands.Cog):
         #    ))
 
     @command(['balance', 'profile', 'economy'])
-    @cooldown(4)
+    @cooldown(5)
     async def bal(self, ctx, *args):
         if (len(args) > 0):
             await ctx.trigger_typing()
@@ -234,8 +234,8 @@ class economy(commands.Cog):
                     assert data is not None, f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."
                     assert data["bal"] > 500, f"You need at least 500 bobux to change bio ({(data['bal'] - 500):,} more bobux required)"
 
-                    await ctx.send(embed=discord.Embed(title=f"Successfully changed your bio to {text[0:32]}", color=discord.Color.green()).set_footer(text="Your bio is too long, so we capped it down to 32 characters." if len(text) > 32 else ""))
-                    self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"desc": text[0:32]})
+                    await ctx.send(embed=discord.Embed(title=f"Successfully changed your bio.", color=discord.Color.green()).set_footer(text="Your bio is too long, so we capped it down to 50 characters." if len(text) > 50 else ""))
+                    self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"desc": text[0:50]})
                     return
                 except Exception as e:
                     raise ctx.bot.util.BasicCommandException(str(e))
@@ -250,7 +250,7 @@ class economy(commands.Cog):
                 except AssertionError as e:
                     raise ctx.bot.util.BasicCommandException(str(e))
                 
-                await ctx.send(embed=discord.Embed(title="Changed the color for your profile to `"+ ('#%02x%02x%02x' % color) +"`.", color=discord.Color.from_rgb(*color)))
+                await ctx.send(embed=discord.Embed(title="Changed the color for your profile to `"+ ('#%02x%02x%02x' % color).upper() +"`.", color=discord.Color.from_rgb(*color)))
                 self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"color": str(color).replace(" ", "")[1:-1]})
                 return
             elif (args[0].lower() in ["--card", "--image"]):
@@ -282,6 +282,11 @@ class economy(commands.Cog):
             },
             color=discord.Color.from_rgb(*[int(i) for i in data["color"].split(",")]) if data.get("color") else ctx.me.color
         )
+        if data.get("color"):
+            rgb = tuple([int(i) for i in data["color"].split(",")])
+            embed.fields["Color"] = f"**Hex: **{('#%02x%02x%02x' % color).upper()}"+"\n"+f"**RGB: **{rgb[0]}, {rgb[1]}, {rgb[2]}"
+            del rgb
+        
         await embed.send()
         del embed, data
     
