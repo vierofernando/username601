@@ -44,15 +44,15 @@ class economy(commands.Cog):
     @cooldown(30)
     @require_args()
     @require_profile()
-    async def gamble(self, ctx, *args):
+    async def bet(self, ctx, *args):
         lucky = random.choice([False, True])
         try:
             amount = ctx.bot.Parser.get_numbers(args)
-            assert amount in range(0, 1000000)
+            assert amount[0] in range(0, 69420)
         except:
             raise ctx.bot.util.BasicCommandException('Please make sure you input a valid number!')
         
-        self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": (amount if lucky else -amount)})
+        self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": (amount[0] if lucky else -amount[0])})
         return await ctx.send((ctx.bot.util.success_emoji if lucky else ctx.bot.util.error_emoji) + ' | ' + (f"Congratulations! {ctx.author.display_name} just won {amount:,} bobux!" if lucky else f"Yikes! {ctx.author.display_name} just lost {amount:,} bobux..."))
 
     @command()
@@ -129,20 +129,43 @@ class economy(commands.Cog):
         try:
             member = ctx.message.mentions[0]
             amount = ctx.bot.Parser.get_numbers(args)
-            assert amount in range(0, 100000), "The limit is 100.000 bobux!"
+            assert amount[0] in range(0, 100000), "The limit is 100.000 bobux!"
             assert self.db.exist("economy", {"userid": member.id}), f"{member.display_name} does not have a profile!"
-            await ctx.send(embed=discord.Embed(title=f"Successfully transferred {amount:,} bobux to {member.display_name}!", color=discord.Color.green()))
+            await ctx.send(embed=discord.Embed(title=f"Successfully transferred {amount[0]:,} bobux to {member.display_name}!", color=discord.Color.green()))
         
-            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": -amount})
-            self.db.modify("economy", self.db.types.INCREMENT, {"userid": member.id}, {"bal": amount})
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": -amount[0]})
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": member.id}, {"bal": amount[0]})
         except Exception as e:
             raise ctx.bot.util.BasicCommandException(str(e))
     
     @command(['steal', 'crime', 'stole', 'robs'])
-    @cooldown(60)
+    @cooldown(120)
+    @require_args(2)
     @require_profile()
     async def rob(self, ctx, *args):
-        return await ctx.send("This command is temporarily closed. Sorry!")
+        try:
+            number = ctx.bot.Parser.get_numbers(args)[0]
+            assert len(ctx.message.mentions) == 0, "Please mention someone to rob!"
+            member = ctx.message.mentions[0]
+            assert not member.bot, f"{member.display_name} is a botum."
+            assert member != ctx.author, f"Error! `RecursionError: maximum recursion depth exceeded`"
+            
+            victim_data = self.db.get("economy", {"userid": member.id})
+            assert (victim_data is not None), f"{member.display_name} has no profile!"
+            assert victim_data["bal"] > 0, f"{member.display_name} only has 0 bobux! He is too poor to be robbed!"
+            assert member.status != discord.Status.offline, f"{member.display_name} is currently offline!"
+            
+            if not number:
+                number = random.randint(0, data["bal"])
+            assert number <= victim_data["bal"], f"Number must be below the opponent's bobux. ({victim_data['bal']})"
+            data = self.db.get("economy", {"userid": ctx.author.id})
+            assert data["bal"] > 750, f"You need at least 750 bobux ({data['bal'] - 750} more) to rob someone."
+            
+            await ctx.send(embed=discord.Embed(title=f"Successfully robbed {member.display_name} for {number:,} bobux.", color=discord.Color.green()))
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": number})
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": member.id})
+        except AssertionError as e:
+            raise ctx.bot.util.BasicCommandException(str(e))
     
     @command(['dep'])
     @cooldown(10)
