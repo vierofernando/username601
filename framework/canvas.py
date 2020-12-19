@@ -12,12 +12,15 @@ class Functions:
     @staticmethod
     def colorify(image: BytesIO, color: tuple) -> BytesIO:
         """ Colourifies an image. """
+        parameter = Image.open(image)
+        if parameter.mode != "RGB":
+            parameter = parameter.convert("RGB")
         buffer = BytesIO()
-        res = apply_color_overlay(Image.open(image), color)
+        res = apply_color_overlay(parameter, color)
         res.save(buffer, format="png")
         res.close()
         buffer.seek(0)
-        del res
+        del res, parameter
         gc.collect()
         return buffer
 
