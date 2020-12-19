@@ -139,7 +139,8 @@ class Parser:
             
             data = await ctx.bot.util.default_client.get(url)
             assert data.status == 200
-            if custom_emoji: return True
+            if custom_emoji:
+                return True
             
             assert data.headers['Content-Type'].startswith('image/')
             assert (int(data.headers['Content-Length'])/1024/1024) < 2
@@ -172,7 +173,7 @@ class Parser:
         
         _filtered = "".join(args).replace(" ", "").lower()
         
-        if (_filtered.startswith("<") and _filtered.endswith(">")) and (not member_only):
+        if (_filtered.startswith("<") and _filtered.endswith(">")) and (not member_only) and (_filtered.count(":") > 1):
             _extension = ".gif" if _filtered.startswith("<a") else ".png"
             try:
                 if default_to_png:
@@ -180,13 +181,14 @@ class Parser:
                 
                 _id = int(_filtered.split(':')[2].split('>')[0])
                 _url = f"https://cdn.discordapp.com/emojis/{_id}{_extension}"
-                is_valid = await Parser.__check_url(ctx, _url, custom_emoji=True)
+                is_valid = await Parser.__check_url(ctx, _url, cdn_only=True, custom_emoji=True)
                 assert is_valid
                 return _url
-            except: pass
+            except:
+                pass
         
         if (not member_only) and (not cdn_only):
-            _emoji = await emoji_to_url(_filtered)
+            _emoji = await emoji_to_url(_filtered, session=ctx.bot.util.default_client)
             if _emoji != _filtered:
                 return _emoji
         

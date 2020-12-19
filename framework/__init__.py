@@ -11,11 +11,14 @@ from .message import embed, Paginator, ChooseEmbed,  WaitForMessage
 from .util import Util, GetRequestFailedException, BasicCommandException
 from .games import Slot, TicTacToe, RockPaperScissors, GeographyQuiz, MathQuiz, GuessAvatar, Trivia, GuessMyNumber, Hangman
 from .canvas import ServerCard, UserCard, ProfileCard
+from .canvas import Functions as canvas_functions
 from .database import Database
+from .lego import legofy
 
 def initiate(client, db_name: str = "username601"):
     setattr(client, "slot", Slot)
     setattr(client, "oreo", Oreo)
+    setattr(client, "lego", legofy)
     setattr(client, "Embed", embed)
     setattr(client, "Parser", Parser)
     setattr(client, "Trivia", Trivia)
@@ -27,6 +30,7 @@ def initiate(client, db_name: str = "username601"):
     setattr(client, "ServerCard", ServerCard)
     setattr(client, "rps", RockPaperScissors)
     setattr(client, "GeoQuiz", GeographyQuiz)
+    setattr(client, "Image", canvas_functions)
     setattr(client, "ProfileCard", ProfileCard)
     setattr(client, "GuessAvatar", GuessAvatar)
     setattr(client, "ChooseEmbed", ChooseEmbed)

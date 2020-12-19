@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from PIL import ImageColor
 from decorators import *
 import random
 from io import BytesIO
@@ -14,6 +15,37 @@ class image(commands.Cog):
             "bird": "https://api.alexflipnote.dev/sadcat|file",
             "fox": 'https://randomfox.ca/floof/?ref=apilist.fun|image'
         }
+
+    @command(['colourify'])
+    @cooldown(5)
+    @require_args(2)
+    async def colorify(self, ctx, *args):
+        await ctx.trigger_typing()
+        try:
+            parsed_args = ctx.bot.Parser.split_args(args)
+            if not parsed_args:
+                color = ImageColor.getrgb(args[0])
+                image = await ctx.bot.Parser.parse_image(ctx, args[1:])
+            else:
+                color, image = ImageColor.getrgb(parsed_args)
+        except:
+            return await ctx.bot.cmds.invalid_args(ctx)
+        resp = await ctx.bot.util.default_client.get(image)
+        byte = await resp.read()
+        
+        image = ctx.bot.Image.colorify(BytesIO(byte), color)
+        await ctx.send(file=discord.File(image, "%02x%02x%02x.png" % color))
+        del resp, byte, image, color
+
+    @command(['legofy'])
+    @cooldown(10)
+    async def lego(self, ctx, *args):
+        await ctx.trigger_typing()
+        
+        image_url = await ctx.bot.Parser.parse_image(ctx, args)
+        lego_image = await ctx.bot.lego(image_url, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(lego_image, "lego.png"))
+        del image_url, lego_image
 
     @command(['explode'])
     @cooldown(9)

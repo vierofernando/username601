@@ -2,10 +2,24 @@ from twemoji_parser import TwemojiParser, emoji_to_url
 from PIL import Image, ImageFont, ImageDraw
 from .colorthief import Smart_ColorThief
 from discord import ActivityType, File
+from .lego import apply_color_overlay
 from aiohttp import ClientSession
 from io import BytesIO
 from time import time
 import gc
+
+class Functions:
+    @staticmethod
+    def colorify(image: BytesIO, color: tuple) -> BytesIO:
+        """ Colourifies an image. """
+        buffer = BytesIO()
+        res = apply_color_overlay(Image.open(image), color)
+        res.save(buffer, format="png")
+        res.close()
+        buffer.seek(0)
+        del res
+        gc.collect()
+        return buffer
 
 class ProfileCard:
     def __init__(self, ctx, member, profile: dict, session, font_path: str):
