@@ -244,17 +244,29 @@ class memes(commands.Cog):
         await ctx.trigger_typing()
         return await ctx.bot.util.send_image_attachment(ctx, f"https://i.ode.bz/auto/nichijou?text={ctx.bot.util.encode_uri(text[0:22])}")
     
-    @command(['achieve', 'call'])
+    @command()
     @cooldown(5)
     @require_args()
     async def challenge(self, ctx, *args):
         await ctx.trigger_typing()
         txt = ctx.bot.util.encode_uri(' '.join(args)[0:50])
-        command_name = ctx.bot.util.get_command_name(ctx)
-        if command_name == "challenge": url = 'https://api.alexflipnote.dev/challenge?text='+txt
-        elif command_name == "call": url = 'https://api.alexflipnote.dev/calling?text='+txt
-        else: url = 'https://api.alexflipnote.dev/achievement?text='+txt
-        return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://api.alexflipnote.dev/challenge?text='+txt, alexflipnote=True)
+    
+    @command(['achievement'])
+    @cooldown(5)
+    @require_args()
+    async def achieve(self, ctx, *args):
+        await ctx.trigger_typing()
+        txt = ctx.bot.util.encode_uri(' '.join(args)[0:50])
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://api.alexflipnote.dev/achievement?text='+txt, alexflipnote=True)
+   
+    @command(['calling'])
+    @cooldown(5)
+    @require_args()
+    async def call(self, ctx, *args):
+        await ctx.trigger_typing()
+        txt = ctx.bot.util.encode_uri(' '.join(args)[0:50])
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://api.alexflipnote.dev/calling?text='+txt, alexflipnote=True)
 
     @command(['dym'])
     @cooldown(2)
@@ -407,12 +419,12 @@ class memes(commands.Cog):
         })
         return await ctx.send(file=discord.File(meme, 'meme.png'))
 
-    @command(['changedmymind'])
+    @command(['changedmymind', 'cmm'])
     @cooldown(10)
     @require_args()
     async def changemymind(self, ctx, *args):
         await ctx.trigger_typing()
-        return await ctx.bot.util.send_image_attachment(ctx, 'https://nekobot.xyz/api/imagegen?type=changemymind&text='+ctx.bot.util.encode_uri(' '.join(args))+'&raw=1')
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://nekobot.xyz/api/imagegen?type=changemymind&text='+ctx.bot.util.encode_uri(' '.join(args)[0:50])+'&raw=1')
 
     @command(['gimme', 'memz', 'memey'])
     @cooldown(5)
@@ -426,13 +438,13 @@ class memes(commands.Cog):
             embed.set_image(url=data["url"])
         await ctx.send(embed=embed)
 
-    @command(['kannagen'])
+    @command()
     @cooldown(12)
     @require_args()
     async def clyde(self, ctx, *args):
         await ctx.trigger_typing()
         command_name = ctx.bot.util.get_command_name(ctx)
-        url='https://nekobot.xyz/api/imagegen?type='+command_name+'&text='+ctx.bot.util.encode_uri(' '.join(args)[0:100])+'&raw=1'
+        url='https://nekobot.xyz/api/imagegen?type=clyde&text='+ctx.bot.util.encode_uri(' '.join(args)[0:50])+'&raw=1'
         return await ctx.bot.util.send_image_attachment(ctx, url)
 
     @command()

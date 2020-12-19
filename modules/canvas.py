@@ -420,49 +420,6 @@ class Painter:
         draw.text((0, 0), string, font=font, fill=(255, 255, 255))
         return self.buffer(image)
     
-    async def profile(self, username, avatar, details, after):
-        # yanderedev was here
-        ava, ava_col = self.buffer_from_url(avatar).resize((100, 100)), [(i['r'], i['g'], i['b']) for i in self.get_multiple_accents(avatar)]
-        font, smolfont, smolerfont = self.get_font('NotoSansDisplay-Bold', 50, otf=True), self.get_font('NotoSansDisplay-Bold', 20, otf=True), self.get_font('NotoSansDisplay-Bold', 15, otf=True)
-        name = username
-        data = font.getsize(name)[0]
-        if data < 324: data = 324
-        margin_left, margin_right = 50, data + 200
-        bg, fg = ava_col[0], self.invert(ava_col[0])
-        main = Image.new(mode='RGB', color=bg, size=(margin_right+50, 450))
-        main.paste(ava, (50, 50))
-        draw = ImageDraw.Draw(main)
-        draw.text((170, 33), name, font=font, fill=fg)
-        draw.text((170, 100), 'Joined since {}\n(order {})'.format(details['joined'], details['number']), fill=fg, font=smolfont)
-        bal = details['wallet']+" bobux"
-        draw.rectangle([(margin_left, 180), (margin_right, 240)], fill=ava_col[8])
-        res_text = self.wrap_text(details['desc'], (margin_right - 180) - 2, smolfont)
-        draw.rectangle([(margin_left, 240), (margin_right, 270)], fill=ava_col[3])
-        draw.text((round((main.width - smolfont.getsize(bal)[0])/2), 239), bal, fill=self.invert(ava_col[3]), font=smolfont)
-        draw.rectangle([(margin_left, 270), (round(main.width/2), 310)], fill=ava_col[1])
-        draw.rectangle([(round(main.width/2), 270), (margin_right, 310)], fill=ava_col[2])
-        draw.text((margin_left + 7, 277), details['wallet']+" at wallet", font=smolfont, fill=self.invert(ava_col[1]))
-        draw.text((round(main.width/2) + 7, 277), details['bank']+" at bank", font=smolfont, fill=self.invert(ava_col[2]))
-        draw.rectangle([(round(main.width/2), 310), (margin_right, 350)], fill=ava_col[4])
-        draw.rectangle([(margin_left, 310), (round(main.width/2), 350)], fill=ava_col[5])
-        draw.text((margin_left + 7, 317), "Local Rank #"+details['rank'], font=smolfont, fill=self.invert(ava_col[4]))
-        draw.text((round(main.width/2) + 7, 317), "Global Rank #"+details['global'], font=smolfont, fill=self.invert(ava_col[5]))
-        draw.text((margin_left + 3, 183), res_text, fill=self.invert(ava_col[8]), font=smolfont)
-        if after is not None:
-            draw.rectangle([(margin_left, 350), (margin_right, 370)], fill=ava_col[6])
-            draw.rectangle([(margin_left, 370), (margin_right, 400)], fill=(100, 100, 100))
-            try:
-                now, next = int(details['wallet']), int(after['bal'])
-                percentage = round(now/next*margin_right)
-                if percentage < margin_left: percentage = margin_left
-                if percentage > margin_right: percentage = margin_right
-            except ZeroDivisionError:
-                percentage = margin_right
-            draw.rectangle([(margin_left, 370), (percentage, 400)], fill=(0, 255, 0))
-            draw.text((margin_left + 2, 349), after['delta']+" bobux left before reaching next rank ("+after['nextrank']+")", font=smolerfont, fill=self.invert(ava_col[6]))
-        main = self.add_corners(main, 25)
-        return self.buffer(main)
-    
     async def evol(self, url):
         ava, img = self.buffer_from_url(url).resize((77, 69)), self.templates["evol.jpg"].close()
         img.paste(ava, (255, 175))

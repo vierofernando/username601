@@ -46,7 +46,7 @@ Quiz was really buggy and API sometimes doesn't work for no reason<br>
 Editing messages too quickly is still API abuse, despite the big slowmode<br>
 soo... no.<br>
 
-### 1hbd, 1slap, 1botmembers, 1deathnote, 1id, 1reactnum, 1bomb, 1iss, 1ghibli, 1sof, 1serverstats<br>
+### 1hbd, 1slap, 1botmembers, 1deathnote, 1id, 1reactnum, 1bomb, 1iss, 1ghibli, 1sof, 1serverstats, 1kannagen, 1leetspeak<br>
 completely useless and barely anyone ever uses it<br>
 
 ### 1newemote<br>

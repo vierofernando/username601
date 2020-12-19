@@ -40,9 +40,12 @@ class image(commands.Cog):
     async def blend(self, ctx, *args):
         await ctx.trigger_typing()
         parsed_args = ctx.bot.Parser.split_args(args)
-        if parsed_args is None: 
-            first, second = ctx.author.avatar_url_as(format='png'), await ctx.bot.Parser.parse_image(ctx, args)
-        else: first, second = await ctx.bot.Parser.parse_image(ctx, (parsed_args[0],)), await ctx.bot.Parser.parse_image(ctx, (parsed_args[1],))
+        if parsed_args is None:
+            first = ctx.author.avatar_url_as(format='png')
+            second = await ctx.bot.Parser.parse_image(ctx, args)
+        else:
+            first = await ctx.bot.Parser.parse_image(ctx, (parsed_args[0],))
+            second = await ctx.bot.Parser.parse_image(ctx, (parsed_args[1],))
         blended = await ctx.bot.canvas.blend(first, second)
         return await ctx.send(file=discord.File(blended, 'blend.png'))
             

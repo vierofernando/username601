@@ -12,7 +12,7 @@ class apps(commands.Cog):
         self.Wikipedia = wikipediaapi.Wikipedia('en')
         self.ia = imdb.IMDb()
 
-    @command(['movie'])
+    @command()
     @cooldown(5)
     @require_args()
     async def tv(self, ctx, *args):
@@ -21,7 +21,9 @@ class apps(commands.Cog):
             json=True,
             q=' '.join(args)
         )
-        if not data: raise ctx.bot.util.BasicCommandException("Did not found anything.")
+        if not data:
+            raise ctx.bot.util.BasicCommandException("Did not found anything corresponding to your query.")
+        
         try:
             star = str(':star:'*round(data['rating']['average'])) if data['rating']['average'] is not None else 'No star rating provided.'
             embed = ctx.bot.Embed(
@@ -96,7 +98,7 @@ class apps(commands.Cog):
                     del _filter
                     destination = _filter[0]
                 except:
-                    raise ctx.bot.util.BasicCommandException("Please include a valid language.")
+                    return await ctx.bot.cmds.invalid_args(ctx)
             else:
                 destination = args[0].lower()
             translation = self.translator.translate(toTrans[0:1000], dest=destination)
@@ -104,7 +106,7 @@ class apps(commands.Cog):
             await embed.send()
             del embed, translation, destination, toTrans
         except:
-            raise ctx.bot.util.BasicCommandException('Please insert a valid language and a text to translate.')
+            return await ctx.bot.cmds.invalid_args(ctx)
 
     @command(['wiki'])
     @cooldown(5)
@@ -119,7 +121,7 @@ class apps(commands.Cog):
         embed = ctx.bot.Embed(ctx, title=page.title, url=page.fullurl, desc=page.summary[0:2000])
         return await embed.send()
     
-    @command()
+    @command(['movie', 'film'])
     @cooldown(5)
     @require_args()
     async def imdb(self, ctx, *args):

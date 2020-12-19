@@ -140,17 +140,17 @@ class owner(commands.Cog):
         await ctx.send(totallyrealtoken)
 
     @command(['sh'])
-    @require_args()
     async def bash(self, ctx, *args):
+        command = "echo hello world" if len(args) == 0 else " ".join(args)[0:100]
         if ctx.author.id == ctx.bot.util.owner_id:
             try:
                 await ctx.message.add_reaction(ctx.bot.util.loading_emoji)
-                data = await ctx.bot.util.execute(" ".join(args))
-                await ctx.send(embed=discord.Embed(title='Bash Terminal', description='Input:```sh\n'+' '.join(args)+'```**Output:**```sh\n'+str(data)[0:2000]+'```', color=discord.Color.green()))
+                data = await ctx.bot.util.execute(command)
+                await ctx.send(embed=discord.Embed(title='Bash Terminal', description='Input:```sh\n'+command+'```**Output:**```sh\n'+str(data)[0:2000]+'```', color=discord.Color.green()))
             except Exception as e:
-                await ctx.send(embed=discord.Embed(title='Error on execution', description='Input:```sh\n'+' '.join(args)+'```**Error:**```py\n'+str(e)+'```', color=discord.Color.red()))
+                await ctx.send(embed=discord.Embed(title='Error on execution', description='Input:```sh\n'+command+'```**Error:**```py\n'+str(e)+'```', color=discord.Color.red()))
         else:
-            await ctx.send(embed=discord.Embed(title='Error on execution', description='Input:```sh\n'+' '.join(args)+'```**Error:**```py\nDenied by username601.sh```', color=discord.Color.red()).set_footer(text='It is because it is owner only you dumbass'))
+            await ctx.send(embed=discord.Embed(title='Error on execution', description='Input:```sh\n'+command+'```**Error:**```py\nDenied by username601.sh```', color=discord.Color.red()).set_footer(text='It is because it is owner only you dumbass'))
 
 def setup(client):
     client.add_cog(owner(client))

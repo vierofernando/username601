@@ -9,10 +9,10 @@ def command(aliases: list = None):
 def cooldown(amount: int):
     return commands.cooldown(1, amount, commands.BucketType.user)
 
-def require_args(count: int = 1):
+def require_args(count: int = 1, name: str = None):
     async def predicate(ctx):
         if len(ctx.message.content.split()[1:]) < count:
-            await ctx.send(embed=Embed(title=f"This command requires at least {count} argument{('' if count == 1 else 's')}.", color=Color.red()))
+            await ctx.bot.cmds.invalid_args(ctx, name=name)
             return False
         return True
     return commands.check(predicate)

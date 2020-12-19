@@ -4,19 +4,13 @@ from decorators import *
 
 class encoding(commands.Cog):
     def __init__(self):
-        self.leet = None
-    
-    async def _get_leet(self, ctx):
-        self.leet = await ctx.bot.util.get_request(
-            "https://vierofernando.github.io/username601/assets/json/leet.json",
-            json=True,
-            raise_errors=True
-        )
+        pass
     
     @command()
     @cooldown(2)
+    @require_args()
     async def ascii(self, ctx, *args):
-        text = ' '.join(args) if len(args)>0 else 'ascii text'
+        text = ' '.join(args)
         ascii = await ctx.bot.util.get_request(
             "http://artii.herokuapp.com/make",
             raise_errors=True,
@@ -26,7 +20,7 @@ class encoding(commands.Cog):
         await ctx.send(f'```{ascii[0:2000]}```')
         del ascii, text
     
-    @command(['fliptext', 'fancy', 'cursive', 'braille'])
+    @command()
     @cooldown(5)
     @require_args()
     async def morse(self, ctx, *args):
@@ -38,14 +32,68 @@ class encoding(commands.Cog):
         )
         if not res:
             raise ctx.bot.util.BasicCommandException("The API is temporarily down. Please try again later.")
-        command_name = ctx.bot.util.get_command_name(ctx)
+
+        await ctx.send(res['ciphers']['morse'])
+    
+    @command()
+    @cooldown(5)
+    @require_args()
+    async def fliptext(self, ctx, *args):
+        await ctx.trigger_typing()
+        res = await ctx.bot.util.get_request(
+            'https://useless-api.vierofernando.repl.co/encode',
+            json=True,
+            text=str(" ".join(args))[0:100]
+        )
+        if not res:
+            raise ctx.bot.util.BasicCommandException("The API is temporarily down. Please try again later.")
         
-        if command_name == "fliptext": data = res['styles']['upside-down']
-        elif command_name == "cursive": data = res['styles']['cursive']
-        elif command_name == "fancy": data = res['styles']['fancy']
-        elif command_name == "braille": data = res['braille']
-        else: data = res['ciphers']['morse']
-        await ctx.send(data)
+        await ctx.send(res['styles']['upside-down'])
+    
+    @command()
+    @cooldown(5)
+    @require_args()
+    async def fancy(self, ctx, *args):
+        await ctx.trigger_typing()
+        res = await ctx.bot.util.get_request(
+            'https://useless-api.vierofernando.repl.co/encode',
+            json=True,
+            text=str(" ".join(args))[0:100]
+        )
+        if not res:
+            raise ctx.bot.util.BasicCommandException("The API is temporarily down. Please try again later.")
+        
+        await ctx.send(res['styles']['fancy'])
+    
+    @command()
+    @cooldown(5)
+    @require_args()
+    async def cursive(self, ctx, *args):
+        await ctx.trigger_typing()
+        res = await ctx.bot.util.get_request(
+            'https://useless-api.vierofernando.repl.co/encode',
+            json=True,
+            text=str(" ".join(args))[0:100]
+        )
+        if not res:
+            raise ctx.bot.util.BasicCommandException("The API is temporarily down. Please try again later.")
+        
+        await ctx.send(res['styles']['cursive'])
+    
+    @command()
+    @cooldown(5)
+    @require_args()
+    async def braille(self, ctx, *args):
+        await ctx.trigger_typing()
+        res = await ctx.bot.util.get_request(
+            'https://useless-api.vierofernando.repl.co/encode',
+            json=True,
+            text=str(" ".join(args))[0:100]
+        )
+        if not res:
+            raise ctx.bot.util.BasicCommandException("The API is temporarily down. Please try again later.")
+        
+        await ctx.send(res['braille'])
     
     @command()
     @cooldown(2)
@@ -69,9 +117,8 @@ class encoding(commands.Cog):
 
     @command()
     @cooldown(2)
+    @require_args(2)
     async def caesar(self, ctx, *args):
-        if len(args)<2:
-            raise ctx.bot.util.BasicCommandException(f'Try something like `{ctx.bot.command_prefix}caesar 3 hello world`')
         offset = ctx.bot.Parser.get_numbers(args)
         if not offset:
             raise ctx.bot.util.BasicCommandException(f'Add an offset to your command. Example: `{ctx.bot.command_prefix}caesar 3 hello world`')
@@ -95,22 +142,5 @@ class encoding(commands.Cog):
     async def base64(self, ctx, *args):
         return await ctx.send(ctx.bot.util.base64(' '.join(args)), allowed_mentions=ctx.bot.util.no_mentions)
     
-    @command(['leetspeak'])
-    @cooldown(2)
-    @require_args()
-    async def leet(self, ctx, *args):
-        await ctx.trigger_typing()
-        if not self.leet:
-            await self._get_leet(ctx)
-
-        total = ''
-        for i in ' '.join(args)[0:100].lower():
-            if i.isalpha():
-                total += self.leet[i]
-            else:
-                total += i
-        await ctx.send(total, allowed_mentions=ctx.bot.util.no_mentions)
-        del total, data
-
 def setup(client):
     client.add_cog(encoding())

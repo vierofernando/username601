@@ -524,27 +524,28 @@ class moderation(commands.Cog):
         except Exception as e:
             raise ctx.bot.util.BasicCommandException(str(e))
                 
-    @command(['lock', 'lockchannel', 'lock-channel'])
+    @command(['lockdown', 'lockchannel', 'lock-channel'])
     @cooldown(7)
     @require_args()
     @permissions(author=['manage_messages'], bot=['manage_channels'])
-    async def lockdown(self, ctx, *args):
+    async def lock(self, ctx, *args):
         enable = (not args[0].lower() in ['yes', 'y', 'enable', 'true', 'enabled', 'on'])
         await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=enable)
         try:
             await ctx.send(embed=discord.Embed(title=f"Successfully {'Locked' if enable else 'Re-opened'} the channel.", description=f"All members with the default role {'can send messages in this channel again.' if enable else 'cannot send messages in this channel'}." + "\nType `" + ctx.bot.command_prefix + f"lock {'enable' if enable else 'disable'}` to {'enable' if enable else 'disable'} this effect again.", color=discord.Color.green()))
         except: return
     
-    @command(['hide', 'hide-channel'])
+    @command(['hidechannel', 'hide-channel'])
     @cooldown(7)
     @require_args()
     @permissions(author=['manage_messages'], bot=['manage_channels'])
-    async def hidechannel(self, ctx, *args):
+    async def hide(self, ctx, *args):
         enable = (not args[0].lower() in ['yes', 'y', 'enable', 'true', 'enabled', 'on'])
         await ctx.channel.set_permissions(ctx.guild.default_role, read_messages=enable)
         try:
             await ctx.send(embed=discord.Embed(title=f"Successfully {'Hide' if enable else 'Re-opened'} the channel.", description=f"All members with the default role {'can see messages in this channel again.' if enable else 'cannot read messages in this channel/see messages in this channel'}." + "\nType `" + ctx.bot.command_prefix + f"hide {'enable' if enable else 'disable'}` to {'enable' if enable else 'disable'} this effect again.", color=discord.Color.green()))
-        except: return
+        except:
+            return
     
     @command(['guild-role', 'server-role'])
     @cooldown(6)

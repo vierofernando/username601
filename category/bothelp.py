@@ -105,9 +105,10 @@ class bothelp(commands.Cog):
             raise ctx.bot.util.BasicCommandException("Please do NOT send invites. This is NOT advertising.")
         
         wait = await ctx.send(ctx.bot.util.loading_emoji + ' | Please wait... Transmitting data to owner...')
-        banned = ctx.author.id in [int(i.split("|")[0]) for i in self.db.get("config", {"h": True})["bans"]]
+
+        banned = [i for i in self.db.get("config", {"h": True})["bans"] if i.startswith(str(ctx.author.id))]
         
-        if not banned:
+        if len(banned) == 0:
             try:
                 feedback_channel = ctx.bot.get_channel(ctx.bot.util.feedback_channel)
                 await feedback_channel.send(f'<@{ctx.bot.util.owner_id}>, User with ID: {ctx.author.id} sent a feedback: **"'+' '.join(args)[0:500]+'"**')
@@ -116,7 +117,8 @@ class bothelp(commands.Cog):
             except:
                 raise ctx.bot.util.BasicCommandException('There was an error while sending your feedback. Sorry! :(')
         else:
-            raise ctx.bot.util.BasicCommandException(f"You have been banned from using the Feedback command.\nReason: {banned}")
+            reason = "|".join(banslist[0].split("|")[1:])
+            raise ctx.bot.util.BasicCommandException(f"You have been banned from using the Feedback command.\nReason: {reason}")
      
     @command()
     @cooldown(2)
@@ -131,9 +133,7 @@ class bothelp(commands.Cog):
             thumbnail='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif'
         )
         await embed.send()
-        del embed
-        del wsping
-        del msgping
+        del embed, wsping, msgping
 
     @command(['botstats', 'meta'])
     @cooldown(10)

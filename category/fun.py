@@ -75,7 +75,7 @@ class fun(commands.Cog):
 
     @command(['8ball', '8b'])
     @cooldown(3)
-    @require_args()
+    @require_args(name="8ball")
     async def _8ball(self, ctx, *args):
         res = ctx.bot.util.eight_ball(ctx)
         embed = ctx.bot.Embed(ctx, title="The 8-Ball", fields={

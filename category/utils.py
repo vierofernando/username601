@@ -154,10 +154,10 @@ class utils(commands.Cog):
         await embed.send()
         del em, img, data
 
-    @command(['pokedex', 'dex', 'bulbapedia', 'pokemoninfo', 'poke-info', 'poke-dex', 'pokepedia'])
+    @command(['pokemon', 'pokeinfo', 'dex', 'bulbapedia'])
     @cooldown(10)
     @require_args()
-    async def pokeinfo(self, ctx, *args):
+    async def pokedex(self, ctx, *args):
         try:
             data = await ctx.bot.util.get_request(
                 'https://bulbapedia.bulbagarden.net/w/api.php',
@@ -346,7 +346,7 @@ class utils(commands.Cog):
         embed = ctx.bot.Embed(ctx, desc=' '.join(args)[0:1950])
         await embed.send()
         del embed
-            
+    
     @command(['col'])
     @cooldown(3)
     @require_args()
