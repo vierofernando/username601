@@ -18,16 +18,17 @@ class image(commands.Cog):
 
     @command(['colourify'])
     @cooldown(5)
-    @require_args(2)
+    @require_args()
     async def colorify(self, ctx, *args):
         await ctx.trigger_typing()
         try:
-            parsed_args = ctx.bot.Parser.split_args(args)
-            if not parsed_args:
+            if len(args) == 1:
                 color = ImageColor.getrgb(args[0])
-                image = await ctx.bot.Parser.parse_image(ctx, args[1:])
+                image = str(ctx.author.avatar_url_as(format="png", size=1024))
             else:
-                color, image = ImageColor.getrgb(parsed_args)
+                parsed_args = ctx.bot.Parser.split_args(args)
+                color = ImageColor.getrgb(parsed_args[0])
+                image = await ctx.bot.Parser.parse_image(ctx, parsed_args[1])
         except:
             return await ctx.bot.cmds.invalid_args(ctx)
         resp = await ctx.bot.util.default_client.get(image)
