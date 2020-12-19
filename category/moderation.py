@@ -705,7 +705,10 @@ class moderation(commands.Cog):
                     footer_text = f"...and other {len(ctx.guild.emojis) - index} custom emojis (too much to display)"
                     break
                 emojis += str(emoji) + " "
-            embed = ctx.bot.Embed(ctx, title="Server Custom Emojis List")
+            embed = ctx.bot.Embed(ctx, title="Server Custom Emojis List", desc=emojis, footer=(None if footer_text == "" else footer_text))
+            await embed.send()
+            del embed, emojis, footer_text
+            return
         elif args[0].lower() == "info":
             try:
                 res = await ctx.bot.Parser.parse_emoji(ctx, args[1])
