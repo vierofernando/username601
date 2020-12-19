@@ -3,6 +3,12 @@
 ## DEPRECATED COMMANDS<br>
 these are commands i decided to delete with the reasons.
 
+### 1setdesc<br>
+Moved to `1bal --desc [text]`
+
+### 1userinfo<br>
+Moved to `1member`
+
 ### 1emojiimg, 1serveremojis, 1emoji<br>
 Merged down to `1emoji`
 

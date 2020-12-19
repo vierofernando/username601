@@ -242,7 +242,7 @@ class memes(commands.Cog):
     async def nichijou(self, ctx, *args):
         text = 'LAZY PERSON' if (len(args)==0) else ' '.join(args)
         await ctx.trigger_typing()
-        return await ctx.bot.util.send_image_attachment(f"https://i.ode.bz/auto/nichijou?text={text[0:22]}")
+        return await ctx.bot.util.send_image_attachment(ctx, f"https://i.ode.bz/auto/nichijou?text={ctx.bot.util.encode_uri(text[0:22])}")
     
     @command(['achieve', 'call'])
     @cooldown(5)
@@ -250,6 +250,7 @@ class memes(commands.Cog):
     async def challenge(self, ctx, *args):
         await ctx.trigger_typing()
         txt = ctx.bot.util.encode_uri(' '.join(args)[0:50])
+        command_name = ctx.bot.util.get_command_name(ctx)
         if command_name == "challenge": url = 'https://api.alexflipnote.dev/challenge?text='+txt
         elif command_name == "call": url = 'https://api.alexflipnote.dev/calling?text='+txt
         else: url = 'https://api.alexflipnote.dev/achievement?text='+txt
@@ -377,7 +378,7 @@ class memes(commands.Cog):
     async def imgcaptcha(self, ctx, *args):
         await ctx.trigger_typing()
         user = ctx.bot.Parser.parse_user(ctx, args)
-        av, nm = av.avatar_url_as(format="png"), user.display_name
+        av, nm = user.avatar_url_as(format="png"), ctx.bot.util.encode_uri(user.display_name)
         url = 'http://nekobot.xyz/api/imagegen?type=captcha&username='+nm+'&url='+av+'&raw=1'
         return await ctx.bot.util.send_image_attachment(ctx, url)
 

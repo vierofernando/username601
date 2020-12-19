@@ -581,6 +581,7 @@ class GifGenerator:
     
     def __init__(self, assetpath, fontpath):
         self.buffer_from_url = buffer_from_url
+        self.assetpath = assetpath
         self.fontpath = fontpath
         self.triggered_text = Image.open(f"{assetpath}/triggered.jpg")
         self.triggered_red = Image.new(mode="RGBA", size=(216, 216), color=(255, 0, 0, 100))
@@ -590,11 +591,6 @@ class GifGenerator:
         for frame in ImageSequence.Iterator(Image.open(f"{assetpath}/ussr.gif")):
             self.ussr_frames.append(frame.convert("RGB"))
         self.ussr_frames_size = len(self.ussr_frames)
-        
-        self.templates = {}
-        for image in listdir(assetpath):
-            if not image.endswith(".gif"): continue
-            self.templates[image] = Image.open(f"{assetpath}/{image}")
     
     def mask_circle(self, im):
         bigsize = (im.size[0] * 3, im.size[1] * 3)
@@ -621,7 +617,7 @@ class GifGenerator:
         return ImageFont.truetype(f'{self.fontpath}/{fontname}.{ext}', size)
 
     async def hitler(self, pic):
-        thegif = self.templates["hitler.gif"].copy()
+        thegif = Image.open(f"{self.assetpath}/hitler.gif")
         av, images = self.buffer_from_url(pic).resize((79, 103)), []
         size = thegif.size
         for i in range(thegif.n_frames):
@@ -637,11 +633,12 @@ class GifGenerator:
             except: cnv.paste(av, (206, 30))
             images.append(cnv)
         thegif.close()
+        del thegif
         return self.bufferGIF(images, 1.2)
     
     async def worship(self, pic):
         im = self.buffer_from_url(pic).resize((127, 160))
-        gi = self.templates['worship.gif'].copy()
+        gi = Image.open(f'{self.assetpath}/worship.gif')
         images = []
         for i in range(gi.n_frames):
             gi.seek(i)
@@ -651,6 +648,7 @@ class GifGenerator:
             except: cnv.paste(im, (303, 7))
             images.append(cnv)
         gi.close()
+        del gi
         return self.bufferGIF(images, 15)
 
     async def flip(self, pic):
@@ -664,10 +662,11 @@ class GifGenerator:
             cnv.paste(image.resize((400, 400-stretch)), (0, round(stretch/2)))
             images.append(cnv)
         images += images[::-1]
+        del speed, inv_im, im
         return self.bufferGIF(images, 20, transparent=True)
         
     async def crazy_frog_dance(self, pic, metadata):
-        im = self.templates['crazyfrog.gif'].copy()
+        im = Image.open(f'{self.assetpath}/crazyfrog.gif')
         ava = self.buffer_from_url(pic)
         size, images = im.size, []
         for i in range(im.n_frames):
@@ -682,7 +681,7 @@ class GifGenerator:
         return self.bufferGIF(images, 5)
 
     async def destroy_computer(self, pic, metadata):
-        data = self.templates['rage.gif'].copy()
+        data = Image.open(f'{self.assetpath}/rage.gif')
         ava = self.buffer_from_url(pic).resize((40, 40))
         imsize = data.size
         images = []
@@ -696,7 +695,7 @@ class GifGenerator:
         return self.bufferGIF(images, 4.3)
 
     async def death_star(self, pic):
-        gif_template = self.templates['explosion.gif'].copy()
+        gif_template = Image.open(f'{self.assetpath}/explosion.gif')
         ava, images, size = self.buffer_from_url(pic).resize((61, 62)), [], gif_template.size
         for i in range(gif_template.n_frames):
             canvas = Image.new(mode='RGB', color=(0,0,0), size=size)
@@ -705,6 +704,7 @@ class GifGenerator:
             if i < 7: canvas.paste(ava, (183, 143))
             images.append(canvas)
         gif_template.close()
+        del gif_template
         return self.bufferGIF(images, 3)
 
     async def rotate(self, pic, change_mode=False):

@@ -293,7 +293,7 @@ class economy(commands.Cog):
         data = self.db.get("economy", {"userid": member.id})
         if not data:
             raise ctx.bot.util.BasicCommandException(f"{member.display_name} does not have any profile!")
-
+        
         embed = ctx.bot.Embed(
             ctx,
             title=f"{member.display_name}'s profile",
@@ -305,6 +305,7 @@ class economy(commands.Cog):
             },
             color=discord.Color.from_rgb(*[int(i) for i in data["color"].split(",")]) if data.get("color") else ctx.me.color
         )
+        
         if data.get("color"):
             rgb = tuple([int(i) for i in data["color"].split(",")])
             embed.fields["Color"] = f"**Hex: **{('#%02x%02x%02x' % rgb).upper()}"+"\n"+f"**RGB: **{rgb[0]}, {rgb[1]}, {rgb[2]}"
