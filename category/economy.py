@@ -159,7 +159,7 @@ class economy(commands.Cog):
                 number = random.randint(0, data["bal"])
             assert number <= victim_data["bal"], f"Number must be below the opponent's bobux. ({victim_data['bal']})"
             data = self.db.get("economy", {"userid": ctx.author.id})
-            assert data["bal"] > 750, f"You need at least 750 bobux ({data['bal'] - 750} more) to rob someone."
+            assert data["bal"] > 750, f"You need at least 750 bobux ({750 - data['bal']} more) to rob someone."
             
             await ctx.send(embed=discord.Embed(title=f"Successfully robbed {member.display_name} for {number:,} bobux.", color=discord.Color.green()))
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": number})
@@ -257,7 +257,7 @@ class economy(commands.Cog):
                     data = self.db.get("economy", {"userid": ctx.author.id})
                     
                     assert data is not None, f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."
-                    assert data["bal"] > 500, f"You need at least 500 bobux to change bio ({(data['bal'] - 500):,} more bobux required)"
+                    assert data["bal"] > 500, f"You need at least 500 bobux to change bio ({(500 - data['bal']):,} more bobux required)"
 
                     await ctx.send(embed=discord.Embed(title=f"Successfully changed your bio.", color=discord.Color.green()).set_footer(text="Your bio is too long, so we capped it down to 50 characters." if len(text) > 50 else ""))
                     self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"desc": text[0:50]})
@@ -269,7 +269,7 @@ class economy(commands.Cog):
                     color = ImageColor.getrgb(' '.join(args[1:]))
                     data = self.db.get("economy", {"userid": ctx.author.id})
                     assert (data is not None), f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."
-                    assert data["bal"] > 1000, f"You need at least 1,000 bobux to change bio ({(data['bal'] - 1000):,} more bobux required)"
+                    assert data["bal"] > 1000, f"You need at least 1,000 bobux to change bio ({(1000 - data['bal']):,} more bobux required)"
                 except ValueError:
                     return await ctx.bot.cmds.invalid_args(ctx)
                 except AssertionError as e:
