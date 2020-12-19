@@ -28,7 +28,7 @@ class image(commands.Cog):
             else:
                 parsed_args = ctx.bot.Parser.split_args(args)
                 color = ImageColor.getrgb(parsed_args[0])
-                image = await ctx.bot.Parser.parse_image(ctx, parsed_args[1])
+                image = await ctx.bot.Parser.parse_image(ctx, (parsed_args[1],))
         except:
             return await ctx.bot.cmds.invalid_args(ctx)
         resp = await ctx.bot.util.default_client.get(image)
