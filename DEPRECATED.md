@@ -1,7 +1,10 @@
 # List of deprecated or discontinued commands<br>
 
 ## DEPRECATED COMMANDS<br>
-these are commands i decided to delete with the reasons.
+these are commands i decided to delete or change to with the reasons.
+
+### 1gamble<br>
+Changed to `1bet`
 
 ### 1setdesc<br>
 Moved to `1bal --desc [text]`
