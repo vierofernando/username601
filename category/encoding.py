@@ -121,7 +121,7 @@ class encoding(commands.Cog):
     async def caesar(self, ctx, *args):
         offset = ctx.bot.Parser.get_numbers(args)
         if not offset:
-            raise ctx.bot.util.BasicCommandException(f'Add an offset to your command. Example: `{ctx.bot.command_prefix}caesar 3 hello world`')
+            return await ctx.bot.cmds.invalid_args(ctx)
         return await ctx.send(ctx.bot.util.caesar(str(' '.join(args).replace(str(offset[0]), '')), offset[0]), allowed_mentions=ctx.bot.util.no_mentions)
     
     @command()

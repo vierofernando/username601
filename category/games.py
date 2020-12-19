@@ -146,8 +146,8 @@ class games(commands.Cog):
             if num not in range(-99999, 100000): num = 601
             return await ctx.bot.util.send_image_attachment(ctx, f'https://gdcolon.com/tools/gdcomment/img/{text}?name={user_name}&likes={num}&days=1-second{("&mod=mod" if ctx.author.guild_permissions.manage_guild else "")}')
         except Exception as e:
-            raise ctx.bot.util.BasicCommandException(f'Invalid arguments!\nThe flow is this: {ctx.bot.command_prefix}gd comment <text> | <username> | <like count>')
-
+            return await ctx.bot.cmds.invalid_args(ctx)
+    
     async def geometry_dash_level(self, ctx, args):
         _input = args[0].lower()
         if _input == "daily":
@@ -193,21 +193,18 @@ class games(commands.Cog):
     @require_args()
     async def gd(self, ctx, *args):
         await ctx.trigger_typing()
-        try:
-            _input = args[0].lower()
-            if _input.startswith("level"):
-                return await self.geometry_dash_level(ctx, args[1:])
-            elif _input.startswith("profile") or _input.startswith("user"):
-                return await self.geometry_dash_profile(ctx, args[1:])
-            elif _input.startswith("logo"):
-                return await ctx.bot.util.send_image_attachment(ctx, 'https://gdcolon.com/tools/gdlogo/img/'+ctx.bot.util.encode_uri(' '.join(args[1:])))
-            elif _input.startswith("box"):
-                return await ctx.bot.util.send_image_attachment(ctx, 'https://gdcolon.com/tools/gdtextbox/img/'+ctx.bot.util.encode_uri(' '.join(args[1:]))[0:100]+'?color='+('blue' if ctx.author.guild_permissions.manage_guild else 'brown')+'&name='+ctx.author.display_name+'&url='+str(ctx.author.avatar_url_as(format='png'))+'&resize=1')
-            elif _input.startswith("comment"):
-                return await self.geometry_dash_comment(ctx, args[1:])
-            assert False
-        except:
-            raise ctx.bot.util.BasicCommandException(f"Invalid arguments. Try `{ctx.bot.command_prefix}help gd`")
+        _input = args[0].lower()
+        if _input.startswith("level"):
+            return await self.geometry_dash_level(ctx, args[1:])
+        elif _input.startswith("profile") or _input.startswith("user"):
+            return await self.geometry_dash_profile(ctx, args[1:])
+        elif _input.startswith("logo"):
+            return await ctx.bot.util.send_image_attachment(ctx, 'https://gdcolon.com/tools/gdlogo/img/'+ctx.bot.util.encode_uri(' '.join(args[1:])))
+        elif _input.startswith("box"):
+            return await ctx.bot.util.send_image_attachment(ctx, 'https://gdcolon.com/tools/gdtextbox/img/'+ctx.bot.util.encode_uri(' '.join(args[1:]))[0:100]+'?color='+('blue' if ctx.author.guild_permissions.manage_guild else 'brown')+'&name='+ctx.author.display_name+'&url='+str(ctx.author.avatar_url_as(format='png'))+'&resize=1')
+        elif _input.startswith("comment"):
+            return await self.geometry_dash_comment(ctx, args[1:])
+        return await ctx.bot.cmds.invalid_args(ctx)
 
     @command(['rockpaperscissors'])
     @cooldown(5)

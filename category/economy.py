@@ -50,7 +50,7 @@ class economy(commands.Cog):
             amount = ctx.bot.Parser.get_numbers(args)
             assert amount[0] in range(0, 69420)
         except:
-            raise ctx.bot.util.BasicCommandException('Please make sure you input a valid number!')
+            return await ctx.bot.cmds.invalid_args(ctx)
         
         self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": (amount[0] if lucky else -amount[0])})
         return await ctx.send((ctx.bot.util.success_emoji if lucky else ctx.bot.util.error_emoji) + ' | ' + (f"Congratulations! {ctx.author.display_name} just won {amount:,} bobux!" if lucky else f"Yikes! {ctx.author.display_name} just lost {amount:,} bobux..."))
@@ -181,14 +181,15 @@ class economy(commands.Cog):
 
         try:
             num = ctx.bot.util.Parser.get_numbers(args)
-            if num > data['bal']:
-                raise ctx.bot.util.BasicCommandException('Your input has more bobux than the one in your balance!')
+            assert num < data['bal'], 'Your input has more bobux than the one in your balance!'
             await ctx.send(embed=discord.Embed(title=f'OK. Deposited {num:,} bobux to your bank.', color=discord.Color.green()))
 
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bankbal": num})
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": -num})
-        except:
-            raise ctx.bot.util.BasicCommandException("Invalid number.")
+        except AssertionError as e:
+            raise ctx.bot.util.BasicCommandException(str(e))
+        except Exception as e:
+            return await ctx.bot.cmds.invalid_args(ctx)
     
     @command()
     @cooldown(10)
@@ -204,14 +205,15 @@ class economy(commands.Cog):
 
         try:
             num = ctx.bot.util.Parser.get_numbers(args)
-            if num > data['bankbal']:
-                raise ctx.bot.util.BasicCommandException('Your input has more bobux than the one in the bank!')
+            assert num < data['bankbal'], 'Your input has more bobux than the one in the bank!'
             await ctx.send(embed=discord.Embed(title=f'OK. Withdrew {num:,} bobux from the bank.', color=discord.Color.green()))
 
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": num})
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bankbal": -num})
-        except:
-            raise ctx.bot.util.BasicCommandException("Invalid number.")
+        except AssertionError as e:
+            raise ctx.bot.util.BasicCommandException(str(e))
+        except Exception:
+            return await ctx.bot.cmds.invalid_args(ctx)
 
     @command(['lb', 'leader', 'leaders', 'rich', 'richest', 'top'])
     @cooldown(6)
@@ -269,7 +271,7 @@ class economy(commands.Cog):
                     assert (data is not None), f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."
                     assert data["bal"] > 1000, f"You need at least 1,000 bobux to change bio ({(data['bal'] - 1000):,} more bobux required)"
                 except ValueError:
-                    raise ctx.bot.util.BasicCommandException("Invalid Hex color input.")
+                    return await ctx.bot.cmds.invalid_args(ctx)
                 except AssertionError as e:
                     raise ctx.bot.util.BasicCommandException(str(e))
                 

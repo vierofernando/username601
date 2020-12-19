@@ -88,7 +88,7 @@ class fun(commands.Cog):
     @cooldown(2)
     async def choose(self, ctx, *args):
         if len(args)==0 or ',' not in ''.join(args):
-            raise ctx.bot.util.BasicCommandException(f'send in something!\nLike: `{ctx.bot.command_prefix}choose he is cool, he is not cool`')
+            return await ctx.bot.cmds.invalid_args(ctx)
         return await ctx.send(random.choice(' '.join(args).split(',')))
     
     @command(['fact-core', 'fact-sphere', 'factsphere'])

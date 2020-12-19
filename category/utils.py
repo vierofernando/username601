@@ -362,10 +362,9 @@ class utils(commands.Cog):
         else:
             color_image = await ctx.bot.canvas.color(None, (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))) if ctx.bot.utils.parse_parameter(args, 'random')['available'] else await ctx.bot.canvas.color(' '.join(args))
         if not color_image:
-            raise ctx.bot.util.BasicCommandException("Please insert a valid Hex.")
+            return await ctx.bot.cmds.invalid_args(ctx)
         await ctx.send(file=discord.File(color_image, 'color.png'))
-        del color_image
-        del role_name
+        del color_image, role_name
     
     @command(['fast'])
     @cooldown(5)

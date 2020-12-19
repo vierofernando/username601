@@ -26,10 +26,11 @@ class BotCommands:
         name = name if name else ctx.command.name
         command_info = [i for i in self.commands if i["name"] == name][0]
         embed = Embed(title="Invalid arguments", color=Color.red())
-        embed.add_field(name="Usage", value="```"+"\n".join([i.split(": ")[1] for i in command_info["parameters"]])+"```")
+        embed.add_field(name="Description", value=command_info["function"], inline=False)
+        embed.add_field(name="Usage", value="```"+"\n".join([i.split(": ")[1] for i in command_info["parameters"]])+"```", inline=False)
         
         if len(ctx.command.aliases) > 0:
-            embed.add_field(name="Command Aliases", value=", ".join([f'`{i}`' for i in ctx.command.aliases]))
+            embed.add_field(name="Command Aliases", value=", ".join([f'`{i}`' for i in ctx.command.aliases]), inline=False)
         await ctx.send(embed=embed)
         del command_info, embed
     

@@ -267,9 +267,9 @@ class moderation(commands.Cog):
                 await ctx.send(embed=discord.Embed(title=f'OK. Changed the limit to {num} star reactions.', color=discord.Color.green()))
                 self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"star_requirements": num})
             except:
-                raise ctx.bot.util.BasicCommandException('Invalid number.')
+                return await ctx.bot.cmds.invalid_args(ctx)
         else:
-            raise ctx.bot.util.BasicCommandException("Invalid flag.") # so the bot is not stuck in typing forever.
+            return await ctx.bot.cmds.invalid_args(ctx)
     
     @command()
     @cooldown(5)
@@ -371,23 +371,14 @@ class moderation(commands.Cog):
             else:
                 self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"welcome": channelid})
         except:
-            raise ctx.bot.util.BasicCommandException("Invalid arguments!")
+            return await ctx.bot.cmds.invalid_args(ctx)
     
     @command(['auto-role', 'welcome-role', 'welcomerole'])
     @cooldown(12)
+    @require_args()
     @permissions(author=['manage_roles'], bot=['manage_roles'])
     async def autorole(self, ctx, *args):
         data = self.db.get("dashboard", {"serverid": ctx.guild.id})
-
-        if len(args) == 0:
-            embed = ctx.bot.Embed(
-                ctx,
-                title='Command usage',
-                desc=f'`{ctx.bot.command_prefix}autorole <role>`'+'\n'+f'`{ctx.bot.command_prefix}autorole disable`'
-            )
-            await embed.send()
-            del embed, args
-            return
         
         if args[0].lower() == 'disable':
             if (not data) or (not data.get("autorole")):
@@ -409,7 +400,7 @@ class moderation(commands.Cog):
             else:
                 self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"autorole": roleid})
         except:
-            raise ctx.bot.util.BasicCommandException("Invalid arguments!")
+            return await ctx.bot.cmds.invalid_args(ctx)
     
     @command()
     @cooldown(10)
@@ -594,8 +585,8 @@ class moderation(commands.Cog):
             await embed.send()
             del embed
             return
-        raise ctx.bot.util.BasicCommandException(f"Usage: `{ctx.bot.command_prefix}role info <role>` or `{ctx.bot.command_prefix}role list`")
-    
+        return await ctx.bot.cmds.invalid_args(ctx)
+        
     @command(['guild-channel', 'server-channel'])
     @cooldown(6)
     @require_args()
@@ -610,7 +601,7 @@ class moderation(commands.Cog):
                 channel = ctx.bot.Parser.parse_channel(ctx, ' '.join(args[1:]), return_array=True)
                 assert (channel is not None)
             except:
-                raise ctx.bot.util.BasicCommandException(f"Please add a valid channel name/ID after `{ctx.bot.command_prefix}channel info`")
+                return await ctx.bot.cmds.invalid_args(ctx)
             if isinstance(channel, list):
                 choose = ctx.bot.ChooseEmbed(ctx, channel, key=(lambda x: f"[`{str(x.type)}`] {x.name}"))
                 res = await choose.run()
@@ -651,8 +642,8 @@ class moderation(commands.Cog):
             await embed.send()
             del embed, channel
             return
-        raise ctx.bot.util.BasicCommandException(f"Usage: `{ctx.bot.command_prefix}channel list` or `{ctx.bot.command_prefix}channel info <channel>`")
-
+        return await ctx.bot.cmds.invalid_args(ctx)
+    
     @command(['user'])
     @cooldown(3)
     async def member(self, ctx, *args):
@@ -720,7 +711,7 @@ class moderation(commands.Cog):
                 res = await ctx.bot.Parser.parse_emoji(ctx, args[1])
                 assert (res is not None)
             except:
-                raise ctx.bot.util.BasicCommandException(f"Please add a emoji after the `{ctx.bot.command_prefix}emoji info`")
+                return await ctx.bot.cmds.invalid_args(ctx)
             data = ctx.bot.get_emoji(int(res.split("emojis/")[1].split(".")[0])) if res.startswith("https://cdn") else None
             
             fields = {
@@ -751,8 +742,8 @@ class moderation(commands.Cog):
             except:
                 raise ctx.bot.util.BasicCommandException(f"Please add a emoji after the `{ctx.bot.command_prefix}emoji enlarge`")
             return await ctx.bot.util.send_image_attachment(ctx, res)
-        return await ctx.send(embed=discord.Embed(title="Invalid Arguments", description="Valid parameters: `list`, `info <emoji>`, `enlarge <emoji>`", color=discord.Color.red()))
-
+        return await ctx.bot.cmds.invalid_args(ctx)
+    
     @command(['guild'])
     @cooldown(10)
     async def server(self, ctx, *args):

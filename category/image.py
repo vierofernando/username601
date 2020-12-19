@@ -166,20 +166,23 @@ class image(commands.Cog):
     @cooldown(2)
     async def resize(self, ctx, *args):
         correct, wh = '', []
-        for i in list(args):
+        rest = []
+        for i in args:
             if i.isnumeric():
                 correct += 'y'
                 wh.append(int(i))
+            else:
+                rest.append(i)
         await ctx.trigger_typing()
         if correct=='yy':
-            ava = await ctx.bot.Parser.parse_image(ctx, args, size=512)
-            if wh[0]>2000 or wh[1]>2000: raise ctx.bot.util.BasicCommandException("Your image is too big!")
-            elif wh[0]<300 or wh[1]<300: raise ctx.bot.util.BasicCommandException("Your image is too small!")
+            ava = await ctx.bot.Parser.parse_image(ctx, tuple(rest), size=512)
+            if wh[0]>2000 or wh[1]>2000: raise ctx.bot.util.BasicCommandException("Your input is too large!")
+            elif wh[0]<300 or wh[1]<300: raise ctx.bot.util.BasicCommandException("Your input is too small!")
             else:
                 data = await ctx.bot.canvas.resize(ava, wh[0], wh[1])
                 await ctx.send(file=discord.File(data, 'resize.png'))
         else:
-            raise ctx.bot.util.BasicCommandException("Where are the parameters?")
+            return await ctx.bot.cmds.invalid_args(ctx)
 
     @command(['cat', 'fox', 'sadcat', 'bird'])
     @cooldown(2)

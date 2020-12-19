@@ -113,7 +113,8 @@ class memes(commands.Cog):
     @cooldown(2)
     async def password(self, ctx, *args):
         param = ctx.bot.Parser.split_args(args)
-        if param is None: raise ctx.bot.util.BasicCommandException("Please send two parameters, either split by a space, a comma, or a semicolon.")
+        if not param:
+            return await ctx.bot.cmds.invalid_args(ctx)
         await ctx.trigger_typing()
         text1, text2 = param
         i = await ctx.bot.canvas.password(text1, text2)
@@ -158,11 +159,12 @@ class memes(commands.Cog):
     @command(['gruplan', 'plan'])
     @cooldown(4)
     async def gru(self, ctx, *args):
-        if '; ' not in ' '.join(args): raise ctx.bot.util.BasicCommandException('Please send something like:\n`'+ctx.bot.command_prefix+'gru test word 1; test word 2; test word 3` (with semicolons)')
+        if '; ' not in ' '.join(args):
+            return await ctx.bot.cmds.invalid_args(ctx)
         try:
             text1, text2, text3 = tuple(' '.join(args).split('; '))
         except:
-            raise ctx.bot.util.BasicCommandException("Invalid arguments. use something like\n`"+ctx.bot.command_prefix+"gru text 1; text2; text3` (with semicolons)")
+            return await ctx.bot.cmds.invalid_args(ctx)
         await ctx.trigger_typing()
         im = await ctx.bot.canvas.gru(text1, text2, text3)
         return await ctx.send(file=discord.File(im, 'gru.png'))
@@ -272,7 +274,8 @@ class memes(commands.Cog):
     @cooldown(2)
     async def didyoumean(self, ctx, *args):
         params = ctx.bot.Parser.split_args(args)
-        if params is None: raise ctx.bot.util.BasicCommandException("Please send two parameters, either split by a space, a comma, or a semicolon.")
+        if not params:
+            return await ctx.bot.cmds.invalid_args(ctx)
         txt1, txt2 = params
         url = f'https://api.alexflipnote.dev/didyoumean?top={txt1[0:50]}&bottom={txt2[0:50]}'
         return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
@@ -281,7 +284,8 @@ class memes(commands.Cog):
     @cooldown(2)
     async def drake(self, ctx, *args):
         params = ctx.bot.Parser.split_args(args)
-        if params is None: raise ctx.bot.util.BasicCommandException("Please send two parameters, either split by a space, a comma, or a semicolon.")
+        if not params:
+            return await ctx.bot.cmds.invalid_args(ctx)
         txt1, txt2 = params
         url = "https://api.alexflipnote.dev/drake?top="+ctx.bot.util.encode_uri(txt1[0:50])+"&bottom="+ctx.bot.util.encode_uri(txt2[0:50])
         return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
