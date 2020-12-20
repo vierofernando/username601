@@ -46,3 +46,7 @@ class Database:
     def exist(self, collection_name: str, query: dict) -> bool:  # resembles a GET request (sort of)
         """ Checks if a specific query exists. """
         return (self.get(collection_name, query) is not None)
+    
+    def get_all(self, collection_name: str) -> list: # resembles a hell of a big GET request
+        """ Gets every single document from a specific database collection. """
+        return self.db[collection_name].find()

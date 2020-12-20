@@ -7,6 +7,7 @@ from json import loads
 from time import time
 from asyncio import sleep
 from random import choice, randint
+from gc import collect
 
 class economy(commands.Cog):
     def __init__(self, client):
@@ -20,7 +21,9 @@ class economy(commands.Cog):
             "discord.com",
             "fuck",
             "shit",
-            "bitch"
+            "bitch",
+            "dick",
+            "pussy"
         ]
 
         self.fish_json = loads(open(client.util.json_dir+'/fish.json', 'r').read())
@@ -53,7 +56,7 @@ class economy(commands.Cog):
             return await ctx.bot.cmds.invalid_args(ctx)
         
         self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": (amount[0] if lucky else -amount[0])})
-        return await ctx.send((ctx.bot.util.success_emoji if lucky else ctx.bot.util.error_emoji) + ' | ' + (f"Congratulations! {ctx.author.display_name} just won {amount:,} bobux!" if lucky else f"Yikes! {ctx.author.display_name} just lost {amount:,} bobux..."))
+        return await ctx.send((ctx.bot.util.success_emoji if lucky else ctx.bot.util.error_emoji) + ' | ' + (f"Congratulations! {ctx.author.display_name} just won {amount[0]:,} bobux!" if lucky else f"Yikes! {ctx.author.display_name} just lost {amount[0]:,} bobux..."))
 
     @command()
     @cooldown(120)
@@ -111,14 +114,29 @@ class economy(commands.Cog):
     async def daily(self, ctx, *args):
         await ctx.trigger_typing()
 
-        last_daily = self.db.get("economy", {"userid": ctx.author.id})["lastDaily"]
-        if (not last_daily) or ((time() - last_daily) > 43200): # 43200 is 12 hours.
-            reward = random.randint(500, 1000)
-            await ctx.send(embed=discord.Embed(title=f"You earned your Daily for {reward:,} bobux!", color=discord.Color.green()))
-            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
-            self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"lastDaily": time()})
+        data = self.db.get("economy", {"userid": ctx.author.id})
+        if (not data["lastDaily"]) or ((time() - data["lastDaily"]) > 43200): # 43200 is 12 hours.
+            
+            if data.get("streak") and data["lastDaily"]:
+                streak = data["streak"]
+                if (time() - data["lastDaily"] - 43200) < 43200:
+                    streak += 1
+                else:
+                    streak = 1 # reset the streak
+            else:
+                streak = 1
+            
+            reward = 250 * streak
+            new_data = {
+                "bal": data["bal"] + reward,
+                "lastDaily": time(),
+                "streak": streak
+            }
+            
+            await ctx.send(embed=discord.Embed(title=f"You earned your Daily for {reward:,} bobux!" + "\n" + f"Your streak: {streak:,} (250 x {streak:,} bobux)", color=discord.Color.green()))
+            self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, new_data)
         else:
-            raise ctx.bot.util.BasicCommandException(f"You can earn your daily in {ctx.bot.util.strfsecond((last_daily + 43200) - time())}!")
+            raise ctx.bot.util.BasicCommandException(f"You can earn your daily in {ctx.bot.util.strfsecond((data['lastDaily'] + 43200) - time())}!")
 
     @command()
     @cooldown(10)
@@ -216,30 +234,52 @@ class economy(commands.Cog):
             return await ctx.bot.cmds.invalid_args(ctx)
 
     @command(['lb', 'leader', 'leaders', 'rich', 'richest', 'top'])
-    @cooldown(6)
-    async def leaderboard(self, ctx):
-        return await ctx.send("Sorry! This command is closed temporarily due to rewrite.")
-        #data = self.db.Economy.leaderboard(ctx.guild.members)
-        #if len(data)==0:
-        #    raise ctx.bot.util.BasicCommandException('This server doesn\'t have any members with profiles...')
-        #else:
-        #    wait = await ctx.send(ctx.bot.util.loading_emoji+' | Please wait...')
-        #    total, bals, ids = [], sorted(list(map(lambda x: int(x.split("|")[1]), data)))[::-1][0:20], []
-        #    for a in range(len(bals)):
-        #        person = [{
-        #            'userid': int(i.split('|')[0]),
-        #            'bal': int(i.split('|')[1])
-        #        } for i in data if int(i.split('|')[1])==bals[a] and int(i.split('|')[0]) not in ids][0]
-        #        ids.append(person['userid'])
-        #        user = ctx.guild.get_member(person['userid'])
-        #        total.append('{}. {}#{} - **{}** :gem:'.format(
-        #            a+1, user.display_name, user.discriminator, person['bal']
-        #        ))
-        #    await wait.edit(content='', embed=discord.Embed(
-        #        title = ctx.guild.name+'\'s leaderboard',
-        #        description = '\n'.join(total),
-        #        color = ctx.me.color
-        #    ))
+    @cooldown(10)
+    async def leaderboard(self, ctx, *args):
+        await ctx.trigger_typing()
+        if len(args) > 0:
+            if args[0].lower() == "global":
+                data = list(self.db.get_all("economy"))
+                sorted_bal = sorted(list(map(lambda x: x["bal"], data)))[::-1][:10]
+                ids = []
+                description = ""
+                
+                for i, bal in enumerate(sorted_bal):
+                    _data = list(filter(lambda x: x["bal"] == bal and x["userid"] not in ids, data))[0]
+                    ids.append(_data["userid"])
+                    user = ctx.bot.get_user(_data["userid"])
+                    description += f"{i + 1}. **{user.name if user else '`???`'}** {_data['bal']:,} :money_with_wings:" + "\n"
+                embed = ctx.bot.Embed(ctx, title=f"{ctx.me.display_name} world-wide leaderboard", desc=description)
+                await embed.send()
+                del embed, ids, description, sorted_bal, data
+                collect()
+                return
+            elif args[0].lower() in ["local", "server", "server-wide", "serverwide"]:
+                pass
+            else:
+                return await ctx.bot.cmds.invalid_args(ctx)
+        
+        member_ids = list(map(lambda x: x.id, ctx.guild.members))
+        data = list(filter(lambda x: x["userid"] in member_ids, list(self.db.get_all("economy"))))
+        limit = len(list(data)) if len(list(data)) < 10 else 10
+        if limit < 3:
+            del data, limit, member_ids
+            collect()
+            raise ctx.bot.util.BasicCommandException("This server has less than 3 members with a profile, thus a leaderboard cannot happen!")
+        
+        sorted_bal = sorted(list(map(lambda x: x["bal"], data)))[::-1][:limit]
+        ids = []
+        description = ""
+        
+        for i, bal in enumerate(sorted_bal):
+            _data = list(filter(lambda x: x["bal"] == bal and x["userid"] not in ids, data))[0]
+            ids.append(_data["userid"])
+            user = ctx.bot.get_user(_data["userid"])
+            description += f"{i + 1}. **{user.name if user else '<???>'}** {_data['bal']:,} :money_with_wings:" + "\n"
+        embed = ctx.bot.Embed(ctx, title=f"{ctx.me.display_name} server-wide leaderboard", desc=description, thumbnail=ctx.guild.icon_url)
+        await embed.send()
+        del embed, ids, description, sorted_bal, data, member_ids, limit
+        collect()
 
     @command(['balance', 'profile', 'economy'])
     @cooldown(5)
@@ -295,6 +335,7 @@ class economy(commands.Cog):
         data = self.db.get("economy", {"userid": member.id})
         if not data:
             raise ctx.bot.util.BasicCommandException(f"{member.display_name} does not have any profile!")
+        streak = data["streak"] if data.get("streak") else 1
         
         embed = ctx.bot.Embed(
             ctx,
@@ -303,8 +344,9 @@ class economy(commands.Cog):
             fields={
                 "Balance": f"{data['bal']:,} bobux" + "\n" f"{data['bankbal']:,} bobux (bank)",
                 "Description": data["desc"],
-                "Daily": f"**[:white_check_mark: can be claimed using `{ctx.bot.command_prefix}daily`]**" if ((not data["lastDaily"]) or ((time() - data["lastDaily"]) > 43200)) else f"Can be claimed in {ctx.bot.util.strfsecond((data['lastDaily'] + 43200) - time())}"
+                "Daily": (f"**[:white_check_mark: can be claimed using `{ctx.bot.command_prefix}daily`]**" if ((not data["lastDaily"]) or ((time() - data["lastDaily"]) > 43200)) else f"Can be claimed in {ctx.bot.util.strfsecond((data['lastDaily'] + 43200) - time())}") + "\n" + f"Streak: {streak} (Next daily reward: {(250 * (streak + 1)):,} bobux)"
             },
+            footer="Daily streaks will be reset back to 1 if daily is not claimed after 24 hours.",
             color=discord.Color.from_rgb(*[int(i) for i in data["color"].split(",")]) if data.get("color") else ctx.me.color
         )
         
