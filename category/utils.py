@@ -102,7 +102,7 @@ class utils(commands.Cog):
     async def pypi(self, ctx, *args):
         await ctx.trigger_typing()
         
-        res = await ctx.bot.util.get_request(
+        data = await ctx.bot.util.get_request(
             "https://pypi.org/pypi/"+ "-".join(args) +"/json",
             json=True,
             raise_errors=True
