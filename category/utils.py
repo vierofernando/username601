@@ -96,6 +96,35 @@ class utils(commands.Cog):
         await ctx.send(file=discord.File(palette, 'palette.png'))
         del palette, url
 
+    @command(['pip'])
+    @cooldown(3)
+    @require_args()
+    async def pypi(self, ctx, *args):
+        await ctx.trigger_typing()
+        
+        res = await ctx.bot.util.get_request(
+            "https://pypi.org/pypi/"+ "-".join(args) +"/json",
+            json=True,
+            raise_errors=True
+        )
+        
+        nl = "\n"
+        embed = ctx.bot.Embed(
+            ctx,
+            title=data['name'],
+            desc=data['summary'],
+            fields={
+                "General": f"**Home Page: **{data['home_page']}{nl}**Download URL: **[click here]({data['download_url']})"
+                "Author": f"{data['author']} {'('+data['author_email']+')' if data.get('author_email') else ''}{nl}",
+                "Version": f"**Current Version: **[{data['version']}]({data['release_url']}){nl}**Uploaded at: **{data['releases'][data['version']][0]['upload_time'].replace('T', ' ')[:-1]}",
+                "Keywords": data['keywords'].replace(',', ', ') if data.get('keywords') else ''
+            },
+            url=data['package_url']
+        )
+        await embed.send()
+        
+        del embed, data, nl
+
     @command(['isitup', 'webstatus'])
     @cooldown(2)
     @require_args()
