@@ -75,17 +75,6 @@ class bothelp(commands.Cog):
         await embed.send()
         del embed
     
-    @command(['sourcecode', 'source-code', 'git', 'repo'])
-    @cooldown(2)
-    async def github(self, ctx):
-        embed = ctx.bot.Embed(
-            ctx,
-            title="Contribute to the development or copy the bot's code here.",
-            url=ctx.bot.util.github_repo
-        )
-        await embed.send()
-        del embed
-    
     @command(['inviteme', 'invitelink', 'botinvite', 'invitebot', 'addtoserver', 'addbot'])
     @cooldown(2)
     async def invite(self, ctx):
