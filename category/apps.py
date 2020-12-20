@@ -12,6 +12,49 @@ class apps(commands.Cog):
         self.Wikipedia = wikipediaapi.Wikipedia('en')
         self.ia = imdb.IMDb()
 
+    @command(['urban-dictionary', 'define'])
+    @cooldown(8)
+    @require_args()
+    async def urban(self, ctx, *args):
+        search = False
+        try:
+            if "--search" in args:
+                args, search = ctx.bot.Parser.without(args, "--search"), True
+            
+            data = await ctx.bot.util.get_request(
+                "https://api.urbandictionary.com/v0/define",
+                term=' '.join(args)[0:100],
+                json=True,
+                raise_errors=True
+            )
+            
+            if search:
+                embed_list = ctx.bot.ChooseEmbed(ctx, data["list"][0:10], key=(lambda x: f'{x["word"]} by {x["author"]} [{x["thumbs_up"]:,} :+1:, {x["thumbs_down"]:,} :-1:]'))
+                result = await embed_list.run()
+                del embed_list
+                if not result:
+                    return
+            else:
+                result = data["list"][0]
+            
+            embed = ctx.bot.Embed(
+                ctx,
+                title=result["word"],
+                fields={
+                    "Post Info": f"**Author: **{result['author']}" + "\n" + f"{result['thumbs_up']:,} :+1: | {result['thumbs_down']:,} :-1:",
+                    "Definition": result["definition"].replace("\\\\", "\\"),
+                    "Written in": result['written_on'].replace("T", " ")[:-5],
+                    "Example": result["example"]
+                },
+                url=result['permalink']
+            )
+            
+            await embed.send()
+            del embed, result, search, data
+            
+        except:
+            raise ctx.bot.util.BasicCommandException("Did not found anything corresponding to your search.")
+
     @command(['git'])
     @cooldown(10)
     @require_args(2)
