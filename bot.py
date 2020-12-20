@@ -68,7 +68,7 @@ async def on_member_join(member):
             title=f"Welcome to {member.guild.name}, {member.display_name}!",
             description=f"You are the {member.guild.member_count:,}{['st', 'nd', 'rd', 'th'][(member.guild.member_count - 1 if (member.guild.member_count < 5) else 3)]} member in this server.",
             color=discord.Color.green()
-        ).set_image(url=member.avatar_url))
+        ).set_thumbnail(url=member.avatar_url))
 
 @client.event
 async def on_member_update(before, after):
@@ -88,9 +88,9 @@ async def on_member_remove(member):
     if data.get("welcome"):
         await member.guild.get_channel(data["welcome"]).send(embed=discord.Embed(
             title=f"Goodbye, {member.display_name}...",
-            description=f"{member.display_name} left {member.guild.name} after being a memer for {client.util.strfsecond(time() - member.joined_at.timestamp())} (Joined at {str(member.joined_at)[:-7]})",
+            description=f"{member.display_name} left {member.guild.name} after being a member for {client.util.strfsecond(time() - member.joined_at.timestamp())} (Joined at {str(member.joined_at)[:-7]})",
             color=discord.Color.red()
-        ).set_image(url=member.avatar_url))
+        ).set_thumbnail(url=member.avatar_url))
     
     client.db.modify("dashboard", client.db.types.CHANGE, {"serverid": member.guild.id}, {"warns": [i for i in data["warns"] if not i.startswith(str(member.id))]})
 
