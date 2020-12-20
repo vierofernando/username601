@@ -114,10 +114,10 @@ class utils(commands.Cog):
             title=data['info']['name'],
             desc=data['info']['summary'],
             fields={
-                "General": f"**Home Page: **{data['info']['home_page']}{nl}**Download URL: **[click here]({data['info']['download_url']})",
+                "Links": f"**Home Page: **[click here]({data['info']['home_page']}){nl}**Download Link: **[click here]({data['info']['download_url']})",
                 "Author": f"{data['info']['author']} {'('+data['info']['author_email']+')' if data['info']['author_email'] else ''}{nl}",
-                "Version": f"**Current Version: **[{data['info']['version']}]({data['info']['release_url']}){nl}**Uploaded at: **{data['releases'][data['info']['version']][0]['upload_time'].replace('T', ' ')[:-1]}",
-                "Keywords": data['info']['keywords'].replace(',', ', ') if data['info']['keywords'] else ''
+                "Version": f"**Current Version: **[{data['info']['version']}]({data['info']['release_url']}){nl}**Uploaded at: **{data['releases'][data['info']['version']][0]['upload_time'].replace('T', ' ')}",
+                "Keywords": data['info']['keywords'].replace(',', ', ') if data['info']['keywords'] else '`<no keywords>`'
             },
             url=data['info']['package_url']
         )
