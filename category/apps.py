@@ -73,7 +73,7 @@ class apps(commands.Cog):
                     title=data["full_name"] + (' [Fork of '+data['parent']['full_name']+']' if data['fork'] else ''),
                     url=data["html_url"],
                     fields={
-                        'General': f"**Created at: **{data['created_at'].replace('T', ' ')[:-2]}{nl}**Updated at: **{data['updated_at'].replace('T', ' ')[:-2]}{nl}**Pushed at: **{data['pushed_at'].replace('T', ' ')[:-2]}{nl}**Programming Language: **{data['language']}{nl + '**License: **' + data['license']['name'] if data.get('license') else ''}",
+                        'General': f"**Created at: **{data['created_at'].replace('T', ' ')[:-1]}{nl}**Updated at: **{data['updated_at'].replace('T', ' ')[:-1]}{nl}**Pushed at: **{data['pushed_at'].replace('T', ' ')[:-1]}{nl}**Programming Language: **{data['language']}{nl + '**License: **' + data['license']['name'] if data.get('license') else ''}",
                         'Description': data['description'] if data.get('description') else 'This repo is without description.', # haha nice reference there null
                         'Stats': f"**Stars: **{data['stargazers_count']}{nl}**Forks: **{data['forks_count']}{nl}**Watchers: **{data['watchers_count']}{nl}**Open Issues: **{data['open_issues_count']}"
                     },
