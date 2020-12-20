@@ -12,6 +12,80 @@ class apps(commands.Cog):
         self.Wikipedia = wikipediaapi.Wikipedia('en')
         self.ia = imdb.IMDb()
 
+    @command(['git'])
+    @cooldown(10)
+    @require_args(2)
+    async def github(self, ctx, *args):
+        try:
+            nl = "\n" 
+            if (args[0].lower() in ["user", "users", "profile"]):
+                data = await ctx.bot.util.get_request(
+                    "https://api.github.com/users/vierofernando/" + ctx.bot.util.encode_uri(" ".join(args[1:])),
+                    github=True,
+                    json=True,
+                    raise_errors=True
+                )
+                embed = ctx.bot.Embed(
+                    ctx,
+                    title=data["login"],
+                    fields={
+                        "General": f"**ID: **`{data['id']}`{nl}**Created at: **{data['created_at'].replace('T', ' ')[:-1]}{nl}**Updated at: **{data['updated_at'].replace('T', ' ')[:-1]}",
+                        "Bio": data["bio"] if data.get("bio") else "`<no bio>`",
+                        "Stats": f"**Followers: **`{data['followers']}`{nl}**Following: **{data['following']}{nl}**Public Repositories: **{data['public_repos']}{nl}**Public Gists: **{data['public_gists']}"
+                    },
+                    thumbnail=data["avatar_url"],
+                    url=data["html_url"]
+                )
+                await embed.send()
+                del embed, data, nl
+                return
+            elif (args[0].lower() in ["repos", "repositories"]):
+                data = await ctx.bot.util.get_request(
+                    "https://api.github.com/users/vierofernando/" + ctx.bot.util.encode_uri(" ".join(args[1:])) + "/repos",
+                    github=True,
+                    json=True,
+                    raise_errors=True
+                )
+                
+                desc = ""
+                for repo in data:
+                    if len(desc) >= 1900:
+                        break
+                    
+                    desc += f"{'[ '+repo['language']+' ]' if repo['language'] else '[ ??? ]'} [{repo['full_name']}]({data['html_url']}){' :fork_and_knife:' if data['fork'] else ''}{nl}"
+                
+                embed = ctx.bot.Embed(ctx, title=' '.join(args[1:]) + "'s repos", desc=desc)
+                
+                await embed.send()
+                del embed, desc, data, nl
+                return
+            elif (args[0].lower() in ["repo", "repository"]):
+                assert " ".join(args[1:]).count("/") > 0
+                data = await ctx.bot.util.get_request(
+                    "https://api.github.com/repos" + ctx.bot.util.encode_uri(" ".join(args[1:])),
+                    github=True,
+                    json=True,
+                    raise_errors=True
+                )
+                
+                embed = ctx.bot.Embed(
+                    ctx,
+                    title=data["full_name"] + ('' if data['fork'] else ' [Fork of '+data['parent']['full_name']+']'),
+                    url=data["html_url"],
+                    fields={
+                        'General': f"**Created at: **{data['created_at'].replace('T', ' ')[:-2]}{nl}**Updated at: **{data['updated_at'].replace('T', ' ')[:-2]}{nl}**Pushed at: **{data['pushed_at'].replace('T', ' ')[:-2]}{nl}**Programming Language: **{data['language']}{nl + '**License: **' + data['license']['name'] if data.get('license') else ''}",
+                        'Description': data['description'] if data.get('description') else 'This repo is without description.', # haha nice reference there null
+                        'Stats': f"**Stars: **{data['stargazers_count']}{nl}**Forks: **{data['forks_count']}{nl}**Watchers: **{data['watchers_count']}{nl}**Open Issues: **{data['open_issues_count']}"
+                    }
+                )
+                await embed.send()
+                
+                del embed, data, nl
+                return
+            assert False
+        except:
+            return await ctx.bot.cmds.invalid_args(ctx)
+
     @command()
     @cooldown(5)
     @require_args()

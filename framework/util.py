@@ -37,6 +37,7 @@ class Util:
 
         self.useless_client = ClientSession(headers={"superdupersecretkey": getenv("USELESSAPI")}, timeout=ClientTimeout(total=10.0))
         self.alex_client = ClientSession(headers={'Authorization': getenv("ALEXFLIPNOTE_TOKEN")}, timeout=ClientTimeout(total=10.0))
+        self.github_client = ClientSession(headers={'Authorization': 'token ' + getenv('GITHUB_TOKEN')}, timeout=ClientTimeout(total=10.0))
         self.default_client = ClientSession(timeout=ClientTimeout(total=10.0))
         
         self._time = {
@@ -217,7 +218,7 @@ class Util:
     async def get_request(self, url, **kwargs):
         """ Does a GET request to a specific URL with a query parameters."""
 
-        return_json, raise_errors, using_alexflipnote_token, force_json = False, False, False, False
+        return_json, raise_errors, using_alexflipnote_token, force_json, github_token = False, False, False, False, False
 
         if len(kwargs.keys()) > 0:
             if kwargs.get("json") is not None:
@@ -232,13 +233,18 @@ class Util:
             if kwargs.get("force_json") is not None:
                 force_json = True
                 kwargs.pop("force_json")
+            if kwargs.get("github") is not None:
+                github_token = True
+                kwargs.pop("github")
 
             query_param = "?" + "&".join([i + "=" + quote_plus(str(kwargs[i])).replace("+", "%20") for i in kwargs.keys()])
         else:
             query_param = ""
         
         try:
-            session = self.alex_client if using_alexflipnote_token else self.default_client
+            session = self.alex_client if using_alexflipnote_token else (
+                self.github_client if github_token else self.default_client
+            )
             result = await session.get(url + query_param)
             assert result.status < 400
             if return_json:
