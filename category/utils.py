@@ -114,7 +114,7 @@ class utils(commands.Cog):
             title=data['info']['name'],
             desc=data['info']['summary'],
             fields={
-                "Links": f"**Home Page: **[click here]({data['info']['home_page']}){nl}**Download Link: **[click here]({data['info']['download_url']})",
+                "Links": f"**Home Page: **{'[click here]('+data['info']['home_page']+')' if data['info']['home_page'] else '`<no links available>`'}){nl}**Download Link: **{'[click here]('+data['info']['download_url']+')' if data['info']['download_url'] else '`<no links available>`'})",
                 "Author": f"{data['info']['author']} {'('+data['info']['author_email']+')' if data['info']['author_email'] else ''}{nl}",
                 "Version": f"**Current Version: **[{data['info']['version']}]({data['info']['release_url']}){nl}**Uploaded at: **{data['releases'][data['info']['version']][0]['upload_time'].replace('T', ' ')}",
                 "Keywords": data['info']['keywords'].replace(',', ', ') if data['info']['keywords'] else '`<no keywords>`'
