@@ -111,15 +111,15 @@ class utils(commands.Cog):
         nl = "\n"
         embed = ctx.bot.Embed(
             ctx,
-            title=data['name'],
-            desc=data['summary'],
+            title=data['info']['name'],
+            desc=data['info']['summary'],
             fields={
-                "General": f"**Home Page: **{data['home_page']}{nl}**Download URL: **[click here]({data['download_url']})",
-                "Author": f"{data['author']} {'('+data['author_email']+')' if data.get('author_email') else ''}{nl}",
-                "Version": f"**Current Version: **[{data['version']}]({data['release_url']}){nl}**Uploaded at: **{data['releases'][data['version']][0]['upload_time'].replace('T', ' ')[:-1]}",
-                "Keywords": data['keywords'].replace(',', ', ') if data.get('keywords') else ''
+                "General": f"**Home Page: **{data['info']['home_page']}{nl}**Download URL: **[click here]({data['info']['download_url']})",
+                "Author": f"{data['info']['author']} {'('+data['info']['author_email']+')' if data['info']['author_email'] else ''}{nl}",
+                "Version": f"**Current Version: **[{data['info']['version']}]({data['info']['release_url']}){nl}**Uploaded at: **{data['releases'][data['info']['version']][0]['upload_time'].replace('T', ' ')[:-1]}",
+                "Keywords": data['info']['keywords'].replace(',', ', ') if data['info']['keywords'] else ''
             },
-            url=data['package_url']
+            url=data['info']['package_url']
         )
         await embed.send()
         
