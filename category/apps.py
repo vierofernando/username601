@@ -20,7 +20,7 @@ class apps(commands.Cog):
             nl = "\n" 
             if (args[0].lower() in ["user", "users", "profile"]):
                 data = await ctx.bot.util.get_request(
-                    "https://api.github.com/users/" + ctx.bot.util.encode_uri(" ".join(args[1:])),
+                    "https://api.github.com/users/" + " ".join(args[1:]),
                     github=True,
                     json=True,
                     raise_errors=True
@@ -31,7 +31,7 @@ class apps(commands.Cog):
                     fields={
                         "General": f"**ID: **`{data['id']}`{nl}**Created at: **{data['created_at'].replace('T', ' ')[:-1]}{nl}**Updated at: **{data['updated_at'].replace('T', ' ')[:-1]}",
                         "Bio": data["bio"] if data.get("bio") else "`<no bio>`",
-                        "Stats": f"**Followers: **`{data['followers']}`{nl}**Following: **{data['following']}{nl}**Public Repositories: **{data['public_repos']}{nl}**Public Gists: **{data['public_gists']}"
+                        "Stats": f"**Followers: **{data['followers']}{nl}**Following: **{data['following']}{nl}**Public Repositories: **{data['public_repos']}{nl}**Public Gists: **{data['public_gists']}"
                     },
                     thumbnail=data["avatar_url"],
                     url=data["html_url"]
@@ -41,7 +41,7 @@ class apps(commands.Cog):
                 return
             elif (args[0].lower() in ["repos", "repositories"]):
                 data = await ctx.bot.util.get_request(
-                    "https://api.github.com/users/" + ctx.bot.util.encode_uri(" ".join(args[1:])) + "/repos",
+                    "https://api.github.com/users/" + " ".join(args[1:]) + "/repos",
                     github=True,
                     json=True,
                     raise_errors=True
@@ -52,9 +52,9 @@ class apps(commands.Cog):
                     if len(desc) >= 1900:
                         break
                     
-                    desc += f"{'[ '+repo['language']+' ]' if repo['language'] else '[ ??? ]'} [{repo['full_name']}]({data['html_url']}){' :fork_and_knife:' if data['fork'] else ''}{nl}"
+                    desc += f"{'[ '+repo['language']+' ]' if repo['language'] else '[ ??? ]'} [{repo['full_name']}]({repo['html_url']}){' :fork_and_knife:' if repo['fork'] else ''}{nl}"
                 
-                embed = ctx.bot.Embed(ctx, title=' '.join(args[1:]) + "'s repos", desc=desc)
+                embed = ctx.bot.Embed(ctx, title=' '.join(args[1:]) + f"'s repositories [{len(data):,}]", desc=desc, thumbnail=data[0]["owner"]["avatar_url"])
                 
                 await embed.send()
                 del embed, desc, data, nl
@@ -62,7 +62,7 @@ class apps(commands.Cog):
             elif (args[0].lower() in ["repo", "repository"]):
                 assert " ".join(args[1:]).count("/") > 0
                 data = await ctx.bot.util.get_request(
-                    "https://api.github.com/repos/" + ctx.bot.util.encode_uri(" ".join(args[1:])),
+                    "https://api.github.com/repos/" + " ".join(args[1:]),
                     github=True,
                     json=True,
                     raise_errors=True
@@ -70,13 +70,14 @@ class apps(commands.Cog):
                 
                 embed = ctx.bot.Embed(
                     ctx,
-                    title=data["full_name"] + ('' if data['fork'] else ' [Fork of '+data['parent']['full_name']+']'),
+                    title=data["full_name"] + (' [Fork of '+data['parent']['full_name']+']' if data['fork'] else ''),
                     url=data["html_url"],
                     fields={
                         'General': f"**Created at: **{data['created_at'].replace('T', ' ')[:-2]}{nl}**Updated at: **{data['updated_at'].replace('T', ' ')[:-2]}{nl}**Pushed at: **{data['pushed_at'].replace('T', ' ')[:-2]}{nl}**Programming Language: **{data['language']}{nl + '**License: **' + data['license']['name'] if data.get('license') else ''}",
                         'Description': data['description'] if data.get('description') else 'This repo is without description.', # haha nice reference there null
                         'Stats': f"**Stars: **{data['stargazers_count']}{nl}**Forks: **{data['forks_count']}{nl}**Watchers: **{data['watchers_count']}{nl}**Open Issues: **{data['open_issues_count']}"
-                    }
+                    },
+                    thumbnail=data["owner"]["avatar_url"]
                 )
                 await embed.send()
                 

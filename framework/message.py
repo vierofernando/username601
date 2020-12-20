@@ -121,7 +121,7 @@ class embed:
         _embed = Embed(title=self.title, description=self.description, color=self.color, url=self.url)
         if self.fields is not None:
             for i in self.fields.keys():
-                _embed.add_field(name=i, value=self.fields[i])
+                _embed.add_field(name=i, value=self.fields[i], inline=False)
         _embed.timestamp = self.current_time
         _embed.set_footer(text=self.footer, icon_url=self.footer_icon)
         if self.image_url:
