@@ -20,7 +20,7 @@ class apps(commands.Cog):
             nl = "\n" 
             if (args[0].lower() in ["user", "users", "profile"]):
                 data = await ctx.bot.util.get_request(
-                    "https://api.github.com/users/vierofernando/" + ctx.bot.util.encode_uri(" ".join(args[1:])),
+                    "https://api.github.com/users/" + ctx.bot.util.encode_uri(" ".join(args[1:])),
                     github=True,
                     json=True,
                     raise_errors=True
@@ -41,7 +41,7 @@ class apps(commands.Cog):
                 return
             elif (args[0].lower() in ["repos", "repositories"]):
                 data = await ctx.bot.util.get_request(
-                    "https://api.github.com/users/vierofernando/" + ctx.bot.util.encode_uri(" ".join(args[1:])) + "/repos",
+                    "https://api.github.com/users/" + ctx.bot.util.encode_uri(" ".join(args[1:])) + "/repos",
                     github=True,
                     json=True,
                     raise_errors=True
@@ -62,7 +62,7 @@ class apps(commands.Cog):
             elif (args[0].lower() in ["repo", "repository"]):
                 assert " ".join(args[1:]).count("/") > 0
                 data = await ctx.bot.util.get_request(
-                    "https://api.github.com/repos" + ctx.bot.util.encode_uri(" ".join(args[1:])),
+                    "https://api.github.com/repos/" + ctx.bot.util.encode_uri(" ".join(args[1:])),
                     github=True,
                     json=True,
                     raise_errors=True
