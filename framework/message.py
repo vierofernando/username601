@@ -99,16 +99,16 @@ class embed:
 
     def __init__(self, ctx, author_name=None, attachment=None, author_url=None, url=None, desc=None, footer_icon=None, thumbnail=None, image=None, title=None, color=None, fields={}, footer=None) -> None:
         self.ctx = ctx
-        self.color = self.ctx.me.color if color is None else color
-        self.title = "" if title is None else str(title)
-        self.description = "" if desc is None else str(desc)
+        self.color = color if color else self.ctx.me.color
+        self.title = str(title) if title else ""
+        self.description = str(desc) if desc else ""
         self.current_time = datetime.now()
         self.fields = None if (fields == {}) else fields
-        self.footer = "Command executed by "+str(self.ctx.author) if footer is None else str(footer)
+        self.footer = str(footer) if footer else "Command executed by "+str(self.ctx.author)
         self.url = url
         self.image_url = image
         self.thumbnail_url = thumbnail
-        self.footer_icon = str(self.ctx.author.avatar_url) if footer_icon is None else str(footer_icon)
+        self.footer_icon = str(footer_icon) if footer_icon else str(self.ctx.author.avatar_url)
         self.attachment_url = attachment
 
         if isinstance(self.color, tuple):
@@ -143,14 +143,14 @@ class embed:
     async def send(self):
         """ Sends the embed to the current channel. """
         _embed, _attachment = await self.get_embed()
-        if _attachment is None:
+        if not _attachment:
             return await self.ctx.send(embed=_embed)
         return await self.ctx.send(embed=_embed, file=_attachment)
     
     async def edit_to(self, message):
         """ Appends the embed to a discord.Message object """
         _embed, _attachment = await self.get_embed()
-        if _attachment is None:
+        if not _attachment:
             return await message.edit(content='', embed=_embed)
         await message.edit(content='', embed=_embed, file=_attachment)
 
@@ -158,7 +158,7 @@ class WaitForMessage:
     def __init__(self, ctx, timeout=20.0, check=None):
         """ A wrapper class that waits for message. """
         self.ctx = ctx
-        self._check = (lambda x: x.channel == self.ctx.channel and x.author == self.ctx.author) if check is None else check
+        self._check = check if check else (lambda x: x.channel == self.ctx.channel and x.author == self.ctx.author)
         self._timeout = float(timeout)
     
     async def get_message(self):
@@ -180,7 +180,7 @@ class ChooseEmbed(embed):
         self._pre_res = None if (len(reference) != 1) else reference[0]
         self.message = None
         
-        if self._pre_res is None:
+        if not self._pre_res:
             self._size = len(reference)
             self._range = range(1, self._size + 1)
             self._ctx = ctx
@@ -190,7 +190,7 @@ class ChooseEmbed(embed):
             _i = 0
             for choice in reference:
                 self._reference.append(choice)
-                self.embed.description += f"\n`{_i + 1}.` {choice}" if key is None else f"\n`{_i + 1}.` {key(choice)}"
+                self.embed.description += f"\n`{_i + 1}.` {key(choice)}" if key else f"\n`{_i + 1}.` {choice}"
                 _i += 1
     
     async def run(self):
@@ -202,8 +202,10 @@ class ChooseEmbed(embed):
         
         self.message = await self.embed.send()
         _check = (lambda x: x.channel == self.message.channel and x.author == self._ctx.author)
-        _res = await self._ctx.bot.utils.wait_for_message(self._ctx, message=None, func=_check, timeout=20.0)
-        if (_res is None) or (not _res.content.isnumeric()):
+        
+        _wait = WaitForMessage(self._ctx, check=_check, timeout=20.0)
+        _res = await _wait.get_message()
+        if (not _res) or (not _res.content.isnumeric()):
             await self.message.edit(embed=Embed(title="Canceled.", color=Color.red()))
             return
         _user_choice = int(_res.content)

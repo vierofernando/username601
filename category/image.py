@@ -176,7 +176,7 @@ class image(commands.Cog):
     async def blend(self, ctx, *args):
         await ctx.trigger_typing()
         parsed_args = ctx.bot.Parser.split_args(args)
-        if parsed_args is None:
+        if not parsed_args:
             first = ctx.author.avatar_url_as(format='png')
             second = await ctx.bot.Parser.parse_image(ctx, args)
         else:
@@ -320,7 +320,7 @@ class image(commands.Cog):
     async def ship(self, ctx, *args):
         await ctx.trigger_typing()
         parsed_args = ctx.bot.Parser.split_args(args)
-        if parsed_args is None: 
+        if not parsed_args: 
             first, second = ctx.author.avatar_url_as(format='png'), await ctx.bot.Parser.parse_image(ctx, args)
         else: first, second = await ctx.bot.Parser.parse_image(ctx, parsed_args[0]), await ctx.bot.Parser.parse_image(ctx, parsed_args[1])
         url = f'https://api.alexflipnote.dev/ship?user={first}&user2={second}'

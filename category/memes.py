@@ -326,51 +326,67 @@ class memes(commands.Cog):
 
     async def modern_meme(self, ctx, *args):
         keys = list(self.meme_templates["bottom_image"].keys())
-        def check(m):
-            if ((m.channel != ctx.channel) or (m.author != ctx.author)): return False
-            elif (m.content in keys) and (not m.content.isnumeric()): return True
-            elif (m.content.isnumeric()):
-                if int(m.content) in range(1, len(keys)+1): return True
-            return False
         await ctx.send(embed=discord.Embed(title="Please provide your meme template from the available ones below. (in number)", description="\n".join([
             str(i + 1)+". " + keys[i] for i in range(len(keys))
         ]), color=ctx.me.color))
-        message = await ctx.bot.utils.wait_for_message(ctx, message=None, func=check, timeout=60.0)
-        if message is None: raise ctx.bot.util.BasicCommandException("You did not respond in time. Meme-generation canceled.")
+        wait = ctx.bot.WaitForMessage(ctx, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and ((x.content in keys) or (x.content.isnumeric() and int(x.content) in range(1, len(keys) + 1)))), timeout=60.0)
+        message = await wait.get_message()
+        
+        if not message:
+            raise ctx.bot.util.BasicCommandException("You did not respond in time. Meme-generation canceled.")
+        
         link = self.meme_templates["bottom_image"][(keys[int(message.content) - 1] if message.content.isnumeric() else message.content)]
-        format_text = await ctx.bot.utils.wait_for_message(ctx, message="Now send your text content to be in the meme.", timeout=60.0)
-        if format_text is None: raise ctx.bot.util.BasicCommandException("You did not respond in time. Meme-generation canceled.")
+        
+        await ctx.send("Now send your text content to be in the meme.")
+        wait = ctx.bot.WaitForMessage(ctx, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author), timeout=60.0)
+        format_text = await wait.get_message()
+        
+        if not format_text:
+            raise ctx.bot.util.BasicCommandException("You did not respond in time. Meme-generation canceled.")
         await ctx.trigger_typing()
-        return await ctx.bot.canvas.bottom_image_meme(link, format_text.content[0:640])
+        buffer = await ctx.bot.canvas.bottom_image_meme(link, format_text.content[0:150])
+        await ctx.send(file=discord.File(buffer, "file.png"))
+        del buffer, format_text, wait, link, message, keys
 
     async def top_bottom_text_meme(self, ctx, *args):
         keys = list(self.meme_templates["topbottom"].keys())
-        def check(m):
-            if ((m.channel != ctx.channel) or (m.author != ctx.author)): return False
-            elif (m.content in keys) and (not m.content.isnumeric()): return True
-            elif (m.content.isnumeric()):
-                if int(m.content) in range(1, len(keys)+1): return True
-            return False
         await ctx.send(embed=discord.Embed(title="Please provide your meme template from the available ones below. (in number)", description="\n".join([
             str(i + 1)+". " + keys[i] for i in range(len(keys))
         ]), color=ctx.me.color))
-        message = await ctx.bot.utils.wait_for_message(ctx, message=None, func=check, timeout=60.0)
-        if message is None: raise ctx.bot.util.BasicCommandException("You did not respond in time. Meme-generation canceled.")
+        wait = ctx.bot.WaitForMessage(ctx, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and (x.content in keys or (x.content.isnumeric() and int(x.content) in range(1, len(keys)+1)))), timeout=60.0)
+        message = await wait.get_message()
+        
+        if not message: raise ctx.bot.util.BasicCommandException("You did not respond in time. Meme-generation canceled.")
         link = self.meme_templates["topbottom"][(keys[int(message.content) - 1] if message.content.isnumeric() else message.content)]
-        format_text = await ctx.bot.utils.wait_for_message(ctx, message="Now send your top text and bottom text. Splitted by either spaces, commas, semicolon, or |.", timeout=60.0)
-        if format_text is None: raise ctx.bot.util.BasicCommandException("You did not respond in time. Meme-generation canceled.")
+        
+        await ctx.send("Now send your top text and bottom text. Splitted by either spaces, commas, semicolon, or |.")
+        wait = ctx.bot.WaitForMessage(ctx, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author), timeout=60.0)
+        format_text = await wait.get_message()
+        
+        if not format_text:
+            raise ctx.bot.util.BasicCommandException("You did not respond in time. Meme-generation canceled.")
+        
         text1, text2 = ctx.bot.Parser.split_args(format_text.content.split())
         url = link.replace("{TEXT1}", ctx.bot.util.encode_uri(text1)[0:64]).replace("{TEXT2}", ctx.bot.util.encode_uri(text2)[0:64])
         await ctx.trigger_typing()
         return await ctx.bot.util.send_image_attachment(ctx, url)
 
     async def custom_image_meme(self, ctx, *args):
-        message = await ctx.bot.utils.wait_for_message(ctx, message="Please send a **Image URL/Attachment**, or\nSend a **ping/user ID/name** to format as an **avatar.**\nOr send `mine` to use your avatar instead.", timeout=60.0)
-        if message is None: raise ctx.bot.util.BasicCommandException("You did not input a text. Meme making canceled.")
+        await ctx.send("Please send a **Image URL/Attachment**, or\nSend a **ping/user ID/name** to format as an **avatar.**\nOr send `mine` to use your avatar instead.")
+        wait = ctx.bot.WaitForMessage(ctx, check=(lambda x: x.author == ctx.author and x.channel == ctx.channel), timeout=60.0)
+        message = await wait.get_message()
+        
+        if not message: raise ctx.bot.util.BasicCommandException("You did not input a text. Meme making canceled.")
         elif "mine" in message.content.lower(): url = ctx.author.avatar_url_as(size=512, format="png")
         else: url = await ctx.bot.Parser.parse_image(message, tuple(message.content.split()))
-        text = await ctx.bot.utils.wait_for_message(ctx, message="Send top text and bottom text. Splitted by a space, comma, semicolon, or |.", timeout=60.0)
-        if text is None: raise ctx.bot.util.BasicCommandException("You did not input a text. Meme making canceled.")
+        
+        await ctx.send("Send top text and bottom text. Splitted by a space, comma, semicolon, or |.")
+        wait = ctx.bot.WaitForMessage(ctx, check=(lambda x: x.author == ctx.author and x.channel == ctx.channel), timeout=60.0)
+        text = await wait.get_message()
+        
+        if not text:
+            raise ctx.bot.util.BasicCommandException("You did not input a text. Meme making canceled.")
+        
         text1, text2 = ctx.bot.Parser.split_args(tuple(text.content.split()))
         await ctx.trigger_typing()
         return await ctx.bot.util.send_image_attachment(ctx, "https://api.memegen.link/images/custom/{}/{}.png?background={}".format(ctx.bot.util.encode_uri(text1)[0:64], ctx.bot.util.encode_uri(text2)[0:64], url))
@@ -379,13 +395,15 @@ class memes(commands.Cog):
     @cooldown(5)
     async def mememaker(self, ctx, *args):
         m = await ctx.send(embed=discord.Embed(title="Please select your meme format:", description="**[A] **Classic meme, Top text, bottom text, background image.\n**[B] **Modern meme, Top text, bottom image\n**[C] **Custom classic meme, with a custom background.", color=ctx.me.color))
-        def check_chosen(m):
-            return ((m.channel == ctx.channel) and (m.author == ctx.author) and (len(m.content) == 1) and m.content.lower() in ['a', 'b'])
-        message = await ctx.bot.utils.wait_for_message(ctx, message=None, timeout=60.0)
-        if message is None: return await m.edit(content='', embed=discord.Embed(title="Meme-making process canceled.", color=discord.Color.red()))
-        elif message.content.lower() == 'a': await self.top_bottom_text_meme(ctx, *args)
-        elif message.content.lower() == 'c': await self.custom_image_meme(ctx, *args)
-        else: await self.modern_meme(ctx, *args)
+        
+        wait = ctx.bot.WaitForMessage(ctx, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and len(x.content) == 1 and x.content.lower() in ['a', 'b', 'c']), timeout=40.0)
+        message = await wait.get_message()
+        del wait
+        if not message:
+            return await m.edit(embed=discord.Embed(title="Meme-making process canceled.", color=discord.Color.red()))
+        elif message.content.lower() == 'a': return await self.top_bottom_text_meme(ctx, *args)
+        elif message.content.lower() == 'c': return await self.custom_image_meme(ctx, *args)
+        return await self.modern_meme(ctx, *args)
 
 def setup(client):
     client.add_cog(memes(client))

@@ -23,7 +23,7 @@ class games(commands.Cog):
         wait_for = ctx.bot.WaitForMessage(ctx, timeout=20.0, check=(lambda x: x.author == ctx.author and x.channel == ctx.channel and (x.content.lower() in ['yes', 'no'])))
         response = await wait_for.get_message()
 
-        if response is None:
+        if not response:
             raise ctx.bot.util.BasicCommandException(user.display_name+" did not respond in 20 seconds! Game invitation ended.")
         elif response.content.lower() == "no":
             raise ctx.bot.util.BasicCommandException(f"Well, {user.display_name} denied your request! Try requesting someone else?")
@@ -178,7 +178,7 @@ class games(commands.Cog):
         embed = ctx.bot.ChooseEmbed(ctx, result, key=(lambda x: "**"+x['name']+"** by "+x['author']))
         result = await embed.run()
 
-        if result is None:
+        if not result:
             return
         
         await ctx.trigger_typing()
@@ -262,7 +262,7 @@ class games(commands.Cog):
         quizClient = ctx.bot.GeoQuiz(session=ctx.bot.util.default_client)
         win = await quizClient.play(ctx)
 
-        if win is None:
+        if not win:
             return
 
         await quizClient.end()

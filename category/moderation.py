@@ -124,7 +124,7 @@ class moderation(commands.Cog):
     @cooldown(2)
     async def config(self, ctx):
         data = self.db.get("dashboard", {"serverid": ctx.guild.id})
-        if data is None:
+        if not data:
             raise ctx.bot.util.BasicCommandException('This server does not have any configuration for this bot.')
         
         embed = ctx.bot.Embed(
@@ -281,7 +281,7 @@ class moderation(commands.Cog):
         
         if user_to_warn.guild_permissions.manage_channels:
             raise ctx.bot.util.BasicCommandException("You cannot warn a moderator.")
-        reason = 'No reason provided' if (params is None) else params[1][0:100]
+        reason = params[1][0:100] if params else 'No reason provided'
 
         await ctx.send(embed=discord.Embed(title=f'{user_to_warn.display_name} was warned by {ctx.author.display_name} for the reason *"{reason}"*.', color=discord.Color.green()))
         if not self.db.exist("dashboard", {"serverid": ctx.guild.id}):

@@ -171,7 +171,7 @@ class utils(commands.Cog):
         data = await ctx.bot.util.default_client.get(f'https://images-api.nasa.gov/search?q={query[0:100]}&media_type=image')
         try: data = await data.json()
         except: data = None
-        if (data is None) or len(data['collection']['items'])==0:
+        if (not data) or len(data['collection']['items'])==0:
             raise ctx.bot.util.BasicCommandException("Nothing found.")
         img = random.choice(data['collection']['items'])
         em = ctx.bot.Embed(
@@ -389,7 +389,10 @@ class utils(commands.Cog):
             color_image = await ctx.bot.canvas.color(str(ctx.guild.get_role(iterate_result[0]).colour))
             del iterate_result
         else:
-            color_image = await ctx.bot.canvas.color(None, (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))) if ctx.bot.utils.parse_parameter(args, 'random')['available'] else await ctx.bot.canvas.color(' '.join(args))
+            if "random" in args:
+                color_image = await ctx.bot.canvas.color(None, (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
+            else:
+                color_image = await ctx.bot.canvas.color(' '.join(args))
         if not color_image:
             return await ctx.bot.cmds.invalid_args(ctx)
         await ctx.send(file=discord.File(color_image, 'color.png'))

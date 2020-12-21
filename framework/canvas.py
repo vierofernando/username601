@@ -274,7 +274,7 @@ class UserCard:
     def __init__(self, ctx, member, font_path: str, session = None):
         self.ctx = ctx
         self.user = member
-        self.new_session = session is None
+        self.new_session = bool(session)
         self.font_path = font_path
         self.session = session if session else ClientSession()
         self.flags = {
@@ -471,7 +471,7 @@ class ServerCard:
         """ Server Info command thingy """
         self.ctx = ctx
 
-        self._use_new_session = session is None
+        self._use_new_session = bool(session)
         self._get_font = (lambda x: ImageFont.truetype(font_path, x))
         self._session = ClientSession() if self._use_new_session else session
         self._server_tier_urls = [

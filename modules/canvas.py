@@ -16,7 +16,6 @@ from numpy import zeros, uint8
 from time import strftime, gmtime
 from io import BytesIO
 from datetime import datetime as t
-from .username601 import *
 from colorthief import ColorThief
 from framework import Smart_ColorThief
 from requests import get
@@ -138,7 +137,7 @@ class Painter:
             for x in range(500):
                 array[x, y] = arr
         image_overlay = Image.fromarray(array)
-        if color_right is None:
+        if not color_right:
             return self.buffer(image_overlay)
         main.paste(image_overlay, (0, 0), image_overlay)
         return self.buffer(main)
@@ -280,7 +279,7 @@ class Painter:
         draw.text(((W - w)/2 - 100, 200), levelStars, font=pusab_tiny, stroke_width=2, stroke_fill="black")
 
         for i in list(self.gd_assets['main'].keys()):
-            if self.gd_assets['main'][i] is None:
+            if not self.gd_assets['main'][i]:
                 if data['disliked']: sym = self.buffer_from_url(self.gd_assets['dislike']).convert('RGBA').resize((25, 25))
                 else: sym = self.buffer_from_url(self.gd_assets['like']).convert('RGBA').resize((25, 25))
                 main.paste(sym, (round((W-25)/2) + 75, sym_cursor), sym)

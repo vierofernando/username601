@@ -42,12 +42,12 @@ class bothelp(commands.Cog):
             return await paginator.execute()
         
         data = ctx.bot.cmds.query(' '.join(args).lower())
-        if data is None: raise ctx.bot.util.BasicCommandException("Your command/category name does not exist, sorry!")
+        if not data: raise ctx.bot.util.BasicCommandException("Your command/category name does not exist, sorry!")
         
         embed = ctx.bot.ChooseEmbed(ctx, data, key=(lambda x: "[`"+x["type"]+"`] `"+x["name"]+"`"))
         result = await embed.run()
         
-        if result is None: return
+        if not result: return
         is_command = (result["type"] == "COMMAND")
         data = ctx.bot.cmds.get_command_info(result["name"].lower()) if is_command else ctx.bot.cmds.get_commands_from_category(result["name"].lower())
         

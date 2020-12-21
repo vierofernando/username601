@@ -79,7 +79,7 @@ class dbl(commands.Cog):
         res = await embed.run()
         del embed, data
 
-        if res is None: return
+        if not res: return
         return res["id"]
     
     async def resolve_bot(self, ctx, args):
@@ -91,7 +91,7 @@ class dbl(commands.Cog):
             _id = "".join(args[1:])
         else:
             _id = await self.search_bots(ctx, self.client.util.encode_uri(" ".join(args[1:])))
-            if _id is None: return
+            if not _id: return
         
         data = await self.get(f"/bots/{_id}")
         
@@ -132,7 +132,7 @@ class dbl(commands.Cog):
             return await embed.send() 
         else:
             embed = await self.resolve_bot(ctx, args)
-            if embed is None: return
+            if not embed: return
             return await embed.send()
 
 def setup(bot):
