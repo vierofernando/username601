@@ -44,7 +44,6 @@ class Painter:
     def __init__(self, assetpath, fontpath, jsondir): # lmao wtf is this
         self.buffer_from_url = buffer_from_url
         self.fontpath = fontpath
-        self.region = json.loads(open(jsondir+'/regions.json', 'r').read())
         self.gd_assets = json.loads(open(jsondir+'/gd.json', 'r').read())
         self.add_corners = add_corners
         
@@ -238,66 +237,6 @@ class Painter:
         draw.text((42, 80), self.wrap_text(bad_pass, 396, font, array=True)[0], font=font, fill='black')
         draw.text((42, 311), self.wrap_text(good_pass, 396, font, array=True)[0], font=font, fill='black')
         return self.buffer(im)
-
-    async def geometry_dash_level(self, levelid, daily=False, weekly=False):
-        # a shit ton of declarations first xd
-        if daily: query = 'daily'
-        elif weekly: query = 'weekly'
-        else: query = str(levelid)
-        data = get('https://gdbrowser.com/api/level/'+query).json()
-        pusab_big = self.get_font('PUSAB__', 40, otf=True)
-        pusab_smol = self.get_font('PUSAB__', 30, otf=True)
-        pusab_smoler = self.get_font('PUSAB__', 20, otf=True)
-        pusab_tiny = self.get_font('PUSAB__', 20, otf=True)
-        aller = self.get_font('Aller', 20)
-        levelName = data['name']
-        levelAuth = "by "+data['author']
-        levelDesc = data['description']
-        levelDiff = data['difficulty']
-        levelStars = str(data['stars'])+" stars"
-        main = Image.new('RGB', color=(4,75,196), size=(500, 400))
-        draw = ImageDraw.Draw(main)
-        
-        w, h = pusab_big.getsize(levelName)
-        W, H = main.size
-        draw.text(((W-w)/2,15), levelName, font=pusab_big, stroke_width=2, stroke_fill="black", fill="white")
-        w, h = pusab_smol.getsize(levelAuth)
-        draw.text(((W-w)/2,50), levelAuth, font=pusab_smol, stroke_width=2, stroke_fill="black", fill=(255, 200, 0))
-        width, desc_cursor = (w, h), 300
-        texts, sym_cursor = self.wrap_text(levelDesc, 445, aller, array=True), 100
-
-        for i in texts:
-            w, h = aller.getsize(i)
-            draw.text(((W-w)/2, desc_cursor), i, font=aller, fill='white')
-            desc_cursor += 25
-
-        difficulty = self.buffer_from_url("https://gdbrowser.com/difficulty/"+data['difficultyFace']+".png").convert('RGBA').resize((75, 75))
-        main.paste(difficulty, (round((W - 75)/2) - 100, 100), difficulty)
-        w, h = pusab_tiny.getsize(levelDiff)
-        draw.text(((W - w)/2 - 100, 180), levelDiff, font=pusab_tiny, stroke_width=2, stroke_fill="black")
-        w, h = pusab_tiny.getsize(levelStars)
-        draw.text(((W - w)/2 - 100, 200), levelStars, font=pusab_tiny, stroke_width=2, stroke_fill="black")
-
-        for i in list(self.gd_assets['main'].keys()):
-            if not self.gd_assets['main'][i]:
-                if data['disliked']: sym = self.buffer_from_url(self.gd_assets['dislike']).convert('RGBA').resize((25, 25))
-                else: sym = self.buffer_from_url(self.gd_assets['like']).convert('RGBA').resize((25, 25))
-                main.paste(sym, (round((W-25)/2) + 75, sym_cursor), sym)
-                draw.text((round((W-25)/2)+105, sym_cursor+5), str(data['likes']), font=pusab_smoler, stroke_width=2, stroke_fill="black")
-                sym_cursor += 30
-                continue
-            if i not in list(data.keys()): continue
-            sym = buffer_from_url(self.gd_assets['main'][i]).convert('RGBA').resize((25, 25))
-            main.paste(sym, (round((W-25)/2) + 75, sym_cursor), sym)
-            draw.text((round((W-25)/2)+105, sym_cursor+5), str(data[i]), font=pusab_smoler, stroke_width=2, stroke_fill="black")
-            sym_cursor += 30
-            del sym
-        
-        res = self.buffer(self.add_corners(main, 20))
-        del data, pusab_big, pusab_smol, pusab_smoler, pusab_tiny, aller, levelAuth, levelDesc, levelDiff, levelName, levelStars, levelid
-        del main, draw, w, h, W, H
-        del width, desc_cursor, texts, sym_cursor, difficulty
-        return res
 
     async def get_palette(self, temp_data):
         font = self.get_font('Minecraftia-Regular', 30) 
