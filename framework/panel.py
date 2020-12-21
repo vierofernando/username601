@@ -46,7 +46,7 @@ class CustomPanel(Smart_ColorThief):
         self.ctx = ctx
         self.__get_font = (lambda s: ImageFont.truetype(self.ctx.bot.util.fonts_dir + "/" + font, s))
 
-        if (spotify is not None) and (not isinstance(spotify, Spotify)):
+        if spotify and (not isinstance(spotify, Spotify)):
             raise TypeError("Spotify argument is not an instance of Spotify")
         
         self.SPOTIFY = spotify
@@ -80,7 +80,7 @@ class CustomPanel(Smart_ColorThief):
         self.DESC_SIZE = self.DESC_FONT.getsize(self.DESC_TEXT)
         self.WIDTH = max([self.TITLE_SIZE[0], self.SUBTITLE_SIZE[0], self.DESC_SIZE[0]]) + 270
 
-        if ((self.MIN_WIDTH_INPUT is not None) and (self.WIDTH < self.MIN_WIDTH_INPUT)):
+        if (self.MIN_WIDTH_INPUT and (self.WIDTH < self.MIN_WIDTH_INPUT)):
             self.WIDTH = self.MIN_WIDTH_INPUT
         
         self.MARGIN_LEFT = 200 + self.MARGIN_INPUT

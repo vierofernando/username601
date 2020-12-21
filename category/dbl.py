@@ -38,7 +38,7 @@ class dbl(commands.Cog):
             raise self.client.util.BasicCommandException(str(_input) + " is a bot.")
         data = await self.get(f"/users/{_input.id}")
         
-        if data.get("error") is not None:
+        if data.get("error"):
             raise self.client.util.BasicCommandException(str(_input) + " does not exist in the [top.gg](https://top.gg/) database.")
         _ext = ".gif" if _input.is_avatar_animated() else ".png"
         _bio = discord.utils.escape_markdown(data["bio"]) if data.get("bio") else "This user has no bio."
@@ -62,11 +62,11 @@ class dbl(commands.Cog):
     
     async def get_owner_name(self, id):
         _cached_user = self.client.get_user(int(id))
-        if _cached_user is not None:
+        if _cached_user:
             return str(_cached_user)
         
         data = await self.get(f"/users/{id}")
-        if data.get("error") is not None: return "<not available>"
+        if data.get("error"): return "<not available>"
         return data["username"] + "#" + data["discriminator"]
     
     async def search_bots(self, ctx, query):
@@ -95,7 +95,7 @@ class dbl(commands.Cog):
         
         data = await self.get(f"/bots/{_id}")
         
-        if data.get("error") is not None:
+        if data.get("error"):
             raise self.client.util.BasicCommandException("That bot does not exist in the [top.gg](https://top.gg/) database.")
         _links = "\n".join([("["+self._bot_subtitution[key]+"]("+self._bot_links[key]+data[key]+")" if data.get(key) else "??") for key in self._bot_links.keys()])
         _links = _links.replace("\n??", "").replace("??", "")

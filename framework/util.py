@@ -221,19 +221,19 @@ class Util:
         return_json, raise_errors, using_alexflipnote_token, force_json, github_token = False, False, False, False, False
 
         if list(kwargs.keys()):
-            if kwargs.get("json") is not None:
+            if kwargs.get("json"):
                 return_json = True
                 kwargs.pop("json")
-            if kwargs.get("raise_errors") is not None:
+            if kwargs.get("raise_errors"):
                 raise_errors = True
                 kwargs.pop("raise_errors")
-            if kwargs.get("alexflipnote") is not None:
+            if kwargs.get("alexflipnote"):
                 using_alexflipnote_token = True
                 kwargs.pop("alexflipnote")
-            if kwargs.get("force_json") is not None:
+            if kwargs.get("force_json"):
                 force_json = True
                 kwargs.pop("force_json")
-            if kwargs.get("github") is not None:
+            if kwargs.get("github"):
                 github_token = True
                 kwargs.pop("github")
 

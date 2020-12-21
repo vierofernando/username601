@@ -130,7 +130,7 @@ class Painter:
         return res[:3]
 
     async def gradient(self, color_left, color_right):
-        if color_right is not None:
+        if color_right:
             main = Image.new("RGB", (1000, 500), color=color_right)
         array = zeros([500, 1000, 4], dtype=uint8)
         for y in range(1000):

@@ -163,13 +163,13 @@ class economy(commands.Cog):
     async def rob(self, ctx, *args):
         try:
             number = ctx.bot.Parser.get_numbers(args)[0]
-            assert not ctx.message.mentions, "Please mention someone to rob!"
+            assert ctx.message.mentions, "Please mention someone to rob!"
             member = ctx.message.mentions[0]
             assert not member.bot, f"{member.display_name} is a botum."
             assert member != ctx.author, f"Error! `RecursionError: maximum recursion depth exceeded`"
             
             victim_data = self.db.get("economy", {"userid": member.id})
-            assert (victim_data is not None), f"{member.display_name} has no profile!"
+            assert victim_data, f"{member.display_name} has no profile!"
             assert victim_data["bal"], f"{member.display_name} only has 0 bobux! He is too poor to be robbed!"
             assert member.status != discord.Status.offline, f"{member.display_name} is currently offline!"
             
@@ -296,7 +296,7 @@ class economy(commands.Cog):
                         assert blacklisted_word not in text, "Please do not include any links or bad words in your bio!"
                     data = self.db.get("economy", {"userid": ctx.author.id})
                     
-                    assert data is not None, f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."
+                    assert data, f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."
                     assert data["bal"] > 500, f"You need at least 500 bobux to change bio ({(500 - data['bal']):,} more bobux required)"
 
                     await ctx.send(embed=discord.Embed(title=f"Successfully changed your bio.", color=discord.Color.green()).set_footer(text="Your bio is too long, so we capped it down to 50 characters." if len(text) > 50 else ""))
@@ -308,7 +308,7 @@ class economy(commands.Cog):
                 try:
                     color = ImageColor.getrgb(' '.join(args[1:]))
                     data = self.db.get("economy", {"userid": ctx.author.id})
-                    assert (data is not None), f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."
+                    assert data, f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."
                     assert data["bal"] > 1000, f"You need at least 1,000 bobux to change bio ({(1000 - data['bal']):,} more bobux required)"
                 except ValueError:
                     return await ctx.bot.cmds.invalid_args(ctx)

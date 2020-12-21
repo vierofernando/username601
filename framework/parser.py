@@ -24,7 +24,7 @@ class Parser:
         if parse != []:
             try:
                 role = ctx.guild.get_role(int(parse[0].group()[:3][:-1]))
-                assert (role is not None)
+                assert role
                 return role
             except:
                 return
@@ -48,7 +48,7 @@ class Parser:
         if parse != []:
             try:
                 channel = ctx.guild.get_channel(int(parse[0].group()[:2][:-1]))
-                assert (channel is not None)
+                assert channel
                 return channel
             except:
                 return

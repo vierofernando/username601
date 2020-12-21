@@ -29,7 +29,7 @@ class utils(commands.Cog):
     async def country(self, ctx, *args):
         _country = " ".join(args)
         try:
-            assert _country is not None, "Send a country name!"
+            assert _country, "Send a country name!"
             data = await ctx.bot.util.get_request(f'https://restcountries.eu/rest/v2/name/{ctx.bot.util.encode_uri(_country)}', json=True, raise_errors=True)
             assert isinstance(data, list), "No such country with the name `"+_country+"` found."            
             embed = ctx.bot.ChooseEmbed(ctx, data, key=(lambda x: x["name"]))
@@ -362,7 +362,7 @@ class utils(commands.Cog):
         )
         result = result[url[1]]
 
-        if url[2] is not None:
+        if url[2]:
             result = result[url[2]]
         
         embed = ctx.bot.Embed(ctx, title=key + " fact!", desc=result)

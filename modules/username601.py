@@ -4,7 +4,7 @@ main_cfg = ConfigParser()
 main_cfg.read('config.ini')
 
 async def wait_for_message(ctx, message, func=None, timeout=5.0, *args, **kwargs):
-    if message is not None: await ctx.send(message)
+    if message: await ctx.send(message)
     def wait_check(m): return ((m.author == ctx.author) and (m.channel == ctx.channel))
     _function = wait_check if (func is None) else func
     try:

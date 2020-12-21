@@ -46,13 +46,13 @@ class games(commands.Cog):
             
             try:
                 res = game.add_move(int(msg.content), bool(current))
-                assert res is not None
+                assert res
             except:
                 current = 0 if current else 1
                 continue
             
             check = game.check_if_win()
-            if check is not None:
+            if check:
                 if check == "?":
                     return await ctx.send(embed=discord.Embed(title="No one wins! It's a draw!", color=discord.Colour.orange()))
                 winner = str(characters[0 if (current == 1) else 1])

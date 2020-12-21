@@ -545,7 +545,7 @@ class moderation(commands.Cog):
         if args[0].lower() == 'info':
             try:
                 role = ctx.bot.Parser.parse_role(ctx, ' '.join(args[1:]), return_array=True)
-                assert (role is not None)
+                assert role
             except:
                 raise ctx.bot.util.BasicCommandException(f"Please add role name/mention/ID after the `{ctx.bot.command_prefix}role info`.")
             if isinstance(role, list):
@@ -599,7 +599,7 @@ class moderation(commands.Cog):
         elif args[0].lower() == "info":
             try:
                 channel = ctx.bot.Parser.parse_channel(ctx, ' '.join(args[1:]), return_array=True)
-                assert (channel is not None)
+                assert channel
             except:
                 return await ctx.bot.cmds.invalid_args(ctx)
             if isinstance(channel, list):
@@ -712,7 +712,7 @@ class moderation(commands.Cog):
         elif args[0].lower() == "info":
             try:
                 res = await ctx.bot.Parser.parse_emoji(ctx, args[1])
-                assert (res is not None)
+                assert res
             except:
                 return await ctx.bot.cmds.invalid_args(ctx)
             data = ctx.bot.get_emoji(int(res.split("emojis/")[1].split(".")[0])) if res.startswith("https://cdn") else None
@@ -741,7 +741,7 @@ class moderation(commands.Cog):
         elif args[0].lower() == "enlarge":
             try:
                 res = await ctx.bot.Parser.parse_emoji(ctx, args[1])
-                assert (res is not None)
+                assert res
             except:
                 raise ctx.bot.util.BasicCommandException(f"Please add a emoji after the `{ctx.bot.command_prefix}emoji enlarge`")
             return await ctx.bot.util.send_image_attachment(ctx, res)

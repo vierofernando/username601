@@ -143,14 +143,14 @@ class apps(commands.Cog):
             raise ctx.bot.util.BasicCommandException("Did not found anything corresponding to your query.")
         
         try:
-            star = str(':star:'*round(data['rating']['average'])) if data['rating']['average'] is not None else 'No star rating provided.'
+            star = str(':star:'*round(data['rating']['average'])) if data['rating']['average'] else 'No star rating provided.'
             embed = ctx.bot.Embed(
                 ctx,
                 title=data['name'],
                 url=data['url'],
                 desc=ctx.bot.Parser.html_to_markdown(data['summary']),
                 fields={
-                    'General Information': '**Status: **'+data['status']+'\n**Premiered at: **'+data['premiered']+'\n**Type: **'+data['type']+'\n**Language: **'+data['language']+'\n**Rating: **'+str(data['rating']['average'] if data['rating']['average'] is not None else '`<not available>`')+'\n'+star,
+                    'General Information': '**Status: **'+data['status']+'\n**Premiered at: **'+data['premiered']+'\n**Type: **'+data['type']+'\n**Language: **'+data['language']+'\n**Rating: **'+str(data['rating']['average'] if data['rating']['average'] else '`<not available>`')+'\n'+star,
                     'TV Network': data['network']['name']+' at '+data['network']['country']['name']+' ('+data['network']['country']['timezone']+')',
                     'Genre': str(', '.join(data['genres']) if len(data['genres'])>0 else 'no genre avaliable'),
                     'Schedule': ', '.join(data['schedule']['days'])+' at '+data['schedule']['time']
