@@ -1,0 +1,3746 @@
+import discord
+from discord.ext import commands
+import imdb
+from decorators import *
+import random
+import wikipediaapi
+from googletrans import Translator, LANGUAGES
+
+class apps(commands.Cog):
+    def __init__(self):
+        self.translator = Translator(service_urls=['translate.googleapis.com'])
+        self.Wikipedia = wikipediaapi.Wikipedia('en')
+        self.ia = imdb.IMDb()
+
+    @command(['urban-dictionary', 'define'])
+    @cooldown(8)
+    @require_args()
+    async def urban(self, ctx, *args):
+        search = False
+        try:
+            if "--search" in args:
+                args, search = ctx.bot.Parser.without(args, "--search"), True
+            
+            data = await ctx.bot.util.get_request(
+                "https://api.urbandictionary.com/v0/define",
+                term=' '.join(args)[0:100],
+                json=True,
+                raise_errors=True
+            )
+            
+            if search:
+                embed_list = ctx.bot.ChooseEmbed(ctx, data["list"][0:10], key=(lambda x: f'{x["word"]} by {x["author"]} [{x["thumbs_up"]:,} :+1:, {x["thumbs_down"]:,} :-1:]'))
+                result = await embed_list.run()
+                del embed_list
+                if not result:
+                    return
+            else:
+                result = data["list"][0]
+            
+            embed = ctx.bot.Embed(
+                ctx,
+                title=result["word"],
+                fields={
+                    "Post Info": f"**Author: **{result['author']}" + "\n" + f"{result['thumbs_up']:,} :+1: | {result['thumbs_down']:,} :-1:",
+                    "Definition": result["definition"].replace("\\\\", "\\"),
+                    "Written in": result['written_on'].replace("T", " ")[:-5],
+                    "Example": result["example"]
+                },
+                url=result['permalink']
+            )
+            
+            await embed.send()
+            del embed, result, search, data
+            
+        except:
+            raise ctx.bot.util.BasicCommandException("Did not found anything corresponding to your search.")
+
+    @command(['git'])
+    @cooldown(10)
+    @require_args(2)
+    async def github(self, ctx, *args):
+        try:
+            nl = "\n" 
+            if (args[0].lower() in ["user", "users", "profile"]):
+                data = await ctx.bot.util.get_request(
+                    "https://api.github.com/users/" + " ".join(args[1:]),
+                    github=True,
+                    json=True,
+                    raise_errors=True
+                )
+                embed = ctx.bot.Embed(
+                    ctx,
+                    title=data["login"],
+                    fields={
+                        "General": f"**ID: **`{data['id']}`{nl}**Created at: **{data['created_at'].replace('T', ' ')[:-1]}{nl}**Updated at: **{data['updated_at'].replace('T', ' ')[:-1]}",
+                        "Bio": data["bio"] if data.get("bio") else "`<no bio>`",
+                        "Stats": f"**Followers: **{data['followers']}{nl}**Following: **{data['following']}{nl}**Public Repositories: **{data['public_repos']}{nl}**Public Gists: **{data['public_gists']}"
+                    },
+                    thumbnail=data["avatar_url"],
+                    url=data["html_url"]
+                )
+                await embed.send()
+                del embed, data, nl
+                return
+            elif (args[0].lower() in ["repos", "repositories"]):
+                data = await ctx.bot.util.get_request(
+                    "https://api.github.com/users/" + " ".join(args[1:]) + "/repos",
+                    github=True,
+                    json=True,
+                    raise_errors=True
+                )
+                
+                desc = ""
+                for repo in data:
+                    if len(desc) >= 1900:
+                        break
+                    
+                    desc += f"{'[ '+repo['language']+' ]' if repo['language'] else '[ ??? ]'} [{repo['full_name']}]({repo['html_url']}){' :fork_and_knife:' if repo['fork'] else ''}{nl}"
+                
+                embed = ctx.bot.Embed(ctx, title=' '.join(args[1:]) + f"'s repositories [{len(data):,}]", desc=desc, thumbnail=data[0]["owner"]["avatar_url"])
+                
+                await embed.send()
+                del embed, desc, data, nl
+                return
+            elif (args[0].lower() in ["repo", "repository"]):
+                assert " ".join(args[1:]).count("/")
+                data = await ctx.bot.util.get_request(
+                    "https://api.github.com/repos/" + " ".join(args[1:]),
+                    github=True,
+                    json=True,
+                    raise_errors=True
+                )
+                
+                embed = ctx.bot.Embed(
+                    ctx,
+                    title=data["full_name"] + (' [Fork of '+data['parent']['full_name']+']' if data['fork'] else ''),
+                    url=data["html_url"],
+                    fields={
+                        'General': f"**Created at: **{data['created_at'].replace('T', ' ')[:-1]}{nl}**Updated at: **{data['updated_at'].replace('T', ' ')[:-1]}{nl}**Pushed at: **{data['pushed_at'].replace('T', ' ')[:-1]}{nl}**Programming Language: **{data['language'] if data.get('language') else '???'}{nl + '**License: **' + data['license']['name'] if data.get('license') else ''}",
+                        'Description': data['description'] if data.get('description') else 'This repo is without description.', # haha nice reference there null
+                        'Stats': f"**Stars: **{data['stargazers_count']}{nl}**Forks: **{data['forks_count']}{nl}**Watchers: **{data['watchers_count']}{nl}**Open Issues: **{data['open_issues_count']}"
+                    },
+                    thumbnail=data["owner"]["avatar_url"]
+                )
+                await embed.send()
+                
+                del embed, data, nl
+                return
+            assert False
+        except:
+            return await ctx.bot.cmds.invalid_args(ctx)
+
+    @command()
+    @cooldown(5)
+    @require_args()
+    async def tv(self, ctx, *args):
+        data = await ctx.bot.util.get_request(
+            f'http://api.tvmaze.com/singlesearch/shows',
+            json=True,
+            q=' '.join(args)
+        )
+        if not data:
+            raise ctx.bot.util.BasicCommandException("Did not found anything corresponding to your query.")
+        
+        try:
+            star = str(':star:'*round(data['rating']['average'])) if data['rating']['average'] else 'No star rating provided.'
+            embed = ctx.bot.Embed(
+                ctx,
+                title=data['name'],
+                url=data['url'],
+                desc=ctx.bot.Parser.html_to_markdown(data['summary']),
+                fields={
+                    'General Information': '**Status: **'+data['status']+'\n**Premiered at: **'+data['premiered']+'\n**Type: **'+data['type']+'\n**Language: **'+data['language']+'\n**Rating: **'+str(data['rating']['average'] if data['rating']['average'] else '`<not available>`')+'\n'+star,
+                    'TV Network': data['network']['name']+' at '+data['network']['country']['name']+' ('+data['network']['country']['timezone']+')',
+                    'Genre': str(', '.join(data['genres']) if len(data['genres'])>0 else 'no genre avaliable'),
+                    'Schedule': ', '.join(data['schedule']['days'])+' at '+data['schedule']['time']
+                },
+                image=data['image']['original']
+            )
+            await embed.send()
+            del embed
+        except:
+            raise ctx.bot.util.BasicCommandException("There was an error on fetching the info.")
+
+    @command(['spy', 'spot', 'splay', 'listeningto', 'sp'])
+    @cooldown(2)
+    async def spotify(self, ctx, *args):
+        user = ctx.bot.Parser.parse_user(ctx, args)
+        act = [i for i in user.activities if isinstance(i, discord.Spotify)]
+        if not act: raise ctx.bot.util.BasicCommandException(f"Sorry, but {user.display_name} is not listening to spotify.")
+        await ctx.trigger_typing()
+        panel = ctx.bot.Panel(ctx, spotify=act[0])
+        await panel.draw()
+        await panel.send_as_attachment()
+        panel.close()
+
+    @command()
+    @cooldown(5)
+    @require_args()
+    async def itunes(self, ctx, *args):
+        await ctx.trigger_typing()
+        data = await ctx.bot.util.get_request(
+            'https://itunes.apple.com/search',
+            json=True,
+            raise_errors=True,
+            force_json=True,
+            term=' '.join(args),
+            media='music',
+            entity='song',
+            limit=10,
+            explicit='no'
+        )
+        if len(data['results'])==0: return await ctx.send('{} | No music found... oop'.format(ctx.bot.util.error_emoji))
+        choose = ctx.bot.ChooseEmbed(ctx, data['results'], key=(lambda x: "["+x["trackName"]+"]("+x["trackViewUrl"]+")"))
+        data = await choose.run()
+        if not data: return
+        
+        panel = ctx.bot.Panel(ctx, title=data['trackName'], subtitle=data['artistName'], description=data['primaryGenreName'], icon=data['artworkUrl100'])
+        await panel.draw()
+        await panel.send_as_attachment()
+        panel.close()
+
+    @command(['tr', 'trans'])
+    @cooldown(5)
+    @require_args(2)
+    async def translate(self, ctx, *args):
+        await ctx.trigger_typing()
+        try:
+            toTrans = ' '.join(args[1:])
+            if len(args[0]) > 2:
+                try:
+                    _filter = list(filter(
+                        lambda x: args[0].lower() in x.lower(), [LANGUAGES[x] for x in list(LANGUAGES)]
+                    ))
+                    assert _filter
+                    del _filter
+                    destination = _filter[0]
+                except:
+                    return await ctx.bot.cmds.invalid_args(ctx)
+            else:
+                destination = args[0].lower()
+            translation = self.translator.translate(toTrans[0:1000], dest=destination)
+            embed = ctx.bot.Embed(ctx, title=f"{LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}", desc=translation.text[0:1900])
+            await embed.send()
+            del embed, translation, destination, toTrans
+        except:
+            return await ctx.bot.cmds.invalid_args(ctx)
+
+    @command(['wiki'])
+    @cooldown(5)
+    @require_args()
+    async def wikipedia(self, ctx, *args):
+        await ctx.trigger_typing()
+        
+        page = self.Wikipedia.page(' '.join(args))
+        if not page.exists():
+            return await ctx.send(content='That page does not exist!')
+        
+        embed = ctx.bot.Embed(ctx, title=page.title, url=page.fullurl, desc=page.summary[0:2000])
+        return await embed.send()
+    
+    @command(['movie', 'film'])
+    @cooldown(5)
+    @require_args()
+    async def imdb(self, ctx, *args):
+        await ctx.trigger_typing()
+        try:
+            query = " ".join(args[1:])
+            res = self.ia.search_movie(query)
+            
+            choose = ctx.bot.ChooseEmbed(ctx, res[0:10], key=(lambda x: x["long imdb title"]))
+            movie = await choose.run()
+            
+            if not movie:
+                return
+            await ctx.trigger_typing()
+            
+            data = self.ia.get_movie_main(movie.movieID)["data"]
+            votes = (":star:" * round(data["rating"])) + f' ({data["rating"]}, {data["votes"]} votes)' if (data.get("votes") and data.get("rating")) else "<data not available>"
+
+            embed = ctx.bot.Embed(
+                ctx,
+                title=movie["long imdb title"],
+                url=self.ia.get_imdbURL(movie),
+                image=movie["full-size cover url"],
+                fields={
+                    "Plot": data["plot outline"].split(".")[0][0:1000],
+                    "Movie Ratings": votes,
+                    "Directors": ", ".join([i["name"] for i in data["directors"] if i.get("name")]),
+                    "Producers": ", ".join([i["name"] for i in data["producers"] if i.get("name")]),
+                    "Writers": ", ".join([i["name"] for i in data["writers"] if i.get("name")])
+                }
+            )
+            await embed.send()
+            del res, data, embed, votes, choose, movie, query
+        except Exception as e:
+            raise ctx.bot.util.BasicCommandException("The movie query does not exist.\n" + str(e))
+        
+def setup(client):
+    client.add_cog(apps())import discord
+from discord.ext import commands
+from json import loads
+from decorators import *
+from time import time
+
+class bothelp(commands.Cog):
+    def __init__(self, client):
+        self._categories = "\n".join([f"{i + 2}. `{client.cmds.categories[i]}`" for i in range(len(client.cmds.categories))])
+        self._init_help = [discord.Embed(title="The bot help embed™️", description="Use the reactions to move to the next page.\n\n**PAGES:**\n1. `This page`\n"+self._categories)]
+        self.db = client.db
+    
+    @command(['supportserver', 'support-server', 'botserver', 'bot-server'])
+    @cooldown(1)
+    async def support(self, ctx):
+        return await ctx.send(ctx.bot.util.server_invite)
+
+    @command(['cl', 'history', 'updates'])
+    @cooldown(5)
+    async def changelog(self, ctx, *args):
+        data = "\n".join(self.db.get("config", {"h": True})["changelog"])
+        embed = ctx.bot.Embed(
+            ctx,
+            title="Bot Changelog",
+            desc=data,
+            footer="Sorry if it looks kinda stinky"
+        )
+        await embed.send()
+        del embed, data
+
+    @command(['commands', 'yardim', 'yardım'])
+    @cooldown(2)
+    async def help(self, ctx, *args):
+        if not args:
+            embeds = self._init_help
+            for category in ctx.bot.cmds.categories:
+                embed = discord.Embed(title=category, description="**Commands:**```"+(", ".join([command['name'] for command in ctx.bot.cmds.get_commands_from_category(category.lower())]))+"```")
+                embed.set_footer(text=f"Type `{ctx.bot.command_prefix}help <command>` to view command in a detailed version.")
+                embeds.append(embed)
+            
+            paginator = ctx.bot.EmbedPaginator(ctx, embeds, show_page_count=True, auto_set_color=True)
+            return await paginator.execute()
+        
+        data = ctx.bot.cmds.query(' '.join(args).lower())
+        if not data: raise ctx.bot.util.BasicCommandException("Your command/category name does not exist, sorry!")
+        
+        embed = ctx.bot.ChooseEmbed(ctx, data, key=(lambda x: "[`"+x["type"]+"`] `"+x["name"]+"`"))
+        result = await embed.run()
+        
+        if not result: return
+        is_command = (result["type"] == "COMMAND")
+        data = ctx.bot.cmds.get_command_info(result["name"].lower()) if is_command else ctx.bot.cmds.get_commands_from_category(result["name"].lower())
+        
+        desc = '**Command name: **{}\n**Function: **{}\n**Category: **{}'.format(
+            data['name'], data['function'], data['category']
+        ) if is_command else '**Commands count: **{}\n**Commands:**```{}```'.format(len(data), ', '.join([i['name'] for i in data]))
+        embed = ctx.bot.Embed(ctx, title="Help for "+result["type"].lower()+": "+result["name"], desc=desc)
+        if is_command:
+            parameters = 'No parameters required.' if len(data['parameters'])==0 else '\n'.join([i for i in data['parameters']])
+            apis = 'No APIs used.' if len(data['apis'])==0 else '\n'.join(map(lambda x: f"[{x}]({x})", data['apis']))
+            embed.fields = {
+                'Parameters': parameters,
+                'APIs used': apis
+            }
+        return await embed.send()
+
+    @command()
+    @cooldown(2)
+    async def vote(self, ctx):
+        embed = ctx.bot.Embed(
+            ctx,
+            title=f'{ctx.me.display_name} seems sus. let\'s vote for him!',
+            url=f'https://top.gg/bot/{ctx.bot.user.id}/vote'
+        )
+        await embed.send()
+        del embed
+    
+    @command(['inviteme', 'invitelink', 'botinvite', 'invitebot', 'addtoserver', 'addbot'])
+    @cooldown(2)
+    async def invite(self, ctx):
+        embed = ctx.bot.Embed(
+            ctx,
+            title='invite this bot please the bot developer is desperate',
+            url=f'https://discord.com/api/oauth2/authorize?client_id={ctx.bot.user.id}&permissions=8&scope=bot'
+        )
+        await embed.send()
+        del embed
+    
+    @command(['report', 'suggest', 'bug', 'reportbug', 'bugreport'])
+    @cooldown(15)
+    @require_args()
+    async def feedback(self, ctx, *args):
+        if (('discord.gg/' in ' '.join(args)) or ('discord.com/invite/' in ' '.join(args))):
+            raise ctx.bot.util.BasicCommandException("Please do NOT send invites. This is NOT advertising.")
+        
+        wait = await ctx.send(ctx.bot.util.loading_emoji + ' | Please wait... Transmitting data to owner...')
+
+        banned = [i for i in self.db.get("config", {"h": True})["bans"] if i.startswith(str(ctx.author.id))]
+        
+        if not banned:
+            try:
+                feedback_channel = ctx.bot.get_channel(ctx.bot.util.feedback_channel)
+                await feedback_channel.send(f'<@{ctx.bot.util.owner_id}>, User with ID: {ctx.author.id} sent a feedback: **"'+' '.join(args)[0:500]+'"**')
+                embed = discord.Embed(title='Feedback Successful', description=ctx.bot.util.success_emoji + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+ctx.bot.util.server_invite+')', colour=ctx.me.color)
+                await wait.edit(content='', embed=embed)
+            except:
+                raise ctx.bot.util.BasicCommandException('There was an error while sending your feedback. Sorry! :(')
+        else:
+            reason = "|".join(banslist[0].split("|")[1:])
+            raise ctx.bot.util.BasicCommandException(f"You have been banned from using the Feedback command.\nReason: {reason}")
+     
+    @command()
+    @cooldown(2)
+    async def ping(self, ctx):
+        msgping = round((time() - ctx.message.created_at.timestamp())*1000)
+        await ctx.trigger_typing()
+        wsping = round(ctx.bot.ws.latency*1000)
+        embed = ctx.bot.Embed(
+            ctx,
+            title="PongChamp!",
+            desc=f"**Message latency:** `{msgping}ms`\n**Websocket latency:** `{wsping}ms`",
+            thumbnail='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif'
+        )
+        await embed.send()
+        del embed, wsping, msgping
+
+    @command(['botstats', 'meta'])
+    @cooldown(10)
+    async def stats(self, ctx):
+        await ctx.trigger_typing()
+        data = await ctx.bot.util.get_stats()
+        
+        embed = ctx.bot.Embed(
+            ctx,
+            title="Bot Stats",
+            fields={
+                "Uptime": f"**Bot Uptime: **{ctx.bot.util.strfsecond(data['bot_uptime'])}\n**OS Uptime: **{data['os_uptime']}",
+                "Stats": f"**Server count: **{len(ctx.bot.guilds)}\n**Served users: **{len(ctx.bot.users)}\n**Cached custom emojis: **{len(ctx.bot.emojis)}",
+                "Platform": f"**Machine: **{data['versions']['os']}\n**Python Build: **{data['versions']['python_build']}\n**Python Compiler: **{data['versions']['python_compiler']}\n**Discord.py version: **{data['versions']['discord_py']}"
+            }
+        )
+        
+        await embed.send()
+
+def setup(client):
+    client.add_cog(bothelp(client))from os import environ
+from discord.ext import commands, tasks
+from decorators import *
+from aiohttp import ClientSession
+from PIL import ImageColor
+import dbl as topgg
+import discord
+
+class DummyUserClass:
+    def __init__(self, **kwargs):
+        for kwarg in kwargs.keys():
+            setattr(self, kwarg, kwargs[kwarg])
+
+class dbl(commands.Cog):
+    def __init__(self, client):
+        self.client = client
+        self.token = environ['DBL_TOKEN']
+        self.dblpy = topgg.DBLClient(client, self.token, autopost=True)
+        self.types = ["bots", "users", "bot", "user"]
+        self._bot_links = {"invite": "", "website": "", "support": "https://discord.gg/", "github": ""}
+        self._bot_subtitution = {"invite": "Invite this Bot", "website": "Official Website", "support": "Support Server", "github": "GitHub Repository"}
+        self._none = ["", None, "#"]
+        self._connection = ClientSession(headers={"Authorization": "Bearer "+environ["DBL_TOKEN"]})
+    
+    async def get(self, path):
+        res = await self._connection.get("https://top.gg/api" + path)
+        return await res.json()
+    
+    async def resolve_user(self, ctx, args):
+        if "".join(args[1:]).isnumeric():
+            _input = DummyUserClass(id=int("".join(args[1])), avatar_url=None, bot=False, is_avatar_animated=(lambda: False))
+        elif ctx.message.mentions:
+            _input = ctx.message.mentions[0] if (not ctx.message.mentions[0].bot) else ctx.author
+        else:
+            _input = self.client.Parser.parse_user(ctx, args[1:])
+        
+        if _input.bot:
+            raise self.client.util.BasicCommandException(str(_input) + " is a bot.")
+        data = await self.get(f"/users/{_input.id}")
+        
+        if data.get("error"):
+            raise self.client.util.BasicCommandException(str(_input) + " does not exist in the [top.gg](https://top.gg/) database.")
+        _ext = ".gif" if _input.is_avatar_animated() else ".png"
+        _bio = discord.utils.escape_markdown(data["bio"]) if data.get("bio") else "This user has no bio."
+        _color = "`"+data['color'].upper()+"`" if (data.get('color') not in self._none) else "`<not set>`"
+        _avatar = "https://cdn.discordapp.com/avatars/"+data["id"]+"/"+data["avatar"]+".png" if data.get("avatar") else None
+        if not _avatar:
+            raise self.client.util.BasicCommandException("That user does not exist in the [top.gg](https://top.gg/) database.")
+        
+        return self.client.Embed(
+            ctx,
+            title=data["username"] + "#" + data["discriminator"],
+            image=data.get("banner"),
+            fields={
+                "Bio": _bio,
+                "Color": _color
+            },
+            thumbnail=_avatar,
+            url="https://top.gg/user/"+data["id"],
+            color=discord.Color.from_rgb(*ImageColor.getrgb(data["color"])) if data.get("color") else ctx.me.color
+        )
+    
+    async def get_owner_name(self, id):
+        _cached_user = self.client.get_user(int(id))
+        if _cached_user:
+            return str(_cached_user)
+        
+        data = await self.get(f"/users/{id}")
+        if data.get("error"): return "<not available>"
+        return data["username"] + "#" + data["discriminator"]
+    
+    async def search_bots(self, ctx, query):
+        data = await self.get(f"/search?q={query}&type=bot")
+        data = data["results"] # why
+        
+        if not data:
+            raise self.client.util.BasicCommandException("That bot does not exist on the [top.gg](https://top.gg/) database.")
+        embed = self.client.ChooseEmbed(ctx, data, key=(lambda x: "["+x["name"]+"](https://top.gg/bot/"+x["id"]+")"))
+        res = await embed.run()
+        del embed, data
+
+        if not res: return
+        return res["id"]
+    
+    async def resolve_bot(self, ctx, args):
+        if not args[1:]:
+            _id = str(self.client.user.id)
+        elif ctx.message.mentions:
+            _id = str(ctx.message.mentions[0].id) if ctx.message.mentions[0].bot else str(self.client.user.id)
+        elif "".join(args[1:]).isnumeric():
+            _id = "".join(args[1:])
+        else:
+            _id = await self.search_bots(ctx, self.client.util.encode_uri(" ".join(args[1:])))
+            if not _id: return
+        
+        data = await self.get(f"/bots/{_id}")
+        
+        if data.get("error"):
+            raise self.client.util.BasicCommandException("That bot does not exist in the [top.gg](https://top.gg/) database.")
+        _links = "\n".join([("["+self._bot_subtitution[key]+"]("+self._bot_links[key]+data[key]+")" if data.get(key) else "??") for key in self._bot_links.keys()])
+        _links = _links.replace("\n??", "").replace("??", "")
+        bot_devs = ""
+        for _id in data['owners']:
+            name = await self.get_owner_name(str(_id))
+            bot_devs += f"[{name}](https://top.gg/user/{_id})\n"
+        
+        return self.client.Embed(
+            ctx,
+            title=data["username"] + "#" + data["discriminator"],
+            url="https://top.gg/bot/" + data["id"],
+            desc="***\"" + data["shortdesc"] + "\"***",
+            fields={
+                "General Information": "**Published at: **"+data["date"][:-5].replace("T", " ")+"\n**Bot Prefix: **`"+data["prefix"]+"`\n**Tags: **"+(
+                    " - ".join(["["+key+"](https://top.gg/tag/"+key.lower().replace(" ", "-")+")" for key in data["tags"]])
+                ),
+                "Bot Stats": "**Server Count: **`"+(str(data["server_count"]) if data.get("server_count") else "<not shown>")+"`\n**Shard Count: **`"+str(len(data["shards"]))+"`\n"+(":white_check_mark:" if data["certifiedBot"] else ":x:")+" Certified DBL Bot\n**"+str(data["points"])+"** Upvotes\n**"+str(data["monthlyPoints"])+"** Upvotes in this month",
+                "Bot Developers": bot_devs[:-1],
+                "Links": _links
+            },
+            thumbnail="https://cdn.discordapp.com/avatars/{}/{}.png".format(data["id"], data["avatar"])
+        )
+    
+    @command(['dbl', 'top-gg', 'botlist', 'discordbotlist']) 
+    @cooldown(7)
+    async def topgg(self, ctx, *args):
+        if (not args) or (args[0].lower() not in self.types):
+            embed = self.client.Embed(ctx, title="top.gg command usage", desc=f"Usage:\n`{self.client.command_prefix[0]}topgg bot <bot_name>`\n`{self.client.command_prefix[0]}topgg user <user_name/mention/user_id>`", url="https://top.gg/")
+            return await embed.send()
+        _type = args[0].lower() if (args[0].lower().endswith("s")) else args[0].lower() + "s"
+        if _type == "users":
+            embed = await self.resolve_user(ctx, args)
+            return await embed.send() 
+        else:
+            embed = await self.resolve_bot(ctx, args)
+            if not embed: return
+            return await embed.send()
+
+def setup(bot):
+    bot.add_cog(dbl(bot))import discord
+import random
+from discord.ext import commands
+from decorators import *
+from PIL import ImageColor
+from json import loads
+from time import time
+from asyncio import sleep
+from random import choice, randint
+from gc import collect
+
+class economy(commands.Cog):
+    def __init__(self, client):
+        self.blacklisted_words = [
+            "nigga",
+            "nigger",
+            "discord.gg",
+            "http://",
+            "https://",
+            "discordapp.com",
+            "discord.com",
+            "fuck",
+            "shit",
+            "bitch",
+            "dick",
+            "pussy"
+        ]
+
+        self.fish_json = loads(open(client.util.json_dir+'/fish.json', 'r').read())
+        self.works = loads(open(client.util.json_dir+'/work.json', 'r').read())['works']
+        self.db = client.db
+    
+    def getfish(self):
+        found, ctx = False, None
+        for i in self.fish_json['results']['overall']:
+            if randint(1, i['chance'])==1:
+                found, ctx = True, i
+                break
+        if not found: ctx = choice(self.fish_json['results']['else'])
+        return {
+            "catched": found,
+            "ctx": ctx
+        }
+    
+    @command()
+    @cooldown(30)
+    @require_args()
+    @require_profile()
+    async def bet(self, ctx, *args):
+        lucky = random.choice([False, True])
+        try:
+            amount = ctx.bot.Parser.get_numbers(args)
+            assert amount[0] in range(0, 69420)
+        except:
+            return await ctx.bot.cmds.invalid_args(ctx)
+        
+        self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": (amount[0] if lucky else -amount[0])})
+        return await ctx.send((ctx.bot.util.success_emoji if lucky else ctx.bot.util.error_emoji) + ' | ' + (f"Congratulations! {ctx.author.display_name} just won {amount[0]:,} bobux!" if lucky else f"Yikes! {ctx.author.display_name} just lost {amount[0]:,} bobux..."))
+
+    @command()
+    @cooldown(120)
+    @require_profile()
+    async def beg(self, ctx):
+        chance = random.randint(1, 3)
+        if chance == 1:
+            award = random.randint(100, 800)
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": award})
+            return await ctx.send(embed=discord.Embed(title=f'You begged and got {award:,} bobux!', color=discord.Color.green()))
+        raise ctx.bot.util.BasicCommandException('Stop begging! Try again later. There is only 1/3 chance you will get a bobux.')
+
+    @command(['fishing'])
+    @cooldown(60)
+    @require_profile()
+    async def fish(self, ctx):
+        wait = await ctx.send('{} | {}'.format(ctx.bot.util.loading_emoji, random.choice(
+            self.fish_json['waiting']
+        )))
+        await sleep(random.randint(3, 8))
+        res = self.getfish()
+        if res['catched']:
+            award = random.randint(res['ctx']['worth']['min'], res['ctx']['worth']['max'])
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": award})
+            return await ctx.send(embed=discord.Embed(description=f"{res['ctx']['emote']} | Congratulations! You caught a {res['ctx']['name']} and sell it worth for {award:,} bobux!", color=discord.Color.green()))
+        raise ctx.bot.util.BasicCommandException(f"Yikes! You only caught {res['ctx']}... Try again later!")
+
+    @command(['delete', 'deletedata', 'deldata', 'del-data', 'delete-data'])
+    @cooldown(3600)
+    @require_profile()
+    async def reset(self, ctx):
+        embed = await ctx.send(embed=discord.Embed(title="Are you sure? This action is irreversible!", description="Reply with `yes` or `no`. Not replying will default to `no`.", color=discord.Color.red()))
+        wait = ctx.bot.WaitForMessage(ctx, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and x.content.lower() in ["yes", "y", "no", "n"]))
+        message = await wait.get_message()
+        del wait
+
+        if (not message) or (message.content.lower() in ['n', 'no']):
+            return await embed.edit(embed=discord.Embed(title="OK. No it is then.", color=discord.Color.green()))
+        self.db.delete("economy", {"userid": ctx.author.id})
+        return await embed.edit(embed=discord.Embed(title="Alright. Your profile is gone. Reduced to atoms.", color=discord.Color.orange()))
+
+    @command()
+    @cooldown(450)
+    @require_profile()
+    async def work(self, ctx):
+        await ctx.trigger_typing()
+        reward = random.randint(100, 500)
+        job = random.choice(self.works)
+        self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
+        return await ctx.send(embed=discord.Embed(title=f"{ctx.author.display_name} worked {job} and earned {reward:,} bobux!", color=discord.Color.green()))
+    
+    @command()
+    @cooldown(7)
+    @require_profile()
+    async def daily(self, ctx, *args):
+        await ctx.trigger_typing()
+
+        data = self.db.get("economy", {"userid": ctx.author.id})
+        if (not data["lastDaily"]) or ((time() - data["lastDaily"]) > 43200): # 43200 is 12 hours.
+            
+            if data.get("streak") and data["lastDaily"]:
+                streak = data["streak"]
+                if (time() - data["lastDaily"] - 43200) < 43200:
+                    streak += 1
+                else:
+                    streak = 1 # reset the streak
+            else:
+                streak = 1
+            
+            reward = 250 * streak
+            new_data = {
+                "bal": data["bal"] + reward,
+                "lastDaily": time(),
+                "streak": streak
+            }
+            
+            await ctx.send(embed=discord.Embed(title=f"You earned your Daily for {reward:,} bobux!" + "\n" + f"Your streak: {streak:,} (250 x {streak:,} bobux)", color=discord.Color.green()))
+            self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, new_data)
+        else:
+            raise ctx.bot.util.BasicCommandException(f"You can earn your daily in {ctx.bot.util.strfsecond((data['lastDaily'] + 43200) - time())}!")
+
+    @command()
+    @cooldown(10)
+    @require_args()
+    @require_profile()
+    async def transfer(self, ctx, *args):
+        await ctx.trigger_typing()
+        try:
+            member = ctx.message.mentions[0]
+            amount = ctx.bot.Parser.get_numbers(args)
+            assert amount[0] in range(0, 100000), "The limit is 100.000 bobux!"
+            assert self.db.exist("economy", {"userid": member.id}), f"{member.display_name} does not have a profile!"
+            await ctx.send(embed=discord.Embed(title=f"Successfully transferred {amount[0]:,} bobux to {member.display_name}!", color=discord.Color.green()))
+        
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": -amount[0]})
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": member.id}, {"bal": amount[0]})
+        except Exception as e:
+            raise ctx.bot.util.BasicCommandException(str(e))
+    
+    @command(['steal', 'crime', 'stole', 'robs'])
+    @cooldown(120)
+    @require_args(2)
+    @require_profile()
+    async def rob(self, ctx, *args):
+        try:
+            number = ctx.bot.Parser.get_numbers(args)[0]
+            assert ctx.message.mentions, "Please mention someone to rob!"
+            member = ctx.message.mentions[0]
+            assert not member.bot, f"{member.display_name} is a botum."
+            assert member != ctx.author, f"Error! `RecursionError: maximum recursion depth exceeded`"
+            
+            victim_data = self.db.get("economy", {"userid": member.id})
+            assert victim_data, f"{member.display_name} has no profile!"
+            assert victim_data["bal"], f"{member.display_name} only has 0 bobux! He is too poor to be robbed!"
+            assert member.status != discord.Status.offline, f"{member.display_name} is currently offline!"
+            
+            if not number:
+                number = random.randint(0, data["bal"])
+            assert number <= victim_data["bal"], f"Number must be below the opponent's bobux. ({victim_data['bal']})"
+            data = self.db.get("economy", {"userid": ctx.author.id})
+            assert data["bal"] > 750, f"You need at least 750 bobux ({750 - data['bal']} more) to rob someone."
+            
+            await ctx.send(embed=discord.Embed(title=f"Successfully robbed {member.display_name} for {number:,} bobux.", color=discord.Color.green()))
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": number})
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": member.id})
+        except AssertionError as e:
+            raise ctx.bot.util.BasicCommandException(str(e))
+    
+    @command(['dep'])
+    @cooldown(10)
+    @require_args()
+    @require_profile()
+    async def deposit(self, ctx, *args):
+        data = self.db.get("economy", {"userid": ctx.author.id})
+        if args[0].lower() == 'all':
+            await ctx.send(embed=discord.Embed(title='OK. Deposited all of your bobux to the username601 bank.', color=discord.Color.green()))
+            self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"bankbal": data['bal']})
+            self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"bal": 0})
+            return
+
+        try:
+            num = ctx.bot.util.Parser.get_numbers(args)
+            assert num < data['bal'], 'Your input has more bobux than the one in your balance!'
+            await ctx.send(embed=discord.Embed(title=f'OK. Deposited {num:,} bobux to your bank.', color=discord.Color.green()))
+
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bankbal": num})
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": -num})
+        except AssertionError as e:
+            raise ctx.bot.util.BasicCommandException(str(e))
+        except Exception as e:
+            return await ctx.bot.cmds.invalid_args(ctx)
+    
+    @command()
+    @cooldown(10)
+    @require_args()
+    @require_profile()
+    async def withdraw(self, ctx, *args):
+        data = self.db.get("economy", {"userid": ctx.author.id})
+        if args[0].lower() == 'all':
+            await ctx.send(embed=discord.Embed(title='OK. Withdrew all of your bobux from the username601 bank.', color=discord.Color.green()))
+            self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"bankbal": 0})
+            self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"bal": data['bankbal']})
+            return
+
+        try:
+            num = ctx.bot.util.Parser.get_numbers(args)
+            assert num < data['bankbal'], 'Your input has more bobux than the one in the bank!'
+            await ctx.send(embed=discord.Embed(title=f'OK. Withdrew {num:,} bobux from the bank.', color=discord.Color.green()))
+
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": num})
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bankbal": -num})
+        except AssertionError as e:
+            raise ctx.bot.util.BasicCommandException(str(e))
+        except Exception:
+            return await ctx.bot.cmds.invalid_args(ctx)
+
+    @command(['lb', 'leader', 'leaders', 'rich', 'richest', 'top'])
+    @cooldown(10)
+    async def leaderboard(self, ctx, *args):
+        await ctx.trigger_typing()
+        if args:
+            if args[0].lower() == "global":
+                data = list(self.db.get_all("economy"))
+                sorted_bal = sorted(list(map(lambda x: x["bal"], data)))[::-1][:10]
+                ids = []
+                description = ""
+                
+                for i, bal in enumerate(sorted_bal):
+                    _data = list(filter(lambda x: x["bal"] == bal and x["userid"] not in ids, data))[0]
+                    ids.append(_data["userid"])
+                    user = ctx.bot.get_user(_data["userid"])
+                    description += f"{i + 1}. **{user.name if user else '`???`'}** {_data['bal']:,} :money_with_wings:" + "\n"
+                embed = ctx.bot.Embed(ctx, title=f"{ctx.me.display_name} world-wide leaderboard", desc=description)
+                await embed.send()
+                del embed, ids, description, sorted_bal, data
+                collect()
+                return
+            elif args[0].lower() in ["local", "server", "server-wide", "serverwide"]:
+                pass
+            else:
+                return await ctx.bot.cmds.invalid_args(ctx)
+        
+        member_ids = list(map(lambda x: x.id, ctx.guild.members))
+        data = list(filter(lambda x: x["userid"] in member_ids, list(self.db.get_all("economy"))))
+        limit = len(list(data)) if len(list(data)) < 10 else 10
+        if limit < 3:
+            del data, limit, member_ids
+            collect()
+            raise ctx.bot.util.BasicCommandException("This server has less than 3 members with a profile, thus a leaderboard cannot happen!")
+        
+        sorted_bal = sorted(list(map(lambda x: x["bal"], data)))[::-1][:limit]
+        ids = []
+        description = ""
+        
+        for i, bal in enumerate(sorted_bal):
+            _data = list(filter(lambda x: x["bal"] == bal and x["userid"] not in ids, data))[0]
+            ids.append(_data["userid"])
+            user = ctx.bot.get_user(_data["userid"])
+            description += f"{i + 1}. **{user.name if user else '<???>'}** {_data['bal']:,} :money_with_wings:" + "\n"
+        embed = ctx.bot.Embed(ctx, title=f"{ctx.me.display_name} server-wide leaderboard", desc=description, thumbnail=ctx.guild.icon_url)
+        await embed.send()
+        del embed, ids, description, sorted_bal, data, member_ids, limit
+        collect()
+
+    @command(['balance', 'profile', 'economy'])
+    @cooldown(5)
+    async def bal(self, ctx, *args):
+        if args:
+            await ctx.trigger_typing()
+
+            if (args[0].lower() in ["--desc", "--setdesc", "--description", "--bio"]):
+                await ctx.trigger_typing()
+                try:
+                    text = " ".join(args[1:])
+                    assert text != "", "Please add a text for your new bio."
+                    for blacklisted_word in self.blacklisted_words:
+                        assert blacklisted_word not in text, "Please do not include any links or bad words in your bio!"
+                    data = self.db.get("economy", {"userid": ctx.author.id})
+                    
+                    assert data, f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."
+                    assert data["bal"] > 500, f"You need at least 500 bobux to change bio ({(500 - data['bal']):,} more bobux required)"
+
+                    await ctx.send(embed=discord.Embed(title=f"Successfully changed your bio.", color=discord.Color.green()).set_footer(text="Your bio is too long, so we capped it down to 50 characters." if len(text) > 50 else ""))
+                    self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"desc": text[0:50]})
+                    return
+                except Exception as e:
+                    raise ctx.bot.util.BasicCommandException(str(e))
+            elif (args[0].lower() in ["--color", "--set-color", "--col"]):
+                try:
+                    color = ImageColor.getrgb(' '.join(args[1:]))
+                    data = self.db.get("economy", {"userid": ctx.author.id})
+                    assert data, f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."
+                    assert data["bal"] > 1000, f"You need at least 1,000 bobux to change bio ({(1000 - data['bal']):,} more bobux required)"
+                except ValueError:
+                    return await ctx.bot.cmds.invalid_args(ctx)
+                except AssertionError as e:
+                    raise ctx.bot.util.BasicCommandException(str(e))
+                
+                await ctx.send(embed=discord.Embed(title="Changed the color for your profile to `"+ ('#%02x%02x%02x' % color).upper() +"`.", color=discord.Color.from_rgb(*color)))
+                self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"color": str(color).replace(" ", "")[1:-1]})
+                return
+            elif (args[0].lower() in ["--card", "--image"]):
+                member = ctx.bot.Parser.parse_user(ctx, args[1:])                
+                data = self.db.get("economy", {"userid": member.id})
+
+                if not data:
+                    raise ctx.bot.util.BasicCommandException(f"{member.display_name} does not have any profile.")
+                card = ctx.bot.ProfileCard(ctx, member, profile=data, session=ctx.bot.util.default_client, font_path=ctx.bot.util.fonts_dir + "/NotoSansDisplay-Bold.otf")
+                byte = await card.draw()
+                await ctx.send(file=discord.File(byte, "card.png"))
+                await card.close()
+                del card, byte, data, member
+                return
+
+        member = ctx.bot.Parser.parse_user(ctx, args)
+        data = self.db.get("economy", {"userid": member.id})
+        if not data:
+            raise ctx.bot.util.BasicCommandException(f"{member.display_name} does not have any profile!")
+        streak = data["streak"] if data.get("streak") else 1
+        
+        embed = ctx.bot.Embed(
+            ctx,
+            title=f"{member.display_name}'s profile",
+            thumbnail=member.avatar_url,
+            fields={
+                "Balance": f"{data['bal']:,} bobux" + "\n" f"{data['bankbal']:,} bobux (bank)",
+                "Description": data["desc"],
+                "Daily": (f"**[:white_check_mark: can be claimed using `{ctx.bot.command_prefix}daily`]**" if ((not data["lastDaily"]) or ((time() - data["lastDaily"]) > 43200)) else f"Can be claimed in {ctx.bot.util.strfsecond((data['lastDaily'] + 43200) - time())}") + "\n" + f"Streak: {streak} (Next daily reward: {(250 * (streak + 1)):,} bobux)"
+            },
+            footer="Daily streaks will be reset back to 1 if daily is not claimed after 24 hours.",
+            color=discord.Color.from_rgb(*[int(i) for i in data["color"].split(",")]) if data.get("color") else ctx.me.color
+        )
+        
+        if data.get("color"):
+            rgb = tuple([int(i) for i in data["color"].split(",")])
+            embed.fields["Color"] = f"**Hex: **{('#%02x%02x%02x' % rgb).upper()}"+"\n"+f"**RGB: **{rgb[0]}, {rgb[1]}, {rgb[2]}"
+            del rgb
+        
+        await embed.send()
+        del embed, data
+    
+    @command(['newprofile'])
+    @cooldown(10)
+    async def new(self, ctx):
+        if self.db.exist("economy", {"userid": ctx.author.id}):
+            raise ctx.bot.util.BasicCommandException("You already have a profile. No need to create another.")
+        
+        await ctx.send(embed=discord.Embed(title=f"Created your profile! Use {ctx.bot.command_prefix}bal to view your profile.", color=discord.Color.green()))
+        self.db.add("economy", {
+            "userid": ctx.author.id,
+            "lastDaily": None,
+            "bal": 0,
+            "bankbal": 0
+        })
+
+def setup(client):
+    client.add_cog(economy(client))import discord
+from discord.ext import commands
+from decorators import *
+
+class encoding(commands.Cog):
+    def __init__(self):
+        pass
+    
+    @command()
+    @cooldown(2)
+    @require_args()
+    async def ascii(self, ctx, *args):
+        text = ' '.join(args)
+        ascii = await ctx.bot.util.get_request(
+            "http://artii.herokuapp.com/make",
+            raise_errors=True,
+            text=text
+        )
+        
+        await ctx.send(f'```{ascii[0:2000]}```')
+        del ascii, text
+    
+    @command()
+    @cooldown(5)
+    @require_args()
+    async def morse(self, ctx, *args):
+        await ctx.trigger_typing()
+        res = await ctx.bot.util.get_request(
+            'https://useless-api.vierofernando.repl.co/encode',
+            json=True,
+            text=str(" ".join(args))[0:100]
+        )
+        if not res:
+            raise ctx.bot.util.BasicCommandException("The API is temporarily down. Please try again later.")
+
+        await ctx.send(res['ciphers']['morse'])
+    
+    @command()
+    @cooldown(5)
+    @require_args()
+    async def fliptext(self, ctx, *args):
+        await ctx.trigger_typing()
+        res = await ctx.bot.util.get_request(
+            'https://useless-api.vierofernando.repl.co/encode',
+            json=True,
+            text=str(" ".join(args))[0:100]
+        )
+        if not res:
+            raise ctx.bot.util.BasicCommandException("The API is temporarily down. Please try again later.")
+        
+        await ctx.send(res['styles']['upside-down'])
+    
+    @command()
+    @cooldown(5)
+    @require_args()
+    async def fancy(self, ctx, *args):
+        await ctx.trigger_typing()
+        res = await ctx.bot.util.get_request(
+            'https://useless-api.vierofernando.repl.co/encode',
+            json=True,
+            text=str(" ".join(args))[0:100]
+        )
+        if not res:
+            raise ctx.bot.util.BasicCommandException("The API is temporarily down. Please try again later.")
+        
+        await ctx.send(res['styles']['fancy'])
+    
+    @command()
+    @cooldown(5)
+    @require_args()
+    async def cursive(self, ctx, *args):
+        await ctx.trigger_typing()
+        res = await ctx.bot.util.get_request(
+            'https://useless-api.vierofernando.repl.co/encode',
+            json=True,
+            text=str(" ".join(args))[0:100]
+        )
+        if not res:
+            raise ctx.bot.util.BasicCommandException("The API is temporarily down. Please try again later.")
+        
+        await ctx.send(res['styles']['cursive'])
+    
+    @command()
+    @cooldown(5)
+    @require_args()
+    async def braille(self, ctx, *args):
+        await ctx.trigger_typing()
+        res = await ctx.bot.util.get_request(
+            'https://useless-api.vierofernando.repl.co/encode',
+            json=True,
+            text=str(" ".join(args))[0:100]
+        )
+        if not res:
+            raise ctx.bot.util.BasicCommandException("The API is temporarily down. Please try again later.")
+        
+        await ctx.send(res['braille'])
+    
+    @command()
+    @cooldown(2)
+    @require_args()
+    async def barcode(self, ctx, *args):
+        await ctx.trigger_typing()
+        return await ctx.bot.util.send_image_attachment(ctx, 'http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data=' + ctx.bot.util.encode_uri(' '.join(args))[0:75])
+    
+    @command(['qrcode', 'qr-code'])
+    @cooldown(2)
+    @require_args()
+    async def qr(self, ctx, *args):
+        await ctx.trigger_typing()
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + ctx.bot.util.encode_uri(' '.join(args))[0:75])
+
+    @command()
+    @cooldown(2)
+    @require_args()
+    async def binary(self, ctx, *args):
+        return await ctx.send('```'+ctx.bot.util.binary(' '.join(args))[0:2000]+'```')
+
+    @command()
+    @cooldown(2)
+    @require_args(2)
+    async def caesar(self, ctx, *args):
+        offset = ctx.bot.Parser.get_numbers(args)
+        if not offset:
+            return await ctx.bot.cmds.invalid_args(ctx)
+        return await ctx.send(ctx.bot.util.caesar(str(' '.join(args).replace(str(offset[0]), '')), offset[0]), allowed_mentions=ctx.bot.util.no_mentions)
+    
+    @command()
+    @cooldown(2)
+    @require_args()
+    async def atbash(self, ctx, *args):
+        return await ctx.send(ctx.bot.util.atbash(' '.join(args)), allowed_mentions=ctx.bot.util.no_mentions)
+
+    @command()
+    @cooldown(2)
+    @require_args()
+    async def reverse(self, ctx, *args):
+        return await ctx.send(' '.join(args)[::-1], allowed_mentions=ctx.bot.util.no_mentions)
+    
+    @command(['b64'])
+    @cooldown(2)
+    @require_args()
+    async def base64(self, ctx, *args):
+        return await ctx.send(ctx.bot.util.base64(' '.join(args)), allowed_mentions=ctx.bot.util.no_mentions)
+    
+def setup(client):
+    client.add_cog(encoding())import discord
+import random
+from os import environ
+from discord.ext import commands
+from decorators import *
+from aiohttp import ClientSession
+from io import BytesIO
+from json import dumps
+
+class fun(commands.Cog):
+    def __init__(self):
+        self.connection = ClientSession(headers={'Authorization': 'Bot '+environ['DISCORD_TOKEN'], 'Content-Type': 'application/json'})      
+
+    @command(['edit'])
+    @cooldown(3)
+    async def edited(self, ctx, *args):
+        res = ctx.bot.Parser.split_args(args)
+        msg = await ctx.send('...')
+        await msg.edit(content='\u202b '+ ' '.join(args)[0:100] + ' \u202b')
+
+    @command(['howlove', 'friendship', 'fs', 'love'])
+    @cooldown(2)
+    async def lovelevel(self, ctx, *args):
+        res = ctx.bot.Parser.split_args(args)
+        user1, user2 = ctx.bot.Parser.parse_user(ctx, res[0]), ctx.bot.Parser.parse_user(ctx, res[1])
+        result = ctx.bot.util.friendship(user1, user2)
+        await ctx.send(f'Friendship of {user1.display_name} and {user2.display_name} is **{result}%!**')
+        del user1, user2, result, res
+
+    @command(['echo', 'reply'])
+    @cooldown(5)
+    async def say(self, ctx, *args):
+        text = ' '.join(args).lower()[0:1999] if args else "***undefined***"
+        if ctx.bot.util.get_command_name(ctx) == "reply":
+            res = await self.connection.post(
+                f'https://discord.com/api/v8/channels/{ctx.channel.id}/messages',
+                data=dumps({'content': text, 'message_reference': {'message_id': str(ctx.message.id), 'guild_id': str(ctx.guild.id)}, 'allowed_mentions': {'replied_user': False}})
+            )
+            if res.status != 200:
+                return await ctx.send(text, allowed_mentions=ctx.bot.util.no_mentions)
+            return
+        await ctx.send(text, allowed_mentions=ctx.bot.util.no_mentions)
+        del text
+    
+    @command()
+    @cooldown(2)
+    async def joke(self, ctx):
+        await ctx.trigger_typing()
+        data = await ctx.bot.util.get_request(
+            "https://official-joke-api.appspot.com/jokes/general/random",
+            json=True,
+            raise_errors=True
+        )
+        embed = ctx.bot.Embed(
+            ctx,
+            title = data[0]["setup"],
+            desc = '||'+data[0]["punchline"]+'||'
+        )
+        await embed.send()
+        del embed, data
+
+    @command(['inspiringquotes', 'lolquote', 'aiquote', 'imagequote', 'imgquote'])
+    @cooldown(10)
+    async def inspirobot(self, ctx):
+        await ctx.trigger_typing()
+        img = await ctx.bot.util.get_request('https://inspirobot.me/api', raise_errors=True, generate="true")
+        await ctx.bot.util.send_image_attachment(ctx, img)
+        del img
+    
+    @command(['randomcase'])
+    @cooldown(2)
+    async def mock(self, ctx, *args):
+        text = 'i am a dumbass that forgot to put the arguments' if len(args)==0 else ' '.join(args)
+        return await ctx.send(''.join([random.choice([i.upper(), i.lower()]) for i in list(text)]))
+
+    @command(['8ball', '8b'])
+    @cooldown(3)
+    @require_args(name="8ball")
+    async def _8ball(self, ctx, *args):
+        res = ctx.bot.util.eight_ball(ctx)
+        embed = ctx.bot.Embed(ctx, title="The 8-Ball", fields={
+            "Question": '*"'+ discord.utils.escape_markdown(" ".join(args)) +'"*',
+            "Answer": f'***{res}***'
+        })
+        return await embed.send()
+    
+    @command()
+    @cooldown(2)
+    async def choose(self, ctx, *args):
+        if len(args)==0 or ',' not in ''.join(args):
+            return await ctx.bot.cmds.invalid_args(ctx)
+        return await ctx.send(random.choice(' '.join(args).split(',')))
+    
+    @command(['fact-core', 'fact-sphere', 'factsphere'])
+    @cooldown(2)
+    async def factcore(self, ctx):
+        data = await ctx.bot.util.get_request(
+            'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fact-core.json',
+            json=True,
+            raise_errors=True
+        )
+        embed = ctx.bot.Embed(
+            ctx,
+            title='Fact Core',
+            desc=random.choice(data),
+            thumbnail='https://i1.theportalwiki.net/img/thumb/5/55/FactCore.png/300px-FactCore.png'
+        )
+        await embed.send()
+        del data, embed
+
+def setup(client):
+    client.add_cog(fun())import discord
+from discord.ext import commands
+from decorators import *
+import random
+from io import BytesIO
+from datetime import datetime as t
+import asyncio
+
+class games(commands.Cog):
+    def __init__(self, client):
+        self.db = client.db
+
+    @command(['ttt'])
+    @cooldown(15)
+    @require_args()
+    async def tictactoe(self, ctx, *args):
+        user = ctx.bot.Parser.parse_user(ctx, args)
+        if user == ctx.author:
+            raise ctx.bot.util.BasicCommandException("You need to add a `mention/user ID/username` for someone to join your game as well.")
+        elif user.bot: 
+            raise ctx.bot.util.BasicCommandException("Sorry! There was an error on executing the tictactoe:\n`discord.DiscordAPIError: "+str(user)+" is a botum`")
+
+        wait_for = ctx.bot.WaitForMessage(ctx, timeout=20.0, check=(lambda x: x.author == ctx.author and x.channel == ctx.channel and (x.content.lower() in ['yes', 'no'])))
+        response = await wait_for.get_message()
+
+        if not response:
+            raise ctx.bot.util.BasicCommandException(user.display_name+" did not respond in 20 seconds! Game invitation ended.")
+        elif response.content.lower() == "no":
+            raise ctx.bot.util.BasicCommandException(f"Well, {user.display_name} denied your request! Try requesting someone else?")
+
+        characters = (ctx.author, user)
+        game = ctx.bot.TicTacToe()
+        
+        embed = ctx.bot.Embed(ctx, title="Tic-tac-toe Game", desc="["+str(ctx.author)+"'s (O) turn]```"+game.show()+"```")
+        message = await embed.send()
+        current = 0
+        
+        while True:
+            try:
+                msg = await ctx.bot.wait_for("message", check=(
+                    lambda x: (x.author == characters[current]) and (x.channel == ctx.channel) and x.content.isnumeric() and (len(x.content) == 1)
+                ), timeout=20.0)
+            except:
+                await ctx.send(embed=discord.Embed(color=discord.Color.red(), title=str(characters[current]) + " did not respond in 20 seconds! game ended."))
+                break
+            
+            try:
+                res = game.add_move(int(msg.content), bool(current))
+                assert res
+            except:
+                current = 0 if current else 1
+                continue
+            
+            check = game.check_if_win()
+            if check:
+                if check == "?":
+                    return await ctx.send(embed=discord.Embed(title="No one wins! It's a draw!", color=discord.Colour.orange()))
+                winner = str(characters[0 if (current == 1) else 1])
+                return await ctx.send(embed=discord.Embed(color=discord.Color.green(), title=str(characters[current]) + " won the game!"))
+            
+            current = 0 if current else 1
+            embed.description = "["+str(characters[current])+"'s ("+game.current_turn+") turn]```" + game.show() + "```"
+            await embed.edit_to(message)
+    
+    async def get_name_history(self, uuid, ctx):
+        data = await ctx.bot.util.get_request(
+            f"https://api.mojang.com/user/profiles/{uuid}/names",
+            json=True,
+            raise_errors=True
+        )
+        res = ["**Latest: **`"+data[0]["name"]+"`"]
+        if len(data) < 2: return res[0]
+        count = 0
+        for i in data[1:]:
+            if count > 20: break
+            res.append("**["+str(t.fromtimestamp(i["changedToAt"] / 1000))+"]: **`"+i["name"]+"`")
+            count += 1
+        del count, data
+        return "\n".join(res)
+    
+    @command(['mc', 'skin'])
+    @cooldown(5)
+    async def minecraft(self, ctx, *args):
+        await ctx.trigger_typing()
+        name = ctx.bot.util.encode_uri(ctx.author.display_name if len(args)==0 else ' '.join(args))
+        data = await ctx.bot.util.default_client.get(f"https://mc-heads.net/minecraft/profile/{name}")
+        if data.status != 200:
+            raise ctx.bot.util.BasicCommandException(f"Minecraft for profile: `{name}` not found.")
+        data = await data.json()
+        
+        _buffer = await ctx.bot.canvas.minecraft_body(f"https://mc-heads.net/body/{name}/600", data['id'])
+        body = discord.File(_buffer, "body.png")
+        names = await self.get_name_history(data['id'], ctx)
+        embed = ctx.bot.Embed(
+            ctx,
+            title=name,
+            url='https://namemc.com/profile/'+data['id'],
+            attachment=body,
+            thumbnail=f"https://mc-heads.net/head/{name}/600",
+            fields={
+                'UUID': data['id'],
+                'Name history': names
+            }
+        )
+        await embed.send()
+        del embed, body, names, _buffer, data
+    
+    @command(['imposter', 'among-us', 'among_us', 'impostor', 'crew', 'crewmate', 'crew-mate'])
+    @cooldown(3)
+    async def amongus(self, ctx, *args):
+        await ctx.trigger_typing()
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        im = await ctx.bot.canvas.among_us(ctx, url)
+        await ctx.send(file=discord.File(im, 'the_impostor.png'))
+        del im, url
+
+    async def geometry_dash_profile(self, ctx, args):
+        try:
+            data = await ctx.bot.util.get_request(
+                "https://gdbrowser.com/api/profile/"+' '.join(args)[0:32],
+                json=True,
+                raise_errors=True
+            )
+            
+            icons = await ctx.bot.canvas.geometry_dash_icons(data["username"])
+            
+            embed = ctx.bot.Embed(
+                ctx,
+                title=data["username"],
+                fields={
+                    "Account info": f"**Player ID: **{data['playerID']}\n**Account ID: **{data['accountID']}",
+                    "Stats": f"**Rank: **{(data['rank'] if data['rank'] else '`<not available>`')}\n**Stars: **{data['stars']}\n**Diamonds: **{data['diamonds']}\n**Secret Coins: **{data['coins']}\n**Demons: **{data['demons']}\n**Creator Points: **{data['cp']}",
+                    "Links": f"{('[YouTube channel](https://youtube.com/channel/'+data['youtube']+')' if data['youtube'] else '`<YouTube not available>`')}\n{('[Twitter Profile](https://twitter.com/'+data['twitter']+')' if data['twitter'] else '`<Twitter not available>`')}\n{('[Twitch Channel](https://twitch.tv/'+data['twitch']+')' if data['twitch'] else '`<Twitch not available>`')}"
+                },
+                attachment=icons
+            )
+            await embed.send()
+            del embed, icons
+        except:
+            raise ctx.bot.util.BasicCommandException('Error, user not found.')
+    
+    async def geometry_dash_comment(self, ctx, args):
+        try:
+            _split = ' '.join(args).split(' | ')
+            text, num, user_name = ctx.bot.util.encode_uri(_split[0])[0:100], int(_split[2]), ctx.bot.util.encode_uri(_split[1])[0:32]
+            if num not in range(-99999, 100000): num = 601
+            return await ctx.bot.util.send_image_attachment(ctx, f'https://gdcolon.com/tools/gdcomment/img/{text}?name={user_name}&likes={num}&days=1-second{("&mod=mod" if ctx.author.guild_permissions.manage_guild else "")}')
+        except Exception as e:
+            return await ctx.bot.cmds.invalid_args(ctx)
+    
+    async def geometry_dash_level(self, ctx, args):
+        _input = args[0].lower()
+        if _input == "daily":
+            try:
+                daily = await ctx.bot.canvas.geometry_dash_level(None, daily=True)
+                return await ctx.send(file=discord.File(daily, "level.png"))
+            except:
+                raise ctx.bot.util.BasicCommandException("The Geometry dash servers seems to be down. Please try again later.")
+        elif _input == "weekly":
+            try:
+                weekly = await ctx.bot.canvas.geometry_dash_level(None, weekly=True)
+                return await ctx.send(file=discord.File(weekly, "level.png"))
+            except:
+                raise ctx.bot.util.BasicCommandException("The Geometry dash servers seems to be down. Please try again later.")
+        elif _input.isnumeric():
+            try:
+                level = await ctx.bot.canvas.geometry_dash_level(int(_input))
+                return await ctx.send(file=discord.File(level, "level.png"))
+            except:
+                raise ctx.bot.util.BasicCommandException(f"Level with the ID: {_input} not found.")
+        
+        result = await ctx.bot.util.get_request(
+            "https://gdbrowser.com/api/search/" + ctx.bot.util.encode_uri(" ".join(args)),
+            json=True,
+            raise_errors=True
+        )
+
+        embed = ctx.bot.ChooseEmbed(ctx, result, key=(lambda x: "**"+x['name']+"** by "+x['author']))
+        result = await embed.run()
+
+        if not result:
+            return
+        
+        await ctx.trigger_typing()
+        try:
+            buffer = await ctx.bot.canvas.geometry_dash_level(int(result['id']))
+            return await ctx.send(file=discord.File(buffer, "level.png"))
+        except:
+            raise ctx.bot.util.BasicCommandException("The Geometry Dash servers may be down. Please blame RobTop for this :)")
+
+    @command(['geometrydash', 'geometry-dash', 'gmd'])
+    @cooldown(5)
+    @require_args()
+    async def gd(self, ctx, *args):
+        await ctx.trigger_typing()
+        _input = args[0].lower()
+        if _input.startswith("level"):
+            return await self.geometry_dash_level(ctx, args[1:])
+        elif _input.startswith("profile") or _input.startswith("user"):
+            return await self.geometry_dash_profile(ctx, args[1:])
+        elif _input.startswith("logo"):
+            return await ctx.bot.util.send_image_attachment(ctx, 'https://gdcolon.com/tools/gdlogo/img/'+ctx.bot.util.encode_uri(' '.join(args[1:])))
+        elif _input.startswith("box"):
+            return await ctx.bot.util.send_image_attachment(ctx, 'https://gdcolon.com/tools/gdtextbox/img/'+ctx.bot.util.encode_uri(' '.join(args[1:]))[0:100]+'?color='+('blue' if ctx.author.guild_permissions.manage_guild else 'brown')+'&name='+ctx.author.display_name+'&url='+str(ctx.author.avatar_url_as(format='png'))+'&resize=1')
+        elif _input.startswith("comment"):
+            return await self.geometry_dash_comment(ctx, args[1:])
+        return await ctx.bot.cmds.invalid_args(ctx)
+
+    @command(['rockpaperscissors'])
+    @cooldown(5)
+    async def rps(self, ctx):
+        game = ctx.bot.rps(ctx)
+        res = await game.play()
+        del game
+
+        if not res:
+            return
+        
+        if res == 1 and self.db.exist("economy", {"userid": ctx.author.id}):
+            reward = random.randint(5, 100)
+            await ctx.send(embed=discord.Embed(title=f'Thanks for playing! you earned {reward:,} bobux as a prize!', color=discord.Color.green()))
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
+
+    @command(['dice', 'flipcoin', 'flipdice', 'coinflip', 'diceflip', 'rolldice'])
+    @cooldown(3)
+    async def coin(self, ctx, *args):
+        if "coin" in ctx.bot.util.get_command_name(ctx):
+            res = random.choice(['***heads!***', '***tails!***'])
+            await ctx.send(res)
+            if args and args[0].lower() == res[3:-4] and self.db.exist("economy", {"userid": ctx.author.id}):
+                prize = random.randint(50, 200)
+                await ctx.send(embed=discord.Embed(title=f'Your bet was right! you get {prize:,} bobux.', color=discord.Color.green()))
+                self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": prize})
+        else:
+            arr = ['one', 'two', 'three', 'four', 'five', 'six']
+            res = arr[random.randint(0, 5)]
+            await ctx.send(':'+res+':')
+            if len(args)>0 and (args[0].lower()==res.lower() or args[0].lower() == str(arr.index(res)+1)) and self.db.exist("economy", {"userid": ctx.author.id}):
+                prize = random.randint(50, 150)
+                await ctx.send(embed=discord.Embed(title=f'Your bet was right! you get {prize:,} bobux.', color=discord.Color.green()))
+                self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": prize})
+
+    @command(['guessav', 'avatarguess', 'avguess', 'avatargame', 'avgame'])
+    @cooldown(15)
+    async def guessavatar(self, ctx):
+        try:
+            game = ctx.bot.GuessAvatar(ctx)
+        except Exception as e:
+            raise ctx.bot.util.BasicCommandException(str(e))
+        win = await game.start()
+        
+        if win and self.db.exist("economy", {"userid": ctx.author.id}):
+            reward = random.randint(5, 100)
+            await ctx.send(f'Thanks for playing! You received {reward:,} extra bobux!')
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
+        
+    @command()
+    @cooldown(15)
+    async def geoquiz(self, ctx):
+        await ctx.trigger_typing()
+
+        quizClient = ctx.bot.GeoQuiz(session=ctx.bot.util.default_client)
+        win = await quizClient.play(ctx)
+
+        if not win:
+            return
+
+        await quizClient.end()
+        del quizClient
+
+        if win and self.db.exist("economy", {"userid": ctx.author.id}):
+            reward = random.randint(5, 150)
+            await ctx.send(f'Thanks for playing! You obtained {reward:,} bobux in total!')
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
+        
+    @command()
+    @cooldown(4)
+    async def mathquiz(self, ctx):
+        quiz = ctx.bot.MathQuiz()
+        quiz.generate_question()
+        
+        embed = ctx.bot.Embed(ctx, title=quiz.question)
+        message = await embed.send()
+        del embed
+        
+        wait_for = ctx.bot.WaitForMessage(ctx, timeout=30.0, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and x.content.replace("-", "").isnumeric()))
+        answer = await wait_for.get_message()
+        del wait_for
+        
+        if not answer:
+            del quiz
+            return await message.edit(embed=discord.Embed(title="Quiz canceled.", color=discord.Color.red()))
+        
+        try:
+            correct = (int(answer.content) == quiz.answer)
+        except:
+            correct = False
+        
+        if correct:
+            await message.edit(embed=discord.Embed(title="Correct!", color=discord.Color.green()))
+            if self.db.exist("economy", {"userid": ctx.author.id}):
+                reward = random.randint(5, 50)
+                await ctx.send(f'Thanks for playing! we added an extra {reward:,} bobux to your profile.')
+                self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
+        return await message.edit(embed=discord.Embed(title=f"Wrong. The answer is {quiz.answer}", color=discord.Color.red()))
+
+    @command()
+    @cooldown(60)
+    async def hangman(self, ctx):
+        await ctx.trigger_typing()
+        
+        game = ctx.bot.Hangman()
+        await game.initiate()
+        result = await game.play(ctx)
+        del game
+        
+        if not result:
+            return
+            
+        if self.db.exist("economy", {"userid": ctx.author.id}):
+            reward = random.randint(150, 300)
+            await ctx.send(f'Thanks for playing! You get also a {reward:,} bobux as a prize!')
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
+
+    @command()
+    @cooldown(2)
+    async def slot(self, ctx):
+        slot = ctx.bot.slot()
+        reward = await slot.play(ctx)
+        del slot
+        
+        if not reward:
+            return
+        
+        if self.db.exist("economy", {"userid": ctx.author.id}):
+            await ctx.send(f'Thanks for playing! You get also a {reward:,} bobux as a prize!')
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
+
+    @command(['gn', 'guessnumber'])
+    @cooldown(30)
+    async def guessnum(self, ctx):
+        game = ctx.bot.GuessMyNumber()
+        result = await game.play(ctx)
+        del game
+        
+        if result and self.db.exist("economy", {"userid": ctx.author.id}):
+            reward = random.randint(150, 300)
+            await ctx.send(f'Thanks for playing! You get also a {reward:,} bobux as a prize!')
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
+
+    @command()
+    @cooldown(30)
+    async def trivia(self, ctx, *args):
+        await ctx.trigger_typing()
+        try:
+            trivia = ctx.bot.Trivia(" ".join(args)[0:50] if len(args)>0 else "Apple", session=ctx.bot.util.default_client)
+        except Exception as e:
+            raise ctx.bot.util.BasicCommandException(str(e))
+        correct = await trivia.start(ctx)
+        del trivia
+        
+        if correct and self.db.exist("economy", {"userid": ctx.author.id}):
+            reward = random.randint(250, 400)
+            await ctx.send(f'Thanks for playing! You get also a {reward:,} bobux as a prize!')
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
+
+def setup(client):
+    client.add_cog(games(client))import discord
+from discord.ext import commands
+from PIL import ImageColor
+from decorators import *
+import random
+from io import BytesIO
+from aiohttp import ClientSession
+from json import loads
+
+class image(commands.Cog):
+    def __init__(self):
+        pass
+    
+    @command(['dogs'])
+    @cooldown(3)
+    async def dog(self, ctx):
+        await ctx.trigger_typing()
+        data = await ctx.bot.util.get_request("https://api.alexflipnote.dev/dogs", json=True, raise_errors=True, alexflipnote=True)
+        return await ctx.bot.util.send_image_attachment(ctx, data["file"])
+    
+    @command(['cats'])
+    @cooldown(3)
+    async def cat(self, ctx):
+        await ctx.trigger_typing()
+        data = await ctx.bot.util.get_request("https://api.alexflipnote.dev/cats", json=True, raise_errors=True, alexflipnote=True)
+        return await ctx.bot.util.send_image_attachment(ctx, data["file"])
+    
+    @command(['birb', 'birbs', 'birds'])
+    @cooldown(3)
+    async def bird(self, ctx):
+        await ctx.trigger_typing()
+        data = await ctx.bot.util.get_request("https://api.alexflipnote.dev/birb", json=True, raise_errors=True, alexflipnote=True)
+        return await ctx.bot.util.send_image_attachment(ctx, data["file"])
+    
+    @command(['foxes', 'furry', 'furries'])
+    @cooldown(3)
+    async def fox(self, ctx):
+        await ctx.trigger_typing()
+        data = await ctx.bot.util.get_request("https://randomfox.ca/floof", json=True, raise_errors=True)
+        return await ctx.bot.util.send_image_attachment(ctx, data["image"])
+
+    @command(['colourify'])
+    @cooldown(5)
+    @require_args()
+    async def colorify(self, ctx, *args):
+        await ctx.trigger_typing()
+        try:
+            if len(args) == 1:
+                color = ImageColor.getrgb(args[0])
+                image = str(ctx.author.avatar_url_as(format="png", size=1024))
+            else:
+                parsed_args = ctx.bot.Parser.split_args(args)
+                color = ImageColor.getrgb(parsed_args[0])
+                image = await ctx.bot.Parser.parse_image(ctx, (parsed_args[1],))
+        except:
+            return await ctx.bot.cmds.invalid_args(ctx)
+        
+        image = await ctx.bot.Image.colorify(image, color, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(image, "%02x%02x%02x.png" % color))
+        del resp, byte, image, color
+
+    @command(['legofy'])
+    @cooldown(10)
+    async def lego(self, ctx, *args):
+        await ctx.trigger_typing()
+        
+        image_url = await ctx.bot.Parser.parse_image(ctx, args)
+        lego_image = await ctx.bot.lego(image_url, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(lego_image, "lego.png"))
+        del image_url, lego_image
+
+    @command()
+    @cooldown(9)
+    async def implode(self, ctx, *args):
+        await ctx.trigger_typing()
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        if ("--animated" in args):
+            return await ctx.bot.util.send_image_attachment(ctx, f"https://useless-api.vierofernando.repl.co/implode/animated?image={url}", uselessapi=True)
+        result, format = await ctx.bot.Image.implode(url, amount=1, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(result, f"file.{format}"))
+        del result, format, url
+        
+    @command()
+    @cooldown(9)
+    async def explode(self, ctx, *args):
+        await ctx.trigger_typing()
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        if ("--animated" in args):
+            return await ctx.bot.util.send_image_attachment(ctx, f"https://useless-api.vierofernando.repl.co/explode/animated?image={url}", uselessapi=True)
+        result, format = await ctx.bot.Image.implode(url, amount=-3.5, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(result, f"file.{format}"))
+        del result, format, url
+        
+    @command()
+    @cooldown(8)
+    async def charcoal(self, ctx, *args):
+        await ctx.trigger_typing()
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        buffer, format = await ctx.bot.Image.charcoal(url, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        del buffer, format, url
+    
+    @command()
+    @cooldown(8)
+    async def spread(self, ctx, *args):
+        await ctx.trigger_typing()
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        buffer, format = await ctx.bot.Image.spread(url, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        del buffer, format, url
+    
+    @command()
+    @cooldown(8)
+    async def emboss(self, ctx, *args):
+        await ctx.trigger_typing()
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        buffer, format = await ctx.bot.Image.emboss(url, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        del buffer, format, url
+    
+    @command()
+    @cooldown(8)
+    async def edge(self, ctx, *args):
+        await ctx.trigger_typing()
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        buffer, format = await ctx.bot.Image.edge(url, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        del buffer, format, url
+    
+    @command()
+    @cooldown(8)
+    async def sketch(self, ctx, *args):
+        await ctx.trigger_typing()
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        buffer, format = await ctx.bot.Image.sketch(url, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        del buffer, format, url
+    
+    @command()
+    @cooldown(8)
+    async def wave(self, ctx, *args):
+        await ctx.trigger_typing()
+        number = ctx.bot.Parser.get_numbers(args)
+        if number and (int(number[0]) in range(0, 50)):
+            l = list(args)
+            l.pop(args.index(str(number[0])))
+            args = tuple(l)
+            del l
+        else:
+            number = [10]
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        buffer, format = await ctx.bot.Image.wave(url, amount=number[0], session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        del number, buffer, format, url
+    
+    @command()
+    @cooldown(8)
+    async def swirl(self, ctx, *args):
+        await ctx.trigger_typing()
+        number = ctx.bot.Parser.get_numbers(args)
+        if number and (int(number[0]) in range(0, 361)):
+            l = list(args)
+            l.pop(args.index(str(number[0])))
+            args = tuple(l)
+            del l
+        else:
+            number = [360]
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        buffer, format = await ctx.bot.Image.swirl(url, degree=number[0], session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        del number, buffer, format, url
+    
+    @command(['combine'])
+    @cooldown(2)
+    @require_args()
+    async def blend(self, ctx, *args):
+        await ctx.trigger_typing()
+        parsed_args = ctx.bot.Parser.split_args(args)
+        if not parsed_args:
+            first = ctx.author.avatar_url_as(format='png')
+            second = await ctx.bot.Parser.parse_image(ctx, args)
+        else:
+            first = await ctx.bot.Parser.parse_image(ctx, (parsed_args[0],))
+            second = await ctx.bot.Parser.parse_image(ctx, (parsed_args[1],))
+        
+        blended = await ctx.bot.Image.blend(first, second, session=ctx.bot.util.default_client)
+        return await ctx.send(file=discord.File(blended, 'blend.png'))
+
+    @command()
+    @cooldown(2)
+    async def blur(self, ctx, *args):
+        await ctx.trigger_typing()
+        url = await ctx.bot.Parser.parse_image(ctx, args, size=512)
+        im = await ctx.bot.Image.blur(url, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(im, 'blur.png'))
+        del im, url
+
+    @command(['glitchify', 'matrix'])
+    @cooldown(5)
+    async def glitch(self, ctx, *args):
+        ava = await ctx.bot.Parser.parse_image(ctx, args, size=128)
+        await ctx.trigger_typing()
+        return await ctx.bot.util.send_image_attachment(ctx, "https://useless-api.vierofernando.repl.co/glitch/noratelimit?image=" + ava, uselessapi=True)
+    
+    @command(['ducks', 'quack', 'duk'])
+    @cooldown(2)
+    async def duck(self, ctx):
+        _url = await ctx.bot.util.get_request(
+            'https://random-d.uk/api/v2/random',
+            format='json',
+            json=True,
+            raise_errors=True
+        )
+        await ctx.bot.util.send_image_attachment(ctx, _url["url"])
+
+    @command(['snek', 'snakes', 'python', 'py'])
+    @cooldown(2)
+    async def snake(self, ctx):
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://fur.im/snek/i/'+str(random.randint(1, 874))+'.png')
+
+    @command(['imageoftheday', 'pod', 'pictureoftheday', 'iod'])
+    @cooldown(10)
+    async def iotd(self, ctx):
+        try:
+            data = await ctx.bot.util.get_request(
+                'https://www.bing.com/HPImageArchive.aspx',
+                raise_errors=True,
+                format='ks',
+                idx=0,
+                n=1,
+                mkt='en-US'
+            )
+        except:
+            raise ctx.bot.util.BasicCommandException("The API may be down for a while. Try again later!")
+
+        embed = ctx.bot.Embed(
+            ctx,
+            title=data.split('copyright>')[1].split("</")[0],
+            url=data.split('copyrightlink>')[1].split("</")[0],
+            image='https://bing.com'+data.split("url>")[1].split("</")[0]
+        )
+        await embed.send()
+        del embed, data
+
+    @command()
+    @cooldown(2)
+    async def httpcat(self, ctx, *args):
+        code = args[0] if (len(args)!=0) or (not args[0].isnumeric()) else '404'
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://http.cat/'+str(code)+'.jpg')
+    
+    @command(['httpduck'])
+    @cooldown(2)
+    async def httpdog(self, ctx, *args):
+        code = args[0] if ((len(args)!=0) or (args[0].isnumeric())) else '404'
+        url = 'https://random-d.uk/api/http/ABC.jpg' if (ctx.bot.util.get_command_name(ctx) == "httpduck") else 'https://httpstatusdogs.com/img/ABC.jpg'
+        try:
+            return await ctx.bot.util.send_image_attachment(ctx, url.replace('ABC', code))
+        except:
+            raise ctx.bot.util.BasicCommandException("404")
+
+    @command()
+    @cooldown(2)
+    async def goat(self, ctx):
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://placegoat.com/'+str(random.randint(500, 700)))
+
+    @command(['flop'])
+    @cooldown(7)
+    async def flip(self, ctx, *args):
+        await ctx.trigger_typing()
+        ava = await ctx.bot.Parser.parse_image(ctx, args, size=512)
+        data = await ctx.bot.gif.flip(ava)
+        return await ctx.send(file=discord.File(data, 'flip.gif'))
+
+    @command(['spin'])
+    @cooldown(7)
+    async def rotate(self, ctx, *args):
+        await ctx.trigger_typing()
+        ava = await ctx.bot.Parser.parse_image(ctx, args, size=512)
+        data = await ctx.bot.gif.rotate(ava)
+        return await ctx.send(file=discord.File(data, 'rotate.gif'))
+
+    @command()
+    @cooldown(2)
+    @require_args(3)
+    async def resize(self, ctx, *args):
+        try:
+            width, height = args[:2]
+            assert int(width) in range(2, 2000)
+            assert int(height) in range(2, 2000)
+            url = await ctx.bot.Parser.parse_image(ctx, args[2:])
+            image = await ctx.bot.Image.resize(url, int(width), int(height), session=ctx.bot.util.default_client)
+            await ctx.send(file=discord.File(image, "resize.png"))
+        except:
+            return await ctx.bot.cmds.invalid_args(ctx)
+
+    @command()
+    @cooldown(3)
+    async def panda(self, ctx):
+        link = random.choice(["https://some-random-api.ml/img/panda", "https://some-random-api.ml/img/red_panda"])
+        data = await ctx.bot.util.get_request(link, json=True, raise_errors=True)
+        await ctx.bot.util.send_image_attachment(ctx, data['link'])
+        del link, data
+    
+    @command()
+    @cooldown(3)
+    async def shibe(self, ctx):
+        await ctx.trigger_typing()
+        data = await ctx.bot.util.get_request(
+            "http://shibe.online/api/shibes",
+            json=True,
+            raise_errors=True,
+            count=1
+        )
+        await ctx.bot.util.send_image_attachment(ctx, data[0])
+        del data
+    
+    @command()
+    @cooldown(2)
+    @require_args()
+    async def ship(self, ctx, *args):
+        await ctx.trigger_typing()
+        parsed_args = ctx.bot.Parser.split_args(args)
+        if not parsed_args: 
+            first, second = ctx.author.avatar_url_as(format='png'), await ctx.bot.Parser.parse_image(ctx, args)
+        else: first, second = await ctx.bot.Parser.parse_image(ctx, parsed_args[0]), await ctx.bot.Parser.parse_image(ctx, parsed_args[1])
+        url = f'https://api.alexflipnote.dev/ship?user={first}&user2={second}'
+        return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
+
+    @command(['hungry'])
+    @cooldown(2)
+    async def food(self, ctx):
+        await ctx.trigger_typing()
+        data = await ctx.bot.util.get_request('https://nekobot.xyz/api/image', json=True, raise_errors=True, type="food")
+        return await ctx.bot.util.send_image_attachment(ctx, data['message'].replace('\/', '/'))
+
+    @command()
+    @cooldown(2)
+    async def coffee(self, ctx):
+        await ctx.trigger_typing()
+        seed = random.randint(0, 1)
+        if not seed:
+            data = await ctx.bot.util.get_request('https://nekobot.xyz/api/image', json=True, raise_errors=True, type="coffee")
+            return await ctx.bot.util.send_image_attachment(ctx, data["message"].replace('\/', '/'))
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://coffee.alexflipnote.dev/random', alexflipnote=True)
+
+    @command(['pixel', '8-bit', '8bit'])
+    @cooldown(3)
+    async def pixelate(self, ctx, *args):
+        await ctx.trigger_typing()
+        number = ctx.bot.Parser.get_numbers(args)
+        if number:
+            l = list(args)
+            l.pop(args.index(str(number[0])))
+            args = tuple(l)
+            del l
+        else:
+            number = [32]
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        image = await ctx.bot.Image.pixelate(url, amount=number[0], session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(image, "pixels.png"))
+        del image, url, number
+
+    @command()
+    @cooldown(2)
+    async def magik(self, ctx, *args):
+        source = await ctx.bot.Parser.parse_image(ctx, args, cdn_only=True)
+        await ctx.channel.trigger_typing()
+        return await ctx.bot.util.send_image_attachment(ctx, f'https://api.alexflipnote.dev/filter/magik?image={source}', alexflipnote=True)
+
+    @command(['df'])
+    @cooldown(2)
+    async def deepfry(self, ctx, *args):
+        source = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
+        await ctx.channel.trigger_typing()
+        return await ctx.bot.util.send_image_attachment(ctx, f'https://api.alexflipnote.dev/filter/deepfry?image={source}', alexflipnote=True)
+
+    @command()
+    @cooldown(2)
+    async def invert(self, ctx, *args):
+        source = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
+        await ctx.channel.trigger_typing()
+        return await ctx.bot.util.send_image_attachment(ctx, f'https://api.alexflipnote.dev/filter/invert?image={source}', alexflipnote=True)
+        
+    @command(['grayscale', 'b&w', 'bw', 'classic', 'gray', 'grey', 'greyscale', 'gray-scale', 'grey-scale'])
+    @cooldown(2)
+    async def blackandwhite(self, ctx, *args):
+        source = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
+        await ctx.channel.trigger_typing()
+        return await ctx.bot.util.send_image_attachment(ctx, f'https://api.alexflipnote.dev/filter/b&w?image={source}', alexflipnote=True)
+
+    @command(['jpegify'])
+    @cooldown(5)
+    async def jpeg(self, ctx, *args):
+        await ctx.trigger_typing()
+        url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
+        return await ctx.bot.util.send_image_attachment(ctx, "https://api.alexflipnote.dev/filter/jpegify?image="+url, alexflipnote=True)
+
+def setup(client):
+    client.add_cog(image())import discord
+from discord.ext import commands
+from io import BytesIO
+from decorators import *
+from aiohttp import ClientSession
+from json import loads
+
+class memes(commands.Cog):
+    def __init__(self, client):
+        self.meme_templates = loads(open(client.util.json_dir+'/memes.json', 'r').read())
+        self._positioning = {
+            "ferbtv": ((362, 278), (364, 189)),
+            "door": ((496, 483), (247, 9)),
+            "studying": ((290, 315), (85, 160)),
+            "starvstheforcesof": ((995, 1079), (925, 0)),
+            "disgusting": ((614, 407), (179, 24)),
+            "f": ((82, 111), (361, 86))
+        }
+        
+    @command(['oreomeme', 'oreo-meme'])
+    @cooldown(5)
+    async def oreo(self, ctx, *args):
+        try:
+            my_oreo = ctx.bot.oreo(ctx.bot.util.assets_dir, "".join(args)[0:40])
+            meme = my_oreo.meme()
+            
+            await ctx.send(file=discord.File(meme, "oreo.png"))
+            
+            my_oreo.eat()
+        except Exception as e:
+            raise ctx.bot.util.BasicCommandException(str(e))
+    
+    @command()
+    @cooldown(3)
+    async def oliy(self, ctx, *args):
+        stretch = False
+    
+        if "--stretch" in args:
+            args = tuple(filter(lambda x: "--stretch" not in x.lower(), args))
+            stretch = True
+        
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        await ctx.trigger_typing()
+        buffer = await ctx.bot.canvas.trans_merge({
+            'url': url,
+            'filename': 'oliy.png',
+            'pos': (-85, 555),
+            'size': (460, 460)
+        }) if (not stretch) else await ctx.bot.canvas.oliy_stretched(url)
+        return await ctx.send(file=discord.File(buffer, "oliy.png"))
+
+    @command()
+    @cooldown(7)
+    async def clint(self, ctx, *args):
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        await ctx.trigger_typing()
+        return await ctx.bot.util.send_image_attachment(ctx, "https://useless-api.vierofernando.repl.co/clint?image=" + url, uselessapi=True)
+
+    @command(['ltt', 'lienus'])
+    @cooldown(7)
+    async def linus(self, ctx, *args):
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        await ctx.trigger_typing()
+        return await ctx.bot.util.send_image_attachment(ctx, "https://useless-api.vierofernando.repl.co/linus?image=" + url, uselessapi=True)
+    
+    @command()
+    @cooldown(7)
+    async def folder(self, ctx, *args):
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        await ctx.trigger_typing()
+        return await ctx.bot.util.send_image_attachment(ctx, "https://useless-api.vierofernando.repl.co/folder?image=" + url, uselessapi=True)
+
+    @command(['pass'])
+    @cooldown(2)
+    async def password(self, ctx, *args):
+        param = ctx.bot.Parser.split_args(args)
+        if not param:
+            return await ctx.bot.cmds.invalid_args(ctx)
+        await ctx.trigger_typing()
+        text1, text2 = param
+        i = await ctx.bot.canvas.password(text1, text2)
+        await ctx.send(file=discord.File(i, 'password.png'))
+
+    @command(['programmerhumor', 'programmermeme', 'programming', 'programmer'])
+    @cooldown(2)
+    async def programmingmeme(self, ctx):
+        data = await ctx.bot.util.get_request(
+            'https://useless-api.vierofernando.repl.co/programmermeme',
+            json=True,
+            raise_errors=True
+        )
+        return await ctx.send(embed=discord.Embed(title='Programmer meme', color=ctx.me.color).set_image(url=data['url']))
+
+    @command(['shred', 'burn', 'spongebobpaper', 'paper', 'spongepaper', 'sponge-paper', 'spongebob-paper', 'spongebob'])
+    @cooldown(2)
+    async def sponge(self, ctx, *args):
+        await ctx.trigger_typing()
+        av = await ctx.bot.Parser.parse_image(ctx, args, size=512)
+        im = await ctx.bot.canvas.trans_merge({
+            'url': av,
+            'filename': 'spongebobpaper.png',
+            'pos': (29, 58),
+            'size': (224, 259)
+        })
+        return await ctx.send(file=discord.File(im, 'haha-you-got-burned.png'))
+
+    @command(['ihavefailedyou', 'fail'])
+    @cooldown(2)
+    async def failed(self, ctx, *args):
+        await ctx.trigger_typing()
+        av = await ctx.bot.Parser.parse_image(ctx, args)
+        res = await ctx.bot.canvas.trans_merge({
+            'url': av,
+            'filename': 'failed.png',
+            'size': (155, 241),
+            'pos': (254, 18)
+        })
+        await ctx.send(file=discord.File(res, 'failed.png'))
+
+    @command(['worships', 'worshipping'])
+    @cooldown(7)
+    async def worship(self, ctx, *args):
+        av = await ctx.bot.Parser.parse_image(ctx, args)
+        await ctx.trigger_typing()
+        im = await ctx.bot.gif.worship(av)
+        await ctx.send(file=discord.File(im, 'worship.gif'))
+
+    @command(['disconnect'])
+    @cooldown(3)
+    async def disconnected(self, ctx, *args):
+        text = 'Forgotting to put the arguments' if len(args)==0 else ' '.join(args)
+        await ctx.trigger_typing()
+        im = await ctx.bot.canvas.disconnected(text)
+        return await ctx.send(file=discord.File(im, 'disconnected.png'))
+
+    @command(['blowup', 'blow', 'death-star'])
+    @cooldown(10)
+    async def deathstar(self, ctx, *args):
+        ava = await ctx.bot.Parser.parse_image(ctx, args, size=128)
+        await ctx.trigger_typing()
+        gif = await ctx.bot.gif.death_star(ava)
+        await ctx.send(file=discord.File(fp=gif, filename='boom.gif'))
+
+    @command(['effect'])
+    @cooldown(2)
+    async def affect(self, ctx, *args):
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        await ctx.trigger_typing()
+        buffer = await ctx.bot.canvas.trans_merge({
+            'url': url,
+            'filename': 'affect.png',
+            'size': (201, 163),
+            'pos': (165, 352)
+        })
+        return await ctx.send(file=discord.File(buffer, 'affect.png'))
+
+    @command(['animegif', 'nj'])
+    @cooldown(10)
+    async def nichijou(self, ctx, *args):
+        text = 'LAZY PERSON' if (len(args)==0) else ' '.join(args)
+        await ctx.trigger_typing()
+        return await ctx.bot.util.send_image_attachment(ctx, f"https://i.ode.bz/auto/nichijou?text={ctx.bot.util.encode_uri(text[0:22])}")
+    
+    @command()
+    @cooldown(5)
+    @require_args()
+    async def challenge(self, ctx, *args):
+        await ctx.trigger_typing()
+        txt = ctx.bot.util.encode_uri(' '.join(args)[0:50])
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://api.alexflipnote.dev/challenge?text='+txt, alexflipnote=True)
+    
+    @command(['achievement'])
+    @cooldown(5)
+    @require_args()
+    async def achieve(self, ctx, *args):
+        await ctx.trigger_typing()
+        txt = ctx.bot.util.encode_uri(' '.join(args)[0:50])
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://api.alexflipnote.dev/achievement?text='+txt, alexflipnote=True)
+
+    @command(['dym'])
+    @cooldown(2)
+    async def didyoumean(self, ctx, *args):
+        params = ctx.bot.Parser.split_args(args)
+        if not params:
+            return await ctx.bot.cmds.invalid_args(ctx)
+        txt1, txt2 = params
+        url = f'https://api.alexflipnote.dev/didyoumean?top={txt1[0:50]}&bottom={txt2[0:50]}'
+        return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
+    
+    @command()
+    @cooldown(2)
+    async def drake(self, ctx, *args):
+        params = ctx.bot.Parser.split_args(args)
+        if not params:
+            return await ctx.bot.cmds.invalid_args(ctx)
+        txt1, txt2 = params
+        url = "https://api.alexflipnote.dev/drake?top="+ctx.bot.util.encode_uri(txt1[0:50])+"&bottom="+ctx.bot.util.encode_uri(txt2[0:50])
+        return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
+        
+    @command()
+    @cooldown(2)
+    async def what(self, ctx, *args):
+        image = await ctx.bot.Parser.parse_image(ctx, args, cdn_only=True)
+        return await ctx.bot.util.send_image_attachment(ctx, "https://api.alexflipnote.dev/what?image="+image, alexflipnote=True)
+
+    @command()
+    @cooldown(5)
+    async def ifearnoman(self, ctx, *args):
+        await ctx.trigger_typing()
+        source, by = await ctx.bot.Parser.parse_image(ctx, args), str(ctx.author.avatar_url_as(format='png', size=512))
+        meme = await ctx.bot.canvas.ifearnoman(by, source)
+        return await ctx.send(file=discord.File(meme, 'i_fear_no_man.png'))
+
+    @command()
+    @cooldown(10)
+    async def triggered(self, ctx, *args):
+        ava = await ctx.bot.Parser.parse_image(ctx, args)
+        await ctx.trigger_typing()
+        data = await ctx.bot.gif.triggered(ava)
+        return await ctx.send(file=discord.File(data, 'triggered.gif'))
+
+    @command(['communism', 'ussr', 'soviet', 'cykablyat', 'cyka-blyat', 'blyat'])
+    @cooldown(5)
+    async def communist(self, ctx, *args):
+        await ctx.trigger_typing()
+        comrade = await ctx.bot.Parser.parse_image(ctx, args, size=512)
+        data = await ctx.bot.gif.communist(comrade)
+        return await ctx.send(file=discord.File(data, 'cyka_blyat.gif'))
+
+    @command()
+    @cooldown(5)
+    async def trash(self, ctx, *args):
+        await ctx.trigger_typing()
+        av = ctx.author.avatar_url_as(format='png')
+        toTrash = await ctx.bot.Parser.parse_image(ctx, args, cdn_only=True)
+        url='https://api.alexflipnote.dev/trash?face='+str(av)+'&trash='+toTrash
+        return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
+
+    @command(['wanted'])
+    @cooldown(10)
+    async def ferbtv(self, ctx, *args):
+        await ctx.trigger_typing()
+        ava = await ctx.bot.Parser.parse_image(ctx, args)
+        command_name = ctx.bot.util.get_command_name(ctx)
+        size, pos = self._positioning[command_name]
+        image = await ctx.bot.canvas.merge({
+            'filename': command_name+'.jpg',
+            'url': ava,
+            'size': size,
+            'pos': pos
+        })
+        return await ctx.send(file=discord.File(image, 'meme.png'))
+
+    @command(['captchatext', 'captchatxt', 'generatecaptcha', 'gen-captcha', 'gencaptcha', 'capt'])
+    @cooldown(10)
+    async def captcha(self, ctx, *args):
+        await ctx.trigger_typing()
+        capt = 'username601' if len(args)==0 else ' '.join(args)
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://useless-api.vierofernando.repl.co/captcha?text={}'.format(capt))
+
+    @command(['disgusting', 'f', 'studying', 'starvstheforcesof'])
+    @cooldown(10)
+    async def door(self, ctx, *args):
+        await ctx.trigger_typing()
+        ava = await ctx.bot.Parser.parse_image(ctx, args)
+        command_name = ctx.bot.util.get_command_name(ctx)
+        size, pos = self._positioning[command_name]
+        meme = await ctx.bot.canvas.trans_merge({
+            'url': ava,
+            'filename': command_name+'.png',
+            'size': size,
+            'pos': pos
+        })
+        return await ctx.send(file=discord.File(meme, 'meme.png'))
+
+    @command(['changedmymind', 'cmm'])
+    @cooldown(10)
+    @require_args()
+    async def changemymind(self, ctx, *args):
+        await ctx.trigger_typing()
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://nekobot.xyz/api/imagegen?type=changemymind&text='+ctx.bot.util.encode_uri(' '.join(args)[0:50])+'&raw=1')
+
+    @command(['gimme', 'memz', 'memey'])
+    @cooldown(5)
+    async def meme(self, ctx):
+        data = await ctx.bot.util.get_request("https://meme-api.herokuapp.com/gimme", json=True, raise_errors=True)
+        embed = discord.Embed(colour = ctx.me.color)
+        embed.set_author(name=data["title"], url=data["postLink"])
+        if data["nsfw"]:
+            embed.set_footer(text='WARNING: IMAGE IS NSFW.')
+        else:
+            embed.set_image(url=data["url"])
+        await ctx.send(embed=embed)
+
+    @command()
+    @cooldown(12)
+    @require_args()
+    async def clyde(self, ctx, *args):
+        await ctx.trigger_typing()
+        url='https://nekobot.xyz/api/imagegen?type=clyde&text='+ctx.bot.util.encode_uri(' '.join(args)[0:50])+'&raw=1'
+        return await ctx.bot.util.send_image_attachment(ctx, url)
+
+    @command()
+    @cooldown(10)
+    @require_args()
+    async def floor(self, ctx, *args):
+        auth = str(ctx.author.avatar_url_as(format='png'))
+        await ctx.trigger_typing()
+        if len(ctx.message.mentions)>0:
+            auth = str(ctx.message.mentions[0].avatar_url_as(format='png'))
+            text = " ".join(ctx.message.content.replace(ctx.message.mentions[0].mention, "").split()[1:]) if len(args)>2 else 'I forgot to put the arguments, oops'
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://api.alexflipnote.dev/floor?image='+auth+'&text='+ctx.bot.util.encode_uri(' '.join(args)[0:50]), alexflipnote=True)
+
+    @command(['doctor', 'terrifying', 'terrified', 'eye-doctor', 'eyedoctor', 'scary', 'frightening'])
+    @cooldown(2)
+    async def bad(self, ctx, *args):
+        ava = await ctx.bot.Parser.parse_image(ctx, args)
+        await ctx.trigger_typing()
+        im = await ctx.bot.canvas.trans_merge({
+            'url': ava,
+            'filename': 'doctor.png',
+            'pos': (348, 240),
+            'size': (93, 107)
+        })
+        return await ctx.send(file=discord.File(im, 'holyshit.png'))
+
+    async def modern_meme(self, ctx, *args):
+        keys = list(self.meme_templates["bottom_image"].keys())
+        await ctx.send(embed=discord.Embed(title="Please provide your meme template from the available ones below. (in number)", description="\n".join([
+            str(i + 1)+". " + keys[i] for i in range(len(keys))
+        ]), color=ctx.me.color))
+        wait = ctx.bot.WaitForMessage(ctx, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and ((x.content in keys) or (x.content.isnumeric() and int(x.content) in range(1, len(keys) + 1)))), timeout=60.0)
+        message = await wait.get_message()
+        
+        if not message:
+            raise ctx.bot.util.BasicCommandException("You did not respond in time. Meme-generation canceled.")
+        
+        link = self.meme_templates["bottom_image"][(keys[int(message.content) - 1] if message.content.isnumeric() else message.content)]
+        
+        await ctx.send("Now send your text content to be in the meme.")
+        wait = ctx.bot.WaitForMessage(ctx, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author), timeout=60.0)
+        format_text = await wait.get_message()
+        
+        if not format_text:
+            raise ctx.bot.util.BasicCommandException("You did not respond in time. Meme-generation canceled.")
+        await ctx.trigger_typing()
+        buffer = await ctx.bot.canvas.bottom_image_meme(link, format_text.content[0:150])
+        await ctx.send(file=discord.File(buffer, "file.png"))
+        del buffer, format_text, wait, link, message, keys
+
+    async def top_bottom_text_meme(self, ctx, *args):
+        keys = list(self.meme_templates["topbottom"].keys())
+        await ctx.send(embed=discord.Embed(title="Please provide your meme template from the available ones below. (in number)", description="\n".join([
+            str(i + 1)+". " + keys[i] for i in range(len(keys))
+        ]), color=ctx.me.color))
+        wait = ctx.bot.WaitForMessage(ctx, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and (x.content in keys or (x.content.isnumeric() and int(x.content) in range(1, len(keys)+1)))), timeout=60.0)
+        message = await wait.get_message()
+        
+        if not message: raise ctx.bot.util.BasicCommandException("You did not respond in time. Meme-generation canceled.")
+        link = self.meme_templates["topbottom"][(keys[int(message.content) - 1] if message.content.isnumeric() else message.content)]
+        
+        await ctx.send("Now send your top text and bottom text. Splitted by either spaces, commas, semicolon, or |.")
+        wait = ctx.bot.WaitForMessage(ctx, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author), timeout=60.0)
+        format_text = await wait.get_message()
+        
+        if not format_text:
+            raise ctx.bot.util.BasicCommandException("You did not respond in time. Meme-generation canceled.")
+        
+        text1, text2 = ctx.bot.Parser.split_args(format_text.content.split())
+        url = link.replace("{TEXT1}", ctx.bot.util.encode_uri(text1)[0:64]).replace("{TEXT2}", ctx.bot.util.encode_uri(text2)[0:64])
+        await ctx.trigger_typing()
+        return await ctx.bot.util.send_image_attachment(ctx, url)
+
+    async def custom_image_meme(self, ctx, *args):
+        await ctx.send("Please send a **Image URL/Attachment**, or\nSend a **ping/user ID/name** to format as an **avatar.**\nOr send `mine` to use your avatar instead.")
+        wait = ctx.bot.WaitForMessage(ctx, check=(lambda x: x.author == ctx.author and x.channel == ctx.channel), timeout=60.0)
+        message = await wait.get_message()
+        
+        if not message: raise ctx.bot.util.BasicCommandException("You did not input a text. Meme making canceled.")
+        elif "mine" in message.content.lower(): url = ctx.author.avatar_url_as(size=512, format="png")
+        else: url = await ctx.bot.Parser.parse_image(message, tuple(message.content.split()))
+        
+        await ctx.send("Send top text and bottom text. Splitted by a space, comma, semicolon, or |.")
+        wait = ctx.bot.WaitForMessage(ctx, check=(lambda x: x.author == ctx.author and x.channel == ctx.channel), timeout=60.0)
+        text = await wait.get_message()
+        
+        if not text:
+            raise ctx.bot.util.BasicCommandException("You did not input a text. Meme making canceled.")
+        
+        text1, text2 = ctx.bot.Parser.split_args(tuple(text.content.split()))
+        await ctx.trigger_typing()
+        return await ctx.bot.util.send_image_attachment(ctx, "https://api.memegen.link/images/custom/{}/{}.png?background={}".format(ctx.bot.util.encode_uri(text1)[0:64], ctx.bot.util.encode_uri(text2)[0:64], url))
+
+    @command(['memegen', 'meme-gen', 'gen-meme', 'generatememe', 'generate-meme', 'meme-editor', 'meme_editor', 'memeeditor'])
+    @cooldown(5)
+    async def mememaker(self, ctx, *args):
+        m = await ctx.send(embed=discord.Embed(title="Please select your meme format:", description="**[A] **Classic meme, Top text, bottom text, background image.\n**[B] **Modern meme, Top text, bottom image\n**[C] **Custom classic meme, with a custom background.", color=ctx.me.color))
+        
+        wait = ctx.bot.WaitForMessage(ctx, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and len(x.content) == 1 and x.content.lower() in ['a', 'b', 'c']), timeout=40.0)
+        message = await wait.get_message()
+        del wait
+        if not message:
+            return await m.edit(embed=discord.Embed(title="Meme-making process canceled.", color=discord.Color.red()))
+        elif message.content.lower() == 'a': return await self.top_bottom_text_meme(ctx, *args)
+        elif message.content.lower() == 'c': return await self.custom_image_meme(ctx, *args)
+        return await self.modern_meme(ctx, *args)
+
+def setup(client):
+    client.add_cog(memes(client))import discord
+from discord.ext import commands
+import time
+import random
+import asyncio
+from aiohttp import ClientSession
+from decorators import *
+from time import time
+from twemoji_parser import emoji_to_url
+
+class moderation(commands.Cog):
+    def __init__(self, client):
+        self.latest = ["latest", "recent", "last"]
+        self.first = ["first", "early", "earliest", "earlyest", "firstmember"]
+        self.permission_attributes = [
+            "add_reactions",
+            "administrator",
+            "attach_files",
+            "ban_members",
+            "change_nickname",
+            "connect",
+            "create_instant_invite",
+            "deafen_members",
+            "embed_links",
+            "external_emojis",
+            "kick_members",
+            "manage_channels",
+            "manage_emojis",
+            "manage_guild",
+            "manage_messages",
+            "manage_nicknames",
+            "manage_permissions",
+            "manage_roles",
+            "manage_webhooks",
+            "mention_everyone",
+            "move_members",
+            "mute_members",
+            "priority_speaker",
+            "read_message_history",
+            "read_messages",
+            "send_messages",
+            "send_tts_messages",
+            "speak",
+            "stream",
+            "use_external_emojis",
+            "use_voice_activation",
+            "view_audit_log",
+            "view_channel",
+            "view_guild_insights"
+        ]
+        self.presence_prefix = {
+            discord.ActivityType.listening: "Listening to ",
+            discord.ActivityType.watching: "Watching ",
+            discord.ActivityType.playing: "Playing ",
+            discord.ActivityType.streaming: "Streaming ",
+            discord.ActivityType.competing: "Competing in"
+        }
+        self.db = client.db
+
+    async def create_new_mute_role(self, ctx):
+        await ctx.send('{} | Please wait... Setting up...\nThis may take a while if your server has a lot of channels.'.format(ctx.bot.util.loading_emoji))
+        role = await ctx.guild.create_role(name='Muted', color=discord.Colour.from_rgb(0, 0, 1))
+        ratelimit_counter = 0
+        # BEWARE API ABUSE! ADDED SOME STUFF TO REDUCE RATELIMITS
+        for i in ctx.guild.channels:
+            if ratelimit_counter > 10: # take a break for a while
+                await asyncio.sleep(2)
+                ratelimit_counter = 0 ; continue
+            if i.type == discord.ChannelType.text:
+                await i.set_permissions(role, send_messages=False)
+            elif i.type == discord.ChannelType.voice:
+                await i.set_permissions(role, connect=False)
+            else:
+                continue
+            ratelimit_counter += 1
+        
+        # add to database
+        if not self.db.exist("dashboard", {"serverid": ctx.guild.id}):
+            self.db.add("dashboard", {
+                "serverid": guild.id,
+                "mute": role.id,
+                "warns": []
+            })
+        else:
+            self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"mute": role.id})
+        
+        return role
+
+    @command(['jp', 'joinpos', 'joindate', 'jd', 'howold'])
+    @cooldown(5)
+    async def joinposition(self, ctx, *args):
+        wait = await ctx.send(f"{ctx.bot.util.loading_emoji} | Hang tight... collecting data...")
+        from_string = False
+        current_time, members, user_index, desc = time(), ctx.guild.members, None, ""
+        full_arr = list(map(lambda x: {'ja': x.joined_at.timestamp(), 'da': x}, members))
+        raw_unsorted_arr = list(map(lambda x: x['ja'], full_arr))
+        sorted_arr = sorted(raw_unsorted_arr)
+        if args and (not args[0].isnumeric()):
+            if args[0].lower() in self.first:
+                from_string, user_index, title = True, 0, f'User join position for the first member in {ctx.guild.name}'
+            elif args[0].lower() in self.latest:
+                from_string, user_index, title = True, ctx.guild.member_count - 1, f'User join position for the latest member to join {ctx.guild.name}'
+        
+        if not from_string:
+            if args and args[0].isnumeric() and ((int(args[0])-1) in range(len(members))):
+                user_index, title = int(args[0]) - 1, f'User join position for order #{args[0]}'
+            else:
+                user = ctx.bot.Parser.parse_user(ctx, args)
+                user_join_date = user.joined_at.timestamp()
+                user_index, title = sorted_arr.index(user_join_date), str(user)+'\'s join position for '+ctx.guild.name
+        for i in range(user_index - 10, user_index + 11):
+            if i < 0: continue
+            try: key = sorted_arr[i]
+            except: continue
+            index = raw_unsorted_arr.index(key)
+            name = str(full_arr[index]['da']).replace('_', '\_').replace('*', '\*').replace('`', '\`')
+            string = "{}. {} ({} ago)\n" if i != user_index else "**__{}. {} ({} ago)__**\n"
+            desc += string.format(
+                i + 1, name, ctx.bot.util.strfsecond(current_time - full_arr[index]['ja'])
+            )
+        return await wait.edit(content='', embed=discord.Embed(title=title, description=desc, color=ctx.me.color))
+        
+    @command()
+    @cooldown(2)
+    async def config(self, ctx):
+        data = self.db.get("dashboard", {"serverid": ctx.guild.id})
+        if not data:
+            raise ctx.bot.util.BasicCommandException('This server does not have any configuration for this bot.')
+        
+        embed = ctx.bot.Embed(
+            ctx,
+            title=f"Server configuration for {ctx.guild.name}",
+            fields={
+                "Auto Role": 'Set to <@&{}>'.format(data['autorole']) if data.get('autorole') else '<Not set>',
+                "Welcome Channel": 'Set to <#{}>'.format(data['welcome']) if data.get('welcome') else '<Not set>',
+                "Starboard Channel": 'Set to <#{}> (with {} reactions required)'.format(data['starboard'], data['star_requirements']) if data.get('starboard') else '<Not set>',
+                "Mute Role": 'Set to <@&{}>'.format(data['mute']) if data.get('mute') else '<Not set>',
+                "Auto-Dehoist": 'Enabled :white_check_mark:' if data.get('dehoister') else 'Disabled :x:'
+            }
+        )
+        await embed.send()
+        del embed, data
+    
+    @command()
+    @cooldown(5)
+    @require_args()
+    @permissions(author=['manage_messages'], bot=['manage_roles'])
+    async def mute(self, ctx, *args):
+        toMute = ctx.bot.Parser.parse_user(ctx, args)
+        server = self.db.get("dashboard", {"serverid": ctx.guild.id})
+        if server and server.get("mute"):
+            role = ctx.guild.get_role(server["mute"])
+        else:
+            role = await self.create_new_mute_role(ctx)
+
+        try:
+            await toMute.add_roles(role)
+            embed = ctx.bot.Embed(ctx, title=f"Successfully ductaped {toMute.display_name}'s mouth.", color=discord.Color.green())
+            await embed.send()
+            del embed, role, toMute
+        except:
+            raise ctx.bot.util.BasicCommandException('I cannot mute him... maybe i has less permissions than him.\nHis mouth is too powerful to be muted.')
+    
+    @command()
+    @cooldown(5)
+    @require_args()
+    @permissions(author=['manage_messages'], bot=['manage_roles'])
+    async def unmute(self, ctx, *args):
+        toUnmute = ctx.bot.Parser.parse_user(ctx, args)
+        roleid = self.db.get("dashboard", {"serverid": ctx.guild.id})
+        if (not roleid) or (not roleid.get("mute")):
+            raise ctx.bot.util.BasicCommandException('He is not muted!\nOr maybe you muted this on other bot... which is not compatible.')
+        elif roleid not in list(map(lambda x: x.id, toUnmute)):
+            raise ctx.bot.util.BasicCommandException('That guy is not muted.')
+        
+        try:
+            await toUnmute.remove_roles(ctx.guild.get_role(roleid))
+            embed = ctx.bot.Embed(ctx, title=f"Successfully unmuted {toUnmute.display_name}.", color=discord.Color.green())
+            await embed.send()
+        except:
+            raise ctx.bot.util.BasicCommandException(f'I cannot unmute {toUnmute.display_name}!')
+        finally:
+            del embed, roleid, toUnmute
+
+    @command(['dehoist'])
+    @cooldown(10)
+    @permissions(author=['manage_nicknames'], bot=['manage_nicknames'])
+    async def dehoister(self, ctx):
+        data = self.db.get("dashboard", {"serverid": ctx.guild.id})
+        
+        embed = ctx.bot.Embed(
+            ctx,
+            title='Activated Auto-dehoister.',
+            desc=f'Auto-Dehoister is an automated part of this bot that automatically renames someone that tries to hoist their name (for example: `!ABC`)\n\n**How do i deactivate this?**\nJust type `{ctx.bot.command_prefix}dehoister`.\n\n**It doesn\'t work for me!**\nMaybe because your role position is higher than me, so i don\'t have the permissions required.'
+        ) if ((not data) or (not data.get("dehoister"))) else ctx.bot.Embed(ctx, title="Auto-dehoister deactivated.", color=discord.Color.green())
+    
+        if (not data) or (not data.get("dehoister")): 
+            await embed.send()
+
+            if not data:
+                self.db.add("dashboard", {
+                    "serverid": ctx.guild.id,
+                    "warns": [],
+                    "dehoister": True
+                })
+            else:
+                self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"dehoister": True})
+            
+            del embed, data
+            return
+        
+        await embed.send()
+        self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"dehoister": False})
+        del embed, data
+
+    @command()
+    @cooldown(10)
+    @permissions(author=['manage_channels'], bot=['manage_channels'])
+    async def starboard(self, ctx, *args):
+        await ctx.trigger_typing()
+        _input = ctx.bot.Parser.get_input(args)
+
+        data = self.db.get("dashboard", {"serverid": ctx.guild.id})
+        if not _input:
+            if (not data) or (not data.get("starboard")):
+                channel = await ctx.guild.create_text_channel(name='starboard', topic='Server starboard channel. Every funny/cool posts will be here.')
+                await ctx.send(embed=discord.Embed(f'Created a channel <#{channel.id}>. Every starboard will be set there.\nTo remove starboard, type `{ctx.bot.command_prefix}starboard --remove`.\nBy default, starboard requirements are set to 1 reaction. To increase, type `{ctx.bot.command_prefix}starboard --limit <number>`.', color=discord.Color.green()))
+                
+                if not data:
+                    self.db.add("dashboard", {
+                        "serverid": ctx.guild.id,
+                        "warns": [],
+                        "starboard": channel.id,
+                        "star_requirements": 3
+                    })
+                else:
+                    self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.channel.id}, {
+                        "starboard": channel.id,
+                        "star_requirements": 3
+                    })
+                return
+
+            nl = "\n"
+            embed = ctx.bot.Embed(
+                ctx,
+                title=f'Starboard for {ctx.guild.name}',
+                desc=f'Channel: <#{data["starboard"]}>\nStars required to reach: {data["star_requirements"]}',
+                fields={'Commands': f'`{ctx.bot.command_prefix}starboard --remove` **Removes the starboard from this server. (you can also delete the channel yourself)**{nl}`{ctx.bot.command_prefix}starboard --limit <number>` **Changes the amount of star reactions required before a specific message gets to starboard. This defaults to `1` reaction.**'}
+            )
+            await embed.send()
+            del embed, nl
+            return
+        
+        if (not data) or (not data.get("starboard")):
+            raise ctx.bot.util.BasicCommandException("This server does not have any starboard.")
+            
+        if "--remove" in _input:
+            await ctx.send(embed=discord.Embed(title='Alright. Starboard for this server is deleted. You can delete the channel.', color=discord.Color.green()))
+            self.db.modify("dashboard", self.db.types.REMOVE, {"serverid": ctx.guild.id}, {"starboard": data["starboard"]})
+            self.db.modify("dashboard", self.db.types.REMOVE, {"serverid": ctx.guild.id}, {"star_requirements": data["star_requirements"]})
+
+        elif "--limit" in _input:
+            try:
+                num = args[args.index("--limit") + 1]
+                assert num.isnumeric()
+                assert num in range(1, 10)
+                await ctx.send(embed=discord.Embed(title=f'OK. Changed the limit to {num} star reactions.', color=discord.Color.green()))
+                self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"star_requirements": num})
+            except:
+                return await ctx.bot.cmds.invalid_args(ctx)
+        else:
+            return await ctx.bot.cmds.invalid_args(ctx)
+    
+    @command()
+    @cooldown(5)
+    @require_args()
+    @permissions(author=['manage_messages'])
+    async def warn(self, ctx, *args):
+        params = ctx.bot.Parser.split_args(args)
+        user_to_warn = ctx.bot.Parser.parse_user(ctx, (params[0] if params else args[0]))
+        
+        if user_to_warn.guild_permissions.manage_channels:
+            raise ctx.bot.util.BasicCommandException("You cannot warn a moderator.")
+        reason = params[1][0:100] if params else 'No reason provided'
+
+        await ctx.send(embed=discord.Embed(title=f'{user_to_warn.display_name} was warned by {ctx.author.display_name} for the reason *"{reason}"*.', color=discord.Color.green()))
+        if not self.db.exist("dashboard", {"serverid": ctx.guild.id}):
+            self.db.add("dashboard", {
+                "serverid": ctx.guild.id,
+                "warns": [f"{user_to_warn.id}.{ctx.author.id}.{reason}"]
+            })
+        else:
+            self.db.modify("dashboard", self.db.types.APPEND, {"serverid": ctx.guild.id}, {"warns": f"{user_to_warn.id}.{ctx.author.id}.{reason}"})
+    
+    @command(['warns', 'warnslist', 'warn-list', 'infractions'])
+    @cooldown(5)
+    @require_args()
+    async def warnlist(self, ctx, *args):
+        source = ctx.bot.Parser.parse_user(ctx, args)
+        data = self.db.get("dashboard", {"serverid": ctx.guild.id})
+        if (not data) or (source.id not in [int(i.split(".")[0]) for i in data["warns"]]):
+            return await ctx.send(embed=discord.Embed(title=f"{source.display_name} does not have any warns!", color=discord.Color.green()))
+        
+        data = [i for i in data["warns"] if source.id == int(i.split(".")[0])]
+        warnlist = '\n'.join(map(
+            lambda x: '{}. "{}" (warned by <@{}>)'.format(x+1, ".".join(data[x].split(".")[2:]), data[x].split(".")[1]),
+            range(len(data))
+        )[0:10])
+
+        embed = ctx.bot.Embed(
+            ctx,
+            title=f'Warn list for {source.display_name}',
+            desc=warnlist,
+            color=discord.Colour.red()
+        )
+        await embed.send()
+        del embed, warnlist, source, data
+    
+    @command(['deletewarn', 'clear-all-infractions', 'clear-infractions', 'clearinfractions', 'delinfractions', 'delwarn', 'clearwarn', 'clear-warn'])
+    @cooldown(5)
+    @require_args()
+    @permissions(author=['manage_messages'])
+    async def unwarn(self, ctx, *args):
+        await ctx.trigger_typing()
+        user_to_unwarn = ctx.bot.Parser.parse_user(ctx, args)
+        data = self.db.get("dashboard", {"serverid": ctx.guild.id})
+
+        try:
+            is_warned = (user_to_unwarn.id in [int(i.split(".")[0]) for i in data["warns"]])
+        except:
+            is_warned = False
+
+        if (not data) or (not is_warned):
+            return await ctx.send(embed=discord.Embed(title=f"Well, {user_to_unwarn.display_name} is not warned ***yet***...", color=discord.Color.red()))
+        modified_array = [i for i in data["warns"] if user_to_unwarn.id != int(i.split(".")[0])]
+        await ctx.send(embed=discord.Embed(title=f"Successfully cleared all warns for {user_to_unwarn.display_name}.", color=discord.Color.green()))
+        self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"warns": modified_array})
+
+    @command(['welcomelog', 'setwelcome'])
+    @cooldown(15)
+    @permissions(author=['manage_channels'])
+    async def welcome(self, ctx, *args):
+        data = self.db.get("dashboard", {"serverid": ctx.guild.id})
+
+        if not args:
+            embed = ctx.bot.Embed(
+                ctx,
+                title='Command usage',
+                desc=f'{ctx.bot.command_prefix}welcome <channel>'+'\n'+f'{ctx.bot.command_prefix}welcome disable'
+            )
+            await embed.send()
+            del embed, args
+            return
+        
+        if args[0].lower() == 'disable':
+            if (not data) or (not data.get("welcome")):
+                raise ctx.bot.util.BasicCommandException("This server does not have any welcome channels se")
+            await ctx.send(embed=discord.Embed(title="Welcome channel disabled for this server!", color=discord.Color.green()))
+            self.db.modify("dashboard", self.db.types.REMOVE, {"serverid": ctx.guild.id}, {"welcome": data["welcome"]})
+            return
+
+        try:
+            channelid = ctx.bot.Parser.parse_channel(ctx, ' '.join(args)).id
+            await ctx.send(embed=discord.Embed(title=f"Success! set the welcome log to <#{channelid}>!", color=discord.Color.green()))
+            if not data:
+                self.db.add("dashboard", {
+                    "serverid": ctx.guild.id,
+                    "warns": [],
+                    "welcome": channelid
+                })
+            else:
+                self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"welcome": channelid})
+        except:
+            return await ctx.bot.cmds.invalid_args(ctx)
+    
+    @command(['auto-role', 'welcome-role', 'welcomerole'])
+    @cooldown(12)
+    @require_args()
+    @permissions(author=['manage_roles'], bot=['manage_roles'])
+    async def autorole(self, ctx, *args):
+        data = self.db.get("dashboard", {"serverid": ctx.guild.id})
+        
+        if args[0].lower() == 'disable':
+            if (not data) or (not data.get("autorole")):
+                raise ctx.bot.util.BasicCommandException("This server does not have any Auto Role set!")
+            
+            await ctx.send(embed=discord.Embed(title="OK! Autorole is disabled for this server!", color=discord.Color.green()))
+            self.db.modify("dashboard", self.db.types.REMOVE, {"serverid": ctx.guild.id}, {"autorole": data["autorole"]})
+            return
+
+        try:
+            roleid = ctx.bot.Parser.parse_role(ctx, ' '.join(args)).id
+            await ctx.send(embed=discord.Embed(title=f"Success! set the autorole to <@&{roleid}>!", color=discord.Color.green()))
+            if not data:
+                self.db.add("dashboard", {
+                    "serverid": ctx.guild.id,
+                    "warns": [],
+                    "autorole": roleid
+                })
+            else:
+                self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"autorole": roleid})
+        except:
+            return await ctx.bot.cmds.invalid_args(ctx)
+    
+    @command()
+    @cooldown(10)
+    @require_args()
+    @permissions(author=['manage_channels'], bot=['manage_channels'])
+    async def slowmode(self, ctx, *args):
+        try:
+            assert args[0].isnumeric(), "Please add the time in seconds. (number)"
+            count = int(args[0])
+            assert count in range(21599), "Invalid range."
+            await ctx.channel.edit(slowmode_delay=count)
+            return await ctx.send(embed=discord.Embed(title=("Disabled channel slowmode." if (count == 0) else f"Successfully set slowmode for <#{ctx.channel.id}> to {count} seconds."), color=discord.Color.green()))
+        except Exception as e:
+            raise ctx.bot.util.BasicCommandException(str(e))
+            
+    @command(['ar', 'add-role'])
+    @cooldown(10)
+    @require_args(2)
+    @permissions(author=['manage_roles'], bot=['manage_roles'])
+    async def addrole(self, ctx, *args):
+        role_and_guy = ctx.bot.Parser.split_args(args)
+        
+        guy = ctx.bot.Parser.parse_user(ctx, role_and_guy[0])
+        try:
+            role = ctx.guild.get_role(int(role_and_guy[0].split("<@&")[1].split(">")[0]))
+        except:
+            role_array = [i for i in ctx.guild.roles if role_and_guy[1].lower() in i.name.lower()]
+            if not role_array:
+                raise ctx.bot.util.BasicCommandException(f"Role `{role_and_guy[1]}` does not exist.")
+            role = role_array[0]
+            del role_array
+        try:
+            await guy.add_roles(role_array[0])
+            return await ctx.send(embed=discord.Embed(title=f"Successfully added <@&{role.id}> role to {guy.display_name}!", color=discord.Color.green()))
+        except:
+            raise ctx.bot.util.BasicCommandException(f"Oops. Please make sure i have the manage roles perms.")
+    
+    @command(['rr', 'remove-role'])
+    @cooldown(10)
+    @require_args(2)
+    @permissions(author=['manage_roles'], bot=['manage_roles'])
+    async def removerole(self, ctx, *args):
+        role_and_guy = ctx.bot.Parser.split_args(args)
+        
+        try:
+            role = ctx.guild.get_role(int(role_and_guy[0].split("<@&")[1].split(">")[0]))
+        except:
+            role_array = [i for i in ctx.guild.roles if role_and_guy[1].lower() in i.name.lower()]
+            if not role_array:
+                raise ctx.bot.util.BasicCommandException(f"Role `{role_and_guy[1]}` does not exist.")
+            role = role_array[0]
+            del role_array
+        try:
+            await guy.remove_roles(role)
+            return await ctx.send(embed=discord.Embed(title=f"Successfully removed <@&{role.id}> role from {guy.display_name}!", color=discord.Color.green()))
+        except:
+            raise ctx.bot.util.BasicCommandException("Oops. Please make sure i have the manage roles perms.")
+
+    @command()
+    @cooldown(10)
+    @require_args()
+    @permissions(author=["ban_members"], bot=["ban_members"])
+    async def ban(self, ctx, *args):
+        await ctx.trigger_typing()
+        user = ctx.bot.Parser.parse_user(ctx, args)
+        if user == ctx.author:
+            raise ctx.bot.util.BasicCommandException("You can't ban yourself idiot.")
+        elif user.guild_permissions.manage_messages:
+            raise ctx.bot.util.BasicCommandException("That guy is a mod. You can't do this to a mod.")
+
+        try:
+            await ctx.guild.ban(user)
+            return await ctx.send(embed=discord.Embed(title=f"Bonked {user.display_name} from this server.", color=discord.Color.green()))
+        except:
+            raise ctx.bot.util.BasicCommandException(f"Please make sure my role is higher so i can ban {user.display_name}.")    
+
+    @command()
+    @cooldown(10)
+    @require_args()
+    @permissions(author=["kick_members"], bot=["kick_members"])
+    async def kick(self, ctx, *args):
+        await ctx.trigger_typing()
+        user = ctx.bot.Parser.parse_user(ctx, args)
+        if user == ctx.author:
+            raise ctx.bot.util.BasicCommandException("You can't kick yourself idiot.")
+        elif user.guild_permissions.manage_messages:
+            raise ctx.bot.util.BasicCommandException("That guy is a mod. You can't do this to a mod.")
+
+        try:
+            await ctx.guild.kick(user)
+            return await ctx.send(embed=discord.Embed(title=f"Kicked {user.display_name} out from this server.", color=discord.Color.green()))
+        except:
+            raise ctx.bot.util.BasicCommandException(f"Please make sure my role is higher so i can kick {user.display_name}.")    
+
+    @command(['purge'])
+    @cooldown(2)
+    @require_args()
+    @permissions(author=['manage_messages'], bot=['manage_messages'])
+    async def clear(self, ctx, *args):
+        try:
+            assert (ctx.message.mentions or args[0].isnumeric()), 'Please input a valid parameter. Either a number or a mention.'
+            mention = True if len(ctx.message.mentions)>0 else False
+            try: await ctx.message.delete()
+            except: pass
+            if not mention:
+                num = int(args[0])
+                assert (num in range(1, 301)), "Invalid arguments, out of range. Must be around 1 and 300."
+                await ctx.channel.purge(limit=num)
+                return await ctx.send(embed=discord.Embed(title=f"Successfully purged {num} messages.", color=discord.Color.green()), delete_after=3)
+            deleted_messages = await ctx.channel.purge(check=(lambda x: x.channel == ctx.channel and x.author == ctx.message.mentions[0]), limit=500)
+            return await ctx.send(embed=discord.Embed(title=f"Successfully purged {len(deleted_messages)} messages.", color=discord.Color.green()), delete_after=3)
+        except Exception as e:
+            raise ctx.bot.util.BasicCommandException(str(e))
+                
+    @command(['lockdown', 'lockchannel', 'lock-channel'])
+    @cooldown(7)
+    @require_args()
+    @permissions(author=['manage_messages'], bot=['manage_channels'])
+    async def lock(self, ctx, *args):
+        enable = (not args[0].lower() in ['yes', 'y', 'enable', 'true', 'enabled', 'on'])
+        await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=enable)
+        try:
+            await ctx.send(embed=discord.Embed(title=f"Successfully {'Locked' if enable else 'Re-opened'} the channel.", description=f"All members with the default role {'can send messages in this channel again.' if enable else 'cannot send messages in this channel'}." + "\nType `" + ctx.bot.command_prefix + f"lock {'enable' if enable else 'disable'}` to {'enable' if enable else 'disable'} this effect again.", color=discord.Color.green()))
+        except: return
+    
+    @command(['hidechannel', 'hide-channel'])
+    @cooldown(7)
+    @require_args()
+    @permissions(author=['manage_messages'], bot=['manage_channels'])
+    async def hide(self, ctx, *args):
+        enable = (not args[0].lower() in ['yes', 'y', 'enable', 'true', 'enabled', 'on'])
+        await ctx.channel.set_permissions(ctx.guild.default_role, read_messages=enable)
+        try:
+            await ctx.send(embed=discord.Embed(title=f"Successfully {'Hide' if enable else 'Re-opened'} the channel.", description=f"All members with the default role {'can see messages in this channel again.' if enable else 'cannot read messages in this channel/see messages in this channel'}." + "\nType `" + ctx.bot.command_prefix + f"hide {'enable' if enable else 'disable'}` to {'enable' if enable else 'disable'} this effect again.", color=discord.Color.green()))
+        except:
+            return
+    
+    @command(['guild-role', 'server-role'])
+    @cooldown(6)
+    @require_args()
+    async def role(self, ctx, *args):
+        if args[0].lower() == 'info':
+            try:
+                role = ctx.bot.Parser.parse_role(ctx, ' '.join(args[1:]), return_array=True)
+                assert role
+            except:
+                raise ctx.bot.util.BasicCommandException(f"Please add role name/mention/ID after the `{ctx.bot.command_prefix}role info`.")
+            if isinstance(role, list):
+                choose = ctx.bot.ChooseEmbed(ctx, role, key=(lambda x: x.mention))
+                res = await choose.run()
+                if not res:
+                    return
+                role = res
+            
+            role_members = "\n".join([f"{i.name}#{i.discriminator}" for i in role.members][0:10]) if role.members else "<none>"
+            extra = "\n" + f"... and {len(role.members) - 10} others" if len(role.members) > 10 else ""
+            permissions = ""
+            
+            for perm in self.permission_attributes:
+                if len(permissions) > 500:
+                    break
+                
+                if getattr(role.permissions, perm):
+                    permissions += perm.replace("_", " ") + ", "
+            
+            embed = ctx.bot.Embed(
+                ctx,
+                title=role.name,
+                color=role.color,
+                fields={
+                    "Role Info": f"**Display role members seperately from online members: **{':white_check_mark:' if role.hoist else ':x:'}" + "\n" + f"**Mentionable: **{':white_check_mark:' if role.mentionable else ':x:'}" + f"\n**Created At: **{str(role.created_at)[:-7]}",
+                    f"Role Members ({len(role.members)})": role_members + extra,
+                    "Key Permissions": permissions[:-2],
+                    "Role Color": f"**Hex: {str(role.color)}**" + "\n" + f"**RGB: **{role.color.r}, {role.color.g}, {role.color.b}"
+                }
+            )
+            await embed.send()
+            del embed, role_members, extra, role, permissions
+            return
+        elif args[0].lower() == "list":
+            embed = ctx.bot.Embed(ctx, title="Server Roles List", desc=" ".join([i.mention for i in ctx.guild.roles[1:]])[0:1000])
+            await embed.send()
+            del embed
+            return
+        return await ctx.bot.cmds.invalid_args(ctx)
+        
+    @command(['guild-channel', 'server-channel'])
+    @cooldown(6)
+    @require_args()
+    async def channel(self, ctx, *args):
+        if args[0].lower() == "list":
+            embed = ctx.bot.Embed(ctx, title="Server Channels List", description=" ".join([f"<#{i.id}>" for i in ctx.guild.channels if i.type == discord.ChannelType.text or i.type == discord.ChannelType.voice])[0:1000])
+            await embed.send()
+            del embed
+            return
+        elif args[0].lower() == "info":
+            try:
+                channel = ctx.bot.Parser.parse_channel(ctx, ' '.join(args[1:]), return_array=True)
+                assert channel
+            except:
+                return await ctx.bot.cmds.invalid_args(ctx)
+            if isinstance(channel, list):
+                choose = ctx.bot.ChooseEmbed(ctx, channel, key=(lambda x: f"[`{str(x.type)}`] {x.name}"))
+                res = await choose.run()
+                if not res:
+                    return
+                channel = res
+        
+            # PYTHON SHOULD HAVE A SWITCH STATEMENT
+            if channel.type == discord.ChannelType.text:
+                fields = {
+                    "Channel Category": channel.category.name if channel.category else "<no category>",
+                    "Channel Info": f"**Channel ID: **{channel.id}" + "\n" + f"**Channel Topic: **{channel.topic if channel.topic else '<not available>'}" + "\n" + f"**Slowmode Delay: **{channel.slowmode_delay} seconds.",
+                    "Channel Type": "Discord Text Channel"
+                }
+            elif channel.type == discord.ChannelType.voice:
+                channel_members = "\n".join([f"{i.name}#{i.discriminator}" for i in channel.members[:5]]) if channel.members else "<no members in VC>"
+                other = "\n" + f"... and {len(channel.members) - 5} others" if len(channel.members) > 5 else ""
+                fields = {
+                    "Channel Category": channel.category.name if channel.category else "<no category>",
+                    "Channel Info": f"**Channel ID: **{channel.id}" + "\n" + f"**Bitrate: **{channel.bitrate // 1000} kbps",
+                    f"VC Members ({len(channel.members)}/{channel.user_limit if channel.user_limit != 0 else '∞'})": channel_members + other,
+                    "Channel Type": "Discord Voice Channel (VC)"
+                }
+            elif channel.type == discord.ChannelType.category:
+                channels = "\n".join([i.name for i in channel.channels]) if channel.channels else "<no channels>"
+                fields = {
+                    "Channel Type": "Discord Category Channel",
+                    f"Channels ({len(channel.channels)})": channels[:1000]
+                }
+            else:
+                raise ctx.bot.util.BasicCommandException("Invalid channel type. Must be either Text, voice, or category channel.")
+            
+            embed = ctx.bot.Embed(
+                ctx,
+                title=channel.name,
+                fields=fields
+            )
+            await embed.send()
+            del embed, channel
+            return
+        return await ctx.bot.cmds.invalid_args(ctx)
+    
+    @command(['user'])
+    @cooldown(3)
+    async def member(self, ctx, *args):
+        inputs = ctx.bot.Parser.get_input(args)
+        await ctx.trigger_typing()
+        
+        if "--card" in inputs:
+            person = ctx.bot.Parser.parse_user(ctx, ctx.bot.Parser.without(args, "--card"))
+            card = ctx.bot.UserCard(ctx, person, font_path=f"{ctx.bot.util.fonts_dir}/NotoSansDisplay-Bold.otf", session=ctx.bot.util.default_client)
+            return await card.send()
+        
+        user, nl = ctx.bot.Parser.parse_user(ctx, args), "\n"
+        online_location = '(Discord Mobile)' if user.mobile_status != discord.Status.offline else (
+            '(Discord App)' if user.desktop_status != discord.Status.offline else (
+                '(Discord Website)' if user.web_status != discord.Status.offline else ''
+            )
+        )
+        
+        join_pos = ctx.bot.util.join_position(ctx.guild, user)
+        current_time = time()
+        embed = ctx.bot.Embed(
+            ctx,
+            title=str(user),
+            fields={
+                "General": f"**User ID: **{user.id}{nl if not user.nick else f'**Nick Name: **{user.nick}{nl}'}**Status: **{'do not disturb' if user.status == discord.Status.dnd else str(user.status)} {online_location}{'' if not user.premium_since else f'**Boosting since: **{str(user.premium_since)[:-7]} ({ctx.bot.util.strfsecond(current_time - user.premium_since.timestamp())})'}",
+                "History": f"**Joined at: **{str(user.joined_at)[:-7]}, {ctx.bot.util.strfsecond(current_time - user.joined_at.timestamp())} ago (Position: {join_pos:,}/{ctx.guild.member_count:,}){nl}**Created at: **{str(user.created_at)[:-7]} ({ctx.bot.util.strfsecond(current_time - user.created_at.timestamp())} ago)",
+                "Color": f"**Hex Color:** {str(user.color)}{nl}**RGB: **{user.color.r}, {user.color.g}, {user.color.b}"
+            },
+            color=user.color,
+            thumbnail=user.avatar_url
+        )
+        
+        if user.activity:
+            embed.fields["Activity"] = "\n".join([f"{self.presence_prefix[i.type]} {i.name}" for i in user.activities if i.name])
+            if embed.fields["Activity"] == "":
+                embed.fields.pop("Activity")
+        
+        await embed.send()
+        del join_pos, current_time, user, nl, embed
+    
+    @command(['av', 'ava'])
+    @cooldown(2)
+    async def avatar(self, ctx, *args):
+        url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True, member_only=True, size=4096)
+        embed = ctx.bot.Embed(ctx, title="Here's ya avatar mate", image=url)
+        await embed.send()
+        del embed, url
+
+    @command(['emote', 'emojiinfo', 'emoji-info'])
+    @cooldown(5)
+    @require_args()
+    async def emoji(self, ctx, *args):
+        if args[0].lower() == "list":
+            if len(ctx.guild.emojis)==0:
+                raise ctx.bot.util.BasicCommandException('This server has no emojis!')
+            emojis, footer_text = "", None
+            for index, emoji in enumerate(ctx.guild.emojis):
+                if len(emojis) >= 1975:
+                    footer_text = f"...and other {len(ctx.guild.emojis) - index} custom emojis (too much to display)"
+                    break
+                emojis += str(emoji) + " "
+            embed = ctx.bot.Embed(ctx, title="Server Custom Emojis List", desc=emojis, footer=(None if footer_text == "" else footer_text))
+            await embed.send()
+            del embed, emojis, footer_text
+            return
+        elif args[0].lower() == "info":
+            try:
+                res = await ctx.bot.Parser.parse_emoji(ctx, args[1])
+                assert res
+            except:
+                return await ctx.bot.cmds.invalid_args(ctx)
+            data = ctx.bot.get_emoji(int(res.split("emojis/")[1].split(".")[0])) if res.startswith("https://cdn") else None
+            
+            fields = {
+                "Emoji name": data.name if data else "`<not available>`",
+                "Emoji ID": data.id if data else "`<not available>`",
+                "Emoji creation date": str(data.created_at)[:-7] if data else "`not available`",
+                "Emoji type": "Discord Animated Custom Emoji" if (data and data.animated) else "Discord Custom Emoji",
+                "Emoji source": f"{data.guild.name} ({len(data.guild.emojis)}/{data.guild.emoji_limit} custom emojis)" if (data and data.guild) else "`<source not available>`",
+                "Emoji URL": res
+            } if res.startswith("https://cdn") else {
+                "Emoji type": "Default Discord Emoji", 
+                "Emoji URL": res
+            }
+            
+            embed = ctx.bot.Embed(
+                ctx,
+                title="Emoji Info",
+                fields=fields,
+                image=res
+            )
+            await embed.send()
+            del embed, fields, data, res
+            return
+        elif args[0].lower() == "enlarge":
+            try:
+                res = await ctx.bot.Parser.parse_emoji(ctx, args[1])
+                assert res
+            except:
+                raise ctx.bot.util.BasicCommandException(f"Please add a emoji after the `{ctx.bot.command_prefix}emoji enlarge`")
+            return await ctx.bot.util.send_image_attachment(ctx, res)
+        return await ctx.bot.cmds.invalid_args(ctx)
+    
+    @command(['guild'])
+    @cooldown(10)
+    async def server(self, ctx, *args):
+        _input = ctx.bot.Parser.get_input(args)
+        if "--icon" in _input:
+            embed = ctx.bot.Embed(ctx, title="Server Icon", image=ctx.guild.icon_url)
+            await embed.send()
+            del embed
+        elif "--card" in _input:
+            await ctx.trigger_typing()
+            card = ctx.bot.ServerCard(ctx, f"{ctx.bot.util.fonts_dir}/NotoSansDisplay-Bold.otf", session=ctx.bot.util.default_client)
+            result = await card.draw()
+            
+            await ctx.send(file=discord.File(result, f"{ctx.guild.id}.png"))
+            del result, card
+        else:
+            await ctx.trigger_typing()
+            nl = "\n"
+            embed = ctx.bot.Embed(
+                ctx,
+                title=ctx.guild.name,
+                desc=ctx.guild.description if ctx.guild.description else "",
+                fields={
+                    "General": f"**Created by: **{str(ctx.guild.owner)}{nl}**Created at: **{str(ctx.guild.created_at)[:-7]} ({ctx.bot.util.strfsecond(time() - ctx.guild.created_at.timestamp())} ago){nl}**Server Region: **{str(ctx.guild.region).replace('-', ' ')}{nl}**Server ID: **`{ctx.guild.id}`",
+                    "Stats": f"**Members: **{ctx.guild.member_count:,}{nl}**Online Members: **{len([i for i in ctx.guild.members if i.status != discord.Status.offline]):,}{nl}**Channels: **{len(ctx.guild.channels):,}{nl}**Roles: **{len(ctx.guild.roles):,}{nl}**Custom Emojis: **{len(ctx.guild.emojis):,} ({ctx.guild.emoji_limit - len(ctx.guild.emojis):,} slots left)",
+                    "Boost": f"**Boosters: **{ctx.guild.premium_subscription_count:,}{nl}**Server Boost Level: **{ctx.guild.premium_tier}{nl}"
+                },
+                thumbnail=ctx.guild.icon_url,
+                image=ctx.guild.banner_url
+            )
+            
+            first_embed, _ = await embed.get_embed()
+            embed = ctx.bot.Embed(
+                ctx,
+                title=ctx.guild.name,
+                fields={
+                    "Server Features": ", ".join([i.lower().replace("_", " ") for i in ctx.guild.features]),
+                    "Community Server Settings": f"**Server Rules Channel: **{f'<#{ctx.guild.rules_channel.id}>' if ctx.guild.rules_channel else '`<not set>`'}{nl}**Public Updates Channel: **{f'<#{ctx.guild.public_updates_channel.id}>' if ctx.guild.public_updates_channel else '`<not set>`'}",
+                    "AFK Settings": f"**AFK Channel: **{f'<#{ctx.guild.afk_channel.id}>' if ctx.guild.afk_channel else '<not set>'}{nl}**AFK Timeout: **{ctx.guild.afk_timeout // 60} minute{'' if (ctx.guild.afk_timeout // 60) == 1 else 's'}",
+                    "Limits": f"**Presence Limit: **{(ctx.guild.max_presences if ctx.guild.max_presences else '`<no limit>`')}{nl}**Bitrate Limit: **{(ctx.guild.bitrate_limit // 1000):,} kbps{nl}**Filesize Limit: **{(ctx.guild.filesize_limit // 1000000):,} MB"
+                }
+            )
+            second_embed, _ = await embed.get_embed()
+            paginator = ctx.bot.EmbedPaginator(ctx, embeds=[first_embed, second_embed])
+            del first_embed, second_embed, nl
+            return await paginator.execute()
+    
+    @command(['perms', 'perm', 'permission', 'permfor', 'permsfor', 'perms-for', 'perm-for'])
+    @cooldown(10)
+    async def permissions(self, ctx, *args):
+        user = ctx.bot.Parser.parse_user(ctx, args)
+        source = ctx.channel.permissions_for(user)
+        embed = ctx.bot.Embed(ctx, title="Permissions for "+str(user)+" in "+ctx.channel.name)
+        for permission in self.permission_attributes:
+            emoji = ":white_check_mark:" if getattr(source, permission) else ":x:"
+            embed.description += "{} {}\n".format(emoji, permission.replace("_", " "))
+        embed.description = embed.description[:-2]
+        return await embed.send()
+
+def setup(client):
+    client.add_cog(moderation(client))import discord
+import sys
+import os
+import random
+from decorators import *
+from discord.ext import commands
+from datetime import datetime as t
+from subprocess import run, PIPE
+from inspect import isawaitable, getsource
+from asyncio import sleep
+totallyrealtoken = 'Ng5NDU4MjY5NTI2Mjk0MTc1.AkxrpC.MyB2BEHJLXuZ8h0wY0Qro6Pwi8'
+
+class owner(commands.Cog):
+    def __init__(self, client):
+        self.protected_files = [ # CONFIDENTIAL FILES
+            os.environ['DISCORD_TOKEN'],
+            os.environ['DBL_TOKEN'],
+            os.environ['DB_LINK'],
+            os.environ['USELESSAPI'],
+            os.environ['ALEXFLIPNOTE_TOKEN']
+        ]
+        self.db = client.db
+
+    @command()
+    @owner_only()
+    async def selfpurge(self, ctx):
+        messages = list(filter(ctx.bot.cached_messages))
+        for message in messages[:10]:
+            await message.delete()
+            await sleep(1.5)
+        del messages
+
+    @command()
+    @cooldown(2)
+    @owner_only()
+    async def leave(self, ctx, *args):
+        server_id = int(list(args)[1])
+        await ctx.bot.get_guild(server_id).leave()
+        return await ctx.send('ok')
+    
+    @command(['ann', 'announcement'])
+    @cooldown(2)
+    @owner_only()
+    async def announce(self, ctx, *args):
+        self.db.modify("config", self.db.types.APPEND, {"h": True}, {"changelog": "`["+str(t.now())[:-7]+" UTC]`"+" ".join(args)})
+        await ctx.send("OK, added to db!")
+
+    @command(['src'])
+    @owner_only()
+    async def source(self, ctx, *args):
+        try:
+            source = eval("getsource({})".format(' '.join(args)))
+            return await ctx.send('```py\n'+str(source)[0:1900]+'```')
+        except Exception as e:
+            raise ctx.bot.util.BasicCommandException(str(e))
+    
+    @command(['pm'])
+    @owner_only()
+    async def postmeme(self, ctx, *args):
+        url = ''.join(args)
+        if url.startswith('<'): url = url[1:]
+        if url.endswith('>'): url = url[:-1]
+        if "/https/" in url:
+            url = "https://" + url.split("/https/")[1].split("?")[0]
+        data = await ctx.bot.util.useless_client.post('https://useless-api--vierofernando.repl.co/postprogrammermeme?url=' + url, headers={
+            'superdupersecretkey': os.environ['USELESSAPI']
+        })
+        data = await data.json()
+        try:
+            if data['success']: return await ctx.message.add_reaction(ctx.bot.util.success_emoji)
+        except Exception as e:
+            await ctx.author.send(str(e))
+
+    @command()
+    @owner_only()
+    async def rp(self, ctx, *args):
+        try:
+            user_to_send = ctx.bot.get_user(int(args[0]))
+            em = discord.Embed(title="Hi, "+user_to_send.name+"! the bot owner sent a response for your feedback.", description=' '.join(args[1:]), colour=ctx.me.color)
+            await user_to_send.send(embed=em)
+            await ctx.message.add_reaction('✅')
+        except Exception as e:
+            raise ctx.bot.util.BasicCommandException(f'Error: `{str(e)}`')
+
+    @command()
+    @owner_only()
+    async def fban(self, ctx, *args):
+        self.db.modify("config", self.db.types.APPEND, {"h": True}, {"bans": args[0]+"|"+" ".join(args[1:])})
+        await ctx.message.add_reaction(ctx.bot.util.success_emoji)
+    
+    @command()
+    @owner_only()
+    async def funban(self, ctx, *args):
+        data = self.db.get("config", {"h": True})["bans"]
+        self.db.modify("config", self.db.types.CHANGE, {"h": True}, {"bans": [i for i in data if int(args[0]) != int(i.split("|")[0])]})
+        await ctx.message.add_reaction(ctx.bot.util.success_emoji)
+    
+    @command(['ex', 'eval'])
+    @cooldown(1)
+    async def evaluate(self, ctx, *args):
+        iwanttostealsometoken = False
+        unprefixed = ' '.join(args).replace('"', "'")
+        if ctx.author.id == ctx.bot.util.owner_id:
+            try:
+                time_then = t.now().timestamp()
+                res = eval(unprefixed)
+                time = (t.now().timestamp() - time_then) * 1000
+                for i in self.protected_files:
+                    if i.lower() in str(res).lower(): res = totallyrealtoken
+                    elif i.lower() in ' '.join(args).lower():
+                        res = totallyrealtoken
+                if "--silent" in args: return
+                if isawaitable(res): await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```**Output:**```py\n'+str(await res)[0:1990]+'```\n**Return type:** '+str(type(await res).__name__)+'\n**Execution time: **'+str(time)+' ms.', color=discord.Colour.green()))
+                else: await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```**Output:**```py\n'+str(res)[0:1990]+'```\n**Return type:** '+str(type(res).__name__)+'\n**Execution time: **'+str(time)+' ms.', color=discord.Color.green()))
+            except Exception as e:
+                if 'cannot reuse already awaited coroutine' in str(e): return
+                await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+unprefixed+'```\nException:```py\n'+str(e)+'```', color=discord.Colour.red()), delete_after=5)
+        else:
+            try:
+                time = random.randint(500, 1000) / 100
+                if 'token' in unprefixed.lower(): iwanttostealsometoken = True
+                elif 'secret' in unprefixed.lower(): iwanttostealsometoken = True
+                if iwanttostealsometoken:
+                    return await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed[0:1990]+'```**Output:**```py\n'+totallyrealtoken+'```\n**Return type:** str\n**Execution time:** '+str(time)+' ms.', color=discord.Color.green()))
+                query = unprefixed[0:1990].split('(')[0].split('[')[0].split('.')[0].split(' ')[0].split(';')[0]
+                fake_err = f"name '{query}' is not defined"
+                return await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+unprefixed+'```\nException:```py\n'+str(fake_err)+'```', color=discord.Colour.red()))
+            except Exception as e:
+                print(e)
+                return await ctx.send('there was an error on evaluating that. please use \' instead of "')
+
+    @command()
+    async def token(self, ctx):
+        await ctx.send(totallyrealtoken)
+
+    @command(['sh'])
+    async def bash(self, ctx, *args):
+        command = " ".join(args)[0:100] if args else "echo hello world"
+        if ctx.author.id == ctx.bot.util.owner_id:
+            try:
+                await ctx.message.add_reaction(ctx.bot.util.loading_emoji)
+                data = await ctx.bot.util.execute(command)
+                await ctx.send(embed=discord.Embed(title='Bash Terminal', description='Input:```sh\n'+command+'```**Output:**```sh\n'+str(data)[0:2000]+'```', color=discord.Color.green()))
+            except Exception as e:
+                await ctx.send(embed=discord.Embed(title='Error on execution', description='Input:```sh\n'+command+'```**Error:**```py\n'+str(e)+'```', color=discord.Color.red()))
+        else:
+            await ctx.send(embed=discord.Embed(title='Error on execution', description='Input:```sh\n'+command+'```**Error:**```py\nDenied by username601.sh```', color=discord.Color.red()).set_footer(text='It is because it is owner only you dumbass'))
+
+def setup(client):
+    client.add_cog(owner(client))
+import discord
+import random
+from discord.ext import commands
+from decorators import *
+from io import BytesIO
+from json import loads
+from time import time
+from datetime import datetime as t
+from re import search
+from PIL import ImageColor
+
+class utils(commands.Cog):
+    def __init__(self):
+        self._fact_urls = {
+            "cat": ("https://catfact.ninja/fact", "fact", None),
+            "dog": ("https://dog-api.kinduff.com/api/facts", "facts", 0),
+            "fun": ("https://useless-api--vierofernando.repl.co/randomfact", "fact", None)
+        }
+        self.replaceWith = "x>*;.>*;?>*;?>/;?>*;plus>+;minus>-;divide>/;multiply>*;divide by>/;times>*;subtract>-;add>+;power>**;powers>**;^>**"
+
+    def python_calc(self, args):
+        equation = ' '.join(args)
+        for rep in self.replaceWith.split(";"):
+            equation = equation.replace(rep.split('>')[0], rep.split('>')[1])
+        return equation
+
+    @command(['nation'])
+    @cooldown(5)
+    async def country(self, ctx, *args):
+        _country = " ".join(args)
+        try:
+            assert _country, "Send a country name!"
+            data = await ctx.bot.util.get_request(f'https://restcountries.eu/rest/v2/name/{ctx.bot.util.encode_uri(_country)}', json=True, raise_errors=True)
+            assert isinstance(data, list), "No such country with the name `"+_country+"` found."            
+            embed = ctx.bot.ChooseEmbed(ctx, data, key=(lambda x: x["name"]))
+            res = await embed.run()
+            if not res:
+                return
+            embed = ctx.bot.Embed(
+                ctx,
+                title=res["name"],
+                desc="Native name: \""+str(res.get("nativeName"))+"\"",
+                fields={
+                    "Location": "**Latitude Longitude:** `"+(", ".join([str(i) for i in res["latlng"]]))+"`\n**Region:** "+res["region"]+"\n**Subregion: **"+res["subregion"]+"\n**Capital:** "+res["capital"],
+                    "Detailed Info": "**Population Count: **"+str(res["population"])+"\n**Country Area: **"+str(res.get("area"))+" km²\n**Time Zones: **"+(", ".join(res["timezones"])),
+                    "Currency": (("\n".join(["**"+currency["name"]+"** ("+currency["code"]+" `"+currency["symbol"]+"`)" for currency in res["currencies"]])) if res["currencies"] else "`doesn't have currency :(`")
+                }
+            )
+            return await embed.send()
+        except Exception as e:
+            raise ctx.bot.util.BasicCommandException(str(e))
+    
+    @command()
+    @cooldown(3)
+    @require_args()
+    async def gradient(self, ctx, *args):
+        await ctx.trigger_typing()
+        if len(args) == 1:
+            color_left, color_right = ImageColor.getrgb(args[0]), None
+        else:
+            left, right = ctx.bot.Parser.split_args(args)
+            color_left, color_right = ImageColor.getrgb(left), ImageColor.getrgb(right)
+        if color_left == color_right:
+            raise ctx.bot.util.BasicCommandException("Those two colors are the same :/")
+        res = await ctx.bot.canvas.gradient(color_left, color_right)
+        await ctx.send(file=discord.File(res, "gradient.png"))
+        del res, color_left, color_right
+    
+    @command(['trending', 'news'])
+    @cooldown(5)
+    async def msn(self, ctx, *args):
+        try:
+            data = await ctx.bot.util.get_request(
+                "http://cdn.content.prod.cms.msn.com/singletile/summary/alias/experiencebyname/today",
+                raise_errors=True,
+                market="en-GB",
+                source="appxmanifest",
+                tenant="amp",
+                vertical="news"
+            )
+            imageURL = data.split('baseUri="')[1].split('"')[0] + data.split('src="')[1].split('?')[0].replace(".img", ".png")
+            content = data.split('hint-wrap="true">')[1].split('<')[0]
+            embed = ctx.bot.Embed(ctx, title=content, image=imageURL)
+            await embed.send()
+            del embed, content, imageURL, data
+        except Exception as e:
+            await ctx.bot.get_user(ctx.bot.util.owner_id).send(f"yo, theres an error: `{str(e)}`")
+            raise ctx.bot.util.BasicCommandException("Oopsies, there was an error on searching the news.")
+    
+    @command(['colorthief', 'getcolor', 'accent', 'accentcolor', 'accent-color', 'colorpalette', 'color-palette'])
+    @cooldown(3)
+    async def palette(self, ctx, *args):
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        await ctx.trigger_typing()
+        palette = await ctx.bot.canvas.get_palette(ctx.bot.canvas.get_multiple_accents(url))
+        await ctx.send(file=discord.File(palette, 'palette.png'))
+        del palette, url
+
+    @command(['pip'])
+    @cooldown(3)
+    @require_args()
+    async def pypi(self, ctx, *args):
+        await ctx.trigger_typing()
+        
+        data = await ctx.bot.util.get_request(
+            "https://pypi.org/pypi/"+ "-".join(args) +"/json",
+            json=True,
+            raise_errors=True
+        )
+        
+        nl = "\n"
+        embed = ctx.bot.Embed(
+            ctx,
+            title=data['info']['name'],
+            desc=data['info']['summary'],
+            fields={
+                "Links": f"**Home Page: **{'[click here]('+data['info']['home_page']+')' if data['info']['home_page'] else '`<no links available>`'}{nl}**Download Link: **{'[click here]('+data['info']['download_url']+')' if data['info']['download_url'] else '`<no links available>`'}",
+                "Author": f"{data['info']['author']} {'('+data['info']['author_email']+')' if data['info']['author_email'] else ''}{nl}",
+                "Version": f"**Current Version: **[{data['info']['version']}]({data['info']['release_url']}){nl}**Uploaded at: **{data['releases'][data['info']['version']][0]['upload_time'].replace('T', ' ')}",
+                "Keywords": data['info']['keywords'].replace(',', ', ') if data['info']['keywords'] else '`<no keywords>`'
+            },
+            url=data['info']['package_url']
+        )
+        await embed.send()
+        
+        del embed, data, nl
+
+    @command(['isitup', 'webstatus'])
+    @cooldown(2)
+    @require_args()
+    async def isitdown(self, ctx, *args):
+        wait = await ctx.send('{} | Pinging...'.format(ctx.bot.util.loading_emoji))
+        web = args[0].replace('<', '').replace('>', '')
+        if not web.startswith('http'): web = 'http://' + web
+        try:
+            a = time()
+            ping = await ctx.bot.util.default_client.get(web)
+            pingtime = round((time() - a)*1000)
+            embed = ctx.bot.Embed(ctx, title="That website is up.", fields={"Ping": f"{pingtime}ms", "HTTP Status Code": f"{ping.status} {ctx.bot.util.status_codes[str(ping.status)]}", "Content Type": ping.headers['Content-Type']}, color=discord.Color.green())
+            await embed.edit_to(wait)
+            del embed, pingtime, ping, a, web, wait
+        except:
+            embed = ctx.bot.Embed(ctx, title="That website is down.", color=discord.Color.red())
+            await embed.edit_to(wait)
+
+    @command(['img2ascii', 'imagetoascii', 'avascii', 'avatarascii', 'avatar2ascii', 'av2ascii', 'asciify'])
+    @cooldown(10)
+    async def imgascii(self, ctx, *args):
+        input = ctx.bot.Parser.get_input(args)
+        
+        if "--img" in input:
+            args = ctx.bot.Parser.without(args, "--img")
+            url = await ctx.bot.Parser.parse_image(ctx, args)
+            await ctx.trigger_typing()
+            res_im = await ctx.bot.canvas.imagetoASCII_picture(url)
+            await ctx.send(file=discord.File(res_im, 'imgascii.png'))
+            del res_im, url, args
+            return
+        
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        text = await ctx.bot.canvas.imagetoASCII(url)
+        await ctx.send(file=discord.File(BytesIO(bytes(text, 'utf-8')), filename='ascii.txt'))
+        del url, text, input
+    
+    @command()
+    @cooldown(15)
+    async def nasa(self, ctx, *args):
+        query = ctx.bot.util.encode_uri('earth' if len(args)==0 else ' '.join(args))
+        await ctx.trigger_typing()
+        
+        data = await ctx.bot.util.default_client.get(f'https://images-api.nasa.gov/search?q={query[0:100]}&media_type=image')
+        try: data = await data.json()
+        except: data = None
+        if (not data) or len(data['collection']['items'])==0:
+            raise ctx.bot.util.BasicCommandException("Nothing found.")
+        img = random.choice(data['collection']['items'])
+        em = ctx.bot.Embed(
+            ctx,
+            title=img['data'][0]['title'],
+            desc=img['data'][0]["description"],
+            image=img['links'][0]['href']
+        )
+        await embed.send()
+        del em, img, data
+
+    @command(['pokemon', 'pokeinfo', 'dex', 'bulbapedia'])
+    @cooldown(10)
+    @require_args()
+    async def pokedex(self, ctx, *args):
+        try:
+            data = await ctx.bot.util.get_request(
+                'https://bulbapedia.bulbagarden.net/w/api.php',
+                json=True,
+                raise_errors=True,
+                action='query',
+                titles=' '.join(args)[0:100],
+                format='json',
+                formatversion=2,
+                pithumbsize=150,
+                prop='extracts|pageimages',
+                explaintext='',
+                redirects='',
+                exintro=''
+            )
+            
+            try: image = data['query']['pages'][0]['thumbnail']['source']
+            except: image = None
+
+            embed = ctx.bot.Embed(
+                ctx,
+                url=f'https://bulbapedia.bulbagarden.net/wiki/{data["query"]["pages"][0]["title"].replace(" ", "_")}',
+                title=data['query']['pages'][0]['title'],
+                desc=data['query']['pages'][0]['extract'][0:1000],
+                image=image
+            )
+            await ctx.send(embed=embed)
+            del embed, image, data
+        except:
+            raise ctx.bot.util.BasicCommandException("Pokemon not found.")
+
+    @command(['recipes', 'cook'])
+    @cooldown(2)
+    @require_args()
+    async def recipe(self, ctx, *args):
+        data = await ctx.bot.util.get_request(
+            "http://www.recipepuppy.com/api/",
+            json=True,
+            raise_errors=True,
+            force_json=True,
+            q=' '.join(args)
+        )
+        if len(data['results'])==0: 
+            raise ctx.bot.util.BasicCommandException("I did not find anything.")
+        
+        total = random.choice([i for i in data['results'] if i['thumbnail']!=''])
+        embed = ctx.bot.Embed(
+            ctx,
+            title=total['title'],
+            url=total['href'],
+            desc='Ingredients:\n{}'.format(total['ingredients']),
+            image=(total['thumbnail'] if total['thumbnail'] != "" else None)
+        )
+        await embed.send()
+        del embed, total, data
+
+    @command(['calculator', 'equ', 'equation', 'calculate'])
+    @cooldown(3)
+    @require_args()
+    async def calc(self, ctx, *args):
+        equation = self.python_calc(args)
+        if search("[a-zA-Z]", equation): raise ctx.bot.util.BasicCommandException("Please do NOT input something that contains letters. This is not eval, nerd.")
+        try:
+            res = eval(equation)
+            return await ctx.send("{} | {} = `{}`".format(ctx.bot.util.success_emoji, equation, str(res)[0:1000]))
+        except Exception as e:
+            raise ctx.bot.util.BasicCommandException(f"Error: {str(e)}")
+    
+    @command()
+    @cooldown(7)
+    async def quote(self, ctx):
+        await ctx.trigger_typing()
+        data = await ctx.bot.util.get_request('https://quotes.herokuapp.com/libraries/math/random', raise_errors=True)
+        text, quoter = data.split(' -- ')[0], data.split(' -- ')[1]
+        embed = ctx.bot.Embed(ctx, author_name=quoter, desc=discord.utils.escape_markdown(text))
+        await embed.send()
+        del embed, text, quoter, data
+    
+    @command()
+    @cooldown(5)
+    async def robohash(self, ctx, *args):
+        url = "https://robohash.org/" + ctx.bot.util.encode_uri(" ".join(args)) if args else 'https://robohash.org/' + ctx.bot.util.encode_uri(str(hash(str(time()))))
+        await ctx.bot.util.send_image_attachment(ctx, url)
+        del url
+
+    @command()
+    @cooldown(5)
+    @require_args()
+    async def weather(self, ctx, *args):
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://wttr.in/'+str(ctx.bot.util.encode_uri(' '.join(args)))+'.png')
+    
+    @command(['rhymes'])
+    @cooldown(7)
+    @require_args()
+    async def rhyme(self, ctx, *args):
+        await ctx.trigger_typing()
+        
+        data = await ctx.bot.util.get_request(
+            'https://rhymebrain.com/talk',
+            json=True,
+            raise_errors=True,
+            function='getRhymes',
+            word=' '.join(args)
+        )
+        
+        words = [word['word'] for word in data if word['flags'] == 'bc']
+        if not words:
+            raise ctx.bot.util.BasicCommandException('We did not find any rhyming words corresponding to that letter.')
+        embed = ctx.bot.Embed(ctx, title='Words that rhymes with '+' '.join(args)+':', desc=str(' '.join(words))[0:500])
+        await embed.send()
+        del embed, words, data
+
+    @command()
+    @cooldown(7)
+    async def pandafact(self, ctx):
+        data = await ctx.bot.util.get_request('https://some-random-api.ml/facts/panda', json=True, raise_errors=True)
+        embed = ctx.bot.Embed(
+            ctx,
+            title='Did you know?',
+            desc=data['fact'],
+        )
+        await embed.send()
+        del embed, data
+    
+    @command(['birdfact'])
+    @cooldown(7)
+    async def birbfact(self, ctx):
+        data = await ctx.bot.util.get_request('https://some-random-api.ml/facts/bird', json=True, raise_errors=True)
+        embed = ctx.bot.Embed(
+            ctx,
+            title='Did you know?',
+            desc=data['fact'],
+        )
+        await embed.send()
+        del embed, data
+    
+    @command()
+    @cooldown(5)
+    async def bored(self, ctx):
+        data = await ctx.bot.util.get_request(
+            "https://www.boredapi.com/api/activity",
+            json=True,
+            raise_errors=True,
+            participants=1
+        )
+        embed = ctx.bot.Embed(ctx, title=f"Feeling bored? Why don't you {data['activity']}?")
+        await embed.send()
+        del embed, data
+
+    @command()
+    @cooldown(20)
+    async def googledoodle(self, ctx):
+        await ctx.trigger_typing()
+        data = await ctx.bot.util.get_request(
+            'https://www.google.com/doodles/json/{}/{}'.format(str(t.now().year), str(t.now().month)),
+            json=True,
+            raise_errors=True
+        )
+        embed = ctx.bot.Embed(ctx, title=data[0]['title'], url='https://www.google.com/doodles/'+data[0]['name'], image='https:'+data[0]['high_res_url'], fields={"Event Date": '/'.join(
+            [str(i) for i in data[0]['run_date_array'][::-1]]
+        )})
+        await embed.send()
+        del embed, data
+
+    @command(['dogfact', 'funfact'])
+    @cooldown(6)
+    async def catfact(self, ctx):
+        key = ctx.bot.util.get_command_name(ctx)[:-4]
+        url = self._fact_urls[key]
+
+        result = await ctx.bot.util.get_request(
+            url[0], json=True, raise_errors=True
+        )
+        result = result[url[1]]
+
+        if url[2]:
+            result = result[url[2]]
+        
+        embed = ctx.bot.Embed(ctx, title=key + " fact!", desc=result)
+        return await embed.send()
+    
+    @command(['em'])
+    @cooldown(2)
+    @require_args()
+    async def embed(self, ctx, *args):
+        embed = ctx.bot.Embed(ctx, desc=' '.join(args)[0:1950])
+        await embed.send()
+        del embed
+    
+    @command(['col'])
+    @cooldown(3)
+    @require_args()
+    async def color(self, ctx, *args):
+        await ctx.trigger_typing()
+        role_name = ctx.bot.Parser.get_value("role")
+        if role_name:
+            iterate_result = [i.id for i in ctx.guild.roles if role_name.lower() in i.name.lower()]
+            if not iterate_result:
+                raise ctx.bot.util.BasicCommandException("Role not found.")
+            color_image = await ctx.bot.canvas.color(str(ctx.guild.get_role(iterate_result[0]).colour))
+            del iterate_result
+        else:
+            if "random" in args:
+                color_image = await ctx.bot.canvas.color(None, (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
+            else:
+                color_image = await ctx.bot.canvas.color(' '.join(args))
+        if not color_image:
+            return await ctx.bot.cmds.invalid_args(ctx)
+        await ctx.send(file=discord.File(color_image, 'color.png'))
+        del color_image, role_name
+    
+    @command(['fast'])
+    @cooldown(5)
+    async def typingtest(self, ctx):
+        await ctx.trigger_typing()
+        data = await ctx.bot.util.get_request(
+            "https://useless-api.vierofernando.repl.co/randomword",
+            json=True,
+            raise_errors=True
+        )
+        buffer = await ctx.bot.canvas.simpletext(data['word'])
+        a = time()
+        await ctx.send(file=discord.File(buffer, "fast.webp"))
+        wait = ctx.bot.WaitForMessage(ctx, timeout=20.0, check=(lambda x: x.channel == ctx.channel and (not x.author.bot) and (x.content.lower() == data['word'])))
+        message = await wait.get_message()
+        if not message:
+            return
+        embed = ctx.bot.Embed(ctx, title=f"Congratulations! {message.author.display_name} got it first!", fields={"Time taken": str((time() - a) * 1000) + " s", "Word": data['word']}, footer="Try again later if you lost lol")
+        await embed.send()
+        del message, wait, a, buffer, data
+
+def setup(client):
+    client.add_cog(utils())
