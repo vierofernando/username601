@@ -27,7 +27,6 @@ class economy(commands.Cog):
         ]
 
         self.fish_json = loads(open(client.util.json_dir+'/fish.json', 'r').read())
-        self.steal_json = loads(open(client.util.json_dir+'/steal.json', 'r').read())
         self.works = loads(open(client.util.json_dir+'/work.json', 'r').read())['works']
         self.db = client.db
     

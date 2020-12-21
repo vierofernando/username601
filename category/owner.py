@@ -21,20 +21,14 @@ class owner(commands.Cog):
         ]
         self.db = client.db
 
-    #@command()
-    #@cooldown(1)
-    #async def test(self, ctx, *args):
-    #    asdf: return
-    #    return await ctx.send("ook, done")
-    #    
-    #    #a = p.Image.new("RGB", (1000, 500), color=(255, 255, 255))
-    #    #_p = TwemojiParser(a, parse_discord_emoji=True)
-    #    #f = p.ImageFont.truetype("/app/assets/fonts/NotoSansDisplay-Bold.otf", 40)
-    #    #await _p.draw_text((5, 5), " ".join(args), font=f, fill=(0, 0, 0))
-    #    #await _p.close()
-    #    #buff = ctx.bot.canvas.buffer(a)
-    #    #await ctx.send(file=discord.File(buff, "test.png"))
-    #    #del buff
+    @command()
+    @owner_only()
+    async def selfpurge(self, ctx):
+        messages = list(filter(ctx.bot.cached_messages))
+        for message in messages[:10]:
+            await message.delete()
+            await sleep(1.5)
+        del messages
 
     @command()
     @cooldown(2)
