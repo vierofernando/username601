@@ -7,22 +7,12 @@ from json import loads
 
 class memes(commands.Cog):
     def __init__(self, client):
-        self.rawMetadata = open(client.util.modules_dir+'/Animation.dat', 'r').read().split('\n')
-        self.rageMetadata = list(map(
-            lambda i: tuple(map(lambda a: int(a), i.split(','))),
-            self.rawMetadata[0].split(';')
-        ))
-        self.frogMetadata = self.rawMetadata[1].split(':')
         self.meme_templates = loads(open(client.util.json_dir+'/memes.json', 'r').read())
         self._positioning = {
-            "wanted": ((547, 539), (167, 423)),
             "ferbtv": ((362, 278), (364, 189)),
-            "chatroulette": ((324, 243), (14, 345)),
-            "frame": ((1025, 715), (137, 141)),
             "door": ((496, 483), (247, 9)),
             "studying": ((290, 315), (85, 160)),
             "starvstheforcesof": ((995, 1079), (925, 0)),
-            "wolverine": ((368, 316), (85, 373)),
             "disgusting": ((614, 407), (179, 24)),
             "f": ((82, 111), (361, 86))
         }
@@ -135,22 +125,6 @@ class memes(commands.Cog):
         im = await ctx.bot.gif.worship(av)
         await ctx.send(file=discord.File(im, 'worship.gif'))
 
-    @command(['crazy-frog', 'crazyfrogdance', 'dance', 'crazy-dance', 'kiddance', 'kid-dance'])
-    @cooldown(7)
-    async def crazyfrog(self, ctx, *args):
-        im = await ctx.bot.Parser.parse_image(ctx, args, size=64)
-        await ctx.trigger_typing()
-        res = await ctx.bot.gif.crazy_frog_dance(im, self.frogMetadata)
-        await ctx.send(file=discord.File(res, 'crazyfrog.gif'))
-
-    @command(['destroycomputer', 'smash'])
-    @cooldown(5)
-    async def rage(self, ctx, *args):
-        im = await ctx.bot.Parser.parse_image(ctx, args, size=64)
-        await ctx.trigger_typing()
-        res = await ctx.bot.gif.destroy_computer(im, self.rageMetadata)
-        return await ctx.send(file=discord.File(res, 'rage.gif'))
-
     @command(['disconnect'])
     @cooldown(3)
     async def disconnected(self, ctx, *args):
@@ -261,16 +235,6 @@ class memes(commands.Cog):
         toTrash = await ctx.bot.Parser.parse_image(ctx, args, cdn_only=True)
         url='https://api.alexflipnote.dev/trash?face='+str(av)+'&trash='+toTrash
         return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
-
-    @command()
-    @cooldown(7)
-    async def hitler(self, ctx, *args):
-        await ctx.trigger_typing()
-        source = await ctx.bot.Parser.parse_image(ctx, args)
-        im = await ctx.bot.gif.hitler(source)
-        return await ctx.send(file=discord.File(
-            im, 'hitler.gif'
-        ))
 
     @command(['wanted'])
     @cooldown(10)
