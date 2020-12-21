@@ -103,7 +103,7 @@ class apps(commands.Cog):
                 del embed, desc, data, nl
                 return
             elif (args[0].lower() in ["repo", "repository"]):
-                assert " ".join(args[1:]).count("/") > 0
+                assert " ".join(args[1:]).count("/")
                 data = await ctx.bot.util.get_request(
                     "https://api.github.com/repos/" + " ".join(args[1:]),
                     github=True,
@@ -167,7 +167,7 @@ class apps(commands.Cog):
     async def spotify(self, ctx, *args):
         user = ctx.bot.Parser.parse_user(ctx, args)
         act = [i for i in user.activities if isinstance(i, discord.Spotify)]
-        if len(act) == 0: raise ctx.bot.util.BasicCommandException(f"Sorry, but {user.display_name} is not listening to spotify.")
+        if not act: raise ctx.bot.util.BasicCommandException(f"Sorry, but {user.display_name} is not listening to spotify.")
         await ctx.trigger_typing()
         panel = ctx.bot.Panel(ctx, spotify=act[0])
         await panel.draw()
@@ -212,7 +212,7 @@ class apps(commands.Cog):
                     _filter = list(filter(
                         lambda x: args[0].lower() in x.lower(), [LANGUAGES[x] for x in list(LANGUAGES)]
                     ))
-                    assert len(_filter) > 0
+                    assert _filter
                     del _filter
                     destination = _filter[0]
                 except:

@@ -163,14 +163,14 @@ class economy(commands.Cog):
     async def rob(self, ctx, *args):
         try:
             number = ctx.bot.Parser.get_numbers(args)[0]
-            assert len(ctx.message.mentions) == 0, "Please mention someone to rob!"
+            assert not ctx.message.mentions, "Please mention someone to rob!"
             member = ctx.message.mentions[0]
             assert not member.bot, f"{member.display_name} is a botum."
             assert member != ctx.author, f"Error! `RecursionError: maximum recursion depth exceeded`"
             
             victim_data = self.db.get("economy", {"userid": member.id})
             assert (victim_data is not None), f"{member.display_name} has no profile!"
-            assert victim_data["bal"] > 0, f"{member.display_name} only has 0 bobux! He is too poor to be robbed!"
+            assert victim_data["bal"], f"{member.display_name} only has 0 bobux! He is too poor to be robbed!"
             assert member.status != discord.Status.offline, f"{member.display_name} is currently offline!"
             
             if not number:
@@ -237,7 +237,7 @@ class economy(commands.Cog):
     @cooldown(10)
     async def leaderboard(self, ctx, *args):
         await ctx.trigger_typing()
-        if len(args) > 0:
+        if args:
             if args[0].lower() == "global":
                 data = list(self.db.get_all("economy"))
                 sorted_bal = sorted(list(map(lambda x: x["bal"], data)))[::-1][:10]
@@ -284,7 +284,7 @@ class economy(commands.Cog):
     @command(['balance', 'profile', 'economy'])
     @cooldown(5)
     async def bal(self, ctx, *args):
-        if (len(args) > 0):
+        if args:
             await ctx.trigger_typing()
 
             if (args[0].lower() in ["--desc", "--setdesc", "--description", "--bio"]):

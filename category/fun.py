@@ -30,7 +30,7 @@ class fun(commands.Cog):
     @command(['echo', 'reply'])
     @cooldown(5)
     async def say(self, ctx, *args):
-        text = ' '.join(args).lower()[0:1999] if len(args) > 0 else "***undefined***"
+        text = ' '.join(args).lower()[0:1999] if args else "***undefined***"
         if ctx.bot.util.get_command_name(ctx) == "reply":
             res = await self.connection.post(
                 f'https://discord.com/api/v8/channels/{ctx.channel.id}/messages',

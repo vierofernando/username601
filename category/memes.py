@@ -60,19 +60,6 @@ class memes(commands.Cog):
         return await ctx.send(file=discord.File(buffer, "oliy.png"))
 
     @command()
-    @cooldown(3)
-    async def durv(self, ctx, *args):
-        url = await ctx.bot.Parser.parse_image(ctx, args)
-        await ctx.trigger_typing()
-        buffer = await ctx.bot.canvas.trans_merge({
-            'url': url,
-            'filename': 'durv.png',
-            'pos': (3, 1),
-            'size': (158, 226)
-        })
-        return await ctx.send(file=discord.File(buffer, "durv.png"))
-
-    @command()
     @cooldown(7)
     async def clint(self, ctx, *args):
         url = await ctx.bot.Parser.parse_image(ctx, args)
@@ -92,22 +79,6 @@ class memes(commands.Cog):
         url = await ctx.bot.Parser.parse_image(ctx, args)
         await ctx.trigger_typing()
         return await ctx.bot.util.send_image_attachment(ctx, "https://useless-api.vierofernando.repl.co/folder?image=" + url, uselessapi=True)
-
-    @command(['scoobydoo', 'reveal', 'revealed', 'expose', 'exposed', 'scooby-doo'])
-    @cooldown(2)
-    async def scooby(self, ctx, *args):
-        url = await ctx.bot.Parser.parse_image(ctx, args)
-        await ctx.trigger_typing()
-        im = await ctx.bot.canvas.scooby(url)
-        return await ctx.send(file=discord.File(im, 'exposed.png'))
-
-    @command(['petition'])
-    @cooldown(2)
-    async def presentation(self, ctx, *args):
-        await ctx.trigger_typing()
-        text = f'Petition for {ctx.author.display_name} to insert parameters' if len(args)==0 else ' '.join(args)
-        im = await ctx.bot.canvas.presentation(text)
-        return await ctx.send(file=discord.File(im, 'presentation.png'))
 
     @command(['pass'])
     @cooldown(2)
@@ -155,19 +126,6 @@ class memes(commands.Cog):
             'pos': (254, 18)
         })
         await ctx.send(file=discord.File(res, 'failed.png'))
-
-    @command(['gruplan', 'plan'])
-    @cooldown(4)
-    async def gru(self, ctx, *args):
-        if '; ' not in ' '.join(args):
-            return await ctx.bot.cmds.invalid_args(ctx)
-        try:
-            text1, text2, text3 = tuple(' '.join(args).split('; '))
-        except:
-            return await ctx.bot.cmds.invalid_args(ctx)
-        await ctx.trigger_typing()
-        im = await ctx.bot.canvas.gru(text1, text2, text3)
-        return await ctx.send(file=discord.File(im, 'gru.png'))
 
     @command(['worships', 'worshipping'])
     @cooldown(7)
@@ -222,23 +180,6 @@ class memes(commands.Cog):
         })
         return await ctx.send(file=discord.File(buffer, 'affect.png'))
 
-    @command(['evol', 'trashevol', 'evoltrash', 'evolutiontrash'])
-    @cooldown(5)
-    async def trashevolution(self, ctx, *args):
-        url = await ctx.bot.Parser.parse_image(ctx, args)
-        await ctx.trigger_typing()
-        return await ctx.send(file=discord.File(
-            await ctx.bot.canvas.evol(url), 'trashhahaha.png'
-        ))
-
-    @command(['lookatthisgraph'])
-    @cooldown(5)
-    async def graph(self, ctx, *args):
-        src = await ctx.bot.Parser.parse_image(ctx, args)
-        await ctx.trigger_typing()
-        image = await ctx.bot.canvas.lookatthisgraph(src)
-        await ctx.send(file=discord.File(image, 'lookatthisdudelol.png'))
-    
     @command(['animegif', 'nj'])
     @cooldown(10)
     async def nichijou(self, ctx, *args):
@@ -261,14 +202,6 @@ class memes(commands.Cog):
         await ctx.trigger_typing()
         txt = ctx.bot.util.encode_uri(' '.join(args)[0:50])
         return await ctx.bot.util.send_image_attachment(ctx, 'https://api.alexflipnote.dev/achievement?text='+txt, alexflipnote=True)
-   
-    @command(['calling'])
-    @cooldown(5)
-    @require_args()
-    async def call(self, ctx, *args):
-        await ctx.trigger_typing()
-        txt = ctx.bot.util.encode_uri(' '.join(args)[0:50])
-        return await ctx.bot.util.send_image_attachment(ctx, 'https://api.alexflipnote.dev/calling?text='+txt, alexflipnote=True)
 
     @command(['dym'])
     @cooldown(2)
@@ -295,14 +228,6 @@ class memes(commands.Cog):
     async def what(self, ctx, *args):
         image = await ctx.bot.Parser.parse_image(ctx, args, cdn_only=True)
         return await ctx.bot.util.send_image_attachment(ctx, "https://api.alexflipnote.dev/what?image="+image, alexflipnote=True)
-    
-    @command()
-    @cooldown(2)
-    async def salty(self, ctx, *args):
-        await ctx.trigger_typing()
-        av = await ctx.bot.Parser.parse_image(ctx, args, cdn_only=True)
-        url = 'https://api.alexflipnote.dev/salty?image='+str(av)
-        return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
 
     @command()
     @cooldown(5)
@@ -338,21 +263,7 @@ class memes(commands.Cog):
         return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
 
     @command()
-    @cooldown(8)
-    async def squidwardstv(self, ctx, *args):
-        source = await ctx.bot.Parser.parse_image(ctx, args)
-        buffer = await ctx.bot.canvas.squidwardstv(source)
-        await ctx.send(file=discord.File(buffer, 'squidtv.png'))
-    
-    @command(['mywaifu', 'wf', 'waifuinsult', 'insultwaifu', 'waifu-insult'])
     @cooldown(7)
-    async def waifu(self, ctx, *args):
-        source = await ctx.bot.Parser.parse_image(ctx, args)
-        waifu = await ctx.bot.canvas.waifu(source)
-        await ctx.send(file=discord.File(waifu, 'waifu.png'))
-
-    @command(['worsethanhitler', 'worstthanhitler'])
-    @cooldown(5)
     async def hitler(self, ctx, *args):
         await ctx.trigger_typing()
         source = await ctx.bot.Parser.parse_image(ctx, args)
@@ -361,42 +272,20 @@ class memes(commands.Cog):
             im, 'hitler.gif'
         ))
 
-    @command(['wanted', 'chatroulette', 'frame', 'art'])
+    @command(['wanted'])
     @cooldown(10)
     async def ferbtv(self, ctx, *args):
         await ctx.trigger_typing()
         ava = await ctx.bot.Parser.parse_image(ctx, args)
         command_name = ctx.bot.util.get_command_name(ctx)
-        if command_name == "art":
-            image = await ctx.bot.canvas.art(ava)
-        else:
-            size, pos = self._positioning[command_name]
-            image = await ctx.bot.canvas.merge({
-                'filename': command_name+'.jpg',
-                'url': ava,
-                'size': size,
-                'pos': pos
-            })
+        size, pos = self._positioning[command_name]
+        image = await ctx.bot.canvas.merge({
+            'filename': command_name+'.jpg',
+            'url': ava,
+            'size': size,
+            'pos': pos
+        })
         return await ctx.send(file=discord.File(image, 'meme.png'))
-
-    @command()
-    @cooldown(10)
-    @require_args()
-    async def scroll(self, ctx, *args):
-        await ctx.trigger_typing()
-        scrolltxt = ctx.bot.util.encode_uri(' '.join(args))
-        embed = discord.Embed(colour=ctx.me.color)
-        url='https://api.alexflipnote.dev/scroll?text='+scrolltxt
-        return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
-    
-    @command()
-    @cooldown(10)
-    async def imgcaptcha(self, ctx, *args):
-        await ctx.trigger_typing()
-        user = ctx.bot.Parser.parse_user(ctx, args)
-        av, nm = user.avatar_url_as(format="png"), ctx.bot.util.encode_uri(user.display_name)
-        url = 'http://nekobot.xyz/api/imagegen?type=captcha&username='+nm+'&url='+av+'&raw=1'
-        return await ctx.bot.util.send_image_attachment(ctx, url)
 
     @command(['captchatext', 'captchatxt', 'generatecaptcha', 'gen-captcha', 'gencaptcha', 'capt'])
     @cooldown(10)
@@ -405,15 +294,12 @@ class memes(commands.Cog):
         capt = 'username601' if len(args)==0 else ' '.join(args)
         return await ctx.bot.util.send_image_attachment(ctx, 'https://useless-api.vierofernando.repl.co/captcha?text={}'.format(capt))
 
-    @command(['baby', 'wolverine', 'disgusting', 'f', 'studying', 'starvstheforcesof'])
+    @command(['disgusting', 'f', 'studying', 'starvstheforcesof'])
     @cooldown(10)
     async def door(self, ctx, *args):
         await ctx.trigger_typing()
         ava = await ctx.bot.Parser.parse_image(ctx, args)
         command_name = ctx.bot.util.get_command_name(ctx)
-        if command_name == "baby":
-            baby = await ctx.bot.canvas.baby(ava)
-            return await ctx.send(file=discord.File(baby, 'baby.png'))
         size, pos = self._positioning[command_name]
         meme = await ctx.bot.canvas.trans_merge({
             'url': ava,
@@ -447,7 +333,6 @@ class memes(commands.Cog):
     @require_args()
     async def clyde(self, ctx, *args):
         await ctx.trigger_typing()
-        command_name = ctx.bot.util.get_command_name(ctx)
         url='https://nekobot.xyz/api/imagegen?type=clyde&text='+ctx.bot.util.encode_uri(' '.join(args)[0:50])+'&raw=1'
         return await ctx.bot.util.send_image_attachment(ctx, url)
 
@@ -474,13 +359,6 @@ class memes(commands.Cog):
             'size': (93, 107)
         })
         return await ctx.send(file=discord.File(im, 'holyshit.png'))
-
-    @command()
-    @cooldown(7)
-    async def amiajoke(self, ctx, *args):
-        source = await ctx.bot.Parser.parse_image(ctx, args, cdn_only=True)
-        url = 'https://api.alexflipnote.dev/amiajoke?image='+str(source)
-        return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
 
     async def modern_meme(self, ctx, *args):
         keys = list(self.meme_templates["bottom_image"].keys())

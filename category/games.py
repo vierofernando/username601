@@ -48,7 +48,7 @@ class games(commands.Cog):
                 res = game.add_move(int(msg.content), bool(current))
                 assert res is not None
             except:
-                current = 1 if (current == 0) else 0
+                current = 0 if current else 1
                 continue
             
             check = game.check_if_win()
@@ -58,7 +58,7 @@ class games(commands.Cog):
                 winner = str(characters[0 if (current == 1) else 1])
                 return await ctx.send(embed=discord.Embed(color=discord.Color.green(), title=str(characters[current]) + " won the game!"))
             
-            current = 1 if (current == 0) else 0
+            current = 0 if current else 1
             embed.description = "["+str(characters[current])+"'s ("+game.current_turn+") turn]```" + game.show() + "```"
             await embed.edit_to(message)
     
@@ -129,7 +129,7 @@ class games(commands.Cog):
                 title=data["username"],
                 fields={
                     "Account info": f"**Player ID: **{data['playerID']}\n**Account ID: **{data['accountID']}",
-                    "Stats": f"**Rank: **{('`<not available>`' if data['rank'] == 0 else data['rank'])}\n**Stars: **{data['stars']}\n**Diamonds: **{data['diamonds']}\n**Secret Coins: **{data['coins']}\n**Demons: **{data['demons']}\n**Creator Points: **{data['cp']}",
+                    "Stats": f"**Rank: **{(data['rank'] if data['rank'] else '`<not available>`')}\n**Stars: **{data['stars']}\n**Diamonds: **{data['diamonds']}\n**Secret Coins: **{data['coins']}\n**Demons: **{data['demons']}\n**Creator Points: **{data['cp']}",
                     "Links": f"{('[YouTube channel](https://youtube.com/channel/'+data['youtube']+')' if data['youtube'] else '`<YouTube not available>`')}\n{('[Twitter Profile](https://twitter.com/'+data['twitter']+')' if data['twitter'] else '`<Twitter not available>`')}\n{('[Twitch Channel](https://twitch.tv/'+data['twitch']+')' if data['twitch'] else '`<Twitch not available>`')}"
                 },
                 attachment=icons
@@ -227,7 +227,7 @@ class games(commands.Cog):
         if "coin" in ctx.bot.util.get_command_name(ctx):
             res = random.choice(['***heads!***', '***tails!***'])
             await ctx.send(res)
-            if len(args) > 0 and args[0].lower() == res[3:-4] and self.db.exist("economy", {"userid": ctx.author.id}):
+            if args and args[0].lower() == res[3:-4] and self.db.exist("economy", {"userid": ctx.author.id}):
                 prize = random.randint(50, 200)
                 await ctx.send(embed=discord.Embed(title=f'Your bet was right! you get {prize:,} bobux.', color=discord.Color.green()))
                 self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": prize})
@@ -329,7 +329,7 @@ class games(commands.Cog):
         reward = await slot.play(ctx)
         del slot
         
-        if reward == 0:
+        if not reward:
             return
         
         if self.db.exist("economy", {"userid": ctx.author.id}):

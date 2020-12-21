@@ -133,9 +133,9 @@ class Util:
     def resolve_starboard_message(self, message):
         """ Gets the embed from a message as a form of starboard post. """
         embed = Embed(title=f"{message.author.display_name}#{message.author.discriminator} | #{str(message.channel)}", description=message.content, url=message.jump_url, color=discord.Color.from_rgb(255, 255, 0))
-        if len(message.embeds) > 0:
+        if message.embeds:
             embed.description = message.embeds[0].description
-        if len(message.attachments) > 0:
+        if message.attachments:
             if message.attachments[0].url.split(".")[::-1] in ["png", "jpeg", "jpg", "gif", "webp"]:
                 embed.set_image(url=message.attachments[0].url)
         return embed
@@ -220,7 +220,7 @@ class Util:
 
         return_json, raise_errors, using_alexflipnote_token, force_json, github_token = False, False, False, False, False
 
-        if len(kwargs.keys()) > 0:
+        if list(kwargs.keys()):
             if kwargs.get("json") is not None:
                 return_json = True
                 kwargs.pop("json")
@@ -257,7 +257,7 @@ class Util:
         except Exception as e:
             if raise_errors:
                 raise GetRequestFailedException("Request Failed. Exception: " + str(e))
-            return None
+            return
     
     def encode_uri(self, text: str) -> str:
         """ Encodes a string to URI text. """

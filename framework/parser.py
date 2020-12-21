@@ -35,7 +35,7 @@ class Parser:
                 if role:
                     return role
             res = [i for i in ctx.guild.roles if text.lower() in i.name.lower()]
-            assert len(res) > 0
+            assert res
             if return_array:
                 return res
             return res[0]
@@ -59,7 +59,7 @@ class Parser:
                 if channel:
                     return channel
             res = [i for i in ctx.guild.channels if text.lower() in i.name.lower()]
-            assert len(res) > 0
+            assert res
             if return_array:
                 return res
             return res[0]
@@ -75,7 +75,7 @@ class Parser:
             text = text.replace("<a:", "<:")
 
         _iter = list(Parser.EMOJI_REGEX.finditer(text))
-        if _iter == []:
+        if not _iter:
             twemoji = await emoji_to_url(text, session=ctx.bot.util.default_client)
             if twemoji == text:
                 return
@@ -94,7 +94,7 @@ class Parser:
         """ Get numbers from args """
         
         try: return [int(i) for i in args if i.isnumeric()][0:count]
-        except: return None
+        except: return
 
     @staticmethod
     def get_input(args: tuple) -> tuple:
@@ -156,12 +156,12 @@ class Parser:
         Disabling member_only will also detect URL or attachment.
         Enabling cdn_only will only detect cdn.discordapp.com urls.
         """
-        if (len(ctx.message.attachments) > 0) and (not member_only):
+        if ctx.message.attachments and (not member_only):
             res = await Parser.__check_url(ctx, ctx.message.attachments[0].url, cdn_only)
             if res:
                 return str(ctx.message.attachments[0].url)
         
-        if len(args) < 1:
+        if not args:
             if default_to_png: return str(ctx.author.avatar_url_as(format="png", size=size))
             return str(ctx.author.avatar_url_as(size=size))
         
@@ -206,12 +206,12 @@ class Parser:
         user = Parser.parse_user(ctx, *args)
         """
         args = tuple(args)
-        if len(args) < 1:
+        if not args:
             if not allownoargs:
                 raise Excception("Please add a mention, user ID, or a user name.")
             
             return ctx.author
-        elif len(ctx.message.mentions) > 0: return ctx.message.mentions[0]
+        elif ctx.message.mentions: return ctx.message.mentions[0]
         
         guild_members = list(map(lambda x: x.id, ctx.guild.members))
 
@@ -224,7 +224,8 @@ class Parser:
         
         user_name = " ".join(args).lower()
         member = list(filter(lambda x: (x.display_name.lower().startswith(user_name)) or (user_name in x.display_name.lower()), ctx.guild.members))
-        if len(member) > 0: return member[0]
+        if member:
+            return member[0]
         
         return ctx.author
     

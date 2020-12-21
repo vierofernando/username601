@@ -5,16 +5,39 @@ from decorators import *
 import random
 from io import BytesIO
 from aiohttp import ClientSession
+from json import loads
 
 class image(commands.Cog):
     def __init__(self):
-        self._links = {
-            "dog": "https://api.alexflipnote.dev/dogs|file",
-            "cat": "https://api.alexflipnote.dev/cats|file",
-            "sadcat": "https://api.alexflipnote.dev/sadcat|file",
-            "bird": "https://api.alexflipnote.dev/sadcat|file",
-            "fox": 'https://randomfox.ca/floof/?ref=apilist.fun|image'
-        }
+        pass
+    
+    @command(['dogs'])
+    @cooldown(3)
+    async def dog(self, ctx):
+        await ctx.trigger_typing()
+        data = await ctx.bot.util.get_request("https://api.alexflipnote.dev/dogs", json=True, raise_errors=True, alexflipnote=True)
+        return await ctx.bot.util.send_image_attachment(ctx, data["file"])
+    
+    @command(['cats'])
+    @cooldown(3)
+    async def cat(self, ctx):
+        await ctx.trigger_typing()
+        data = await ctx.bot.util.get_request("https://api.alexflipnote.dev/cats", json=True, raise_errors=True, alexflipnote=True)
+        return await ctx.bot.util.send_image_attachment(ctx, data["file"])
+    
+    @command(['birb', 'birbs', 'birds'])
+    @cooldown(3)
+    async def bird(self, ctx):
+        await ctx.trigger_typing()
+        data = await ctx.bot.util.get_request("https://api.alexflipnote.dev/birb", json=True, raise_errors=True, alexflipnote=True)
+        return await ctx.bot.util.send_image_attachment(ctx, data["file"])
+    
+    @command(['foxes', 'furry', 'furries'])
+    @cooldown(3)
+    async def fox(self, ctx):
+        await ctx.trigger_typing()
+        data = await ctx.bot.util.get_request("https://randomfox.ca/floof", json=True, raise_errors=True)
+        return await ctx.bot.util.send_image_attachment(ctx, data["image"])
 
     @command(['colourify'])
     @cooldown(5)
@@ -31,10 +54,8 @@ class image(commands.Cog):
                 image = await ctx.bot.Parser.parse_image(ctx, (parsed_args[1],))
         except:
             return await ctx.bot.cmds.invalid_args(ctx)
-        resp = await ctx.bot.util.default_client.get(image)
-        byte = await resp.read()
         
-        image = ctx.bot.Image.colorify(BytesIO(byte), color)
+        image = await ctx.bot.Image.colorify(image, color, session=ctx.bot.util.default_client)
         await ctx.send(file=discord.File(image, "%02x%02x%02x.png" % color))
         del resp, byte, image, color
 
@@ -48,25 +69,107 @@ class image(commands.Cog):
         await ctx.send(file=discord.File(lego_image, "lego.png"))
         del image_url, lego_image
 
-    @command(['explode'])
+    @command()
     @cooldown(9)
     async def implode(self, ctx, *args):
         await ctx.trigger_typing()
-        command_name = ctx.bot.util.get_command_name(ctx)
         url = await ctx.bot.Parser.parse_image(ctx, args)
         if ("--animated" in args):
-            return await ctx.bot.util.send_image_attachment(ctx, f"https://useless-api.vierofernando.repl.co/{command_name}/animated?image={url}", uselessapi=True)
-        amount = "1" if (command_name == "implode") else "-3.5"
-        return await ctx.bot.util.send_image_attachment(ctx, f"https://useless-api.vierofernando.repl.co/implode?image={url}&amount={amount}")
-
-    @command(['spread', 'emboss', 'edge', 'sketch', 'swirl', 'wave'])
+            return await ctx.bot.util.send_image_attachment(ctx, f"https://useless-api.vierofernando.repl.co/implode/animated?image={url}", uselessapi=True)
+        result, format = await ctx.bot.Image.implode(url, amount=1, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(result, f"file.{format}"))
+        del result, format, url
+        
+    @command()
+    @cooldown(9)
+    async def explode(self, ctx, *args):
+        await ctx.trigger_typing()
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        if ("--animated" in args):
+            return await ctx.bot.util.send_image_attachment(ctx, f"https://useless-api.vierofernando.repl.co/explode/animated?image={url}", uselessapi=True)
+        result, format = await ctx.bot.Image.implode(url, amount=-3.5, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(result, f"file.{format}"))
+        del result, format, url
+        
+    @command()
     @cooldown(8)
     async def charcoal(self, ctx, *args):
         await ctx.trigger_typing()
-        command_name = ctx.bot.util.get_command_name(ctx)
         url = await ctx.bot.Parser.parse_image(ctx, args)
-        return await ctx.bot.util.send_image_attachment(ctx, f"https://useless-api.vierofernando.repl.co/{command_name}?image={url}")
-
+        buffer, format = await ctx.bot.Image.charcoal(url, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        del buffer, format, url
+    
+    @command()
+    @cooldown(8)
+    async def spread(self, ctx, *args):
+        await ctx.trigger_typing()
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        buffer, format = await ctx.bot.Image.spread(url, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        del buffer, format, url
+    
+    @command()
+    @cooldown(8)
+    async def emboss(self, ctx, *args):
+        await ctx.trigger_typing()
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        buffer, format = await ctx.bot.Image.emboss(url, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        del buffer, format, url
+    
+    @command()
+    @cooldown(8)
+    async def edge(self, ctx, *args):
+        await ctx.trigger_typing()
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        buffer, format = await ctx.bot.Image.edge(url, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        del buffer, format, url
+    
+    @command()
+    @cooldown(8)
+    async def sketch(self, ctx, *args):
+        await ctx.trigger_typing()
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        buffer, format = await ctx.bot.Image.sketch(url, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        del buffer, format, url
+    
+    @command()
+    @cooldown(8)
+    async def wave(self, ctx, *args):
+        await ctx.trigger_typing()
+        number = ctx.bot.Parser.get_numbers(args)
+        if number and (int(number[0]) in range(0, 50)):
+            l = list(args)
+            l.pop(args.index(str(number[0])))
+            args = tuple(l)
+            del l
+        else:
+            number = [10]
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        buffer, format = await ctx.bot.Image.wave(url, amount=number[0], session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        del number, buffer, format, url
+    
+    @command()
+    @cooldown(8)
+    async def swirl(self, ctx, *args):
+        await ctx.trigger_typing()
+        number = ctx.bot.Parser.get_numbers(args)
+        if number and (int(number[0]) in range(0, 361)):
+            l = list(args)
+            l.pop(args.index(str(number[0])))
+            args = tuple(l)
+            del l
+        else:
+            number = [360]
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        buffer, format = await ctx.bot.Image.swirl(url, degree=number[0], session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        del number, buffer, format, url
+    
     @command(['combine'])
     @cooldown(2)
     @require_args()
@@ -79,23 +182,18 @@ class image(commands.Cog):
         else:
             first = await ctx.bot.Parser.parse_image(ctx, (parsed_args[0],))
             second = await ctx.bot.Parser.parse_image(ctx, (parsed_args[1],))
-        blended = await ctx.bot.canvas.blend(first, second)
+        
+        blended = await ctx.bot.Image.blend(first, second, session=ctx.bot.util.default_client)
         return await ctx.send(file=discord.File(blended, 'blend.png'))
-            
-    @command(['pika'])
-    @cooldown(2)
-    async def pikachu(self, ctx):
-        await ctx.trigger_typing()
-        link = await ctx.bot.util.get_request('https://some-random-api.ml/img/pikachu', json=True, raise_errors=True)
-        return await ctx.bot.util.send_image_attachment(ctx, link['link'])
 
     @command()
     @cooldown(2)
     async def blur(self, ctx, *args):
-        ava = await ctx.bot.Parser.parse_image(ctx, args, size=512)
         await ctx.trigger_typing()
-        im = await ctx.bot.canvas.blur(ava)
+        url = await ctx.bot.Parser.parse_image(ctx, args, size=512)
+        im = await ctx.bot.Image.blur(url, session=ctx.bot.util.default_client)
         await ctx.send(file=discord.File(im, 'blur.png'))
+        del im, url
 
     @command(['glitchify', 'matrix'])
     @cooldown(5)
@@ -103,20 +201,6 @@ class image(commands.Cog):
         ava = await ctx.bot.Parser.parse_image(ctx, args, size=128)
         await ctx.trigger_typing()
         return await ctx.bot.util.send_image_attachment(ctx, "https://useless-api.vierofernando.repl.co/glitch/noratelimit?image=" + ava, uselessapi=True)
-
-    @command()
-    @cooldown(2)
-    async def lucario(self, ctx):
-        url = await ctx.bot.util.get_request(
-            "http://pics.floofybot.moe/image",
-            token="lucario",
-            category="sfw",
-            json=True,
-            raise_errors=True
-        )
-    
-        await ctx.bot.util.send_image_attachment(ctx, url)
-        del url
     
     @command(['ducks', 'quack', 'duk'])
     @cooldown(2)
@@ -127,20 +211,19 @@ class image(commands.Cog):
             json=True,
             raise_errors=True
         )
-        await ctx.bot.util.send_image_attachment(ctx, _url)
+        await ctx.bot.util.send_image_attachment(ctx, _url["url"])
 
     @command(['snek', 'snakes', 'python', 'py'])
     @cooldown(2)
     async def snake(self, ctx):
         return await ctx.bot.util.send_image_attachment(ctx, 'https://fur.im/snek/i/'+str(random.randint(1, 874))+'.png')
 
-    @command(['imageoftheday'])
+    @command(['imageoftheday', 'pod', 'pictureoftheday', 'iod'])
     @cooldown(10)
     async def iotd(self, ctx):
         try:
             data = await ctx.bot.util.get_request(
                 'https://www.bing.com/HPImageArchive.aspx',
-                force_json=True,
                 raise_errors=True,
                 format='ks',
                 idx=0,
@@ -149,14 +232,15 @@ class image(commands.Cog):
             )
         except:
             raise ctx.bot.util.BasicCommandException("The API may be down for a while. Try again later!")
+
         embed = ctx.bot.Embed(
             ctx,
-            title=data['copyright'],
-            url=data['copyrightlink'],
-            image='https://bing.com'+data['images'][0]['url']
+            title=data.split('copyright>')[1].split("</")[0],
+            url=data.split('copyrightlink>')[1].split("</")[0],
+            image='https://bing.com'+data.split("url>")[1].split("</")[0]
         )
         await embed.send()
-        del embed
+        del embed, data
 
     @command()
     @cooldown(2)
@@ -197,37 +281,20 @@ class image(commands.Cog):
 
     @command()
     @cooldown(2)
+    @require_args(3)
     async def resize(self, ctx, *args):
-        correct, wh = '', []
-        rest = []
-        for i in args:
-            if i.isnumeric():
-                correct += 'y'
-                wh.append(int(i))
-            else:
-                rest.append(i)
-        await ctx.trigger_typing()
-        if correct=='yy':
-            ava = await ctx.bot.Parser.parse_image(ctx, tuple(rest), size=512)
-            if wh[0]>2000 or wh[1]>2000: raise ctx.bot.util.BasicCommandException("Your input is too large!")
-            elif wh[0]<300 or wh[1]<300: raise ctx.bot.util.BasicCommandException("Your input is too small!")
-            else:
-                data = await ctx.bot.canvas.resize(ava, wh[0], wh[1])
-                await ctx.send(file=discord.File(data, 'resize.png'))
-        else:
+        try:
+            width, height = args[:2]
+            assert int(width) in range(2, 2000)
+            assert int(height) in range(2, 2000)
+            url = await ctx.bot.Parser.parse_image(ctx, args[2:])
+            image = await ctx.bot.Image.resize(url, int(width), int(height), session=ctx.bot.util.default_client)
+            await ctx.send(file=discord.File(image, "resize.png"))
+        except:
             return await ctx.bot.cmds.invalid_args(ctx)
 
-    @command(['cat', 'fox', 'sadcat', 'bird'])
-    @cooldown(2)
-    async def dog(self, ctx):
-        await ctx.trigger_typing()
-        command_name = ctx.bot.util.get_command_name(ctx)
-        link = self._links[command_name]
-        api_url = await ctx.bot.util.get_request(link.split('|')[0], json=True, raise_errors=True, alexflipnote=link.split('|')[0].startswith("https://api.alexflipnote.dev/"))
-        return await ctx.bot.util.send_image_attachment(ctx, api_url[link.split('|')[1]])
-
     @command()
-    @cooldown(2)
+    @cooldown(3)
     async def panda(self, ctx):
         link = random.choice(["https://some-random-api.ml/img/panda", "https://some-random-api.ml/img/red_panda"])
         data = await ctx.bot.util.get_request(link, json=True, raise_errors=True)
@@ -235,7 +302,7 @@ class image(commands.Cog):
         del link, data
     
     @command()
-    @cooldown(2)
+    @cooldown(3)
     async def shibe(self, ctx):
         await ctx.trigger_typing()
         data = await ctx.bot.util.get_request(
@@ -259,18 +326,39 @@ class image(commands.Cog):
         url = f'https://api.alexflipnote.dev/ship?user={first}&user2={second}'
         return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
 
-    @command(['coffee'])
+    @command(['hungry'])
     @cooldown(2)
-    async def food(self, ctx, *args):
-        command_name = ctx.bot.util.get_command_name(ctx)
-        data = await ctx.bot.util.get_request('https://nekobot.xyz/api/image', json=True, raise_errors=True, type=command_name)
-        link = data['message'].replace('\/', '/')
-        if command_name == 'coffee':
-            _random = random.randint(0, 1)
-            if _random == 0:
-                return await ctx.bot.util.send_image_attachment(ctx, "https://coffee.alexflipnote.dev/random")
+    async def food(self, ctx):
         await ctx.trigger_typing()
-        return await ctx.bot.util.send_image_attachment(ctx, link.replace('\/', '/'))
+        data = await ctx.bot.util.get_request('https://nekobot.xyz/api/image', json=True, raise_errors=True, type="food")
+        return await ctx.bot.util.send_image_attachment(ctx, data['message'].replace('\/', '/'))
+
+    @command()
+    @cooldown(2)
+    async def coffee(self, ctx):
+        await ctx.trigger_typing()
+        seed = random.randint(0, 1)
+        if not seed:
+            data = await ctx.bot.util.get_request('https://nekobot.xyz/api/image', json=True, raise_errors=True, type="coffee")
+            return await ctx.bot.util.send_image_attachment(ctx, data["message"].replace('\/', '/'))
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://coffee.alexflipnote.dev/random', alexflipnote=True)
+
+    @command(['pixel', '8-bit', '8bit'])
+    @cooldown(3)
+    async def pixelate(self, ctx, *args):
+        await ctx.trigger_typing()
+        number = ctx.bot.Parser.get_numbers(args)
+        if number:
+            l = list(args)
+            l.pop(args.index(str(number[0])))
+            args = tuple(l)
+            del l
+        else:
+            number = [32]
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        image = await ctx.bot.Image.pixelate(url, amount=number[0], session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(image, "pixels.png"))
+        del image, url, number
 
     @command()
     @cooldown(2)
@@ -300,15 +388,12 @@ class image(commands.Cog):
         await ctx.channel.trigger_typing()
         return await ctx.bot.util.send_image_attachment(ctx, f'https://api.alexflipnote.dev/filter/b&w?image={source}', alexflipnote=True)
 
-    @command(['pixelate'])
+    @command(['jpegify'])
     @cooldown(5)
     async def jpeg(self, ctx, *args):
         await ctx.trigger_typing()
-        url = {"jpeg": "https://api.alexflipnote.dev/filter/jpegify?image=<URL>", "pixelate": "https://useless-api.vierofernando.repl.co/pixelate?image=<URL>&amount=<NUM>"}
-        command_name = ctx.bot.util.get_command_name(ctx)
-        avatar = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
-        url = url[command_name].replace("<URL>", avatar).replace("<NUM>", random.choice(["16", "32"]))
-        return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
+        url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
+        return await ctx.bot.util.send_image_attachment(ctx, "https://api.alexflipnote.dev/filter/jpegify?image="+url, alexflipnote=True)
 
 def setup(client):
     client.add_cog(image())

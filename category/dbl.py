@@ -29,7 +29,7 @@ class dbl(commands.Cog):
     async def resolve_user(self, ctx, args):
         if "".join(args[1:]).isnumeric():
             _input = DummyUserClass(id=int("".join(args[1])), avatar_url=None, bot=False, is_avatar_animated=(lambda: False))
-        elif len(ctx.message.mentions) > 0:
+        elif ctx.message.mentions:
             _input = ctx.message.mentions[0] if (not ctx.message.mentions[0].bot) else ctx.author
         else:
             _input = self.client.Parser.parse_user(ctx, args[1:])
@@ -73,7 +73,7 @@ class dbl(commands.Cog):
         data = await self.get(f"/search?q={query}&type=bot")
         data = data["results"] # why
         
-        if len(data) == 0:
+        if not data:
             raise self.client.util.BasicCommandException("That bot does not exist on the [top.gg](https://top.gg/) database.")
         embed = self.client.ChooseEmbed(ctx, data, key=(lambda x: "["+x["name"]+"](https://top.gg/bot/"+x["id"]+")"))
         res = await embed.run()
@@ -83,9 +83,9 @@ class dbl(commands.Cog):
         return res["id"]
     
     async def resolve_bot(self, ctx, args):
-        if len(args[1:]) == 0:
+        if not args[1:]:
             _id = str(self.client.user.id)
-        elif len(ctx.message.mentions) > 0:
+        elif ctx.message.mentions:
             _id = str(ctx.message.mentions[0].id) if ctx.message.mentions[0].bot else str(self.client.user.id)
         elif "".join(args[1:]).isnumeric():
             _id = "".join(args[1:])
@@ -123,7 +123,7 @@ class dbl(commands.Cog):
     @command(['dbl', 'top-gg', 'botlist', 'discordbotlist']) 
     @cooldown(7)
     async def topgg(self, ctx, *args):
-        if (len(args) == 0) or (args[0].lower() not in self.types):
+        if (not args) or (args[0].lower() not in self.types):
             embed = self.client.Embed(ctx, title="top.gg command usage", desc=f"Usage:\n`{self.client.command_prefix[0]}topgg bot <bot_name>`\n`{self.client.command_prefix[0]}topgg user <user_name/mention/user_id>`", url="https://top.gg/")
             return await embed.send()
         _type = args[0].lower() if (args[0].lower().endswith("s")) else args[0].lower() + "s"

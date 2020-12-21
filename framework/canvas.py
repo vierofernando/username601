@@ -1,28 +1,165 @@
 from twemoji_parser import TwemojiParser, emoji_to_url
-from PIL import Image, ImageFont, ImageDraw
 from .colorthief import Smart_ColorThief
 from discord import ActivityType, File
 from .lego import apply_color_overlay
 from aiohttp import ClientSession
+from wand.image import Image as _Image
+from wand.image import Color as _Color
 from io import BytesIO
 from time import time
+from PIL import *
 import gc
 
 class Functions:
     @staticmethod
-    def colorify(image: BytesIO, color: tuple) -> BytesIO:
+    async def image_from_URL(url: str, session=None):
+        """ Fetches an image from a URL to PIL.Image.Image. """
+        _session = session if session else ClientSession()
+        res = await _session.get(url)
+        byte_data = await res.read()
+        image = Image.open(BytesIO(byte_data))
+        del byte_data, res
+        if not session:
+            await _session.close()
+            del _session
+        return image
+
+    @staticmethod
+    async def wand_from_URL(url: str, session=None):
+        """ Fetches an image from a URL to Wand.Image. """
+        _session = session if session else ClientSession()
+        res = await _session.get(url)
+        byte_data = await res.read()
+        res = _Image(blob=byte_data)
+        del byte_data
+        if not session:
+            await _session.close()
+            del _session
+        return res
+
+    @staticmethod
+    def wand_save(image) -> BytesIO:
+        """ Saves a wand image. """
+        blob = image.make_blob(image.format)
+        del image
+        return BytesIO(blob)
+
+    @staticmethod
+    def save(image) -> BytesIO:
+        """ Saves an image as a buffer. """
+        buffer = BytesIO()
+        image.save(buffer, format="png")
+        image.close()
+        del image
+        buffer.seek(0)
+        return buffer
+
+    @staticmethod
+    async def colorify(url: str, color: tuple, session=None) -> BytesIO:
         """ Colourifies an image. """
+        image = await Functions.image_from_URL(url, session=session)
         parameter = Image.open(image)
         if parameter.mode != "RGB":
             parameter = parameter.convert("RGB")
-        buffer = BytesIO()
         res = apply_color_overlay(parameter, color)
-        res.save(buffer, format="png")
-        res.close()
-        buffer.seek(0)
-        del res, parameter
+        buffer = Functions.save(res)
+        del res, parameter, image
         gc.collect()
         return buffer
+    
+    @staticmethod
+    async def blend(url1: str, url2: str, session=None) -> BytesIO:
+        """ Blends two images together. """
+        image1 = await Functions.image_from_URL(url1, session=session)
+        image2 = await Functions.image_from_URL(url2, session=session)
+
+        if image1.mode != "RGB":
+            image1 = image1.convert("RGB")
+        if image2.mode != "RGB":
+            image2 = image2.convert("RGB")
+
+        return Functions.save(Image.blend(image1, image2, alpha=0.5))
+
+    @staticmethod
+    async def blur(url: str, session=None) -> BytesIO:
+        """ Blurs an image. """
+        image = await Functions.image_from_URL(url, session=session)
+        return Functions.save(image.filter(ImageFilter.BLUR))
+
+    @staticmethod
+    async def resize(url: str, width: int, height: int, session=None) -> BytesIO:
+        """ Resizes an image. """
+        image = await Functions.image_from_URL(url, session=session)
+        return Functions.save(image.resize((width, height)))
+
+    @staticmethod
+    async def pixelate(url: str, amount: int = 32, session=None) -> BytesIO:
+        if amount not in [16, 32, 64, 128]:
+            amount = 32
+        img = await Functions.image_from_URL(url, session=session)
+        img_small = img.resize((amount, amount), resample=Image.BILINEAR)
+        result = img_small.resize(img.size, Image.NEAREST)
+        del img_small, amount
+        return Functions.save(result)
+
+    @staticmethod
+    async def implode(url: str, amount: int, session=None) -> tuple:
+        """ Implodes an image. Can be used to explode as well. """
+        wand_image = await Functions.wand_from_URL(url, session=session)
+        wand_image.implode(amount=amount)
+        return Functions.wand_save(wand_image), wand_image.format
+    
+    @staticmethod
+    async def swirl(url: str, degree: int, session=None) -> tuple:
+        """ Swirls an image. The intensity can be changed using the degree parameter. """
+        wand_image = await Functions.wand_from_URL(url, session=session)
+        wand_image.swirl(degree=degree)
+        return Functions.wand_save(wand_image), wand_image.format
+
+    @staticmethod
+    async def charcoal(url: str, session=None) -> tuple:
+        """ Adds a charcoal filter to the image. """
+        wand_image = await Functions.wand_from_URL(url, session=session)
+        wand_image.charcoal(radius=1.5, sigma=0.5)
+        return Functions.wand_save(wand_image), wand_image.format
+    
+    @staticmethod
+    async def sketch(url: str, session=None) -> tuple:
+        """ Adds a sketch filter to the image. """
+        wand_image = await Functions.wand_from_URL(url, session=session)
+        wand_image.transform_colorspace("gray")
+        wand_image.sketch(0.5, 0.0, 98.0)
+        return Functions.wand_save(wand_image), wand_image.format
+    
+    @staticmethod
+    async def edge(url: str, session=None) -> tuple:
+        """ Adds a edge filter to the image. """
+        wand_image = await Functions.wand_from_URL(url, session=session)
+        wand_image.transform_colorspace('gray')
+        wand_image.edge(radius=1)
+        return Functions.wand_save(wand_image), wand_image.format
+    
+    @staticmethod
+    async def emboss(url: str, session=None) -> tuple:
+        """ Adds a emboss filter to the image. """
+        wand_image = await Functions.wand_from_URL(url, session=session)
+        wand_image.transform_colorspace('gray')
+        wand_image.emboss(radius=3.0, sigma=1.75)
+        return Functions.wand_save(wand_image), wand_image.format
+    
+    @staticmethod
+    async def spread(url: str, session=None) -> tuple:
+        """ Spreads the image pixels. """
+        wand_image = await Functions.wand_from_URL(url, session=session)
+        wand_image.spread(radius=8.0)
+        return Functions.wand_save(wand_image), wand_image.format
+
+    @staticmethod
+    async def wave(url: str, amount: int, session=None) -> tuple:
+        """ Adds a wavy effect to the image. """
+        wand_image = await Functions.wand_from_URL(url, session=session)
+        wand_image.wave(amplitude=wand_image.height / (amount * 5), wave_length=wand_image.width / amount)
+        return Functions.wand_save(wand_image), wand_image.format
 
 class ProfileCard:
     def __init__(self, ctx, member, profile: dict, session, font_path: str):
@@ -58,7 +195,7 @@ class ProfileCard:
             text.append(current_text)
             current_text = ""
         
-        if len(text) < 1:
+        if not text:
             return self.bal["desc"]
         elif current_text != "":
             text.append(current_text)

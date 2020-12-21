@@ -95,14 +95,14 @@ class moderation(commands.Cog):
         full_arr = list(map(lambda x: {'ja': x.joined_at.timestamp(), 'da': x}, members))
         raw_unsorted_arr = list(map(lambda x: x['ja'], full_arr))
         sorted_arr = sorted(raw_unsorted_arr)
-        if (len(args) > 0) and (not args[0].isnumeric()):
+        if args and (not args[0].isnumeric()):
             if args[0].lower() in self.first:
                 from_string, user_index, title = True, 0, f'User join position for the first member in {ctx.guild.name}'
             elif args[0].lower() in self.latest:
                 from_string, user_index, title = True, ctx.guild.member_count - 1, f'User join position for the latest member to join {ctx.guild.name}'
         
         if not from_string:
-            if len(args) > 0 and args[0].isnumeric() and ((int(args[0])-1) in range(len(members))):
+            if args and args[0].isnumeric() and ((int(args[0])-1) in range(len(members))):
                 user_index, title = int(args[0]) - 1, f'User join position for order #{args[0]}'
             else:
                 user = ctx.bot.Parser.parse_user(ctx, args)
@@ -221,7 +221,7 @@ class moderation(commands.Cog):
         _input = ctx.bot.Parser.get_input(args)
 
         data = self.db.get("dashboard", {"serverid": ctx.guild.id})
-        if len(_input) == 0:
+        if not _input:
             if (not data) or (not data.get("starboard")):
                 channel = await ctx.guild.create_text_channel(name='starboard', topic='Server starboard channel. Every funny/cool posts will be here.')
                 await ctx.send(embed=discord.Embed(f'Created a channel <#{channel.id}>. Every starboard will be set there.\nTo remove starboard, type `{ctx.bot.command_prefix}starboard --remove`.\nBy default, starboard requirements are set to 1 reaction. To increase, type `{ctx.bot.command_prefix}starboard --limit <number>`.', color=discord.Color.green()))
@@ -342,7 +342,7 @@ class moderation(commands.Cog):
     async def welcome(self, ctx, *args):
         data = self.db.get("dashboard", {"serverid": ctx.guild.id})
 
-        if len(args) == 0:
+        if not args:
             embed = ctx.bot.Embed(
                 ctx,
                 title='Command usage',
@@ -428,7 +428,7 @@ class moderation(commands.Cog):
             role = ctx.guild.get_role(int(role_and_guy[0].split("<@&")[1].split(">")[0]))
         except:
             role_array = [i for i in ctx.guild.roles if role_and_guy[1].lower() in i.name.lower()]
-            if len(role_array) == 0:
+            if not role_array:
                 raise ctx.bot.util.BasicCommandException(f"Role `{role_and_guy[1]}` does not exist.")
             role = role_array[0]
             del role_array
@@ -449,7 +449,7 @@ class moderation(commands.Cog):
             role = ctx.guild.get_role(int(role_and_guy[0].split("<@&")[1].split(">")[0]))
         except:
             role_array = [i for i in ctx.guild.roles if role_and_guy[1].lower() in i.name.lower()]
-            if len(role_array) == 0:
+            if not role_array:
                 raise ctx.bot.util.BasicCommandException(f"Role `{role_and_guy[1]}` does not exist.")
             role = role_array[0]
             del role_array
@@ -501,7 +501,7 @@ class moderation(commands.Cog):
     @permissions(author=['manage_messages'], bot=['manage_messages'])
     async def clear(self, ctx, *args):
         try:
-            assert (len(ctx.message.mentions) > 0 or args[0].isnumeric()), 'Please input a valid parameter. Either a number or a mention.'
+            assert (ctx.message.mentions or args[0].isnumeric()), 'Please input a valid parameter. Either a number or a mention.'
             mention = True if len(ctx.message.mentions)>0 else False
             try: await ctx.message.delete()
             except: pass
@@ -555,7 +555,7 @@ class moderation(commands.Cog):
                     return
                 role = res
             
-            role_members = "\n".join([f"{i.name}#{i.discriminator}" for i in role.members][0:10]) if len(role.members) > 0 else "<none>"
+            role_members = "\n".join([f"{i.name}#{i.discriminator}" for i in role.members][0:10]) if role.members else "<none>"
             extra = "\n" + f"... and {len(role.members) - 10} others" if len(role.members) > 10 else ""
             permissions = ""
             
@@ -617,7 +617,7 @@ class moderation(commands.Cog):
                     "Channel Type": "Discord Text Channel"
                 }
             elif channel.type == discord.ChannelType.voice:
-                channel_members = "\n".join([f"{i.name}#{i.discriminator}" for i in channel.members[:5]]) if len(channel.members) > 0 else "<no members in VC>"
+                channel_members = "\n".join([f"{i.name}#{i.discriminator}" for i in channel.members[:5]]) if channel.members else "<no members in VC>"
                 other = "\n" + f"... and {len(channel.members) - 5} others" if len(channel.members) > 5 else ""
                 fields = {
                     "Channel Category": channel.category.name if channel.category else "<no category>",
@@ -626,7 +626,7 @@ class moderation(commands.Cog):
                     "Channel Type": "Discord Voice Channel (VC)"
                 }
             elif channel.type == discord.ChannelType.category:
-                channels = "\n".join([i.name for i in channel.channels]) if len(channel.channels) > 0 else "<no channels>"
+                channels = "\n".join([i.name for i in channel.channels]) if channel.channels else "<no channels>"
                 fields = {
                     "Channel Type": "Discord Category Channel",
                     f"Channels ({len(channel.channels)})": channels[:1000]

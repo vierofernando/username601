@@ -141,7 +141,7 @@ class owner(commands.Cog):
 
     @command(['sh'])
     async def bash(self, ctx, *args):
-        command = "echo hello world" if len(args) == 0 else " ".join(args)[0:100]
+        command = " ".join(args)[0:100] if args else "echo hello world"
         if ctx.author.id == ctx.bot.util.owner_id:
             try:
                 await ctx.message.add_reaction(ctx.bot.util.loading_emoji)

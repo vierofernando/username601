@@ -42,7 +42,7 @@ class Smart_ColorThief:
             del arr_L, arr_R, arr_T, arr_B
         total = max(set(res), key=res.count)
         del res
-        if total == 0:
+        if not total:
             return (0, 0, 0)
         
         return total

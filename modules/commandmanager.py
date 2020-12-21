@@ -29,19 +29,19 @@ class BotCommands:
         embed.add_field(name="Description", value=command_info["function"], inline=False)
         embed.add_field(name="Usage", value="```"+"\n".join([i.split(": ")[1] for i in command_info["parameters"]])+"```", inline=False)
         
-        if len(ctx.command.aliases) > 0:
+        if ctx.command.aliases:
             embed.add_field(name="Command Aliases", value=", ".join([f'`{i}`' for i in ctx.command.aliases]), inline=False)
         await ctx.send(embed=embed)
         del command_info, embed
     
     def get_commands_from_category(self, category_name):
         category = list(filter(lambda x: x.lower().startswith(category_name) or category_name in x.lower(), self.categories))
-        if category == []: return None
+        if not category: return
         return [i for i in self.commands if i['category'].lower() == category[0].lower()]
     
     def get_command_info(self, command_name):
         query = list(filter(lambda x: x["name"].lower().startswith(command_name) or command_name in x["name"].lower(), self.commands))
-        if query == []: return None
+        if not query: return
         return query[0]
     
     def query(self, text):
@@ -55,5 +55,5 @@ class BotCommands:
         
         _res = list(filter(lambda x: x["name"].lower().startswith(text) or text in x["name"].lower(), self.commands))
         _full_total += _res
-        if _full_total == []: return None
+        if not _full_total: return
         return _full_total

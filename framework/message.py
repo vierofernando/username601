@@ -167,7 +167,7 @@ class WaitForMessage:
             text = await self.ctx.bot.wait_for("message", check=self._check, timeout=self._timeout)
             return text
         except:
-            return None
+            return
 
 class ChooseEmbed(embed):
     def __init__(self, ctx, reference: list, key = None):

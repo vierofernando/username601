@@ -31,7 +31,7 @@ class bothelp(commands.Cog):
     @command(['commands', 'yardim', 'yardım'])
     @cooldown(2)
     async def help(self, ctx, *args):
-        if len(args) == 0:
+        if not args:
             embeds = self._init_help
             for category in ctx.bot.cmds.categories:
                 embed = discord.Embed(title=category, description="**Commands:**```"+(", ".join([command['name'] for command in ctx.bot.cmds.get_commands_from_category(category.lower())]))+"```")
@@ -97,7 +97,7 @@ class bothelp(commands.Cog):
 
         banned = [i for i in self.db.get("config", {"h": True})["bans"] if i.startswith(str(ctx.author.id))]
         
-        if len(banned) == 0:
+        if not banned:
             try:
                 feedback_channel = ctx.bot.get_channel(ctx.bot.util.feedback_channel)
                 await feedback_channel.send(f'<@{ctx.bot.util.owner_id}>, User with ID: {ctx.author.id} sent a feedback: **"'+' '.join(args)[0:500]+'"**')

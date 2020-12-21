@@ -43,7 +43,7 @@ class utils(commands.Cog):
                 fields={
                     "Location": "**Latitude Longitude:** `"+(", ".join([str(i) for i in res["latlng"]]))+"`\n**Region:** "+res["region"]+"\n**Subregion: **"+res["subregion"]+"\n**Capital:** "+res["capital"],
                     "Detailed Info": "**Population Count: **"+str(res["population"])+"\n**Country Area: **"+str(res.get("area"))+" km²\n**Time Zones: **"+(", ".join(res["timezones"])),
-                    "Currency": (("\n".join(["**"+currency["name"]+"** ("+currency["code"]+" `"+currency["symbol"]+"`)" for currency in res["currencies"]])) if len(res["currencies"]) > 0 else "`doesn't have currency :(`")
+                    "Currency": (("\n".join(["**"+currency["name"]+"** ("+currency["code"]+" `"+currency["symbol"]+"`)" for currency in res["currencies"]])) if res["currencies"] else "`doesn't have currency :(`")
                 }
             )
             return await embed.send()
@@ -268,7 +268,7 @@ class utils(commands.Cog):
     @command()
     @cooldown(5)
     async def robohash(self, ctx, *args):
-        url = 'https://robohash.org/' + ctx.bot.util.encode_uri(str(hash(str(time()))) if len(args) == 0 else " ".join(args))
+        url = "https://robohash.org/" + ctx.bot.util.encode_uri(" ".join(args)) if args else 'https://robohash.org/' + ctx.bot.util.encode_uri(str(hash(str(time()))))
         await ctx.bot.util.send_image_attachment(ctx, url)
         del url
 
@@ -293,7 +293,7 @@ class utils(commands.Cog):
         )
         
         words = [word['word'] for word in data if word['flags'] == 'bc']
-        if len(words) < 1:
+        if not words:
             raise ctx.bot.util.BasicCommandException('We did not find any rhyming words corresponding to that letter.')
         embed = ctx.bot.Embed(ctx, title='Words that rhymes with '+' '.join(args)+':', desc=str(' '.join(words))[0:500])
         await embed.send()
@@ -384,7 +384,7 @@ class utils(commands.Cog):
         role_name = ctx.bot.Parser.get_value("role")
         if role_name:
             iterate_result = [i.id for i in ctx.guild.roles if role_name.lower() in i.name.lower()]
-            if len(iterate_result) == 0:
+            if not iterate_result:
                 raise ctx.bot.util.BasicCommandException("Role not found.")
             color_image = await ctx.bot.canvas.color(str(ctx.guild.get_role(iterate_result[0]).colour))
             del iterate_result
@@ -409,7 +409,8 @@ class utils(commands.Cog):
         await ctx.send(file=discord.File(buffer, "fast.webp"))
         wait = ctx.bot.WaitForMessage(ctx, timeout=20.0, check=(lambda x: x.channel == ctx.channel and (not x.author.bot) and (x.content.lower() == data['word'])))
         message = await wait.get_message()
-        if not message: return
+        if not message:
+            return
         embed = ctx.bot.Embed(ctx, title=f"Congratulations! {message.author.display_name} got it first!", fields={"Time taken": str((time() - a) * 1000) + " s", "Word": data['word']}, footer="Try again later if you lost lol")
         await embed.send()
         del message, wait, a, buffer, data

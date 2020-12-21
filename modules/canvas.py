@@ -114,7 +114,7 @@ class Painter:
                 res.append(temp)
                 temp = ""
                 continue
-        if res == []: return text
+        if not res: return text
         return "\n".join(res)
 
     def buffer(self, data, webp=False):
@@ -124,9 +124,6 @@ class Painter:
         data.close()
         return arr
 
-    def toLocaleString(self, num):
-        return f'{str(num):,}'
-    
     async def get_color_accent(self, ctx, url, right=False):
         res = Smart_ColorThief(ctx, url)
         res = await res.get_color(right=right)
@@ -173,6 +170,7 @@ class Painter:
         canvas.paste(oily, (0, 0), oily)
         image.close()
         oily.close()
+        del image, oily
         return self.buffer(canvas)
 
     async def minecraft_body(self, url, uuid):
@@ -188,6 +186,7 @@ class Painter:
         except: pass
         raw_texture.close()
         body_3d.close()
+        del raw_texture, body_3d
         return self.buffer(main)
 
     async def bottom_image_meme(self, image_url, text):
@@ -201,15 +200,9 @@ class Painter:
         main.paste(self.buffer_from_url(image_url).resize((500, 300)), (0, 200))
         return self.buffer(main)
 
-    async def blend(self, user1, user2):
-        pic1 = self.buffer_from_url(user1).resize((500, 500)).convert("RGB")
-        pic2 = self.buffer_from_url(user2).resize((500, 500)).convert("RGB")
-        res = Image.blend(pic1, pic2, alpha=0.5)
-        return self.buffer(res)
-
     async def color(self, string):
         try: rgb, brightness = ImageColor.getrgb(string), ImageColor.getcolor(string, 'L')
-        except: return None
+        except: return
         
         _hex = '%02x%02x%02x' % rgb
         main = Image.new(mode='RGB', size=(500, 500), color=rgb)
@@ -228,7 +221,7 @@ class Painter:
         bg = self.templates['among_us.png'].copy()
         ava = self.buffer_from_url(url).resize((240, 228))
         col = await self.get_color_accent(ctx, url)
-        cnv = Image.new(mode='RGBA', size=(512, 512), color=(0,0,0))
+        cnv = Image.new(mode='RGBA', size=(512, 512), color=(0,0,0,0))
         draw = ImageDraw.Draw(cnv)
         draw.rectangle([(0, 0), (512, 512)], fill=col)
         cnv.paste(bg, (0,0), bg)
@@ -238,45 +231,6 @@ class Painter:
         bg.close()
         cnv.close()
         return self.buffer(anothercnv)
-
-    async def gru(self, text1, text2, text3):
-        main = self.templates["gru.png"].copy()
-        draw = ImageDraw.Draw(main)
-        font = self.get_font("Helvetica", 15)
-        curs = 60
-        for i in self.wrap_text(text1, 125, font, array=True)[0:10]:
-            draw.text((212, curs), i, font=font, fill='black')
-            curs += 15
-        curs = 60
-        for i in self.wrap_text(text2, 125, font, array=True)[0:10]:
-            draw.text((558, curs), i, font=font, fill='black')
-            curs += 15
-        curs = 283
-        for i in self.wrap_text(text3, 125, font, array=True)[0:10]:
-            draw.text((214, curs), i, font=font, fill='black')
-            draw.text((561, curs), i, font=font, fill='black')
-            curs += 15
-        return self.buffer(main)
-
-    async def presentation(self, text):
-        im = self.templates['presentation.jpg'].copy()
-        font = self.get_font('Helvetica', 25)
-        draw, curs = ImageDraw.Draw(im), 65
-        for i in self.wrap_text(text, 432, font, array=True)[0:7]:
-            draw.text((113, curs), i, font=font, fill='black')
-            curs += 30
-        return self.buffer(im)
-
-    async def scooby(self, url):
-        im = self.buffer_from_url(url)
-        bg = self.templates['scooby.png'].copy()
-        cnv = Image.new(mode='RGB', size=(720, 960), color=(0, 0, 0))
-        cnv.paste(im.resize((100, 93)), (139, 153))
-        cnv.paste(im.resize((194, 213)), (79, 569))
-        cnv.paste(bg, (0, 0), bg)
-        im.close()
-        bg.close()
-        return self.buffer(cnv)
 
     async def password(self, bad_pass, good_pass):
         im = self.templates['pass.png'].copy()
@@ -304,7 +258,7 @@ class Painter:
         levelStars = str(data['stars'])+" stars"
         main = Image.new('RGB', color=(4,75,196), size=(500, 400))
         draw = ImageDraw.Draw(main)
-
+        
         w, h = pusab_big.getsize(levelName)
         W, H = main.size
         draw.text(((W-w)/2,15), levelName, font=pusab_big, stroke_width=2, stroke_fill="black", fill="white")
@@ -317,7 +271,6 @@ class Painter:
             w, h = aller.getsize(i)
             draw.text(((W-w)/2, desc_cursor), i, font=aller, fill='white')
             desc_cursor += 25
-        del desc_cursor, width, texts
 
         difficulty = self.buffer_from_url("https://gdbrowser.com/difficulty/"+data['difficultyFace']+".png").convert('RGBA').resize((75, 75))
         main.paste(difficulty, (round((W - 75)/2) - 100, 100), difficulty)
@@ -339,18 +292,13 @@ class Painter:
             main.paste(sym, (round((W-25)/2) + 75, sym_cursor), sym)
             draw.text((round((W-25)/2)+105, sym_cursor+5), str(data[i]), font=pusab_smoler, stroke_width=2, stroke_fill="black")
             sym_cursor += 30
+            del sym
         
-        main = self.add_corners(main, 20)
-        return self.buffer(main)
-
-    async def invert_image(self, im):
-        ava = self.buffer_from_url(im).convert('RGB')
-        im_invert = ImageOps.invert(ava)
-        return self.buffer(im_invert)
-    
-    async def grayscale(self, im):
-        res = self.buffer_from_url(im).convert('L')
-        return self.buffer(res)
+        res = self.buffer(self.add_corners(main, 20))
+        del data, pusab_big, pusab_smol, pusab_smoler, pusab_tiny, aller, levelAuth, levelDesc, levelDiff, levelName, levelStars, levelid
+        del main, draw, w, h, W, H
+        del width, desc_cursor, texts, sym_cursor, difficulty
+        return res
 
     async def get_palette(self, temp_data):
         font = self.get_font('Minecraftia-Regular', 30) 
@@ -390,10 +338,6 @@ class Painter:
         av.close()
         return self.buffer(bg)
 
-    async def blur(self, url):
-        im = self.buffer_from_url(url).filter(ImageFilter.BLUR)
-        return self.buffer(im)
-    
     async def imagetoASCII(self, url):
         im = self.buffer_from_url(url).resize((300, 300)).rotate(90).convert('RGB')
         im = im.resize((int(list(im.size)[0]/3)-60, int(list(im.size)[1]/3)))
@@ -419,13 +363,7 @@ class Painter:
         string = await self.imagetoASCII(url)
         draw.text((0, 0), string, font=font, fill=(255, 255, 255))
         return self.buffer(image)
-    
-    async def evol(self, url):
-        ava, img = self.buffer_from_url(url).resize((77, 69)), self.templates["evol.jpg"].close()
-        img.paste(ava, (255, 175))
-        ava.close()
-        return self.buffer(img)
-    
+
     async def disconnected(self, msg):
         im = self.templates['disconnected.png'].copy()
         draw, myFont = ImageDraw.Draw(im), self.get_font('Minecraftia-Regular', 16)
@@ -433,61 +371,7 @@ class Painter:
         W, H = im.size
         draw.text(((W-w)/2,336), msg, font=myFont, fill="white")
         return self.buffer(im)
-    
-    async def ruin(self, ava):
-        im = self.templates['destroyimg.png'].copy()
-        av = self.buffer_from_url(ava).resize((512, 512))
-        av.paste(im, (0,0), im)
-        im.close()
-        return self.buffer(av)
-    
-    async def lookatthisgraph(self, url):
-        img = self.buffer_from_url(url).resize((741, 537)).rotate(20)
-        bg = self.templates['graph.png'].copy()
-        canvas = Image.new(mode='RGB', size=(1920, 1080), color=(0,0,0))
-        canvas.paste(img, (833, 365))
-        canvas.paste(bg, (0, 0), bg)
-        bg.close()
-        img.close()
-        return self.buffer(canvas)
-    
-    async def squidwardstv(self, avatar):
-        cnv = Image.new(mode='RGB', size=(1088, 720), color=(0, 0, 0))
-        img = self.templates['squidwardstv.png'].copy()
-        ava = self.buffer_from_url(avatar).resize((577, 467))
-        cnv.paste(ava.rotate(-27), (381, 125))
-        cnv.paste(img, (0, 0), img)
-        img.close()
-        ava.close()
-        return self.buffer(cnv)
-    
-    async def waifu(self, avatar):
-        cnv = Image.new(mode='RGB', size=(450, 344), color=(0, 0, 0))
-        img = self.templates['waifu.png'].copy()
-        ava = self.buffer_from_url(avatar).resize((131, 162))
-        cnv.paste(ava.rotate(-20), (112, 182))
-        cnv.paste(img, (0, 0), img)
-        img.close()
-        ava.close()
-        return self.buffer(cnv)
-    
-    async def ifunny(self, avatar):
-        avatar, watermark = self.buffer_from_url(avatar).resize((545, 481)), self.templates['ifunny.png'].copy()
-        avatar.paste(watermark, (0, 0), watermark)
-        watermark.close()
-        return self.buffer(avatar)
-        
-    async def wasted(self, avatar):
-        avatar, wasted = self.buffer_from_url(avatar).resize((240, 240)), self.templates['wasted.png'].copy().resize((240, 240))
-        try:
-            red = Image.new(mode='RGB', size=(240, 240), color=(255, 0, 0))
-            avatar = Image.blend(avatar, red, alpha=0.4)
-        except ValueError:
-            pass
-        avatar.paste(wasted, (0, 0), wasted)
-        wasted.close()
-        return self.buffer(avatar)
-    
+
     async def ifearnoman(self, url, url2):
         avpic = self.buffer_from_url(url)
         avpic2 = self.buffer_from_url(url2)
@@ -506,26 +390,7 @@ class Painter:
         self.drawtext(ImageDraw.Draw(image), font, text, 10, 10, "black")
         del font
         return self.buffer(image, webp=True)
-    
-    async def baby(self, ava):
-        avatar = self.buffer_from_url(ava).resize((382, 349)).rotate(50)
-        canvas = Image.new(mode='RGB',size=(728, 915), color=(0, 0, 0))
-        baby = self.templates["baby.png"].copy()
-        canvas.paste(avatar, (203, 309))
-        canvas.paste(baby, (0, 0), baby)
-        avatar.close()
-        baby.close()
-        return self.buffer(canvas)
-    
-    async def art(self, ava):
-        image = self.templates['art.png'].copy()
-        cnv, pic = Image.new(mode='RGB', size=(1364, 1534), color=(0,0,0)), self.buffer_from_url(ava)
-        cnv.paste(pic.resize((315, 373)), (927, 94))
-        cnv.paste(pic.resize((318, 375)), (925, 861))
-        cnv.paste(image, (0, 0), image)
-        image.close()
-        return self.buffer(cnv)
-    
+
     async def resize(self, url, x, y):
         return self.buffer(self.buffer_from_url(url).resize((x, y)))
     
@@ -548,15 +413,7 @@ class GifGenerator:
         for frame in ImageSequence.Iterator(Image.open(f"{assetpath}/ussr.gif")):
             self.ussr_frames.append(frame.convert("RGB"))
         self.ussr_frames_size = len(self.ussr_frames)
-    
-    def mask_circle(self, im):
-        bigsize = (im.size[0] * 3, im.size[1] * 3)
-        mask = Image.new('L', bigsize, 0)
-        draw = ImageDraw.Draw(mask) 
-        draw.ellipse((0, 0) + bigsize, fill=255)
-        mask = mask.resize(im.size, Image.ANTIALIAS)
-        im.putalpha(mask)
-    
+
     def bufferGIF(self, images, duration, transparent=False):
         arr = BytesIO()
         if transparent:

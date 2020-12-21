@@ -52,7 +52,7 @@ class Oreo:
     def meme(self) -> BytesIO:
         """ Turn the oreo to a meme. """
         
-        if self.im_arr == []: return
+        if not self.im_arr: return
         m = Image.new("RGB", (500, 430), color=(255, 255, 255))
         
         c = 300

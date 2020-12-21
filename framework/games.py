@@ -188,7 +188,7 @@ class MathQuiz:
 
     def generate_question(self) -> None:
         generator = randint(0, 1)
-        if generator == 0:
+        if not generator:
             question, res = self.basic_question()
             repeat = randint(0, 5)
             for _ in range(repeat):
@@ -308,7 +308,7 @@ class RockPaperScissors:
         try:
             r, _ = await self.ctx.bot.wait_for('reaction_add', timeout=self.timeout, check=self.check)
         except:
-            return None
+            return
         
         return await self._is_win(self.emojis.index(str(r.emoji)), randint(0, 2))
 
@@ -337,10 +337,10 @@ class TicTacToe:
         for x, y, z in self.winning_moves:
             if (self.board[x] == self.board[y] == self.board[z]) and (self.board[x] != self.default):
                 return self.board[x] # this character wins
-        return None # no one wins yet
+        return # no one wins yet
 
     def add_move(self, order: int, opponent: bool):
-        if (order in self.filled) or (not self.is_on_range(order)): return None # check if is number and is valid
+        if (order in self.filled) or (not self.is_on_range(order)): return # check if is number and is valid
         self.filled.append(order) # add to used array, so the column can't be used anymore
         self.board[order - 1] = self.opponent if opponent else self.player # change the display in board
         self.current_turn = self.player if opponent else self.opponent # change the current player
