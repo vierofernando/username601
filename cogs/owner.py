@@ -24,10 +24,10 @@ class owner(commands.Cog):
     @command()
     @owner_only()
     async def selfpurge(self, ctx):
-        messages = list(filter(ctx.bot.cached_messages))
+        messages = list(filter(lambda x: x.author == ctx.me and x.guild == ctx.guild, ctx.bot.cached_messages))
         for message in messages[:10]:
             await message.delete()
-            await sleep(1.5)
+            await sleep(2)
         del messages
 
     @command()

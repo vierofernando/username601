@@ -5,12 +5,33 @@ from .lego import apply_color_overlay
 from aiohttp import ClientSession
 from wand.image import Image as _Image
 from wand.image import Color as _Color
+from json import loads
 from io import BytesIO
 from time import time
 from PIL import *
 import gc
 
 class Functions:
+    @staticmethod
+    def wrap_text(text: str, font, max_width: int) -> str:
+        """ Wraps a text. """
+        res_text = []
+        current_text = ""
+
+        for char in list(text):
+            if font.getsize(current_text)[0] < max_width:
+                current_text += char
+                continue
+            res_text.append(current_text)
+            current_text = ""
+        
+        if not res_text:
+            return text
+        elif current_text:
+            res_text.append(current_text)
+        
+        return "\n".join(res_text)
+
     @staticmethod
     async def image_from_URL(url: str, session=None):
         """ Fetches an image from a URL to PIL.Image.Image. """
@@ -161,6 +182,115 @@ class Functions:
         wand_image.wave(amplitude=wand_image.height / (amount * 5), wave_length=wand_image.width / amount)
         return Functions.wand_save(wand_image), wand_image.format
 
+class GDLevel:
+    def __init__(
+        self,
+        ctx,
+        level_query: str,
+        font_title: str,
+        font_other: str
+    ):
+        
+        self.ctx = ctx
+        self.query = level_query
+        self.pusab_big = ImageFont.truetype(font_title, 40)
+        self.pusab_smol = ImageFont.truetype(font_title, 30)
+        self.pusab_smoler = ImageFont.truetype(font_title, 20)
+        self.pusab_tiny = ImageFont.truetype(font_title, 20)
+        self.aller = ImageFont.truetype(font_other, 20)
+        self.gd_assets = {
+        	"main": {
+        		"downloads": "https://gdbrowser.com/assets/download.png",
+        		"length": "https://gdbrowser.com/assets/time.png",
+        		"orbs": "https://gdbrowser.com/assets/orbs.png",
+        		"diamonds": "https://gdbrowser.com/assets/diamond.png"
+        	},
+        	"like": "https://gdbrowser.com/assets/like.png",
+        	"dislike": "https://gdbrowser.com/assets/dislike.png"
+        }
+    
+    async def draw(self):
+        resp = await self.ctx.bot.util.default_client.get('https://gdbrowser.com/api/level/' + self.ctx.bot.util.encode_uri(self.query))
+        data = await resp.json()
+        
+        levelName = data['name']
+        levelAuth = "by "+data['author']
+        levelDesc = data['description']
+        levelDiff = data['difficulty']
+        levelStars = f"{data['stars']:,} stars" if data['stars'] else "No stars"
+
+        main = Image.new('RGB', color=(4, 75, 196), size=(500, 400))
+        draw = ImageDraw.Draw(main)
+        
+        w, _ = self.pusab_big.getsize(levelName)
+        W, _ = main.size
+        draw.text(((W-w)//2,15), levelName, font=self.pusab_big, stroke_width=2, stroke_fill="black", fill="white")
+        w, _ = self.pusab_smol.getsize(levelAuth)
+        draw.text(((W-w)//2,50), levelAuth, font=self.pusab_smol, stroke_width=2, stroke_fill="black", fill=(255, 200, 0))
+        desc_cursor = 300
+        texts, sym_cursor = Functions.wrap_text(levelDesc, self.aller, 445), 100
+
+        for i in texts.split("\n"):
+            w, _ = self.aller.getsize(i)
+            draw.text(((W-w)/2, desc_cursor), i, font=self.aller, fill='white')
+            desc_cursor += 25
+
+        difficulty = await Functions.image_from_URL(f"https://gdbrowser.com/difficulty/{data['difficultyFace']}.png", session=self.ctx.bot.util.default_client)
+        difficulty = difficulty.convert("RGBA").resize((75, 75))
+        main.paste(difficulty, ((W - 75) // 2 - 100, 100), difficulty)
+        w, _ = self.pusab_tiny.getsize(levelDiff)
+        draw.text(((W - w)/2 - 100, 180), levelDiff, font=self.pusab_tiny, stroke_width=2, stroke_fill="black")
+        w, _ = self.pusab_tiny.getsize(levelStars)
+        draw.text(((W - w)/2 - 100, 200), levelStars, font=self.pusab_tiny, stroke_width=2, stroke_fill="black")
+
+        for i in self.gd_assets['main'].keys():
+            if not self.gd_assets['main'][i]:
+                sym = await Functions.image_from_URL(self.gd_assets['dislike' if data['disliked'] else 'like'], session=self.ctx.bot.util.default_client)
+                sym = sym.convert("RGBA").resize((25, 25))
+                main.paste(sym, ((W-25) // 2 + 75, sym_cursor), sym)
+                draw.text(((W-25) // 2 + 105, sym_cursor + 5), f'{data["likes"]:,}', font=self.pusab_smoler, stroke_width=2, stroke_fill="black")
+                sym_cursor += 30
+                continue
+            if i not in data.keys():
+                continue
+            
+            sym = await Functions.image_from_URL(self.gd_assets['main'][i], session=self.ctx.bot.util.default_client)
+            sym = sym.convert("RGBA").resize((25, 25))
+            main.paste(sym, ((W-25) // 2 + 75, sym_cursor), sym)
+            draw.text(((W-25) // 2 + 105, sym_cursor + 5), f"{data[i]:,}" if str(data[i]).isnumeric() else data[i], font=self.pusab_smoler, stroke_width=2, stroke_fill="black")
+            sym_cursor += 30
+            del sym
+        
+        res = Functions.save(main)
+        del (
+            main,
+            draw,
+            W,
+            w,
+            difficulty,
+            texts,
+            sym_cursor,
+            desc_cursor,
+            levelName,
+            levelAuth,
+            levelDesc,
+            levelDiff,
+            levelStars,
+            resp,
+            data,
+            self.pusab_big,
+            self.pusab_smol,
+            self.pusab_smoler,
+            self.pusab_tiny,
+            self.aller,
+            self.query,
+            self.ctx,
+            self.gd_assets
+        )
+        gc.collect()
+
+        return res
+
 class ProfileCard:
     def __init__(self, ctx, member, profile: dict, session, font_path: str):
         self.bal = profile
@@ -175,11 +305,6 @@ class ProfileCard:
 
         if self.width < 700:
             self.width = 700
-
-    async def imagefromURL(self, url: str):
-        res = await self.session.get(url)
-        res = await res.read()
-        return Image.open(BytesIO(res))
 
     def __wrap_desc(self):
         if len(self.bal["desc"]) < 20:
@@ -232,7 +357,7 @@ class ProfileCard:
         await self.parser.draw_text((380, 80), description, font=self.smol_font, fill=self.foreground_color)
 
         # get avatar
-        avatar = await self.imagefromURL(str(self.user.avatar_url_as(format="png", size=128)))
+        avatar = await Functions.image_from_URL(str(self.user.avatar_url_as(format="png", size=128)), session=self.session)
         avatar = avatar.resize((150, 150))
 
         # paste the avatar
@@ -329,15 +454,10 @@ class UserCard:
     
     def get_font(self, size: int):
         return ImageFont.truetype(self.font_path, size)
-    
-    async def imagefromURL(self, url):
-        resp = await self.session.get(url)
-        resp = await resp.read()
-        return Image.open(BytesIO(resp))
-    
+
     async def send(self):
         # user avatar
-        avatar = await self.imagefromURL(str(self.user.avatar_url_as(format="png", size=128)))
+        avatar = await Functions.image_from_URL(str(self.user.avatar_url_as(format="png", size=128)), session=self.session)
         avatar = avatar.resize((150, 150))
         
         # configure stuff
@@ -345,9 +465,9 @@ class UserCard:
         background_color = await _thief.get_color(right=True)
         foreground_color = (0, 0, 0) if (sum(background_color) // 3) > 128 else (255, 255, 255)
         lower_brightness = (lambda x: tuple(map(lambda y: y - x, background_color)))
-        big_font = self.get_font(40)
-        smol_font = self.get_font(25)
-        tiny_font = self.get_font(20)
+        big_font = ImageFont.truetype(40)
+        smol_font = ImageFont.truetype(25)
+        tiny_font = ImageFont.truetype(20)
         title_size = big_font.getsize(self.user.display_name)[0]
         description = f"Created at {str(self.user.created_at)[:-7]} ({self.ctx.bot.util.strfsecond(time() - self.user.created_at.timestamp())} ago)" + "\n" + f"Joined at {str(self.user.joined_at)[:-7]} (Position: {self.ctx.bot.util.join_position(self.ctx.guild, self.user):,}/{self.ctx.guild.member_count:,})"
         del _thief
@@ -383,7 +503,7 @@ class UserCard:
             color = None if url else (255, 255, 255)
             
             if url:
-                status_image = await self.imagefromURL(url)
+                status_image = await Functions.image_from_URL(url, session=self.session)
                 status_image = status_image.resize((40, 40)).convert("RGBA") if url.startswith("https://twemoji.maxcdn.com/") else status_image.resize((40, 40))
                 _thief = Smart_ColorThief(self.ctx, url)
                 activity_color = await _thief.get_color(right=True)
@@ -408,7 +528,7 @@ class UserCard:
             if not getattr(self.user.public_flags, flag):
                 continue
             
-            flag_image = await self.imagefromURL(self.flags["badges"][flag])
+            flag_image = await Functions.image_from_URL(self.flags["badges"][flag], session=self.session)
             flag_image = flag_image.resize((30, 30))
             main.paste(flag_image, (flag_y, 30), flag_image)
             del flag_image
@@ -416,7 +536,7 @@ class UserCard:
         
         # add nitro badge to list if user has one
         if self.ctx.bot.util.has_nitro(self.ctx.guild, self.user):
-            flag_image = await self.imagefromURL(self.flags["nitro"])
+            flag_image = await Functions.image_from_URL(self.flags["nitro"], session=self.session)
             flag_image = flag_image.resize((30, 30))
             main.paste(flag_image, (flag_y, 30), flag_image)
             del flag_image
@@ -424,7 +544,7 @@ class UserCard:
         
         # add booster badge to list if user has one
         if self.user in self.ctx.guild.premium_subscribers:
-            flag_image = await self.imagefromURL(self.flags["booster"])
+            flag_image = await Functions.image_from_URL(self.flags["booster"], session=self.session)
             flag_image = flag_image.resize((30, 30))
             main.paste(flag_image, (flag_y, 30), flag_image)
             del flag_image
@@ -481,17 +601,12 @@ class ServerCard:
             "https://vierofernando.is-inside.me/T0sfEdj1.png"
         ]
 
-    async def imagefromURL(self, url: str) -> Image:
-        res = await self._session.get(url)
-        res = await res.read()
-        return Image.open(BytesIO(res))
-
     async def draw(self):
         """ draws teh card """
         # commenting everything because codes with comments make it look "tidier" :^)
 
         # get the guild icon
-        server_icon = await self.imagefromURL(str(self.ctx.guild.icon_url_as(format="png", size=128)) if self.ctx.guild.icon_url else "https://cdn.discordapp.com/embed/avatars/0.png")
+        server_icon = await Functions.image_from_URL(str(self.ctx.guild.icon_url_as(format="png", size=128)) if self.ctx.guild.icon_url else "https://cdn.discordapp.com/embed/avatars/0.png", session=self._session)
         server_icon = server_icon.resize((128, 128))
         _colorthief = Smart_ColorThief(self.ctx, str(self.ctx.guild.icon_url_as(format="png", size=128)) if self.ctx.guild.icon_url else "https://cdn.discordapp.com/embed/avatars/0.png")
 
@@ -523,7 +638,7 @@ class ServerCard:
         draw.rectangle([(148, 20), (im.width - 20, 70)], fill=lower_brightness(50))
         draw.rectangle([(148, 70), (im.width - 20, 148)], fill=lower_brightness(70))
 
-        tier_icon = await self.imagefromURL(self._server_tier_urls[self.ctx.guild.premium_tier])
+        tier_icon = await Functions.image_from_URL(self._server_tier_urls[self.ctx.guild.premium_tier], session=self._session)
         tier_icon = tier_icon.resize((40, 40))
         im.paste(tier_icon, (im.width - 75, 25), tier_icon)
 

@@ -83,7 +83,7 @@ class games(commands.Cog):
     async def minecraft(self, ctx, *args):
         await ctx.trigger_typing()
         name = ctx.bot.util.encode_uri(ctx.author.display_name if len(args)==0 else ' '.join(args))
-        data = await ctx.bot.util.default_client.get(f"https://mc-heads.net/minecraft/profile/{name}")
+        data = await ctx.bot.util.default_ctx.bot.get(f"https://mc-heads.net/minecraft/profile/{name}")
         if data.status != 200:
             raise ctx.bot.util.BasicCommandException(f"Minecraft for profile: `{name}` not found.")
         data = await data.json()
@@ -152,19 +152,29 @@ class games(commands.Cog):
         _input = args[0].lower()
         if _input == "daily":
             try:
-                daily = await ctx.bot.canvas.geometry_dash_level(None, daily=True)
-                return await ctx.send(file=discord.File(daily, "level.png"))
+                assert False
+                #levelBuilder = ctx.bot.GDLevel(ctx, level_query="daily", font_title=ctx.bot.util.fonts_dir + "/PUSAB__.otf", font_other=ctx.bot.util.fonts_dir + "/Aller.ttf")
+                #daily = await levelBuilder.draw()
+                #del levelBuilder
+                #return await ctx.send(file=discord.File(daily, "level.png"))
             except:
-                raise ctx.bot.util.BasicCommandException("The Geometry dash servers seems to be down. Please try again later.")
+                raise ctx.bot.util.BasicCommandException("This sub command is temporary closed because the section is API is temporarily blocked by RobTop.")
+                #raise ctx.bot.util.BasicCommandException("The Geometry dash servers seems to be down. Please try again later.")
         elif _input == "weekly":
             try:
-                weekly = await ctx.bot.canvas.geometry_dash_level(None, weekly=True)
-                return await ctx.send(file=discord.File(weekly, "level.png"))
+                assert False
+                #levelBuilder = ctx.bot.GDLevel(ctx, level_query="weekly", font_title=ctx.bot.util.fonts_dir + "/PUSAB__.otf", font_other=ctx.bot.util.fonts_dir + "/Aller.ttf")
+                #weekly = await levelBuilder.draw()
+                #del levelBuilder
+                #return await ctx.send(file=discord.File(weekly, "level.png"))
             except:
-                raise ctx.bot.util.BasicCommandException("The Geometry dash servers seems to be down. Please try again later.")
+                raise ctx.bot.util.BasicCommandException("This sub command is temporary closed because the section is API is temporarily blocked by RobTop.")
+                #raise ctx.bot.util.BasicCommandException("The Geometry dash servers seems to be down. Please try again later.")
         elif _input.isnumeric():
             try:
-                level = await ctx.bot.canvas.geometry_dash_level(int(_input))
+                levelBuilder = ctx.bot.GDLevel(ctx, level_query=_input, font_title=ctx.bot.util.fonts_dir + "/PUSAB__.otf", font_other=ctx.bot.util.fonts_dir + "/Aller.ttf")
+                level = await levelBuilder.draw()
+                del levelBuilder
                 return await ctx.send(file=discord.File(level, "level.png"))
             except:
                 raise ctx.bot.util.BasicCommandException(f"Level with the ID: {_input} not found.")
@@ -183,9 +193,12 @@ class games(commands.Cog):
         
         await ctx.trigger_typing()
         try:
-            buffer = await ctx.bot.canvas.geometry_dash_level(int(result['id']))
+            levelBuilder = ctx.bot.GDLevel(ctx, level_query=result['id'], font_title=ctx.bot.util.fonts_dir + "/PUSAB__.otf", font_other=ctx.bot.util.fonts_dir + "/Aller.ttf")
+            buffer = await levelBuilder.draw()
+            del levelBuilder
             return await ctx.send(file=discord.File(buffer, "level.png"))
-        except:
+        except Exception as e:
+            print(str(e))
             raise ctx.bot.util.BasicCommandException("The Geometry Dash servers may be down. Please blame RobTop for this :)")
 
     @command(['geometrydash', 'geometry-dash', 'gmd'])
@@ -260,12 +273,12 @@ class games(commands.Cog):
         await ctx.trigger_typing()
 
         quizClient = ctx.bot.GeoQuiz(session=ctx.bot.util.default_client)
-        win = await quizClient.play(ctx)
+        win = await quizctx.bot.play(ctx)
 
         if not win:
             return
 
-        await quizClient.end()
+        await quizctx.bot.end()
         del quizClient
 
         if win and self.db.exist("economy", {"userid": ctx.author.id}):

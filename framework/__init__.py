@@ -10,18 +10,20 @@ from .colorthief import Smart_ColorThief
 from .message import embed, Paginator, ChooseEmbed,  WaitForMessage
 from .util import Util, GetRequestFailedException, BasicCommandException
 from .games import Slot, TicTacToe, RockPaperScissors, GeographyQuiz, MathQuiz, GuessAvatar, Trivia, GuessMyNumber, Hangman
-from .canvas import ServerCard, UserCard, ProfileCard
+from .canvas import ServerCard, UserCard, ProfileCard, GDLevel
 from .canvas import Functions as canvas_functions
 from .database import Database
 from .lego import legofy
 
-def initiate(client, db_name: str = "username601"):
+def initiate(client, db_name: str = "username601"): # prints because why not ?
+    print("[ FRAMEWORK ] Initiating framework classes... (1/3)")
     setattr(client, "slot", Slot)
     setattr(client, "oreo", Oreo)
     setattr(client, "lego", legofy)
     setattr(client, "Embed", embed)
     setattr(client, "Parser", Parser)
     setattr(client, "Trivia", Trivia)
+    setattr(client, "GDLevel", GDLevel)
     setattr(client, "Hangman", Hangman)
     setattr(client, "Panel", CustomPanel)
     setattr(client, "MathQuiz", MathQuiz)
@@ -38,5 +40,8 @@ def initiate(client, db_name: str = "username601"):
     setattr(client, "GuessMyNumber", GuessMyNumber)
     setattr(client, "ColorThief", Smart_ColorThief)
     setattr(client, "WaitForMessage", WaitForMessage)
+    print("[ FRAMEWORK ] Initiating database... (2/3)")
     setattr(client, "db", Database(getenv("DB_LINK"), db_name))
+    print("[ FRAMEWORK ] Initiating utilities... (3/3)")
     Util(client)
+    print("[ FRAMEWORK ] Successfully initiated framework.")
