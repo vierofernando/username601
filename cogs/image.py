@@ -73,23 +73,39 @@ class image(commands.Cog):
     @cooldown(9)
     async def implode(self, ctx, *args):
         await ctx.trigger_typing()
-        url = await ctx.bot.Parser.parse_image(ctx, args)
-        if ("--animated" in args):
+        parser = ctx.bot.Parser(args)
+        parser.parse()
+        animated = parser.has("animated")
+        
+        if animated:
+            parser.shift("animated")
+        
+        url = await ctx.bot.Parser.parse_image(ctx, ' '.join(parser.other))
+        if animated:
+            del parser, animated
             return await ctx.bot.util.send_image_attachment(ctx, f"https://useless-api.vierofernando.repl.co/implode/animated?image={url}", uselessapi=True)
         result, format = await ctx.bot.Image.implode(url, amount=1, session=ctx.bot.util.default_client)
         await ctx.send(file=discord.File(result, f"file.{format}"))
-        del result, format, url
+        del result, format, url, parser, animated
         
     @command()
     @cooldown(9)
     async def explode(self, ctx, *args):
         await ctx.trigger_typing()
-        url = await ctx.bot.Parser.parse_image(ctx, args)
-        if ("--animated" in args):
+        parser = ctx.bot.Parser(args)
+        parser.parse()
+        animated = parser.has("animated")
+        
+        if animated:
+            parser.shift("animated")
+        
+        url = await ctx.bot.Parser.parse_image(ctx, ' '.join(parser.other))
+        if animated:
+            del parser, animated
             return await ctx.bot.util.send_image_attachment(ctx, f"https://useless-api.vierofernando.repl.co/explode/animated?image={url}", uselessapi=True)
         result, format = await ctx.bot.Image.implode(url, amount=-3.5, session=ctx.bot.util.default_client)
         await ctx.send(file=discord.File(result, f"file.{format}"))
-        del result, format, url
+        del result, format, url, parser, animated
         
     @command()
     @cooldown(8)

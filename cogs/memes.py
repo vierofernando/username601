@@ -34,12 +34,14 @@ class memes(commands.Cog):
     @cooldown(3)
     async def oliy(self, ctx, *args):
         stretch = False
+        parser = ctx.bot.Parser(args)
+        parser.parse()
     
-        if "--stretch" in args:
-            args = tuple(filter(lambda x: "--stretch" not in x.lower(), args))
+        if parser.has("stretch"):
+            parser.shift("stretch")
             stretch = True
         
-        url = await ctx.bot.Parser.parse_image(ctx, args)
+        url = await ctx.bot.Parser.parse_image(ctx, tuple(parser.other))
         await ctx.trigger_typing()
         buffer = await ctx.bot.canvas.trans_merge({
             'url': url,

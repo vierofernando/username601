@@ -18,6 +18,102 @@ class Parser:
     CHANNEL_REGEX = re.compile("<#(.*?)>")
     ROLES_REGEX = re.compile("<@&(.*?)>")
 
+    def __bool__(self) -> bool:
+        return bool(self.flags)
+
+    def __getitem__(self, value: str) -> str:
+        if not self.flags:
+            return
+        return self.flags.get(value)
+
+    def __dict__(self) -> dict:
+        if not self.flags:
+            return
+        return self.flags
+
+    def __init__(
+        self,
+        args: tuple,
+        *trash,
+        **other_trash
+    ) -> None:
+        """ The main options parser object. Only a tuple is required. """
+        self.raw = args
+        self.flags = {}
+        self.other = list(self.raw)
+    
+    def parse(self) -> dict:
+        """ Parses the arguments and gets the options. """
+        
+        for i, arg in enumerate(self.raw):
+            if (not arg.startswith("--")) and (not arg.startswith("—")):
+                continue
+            
+            name, with_quotes, content = arg[2:] if arg.startswith("--") else arg[1:], None, ""
+            if (not name) or (name in self.flags.keys()):
+                continue
+            self.other.remove(arg)
+            
+            for value in self.raw[i + 1:]:
+                if value.startswith("--") or value.startswith("—"):
+                    break
+                
+                self.other.remove(value)
+                
+                if (value.startswith("'") or value.startswith('"')) and (not with_quotes):
+                    with_quotes = value[0]
+                    content += value[1:]
+                    continue
+                elif (value.endswith('"') or value.endswith("'")) and with_quotes:
+                    del with_quotes
+                    content += " " + value[:-1]
+                    break
+                elif with_quotes:
+                    content += " " + value
+                    continue
+                content = value
+                break
+            self.flags[name] = content if content else None
+        return self.flags
+    
+    def has(self, query: str) -> bool:
+        """ Checks ONLY if a flag exists, even returns True despite the value is None. """
+        return (query in self.flags.keys())
+    
+    def has_multiple(self, *args) -> bool:
+        """ Checks multiple flags, unlike the has() method which only accepts one argument. Returns True if at least ONE value is True. """
+        
+        for key in self.flags.keys():
+            if key in args:
+                return True
+        return False
+    
+    def shift(self, argument_name: str, _check: bool = True) -> None:
+        """ Shifts a flag value and dumps it to self.other. """
+        if not self.has(argument_name):
+            return
+        
+        value = self.flags[argument_name]
+        self.flags.pop(argument_name)
+        
+        if value:
+            self.other.extend(value.split(" "))
+    
+    def shift_multiple(self, *args, shift_all: bool = True) -> None:
+        """ Shifts multiple flags. disabling shift_all will quit if at least one flag is shifted. """
+        
+        for i, arg in enumerate(args):
+            self.shift(arg)
+            if i == 0 and (not shift_all):
+                return
+    
+    @staticmethod
+    def has_flag(args: tuple, flag_name: str) -> bool:
+        """ Runs a quick check to see if flag is in args tuple. """
+        
+        lowered_text = [i.lower() for i in args]
+        return ((lowered_text.count("--" + flag_name.lower()) > 0) or (lowered_text.count("—" + flag_name.lower()) > 0))
+    
     @staticmethod
     def parse_role(ctx, text: str, return_array: bool = False):
         parse = list(Parser.ROLES_REGEX.finditer(text))
@@ -95,41 +191,6 @@ class Parser:
         
         try: return [int(i) for i in args if i.isnumeric()][0:count]
         except: return
-
-    @staticmethod
-    def get_input(args: tuple) -> tuple:
-        """ Returns all inputs from a args """
-        return tuple([i.lower() for i in args if i.startswith("--")])
-    
-    @staticmethod
-    def get_input_values(args: tuple) -> dict:
-        """ Returns all inputs with their values as a dict. """
-        res = {}
-        for i in range(len(args)):
-            if not args[i].startswith("--"): continue
-            try: res[args[i]] = args[i + 1]
-            except: res[args[i]] = None
-        return (res if res != {} else None)
-
-    @staticmethod
-    def get_value(args: tuple, text: str) -> tuple:
-        """ Gets the value from a key. """
-        
-        res, has_quotation_mark = [], False
-        try:
-            index = args.index(text)
-            for arg in args[(index + 1):]:
-                if arg.startswith('"') and (not has_quotation_mark):
-                    res.append(arg[1:])
-                    has_quotation_mark = True
-                elif has_quotation_mark and arg.endswith('"'):
-                    res.append(arg[:-1])
-                    break
-                else:
-                    return arg
-        except:
-            return
-        
 
     @staticmethod
     async def __check_url(ctx, url: str, cdn_only: bool, custom_emoji: bool = False):
@@ -252,8 +313,3 @@ class Parser:
         for key in Parser.HTML_DICT.keys():
             result = result.replace(key, Parser.HTML_DICT[key])
         return result
-    
-    @staticmethod
-    def without(args: tuple, key: str) -> tuple:
-        """ Returns an arg without a specific key. """
-        return tuple([i for i in args if key not in i])

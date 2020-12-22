@@ -17,9 +17,13 @@ class apps(commands.Cog):
     @require_args()
     async def urban(self, ctx, *args):
         search = False
+        parser = ctx.bot.Parser(args)
+        parser.parse()
+        
         try:
-            if "--search" in args:
-                args, search = ctx.bot.Parser.without(args, "--search"), True
+            if parser.has("search"):
+                parser.shift("search")
+                args, search = tuple(parser.other), True
             
             data = await ctx.bot.util.get_request(
                 "https://api.urbandictionary.com/v0/define",

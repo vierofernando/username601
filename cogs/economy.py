@@ -285,11 +285,14 @@ class economy(commands.Cog):
     async def bal(self, ctx, *args):
         if args:
             await ctx.trigger_typing()
-
-            if (args[0].lower() in ["--desc", "--setdesc", "--description", "--bio"]):
+            parser = ctx.bot.Parser(args)
+            parser.parse()
+            
+            if parser.has_multiple("desc", "setdesc", "description", "bio"):
                 await ctx.trigger_typing()
                 try:
-                    text = " ".join(args[1:])
+                    parser.shift_multiple("desc", "setdesc", "description", "bio")
+                    text = " ".join(parser.other)
                     assert text != "", "Please add a text for your new bio."
                     for blacklisted_word in self.blacklisted_words:
                         assert blacklisted_word not in text, "Please do not include any links or bad words in your bio!"
@@ -300,12 +303,14 @@ class economy(commands.Cog):
 
                     await ctx.send(embed=discord.Embed(title=f"Successfully changed your bio.", color=discord.Color.green()).set_footer(text="Your bio is too long, so we capped it down to 50 characters." if len(text) > 50 else ""))
                     self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"desc": text[0:50]})
+                    del parser, data, text
                     return
                 except Exception as e:
                     raise ctx.bot.util.BasicCommandException(str(e))
-            elif (args[0].lower() in ["--color", "--set-color", "--col"]):
+            elif parser.has_multiple("color", "set-color", "col"):
                 try:
-                    color = ImageColor.getrgb(' '.join(args[1:]))
+                    parser.shift_multiple("color", "set-color", "col")
+                    color = ImageColor.getrgb(' '.join(parser.other))
                     data = self.db.get("economy", {"userid": ctx.author.id})
                     assert data, f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."
                     assert data["bal"] > 1000, f"You need at least 1,000 bobux to change bio ({(1000 - data['bal']):,} more bobux required)"
@@ -316,9 +321,11 @@ class economy(commands.Cog):
                 
                 await ctx.send(embed=discord.Embed(title="Changed the color for your profile to `"+ ('#%02x%02x%02x' % color).upper() +"`.", color=discord.Color.from_rgb(*color)))
                 self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"color": str(color).replace(" ", "")[1:-1]})
+                del parser
                 return
-            elif (args[0].lower() in ["--card", "--image"]):
-                member = ctx.bot.Parser.parse_user(ctx, args[1:])                
+            elif parser.has_multiple("card", "image"):
+                parser.shift_multiple("card", "image")
+                member = ctx.bot.Parser.parse_user(ctx, tuple(parser.other))                
                 data = self.db.get("economy", {"userid": member.id})
 
                 if not data:
@@ -327,7 +334,7 @@ class economy(commands.Cog):
                 byte = await card.draw()
                 await ctx.send(file=discord.File(byte, "card.png"))
                 await card.close()
-                del card, byte, data, member
+                del card, byte, data, member, parser
                 return
 
         member = ctx.bot.Parser.parse_user(ctx, args)
@@ -355,7 +362,7 @@ class economy(commands.Cog):
             del rgb
         
         await embed.send()
-        del embed, data
+        del embed, data, parser
     
     @command(['newprofile'])
     @cooldown(10)

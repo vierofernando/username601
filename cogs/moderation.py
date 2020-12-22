@@ -218,7 +218,8 @@ class moderation(commands.Cog):
     @permissions(author=['manage_channels'], bot=['manage_channels'])
     async def starboard(self, ctx, *args):
         await ctx.trigger_typing()
-        _input = ctx.bot.Parser.get_input(args)
+        parser = ctx.bot.Parser(args)
+        parser.parse()
 
         data = self.db.get("dashboard", {"serverid": ctx.guild.id})
         if not _input:
@@ -254,14 +255,14 @@ class moderation(commands.Cog):
         if (not data) or (not data.get("starboard")):
             raise ctx.bot.util.BasicCommandException("This server does not have any starboard.")
             
-        if "--remove" in _input:
+        if parser.has("remove"):
             await ctx.send(embed=discord.Embed(title='Alright. Starboard for this server is deleted. You can delete the channel.', color=discord.Color.green()))
             self.db.modify("dashboard", self.db.types.REMOVE, {"serverid": ctx.guild.id}, {"starboard": data["starboard"]})
             self.db.modify("dashboard", self.db.types.REMOVE, {"serverid": ctx.guild.id}, {"star_requirements": data["star_requirements"]})
 
-        elif "--limit" in _input:
+        elif parser["limit"]:
             try:
-                num = args[args.index("--limit") + 1]
+                num = int(parser["limit"])
                 assert num.isnumeric()
                 assert num in range(1, 10)
                 await ctx.send(embed=discord.Embed(title=f'OK. Changed the limit to {num} star reactions.', color=discord.Color.green()))
@@ -647,12 +648,15 @@ class moderation(commands.Cog):
     @command(['user'])
     @cooldown(3)
     async def member(self, ctx, *args):
-        inputs = ctx.bot.Parser.get_input(args)
         await ctx.trigger_typing()
+        parser = ctx.bot.Parser(args)
+        parser.parse()
         
-        if "--card" in inputs:
-            person = ctx.bot.Parser.parse_user(ctx, ctx.bot.Parser.without(args, "--card"))
+        if parser.has("card"):
+            parser.shift("card")
+            person = ctx.bot.Parser.parse_user(ctx, tuple(parser.other))
             card = ctx.bot.UserCard(ctx, person, font_path=f"{ctx.bot.util.fonts_dir}/NotoSansDisplay-Bold.otf", session=ctx.bot.util.default_client)
+            del parser
             return await card.send()
         
         user, nl = ctx.bot.Parser.parse_user(ctx, args), "\n"
@@ -682,7 +686,7 @@ class moderation(commands.Cog):
                 embed.fields.pop("Activity")
         
         await embed.send()
-        del join_pos, current_time, user, nl, embed
+        del join_pos, current_time, user, nl, embed, parser
     
     @command(['av', 'ava'])
     @cooldown(2)
@@ -750,18 +754,20 @@ class moderation(commands.Cog):
     @command(['guild'])
     @cooldown(10)
     async def server(self, ctx, *args):
-        _input = ctx.bot.Parser.get_input(args)
-        if "--icon" in _input:
+        parser = ctx.bot.Parser(args)
+        parser.parse()
+        
+        if parser.has("icon"):
             embed = ctx.bot.Embed(ctx, title="Server Icon", image=ctx.guild.icon_url)
             await embed.send()
-            del embed
-        elif "--card" in _input:
+            del embed, parser
+        elif parser.has("card"):
             await ctx.trigger_typing()
             card = ctx.bot.ServerCard(ctx, f"{ctx.bot.util.fonts_dir}/NotoSansDisplay-Bold.otf", session=ctx.bot.util.default_client)
             result = await card.draw()
             
             await ctx.send(file=discord.File(result, f"{ctx.guild.id}.png"))
-            del result, card
+            del result, card, parser
         else:
             await ctx.trigger_typing()
             nl = "\n"
@@ -791,7 +797,7 @@ class moderation(commands.Cog):
             )
             second_embed, _ = await embed.get_embed()
             paginator = ctx.bot.EmbedPaginator(ctx, embeds=[first_embed, second_embed])
-            del first_embed, second_embed, nl
+            del first_embed, second_embed, nl, parser
             return await paginator.execute()
     
     @command(['perms', 'perm', 'permission', 'permfor', 'permsfor', 'perms-for', 'perm-for'])

@@ -146,21 +146,22 @@ class utils(commands.Cog):
     @command(['img2ascii', 'imagetoascii', 'avascii', 'avatarascii', 'avatar2ascii', 'av2ascii', 'asciify'])
     @cooldown(10)
     async def imgascii(self, ctx, *args):
-        input = ctx.bot.Parser.get_input(args)
+        parser = ctx.bot.Parser(args)
+        parser.parse()
         
-        if "--img" in input:
-            args = ctx.bot.Parser.without(args, "--img")
-            url = await ctx.bot.Parser.parse_image(ctx, args)
+        if parser.has("img"):
+            parser.shift("img")
+            url = await ctx.bot.Parser.parse_image(ctx, tuple(parser.other))
             await ctx.trigger_typing()
             res_im = await ctx.bot.canvas.imagetoASCII_picture(url)
             await ctx.send(file=discord.File(res_im, 'imgascii.png'))
-            del res_im, url, args
+            del res_im, url, args, parser
             return
         
         url = await ctx.bot.Parser.parse_image(ctx, args)
         text = await ctx.bot.canvas.imagetoASCII(url)
         await ctx.send(file=discord.File(BytesIO(bytes(text, 'utf-8')), filename='ascii.txt'))
-        del url, text, input
+        del url, text, input, parser
     
     @command()
     @cooldown(15)

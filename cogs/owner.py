@@ -97,19 +97,28 @@ class owner(commands.Cog):
     
     @command(['ex', 'eval'])
     @cooldown(1)
-    async def evaluate(self, ctx, *args):
+    async def evaluate(self, ctx, *args): # this code can be messy because its owner and i dont care
         iwanttostealsometoken = False
-        unprefixed = ' '.join(args).replace('"', "'")
+        parser = ctx.bot.Parser(args)
+        parser.parse()
+        
         if ctx.author.id == ctx.bot.util.owner_id:
+            if parser.has("simple"):
+                parser.shift("simple")
+                value = eval(" ".join(parser.other))
+                return await ctx.send(str(value))
+            
             try:
                 time_then = t.now().timestamp()
-                res = eval(unprefixed)
+                res = eval(" ".join(parser.other))
                 time = (t.now().timestamp() - time_then) * 1000
                 for i in self.protected_files:
                     if i.lower() in str(res).lower(): res = totallyrealtoken
                     elif i.lower() in ' '.join(args).lower():
                         res = totallyrealtoken
-                if "--silent" in args: return
+                if parser.has("silent"):
+                    del parser, time, res
+                    return
                 if isawaitable(res): await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```**Output:**```py\n'+str(await res)[0:1990]+'```\n**Return type:** '+str(type(await res).__name__)+'\n**Execution time: **'+str(time)+' ms.', color=discord.Colour.green()))
                 else: await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```**Output:**```py\n'+str(res)[0:1990]+'```\n**Return type:** '+str(type(res).__name__)+'\n**Execution time: **'+str(time)+' ms.', color=discord.Color.green()))
             except Exception as e:
