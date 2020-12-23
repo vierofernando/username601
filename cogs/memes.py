@@ -4,6 +4,7 @@ from io import BytesIO
 from decorators import *
 from aiohttp import ClientSession
 from json import loads
+from gc import collect
 
 class memes(commands.Cog):
     def __init__(self, client):
@@ -17,6 +18,16 @@ class memes(commands.Cog):
             "f": ((82, 111), (361, 86))
         }
         
+    @command(['disaster-girl'])
+    @cooldown(5)
+    async def disastergirl(self, ctx, *args):
+        await ctx.trigger_typing()
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        buffer = await ctx.bot.Image.disaster_girl(url, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(buffer, "girl.png"))
+        del buffer, url
+        collect()
+    
     @command(['oreomeme', 'oreo-meme'])
     @cooldown(5)
     async def oreo(self, ctx, *args):
@@ -29,6 +40,7 @@ class memes(commands.Cog):
             my_oreo.eat()
         except Exception as e:
             raise ctx.bot.util.BasicCommandException(str(e))
+        collect()
     
     @command()
     @cooldown(3)

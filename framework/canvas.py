@@ -12,6 +12,8 @@ from PIL import *
 import gc
 
 class Functions:
+    DISASTER_GIRL_PATH = "./assets/pics/disaster_girl.png"
+
     @staticmethod
     def wrap_text(text: str, font, max_width: int) -> str:
         """ Wraps a text. """
@@ -43,6 +45,7 @@ class Functions:
         if not session:
             await _session.close()
             del _session
+        gc.collect()
         return image
 
     @staticmethod
@@ -61,9 +64,10 @@ class Functions:
     @staticmethod
     def wand_save(image) -> BytesIO:
         """ Saves a wand image. """
-        blob = image.make_blob(image.format)
+        buffer = BytesIO(image.make_blob(image.format))
         del image
-        return BytesIO(blob)
+        gc.collect()
+        return buffer
 
     @staticmethod
     def save(image) -> BytesIO:
@@ -73,6 +77,7 @@ class Functions:
         image.close()
         del image
         buffer.seek(0)
+        gc.collect()
         return buffer
 
     @staticmethod
@@ -181,6 +186,21 @@ class Functions:
         wand_image = await Functions.wand_from_URL(url, session=session)
         wand_image.wave(amplitude=wand_image.height / (amount * 5), wave_length=wand_image.width / amount)
         return Functions.wand_save(wand_image), wand_image.format
+
+    @staticmethod
+    async def disaster_girl(url: str, session=None) -> BytesIO:
+        """ Generates a disaster girl picture in front of your picture. """
+        image = await Functions.image_from_URL(url, session=session)
+        girl = Image.open(Functions.DISASTER_GIRL_PATH)
+        h = image.height // 2
+        w = h * 3 // 4
+        
+        girl = girl.resize((w, h))
+        image.paste(girl, (image.width - w + 1, image.height - h + 1), girl)
+        girl.close()
+        del girl, w, h
+        gc.collect()
+        return Functions.save(image)
 
 class GDLevel:
     def __init__(
