@@ -6,6 +6,7 @@ import random
 from io import BytesIO
 from aiohttp import ClientSession
 from json import loads
+from gc import collect
 
 class image(commands.Cog):
     def __init__(self):
@@ -214,10 +215,16 @@ class image(commands.Cog):
     @command(['glitchify', 'matrix'])
     @cooldown(5)
     async def glitch(self, ctx, *args):
-        ava = await ctx.bot.Parser.parse_image(ctx, args, size=128)
         await ctx.trigger_typing()
-        return await ctx.bot.util.send_image_attachment(ctx, "https://useless-api.vierofernando.repl.co/glitch/noratelimit?image=" + ava, uselessapi=True)
-    
+        ava = await ctx.bot.Parser.parse_image(ctx, args, size=128)
+        try:
+            buffer = await ctx.bot.Image.glitch(ava, session=ctx.bot.util.default_client)
+        except AssertionError as a:
+            raise ctx.bot.util.BasicCommandException(str(a))
+        await ctx.send(file=discord.File(buffer, "glitch.png"))
+        del buffer, ava
+        collect()
+   
     @command(['ducks', 'quack', 'duk'])
     @cooldown(2)
     async def duck(self, ctx):

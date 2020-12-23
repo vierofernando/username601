@@ -1,10 +1,11 @@
 from twemoji_parser import TwemojiParser, emoji_to_url
 from .colorthief import Smart_ColorThief
 from discord import ActivityType, File
-from .lego import apply_color_overlay
-from aiohttp import ClientSession
 from wand.image import Image as _Image
 from wand.image import Color as _Color
+from .lego import apply_color_overlay
+from aiohttp import ClientSession
+from random import randint
 from json import loads
 from io import BytesIO
 from time import time
@@ -200,6 +201,22 @@ class Functions:
         girl.close()
         del girl, w, h
         gc.collect()
+        return Functions.save(image)
+
+    @staticmethod
+    async def glitch(url: str, session=None):
+        """ Glitches an image. """
+        image = await Functions.image_from_URL(url, session=session)
+        assert image.width in range(50, 1500), "Image width must be around the range of 50 and 1500 pixels"
+        assert image.height in range(50, 1500), "Image height must be around the range of 50 and 1500 pixels"
+        pixel_list = image.load()
+        
+        for h in range(image.height):
+            r = randint(1, 30)
+            for w in range(image.width):
+                a = w + (r - image.width) if (w + r) >= image.width else (w + r)
+                pixel_list[w, h] = pixel_list[a, h]
+        del pixel_list
         return Functions.save(image)
 
 class GDLevel:
