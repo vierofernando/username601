@@ -1,4 +1,4 @@
-from discord import Embed, Color, File, __version__, Forbidden, AllowedMentions
+from discord import Embed, Color, File, __version__, Forbidden, AllowedMentions, gateway
 from platform import python_build, python_compiler, uname
 from aiohttp import ClientSession, ClientTimeout
 from configparser import ConfigParser
@@ -85,6 +85,25 @@ class Util:
         self.status_codes = loads(open(self.json_dir + "/status.json", "r", encoding="utf-8").read())
 
         setattr(client, attribute_name, self)
+
+    def mobile_indicator(self) -> None:
+        """ Turns your bot to a bot with mobile status. Source from this gist: https://gist.github.com/norinorin/0ef021163d042b3be76b892726d76e52 """
+        
+        def source(o):
+            s = __import__("inspect").getsource(o).split('\n')
+            indent = len(s[0]) - len(s[0].lstrip())
+            return '\n'.join(i[indent:] for i in s)
+
+        source_ = source(gateway.DiscordWebSocket.identify)
+        source_ = __import__("re").sub(r'([\'"]\$browser[\'"]:\s?[\'"]).+([\'"])', r'\1Discord Android\2', source_)  # hh this regex
+        m = __import__("ast").parse(source_)
+        
+        loc = {}
+        exec(compile(m, '<string>', 'exec'), gateway.__dict__, loc)
+        
+        gateway.DiscordWebSocket.identify = loc['identify']
+        del m, loc, source, source_
+        __import__("gc").collect()
 
     def toggle_debug_mode(self) -> bool:
         """ Toggles debug mode. Returns a bool whether debug mode is currently ON or not. """

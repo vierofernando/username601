@@ -18,6 +18,8 @@ pre_ready_initiation(client)
 if client.command_prefix != str(client.util.prefix):
     client.command_prefix = str(client.util.prefix)
 
+client.util.mobile_indicator()
+
 @client.event
 async def on_ready():
     await post_ready_initiation(client)
@@ -96,12 +98,16 @@ async def on_member_remove(member):
 
 @client.event
 async def on_guild_channel_create(channel):
-    if (channel.type != discord.ChannelType.text) and (channel.type != discord.ChannelType.voice): return
+    if (channel.type != discord.ChannelType.text) and (channel.type != discord.ChannelType.voice):
+        return
+    
     data = client.db.get("dashboard", {"serverid": channel.guild.id})
-    if (not data) or (not data.get("mute")): return
+    if (not data) or (not data.get("mute")):
+        return
     elif channel.type == discord.ChannelType.text:
         return await channel.set_permissions(channel.guild.get_role(data["mute"]), send_messages=False)
-    await channel.set_permissions(channel.guild.get_role(data["mute"]), connect=False)
+    elif channel.type == discord.ChannelType.voice:
+        return await channel.set_permissions(channel.guild.get_role(data["mute"]), connect=False)
 
 @client.event
 async def on_guild_channel_delete(channel):
@@ -109,8 +115,10 @@ async def on_guild_channel_delete(channel):
     data = client.db.get("dashboard", {"serverid": channel.guild.id})
     if not data:
         return
+    
     if data.get("welcome") and (channel.id == data["welcome"]):
         client.db.modify("dashboard", client.db.types.REMOVE, {"serverid": channel.guild.id}, {"welcome": data["welcome"]})
+    
     if data.get("starboard") and (channel.id == data["starboard"]):
         client.db.modify("dashboard", client.db.types.REMOVE, {"serverid": channel.guild.id}, {"starboard": data["starboard"]})
 
@@ -145,20 +153,21 @@ async def on_guild_remove(guild):
 async def on_command_error(ctx, error):
     await ctx.bot.util.handle_error(ctx, error)
 
-def isdblvote(author):
-    if not author.bot: return False
-    elif author.id==479688142908162059: return False
-    return True
+#def isdblvote(author):
+#    if not author.bot: return False
+#    elif author.id==479688142908162059: return False
+#    return True
 
 @client.event
 async def on_message(message):
-    if isdblvote(message.author) or message.guild is None: return
-    if message.author.bot or (message.reference is not None): return
+    if (not message.guild) or message.author.bot or message.reference: return# or isdblvote(message.author): return
+
     #if message.author.id in client.blacklisted_ids: return
-    if message.content.startswith(f'<@{client.user.id}>') or message.content.startswith(f'<@!{client.user.id}>'): return await message.channel.send(f'Hello, {message.author.name}! My prefix is `1`. use `1help` for help')
+    if message.content.startswith(f'<@{client.user.id}>') or message.content.startswith(f'<@!{client.user.id}>'):
+        return await message.channel.send(f'Hello, {message.author.name}! My prefix is `{client.command_prefix}`. use `{client.command_prefix}help` for help')
     #if message.guild.id==client.util.server_id and message.author.id==479688142908162059:
     #    data = int(str(message.embeds[0].description).split('(id:')[1].split(')')[0])
-    #    if database.Economy.get(data) is None: return
+    #    if not database.Economy.get(data): return
     #    rewards = database.Economy.daily(data)
     #    try: await client.get_user(data).send(f'Thanks for voting! **You received {rewards} bobux!**')
     #    except: return
