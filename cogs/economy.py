@@ -298,7 +298,7 @@ class economy(commands.Cog):
                         assert blacklisted_word not in text, "Please do not include any links or bad words in your bio!"
                     data = self.db.get("economy", {"userid": ctx.author.id})
                     
-                    assert data, f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."
+                    assert bool(data), f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."
                     assert data["bal"] > 500, f"You need at least 500 bobux to change bio ({(500 - data['bal']):,} more bobux required)"
 
                     await ctx.send(embed=discord.Embed(title=f"Successfully changed your bio.", color=discord.Color.green()).set_footer(text="Your bio is too long, so we capped it down to 50 characters." if len(text) > 50 else ""))
@@ -312,7 +312,7 @@ class economy(commands.Cog):
                     parser.shift_multiple("color", "set-color", "col")
                     color = ImageColor.getrgb(' '.join(parser.other))
                     data = self.db.get("economy", {"userid": ctx.author.id})
-                    assert data, f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."
+                    assert bool(data), f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."
                     assert data["bal"] > 1000, f"You need at least 1,000 bobux to change bio ({(1000 - data['bal']):,} more bobux required)"
                 except ValueError:
                     return await ctx.bot.cmds.invalid_args(ctx)
@@ -362,7 +362,7 @@ class economy(commands.Cog):
             del rgb
         
         await embed.send()
-        del embed, data, parser
+        del embed, data
     
     @command(['newprofile'])
     @cooldown(10)

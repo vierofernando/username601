@@ -212,17 +212,15 @@ class apps(commands.Cog):
         parser = ctx.bot.Parser(args)
         parser.parse()
         try:
-            toTrans = ' '.join(parser.other)
-            if (parser["to"] and (len(parser["to"]) > 2)) or (len(parser.other[0]) > 2):
-                _input = parser["to"] if parser["to"] else parser.other[0]
+            destination = parser["to"].lower() if parser["to"] else parser.other[0].lower()
+            if (destination not in LANGUAGES) and (len(destination) != 2):
                 _filter = list(filter(
-                    lambda x: _input in x.lower(), [LANGUAGES[x] for x in list(LANGUAGES)]
+                    lambda x: destination in x.lower(), [LANGUAGES[x] for x in list(LANGUAGES)]
                 ))
                 assert bool(_filter)
-                del _filter, _input
                 destination = _filter[0]
-            else:
-                destination = parser["to"] if parser["to"] else parser.other[0].lower()
+                del _filter
+            toTrans = ' '.join(parser.other) if parser["to"] else ' '.join(parser.other[1:])
             translation = self.translator.translate(toTrans[0:1000], src=parser["from"] if parser["from"] else "auto", dest=destination)
             embed = ctx.bot.Embed(ctx, title=f"{LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}", desc=translation.text[0:1900])
             await embed.send()
