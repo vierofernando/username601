@@ -143,7 +143,7 @@ class games(commands.Cog):
         parser = ctx.bot.Parser(args)
         parser.parse()
         try:
-            text = " ".join(parser.other)
+            text = ctx.bot.util.encode_uri(" ".join(parser.other))
             _from = ctx.bot.util.encode_uri(parser["from"]) if parser["from"] else "knowncreator56"
             likes = int(parser["likes"]) if parser.has("likes") else 601
             if likes not in range(-99999, 100000):
@@ -154,7 +154,7 @@ class games(commands.Cog):
                 percentage = 69
             
             assert bool(text)
-            return await ctx.bot.util.send_image_attachment(ctx, f'https://gdcolon.com/tools/gdcomment/img/{text}?name={_from}&likes={num}&days=1-second{("&mod=mod" if parser.has("mod") else ("&mod=elder" if parser.has("elder-mod") else ""))}{("&uhd" if parser.has("uhd") else "")}{(f"&%={percentage}" if percentage else "")}{("&deletable" if parser.has("delete") else "")}')
+            return await ctx.bot.util.send_image_attachment(ctx, f'https://gdcolon.com/tools/gdcomment/img/{text}?name={_from}&likes={likes}&days=1-second{("&mod=mod" if parser.has("mod") else ("&mod=elder" if parser.has("elder-mod") else ""))}{("&uhd" if parser.has("uhd") else "")}{(f"&%={percentage}" if percentage else "")}{("&deletable" if parser.has("delete") else "")}')
         except:
             return await ctx.bot.cmds.invalid_args(ctx)
     
