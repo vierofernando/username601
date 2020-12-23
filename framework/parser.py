@@ -99,13 +99,11 @@ class Parser:
         if value:
             self.other.extend(value.split(" "))
     
-    def shift_multiple(self, *args, shift_all: bool = True) -> None:
+    def shift_multiple(self, *args) -> None:
         """ Shifts multiple flags. disabling shift_all will quit if at least one flag is shifted. """
         
         for i, arg in enumerate(args):
             self.shift(arg)
-            if i == 0 and (not shift_all):
-                return
     
     @staticmethod
     def has_flag(args: tuple, flag_name: str) -> bool:

@@ -119,21 +119,21 @@ class owner(commands.Cog):
                 if parser.has("silent"):
                     del parser, time, res
                     return
-                if isawaitable(res): await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```**Output:**```py\n'+str(await res)[0:1990]+'```\n**Return type:** '+str(type(await res).__name__)+'\n**Execution time: **'+str(time)+' ms.', color=discord.Colour.green()))
-                else: await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed+'```**Output:**```py\n'+str(res)[0:1990]+'```\n**Return type:** '+str(type(res).__name__)+'\n**Execution time: **'+str(time)+' ms.', color=discord.Color.green()))
+                if isawaitable(res): await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+' '.join(parser.other)+'```**Output:**```py\n'+str(await res)[0:1990]+'```\n**Return type:** '+str(type(await res).__name__)+'\n**Execution time: **'+str(time)+' ms.', color=discord.Colour.green()))
+                else: await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+' '.join(parser.other)+'```**Output:**```py\n'+str(res)[0:1990]+'```\n**Return type:** '+str(type(res).__name__)+'\n**Execution time: **'+str(time)+' ms.', color=discord.Color.green()))
             except Exception as e:
                 if 'cannot reuse already awaited coroutine' in str(e): return
-                await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+unprefixed+'```\nException:```py\n'+str(e)+'```', color=discord.Colour.red()), delete_after=5)
+                await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+' '.join(parser.other)+'```\nException:```py\n'+str(e)+'```', color=discord.Colour.red()), delete_after=5)
         else:
             try:
                 time = random.randint(500, 1000) / 100
-                if 'token' in unprefixed.lower(): iwanttostealsometoken = True
-                elif 'secret' in unprefixed.lower(): iwanttostealsometoken = True
+                if 'token' in ''.join(parser.other).lower(): iwanttostealsometoken = True
+                elif 'secret' in ''.join(parser.other).lower(): iwanttostealsometoken = True
                 if iwanttostealsometoken:
-                    return await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+unprefixed[0:1990]+'```**Output:**```py\n'+totallyrealtoken+'```\n**Return type:** str\n**Execution time:** '+str(time)+' ms.', color=discord.Color.green()))
-                query = unprefixed[0:1990].split('(')[0].split('[')[0].split('.')[0].split(' ')[0].split(';')[0]
+                    return await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+' '.join(parser.other)[0:1990]+'```**Output:**```py\n'+totallyrealtoken+'```\n**Return type:** str\n**Execution time:** '+str(time)+' ms.', color=discord.Color.green()))
+                query = ' '.join(parser.other)[0:1990].split('(')[0].split('[')[0].split('.')[0].split(' ')[0].split(';')[0]
                 fake_err = f"name '{query}' is not defined"
-                return await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+unprefixed+'```\nException:```py\n'+str(fake_err)+'```', color=discord.Colour.red()))
+                return await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+' '.join(parser.other)+'```\nException:```py\n'+str(fake_err)+'```', color=discord.Colour.red()))
             except Exception as e:
                 print(e)
                 return await ctx.send('there was an error on evaluating that. please use \' instead of "')

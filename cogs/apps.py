@@ -209,24 +209,24 @@ class apps(commands.Cog):
     @require_args(2)
     async def translate(self, ctx, *args):
         await ctx.trigger_typing()
+        parser = ctx.bot.Parser(args)
+        parser.parse()
         try:
-            toTrans = ' '.join(args[1:])
-            if len(args[0]) > 2:
-                try:
-                    _filter = list(filter(
-                        lambda x: args[0].lower() in x.lower(), [LANGUAGES[x] for x in list(LANGUAGES)]
-                    ))
-                    assert _filter
-                    del _filter
-                    destination = _filter[0]
-                except:
-                    return await ctx.bot.cmds.invalid_args(ctx)
+            toTrans = ' '.join(parser.other)
+            if (parser["to"] and (len(parser["to"]) > 2)) or (len(parser.other[0]) > 2):
+                _input = parser["to"] if parser["to"] else parser.other[0]
+                _filter = list(filter(
+                    lambda x: _input in x.lower(), [LANGUAGES[x] for x in list(LANGUAGES)]
+                ))
+                assert bool(_filter)
+                del _filter, _input
+                destination = _filter[0]
             else:
-                destination = args[0].lower()
-            translation = self.translator.translate(toTrans[0:1000], dest=destination)
+                destination = parser["to"] if parser["to"] else parser.other[0].lower()
+            translation = self.translator.translate(toTrans[0:1000], src=parser["from"] if parser["from"] else "auto", dest=destination)
             embed = ctx.bot.Embed(ctx, title=f"{LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}", desc=translation.text[0:1900])
             await embed.send()
-            del embed, translation, destination, toTrans
+            del embed, translation, destination, toTrans, parser
         except:
             return await ctx.bot.cmds.invalid_args(ctx)
 
