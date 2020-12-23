@@ -140,12 +140,22 @@ class games(commands.Cog):
             raise ctx.bot.util.BasicCommandException('Error, user not found.')
     
     async def geometry_dash_comment(self, ctx, args):
+        parser = ctx.bot.Parser(args)
+        parser.parse()
         try:
-            _split = ' '.join(args).split(' | ')
-            text, num, user_name = ctx.bot.util.encode_uri(_split[0])[0:100], int(_split[2]), ctx.bot.util.encode_uri(_split[1])[0:32]
-            if num not in range(-99999, 100000): num = 601
-            return await ctx.bot.util.send_image_attachment(ctx, f'https://gdcolon.com/tools/gdcomment/img/{text}?name={user_name}&likes={num}&days=1-second{("&mod=mod" if ctx.author.guild_permissions.manage_guild else "")}')
-        except Exception as e:
+            text = " ".join(parser.other)
+            _from = ctx.bot.util.encode_uri(parser["from"]) if parser["from"] else "knowncreator56"
+            likes = int(parser["likes"]) if parser.has("likes") else 601
+            if likes not in range(-99999, 100000):
+                likes = 601
+            
+            percentage = int(parser['percentage']) if parser.has('percentage') else ""
+            if percentage and (percentage not in range(0, 1000)):
+                percentage = 69
+            
+            assert bool(text)
+            return await ctx.bot.util.send_image_attachment(ctx, f'https://gdcolon.com/tools/gdcomment/img/{text}?name={_from}&likes={num}&days=1-second{("&mod=mod" if parser.has("mod") else ("&mod=elder" if parser.has("elder-mod") else ""))}{("&uhd" if parser.has("uhd") else "")}{(f"&%={percentage}" if percentage else "")}{("&deletable" if parser.has("delete") else "")}')
+        except:
             return await ctx.bot.cmds.invalid_args(ctx)
     
     async def geometry_dash_level(self, ctx, args):
