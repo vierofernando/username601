@@ -373,9 +373,25 @@ class utils(commands.Cog):
     @cooldown(2)
     @require_args()
     async def embed(self, ctx, *args):
-        embed = ctx.bot.Embed(ctx, desc=' '.join(args)[0:1950])
-        await embed.send()
-        del embed
+        try:
+            parser = ctx.bot.Parser(args)
+            parser.parse()
+            
+            color = discord.Color.from_rgb(*ImageColor.getrgb(parser["color"])) if parser["color"] else ctx.me.color
+            
+            assert bool(parser.other)
+            embed = ctx.bot.Embed(
+                ctx,
+                title=parser["title"],
+                desc=' '.join(parser.other)[0:1950],
+                author_name=parser["author"],
+                color=color,
+                footer=parser["footer"]
+            )
+            await embed.send()
+            del embed, parser
+        except:
+            return await ctx.bot.cmds.invalid_args(ctx)
     
     @command(['col'])
     @cooldown(3)
