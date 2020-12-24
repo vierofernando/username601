@@ -219,7 +219,7 @@ class Functions:
     async def noise(url: str, session=None) -> BytesIO:
         """ Adds a noise to the image. """
         wand_image = await Functions.wand_from_URL(url, session=session)
-        wand_image.noise("laplacian", attenuate=3.0)
+        wand_image.noise("laplacian", attenuate=10.0)
         return Functions.wand_save(wand_image), wand_image.format
 
     @staticmethod
