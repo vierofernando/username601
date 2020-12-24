@@ -379,11 +379,11 @@ class utils(commands.Cog):
             
             color = discord.Color.from_rgb(*ImageColor.getrgb(parser["color"])) if parser["color"] else ctx.me.color
             
-            assert bool(parser.other)
+            assert (bool(parser["description"]) or bool(parser.other))
             embed = ctx.bot.Embed(
                 ctx,
                 title=parser["title"],
-                desc=' '.join(parser.other)[0:1950],
+                desc=parser["description"] if parser.has("description") else ' '.join(parser.other)[0:1950],
                 author_name=parser["author"],
                 color=color,
                 footer=parser["footer"]
