@@ -52,6 +52,7 @@ class Painter:
         for image in listdir(assetpath):
             if image.endswith(".gif"): continue
             elif image.startswith("oreo-"): continue
+            elif image.startswith("among_us"): continue
             self.templates[image] = Image.open(f"{assetpath}/{image}")
 
     def mask_circle(self, im):
@@ -214,21 +215,6 @@ class Painter:
         draw.text((10, 75), color_name, fill=self.invert(rgb), font=medium_font)
         draw.text((10, 115), f'RGB: {rgb[0]}, {rgb[1]}, {rgb[2]}\nInteger: {rgb[0]*rgb[1]*rgb[2]}\nBrightness: {brightness}', fill=self.invert(rgb), font=small_font)
         return self.buffer(main)
-
-    async def among_us(self, ctx, url):
-        bg = self.templates['among_us.png'].copy()
-        ava = self.buffer_from_url(url).resize((240, 228))
-        col = await self.get_color_accent(ctx, url)
-        cnv = Image.new(mode='RGBA', size=(512, 512), color=(0,0,0,0))
-        draw = ImageDraw.Draw(cnv)
-        draw.rectangle([(0, 0), (512, 512)], fill=col)
-        cnv.paste(bg, (0,0), bg)
-        anothercnv = Image.new(mode='RGB', size=(512, 512), color=(0,0,0))
-        anothercnv.paste(ava, (47, 129))
-        anothercnv.paste(cnv, (0, 0), cnv)
-        bg.close()
-        cnv.close()
-        return self.buffer(anothercnv)
 
     async def password(self, bad_pass, good_pass):
         im = self.templates['pass.png'].copy()

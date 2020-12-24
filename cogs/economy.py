@@ -349,7 +349,7 @@ class economy(commands.Cog):
             thumbnail=member.avatar_url,
             fields={
                 "Balance": f"{data['bal']:,} bobux" + "\n" f"{data['bankbal']:,} bobux (bank)",
-                "Description": data["desc"],
+                "Description": data["desc"] if data.get("desc") else "**<this profile is without description>**",
                 "Daily": (f"**[:white_check_mark: can be claimed using `{ctx.bot.command_prefix}daily`]**" if ((not data["lastDaily"]) or ((time() - data["lastDaily"]) > 43200)) else f"Can be claimed in {ctx.bot.util.strfsecond((data['lastDaily'] + 43200) - time())}") + "\n" + f"Streak: {streak} (Next daily reward: {(250 * (streak + 1)):,} bobux)"
             },
             footer="Daily streaks will be reset back to 1 if daily is not claimed after 24 hours.",

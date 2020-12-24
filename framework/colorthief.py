@@ -17,31 +17,39 @@ class Smart_ColorThief:
         Initiation.
         The higher the quality, the more accurate, but the longer the time to process.
         """
-        self.ctx = ctx
-        self.url = url
-        self.quality = quality
+        if isinstance(url, Image.Image):
+            self.image = url
+        elif isinstance(url, BytesIO):
+            self.image = Image.open(BytesIO)
+        else:
+            self.ctx = ctx
+            self.url = url
+            self.quality = quality
     
     async def get_color(self, right=False) -> tuple:
         """Gets the color accent."""
-        await self.__get_image()
+        
+        if not hasattr(self, "image"):
+            await self.__get_image()
 
+        load = self.image.load()
         if right:
             res = []
             for i in range(self.image.height):
                 for j in range(self.image.width):
-                    res.append(self.image.getpixel((self.image.width-1, i)))
+                    res.append(load[self.image.width-1, i])
         else:
             arr_L, arr_R, arr_T, arr_B = [], [], [], []
             for i in range(self.image.height):
                 for j in range(self.image.width):
-                    arr_L.append(self.image.getpixel((0, i)))
-                    arr_R.append(self.image.getpixel((self.image.width-1, i)))
-                    arr_T.append(self.image.getpixel((j, 0)))
-                    arr_B.append(self.image.getpixel((j, self.image.height-1)))
+                    arr_L.append(load[0, i])
+                    arr_R.append(load[self.image.width-1, i])
+                    arr_T.append(load[j, 0])
+                    arr_B.append(load[j, self.image.height-1])
             res = arr_L + arr_R + arr_T + arr_B
             del arr_L, arr_R, arr_T, arr_B
         total = max(set(res), key=res.count)
-        del res
+        del res, load
         if not total:
             return (0, 0, 0)
         

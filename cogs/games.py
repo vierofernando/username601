@@ -83,19 +83,18 @@ class games(commands.Cog):
     async def minecraft(self, ctx, *args):
         await ctx.trigger_typing()
         name = ctx.bot.util.encode_uri(ctx.author.display_name if len(args)==0 else ' '.join(args))
-        data = await ctx.bot.util.default_ctx.bot.get(f"https://mc-heads.net/minecraft/profile/{name}")
+        data = await ctx.bot.util.default_client.get(f"https://mc-heads.net/minecraft/profile/{name}")
         if data.status != 200:
             raise ctx.bot.util.BasicCommandException(f"Minecraft for profile: `{name}` not found.")
         data = await data.json()
         
         _buffer = await ctx.bot.canvas.minecraft_body(f"https://mc-heads.net/body/{name}/600", data['id'])
-        body = discord.File(_buffer, "body.png")
         names = await self.get_name_history(data['id'], ctx)
         embed = ctx.bot.Embed(
             ctx,
             title=name,
             url='https://namemc.com/profile/'+data['id'],
-            attachment=body,
+            attachment=_buffer,
             thumbnail=f"https://mc-heads.net/head/{name}/600",
             fields={
                 'UUID': data['id'],
@@ -103,14 +102,14 @@ class games(commands.Cog):
             }
         )
         await embed.send()
-        del embed, body, names, _buffer, data
+        del embed, names, _buffer, data
     
     @command(['imposter', 'among-us', 'among_us', 'impostor', 'crew', 'crewmate', 'crew-mate'])
     @cooldown(3)
     async def amongus(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args)
-        im = await ctx.bot.canvas.among_us(ctx, url)
+        im = await ctx.bot.Image.among_us(url, session=ctx.bot.util.default_client)
         await ctx.send(file=discord.File(im, 'the_impostor.png'))
         del im, url
 

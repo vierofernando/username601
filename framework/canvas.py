@@ -14,6 +14,9 @@ import gc
 
 class Functions:
     DISASTER_GIRL_PATH = "./assets/pics/disaster_girl.png"
+    AMONG_US_PATH = "./assets/pics/among_us.png"
+    AMONG_US_MASK_FR = Image.open(AMONG_US_PATH.replace("among_us.png", "among_us_mask.png")).convert("L")
+    AMONG_US_MASK_BG = Image.open(AMONG_US_PATH.replace("among_us.png", "among_us_overlay.png")).convert("L")
 
     @staticmethod
     def wrap_text(text: str, font, max_width: int) -> str:
@@ -46,6 +49,8 @@ class Functions:
         if not session:
             await _session.close()
             del _session
+        if url.startswith("https://twemoji.maxcdn.com/v/latest/72x72/"):
+            image = image.convert("RGBA")
         gc.collect()
         return image
 
@@ -219,6 +224,34 @@ class Functions:
         del pixel_list
         return Functions.save(image)
 
+    @staticmethod
+    async def among_us(url: str, session=None) -> BytesIO:
+        """ Creates an among us image from an avatar. """
+        crewmate = Image.open(Functions.AMONG_US_PATH)
+        image = await Functions.image_from_URL(url, session=session)
+        image = image.resize((240, 228))
+        colorthief = Smart_ColorThief(None, image)
+        color = await colorthief.get_color(right=True)
+        if (sum(color) < 50):
+            color = (50, 50, 50)
+        
+        background = Image.new("RGB", (512, 512), color)
+        foreground = background.copy()
+        background.paste(crewmate, (0, 0), crewmate)
+        
+        background.putalpha(Functions.AMONG_US_MASK_FR)
+        foreground.paste(image, (47, 129))
+        foreground.paste(background, (0, 0), background)
+        
+        foreground.putalpha(Functions.AMONG_US_MASK_BG)
+        
+        image.close()
+        crewmate.close()
+        background.close()
+        del image, crewmate, color, colorthief, background
+        gc.collect()
+        return Functions.save(foreground)
+        
 class GDLevel:
     def __init__(
         self,
