@@ -212,14 +212,14 @@ class Functions:
     async def oil(url: str, session=None) -> BytesIO:
         """ Adds a oil effect to the image. """
         wand_image = await Functions.wand_from_URL(url, session=session)
-        wand_image.oil_paint(6, 4)
+        wand_image.oil_paint(10, 8)
         return Functions.wand_save(wand_image), wand_image.format
 
     @staticmethod
     async def noise(url: str, session=None) -> BytesIO:
         """ Adds a noise to the image. """
         wand_image = await Functions.wand_from_URL(url, session=session)
-        wand_image.noise("laplacian", attenuate=1.0)
+        wand_image.noise("laplacian", attenuate=3.0)
         return Functions.wand_save(wand_image), wand_image.format
 
     @staticmethod

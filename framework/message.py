@@ -97,7 +97,22 @@ class embed:
     def _convert_hex_to_rgb(self) -> None:
         self.color = Color(*tuple(int(self.color[i:i+2], 16) for i in (0, 2, 4)))
 
-    def __init__(self, ctx, author_name=None, attachment=None, author_url=None, url=None, desc=None, footer_icon=None, thumbnail=None, image=None, title=None, color=None, fields={}, footer=None) -> None:
+    def __init__(
+        self,
+        ctx,
+        author_name: str = None,
+        attachment: str = None,
+        author_url: str = None,
+        url: str = None,
+        desc: str = None,
+        footer_icon: str = None,
+        thumbnail: str = None,
+        image: str = None,
+        title: str = None,
+        color: str = None,
+        fields: dict = {},
+        footer: str = None
+    ) -> None:
         self.ctx = ctx
         self.color = color if color else self.ctx.me.color
         self.title = str(title) if title else ""
@@ -110,6 +125,7 @@ class embed:
         self.thumbnail_url = thumbnail
         self.footer_icon = str(footer_icon) if footer_icon else str(self.ctx.author.avatar_url)
         self.attachment_url = attachment
+        self.author_name = author_name
 
         if isinstance(self.color, tuple):
             self.color = Color.from_rgb(*self.color)
@@ -128,6 +144,8 @@ class embed:
             _embed.set_image(url=str(self.image_url))
         if self.thumbnail_url:
             _embed.set_thumbnail(url=str(self.thumbnail_url))
+        if self.author_name:
+            _embed.set_author(name=self.author_name)
         _file = None
 
         if self.attachment_url:
