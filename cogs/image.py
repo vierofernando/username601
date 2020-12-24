@@ -117,6 +117,24 @@ class image(commands.Cog):
         await ctx.send(file=discord.File(buffer, f"file.{format}"))
         del buffer, format, url
     
+    @command(["oil-image", "oilify"])
+    @cooldown(8)
+    async def oil(self, ctx, *args):
+        await ctx.trigger_typing()
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        buffer, format = await ctx.bot.Image.oil(url, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        del buffer, format, url
+    
+    @command(["noice"])
+    @cooldown(8)
+    async def noise(self, ctx, *args):
+        await ctx.trigger_typing()
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        buffer, format = await ctx.bot.Image.noise(url, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        del buffer, format, url
+    
     @command()
     @cooldown(8)
     async def spread(self, ctx, *args):
