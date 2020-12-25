@@ -58,7 +58,7 @@ class image(commands.Cog):
         
         image, format = await ctx.bot.Image.colorify(image, color, session=ctx.bot.util.default_client)
         await ctx.send(file=discord.File(image, f"file.{format.lower()}"))
-        del resp, byte, image, color, format
+        del image, color, format
         collect()
 
     @command(['legofy'])
