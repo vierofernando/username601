@@ -284,7 +284,7 @@ class Blur:
             wand_image.gaussian_blur(sigma=3)
         elif type == 2:
             wand_image.motion_blur(radius=16, sigma=8, angle=-45)
-        else type == 3:
+        else:
             wand_image.rotational_blur(angle=5)
         
         return Functions.wand_save(wand_image), wand_image.format
