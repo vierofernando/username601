@@ -2,7 +2,6 @@ import discord
 import random
 from discord.ext import commands
 from decorators import *
-from PIL import ImageColor
 from json import loads
 from time import time
 from asyncio import sleep
@@ -310,7 +309,8 @@ class economy(commands.Cog):
             elif parser.has_multiple("color", "set-color", "col"):
                 try:
                     parser.shift_multiple("color", "set-color", "col")
-                    color = ImageColor.getrgb(' '.join(parser.other))
+                    color = ctx.bot.Parser.parse_color(' '.join(parser.other))
+                    assert bool(color)
                     data = self.db.get("economy", {"userid": ctx.author.id})
                     assert bool(data), f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."
                     assert data["bal"] > 1000, f"You need at least 1,000 bobux to change bio ({(1000 - data['bal']):,} more bobux required)"

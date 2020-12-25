@@ -1,5 +1,6 @@
 from twemoji_parser import emoji_to_url
 from .util import BasicCommandException
+from PIL import ImageColor
 import re
 
 class Parser:
@@ -111,6 +112,28 @@ class Parser:
         
         lowered_text = [i.lower() for i in args]
         return ((lowered_text.count("--" + flag_name.lower()) > 0) or (lowered_text.count("—" + flag_name.lower()) > 0))
+
+    @staticmethod
+    def parse_color(args) -> tuple:
+        """ Gets RGB color from a string. """
+    
+        if isinstance(args, str):
+            args = tuple(args.split())
+    
+        string = "".join(args).lower()
+        
+        if string.startswith("rgb(") and string.endswith(")"):
+            string = string[4:-1]
+        if string.count(",") >= 2:
+            try:
+                return tuple([int(i) for i in string.split(",")])[:3]
+            except:
+                return
+        
+        try:
+            return ImageColor.getrgb(" ".join(args))
+        except:
+            return
     
     @staticmethod
     def parse_role(ctx, text: str, return_array: bool = False):

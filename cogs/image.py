@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from PIL import ImageColor
 from decorators import *
 import random
 from io import BytesIO
@@ -47,11 +46,11 @@ class image(commands.Cog):
         await ctx.trigger_typing()
         try:
             if len(args) == 1:
-                color = ImageColor.getrgb(args[0])
+                color = ctx.bot.Parser.parse_color(args[0])
                 image = str(ctx.author.avatar_url_as(format="png", size=1024))
             else:
                 parsed_args = ctx.bot.Parser.split_args(args)
-                color = ImageColor.getrgb(parsed_args[0])
+                color = ctx.bot.Parser.parse_color(parsed_args[0])
                 image = await ctx.bot.Parser.parse_image(ctx, (parsed_args[1],))
         except:
             return await ctx.bot.cmds.invalid_args(ctx)
@@ -132,6 +131,15 @@ class image(commands.Cog):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args)
         buffer, format = await ctx.bot.Image.noise(url, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        del buffer, format, url
+    
+    @command(["solarise"])
+    @cooldown(8)
+    async def solarize(self, ctx, *args):
+        await ctx.trigger_typing()
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        buffer, format = await ctx.bot.Image.solarize(url, session=ctx.bot.util.default_client)
         await ctx.send(file=discord.File(buffer, f"file.{format}"))
         del buffer, format, url
     

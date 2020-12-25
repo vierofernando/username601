@@ -7,7 +7,6 @@ from json import loads
 from time import time
 from datetime import datetime as t
 from re import search
-from PIL import ImageColor
 
 class utils(commands.Cog):
     def __init__(self):
@@ -52,19 +51,19 @@ class utils(commands.Cog):
     
     @command()
     @cooldown(3)
-    @require_args()
+    @require_args(2)
     async def gradient(self, ctx, *args):
-        await ctx.trigger_typing()
-        if len(args) == 1:
-            color_left, color_right = ImageColor.getrgb(args[0]), None
-        else:
+        try:
+            await ctx.trigger_typing()
             left, right = ctx.bot.Parser.split_args(args)
-            color_left, color_right = ImageColor.getrgb(left), ImageColor.getrgb(right)
-        if color_left == color_right:
-            raise ctx.bot.util.BasicCommandException("Those two colors are the same :/")
-        res = await ctx.bot.canvas.gradient(color_left, color_right)
-        await ctx.send(file=discord.File(res, "gradient.png"))
-        del res, color_left, color_right
+            color_left, color_right = ctx.bot.Parser.parse_color(left), ctx.bot.Parser.parse_color(right)
+            assert color_left != color_right
+            assert bool(color_left) and bool(color_right)
+            res = await ctx.bot.Image.gradient(color_left, color_right)
+            await ctx.send(file=discord.File(res, "gradient.png"))
+            del res, color_left, color_right, left, right
+        except:
+            return await ctx.bot.cmds.invalid_args(ctx)
     
     @command(['trending', 'news'])
     @cooldown(5)
@@ -377,7 +376,7 @@ class utils(commands.Cog):
             parser = ctx.bot.Parser(args)
             parser.parse()
             
-            color = discord.Color.from_rgb(*ImageColor.getrgb(parser["color"])) if parser["color"] else ctx.me.color
+            color = discord.Color.from_rgb(*ctx.bot.Parser.parse_color(parser["color"])) if parser["color"] else ctx.me.color
             
             assert (bool(parser["description"]) or bool(parser.other))
             embed = ctx.bot.Embed(

@@ -17,6 +17,7 @@ class Functions:
     AMONG_US_PATH = "./assets/pics/among_us.png"
     AMONG_US_MASK_FR = Image.open(AMONG_US_PATH.replace("among_us.png", "among_us_mask.png")).convert("L")
     AMONG_US_MASK_BG = Image.open(AMONG_US_PATH.replace("among_us.png", "among_us_overlay.png")).convert("L")
+    GRADIENT_MASK = Image.open("./assets/pics/gradient_mask.png").convert("L")
 
     @staticmethod
     def wrap_text(text: str, font, max_width: int) -> str:
@@ -217,6 +218,13 @@ class Functions:
         return Functions.wand_save(wand_image), wand_image.format
 
     @staticmethod
+    async def solarize(url: str, session=None) -> BytesIO:
+        """ Adds a solarize filter to the image. """
+        wand_image = await Functions.wand_from_URL(url, session=session)
+        wand_image.solarize(threshold=0.5 * wand_image.quantum_range)
+        return Functions.wand_save(wand_image), wand_image.format
+
+    @staticmethod
     async def glitch(url: str, session=None):
         """ Glitches an image. """
         image = await Functions.image_from_URL(url, session=session)
@@ -259,6 +267,19 @@ class Functions:
         del image, crewmate, color, colorthief, background
         gc.collect()
         return Functions.save(foreground)
+
+    @staticmethod
+    async def gradient(rgb_1, rgb_2) -> BytesIO:
+        """ Creates a gradient from two RGBs. """
+        background_right = Image.new("RGB", (400, 200), rgb_2)
+        background_right.putalpha(Functions.GRADIENT_MASK)
+        background_left = Image.new("RGB", (400, 200), rgb_1)
+        background_left.paste(background_right, (0, 0), background_right)
+        background_right.close()
+        del background_right
+        gc.collect()
+        
+        return Functions.save(background_left)
 
 class Blur:
     BASIC_BLUR = 0
