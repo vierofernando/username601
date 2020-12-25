@@ -39,7 +39,7 @@ class image(commands.Cog):
         data = await ctx.bot.util.get_request("https://randomfox.ca/floof", json=True, raise_errors=True)
         return await ctx.bot.util.send_image_attachment(ctx, data["image"])
 
-    @command(['colourify'])
+    @command(['colourify', 'colorize', 'colourize'])
     @cooldown(5)
     @require_args()
     async def colorify(self, ctx, *args):
@@ -47,17 +47,19 @@ class image(commands.Cog):
         try:
             if len(args) == 1:
                 color = ctx.bot.Parser.parse_color(args[0])
-                image = str(ctx.author.avatar_url_as(format="png", size=1024))
+                image = str(ctx.author.avatar_url_as(size=512))
             else:
                 parsed_args = ctx.bot.Parser.split_args(args)
                 color = ctx.bot.Parser.parse_color(parsed_args[0])
-                image = await ctx.bot.Parser.parse_image(ctx, (parsed_args[1],))
+                image = await ctx.bot.Parser.parse_image(ctx, (parsed_args[1],), default_to_png=False)
+            assert bool(color)
         except:
             return await ctx.bot.cmds.invalid_args(ctx)
         
-        image = await ctx.bot.Image.colorify(image, color, session=ctx.bot.util.default_client)
-        await ctx.send(file=discord.File(image, "%02x%02x%02x.png" % color))
-        del resp, byte, image, color
+        image, format = await ctx.bot.Image.colorify(image, color, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(image, f"file.{format.lower()}"))
+        del resp, byte, image, color, format
+        collect()
 
     @command(['legofy'])
     @cooldown(10)
@@ -85,7 +87,7 @@ class image(commands.Cog):
             del parser, animated
             return await ctx.bot.util.send_image_attachment(ctx, f"https://useless-api.vierofernando.repl.co/implode/animated?image={url}", uselessapi=True)
         result, format = await ctx.bot.Image.implode(url, amount=1, session=ctx.bot.util.default_client)
-        await ctx.send(file=discord.File(result, f"file.{format}"))
+        await ctx.send(file=discord.File(result, f"file.{format.lower()}"))
         del result, format, url, parser, animated
         
     @command()
@@ -104,7 +106,7 @@ class image(commands.Cog):
             del parser, animated
             return await ctx.bot.util.send_image_attachment(ctx, f"https://useless-api.vierofernando.repl.co/explode/animated?image={url}", uselessapi=True)
         result, format = await ctx.bot.Image.implode(url, amount=-3.5, session=ctx.bot.util.default_client)
-        await ctx.send(file=discord.File(result, f"file.{format}"))
+        await ctx.send(file=discord.File(result, f"file.{format.lower()}"))
         del result, format, url, parser, animated
         
     @command()
@@ -113,7 +115,7 @@ class image(commands.Cog):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args)
         buffer, format = await ctx.bot.Image.charcoal(url, session=ctx.bot.util.default_client)
-        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        await ctx.send(file=discord.File(buffer, f"file.{format.lower()}"))
         del buffer, format, url
     
     @command(["oil-image", "oilify"])
@@ -122,35 +124,39 @@ class image(commands.Cog):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args)
         buffer, format = await ctx.bot.Image.oil(url, session=ctx.bot.util.default_client)
-        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        await ctx.send(file=discord.File(buffer, f"file.{format.lower()}"))
         del buffer, format, url
+        collect()
     
     @command(["noice"])
     @cooldown(8)
     async def noise(self, ctx, *args):
         await ctx.trigger_typing()
-        url = await ctx.bot.Parser.parse_image(ctx, args)
+        url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False)
         buffer, format = await ctx.bot.Image.noise(url, session=ctx.bot.util.default_client)
-        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        await ctx.send(file=discord.File(buffer, f"file.{format.lower()}"))
         del buffer, format, url
+        collect()
     
     @command(["solarise"])
     @cooldown(8)
     async def solarize(self, ctx, *args):
         await ctx.trigger_typing()
-        url = await ctx.bot.Parser.parse_image(ctx, args)
+        url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False)
         buffer, format = await ctx.bot.Image.solarize(url, session=ctx.bot.util.default_client)
-        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        await ctx.send(file=discord.File(buffer, f"file.{format.lower()}"))
         del buffer, format, url
+        collect()
     
     @command()
     @cooldown(8)
     async def spread(self, ctx, *args):
         await ctx.trigger_typing()
-        url = await ctx.bot.Parser.parse_image(ctx, args)
+        url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False)
         buffer, format = await ctx.bot.Image.spread(url, session=ctx.bot.util.default_client)
-        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        await ctx.send(file=discord.File(buffer, f"file.{format.lower()}"))
         del buffer, format, url
+        collect()
     
     @command()
     @cooldown(8)
@@ -158,17 +164,18 @@ class image(commands.Cog):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args)
         buffer, format = await ctx.bot.Image.emboss(url, session=ctx.bot.util.default_client)
-        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        await ctx.send(file=discord.File(buffer, f"file.{format.lower()}"))
         del buffer, format, url
     
     @command()
     @cooldown(8)
     async def edge(self, ctx, *args):
         await ctx.trigger_typing()
-        url = await ctx.bot.Parser.parse_image(ctx, args)
+        url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False)
         buffer, format = await ctx.bot.Image.edge(url, session=ctx.bot.util.default_client)
-        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        await ctx.send(file=discord.File(buffer, f"file.{format.lower()}"))
         del buffer, format, url
+        collect()
     
     @command()
     @cooldown(8)
@@ -176,7 +183,7 @@ class image(commands.Cog):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args)
         buffer, format = await ctx.bot.Image.sketch(url, session=ctx.bot.util.default_client)
-        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        await ctx.send(file=discord.File(buffer, f"file.{format.lower()}"))
         del buffer, format, url
     
     @command()
@@ -193,7 +200,7 @@ class image(commands.Cog):
             number = [10]
         url = await ctx.bot.Parser.parse_image(ctx, args)
         buffer, format = await ctx.bot.Image.wave(url, amount=number[0], session=ctx.bot.util.default_client)
-        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        await ctx.send(file=discord.File(buffer, f"file.{format.lower()}"))
         del number, buffer, format, url
     
     @command()
@@ -208,10 +215,11 @@ class image(commands.Cog):
             del l
         else:
             number = [360]
-        url = await ctx.bot.Parser.parse_image(ctx, args)
+        url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False)
         buffer, format = await ctx.bot.Image.swirl(url, degree=number[0], session=ctx.bot.util.default_client)
-        await ctx.send(file=discord.File(buffer, f"file.{format}"))
+        await ctx.send(file=discord.File(buffer, f"file.{format.lower()}"))
         del number, buffer, format, url
+        collect()
     
     @command(['combine'])
     @cooldown(2)
@@ -238,7 +246,7 @@ class image(commands.Cog):
             parser = ctx.bot.Parser(args)
             parser.parse()
             
-            image = await ctx.bot.Parser.parse_image(ctx, tuple(parser.other))
+            image = await ctx.bot.Parser.parse_image(ctx, tuple(parser.other), default_to_png=False)
             blur_class = ctx.bot.Blur(image, session=ctx.bot.util.default_client)
             
             if parser.has_multiple("gaussian", "gaussian-blur"):
@@ -250,11 +258,12 @@ class image(commands.Cog):
             else:
                 image, format = await blur_class.blur(0)
             
-            await ctx.send(file=discord.File(image, f"file.{format}"))
+            await ctx.send(file=discord.File(image, f"file.{format.lower()}"))
             del image, format, blur_class, parser
             
         except:
             return await ctx.bot.cmds.invalid_args(ctx)
+        collect()
 
     @command(['glitchify', 'matrix'])
     @cooldown(5)

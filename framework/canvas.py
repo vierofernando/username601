@@ -90,15 +90,9 @@ class Functions:
     @staticmethod
     async def colorify(url: str, color: tuple, session=None) -> BytesIO:
         """ Colourifies an image. """
-        image = await Functions.image_from_URL(url, session=session)
-        parameter = Image.open(image)
-        if parameter.mode != "RGB":
-            parameter = parameter.convert("RGB")
-        res = apply_color_overlay(parameter, color)
-        buffer = Functions.save(res)
-        del res, parameter, image
-        gc.collect()
-        return buffer
+        wand_image = await Functions.wand_from_URL(url, session=session)
+        wand_image.colorize(color=f"rgb{color}", alpha="rgb(50%, 50%, 50%)")
+        return Functions.wand_save(wand_Image), wand_image.format
     
     @staticmethod
     async def blend(url1: str, url2: str, session=None) -> BytesIO:
