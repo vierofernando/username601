@@ -225,10 +225,28 @@ class image(commands.Cog):
     @cooldown(2)
     async def blur(self, ctx, *args):
         await ctx.trigger_typing()
-        url = await ctx.bot.Parser.parse_image(ctx, args, size=512)
-        im = await ctx.bot.Image.blur(url, session=ctx.bot.util.default_client)
-        await ctx.send(file=discord.File(im, 'blur.png'))
-        del im, url
+        
+        try:
+            parser = ctx.bot.Parser(args)
+            parser.parse()
+            
+            image = await ctx.bot.Parser.parse_image(ctx, tuple(parser.other))
+            blur_class = ctx.bot.Blur(image, session=ctx.bot.util.default_client)
+            
+            if parser.has_multiple("gaussian", "gaussian-blur"):
+                image, format = await blur_class.blur(ctx.bot.Blur.GAUSSIAN_BLUR)
+            elif parser.has_multiple("motion", "motion-blur"):
+                image, format = await blur_class.blur(ctx.bot.Blur.MOTION_BLUR)
+            elif parser.has_multiple("rotate", "rotational", "rotational-blur"):
+                image, format = await blur_class.blur(ctx.bot.Blur.ROTATIONAL_BLUR)
+            else:
+                image, format = await blur_class.blur(0)
+            
+            await ctx.send(file=discord.File(image, f"file.{format}"))
+            del image, format, blur_class, image
+            
+        except:
+            return await ctx.bot.cmds.invalid_args(ctx)
 
     @command(['glitchify', 'matrix'])
     @cooldown(5)

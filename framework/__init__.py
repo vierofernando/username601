@@ -10,7 +10,7 @@ from .colorthief import Smart_ColorThief
 from .message import embed, Paginator, ChooseEmbed,  WaitForMessage
 from .util import Util, GetRequestFailedException, BasicCommandException
 from .games import Slot, TicTacToe, RockPaperScissors, GeographyQuiz, MathQuiz, GuessAvatar, Trivia, GuessMyNumber, Hangman
-from .canvas import ServerCard, UserCard, ProfileCard, GDLevel
+from .canvas import ServerCard, UserCard, ProfileCard, GDLevel, Blur
 from .canvas import Functions as canvas_functions
 from .database import Database
 from .lego import legofy
@@ -19,6 +19,7 @@ def initiate(client, db_name: str = "username601"): # prints because why not ?
     print("[ FRAMEWORK ] Initiating framework classes... (1/3)")
     setattr(client, "slot", Slot)
     setattr(client, "oreo", Oreo)
+    setattr(client, "Blur", Blur)
     setattr(client, "lego", legofy)
     setattr(client, "Embed", embed)
     setattr(client, "Parser", Parser)

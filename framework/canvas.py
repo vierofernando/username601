@@ -113,12 +113,6 @@ class Functions:
         return Functions.save(Image.blend(image1, image2, alpha=0.5))
 
     @staticmethod
-    async def blur(url: str, session=None) -> BytesIO:
-        """ Blurs an image. """
-        image = await Functions.image_from_URL(url, session=session)
-        return Functions.save(image.filter(ImageFilter.BLUR))
-
-    @staticmethod
     async def resize(url: str, width: int, height: int, session=None) -> BytesIO:
         """ Resizes an image. """
         image = await Functions.image_from_URL(url, session=session)
@@ -265,7 +259,36 @@ class Functions:
         del image, crewmate, color, colorthief, background
         gc.collect()
         return Functions.save(foreground)
+
+class Blur:
+    BASIC_BLUR = 0
+    GAUSSIAN_BLUR = 1
+    MOTION_BLUR = 2
+    ROTATIONAL_BLUR = 3
+
+    def __init__(
+        self,
+        image_url: str,
+        session = None
+    ):
+        """ Blurs an image. """
+        self.image_url = image_url
+        self.session = session
         
+    async def blur(self, type):
+        wand_image = await Functions.wand_from_URL(self.image_url, session=self.session)
+        
+        if type == 0:
+            wand_image.blur(radius=0, sigma=3)
+        elif type == 1:
+            wand_image.gaussian_blur(sigma=3)
+        elif type == 2:
+            wand_image.motion_blur(radius=16, sigma=8, angle=-45)
+        else type == 3:
+            wand_image.rotational_blur(angle=5)
+        
+        return Functions.wand_save(wand_image), wand_image.format
+
 class GDLevel:
     def __init__(
         self,
