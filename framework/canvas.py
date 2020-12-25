@@ -92,7 +92,7 @@ class Functions:
         """ Colourifies an image. """
         wand_image = await Functions.wand_from_URL(url, session=session)
         wand_image.colorize(color=f"rgb{color}", alpha="rgb(50%, 50%, 50%)")
-        return Functions.wand_save(wand_image), wand_image.format
+        return Functions.wand_save(wand_Image), wand_image.format
     
     @staticmethod
     async def blend(url1: str, url2: str, session=None) -> BytesIO:
@@ -263,7 +263,7 @@ class Functions:
         return Functions.save(foreground)
 
     @staticmethod
-    async def gradient(rgb_1, rgb_2) -> BytesIO:
+    async def gradient(rgb_1: tuple, rgb_2: tuple) -> BytesIO:
         """ Creates a gradient from two RGBs. """
         background_right = Image.new("RGB", (400, 200), rgb_2)
         background_right.putalpha(Functions.GRADIENT_MASK)
@@ -274,6 +274,24 @@ class Functions:
         gc.collect()
         
         return Functions.save(background_left)
+
+    @staticmethod
+    async def dissolve(url: str, session=None) -> BytesIO:
+        """ Dissolves an image. """
+        chance = (lambda: (0 if randint(0, 2) == 2 else 255))
+        mask_arr = []
+        image = await Functions.image_from_URL(url, session=session)
+        mask = Image.new("L", image.size)
+        
+        for _ in range(image.width * image.height):
+            mask_arr.append(chance(2))
+        
+        mask.putdata(mask_arr)
+        image.putalpha(mask)
+        del mask_arr, mask, chance
+        
+        gc.collect()
+        return Functions.save(image)
 
 class Blur:
     BASIC_BLUR = 0
@@ -521,7 +539,7 @@ class UserCard:
     def __init__(self, ctx, member, font_path: str, session = None):
         self.ctx = ctx
         self.user = member
-        self.new_session = (not bool(session))
+        self.new_session = bool(session)
         self.font_path = font_path
         self.session = session if session else ClientSession()
         self.flags = {
@@ -587,9 +605,9 @@ class UserCard:
         background_color = await _thief.get_color(right=True)
         foreground_color = (0, 0, 0) if (sum(background_color) // 3) > 128 else (255, 255, 255)
         lower_brightness = (lambda x: tuple(map(lambda y: y - x, background_color)))
-        big_font = self.get_font(40)
-        smol_font = self.get_font(25)
-        tiny_font = self.get_font(20)
+        big_font = ImageFont.truetype(40)
+        smol_font = ImageFont.truetype(25)
+        tiny_font = ImageFont.truetype(20)
         title_size = big_font.getsize(self.user.display_name)[0]
         description = f"Created at {str(self.user.created_at)[:-7]} ({self.ctx.bot.util.strfsecond(time() - self.user.created_at.timestamp())} ago)" + "\n" + f"Joined at {str(self.user.joined_at)[:-7]} (Position: {self.ctx.bot.util.join_position(self.ctx.guild, self.user):,}/{self.ctx.guild.member_count:,})"
         del _thief
@@ -631,9 +649,6 @@ class UserCard:
                 activity_color = await _thief.get_color(right=True)
                 
                 draw.rectangle([(20, 170), (main.width - 20, 210)], fill=activity_color)
-                if isinstance(activity_color, int):
-                    activity_color = (255, 255, 255)
-
                 color = (0, 0, 0) if ((sum(activity_color) // 3) > 128) else (255, 255, 255)
                 
                 if status_image.mode == "RGBA":

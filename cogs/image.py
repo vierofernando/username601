@@ -47,7 +47,7 @@ class image(commands.Cog):
         try:
             if len(args) == 1:
                 color = ctx.bot.Parser.parse_color(args[0])
-                image = str(ctx.author.avatar_url_as(size=512)) if ctx.author.is_avatar_animated() else str(ctx.author.avatar_url_as(format="png", size=512))
+                image = str(ctx.author.avatar_url_as(size=512))
             else:
                 parsed_args = ctx.bot.Parser.split_args(args)
                 color = ctx.bot.Parser.parse_color(parsed_args[0])
@@ -58,7 +58,7 @@ class image(commands.Cog):
         
         image, format = await ctx.bot.Image.colorify(image, color, session=ctx.bot.util.default_client)
         await ctx.send(file=discord.File(image, f"file.{format.lower()}"))
-        del image, color, format
+        del resp, byte, image, color, format
         collect()
 
     @command(['legofy'])
@@ -108,6 +108,16 @@ class image(commands.Cog):
         result, format = await ctx.bot.Image.implode(url, amount=-3.5, session=ctx.bot.util.default_client)
         await ctx.send(file=discord.File(result, f"file.{format.lower()}"))
         del result, format, url, parser, animated
+        
+    @command(["disintegrate"])
+    @cooldown(5)
+    async def dissolve(self, ctx, *args):
+        await ctx.trigger_typing()
+        url = await ctx.bot.Parser.parse_image(ctx, args)
+        buffer = await ctx.bot.Image.dissolve(url, session=ctx.bot.util.default_client)
+        await ctx.send(file=discord.File(buffer, "mr-stark-i-dont-feel-so-good.png"))
+        del url, buffer
+        collect()
         
     @command()
     @cooldown(8)
