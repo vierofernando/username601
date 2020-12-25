@@ -243,7 +243,7 @@ class image(commands.Cog):
                 image, format = await blur_class.blur(0)
             
             await ctx.send(file=discord.File(image, f"file.{format}"))
-            del image, format, blur_class, image
+            del image, format, blur_class, parser
             
         except:
             return await ctx.bot.cmds.invalid_args(ctx)
