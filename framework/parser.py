@@ -279,7 +279,7 @@ class Parser:
         
         user = Parser.parse_user(ctx, args)
         if not default_to_png:
-            return (str(user.avatar_url_as(size=size)) if ctx.author.is_avatar_animated() else str(user.avatar_url_as(format="png", size=size)))
+            return (str(user.avatar_url_as(size=size)) if user.is_avatar_animated() else str(user.avatar_url_as(format="png", size=size)))
         return str(user.avatar_url_as(format="png", size=size))
 
     @staticmethod
