@@ -587,9 +587,9 @@ class UserCard:
         background_color = await _thief.get_color(right=True)
         foreground_color = (0, 0, 0) if (sum(background_color) // 3) > 128 else (255, 255, 255)
         lower_brightness = (lambda x: tuple(map(lambda y: y - x, background_color)))
-        big_font = ImageFont.truetype(40)
-        smol_font = ImageFont.truetype(25)
-        tiny_font = ImageFont.truetype(20)
+        big_font = self.get_font(40)
+        smol_font = self.get_font(25)
+        tiny_font = self.get_font(20)
         title_size = big_font.getsize(self.user.display_name)[0]
         description = f"Created at {str(self.user.created_at)[:-7]} ({self.ctx.bot.util.strfsecond(time() - self.user.created_at.timestamp())} ago)" + "\n" + f"Joined at {str(self.user.joined_at)[:-7]} (Position: {self.ctx.bot.util.join_position(self.ctx.guild, self.user):,}/{self.ctx.guild.member_count:,})"
         del _thief
@@ -805,4 +805,4 @@ class ServerCard:
         gc.collect()
         
         # return the buffer, complete !
-        return b
+        return bs
