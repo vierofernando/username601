@@ -521,7 +521,7 @@ class UserCard:
     def __init__(self, ctx, member, font_path: str, session = None):
         self.ctx = ctx
         self.user = member
-        self.new_session = bool(session)
+        self.new_session = (not bool(session))
         self.font_path = font_path
         self.session = session if session else ClientSession()
         self.flags = {
@@ -631,6 +631,9 @@ class UserCard:
                 activity_color = await _thief.get_color(right=True)
                 
                 draw.rectangle([(20, 170), (main.width - 20, 210)], fill=activity_color)
+                if isinstance(activity_color, int):
+                    activity_color = (255, 255, 255)
+
                 color = (0, 0, 0) if ((sum(activity_color) // 3) > 128) else (255, 255, 255)
                 
                 if status_image.mode == "RGBA":
@@ -805,4 +808,4 @@ class ServerCard:
         gc.collect()
         
         # return the buffer, complete !
-        return bs
+        return b
