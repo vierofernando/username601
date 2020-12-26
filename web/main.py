@@ -1,12 +1,18 @@
 from flask import *
-from src.site import Website
+from site import Website
 from threading import Thread
+from os import getenv
+from datetime import datetime as t
 from os.path import abspath
 web = Website("username601's webshite")
 
+import logging
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
+
 @web.on_error(404)
 def not_found(err):
-  return render_template("404.html")
+  return "Welcome to the nowhere(TM)."
 
 @web.page('/.env')
 def env():
@@ -32,10 +38,6 @@ def invite():
 def support():
   return web.redirect('support')
 
-@web.page('/commands')
-def commands():
-  return web.raw_command_template
-
 @web.page('/')
 def home():
   return web.render_index_template()
@@ -44,7 +46,7 @@ def home():
 def credits():
   return web.credits
 
-@web.page('/raw/<file>')
+@web.page('/src/<file>')
 def get_raw(file: str):
   if web.check_template(file):
     return send_from_directory('templates', file)
