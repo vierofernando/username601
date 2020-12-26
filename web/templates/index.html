@@ -1,35 +1,26 @@
 <!DOCTYPE html>
-<html lang="en" style="background-image: url('https://source.unsplash.com/1366x768/?nature'); overflow: hidden; background-size: auto; background-repeat: no-repeat;">
-  <meta property="og:site_name" content="username601's main website">
-  <meta property="og:url" content="https://601.vierofernando.repl.co/">
-  <meta property="og:title" content="username601">
-  <meta property="og:description" content="welcome to the website for my trash discord bot, username601. pls visit because this is an IP grabber- i mean website">
-  <meta property="og:type" content="website">
-  <meta name="og:image" itemprop="image" content="https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/pfp.png">   
-  <meta name="theme-color" content="#C9A070">
-  <head>
-    <link rel="stylesheet" href="/raw/global.css">
-    <link rel="stylesheet" href="/raw/index.css">
-  </head>
-  <body>
-    <div class='top'>
-      <button id='navbarButton' onclick="redirectTo('');">Home</button>
-      <button id='navbarButton' onclick="redirectTo('commands');">Commands</button>
-      <button id='navbarButton' onclick="redirectTo('invite');">Invite</button>
-      <button id='navbarButton' onclick="redirectTo('support');">Support</button>
-    </div>
-    <div id="imageOverlay"></div>
-    <div id="botName">username601</div>
-	<div id="botAccurateDescription">loading cool description...</div>
-	<button id="inviteBotum">Invite the bot!</button>
-	<div id='flex'></div>
-  <ul>
-	  <li><a href="commands">Commands</a></li>
-	  <li><a href="invite">Invite</a></li>
-	  <li><a href="support">Discord Server</a></li>
-	  <li><a href="api">API</a></li>
-	  <li><a href="https://github.com/vierofernando/username601/">GitHub</a></li>
-	</ul>
-  <script src="/raw/index.js"></script>
-  </body>
+<html>
+    <!--
+        THIS WEBSITE IS WRITTEN ENTIRELY IN JAVASCRIPT AND CSS.
+        NO HTML.
+        LOOK AT INDEX.JS IF YOU DON'T TRUST ME X)
+
+        - THE BRUNK DEVELOPER -
+-->
+    <head></head>
+    <body id="body"></body>
+    <script src="src/handler.js"></script>
+    <script src="src/constants.js"></script>
+    <script src="src/command.js"></script>
+    <script src="src/index.js"></script>
+    <script>
+        web.usingCSS("src/index.css");
+        
+        loadFlex({
+            Servers: SERVER_COUNT,
+            Users: USERS_COUNT,
+            Uptime: UPTIME
+        });
+        const cmds = new CommandManager(web, COMMANDS_LIST);
+    </script>
 </html>

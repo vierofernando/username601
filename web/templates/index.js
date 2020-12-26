@@ -1,160 +1,112 @@
-const possibleShit = [
-  "loading failed...",
-  "undefined",
-  "welcome to the bot page i hope u liek my css skillz",
-  "<epic description unavailable>",
-  "why not invite other bots? why ME?",
-  "fun fact: the developer is lazy",
-  "welcome to your normal everyday bot.",
-  "just ur normal MuLtIpUrPoSe BoT. carry on.",
-  "dont you dare click that invite button.",
-  "dont look at this website",
-  "insert copyrighted unspash picture here.",
-  "disclaimer: the background pic is free",
-  "null",
-  "why did you pick me",
-  "LMAO WHAT KIND OF WEB DESIGN IS THIS",
-  "why",
-  "hey look, what a shit user interface!",
-  "go away",
-  "no u",
-  "qt",
-  "discord bot list will die soon",
-  "the rise and fall of discord bot development",
-  "top 10 reasons why MEE6 is cancelled",
-  "just another flash in the pan",
-  "approvum my botum please modums >.<",
-  "weeb",
-  "Hello, World!",
-  "my search history is full of stackoverflow",
-  "imagine using github",
-  "imagine inviting username601",
-  "dont vote for username601, vote for OBAMA!",
-  "henlo",
-  "GET STICKBUGGED LOL",
-  "username601, what a creative name amirite",
-  "pls dont booli the dev thx",
-  "OwO",
-  "MEESUX",
-  "somebody once told me hands off my macaroni",
-  "never gonna give you up, never gonna let you down",
-  "WARNING! SWEARS AHEAD! PROCEED AT YOUR OWN RISK!",
-  "there is a 90% chance your discord account will get hacked by inviting username601.<br>proceed at your own risk.",
-  "many people have regret clicking the invite button.",
-  "dying inside",
-  "flazepe is cool",
-  "you are sus",
-  "username601 was an imposter.<br>0 impostors remain.",
-  "index.html cannot be loaded.",
-  "botghost better",
-  "if you see a weeb, the video ends<br><br>- a random big discord server -",
-  "this website is better than the bot itself ngl",
-  "x)",
-  "the bot is worse than you think",
-  "i love that the background image doesn't have<br>anything to do with the bot",
-  "<a href='https://discord.gg/obama'>discord.gg/obama</a>",
-  "sublime text > visual studio code",
-  "username601 is better",
-  "0/10 worst bot on discord",
-  "console.log('why tho');",
-  "haha nerd",
-  "cringy description array",
-  "just monika",
-  "random text blah blah blah",
-  "lorem ipsum dolor sit amet",
-  "from the nerd that made Useless API",
-  "sponsored by raid shadow legends",
-  "i like clicking buttons",
-  "what is wrong with me",
-  "this bot will be deleted soon",
-  "fun fact: everytime a clock ticks, you are getting older by 1 second.",
-  "every 60 seconds in africa, a minute passes.<br>together we can STOP this!",
-  "CLICK ALT+F4 TO INVITE THE BOT",
-  "rm -rf / --no-preserve-root",
-  "i see what you are doing.",
-  "error: quality is not defined",
-  "quantity > quality :^)",
-  ":mmlol:",
-  "the button is a placebo",
-  "the bot is useless, don't bother inviting it",
-  "the discord botum",
-  "Special thanks: Myself, myself, and myself",
-  "oh no, please dont invite me! NOOOOO!!!!",
-  "whoever wrote GCC are beasts",
-  "linux > mac > windows",
-  "iPhone > Android",
-  "you looking sus.",
-  "did i see you went to the vent?",
-  "sa",
-  "hello qt",
-  "eBic description",
-  "Post-awareness Stage 6 is without description.",
-  "support servers are the saddest types of servers in discord tbh",
-  "sounddrout is cringe",
-  "hit me",
-  "Don't forget to backup Monika's character file!",
-  "if you see this text, i hope you have a great day! :wink:",
-  "loading cool description...",
-  "loading cool description...?",
-  "top.gg sucks. discordbotlist.org is better",
-  "eris > discord.js > discord.py",
-  "i see you are a man of culture as well.",
-  "SCP-601 [KETER]: this [REDACTED] is too [REDACTED] to be kept alive.",
-  "disgusting discord bot",
-  "made in april 7th 2020",
-  "made by a nerd",
-  "do not click that button. please.",
-  "MEE6 on steroids",
-  "( ͡° ͜ʖ ͡°)",
-  "¯\_(ツ)_/¯",
-  "smh",
-  "COME TO BRAZIL",
-  "the worst discord bot in the whole world",
-  "sa",
-  "yardım",
-  "family guy funniest moments",
-  "programming is easy, trust me :)",
-  "let's goo some random stranger just<br>come to my website",
-  "GET REQUEST: HTTP STATUS 200 OK",
-  "positioning a button to center in css is IMPOSSIBLE.",
-  "array possibleShit not found",
-  "NullPointerException: you just pointed to yourself",
-  "username601? what kind of name is that?",
-  "edgy username",
-  "stop being so edgy!",
-  "<a href='https://www.youtube.com/watch?v=oHg5SJYRHA0'>CLICK THIS LINK FOR FREE NITRO</a>",
-  "fun fact: username601 is just a random shit i made up.",
-  "fun fact: the 601 in username601 meant to mean 'BOT', like in bOt == 601",
-  "fun fact: the discriminator #7631 means something",
-  "fun fact: in the bot's discriminator 7631, if you add 7 and 3 = 10.<br>take out the 1 and it becomes 0. add 6 + 0 + 1 and you get 601 ;)",
-  "fun fact: this fact is actually not fun.",
-  "fun fact: i am bad at naming stuff, hence the username. your welcome.",
-  ">>> [ INVITE THE BOT! ] <<<",
-  "yes almost everything here is open source",
-  "yes i open stackoverflow every time i code",
-  "coding username601 is very tedious",
-  "if else if else if else if else if else if else if else if else if else if else if else if else if else if else",
-  "discord partner badge is better than nitro badge",
-  "my hypesquad house is brilliance",
-  "hi there uwu",
-  "fun fact: some APIs used by the bot are made by me!<br><a href='https://useless-api.vierofernando.repl.co/'>Check it out!</a>"
-]
-
-function init() {
-  const message = possibleShit[Math.floor(Math.random() * possibleShit.length)];
-  document.getElementById("botAccurateDescription").innerHTML = message;
-  document.title = /<a/.test(message) ? "601 the bot" : message;
-  document.getElementById("inviteBotum").addEventListener("click", function() {
-    let Botum = document.getElementById("inviteBotum");
-    Botum.style.backgroundColor = "red";
-    Botum.innerHTML = "Bruh moment";
-    window.location.href = "https://601.vierofernando.repl.co/invite";
-  });
-  fetch("https://cors-anywhere.herokuapp.com/https://useless-api.vierofernando.repl.co/get_bot_stats").then(res => res.json()).then(res => {
-    document.getElementById("flex").innerHTML = `Serving <b>${res.guild_count}</b> discord servers and <b>${res.user_count}</b> users as of <b>${res.last_updated} ago</b>`;
-  }).catch(error => console.log("There was an error on flexing. Oopsies :("));
+function getForegroundColor() {
+    const sum = Math.round(color.slice(4, -1).split(", ").map(n => parseInt(n)).reduce((a, b) => a + b, 0) / 3);
+    if (sum < 127)
+        return `rgb(255, 255, 255)`;
+    return `rgb(0, 0, 0)`;
 }
 
-function redirectTo(url) {
-  window.location.href = `https://601.vierofernando.repl.co/${url}`;
+function lowerContrast(amount) {
+    const colorValues = color.slice(4, -1).split(", ").map(number => {
+        const newNumber = parseInt(number) - amount;
+        if (newNumber < 0)
+            return "0";
+        return newNumber.toString()
+    });
+    return `rgb(${colorValues.join(", ")})`;
 }
+
+function loadFlex(flexObject) {
+    web.createElement({
+        at: "buttonHome",
+        id: "flexer",
+        styles: {
+            color: foregroundColor,
+            fontFamily: defaultFont
+        }
+    });
+    
+    Object.keys(flexObject).forEach(key => {
+        web.createElement({
+            at: "flexer",
+            id: "flexerSections",
+            content: `<flexerElement>${flexObject[key].toLocaleString()}</flexerElement><br><flexerDesc>${key}</flexerDesc>`
+        });
+    })
+}
+
+var web = new WebManager();
+
+// colors!
+var color = `rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})`;
+document.getElementsByTagName("html")[0].style.backgroundColor = color;
+const foregroundColor = getForegroundColor();
+web.body.style.backgroundColor = color;
+document.title = title;
+
+// PREPARE FOR THE BEST CODE EVER MADE
+
+web.createElement({
+    id: "mainBigText",
+    content: title,
+    styles: {
+        color: foregroundColor,
+        fontFamily: defaultFont
+    }
+});
+
+web.createElement({
+    id: "buttonHome",
+    styles: {
+        backgroundColor: lowerContrast(20)
+    }
+});
+
+web.createElement({
+    at: "buttonHome",
+    elementName: "p",
+    content: description,
+    styles: {
+        color: foregroundColor,
+        fontFamily: defaultFont,
+        userSelect: "none",
+        fontWeight: "bold",
+        fontSize: "150%"
+    }
+});
+
+web.createButton({
+    at: "buttonHome",
+    content: "Invite the Bot!",
+    styles: {
+        backgroundColor: lowerContrast(40),
+        color: foregroundColor,
+        fontFamily: defaultFont,
+    },
+    onhover: {
+        backgroundColor: lowerContrast(80),
+        cursor: "pointer"
+    },
+    attributes: {
+        id: "inviteButton"
+    },
+    link: inviteLink
+});
+
+web.createElement({
+    id: "commandsBoard",
+    styles: {
+        backgroundColor: lowerContrast(30),
+        fontFamily: defaultFont,
+        color: foregroundColor
+    }
+});
+
+web.createElement({
+    id: "commandsTitle",
+    at: "commandsBoard",
+    content: "COMMANDS",
+    styles: {
+        fontFamily: defaultFont,
+        userSelect: "none"
+    }
+});
