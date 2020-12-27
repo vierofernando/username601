@@ -26,7 +26,7 @@ class fun(commands.Cog):
         parser = ctx.bot.Parser(args)
         parser.parse()
         
-        for key in parser.keys:
+        for key in parser.flags.keys():
             if key.lower() != "reply":
                 parser.shift(key)
         
