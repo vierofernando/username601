@@ -10,9 +10,10 @@
     margin-left: 50px;
     margin-right: 50px;
     margin-top: 50px;
+    margin-bottom: 50px;
     padding: 10px 0px 20px 0px;
     text-align: center;
-    border-radius: 50px 50px 0px 0px;
+    border-radius: 50px;
 }
 
 #inviteButton {
@@ -46,9 +47,10 @@ flexerDesc {
 }
 
 #commandsBoard {
-    border-radius: 0px 0px 50px 50px;
+    border-radius: 50px;
     margin-left: 50px;
     margin-right: 50px;
+    margin-top: 50px;
     margin-bottom: 50px;
     padding-bottom: 50px;
 }

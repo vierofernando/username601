@@ -1,6 +1,8 @@
 class WebManager {
     constructor() {
         this.body = document.getElementById("body");
+        this.html = document.getElementsByTagName("html")[0];
+        this.body.style.margin = "0";
     }
 
     usingCSS(path) {
@@ -66,7 +68,7 @@ class WebManager {
         if (parameters.attributes)
             Object.keys(parameters.attributes).forEach(attribute => {
                 element.setAttribute(attribute, parameters.attributes[attribute]);
-            })
+            });
 
         if (parameters.link)
             element.addEventListener("click", function() { window.location.href = parameters.link });

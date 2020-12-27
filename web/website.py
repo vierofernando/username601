@@ -5,10 +5,12 @@ from random import choice
 from requests import get
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from database import DB
 
 class Website:
   def __init__(self, name):
     self.site = Flask(name)
+    self.db = DB(getenv("DBLK"))
     self.ratelimiter = Limiter(
       self.site,
       key_func=get_remote_address,
@@ -35,8 +37,8 @@ class Website:
 
   def render_index_template(self):
     try:
-      data = get('https://useless-api.vierofernando.repl.co/get_bot_stats', headers={"superdupersecretkey": getenv("CHKDB")}).json()
-      return self.raw_index_template.replace('SERVER_COUNT', str(data['guild_count'])).replace('USERS_COUNT', str(data['user_count'])).replace('UPTIME', f'"{data["last_updated"]}"')
+      data = self.db.get_data()
+      return self.raw_index_template.replace('SERVER_COUNT', str(data['guild_count'])).replace('USERS_COUNT', str(data['users_count'])).replace('UPTIME', f'"{data["last_update"]}"').replace('ECONOMIES', str(data["economy_length"])).replace('DASHBOARDS', str(data["dashboard_length"]))
     except Exception as e:
       print("ERROR: "+str(e))
       return self.raw_index_template.replace('SERVER_COUNT', '0').replace('USERS_COUNT', '0').replace('UPTIME', '??? time')

@@ -1,3 +1,9 @@
+var web = new WebManager();
+
+// colors!
+var color = `rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})`;
+web.html.style.backgroundColor = color;
+
 function getForegroundColor() {
     const sum = Math.round(color.slice(4, -1).split(", ").map(n => parseInt(n)).reduce((a, b) => a + b, 0) / 3);
     if (sum < 127)
@@ -14,6 +20,11 @@ function lowerContrast(amount) {
     });
     return `rgb(${colorValues.join(", ")})`;
 }
+
+const foregroundColor = getForegroundColor();
+web.body.style.backgroundColor = color;
+document.title = title;
+
 
 function loadFlex(flexObject) {
     web.createElement({
@@ -34,14 +45,10 @@ function loadFlex(flexObject) {
     })
 }
 
-var web = new WebManager();
-
-// colors!
-var color = `rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})`;
-document.getElementsByTagName("html")[0].style.backgroundColor = color;
-const foregroundColor = getForegroundColor();
-web.body.style.backgroundColor = color;
-document.title = title;
+const navbar = new NavbarManager(web, {
+    Home: "buttonHome",
+    Commands: "commandsBoard"
+});
 
 // PREPARE FOR THE BEST CODE EVER MADE
 
@@ -97,7 +104,8 @@ web.createElement({
     styles: {
         backgroundColor: lowerContrast(30),
         fontFamily: defaultFont,
-        color: foregroundColor
+        color: foregroundColor,
+        display: "none"
     }
 });
 
@@ -110,3 +118,6 @@ web.createElement({
         userSelect: "none"
     }
 });
+
+// NAVBAR PART
+navbar.start();

@@ -1,5 +1,5 @@
 from flask import *
-from site import Website
+from website import Website
 from threading import Thread
 from os import getenv
 from datetime import datetime as t
@@ -12,7 +12,7 @@ log.setLevel(logging.ERROR)
 
 @web.on_error(404)
 def not_found(err):
-  return "Welcome to the nowhere(TM)."
+  return render_template("404.html")
 
 @web.page('/.env')
 def env():

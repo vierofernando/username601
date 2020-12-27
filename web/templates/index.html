@@ -12,14 +12,17 @@
     <script src="src/handler.js"></script>
     <script src="src/constants.js"></script>
     <script src="src/command.js"></script>
+    <script src="src/navbar.js"></script>
     <script src="src/index.js"></script>
     <script>
         web.usingCSS("src/index.css");
         
         loadFlex({
-            Servers: SERVER_COUNT,
-            Users: USERS_COUNT,
-            Uptime: UPTIME
+            "Served Servers": SERVER_COUNT,
+            "Seen Users": USERS_COUNT,
+            "Economy Profiles": ECONOMIES,
+            "Server Configurations": DASHBOARDS,
+            "Uptime": UPTIME
         });
         const cmds = new CommandManager(web, COMMANDS_LIST);
     </script>

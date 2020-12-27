@@ -5,5 +5,7 @@ const description = "This bot is without Description.";
 const defaultFont = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif";
 const SERVER_COUNT = null; // placeholder
 const USERS_COUNT = null; // placeholder
+const DASHBOARDS = null; // placeholder
+const ECONOMIES = null; // placeholder
 const UPTIME = null; // placeholder
 const COMMANDS_LIST = null; // placeholder
