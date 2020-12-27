@@ -17,7 +17,7 @@ class fun(commands.Cog):
     async def edit(self, ctx, *args):
         res = ctx.bot.Parser.split_args(args)
         msg = await ctx.send('...')
-        await msg.edit(content=res[0] + '\u202b'+ res[1] + '\u202b')
+        await msg.edit(content=res[0] + '\u202b '+ res[1] + ' \u202b')
 
     @command(['echo'])
     @cooldown(5)
