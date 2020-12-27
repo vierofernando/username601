@@ -40,7 +40,7 @@ class fun(commands.Cog):
                 return await ctx.send(text, allowed_mentions=ctx.bot.util.no_mentions)
             return
         await ctx.send(text, allowed_mentions=ctx.bot.util.no_mentions)
-        del 
+        del parser, text
     
     @command()
     @cooldown(2)
