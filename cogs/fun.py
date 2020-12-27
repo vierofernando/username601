@@ -11,27 +11,27 @@ class fun(commands.Cog):
     def __init__(self):
         self.connection = ClientSession(headers={'Authorization': 'Bot '+environ['DISCORD_TOKEN'], 'Content-Type': 'application/json'})      
 
-    @command(['edit'])
+    @command(['edited'])
     @cooldown(3)
-    async def edited(self, ctx, *args):
+    @require_args(2)
+    async def edit(self, ctx, *args):
         res = ctx.bot.Parser.split_args(args)
         msg = await ctx.send('...')
-        await msg.edit(content='\u202b '+ ' '.join(args)[0:100] + ' \u202b')
+        await msg.edit(content=res[0] + '\u202b'+ res[1] + '\u202b')
 
-    @command(['howlove', 'friendship', 'fs', 'love'])
-    @cooldown(2)
-    async def lovelevel(self, ctx, *args):
-        res = ctx.bot.Parser.split_args(args)
-        user1, user2 = ctx.bot.Parser.parse_user(ctx, res[0]), ctx.bot.Parser.parse_user(ctx, res[1])
-        result = ctx.bot.util.friendship(user1, user2)
-        await ctx.send(f'Friendship of {user1.display_name} and {user2.display_name} is **{result}%!**')
-        del user1, user2, result, res
-
-    @command(['echo', 'reply'])
+    @command(['echo'])
     @cooldown(5)
+    @require_args()
     async def say(self, ctx, *args):
-        text = ' '.join(args).lower()[0:1999] if args else "***undefined***"
-        if ctx.bot.util.get_command_name(ctx) == "reply":
+        parser = ctx.bot.Parser(args)
+        parser.parse()
+        
+        for key in parser.keys:
+            if key.lower() != "reply":
+                parser.shift(key)
+        
+        text = " ".join(parser.other) if parser.other else "???"
+        if parser.has("reply"):
             res = await self.connection.post(
                 f'https://discord.com/api/v8/channels/{ctx.channel.id}/messages',
                 data=dumps({'content': text, 'message_reference': {'message_id': str(ctx.message.id), 'guild_id': str(ctx.guild.id)}, 'allowed_mentions': {'replied_user': False}})
@@ -40,7 +40,7 @@ class fun(commands.Cog):
                 return await ctx.send(text, allowed_mentions=ctx.bot.util.no_mentions)
             return
         await ctx.send(text, allowed_mentions=ctx.bot.util.no_mentions)
-        del text
+        del 
     
     @command()
     @cooldown(2)

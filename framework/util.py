@@ -59,26 +59,27 @@ class Util:
                 setattr(self, key, self._config["bot"][key])
         
         self._8ball_template = [
-            "As I see it, ??",
-            "My reply is ??",
-            "My sources say ??",
-            "??",
-            "Of course ??",
-            "Well, ??. Of course",
-            "??, definitely",
-            "Signs point to ??",
-            "??. Without a doubt",
-            "Hell ??",
-            "Well... ??",
-            "Why did you ask me for this. The answer is always ??",
-            "The answer is always ??",
-            "Shut up. The answer is ??",
-            "Stop asking me that question. The answer is definitely ??",
-            "Heck ??",
-            "That question's answer is always ??",
-            "??. ??!!!",
-            "Someone told me the answer is ??",
-            "Sorry, but the answer is ??"
+            "As I see it, {}",
+            "My reply is {}",
+            "My sources say {}",
+            "{}",
+            "Of course {}",
+            "Well, {}. Of course",
+            "{}, definitely",
+            "Signs point to {}",
+            "{}. Without a doubt",
+            "Hell {}",
+            "Well... {}",
+            "Why did you ask me for this. The answer is always {}",
+            "The answer is always {}",
+            "Shut up. The answer is {}",
+            "Stop asking me that question. The answer is definitely {}",
+            "Heck {}",
+            "That question's answer is always {}",
+            "{}. {}!!!",
+            "Someone told me the answer is {}",
+            "Sorry, but the answer is {}",
+            "{}. Take it or leave it."
         ]
         
         del self._config
@@ -141,14 +142,8 @@ class Util:
         
         response = ((code + ctx.author.id) % 2 == 0)
         del code, ctx
-        return choice(self._8ball_template).replace("??", ("yes" if response else "no"))
-    
-    def friendship(user_id1: int, user_id2: int) -> int:
-        """ Gets the most accurate value of friendship in all of discord bots using the finding love algorithm. """
+        return choice(self._8ball_template).format("yes" if response else "no")
         
-        a, b = (user_id2, user_id1) if (user_id2 > user_id1) else (user_id1, user_id2)
-        return int(str(a)[0] + str(b)[::-1][0])
-    
     def resolve_starboard_message(self, message):
         """ Gets the embed from a message as a form of starboard post. """
         embed = Embed(title=f"{message.author.display_name}#{message.author.discriminator} | #{str(message.channel)}", description=message.content, url=message.jump_url, color=discord.Color.from_rgb(255, 255, 0))
