@@ -250,7 +250,7 @@ class memes(commands.Cog):
         url='https://api.alexflipnote.dev/trash?face='+str(av)+'&trash='+toTrash
         return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
 
-    @command(['wanted'])
+    @command()
     @cooldown(10)
     async def ferbtv(self, ctx, *args):
         await ctx.trigger_typing()
