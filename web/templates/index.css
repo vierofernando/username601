@@ -7,10 +7,7 @@
 }
 
 #buttonHome {
-    margin-left: 50px;
-    margin-right: 50px;
-    margin-top: 50px;
-    margin-bottom: 50px;
+    margin: 50px;
     padding: 10px 0px 20px 0px;
     text-align: center;
     border-radius: 50px;
@@ -48,10 +45,7 @@ flexerDesc {
 
 #commandsBoard {
     border-radius: 50px;
-    margin-left: 50px;
-    margin-right: 50px;
-    margin-top: 50px;
-    margin-bottom: 50px;
+    margin: 50px;
     padding-bottom: 50px;
 }
 
@@ -85,12 +79,16 @@ commandsubfont {
 
 codeblock {
     padding: 10px 5px;
-    display: block;
     font-size: 60%;
     font-family: 'consolas', 'consola', monospace;
     color: white;
+    display: block;
     background-color: #333;
     margin-right: 10px;
+}
+
+inlinecodeblock {
+    font-family: monospace;
 }
 
 #linkText {
@@ -103,4 +101,34 @@ codeblock {
 #linkText:hover {
     transition: 0.3s linear;
     color: red;
+}
+
+#changelogBoard {
+    border-radius: 50px;
+    margin: 50px;
+    user-select: none;
+    font-size: 125%;
+    padding: 50px 0px;
+}
+
+#changelogTime {
+    display: block;
+    font-weight: bold;
+    padding: 10px 0px;
+    padding-left: 20px;
+}
+
+#changelogPart {
+    display: block;
+    padding-left: 20px;
+    padding-right: 5px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+#copyright {
+    text-align: center;
+    user-select: none;
+    font-weight: bold;
+    margin-bottom: 20px;
 }

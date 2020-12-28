@@ -28,11 +28,13 @@ class DB:
         return f"{seconds} year" + ("" if seconds == 1 else "s")
     
     def get_data(self):
-        data = self.db.find_one({"h": True})["stats"].split(":")
+        data = self.db.find_one({"h": True})
+        stats = data["stats"].split(":")
         return {
-            "guild_count": data[0],
-            "users_count": data[1],
-            "economy_length": data[2],
-            "dashboard_length": data[3],
-            "last_update": self.strfsecond(time() - float(data[4]))
+            "guild_count": stats[0],
+            "users_count": stats[1],
+            "economy_length": stats[2],
+            "dashboard_length": stats[3],
+            "last_update": self.strfsecond(time() - float(stats[4])),
+            "changelog": data["changelog"]
         }

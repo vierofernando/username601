@@ -25,10 +25,10 @@ class NavbarButton {
     }
 }
 
-class NavbarManager {
-    constructor(web, data) {
-        this.manager = web;
-        this.mainElement = this.manager.createElement({
+class NavbarManager extends WebManager {
+    constructor(data) {
+        super();
+        this.mainElement = this.createElement({
             id: "navbar",
             styles: {
                 backgroundColor: lowerContrast(25),
@@ -44,7 +44,7 @@ class NavbarManager {
         this.classes = new Array();
         this.index = 0;
         Object.keys(this.data).forEach(pageName => {
-            const navbarPage = this.manager.createElement({
+            const navbarPage = this.createElement({
                 at: this.mainElement,
                 id: "navbarButton",
                 content: pageName,

@@ -38,7 +38,7 @@ class Website:
   def render_index_template(self):
     try:
       data = self.db.get_data()
-      return self.raw_index_template.replace('SERVER_COUNT', str(data['guild_count'])).replace('USERS_COUNT', str(data['users_count'])).replace('UPTIME', f'"{data["last_update"]}"').replace('ECONOMIES', str(data["economy_length"])).replace('DASHBOARDS', str(data["dashboard_length"]))
+      return self.raw_index_template.replace('SERVER_COUNT', str(data['guild_count'])).replace('USERS_COUNT', str(data['users_count'])).replace('UPTIME', f'"{data["last_update"]}"').replace('ECONOMIES', str(data["economy_length"])).replace('DASHBOARDS', str(data["dashboard_length"])).replace('${CHANGELOG}', dumps(data['changelog']))
     except Exception as e:
       print("ERROR: "+str(e))
       return self.raw_index_template.replace('SERVER_COUNT', '0').replace('USERS_COUNT', '0').replace('UPTIME', '??? time')
