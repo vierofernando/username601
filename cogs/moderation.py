@@ -222,7 +222,7 @@ class moderation(commands.Cog):
         parser.parse()
 
         data = self.db.get("dashboard", {"serverid": ctx.guild.id})
-        if not _input:
+        if not parser:
             if (not data) or (not data.get("starboard")):
                 channel = await ctx.guild.create_text_channel(name='starboard', topic='Server starboard channel. Every funny/cool posts will be here.')
                 await ctx.send(embed=discord.Embed(f'Created a channel <#{channel.id}>. Every starboard will be set there.\nTo remove starboard, type `{ctx.bot.command_prefix}starboard --remove`.\nBy default, starboard requirements are set to 1 reaction. To increase, type `{ctx.bot.command_prefix}starboard --limit <number>`.', color=discord.Color.green()))
