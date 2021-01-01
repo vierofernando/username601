@@ -26,13 +26,6 @@ class Website:
     </style>
     """+open('./templates/credits.txt', 'r').read().replace('\n', '<br>')
     self.on_error = self.site.errorhandler
-    self.redirects = {
-      "support": "https://discord.com/invite/HhAPkD8/",
-      "invite": "https://discord.com/oauth2/authorize?client_id=696973408000409626&permissions=8&scope=bot",
-      "vote": "https://top.gg/bot/696973408000409626/vote",
-      "github": "https://github.com/vierofernando/username601",
-      "api": "https://useless-api.vierofernando.repl.co/docs"
-    }
     self.raw_index_template = open('./templates/index.html', 'r').read().replace('\n', '').replace('COMMANDS_LIST', f'`{self.commands}`')
 
   def render_index_template(self):
@@ -42,10 +35,7 @@ class Website:
     except Exception as e:
       print("ERROR: "+str(e))
       return self.raw_index_template.replace('SERVER_COUNT', '0').replace('USERS_COUNT', '0').replace('UPTIME', '??? time')
-
-  def redirect(self, key):
-    return f"<script>window.location.href = '{self.redirects[key]}';</script>"
-
+      
   def check_template(self, filename):
     return (not ((filename not in self.template_files) or (filename.lower().endswith('.html'))))
   

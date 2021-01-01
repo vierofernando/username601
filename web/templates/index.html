@@ -19,17 +19,22 @@
     </script>
     <script src="src/index.js"></script>
     <script>
-        document.addEventListener('contextmenu', event => event.preventDefault());
-        
-        web.usingCSS("src/index.css");
-        
-        loadFlex({
-            "Served Servers": SERVER_COUNT,
-            "Seen Users": USERS_COUNT,
-            "Economy Profiles": ECONOMIES,
-            "Server Configurations": DASHBOARDS,
-            "Uptime": UPTIME
-        });
-        const cmds = new CommandManager(web, COMMANDS_LIST);
+        try {
+            document.addEventListener('contextmenu', event => event.preventDefault());
+            
+            web.usingCSS("src/index.css");
+
+            loadFlex({
+                "Served Servers": SERVER_COUNT,
+                "Seen Users": USERS_COUNT,
+                "Economy Profiles": ECONOMIES,
+                "Server Configurations": DASHBOARDS,
+                "Uptime": UPTIME
+            });
+            const cmds = new CommandManager(web, COMMANDS_LIST);
+        } catch (e) {
+            alert("There is something wrong happening with loading the JavaScript files! Try enabling JavaScript, or refresh the page.");
+            window.close();
+        }
     </script>
 </html>

@@ -18,35 +18,17 @@ def not_found(err):
 def env():
     return "TOKEN=Ng5NDU4MjY5NTI2Mjk0MTc1.AkxrpC.MyB2BEHJLXuZ8h0wY0Qro6Pwi8"
 
-@web.page('/github')
-def github():
-  return web.redirect('github')
-
-@web.page('/api')
-def api():
-  return web.redirect('api')
-
-@web.page('/vote')
-def vote():
-  return web.redirect('vote')
-
-@web.page('/invite')
-def invite():
-  return web.redirect('invite')
-
-@web.page('/support')
-def support():
-  return web.redirect('support')
-
 @web.page('/')
 def home():
   return web.render_index_template()
 
 @web.page('/credits')
+@web.ratelimiter.exempt
 def credits():
   return web.credits
 
 @web.page('/src/<file>')
+@web.ratelimiter.exempt
 def get_raw(file: str):
   if web.check_template(file):
     return send_from_directory('templates', file)
