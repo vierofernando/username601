@@ -8,7 +8,7 @@ class encoding(commands.Cog):
         pass
     
     @command()
-    @cooldown(2)
+    @cooldown(4)
     @require_args()
     async def ascii(self, ctx, *args):
         await ctx.trigger_typing()
@@ -25,10 +25,10 @@ class encoding(commands.Cog):
             )
             if hastebin:
                 try:
-                    response = await ctx.bot.http._HTTPClient__session.post("https://hastebin.com/documents", data=ascii)
+                    response = await ctx.bot.http._HTTPClient__session.post("https://paste.mod.gg/documents", data=ascii)
                     assert response.status < 400
                     json = await response.json()
-                    await ctx.send(embed=discord.Embed(description=f"[**Click here to see the asciified text.**](https://hastebin.com/{json['key']})", color=discord.Color.green()))
+                    await ctx.send(embed=discord.Embed(description=f"[**Click here to see the asciified text.**](https://paste.mod.gg/{json['key']})", color=discord.Color.green()))
                     del string, image, parser, hastebin, json
                     return
                 except AssertionError:
@@ -43,10 +43,10 @@ class encoding(commands.Cog):
         string = await ctx.bot.Image.asciify(image)
         if hastebin:
             try:
-                response = await ctx.bot.http._HTTPClient__session.post("https://hastebin.com/documents", data=string)
+                response = await ctx.bot.http._HTTPClient__session.post("https://paste.mod.gg/documents", data=string)
                 assert response.status < 400
                 json = await response.json()
-                await ctx.send(embed=discord.Embed(description=f"[**Click here to see the asciified image.**](https://hastebin.com/{json['key']})", color=discord.Color.green()))
+                await ctx.send(embed=discord.Embed(description=f"[**Click here to see the asciified image.**](https://paste.mod.gg/{json['key']})", color=discord.Color.green()))
                 del string, image, parser, hastebin, json
                 return
             except AssertionError:
