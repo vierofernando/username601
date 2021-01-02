@@ -31,7 +31,7 @@
                 "Server Configurations": DASHBOARDS,
                 "Uptime": UPTIME
             });
-            const cmds = new CommandManager(web, COMMANDS_LIST);
+            var cmds = new CommandManager(web, COMMANDS_LIST);
         } catch (e) {
             alert("There is something wrong happening with loading the JavaScript files! Try enabling JavaScript, or refresh the page.");
             window.close();
