@@ -1,12 +1,12 @@
-discord.py==1.4.2
+discord.py==1.5.1
 IMDbPY==6.8
-requests==2.23.0
-googletrans==2.4.0
+googletrans==3.1.0a0
 Wikipedia-API==0.5.4
-pokebase==1.2.0
 dblpy==0.3.4
 Pillow==7.1.1
 pymongo==3.10.1
 dnspython==1.16.0
-gtts==2.1.1
 colorthief==0.2
+twemoji-parser==0.4.1
+wand==0.6.3
+pympler==0.9

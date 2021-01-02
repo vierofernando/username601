@@ -23,6 +23,34 @@ class utils(commands.Cog):
             equation = equation.replace(rep.split('>')[0], rep.split('>')[1])
         return equation
 
+    @command(['xckd', 'xcdk', 'xkdc'])
+    @cooldown(5)
+    async def xkcd(self, ctx, *args):
+        await ctx.trigger_typing()
+        
+        parser = ctx.bot.Parser(args)
+        parser.parse()
+        
+        comic = await ctx.bot.util.get_request("https://xkcd.com/info.0.json", json=True, raise_errors=True)
+        if parser.has("random"):
+            comic_num = random.randint(1, comic['num'])
+            comic = await ctx.bot.util.get_request(f"https://xkcd.com/{comic_num}/info.0.json", json=True, raise_errors=True)
+            del comic_num
+        
+        embed = ctx.bot.Embed(
+            ctx,
+            title=f"{comic['num']} - {comic['title']}",
+            url=f"https://xkcd.com/{comic['num']}",
+            fields={
+                "Transcript": comic['transcript'] if comic['transcript'] else comic['alt'],
+                "Post Date": f"{comic['day']}/{comic['month']}/{comic['year']}"
+            },
+            image=comic['img']
+        )
+        await embed.send()
+        del comic, base, parser, embed
+        return
+
     @command(['nation'])
     @cooldown(5)
     async def country(self, ctx, *args):

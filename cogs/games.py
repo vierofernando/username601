@@ -358,7 +358,7 @@ class games(commands.Cog):
             await ctx.send(f'Thanks for playing! You get also a {reward:,} bobux as a prize!')
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 
-    @command(['gn', 'guessnumber'])
+    @command(['gn', 'guessnumber', 'highlow', 'high-low'])
     @cooldown(30)
     async def guessnum(self, ctx):
         game = ctx.bot.GuessMyNumber()
