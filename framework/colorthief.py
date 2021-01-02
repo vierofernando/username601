@@ -7,7 +7,7 @@ from PIL import Image
 
 class Smart_ColorThief:
     async def __get_image(self):
-        res = await self.ctx.bot.util.default_client.get(self.url)
+        res = await self.ctx.bot.http._HTTPClient__session.get(self.url)
         res = await res.read()
         self.image = Image.open(BytesIO(res)).resize((self.quality, self.quality))
         del res

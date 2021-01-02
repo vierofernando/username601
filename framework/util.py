@@ -38,7 +38,6 @@ class Util:
         self.useless_client = ClientSession(headers={"superdupersecretkey": getenv("USELESSAPI")}, timeout=ClientTimeout(total=10.0))
         self.alex_client = ClientSession(headers={'Authorization': getenv("ALEXFLIPNOTE_TOKEN")}, timeout=ClientTimeout(total=10.0))
         self.github_client = ClientSession(headers={'Authorization': 'token ' + getenv('GITHUB_TOKEN')}, timeout=ClientTimeout(total=10.0))
-        self.default_client = ClientSession(timeout=ClientTimeout(total=10.0))
         
         self._time = {
             31536000: "year",
@@ -59,27 +58,26 @@ class Util:
                 setattr(self, key, self._config["bot"][key])
         
         self._8ball_template = [
-            "As I see it, {}",
-            "My reply is {}",
-            "My sources say {}",
-            "{}",
-            "Of course {}",
-            "Well, {}. Of course",
-            "{}, definitely",
-            "Signs point to {}",
-            "{}. Without a doubt",
-            "Hell {}",
-            "Well... {}",
-            "Why did you ask me for this. The answer is always {}",
-            "The answer is always {}",
-            "Shut up. The answer is {}",
-            "Stop asking me that question. The answer is definitely {}",
-            "Heck {}",
-            "That question's answer is always {}",
-            "{}. {}!!!",
-            "Someone told me the answer is {}",
-            "Sorry, but the answer is {}",
-            "{}. Take it or leave it."
+            "As I see it, ??",
+            "My reply is ??",
+            "My sources say ??",
+            "??",
+            "Of course ??",
+            "Well, ??. Of course",
+            "??, definitely",
+            "Signs point to ??",
+            "??. Without a doubt",
+            "Hell ??",
+            "Well... ??",
+            "Why did you ask me for this. The answer is always ??",
+            "The answer is always ??",
+            "Shut up. The answer is ??",
+            "Stop asking me that question. The answer is definitely ??",
+            "Heck ??",
+            "That question's answer is always ??",
+            "??. ??!!!",
+            "Someone told me the answer is ??",
+            "Sorry, but the answer is ??"
         ]
         
         del self._config
@@ -142,8 +140,14 @@ class Util:
         
         response = ((code + ctx.author.id) % 2 == 0)
         del code, ctx
-        return choice(self._8ball_template).format("yes" if response else "no")
+        return choice(self._8ball_template).replace("??", ("yes" if response else "no"))
+    
+    def friendship(user_id1: int, user_id2: int) -> int:
+        """ Gets the most accurate value of friendship in all of discord bots using the finding love algorithm. """
         
+        a, b = (user_id2, user_id1) if (user_id2 > user_id1) else (user_id1, user_id2)
+        return int(str(a)[0] + str(b)[::-1][0])
+    
     def resolve_starboard_message(self, message):
         """ Gets the embed from a message as a form of starboard post. """
         embed = Embed(title=f"{message.author.display_name}#{message.author.discriminator} | #{str(message.channel)}", description=message.content, url=message.jump_url, color=discord.Color.from_rgb(255, 255, 0))
@@ -212,7 +216,7 @@ class Util:
         try:
             if alexflipnote: session = self.alex_client
             elif uselessapi: session = self.useless_client
-            else: session = self.default_client
+            else: session = self.bot.http._HTTPClient__session
             
             async with session.get(url) as data:
                 _bytes = await data.read()
@@ -257,7 +261,7 @@ class Util:
         
         try:
             session = self.alex_client if using_alexflipnote_token else (
-                self.github_client if github_token else self.default_client
+                self.github_client if github_token else self.bot.http._HTTPClient__session
             )
             result = await session.get(url + query_param)
             assert result.status < 400

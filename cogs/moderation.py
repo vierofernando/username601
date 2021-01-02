@@ -655,7 +655,7 @@ class moderation(commands.Cog):
         if parser.has("card"):
             parser.shift("card")
             person = ctx.bot.Parser.parse_user(ctx, tuple(parser.other))
-            card = ctx.bot.UserCard(ctx, person, font_path=f"{ctx.bot.util.fonts_dir}/NotoSansDisplay-Bold.otf", session=ctx.bot.util.default_client)
+            card = ctx.bot.UserCard(ctx, person, font_path=f"{ctx.bot.util.fonts_dir}/NotoSansDisplay-Bold.otf")
             del parser
             return await card.send()
         
@@ -763,7 +763,7 @@ class moderation(commands.Cog):
             del embed, parser
         elif parser.has("card"):
             await ctx.trigger_typing()
-            card = ctx.bot.ServerCard(ctx, f"{ctx.bot.util.fonts_dir}/NotoSansDisplay-Bold.otf", session=ctx.bot.util.default_client)
+            card = ctx.bot.ServerCard(ctx, f"{ctx.bot.util.fonts_dir}/NotoSansDisplay-Bold.otf")
             result = await card.draw()
             
             await ctx.send(file=discord.File(result, f"{ctx.guild.id}.png"))

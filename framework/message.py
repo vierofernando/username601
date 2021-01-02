@@ -3,6 +3,7 @@ from datetime import datetime
 from io import BytesIO
 from time import time
 from os import getenv
+import gc
 
 class Paginator:
     def __init__(
@@ -41,10 +42,7 @@ class Paginator:
                 embed.set_author(name=f"Page {_embed_index}/{len(embeds)}")
                 self.embeds[_embed_index - 1] = embed
                 _embed_index += 1
-        self.max = len(embeds)
-        self.last_reaction = time()
-        self.ctx, self.max_time, self.ratelimit = ctx, max_time, ratelimit
-        self.index = 0
+        self.ctx, self.max_time, self.ratelimit, self.index, self.last_reaction, self.max = ctx, max_time, ratelimit, 0, time(), len(embeds)
         self.valid_emojis = [start_emoji, previous_emoji, close_emoji, next_emoji, end_emoji]
         self.check = (lambda reaction, user: (str(reaction.emoji) in self.valid_emojis) and (user == self.ctx.author))
     
@@ -150,7 +148,7 @@ class embed:
 
         if self.attachment_url:
             if isinstance(self.attachment_url, str):
-                _bytes = await self.ctx.bot.util.default_client.get(self.attachment_url)
+                _bytes = await self.ctx.bot.http._HTTPClient__session.get(self.attachment_url)
                 _bytes = await _bytes.read()
                 self.attachment_url = BytesIO(_bytes)
             _file = File(self.attachment_url, "image.png")
@@ -171,6 +169,24 @@ class embed:
         if not _attachment:
             return await message.edit(content='', embed=_embed)
         await message.edit(content='', embed=_embed, file=_attachment)
+    
+    def __del__(self):
+        del (
+            self.ctx,
+            self.title,
+            self.description,
+            self.current_time,
+            self.fields,
+            self.footer,
+            self.url,
+            self.image_url,
+            self.thumbnail_url,
+            self.footer_icon,
+            self.attachment_url,
+            self.author_name,
+            self.color
+        )
+        gc.collect()
 
 class WaitForMessage:
     def __init__(self, ctx, timeout=20.0, check=None):
@@ -186,6 +202,10 @@ class WaitForMessage:
             return text
         except:
             return
+    
+    def __del__(self):
+        del ( self.ctx, self._check, self._timeout )
+        gc.collect()
 
 class ChooseEmbed(embed):
     def __init__(self, ctx, reference: list, key = None):

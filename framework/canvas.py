@@ -12,15 +12,18 @@ from time import time
 from PIL import *
 import gc
 
-class Functions:
+class ImageClient:
     DISASTER_GIRL_PATH = "./assets/pics/disaster_girl.png"
     AMONG_US_PATH = "./assets/pics/among_us.png"
     AMONG_US_MASK_FR = Image.open(AMONG_US_PATH.replace("among_us.png", "among_us_mask.png")).convert("L")
     AMONG_US_MASK_BG = Image.open(AMONG_US_PATH.replace("among_us.png", "among_us_overlay.png")).convert("L")
     GRADIENT_MASK = Image.open("./assets/pics/gradient_mask.png").convert("L")
 
-    @staticmethod
-    def wrap_text(text: str, font, max_width: int) -> str:
+    def __init__(self, client):
+        self.http = client.http
+
+    
+    def wrap_text(self, text: str, font, max_width: int) -> str:
         """ Wraps a text. """
         res_text = []
         current_text = ""
@@ -39,45 +42,36 @@ class Functions:
         
         return "\n".join(res_text)
 
-    @staticmethod
-    async def image_from_URL(url: str, session=None):
+    
+    async def image_from_URL(self, url: str):
         """ Fetches an image from a URL to PIL.Image.Image. """
-        _session = session if session else ClientSession()
-        res = await _session.get(url)
+        res = await self.http._HTTPClient__session.get(url)
         byte_data = await res.read()
         image = Image.open(BytesIO(byte_data))
         del byte_data, res
-        if not session:
-            await _session.close()
-            del _session
         if url.startswith("https://twemoji.maxcdn.com/v/latest/72x72/"):
             image = image.convert("RGBA")
-        gc.collect()
         return image
 
-    @staticmethod
-    async def wand_from_URL(url: str, session=None):
+    
+    async def wand_from_URL(self, url: str):
         """ Fetches an image from a URL to Wand.Image. """
-        _session = session if session else ClientSession()
-        res = await _session.get(url)
+        res = await self.http._HTTPClient__session.get(url)
         byte_data = await res.read()
         res = _Image(blob=byte_data)
         del byte_data
-        if not session:
-            await _session.close()
-            del _session
         return res
 
-    @staticmethod
-    def wand_save(image) -> BytesIO:
+    
+    def wand_save(self, image) -> BytesIO:
         """ Saves a wand image. """
         buffer = BytesIO(image.make_blob(image.format))
         del image
         gc.collect()
         return buffer
 
-    @staticmethod
-    def save(image) -> BytesIO:
+    
+    def save(self, image) -> BytesIO:
         """ Saves an image as a buffer. """
         buffer = BytesIO()
         image.save(buffer, format="png")
@@ -87,106 +81,106 @@ class Functions:
         gc.collect()
         return buffer
 
-    @staticmethod
-    async def colorify(url: str, color: tuple, session=None) -> BytesIO:
-        """ Colourifies an image. """
-        wand_image = await Functions.wand_from_URL(url, session=session)
-        wand_image.colorize(color=f"rgb{color}", alpha="rgb(50%, 50%, 50%)")
-        return Functions.wand_save(wand_Image), wand_image.format
     
-    @staticmethod
-    async def blend(url1: str, url2: str, session=None) -> BytesIO:
+    async def colorify(self, url: str, color: tuple) -> BytesIO:
+        """ Colourifies an image. """
+        wand_image = await self.wand_from_URL(url)
+        wand_image.colorize(color=f"rgb{color}", alpha="rgb(50%, 50%, 50%)")
+        return self.wand_save(wand_Image), wand_image.format
+    
+    
+    async def blend(self, url1: str, url2: str) -> BytesIO:
         """ Blends two images together. """
-        image1 = await Functions.image_from_URL(url1, session=session)
-        image2 = await Functions.image_from_URL(url2, session=session)
+        image1 = await self.image_from_URL(url1)
+        image2 = await self.image_from_URL(url2)
 
         if image1.mode != "RGB":
             image1 = image1.convert("RGB")
         if image2.mode != "RGB":
             image2 = image2.convert("RGB")
 
-        return Functions.save(Image.blend(image1, image2, alpha=0.5))
+        return self.save(Image.blend(image1, image2, alpha=0.5))
 
-    @staticmethod
-    async def resize(url: str, width: int, height: int, session=None) -> BytesIO:
+    
+    async def resize(self, url: str, width: int, height: int) -> BytesIO:
         """ Resizes an image. """
-        image = await Functions.image_from_URL(url, session=session)
-        return Functions.save(image.resize((width, height)))
+        image = await self.image_from_URL(url)
+        return self.save(image.resize((width, height)))
 
-    @staticmethod
-    async def pixelate(url: str, amount: int = 32, session=None) -> BytesIO:
+    
+    async def pixelate(self, url: str, amount: int = 32) -> BytesIO:
         if amount not in [16, 32, 64, 128]:
             amount = 32
-        img = await Functions.image_from_URL(url, session=session)
+        img = await self.image_from_URL(url)
         img_small = img.resize((amount, amount), resample=Image.BILINEAR)
         result = img_small.resize(img.size, Image.NEAREST)
         del img_small, amount
-        return Functions.save(result)
+        return self.save(result)
 
-    @staticmethod
-    async def implode(url: str, amount: int, session=None) -> tuple:
+    
+    async def implode(self, url: str, amount: int) -> tuple:
         """ Implodes an image. Can be used to explode as well. """
-        wand_image = await Functions.wand_from_URL(url, session=session)
+        wand_image = await self.wand_from_URL(url)
         wand_image.implode(amount=amount)
-        return Functions.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image), wand_image.format
     
-    @staticmethod
-    async def swirl(url: str, degree: int, session=None) -> tuple:
+    
+    async def swirl(self, url: str, degree: int) -> tuple:
         """ Swirls an image. The intensity can be changed using the degree parameter. """
-        wand_image = await Functions.wand_from_URL(url, session=session)
+        wand_image = await self.wand_from_URL(url)
         wand_image.swirl(degree=degree)
-        return Functions.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image), wand_image.format
 
-    @staticmethod
-    async def charcoal(url: str, session=None) -> tuple:
-        """ Adds a charcoal filter to the image. """
-        wand_image = await Functions.wand_from_URL(url, session=session)
-        wand_image.charcoal(radius=1.5, sigma=0.5)
-        return Functions.wand_save(wand_image), wand_image.format
     
-    @staticmethod
-    async def sketch(url: str, session=None) -> tuple:
+    async def charcoal(self, url: str) -> tuple:
+        """ Adds a charcoal filter to the image. """
+        wand_image = await self.wand_from_URL(url)
+        wand_image.charcoal(radius=1.5, sigma=0.5)
+        return self.wand_save(wand_image), wand_image.format
+    
+    
+    async def sketch(self, url: str) -> tuple:
         """ Adds a sketch filter to the image. """
-        wand_image = await Functions.wand_from_URL(url, session=session)
+        wand_image = await self.wand_from_URL(url)
         wand_image.transform_colorspace("gray")
         wand_image.sketch(0.5, 0.0, 98.0)
-        return Functions.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image), wand_image.format
     
-    @staticmethod
-    async def edge(url: str, session=None) -> tuple:
+    
+    async def edge(self, url: str) -> tuple:
         """ Adds a edge filter to the image. """
-        wand_image = await Functions.wand_from_URL(url, session=session)
+        wand_image = await self.wand_from_URL(url)
         wand_image.transform_colorspace('gray')
         wand_image.edge(radius=1)
-        return Functions.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image), wand_image.format
     
-    @staticmethod
-    async def emboss(url: str, session=None) -> tuple:
+    
+    async def emboss(self, url: str) -> tuple:
         """ Adds a emboss filter to the image. """
-        wand_image = await Functions.wand_from_URL(url, session=session)
+        wand_image = await self.wand_from_URL(url)
         wand_image.transform_colorspace('gray')
         wand_image.emboss(radius=3.0, sigma=1.75)
-        return Functions.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image), wand_image.format
     
-    @staticmethod
-    async def spread(url: str, session=None) -> tuple:
+    
+    async def spread(self, url: str) -> tuple:
         """ Spreads the image pixels. """
-        wand_image = await Functions.wand_from_URL(url, session=session)
+        wand_image = await self.wand_from_URL(url)
         wand_image.spread(radius=8.0)
-        return Functions.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image), wand_image.format
 
-    @staticmethod
-    async def wave(url: str, amount: int, session=None) -> tuple:
+    
+    async def wave(self, url: str, amount: int) -> tuple:
         """ Adds a wavy effect to the image. """
-        wand_image = await Functions.wand_from_URL(url, session=session)
+        wand_image = await self.wand_from_URL(url)
         wand_image.wave(amplitude=wand_image.height / (amount * 5), wave_length=wand_image.width / amount)
-        return Functions.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image), wand_image.format
 
-    @staticmethod
-    async def disaster_girl(url: str, session=None) -> BytesIO:
+    
+    async def disaster_girl(self, url: str) -> BytesIO:
         """ Generates a disaster girl picture in front of your picture. """
-        image = await Functions.image_from_URL(url, session=session)
-        girl = Image.open(Functions.DISASTER_GIRL_PATH)
+        image = await self.image_from_URL(url)
+        girl = Image.open(ImageClient.DISASTER_GIRL_PATH)
         h = image.height // 2
         w = h * 3 // 4
         
@@ -195,33 +189,33 @@ class Functions:
         girl.close()
         del girl, w, h
         gc.collect()
-        return Functions.save(image)
+        return self.save(image)
 
-    @staticmethod
-    async def oil(url: str, session=None) -> BytesIO:
+    
+    async def oil(self, url: str) -> BytesIO:
         """ Adds a oil effect to the image. """
-        wand_image = await Functions.wand_from_URL(url, session=session)
+        wand_image = await self.wand_from_URL(url)
         wand_image.oil_paint(10, 8)
-        return Functions.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image), wand_image.format
 
-    @staticmethod
-    async def noise(url: str, session=None) -> BytesIO:
+    
+    async def noise(self, url: str) -> BytesIO:
         """ Adds a noise to the image. """
-        wand_image = await Functions.wand_from_URL(url, session=session)
+        wand_image = await self.wand_from_URL(url)
         wand_image.noise("laplacian", attenuate=100.0)
-        return Functions.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image), wand_image.format
 
-    @staticmethod
-    async def solarize(url: str, session=None) -> BytesIO:
+    
+    async def solarize(self, url: str) -> BytesIO:
         """ Adds a solarize filter to the image. """
-        wand_image = await Functions.wand_from_URL(url, session=session)
+        wand_image = await self.wand_from_URL(url)
         wand_image.solarize(threshold=0.5 * wand_image.quantum_range)
-        return Functions.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image), wand_image.format
 
-    @staticmethod
-    async def glitch(url: str, session=None):
+    
+    async def glitch(self, url: str):
         """ Glitches an image. """
-        image = await Functions.image_from_URL(url, session=session)
+        image = await self.image_from_URL(url)
         assert image.width in range(50, 1500), "Image width must be around the range of 50 and 1500 pixels"
         assert image.height in range(50, 1500), "Image height must be around the range of 50 and 1500 pixels"
         pixel_list = image.load()
@@ -232,13 +226,13 @@ class Functions:
                 a = w + (r - image.width) if (w + r) >= image.width else (w + r)
                 pixel_list[w, h] = pixel_list[a, h]
         del pixel_list
-        return Functions.save(image)
+        return self.save(image)
 
-    @staticmethod
-    async def among_us(url: str, session=None) -> BytesIO:
+    
+    async def among_us(self, url: str) -> BytesIO:
         """ Creates an among us image from an avatar. """
-        crewmate = Image.open(Functions.AMONG_US_PATH)
-        image = await Functions.image_from_URL(url, session=session)
+        crewmate = Image.open(ImageClient.AMONG_US_PATH)
+        image = await self.image_from_URL(url)
         image = image.resize((240, 228))
         colorthief = Smart_ColorThief(None, image)
         color = await colorthief.get_color(right=True)
@@ -249,49 +243,49 @@ class Functions:
         foreground = background.copy()
         background.paste(crewmate, (0, 0), crewmate)
         
-        background.putalpha(Functions.AMONG_US_MASK_FR)
+        background.putalpha(ImageClient.AMONG_US_MASK_FR)
         foreground.paste(image, (47, 129))
         foreground.paste(background, (0, 0), background)
         
-        foreground.putalpha(Functions.AMONG_US_MASK_BG)
+        foreground.putalpha(ImageClient.AMONG_US_MASK_BG)
         
         image.close()
         crewmate.close()
         background.close()
         del image, crewmate, color, colorthief, background
         gc.collect()
-        return Functions.save(foreground)
+        return self.save(foreground)
 
-    @staticmethod
-    async def gradient(rgb_1: tuple, rgb_2: tuple) -> BytesIO:
+    
+    async def gradient(self, rgb_1: tuple, rgb_2: tuple) -> BytesIO:
         """ Creates a gradient from two RGBs. """
         background_right = Image.new("RGB", (400, 200), rgb_2)
-        background_right.putalpha(Functions.GRADIENT_MASK)
+        background_right.putalpha(ImageClient.GRADIENT_MASK)
         background_left = Image.new("RGB", (400, 200), rgb_1)
         background_left.paste(background_right, (0, 0), background_right)
         background_right.close()
         del background_right
         gc.collect()
         
-        return Functions.save(background_left)
+        return self.save(background_left)
 
-    @staticmethod
-    async def dissolve(url: str, session=None) -> BytesIO:
+    
+    async def dissolve(self, url: str) -> BytesIO:
         """ Dissolves an image. """
         chance = (lambda: (0 if randint(0, 2) == 2 else 255))
         mask_arr = []
-        image = await Functions.image_from_URL(url, session=session)
+        image = await self.image_from_URL(url)
         mask = Image.new("L", image.size)
         
         for _ in range(image.width * image.height):
-            mask_arr.append(chance(2))
+            mask_arr.append(chance())
         
         mask.putdata(mask_arr)
         image.putalpha(mask)
         del mask_arr, mask, chance
         
         gc.collect()
-        return Functions.save(image)
+        return self.save(image)
 
 class Blur:
     BASIC_BLUR = 0
@@ -301,26 +295,30 @@ class Blur:
 
     def __init__(
         self,
-        image_url: str,
-        session = None
+        client,
+        image_url: str
     ):
         """ Blurs an image. """
         self.image_url = image_url
-        self.session = session
+        self.Image = client.Image
+        self._functions = (
+            ("blur", {"radius": 0, "sigma": 3}),
+            ("gaussian_blur", {"sigma": 3}),
+            ("motion_blur", {"radius": 16, "sigma": 8, "angle": -45}),
+            ("rotational_blur", {"angle": 5})
+        )
         
     async def blur(self, type):
-        wand_image = await Functions.wand_from_URL(self.image_url, session=self.session)
+        wand_image = await self.Image.wand_from_URL(self.image_url)
+        func, args = self._functions[type]
+        getattr(wand_image, func)(**args)
         
-        if type == 0:
-            wand_image.blur(radius=0, sigma=3)
-        elif type == 1:
-            wand_image.gaussian_blur(sigma=3)
-        elif type == 2:
-            wand_image.motion_blur(radius=16, sigma=8, angle=-45)
-        else:
-            wand_image.rotational_blur(angle=5)
-        
-        return Functions.wand_save(wand_image), wand_image.format
+        return self.Image.wand_save(wand_image), wand_image.format
+
+    def __del__(self):
+        del self.image_url
+        del self.Image
+        del self._functions
 
 class GDLevel:
     def __init__(
@@ -331,7 +329,7 @@ class GDLevel:
         font_other: str
     ):
         
-        self.ctx = ctx
+        self.bot = ctx.bot
         self.query = level_query
         self.pusab_big = ImageFont.truetype(font_title, 40)
         self.pusab_smol = ImageFont.truetype(font_title, 30)
@@ -350,7 +348,7 @@ class GDLevel:
         }
     
     async def draw(self):
-        resp = await self.ctx.bot.util.default_client.get('https://gdbrowser.com/api/level/' + self.ctx.bot.util.encode_uri(self.query))
+        resp = await self.bot.http._HTTPClient__session.get('https://gdbrowser.com/api/level/' + self.bot.util.encode_uri(self.query))
         data = await resp.json()
         
         levelName = data['name']
@@ -368,14 +366,14 @@ class GDLevel:
         w, _ = self.pusab_smol.getsize(levelAuth)
         draw.text(((W-w)//2,50), levelAuth, font=self.pusab_smol, stroke_width=2, stroke_fill="black", fill=(255, 200, 0))
         desc_cursor = 300
-        texts, sym_cursor = Functions.wrap_text(levelDesc, self.aller, 445), 100
+        texts, sym_cursor = self.wrap_text(levelDesc, self.aller, 445), 100
 
         for i in texts.split("\n"):
             w, _ = self.aller.getsize(i)
             draw.text(((W-w)/2, desc_cursor), i, font=self.aller, fill='white')
             desc_cursor += 25
 
-        difficulty = await Functions.image_from_URL(f"https://gdbrowser.com/difficulty/{data['difficultyFace']}.png", session=self.ctx.bot.util.default_client)
+        difficulty = await self.bot.Image.image_from_URL(f"https://gdbrowser.com/difficulty/{data['difficultyFace']}.png")
         difficulty = difficulty.convert("RGBA").resize((75, 75))
         main.paste(difficulty, ((W - 75) // 2 - 100, 100), difficulty)
         w, _ = self.pusab_tiny.getsize(levelDiff)
@@ -385,7 +383,7 @@ class GDLevel:
 
         for i in self.gd_assets['main'].keys():
             if not self.gd_assets['main'][i]:
-                sym = await Functions.image_from_URL(self.gd_assets['dislike' if data['disliked'] else 'like'], session=self.ctx.bot.util.default_client)
+                sym = await self.bot.Image.image_from_URL(self.gd_assets['dislike' if data['disliked'] else 'like'])
                 sym = sym.convert("RGBA").resize((25, 25))
                 main.paste(sym, ((W-25) // 2 + 75, sym_cursor), sym)
                 draw.text(((W-25) // 2 + 105, sym_cursor + 5), f'{data["likes"]:,}', font=self.pusab_smoler, stroke_width=2, stroke_fill="black")
@@ -394,14 +392,14 @@ class GDLevel:
             if i not in data.keys():
                 continue
             
-            sym = await Functions.image_from_URL(self.gd_assets['main'][i], session=self.ctx.bot.util.default_client)
+            sym = await self.bot.Image.image_from_URL(self.gd_assets['main'][i])
             sym = sym.convert("RGBA").resize((25, 25))
             main.paste(sym, ((W-25) // 2 + 75, sym_cursor), sym)
             draw.text(((W-25) // 2 + 105, sym_cursor + 5), f"{data[i]:,}" if str(data[i]).isnumeric() else data[i], font=self.pusab_smoler, stroke_width=2, stroke_fill="black")
             sym_cursor += 30
             del sym
         
-        res = Functions.save(main)
+        res = self.save(main)
         del (
             main,
             draw,
@@ -417,26 +415,30 @@ class GDLevel:
             levelDiff,
             levelStars,
             resp,
-            data,
+            data
+        )
+        gc.collect()
+
+        return res
+    
+    def __del__(self):
+        del (
             self.pusab_big,
             self.pusab_smol,
             self.pusab_smoler,
             self.pusab_tiny,
             self.aller,
             self.query,
-            self.ctx,
+            self.bot,
             self.gd_assets
         )
         gc.collect()
 
-        return res
-
 class ProfileCard:
-    def __init__(self, ctx, member, profile: dict, session, font_path: str):
+    def __init__(self, ctx, member, profile: dict, font_path: str):
         self.bal = profile
         self.user = member
-        self.ctx = ctx
-        self.session = session
+        self.bot = ctx.bot
 
         # measure the width
         self.big_font = ImageFont.truetype(font_path, 30)
@@ -479,7 +481,7 @@ class ProfileCard:
         self.foreground_color = (0, 0, 0) if (sum(self.background_color) // 3) > 127 else (255, 255, 255)
         self.main = Image.new(mode="RGB", size=(self.width, 190), color=self.background_color)
         self.d = ImageDraw.Draw(self.main)
-        self.parser = TwemojiParser(self.main, session=self.session)
+        self.parser = TwemojiParser(self.main, session=self.bot.http._HTTPClient__session)
         self.lower_brightness = (lambda x: tuple(map(lambda y: y - x, self.background_color)))
 
         # draw the rectangles
@@ -497,7 +499,7 @@ class ProfileCard:
         await self.parser.draw_text((380, 80), description, font=self.smol_font, fill=self.foreground_color)
 
         # get avatar
-        avatar = await Functions.image_from_URL(str(self.user.avatar_url_as(format="png", size=128)), session=self.session)
+        avatar = await self.bot.Image.image_from_URL(str(self.user.avatar_url_as(format="png", size=128)))
         avatar = avatar.resize((150, 150))
 
         # paste the avatar
@@ -529,19 +531,16 @@ class ProfileCard:
             self.bal,
             self.user,
             self.parser,
-            self.session,
             self.width,
-            self.ctx
+            self.bot
         )
         gc.collect()
 
 class UserCard:
-    def __init__(self, ctx, member, font_path: str, session = None):
-        self.ctx = ctx
+    def __init__(self, ctx, member, font_path: str):
+        self.bot = ctx.bot
         self.user = member
-        self.new_session = bool(session)
         self.font_path = font_path
-        self.session = session if session else ClientSession()
         self.flags = {
             "nitro": "https://discordia.me/uploads/badges/nitro_badge.png",
             "booster": "https://erisly.com/assets/img/premium/boost.cb45e94.png",
@@ -556,6 +555,15 @@ class UserCard:
                 "verified_bot_developer": "https://discordia.me/uploads/badges/verified_developer_badge.png"
             }
         }
+        self._activity_prefix = {
+            ActivityType.listening: "Listening to ",
+            ActivityType.competing: "Competing in ",
+            ActivityType.watching:  "Watching ",
+            ActivityType.playing:   "Playing ",
+            ActivityType.streaming: "Streaming ",
+            ActivityType.custom:    None,
+            ActivityType.unknown:   None
+        }
     
     async def get_status_image(self):
         dict_data = self.user.activity.to_dict()
@@ -563,7 +571,7 @@ class UserCard:
         if dict_data.get("emoji"):
             if dict_data["emoji"].get("id"):
                 return f'https://cdn.discordapp.com/emojis/{dict_data["emoji"]["id"]}'
-            emoji_url = await emoji_to_url(str(self.user.activity.emoji), session=self.session)
+            emoji_url = await emoji_to_url(str(self.user.activity.emoji), session=self.bot.http._HTTPClient__session)
             if emoji_url.startswith("http"):
                 return emoji_url
             return
@@ -571,33 +579,18 @@ class UserCard:
             return self.user.activity.album_cover_url
         elif dict_data.get("assets"):
             return f'https://cdn.discordapp.com/app-assets/{dict_data["application_id"]}/{dict_data["assets"]["small_image"]}.png'
-        else:
-            return
+        return
     
     def get_status_name(self):
-        if self.user.activity.type == ActivityType.custom:
-            return "<custom activity>"
-        elif self.user.activity.type == ActivityType.listening:
-            name = "Listening to "
-        elif self.user.activity.type == ActivityType.competing:
-            name = "Competing in "
-        elif self.user.activity.type == ActivityType.watching:
-            name = "Watching "
-        elif self.user.activity.type == ActivityType.playing:
-            name = "Playing "
-        elif self.user.activity.type == ActivityType.streaming:
-            name = "Streaming"
-        else:
-            return "???"
-        
-        return name + self.user.activity.to_dict()["name"]
+        name = self._activity_prefix[self.user.activity.type]
+        return (name + self.user.activity.to_dict()["name"] if name else "<custom activity>")
     
     def get_font(self, size: int):
         return ImageFont.truetype(self.font_path, size)
 
     async def send(self):
         # user avatar
-        avatar = await Functions.image_from_URL(str(self.user.avatar_url_as(format="png", size=128)), session=self.session)
+        avatar = await self.bot.Image.image_from_URL(str(self.user.avatar_url_as(format="png", size=128)))
         avatar = avatar.resize((150, 150))
         
         # configure stuff
@@ -609,7 +602,7 @@ class UserCard:
         smol_font = ImageFont.truetype(25)
         tiny_font = ImageFont.truetype(20)
         title_size = big_font.getsize(self.user.display_name)[0]
-        description = f"Created at {str(self.user.created_at)[:-7]} ({self.ctx.bot.util.strfsecond(time() - self.user.created_at.timestamp())} ago)" + "\n" + f"Joined at {str(self.user.joined_at)[:-7]} (Position: {self.ctx.bot.util.join_position(self.ctx.guild, self.user):,}/{self.ctx.guild.member_count:,})"
+        description = f"Created at {str(self.user.created_at)[:-7]} ({self.bot.util.strfsecond(time() - self.user.created_at.timestamp())} ago)" + "\n" + f"Joined at {str(self.user.joined_at)[:-7]} (Position: {self.bot.util.join_position(self.ctx.guild, self.user):,}/{self.ctx.guild.member_count:,})"
         del _thief
         
         # measure the width for the image
@@ -643,7 +636,7 @@ class UserCard:
             color = None if url else (255, 255, 255)
             
             if url:
-                status_image = await Functions.image_from_URL(url, session=self.session)
+                status_image = await self.bot.Image.image_from_URL(url)
                 status_image = status_image.resize((40, 40)).convert("RGBA") if url.startswith("https://twemoji.maxcdn.com/") else status_image.resize((40, 40))
                 _thief = Smart_ColorThief(self.ctx, url)
                 activity_color = await _thief.get_color(right=True)
@@ -668,15 +661,15 @@ class UserCard:
             if not getattr(self.user.public_flags, flag):
                 continue
             
-            flag_image = await Functions.image_from_URL(self.flags["badges"][flag], session=self.session)
+            flag_image = await self.bot.Image.image_from_URL(self.flags["badges"][flag])
             flag_image = flag_image.resize((30, 30))
             main.paste(flag_image, (flag_y, 30), flag_image)
             del flag_image
             flag_y -= 35
         
         # add nitro badge to list if user has one
-        if self.ctx.bot.util.has_nitro(self.ctx.guild, self.user):
-            flag_image = await Functions.image_from_URL(self.flags["nitro"], session=self.session)
+        if self.bot.util.has_nitro(self.ctx.guild, self.user):
+            flag_image = await self.bot.Image.image_from_URL(self.flags["nitro"])
             flag_image = flag_image.resize((30, 30))
             main.paste(flag_image, (flag_y, 30), flag_image)
             del flag_image
@@ -684,7 +677,7 @@ class UserCard:
         
         # add booster badge to list if user has one
         if self.user in self.ctx.guild.premium_subscribers:
-            flag_image = await Functions.image_from_URL(self.flags["booster"], session=self.session)
+            flag_image = await self.bot.Image.image_from_URL(self.flags["booster"])
             flag_image = flag_image.resize((30, 30))
             main.paste(flag_image, (flag_y, 30), flag_image)
             del flag_image
@@ -694,10 +687,6 @@ class UserCard:
         main.save(b, format="png")
         b.seek(0)
         await self.ctx.send(file=File(b, "card.png"))
-        
-        # close the session if it was not previously defined
-        if self.new_session:
-            await self.session.close()
         
         # delete all the attributes
         del (
@@ -716,10 +705,9 @@ class UserCard:
             self.flags,
             title_size,
             self.user,
-            self.ctx,
-            self.session,
-            self.new_session,
+            self.bot,
             self.font_path,
+            self._activity_prefix,
             b
         )
         
@@ -727,13 +715,10 @@ class UserCard:
         gc.collect()
 
 class ServerCard:
-    def __init__(self, ctx, font_path: str, session: ClientSession = None):
+    def __init__(self, ctx, font_path: str):
         """ Server Info command thingy """
         self.ctx = ctx
-
-        self._use_new_session = bool(session)
         self._get_font = (lambda x: ImageFont.truetype(font_path, x))
-        self._session = ClientSession() if self._use_new_session else session
         self._server_tier_urls = [
             "https://vierofernando.is-inside.me/YWs1Qw2q.png",
             "https://vierofernando.is-inside.me/BIe3ccYA.png",
@@ -746,7 +731,7 @@ class ServerCard:
         # commenting everything because codes with comments make it look "tidier" :^)
 
         # get the guild icon
-        server_icon = await Functions.image_from_URL(str(self.ctx.guild.icon_url_as(format="png", size=128)) if self.ctx.guild.icon_url else "https://cdn.discordapp.com/embed/avatars/0.png", session=self._session)
+        server_icon = await self.ctx.bot.Image.image_from_URL(str(self.ctx.guild.icon_url_as(format="png", size=128)) if self.ctx.guild.icon_url else "https://cdn.discordapp.com/embed/avatars/0.png")
         server_icon = server_icon.resize((128, 128))
         _colorthief = Smart_ColorThief(self.ctx, str(self.ctx.guild.icon_url_as(format="png", size=128)) if self.ctx.guild.icon_url else "https://cdn.discordapp.com/embed/avatars/0.png")
 
@@ -778,7 +763,7 @@ class ServerCard:
         draw.rectangle([(148, 20), (im.width - 20, 70)], fill=lower_brightness(50))
         draw.rectangle([(148, 70), (im.width - 20, 148)], fill=lower_brightness(70))
 
-        tier_icon = await Functions.image_from_URL(self._server_tier_urls[self.ctx.guild.premium_tier], session=self._session)
+        tier_icon = await self.ctx.bot.Image.image_from_URL(self._server_tier_urls[self.ctx.guild.premium_tier])
         tier_icon = tier_icon.resize((40, 40))
         im.paste(tier_icon, (im.width - 75, 25), tier_icon)
 
@@ -793,10 +778,6 @@ class ServerCard:
         b = BytesIO()
         im.save(b, format="png")
         b.seek(0)
-
-        # close the session if session is not defined in the beginning
-        if self._use_new_session:
-            await self._session.close()
 
         # delete to free memory
         del (
@@ -813,9 +794,8 @@ class ServerCard:
             background_color,
             foreground_color,
             lower_brightness,
-            self.ctx.guild,
+            self.ctx,
             self._get_font,
-            self._use_new_session,
             self._server_tier_urls
         )
         

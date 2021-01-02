@@ -330,7 +330,7 @@ class economy(commands.Cog):
 
                 if not data:
                     raise ctx.bot.util.BasicCommandException(f"{member.display_name} does not have any profile.")
-                card = ctx.bot.ProfileCard(ctx, member, profile=data, session=ctx.bot.util.default_client, font_path=ctx.bot.util.fonts_dir + "/NotoSansDisplay-Bold.otf")
+                card = ctx.bot.ProfileCard(ctx, member, profile=data, font_path=ctx.bot.util.fonts_dir + "/NotoSansDisplay-Bold.otf")
                 byte = await card.draw()
                 await ctx.send(file=discord.File(byte, "card.png"))
                 await card.close()

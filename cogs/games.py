@@ -83,7 +83,7 @@ class games(commands.Cog):
     async def minecraft(self, ctx, *args):
         await ctx.trigger_typing()
         name = ctx.bot.util.encode_uri(ctx.author.display_name if len(args)==0 else ' '.join(args))
-        data = await ctx.bot.util.default_client.get(f"https://mc-heads.net/minecraft/profile/{name}")
+        data = await ctx.bot.http._HTTPClient__session.get(f"https://mc-heads.net/minecraft/profile/{name}")
         if data.status != 200:
             raise ctx.bot.util.BasicCommandException(f"Minecraft for profile: `{name}` not found.")
         data = await data.json()
@@ -109,7 +109,7 @@ class games(commands.Cog):
     async def amongus(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args)
-        im = await ctx.bot.Image.among_us(url, session=ctx.bot.util.default_client)
+        im = await ctx.bot.Image.among_us(url)
         await ctx.send(file=discord.File(im, 'the_impostor.png'))
         del im, url
 
@@ -281,7 +281,7 @@ class games(commands.Cog):
     async def geoquiz(self, ctx):
         await ctx.trigger_typing()
 
-        quizClient = ctx.bot.GeoQuiz(session=ctx.bot.util.default_client)
+        quizClient = ctx.bot.GeoQuiz(session=ctx.bot.http._HTTPClient__session)
         win = await quizctx.bot.play(ctx)
 
         if not win:
@@ -375,7 +375,7 @@ class games(commands.Cog):
     async def trivia(self, ctx, *args):
         await ctx.trigger_typing()
         try:
-            trivia = ctx.bot.Trivia(" ".join(args)[0:50] if len(args)>0 else "Apple", session=ctx.bot.util.default_client)
+            trivia = ctx.bot.Trivia(" ".join(args)[0:50] if len(args)>0 else "Apple")
         except Exception as e:
             raise ctx.bot.util.BasicCommandException(str(e))
         correct = await trivia.start(ctx)

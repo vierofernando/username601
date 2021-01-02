@@ -7,7 +7,7 @@ from .colorthief import Smart_ColorThief
 
 class CustomPanel(Smart_ColorThief):
     async def __buffer_from_url(self, url: str , *args, **kwargs):
-        res = await self.ctx.bot.util.default_client.get(url)
+        res = await self.ctx.bot.http._HTTPClient__session.get(url)
         res = await res.read()
         return Image.open(BytesIO(res))
 

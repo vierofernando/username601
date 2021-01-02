@@ -133,7 +133,7 @@ class utils(commands.Cog):
         if not web.startswith('http'): web = 'http://' + web
         try:
             a = time()
-            ping = await ctx.bot.util.default_client.get(web)
+            ping = await ctx.bot.http._HTTPClient__session.get(web)
             pingtime = round((time() - a)*1000)
             embed = ctx.bot.Embed(ctx, title="That website is up.", fields={"Ping": f"{pingtime}ms", "HTTP Status Code": f"{ping.status} {ctx.bot.util.status_codes[str(ping.status)]}", "Content Type": ping.headers['Content-Type']}, color=discord.Color.green())
             await embed.edit_to(wait)
@@ -168,7 +168,7 @@ class utils(commands.Cog):
         query = ctx.bot.util.encode_uri('earth' if len(args)==0 else ' '.join(args))
         await ctx.trigger_typing()
         
-        data = await ctx.bot.util.default_client.get(f'https://images-api.nasa.gov/search?q={query[0:100]}&media_type=image')
+        data = await ctx.bot.http._HTTPClient__session.get(f'https://images-api.nasa.gov/search?q={query[0:100]}&media_type=image')
         try: data = await data.json()
         except: data = None
         if (not data) or len(data['collection']['items'])==0:

@@ -193,7 +193,7 @@ class Parser:
 
         _iter = list(Parser.EMOJI_REGEX.finditer(text))
         if not _iter:
-            twemoji = await emoji_to_url(text, session=ctx.bot.util.default_client)
+            twemoji = await emoji_to_url(text, session=ctx.bot.http._HTTPClient__session)
             if twemoji == text:
                 return
             return twemoji
@@ -219,7 +219,7 @@ class Parser:
             if (not custom_emoji) and cdn_only:
                 assert url.startswith("https://cdn.discordapp.com")
             
-            data = await ctx.bot.util.default_client.get(url)
+            data = await ctx.bot.http._HTTPClient__session.get(url)
             assert data.status == 200
             if custom_emoji:
                 return True
@@ -273,7 +273,7 @@ class Parser:
                 pass
         
         if (not member_only) and (not cdn_only):
-            _emoji = await emoji_to_url(_filtered, session=ctx.bot.util.default_client)
+            _emoji = await emoji_to_url(_filtered, session=ctx.bot.http._HTTPClient__session)
             if _emoji != _filtered:
                 return _emoji
         

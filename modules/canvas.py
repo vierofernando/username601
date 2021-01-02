@@ -12,7 +12,6 @@ import json
 import random
 from os import listdir, getenv
 __import__("sys").path.append(__import__("os").path.abspath("./framework"))
-from numpy import zeros, uint8
 from time import strftime, gmtime
 from io import BytesIO
 from datetime import datetime as t
@@ -127,20 +126,6 @@ class Painter:
         res = Smart_ColorThief(ctx, url)
         res = await res.get_color(right=right)
         return res[:3]
-
-    async def gradient(self, color_left, color_right):
-        if color_right:
-            main = Image.new("RGB", (1000, 500), color=color_right)
-        array = zeros([500, 1000, 4], dtype=uint8)
-        for y in range(1000):
-            arr = [color_left[0], color_left[1], color_left[2], round((1000 - y)/1000 * 255)]
-            for x in range(500):
-                array[x, y] = arr
-        image_overlay = Image.fromarray(array)
-        if not color_right:
-            return self.buffer(image_overlay)
-        main.paste(image_overlay, (0, 0), image_overlay)
-        return self.buffer(main)
 
     def get_multiple_accents(self, image):
         b = BytesIO(get(image).content)

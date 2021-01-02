@@ -1,7 +1,9 @@
 import discord
 import sys
 import os
-import random
+import gc
+from random import randint
+from pympler import muppy, summary
 from decorators import *
 from discord.ext import commands
 from datetime import datetime as t
@@ -23,20 +25,18 @@ class owner(commands.Cog):
 
     @command()
     @owner_only()
+    async def memstats(self, ctx):
+        d = summary.print_(summary.summarize(muppy.get_objects()))
+        return await ctx.send(f'Muppy result:```py\n{d}```\nGarbage Collector:\n```py\n{str(gc.get_stats())}```')
+
+    @command()
+    @owner_only()
     async def selfpurge(self, ctx):
         messages = list(filter(lambda x: x.author == ctx.me and x.guild == ctx.guild, ctx.bot.cached_messages))
         for message in messages[:10]:
             await message.delete()
             await sleep(2)
         del messages
-
-    @command()
-    @cooldown(2)
-    @owner_only()
-    async def leave(self, ctx, *args):
-        server_id = int(list(args)[1])
-        await ctx.bot.get_guild(server_id).leave()
-        return await ctx.send('ok')
     
     @command(['ann', 'announcement'])
     @cooldown(2)
@@ -126,7 +126,7 @@ class owner(commands.Cog):
                 await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+' '.join(parser.other)+'```\nException:```py\n'+str(e)+'```', color=discord.Colour.red()), delete_after=5)
         else:
             try:
-                time = random.randint(500, 1000) / 100
+                time = randint(500, 1000) / 100
                 if 'token' in ''.join(parser.other).lower(): iwanttostealsometoken = True
                 elif 'secret' in ''.join(parser.other).lower(): iwanttostealsometoken = True
                 if iwanttostealsometoken:

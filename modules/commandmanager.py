@@ -7,7 +7,7 @@ class BotCommands:
     
     async def initiate(self):
         try:
-            raw_data = await self.client.util.default_client.get("https://raw.githubusercontent.com/vierofernando/username601/master/assets/json/commands.json")
+            raw_data = await self.client.http._HTTPClient__session.get("https://raw.githubusercontent.com/vierofernando/username601/master/assets/json/commands.json")
             raw_data = await raw_data.text()
             self.raw_data = loads(raw_data)
             self.categories = list(map(lambda i: list(i.keys())[0], self.raw_data))

@@ -10,8 +10,7 @@ from .colorthief import Smart_ColorThief
 from .message import embed, Paginator, ChooseEmbed,  WaitForMessage
 from .util import Util, GetRequestFailedException, BasicCommandException
 from .games import Slot, TicTacToe, RockPaperScissors, GeographyQuiz, MathQuiz, GuessAvatar, Trivia, GuessMyNumber, Hangman
-from .canvas import ServerCard, UserCard, ProfileCard, GDLevel, Blur
-from .canvas import Functions as canvas_functions
+from .canvas import ServerCard, UserCard, ProfileCard, GDLevel, Blur, ImageClient
 from .database import Database
 from .lego import legofy
 
@@ -33,11 +32,11 @@ def initiate(client, db_name: str = "username601"): # prints because why not ?
     setattr(client, "ServerCard", ServerCard)
     setattr(client, "rps", RockPaperScissors)
     setattr(client, "GeoQuiz", GeographyQuiz)
-    setattr(client, "Image", canvas_functions)
     setattr(client, "ProfileCard", ProfileCard)
     setattr(client, "GuessAvatar", GuessAvatar)
     setattr(client, "ChooseEmbed", ChooseEmbed)
     setattr(client, "EmbedPaginator", Paginator)
+    setattr(client, "Image", ImageClient(client))
     setattr(client, "GuessMyNumber", GuessMyNumber)
     setattr(client, "ColorThief", Smart_ColorThief)
     setattr(client, "WaitForMessage", WaitForMessage)

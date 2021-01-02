@@ -23,7 +23,7 @@ class memes(commands.Cog):
     async def disastergirl(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args)
-        buffer = await ctx.bot.Image.disaster_girl(url, session=ctx.bot.util.default_client)
+        buffer = await ctx.bot.Image.disaster_girl(url)
         await ctx.send(file=discord.File(buffer, "girl.png"))
         del buffer, url
         collect()
