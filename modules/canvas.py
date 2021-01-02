@@ -247,32 +247,6 @@ class Painter:
         av.close()
         return self.buffer(bg)
 
-    async def imagetoASCII(self, url):
-        im = self.buffer_from_url(url).resize((300, 300)).rotate(90).convert('RGB')
-        im = im.resize((int(list(im.size)[0]/3)-60, int(list(im.size)[1]/3)))
-        total_str = ""
-        for i in range(im.width):
-            for j in range(im.height):
-                br = round(sum(im.getpixel((i, j)))/3)
-                if br in range(32): total_str += ':'
-                elif br in range(32, 64): total_str += '-'
-                elif br in range(64, 96): total_str += '='
-                elif br in range(96, 128): total_str += '+'
-                elif br in range(128, 159): total_str += '*'
-                elif br in range(159, 191): total_str += '#'
-                elif br in range(191, 223): total_str += '%'
-                else: total_str += "@"
-            total_str += '\n'
-        return '\n'.join(map(lambda i: i[::-1], total_str.split('\n')))
-    
-    async def imagetoASCII_picture(self, url):
-        font = self.get_font("consola", 11)
-        image = Image.new(mode='RGB', size=(602, 523), color=(0, 0, 0))
-        draw = ImageDraw.Draw(image)
-        string = await self.imagetoASCII(url)
-        draw.text((0, 0), string, font=font, fill=(255, 255, 255))
-        return self.buffer(image)
-
     async def disconnected(self, msg):
         im = self.templates['disconnected.png'].copy()
         draw, myFont = ImageDraw.Draw(im), self.get_font('Minecraftia-Regular', 16)

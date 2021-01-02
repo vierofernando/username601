@@ -106,6 +106,9 @@ class Parser:
         for i, arg in enumerate(args):
             self.shift(arg)
     
+    def __del__(self):
+        del (self.flags, self.other, self.raw)
+    
     @staticmethod
     def has_flag(args: tuple, flag_name: str) -> bool:
         """ Runs a quick check to see if flag is in args tuple. """

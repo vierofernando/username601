@@ -18,6 +18,7 @@ class ImageClient:
     AMONG_US_MASK_FR = Image.open(AMONG_US_PATH.replace("among_us.png", "among_us_mask.png")).convert("L")
     AMONG_US_MASK_BG = Image.open(AMONG_US_PATH.replace("among_us.png", "among_us_overlay.png")).convert("L")
     GRADIENT_MASK = Image.open("./assets/pics/gradient_mask.png").convert("L")
+    _ASCII_RANGES = ((33, ':'), (65, '-'), (97, '='), (129, '+'), (160, '*'), (192, '#'), (224, '%'), (256, '@'))
 
     def __init__(self, client):
         self.http = client.http
@@ -80,7 +81,32 @@ class ImageClient:
         buffer.seek(0)
         gc.collect()
         return buffer
-
+    
+    
+    def __get_ascii_char(self, s):
+        for n, c in ImageClient._ASCII_RANGES:
+            if s < n: return c
+    
+    
+    async def asciify(self, url: str) -> str:
+        """ Asciifies an image. """
+        im = await self.image_from_URL(url)
+        im = im.resize((100, 40))
+        
+        if im.mode != "RGB":
+            im = im.convert("RGB")
+        
+        pixels = im.load()
+        s = ""
+        
+        for x in range(40):
+            for y in range(100):
+                s += self.__get_ascii_char(sum(pixels[y, x]) // 3)
+            s += "\n"
+            
+        del pixels, im
+        return s
+    
     
     async def colorify(self, url: str, color: tuple) -> BytesIO:
         """ Colourifies an image. """

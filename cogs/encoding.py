@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from decorators import *
+from io import BytesIO
 
 class encoding(commands.Cog):
     def __init__(self):
@@ -10,15 +11,51 @@ class encoding(commands.Cog):
     @cooldown(2)
     @require_args()
     async def ascii(self, ctx, *args):
-        text = ' '.join(args)
-        ascii = await ctx.bot.util.get_request(
-            "http://artii.herokuapp.com/make",
-            raise_errors=True,
-            text=text
-        )
+        await ctx.trigger_typing()
+        parser = ctx.bot.Parser(args)
+        parser.parse()
+        hastebin = parser.has("hastebin")
+        parser.shift("hastebin")
         
-        await ctx.send(f'```{ascii[0:2000]}```')
-        del ascii, text
+        if (not parser) or (not parser.has("image")):
+            ascii = await ctx.bot.util.get_request(
+                "http://artii.herokuapp.com/make",
+                raise_errors=True,
+                text=' '.join(parser.other)
+            )
+            if hastebin:
+                try:
+                    response = await ctx.bot.http._HTTPClient__session.post("https://hastebin.com/documents", data=ascii)
+                    assert response.status < 400
+                    json = await response.json()
+                    await ctx.send(embed=discord.Embed(description=f"[**Click here to see the asciified text.**](https://hastebin.com/{json['key']})", color=discord.Color.green()))
+                    del string, image, parser, hastebin, json
+                    return
+                except AssertionError:
+                    pass
+            
+            await ctx.send(f'```{ascii[0:2000]}```')
+            del ascii, parser, hastebin
+            return
+        
+        parser.shift("image")
+        image = await ctx.bot.Parser.parse_image(ctx, parser.other)
+        string = await ctx.bot.Image.asciify(image)
+        if hastebin:
+            try:
+                response = await ctx.bot.http._HTTPClient__session.post("https://hastebin.com/documents", data=string)
+                assert response.status < 400
+                json = await response.json()
+                await ctx.send(embed=discord.Embed(description=f"[**Click here to see the asciified image.**](https://hastebin.com/{json['key']})", color=discord.Color.green()))
+                del string, image, parser, hastebin, json
+                return
+            except AssertionError:
+                pass
+        
+        await ctx.send(file=discord.File(BytesIO(bytes(string, 'utf-8')), "asciified.txt"))
+        del string, image, parser, hastebin
+        return
+    
     
     @command()
     @cooldown(5)

@@ -325,7 +325,7 @@ class economy(commands.Cog):
                 return
             elif parser.has_multiple("card", "image"):
                 parser.shift_multiple("card", "image")
-                member = ctx.bot.Parser.parse_user(ctx, tuple(parser.other))                
+                member = ctx.bot.Parser.parse_user(ctx, parser.other)                
                 data = self.db.get("economy", {"userid": member.id})
 
                 if not data:

@@ -654,7 +654,7 @@ class moderation(commands.Cog):
         
         if parser.has("card"):
             parser.shift("card")
-            person = ctx.bot.Parser.parse_user(ctx, tuple(parser.other))
+            person = ctx.bot.Parser.parse_user(ctx, parser.other)
             card = ctx.bot.UserCard(ctx, person, font_path=f"{ctx.bot.util.fonts_dir}/NotoSansDisplay-Bold.otf")
             del parser
             return await card.send()

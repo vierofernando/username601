@@ -53,7 +53,7 @@ class memes(commands.Cog):
             parser.shift("stretch")
             stretch = True
         
-        url = await ctx.bot.Parser.parse_image(ctx, tuple(parser.other))
+        url = await ctx.bot.Parser.parse_image(ctx, parser.other)
         await ctx.trigger_typing()
         buffer = await ctx.bot.canvas.trans_merge({
             'url': url,
