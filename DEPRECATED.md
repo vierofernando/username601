@@ -3,6 +3,9 @@
 ## DEPRECATED COMMANDS<br>
 these are commands i decided to delete or change to with the reasons.
 
+### 1imgascii<br>
+Merged to `1ascii --image <image> [--hastebin]`
+
 ### 1reply<br>
 Merged to `1say <text> --reply`
 
