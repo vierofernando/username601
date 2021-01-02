@@ -18,6 +18,10 @@ class encoding(commands.Cog):
         parser.shift("hastebin")
         
         if (not parser) or (not parser.has("image")):
+            if not parser.other:
+                del parser, hastebin
+                return await ctx.bot.cmds.invalid_args(ctx)
+            
             ascii = await ctx.bot.util.get_request(
                 "http://artii.herokuapp.com/make",
                 raise_errors=True,
@@ -29,7 +33,7 @@ class encoding(commands.Cog):
                     assert response.status < 400
                     json = await response.json()
                     await ctx.send(embed=discord.Embed(description=f"[**Click here to see the asciified text.**](https://paste.mod.gg/{json['key']})", color=discord.Color.green()))
-                    del string, image, parser, hastebin, json
+                    del ascii, image, parser, hastebin, json
                     return
                 except AssertionError:
                     pass
