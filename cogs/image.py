@@ -345,19 +345,6 @@ class image(commands.Cog):
         except:
             raise ctx.bot.util.BasicCommandException("404")
 
-    @command()
-    @cooldown(2)
-    async def goat(self, ctx):
-        return await ctx.bot.util.send_image_attachment(ctx, 'https://placegoat.com/'+str(random.randint(500, 700)))
-
-    @command(['flop'])
-    @cooldown(7)
-    async def flip(self, ctx, *args):
-        await ctx.trigger_typing()
-        ava = await ctx.bot.Parser.parse_image(ctx, args, size=512)
-        data = await ctx.bot.gif.flip(ava)
-        return await ctx.send(file=discord.File(data, 'flip.gif'))
-
     @command(['spin'])
     @cooldown(7)
     async def rotate(self, ctx, *args):
@@ -400,35 +387,6 @@ class image(commands.Cog):
         )
         await ctx.bot.util.send_image_attachment(ctx, data[0])
         del data
-    
-    @command()
-    @cooldown(2)
-    @require_args()
-    async def ship(self, ctx, *args):
-        await ctx.trigger_typing()
-        parsed_args = ctx.bot.Parser.split_args(args)
-        if not parsed_args: 
-            first, second = ctx.author.avatar_url_as(format='png'), await ctx.bot.Parser.parse_image(ctx, args)
-        else: first, second = await ctx.bot.Parser.parse_image(ctx, parsed_args[0]), await ctx.bot.Parser.parse_image(ctx, parsed_args[1])
-        url = f'https://api.alexflipnote.dev/ship?user={first}&user2={second}'
-        return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
-
-    @command(['hungry'])
-    @cooldown(2)
-    async def food(self, ctx):
-        await ctx.trigger_typing()
-        data = await ctx.bot.util.get_request('https://nekobot.xyz/api/image', json=True, raise_errors=True, type="food")
-        return await ctx.bot.util.send_image_attachment(ctx, data['message'].replace('\/', '/'))
-
-    @command()
-    @cooldown(2)
-    async def coffee(self, ctx):
-        await ctx.trigger_typing()
-        seed = random.randint(0, 1)
-        if not seed:
-            data = await ctx.bot.util.get_request('https://nekobot.xyz/api/image', json=True, raise_errors=True, type="coffee")
-            return await ctx.bot.util.send_image_attachment(ctx, data["message"].replace('\/', '/'))
-        return await ctx.bot.util.send_image_attachment(ctx, 'https://coffee.alexflipnote.dev/random', alexflipnote=True)
 
     @command(['pixel', '8-bit', '8bit'])
     @cooldown(3)

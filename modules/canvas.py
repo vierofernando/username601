@@ -356,13 +356,3 @@ class GifGenerator:
             res = Image.blend(ava, self.ussr_frames[frame], opacity)
             total_frame.append(res)
         return self.bufferGIF(total_frame, 15)
-    
-    async def giffromURL(self, url, compress):
-        mygif = self.buffer_from_url(url)
-        frames = []
-        for i in range(mygif.n_frames):
-            mygif.seek(i)
-            if compress: frames.append(mygif.resize((216, 216))) ; continue
-            frames.append(mygif)
-        data = self.bufferGIF(frames, 5)
-        return data
