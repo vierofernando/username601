@@ -47,7 +47,7 @@ class image(commands.Cog):
         try:
             if len(args) == 1:
                 color = ctx.bot.Parser.parse_color(args[0])
-                image = str(ctx.author.avatar_url_as(size=512))
+                image = str(ctx.author.avatar_url_as(format=("gif" if ctx.author.is_avatar_animated() else "png"), size=512))
             else:
                 parsed_args = ctx.bot.Parser.split_args(args)
                 color = ctx.bot.Parser.parse_color(parsed_args[0])
