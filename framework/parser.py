@@ -247,11 +247,7 @@ class Parser:
                 return str(ctx.message.attachments[0].url)
         
         if not args:
-            if default_to_png:
-                return str(ctx.author.avatar_url_as(format="png", size=size))
-            if ctx.author.is_avatar_animated():
-                return str(ctx.author.avatar_url_as(size=size))
-            return str(ctx.author.avatar_url_as(format="png", size=size))
+            return str(ctx.author.avatar_url_as(format=("png" if (default_to_png or (not ctx.author.is_avatar_animated())) else "gif"), size=size))
         
         url = "".join(args).replace("<", "").replace(">", "")
         if ((url.startswith("http")) and ("://" in url)) and (not member_only):
@@ -282,7 +278,7 @@ class Parser:
         
         user = Parser.parse_user(ctx, args)
         if not default_to_png:
-            return (str(user.avatar_url_as(size=size)) if user.is_avatar_animated() else str(user.avatar_url_as(format="png", size=size)))
+            return (str(user.avatar_url_as(format=("gif" if user.is_avatar_animated() else "png"), size=size))
         return str(user.avatar_url_as(format="png", size=size))
 
     @staticmethod

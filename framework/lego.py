@@ -85,6 +85,6 @@ async def legofy(url: str, session):
         image = image.convert("RGBA")
     
     res = main(image)
-    del image, byte, resp
+    del image, byte, resp, session
     gc.collect()
     return res

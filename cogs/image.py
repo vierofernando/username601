@@ -67,9 +67,10 @@ class image(commands.Cog):
         await ctx.trigger_typing()
         
         image_url = await ctx.bot.Parser.parse_image(ctx, args)
-        lego_image = await ctx.bot.lego(image_url)
+        lego_image = await ctx.bot.lego(image_url, ctx.bot.http._HTTPClient__session)
         await ctx.send(file=discord.File(lego_image, "lego.png"))
         del image_url, lego_image
+        collect()
 
     @command()
     @cooldown(9)
