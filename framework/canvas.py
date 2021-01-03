@@ -112,7 +112,7 @@ class ImageClient:
         """ Colourifies an image. """
         wand_image = await self.wand_from_URL(url)
         wand_image.colorize(color=f"rgb{color}", alpha="rgb(50%, 50%, 50%)")
-        return self.wand_save(wand_Image), wand_image.format
+        return self.wand_save(wand_image), wand_image.format
     
     
     async def blend(self, url1: str, url2: str) -> BytesIO:

@@ -52,13 +52,14 @@ class image(commands.Cog):
                 parsed_args = ctx.bot.Parser.split_args(args)
                 color = ctx.bot.Parser.parse_color(parsed_args[0])
                 image = await ctx.bot.Parser.parse_image(ctx, (parsed_args[1],), default_to_png=False)
+                del parsed_args
             assert bool(color)
         except:
             return await ctx.bot.cmds.invalid_args(ctx)
         
         image, format = await ctx.bot.Image.colorify(image, color)
         await ctx.send(file=discord.File(image, f"file.{format.lower()}"))
-        del resp, byte, image, color, format
+        del color, image, format
         collect()
 
     @command(['legofy'])
