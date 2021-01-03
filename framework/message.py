@@ -169,24 +169,6 @@ class embed:
         if not _attachment:
             return await message.edit(content='', embed=_embed)
         await message.edit(content='', embed=_embed, file=_attachment)
-    
-    def __del__(self):
-        del (
-            self.ctx,
-            self.title,
-            self.description,
-            self.current_time,
-            self.fields,
-            self.footer,
-            self.url,
-            self.image_url,
-            self.thumbnail_url,
-            self.footer_icon,
-            self.attachment_url,
-            self.author_name,
-            self.color
-        )
-        gc.collect()
 
 class WaitForMessage:
     def __init__(self, ctx, timeout=20.0, check=None):

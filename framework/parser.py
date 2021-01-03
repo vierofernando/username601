@@ -322,8 +322,8 @@ class Parser:
         _str = " ".join(args)
         for i in Parser.SPLIT_CHARACTERS:
             _split = _str.split(i)
-            if (i in _str) and (len(_split) >= amount):
-                return _split[0:amount]
+            if (len(_split) >= amount) and (not _split.count("")):
+                return _split[:amount]
         
         raise BasicCommandException(f"This command requires at least {amount} arguments.")
     
