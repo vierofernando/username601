@@ -124,6 +124,9 @@ class ImageClient:
             image1 = image1.convert("RGB")
         if image2.mode != "RGB":
             image2 = image2.convert("RGB")
+        if image1.size != image2.size:
+            image1 = image1.resize((512, 512))
+            image2 = image2.resize((512, 512))
 
         return self.save(Image.blend(image1, image2, alpha=0.5))
 
