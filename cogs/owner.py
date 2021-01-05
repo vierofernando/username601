@@ -53,23 +53,6 @@ class owner(commands.Cog):
             return await ctx.send('```py\n'+str(source)[0:1900]+'```')
         except Exception as e:
             raise ctx.bot.util.BasicCommandException(str(e))
-    
-    @command(['pm'])
-    @owner_only()
-    async def postmeme(self, ctx, *args):
-        url = ''.join(args)
-        if url.startswith('<'): url = url[1:]
-        if url.endswith('>'): url = url[:-1]
-        if "/https/" in url:
-            url = "https://" + url.split("/https/")[1].split("?")[0]
-        data = await ctx.bot.util.useless_client.post('https://useless-api--vierofernando.repl.co/postprogrammermeme?url=' + url, headers={
-            'superdupersecretkey': os.environ['USELESSAPI']
-        })
-        data = await data.json()
-        try:
-            if data['success']: return await ctx.message.add_reaction(ctx.bot.util.success_emoji)
-        except Exception as e:
-            await ctx.author.send(str(e))
 
     @command()
     @owner_only()

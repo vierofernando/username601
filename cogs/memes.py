@@ -68,22 +68,28 @@ class memes(commands.Cog):
     async def clint(self, ctx, *args):
         url = await ctx.bot.Parser.parse_image(ctx, args)
         await ctx.trigger_typing()
-        return await ctx.bot.util.send_image_attachment(ctx, "https://useless-api.vierofernando.repl.co/clint?image=" + url, uselessapi=True)
+        buffer = await ctx.bot.Image.distort(url, "./assets/pics/clint.png", (((0,0),(899,0),(0,508),(899,508)),((590,127),(839,25),(590,381),(839,497))))
+        await ctx.send(file=discord.File(buffer, "./assets/pics/clint.png"))
+        del buffer, url
 
     @command(['ltt', 'lienus'])
     @cooldown(7)
     async def linus(self, ctx, *args):
         url = await ctx.bot.Parser.parse_image(ctx, args)
         await ctx.trigger_typing()
-        return await ctx.bot.util.send_image_attachment(ctx, "https://useless-api.vierofernando.repl.co/linus?image=" + url, uselessapi=True)
-    
-    @command()
+        buffer = await ctx.bot.Image.distort(url, "./assets/pics/linus.png", (((0,0),(961,0),(0,639),(961,639)),((56,183),(365,139),(106,563),(397,411))))
+        await ctx.send(file=discord.File(buffer, "./assets/pics/linus.png"))
+        del buffer, url
+        
+    @command(['dir', 'directory'])
     @cooldown(7)
     async def folder(self, ctx, *args):
         url = await ctx.bot.Parser.parse_image(ctx, args)
         await ctx.trigger_typing()
-        return await ctx.bot.util.send_image_attachment(ctx, "https://useless-api.vierofernando.repl.co/folder?image=" + url, uselessapi=True)
-
+        buffer = await ctx.bot.Image.distort(url, "./assets/pics/folder.png", (((0,0),(700,0),(0,589),(700,589)),((246,71),(524,137),(246,447),(524,512))))
+        await ctx.send(file=discord.File(buffer, "./assets/pics/folder.png"))
+        del buffer, url
+    
     @command(['pass'])
     @cooldown(2)
     async def password(self, ctx, *args):
@@ -146,15 +152,7 @@ class memes(commands.Cog):
         await ctx.trigger_typing()
         im = await ctx.bot.canvas.disconnected(text)
         return await ctx.send(file=discord.File(im, 'disconnected.png'))
-
-    @command(['blowup', 'blow', 'death-star'])
-    @cooldown(10)
-    async def deathstar(self, ctx, *args):
-        ava = await ctx.bot.Parser.parse_image(ctx, args, size=128)
-        await ctx.trigger_typing()
-        gif = await ctx.bot.gif.death_star(ava)
-        await ctx.send(file=discord.File(fp=gif, filename='boom.gif'))
-
+        
     @command(['effect'])
     @cooldown(2)
     async def affect(self, ctx, *args):

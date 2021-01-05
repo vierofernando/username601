@@ -35,7 +35,6 @@ class Util:
         self.no_mentions = AllowedMentions(everyone=False, users=False, roles=False)
         self.BasicCommandException = BasicCommandException
 
-        self.useless_client = ClientSession(headers={"superdupersecretkey": getenv("USELESSAPI")}, timeout=ClientTimeout(total=10.0))
         self.alex_client = ClientSession(headers={'Authorization': getenv("ALEXFLIPNOTE_TOKEN")}, timeout=ClientTimeout(total=10.0))
         self.github_client = ClientSession(headers={'Authorization': 'token ' + getenv('GITHUB_TOKEN')}, timeout=ClientTimeout(total=10.0))
         
@@ -208,15 +207,13 @@ class Util:
         except:
             return
 
-    async def send_image_attachment(self, ctx, url, alexflipnote=False, uselessapi=False) -> None:
+    async def send_image_attachment(self, ctx, url, alexflipnote=False) -> None:
         """
         Sends an image attachment from a URL.
         Enabling alexflipnote will also add a Authorization header of "ALEXFLIPNOTE_TOKEN" to the GET request method.
         """
         try:
-            if alexflipnote: session = self.alex_client
-            elif uselessapi: session = self.useless_client
-            else: session = self.bot.http._HTTPClient__session
+            session = self.alex_client if alexflipnote else self.bot.http._HTTPClient__session
             
             async with session.get(url) as data:
                 _bytes = await data.read()

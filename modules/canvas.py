@@ -313,19 +313,6 @@ class GifGenerator:
         ext = 'ttf' if not otf else 'otf'
         return ImageFont.truetype(f'{self.fontpath}/{fontname}.{ext}', size)
 
-    async def death_star(self, pic):
-        gif_template = Image.open(f'{self.assetpath}/explosion.gif')
-        ava, images, size = self.buffer_from_url(pic).resize((61, 62)), [], gif_template.size
-        for i in range(gif_template.n_frames):
-            canvas = Image.new(mode='RGB', color=(0,0,0), size=size)
-            canvas.paste(gif_template, (0,0))
-            gif_template.seek(i)
-            if i < 7: canvas.paste(ava, (183, 143))
-            images.append(canvas)
-        gif_template.close()
-        del gif_template
-        return self.bufferGIF(images, 3)
-
     async def rotate(self, pic, change_mode=False):
         image = self.buffer_from_url(pic).resize((216, 216))
         frames = []

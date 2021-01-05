@@ -3,6 +3,9 @@
 ## DEPRECATED COMMANDS<br>
 these are commands i decided to delete or change to with the reasons.
 
+### 1death-star<br>
+Deleted in favor of `1explode --animated`
+
 ### 1imgascii<br>
 Merged to `1ascii --image <image> [--hastebin]`
 

@@ -73,7 +73,7 @@ class image(commands.Cog):
         del image_url, lego_image
         collect()
 
-    @command()
+    @command(["moob"])
     @cooldown(9)
     async def implode(self, ctx, *args):
         await ctx.trigger_typing()
@@ -87,12 +87,14 @@ class image(commands.Cog):
         url = await ctx.bot.Parser.parse_image(ctx, ' '.join(parser.other))
         if animated:
             del parser, animated
-            return await ctx.bot.util.send_image_attachment(ctx, f"https://useless-api.vierofernando.repl.co/implode/animated?image={url}", uselessapi=True)
+            buffer = await ctx.bot.Image.explode_animated(url, True)
+            return await ctx.send(file=discord.File(buffer, "moob.gif"))
+        
         result, format = await ctx.bot.Image.implode(url, amount=1)
         await ctx.send(file=discord.File(result, f"file.{format.lower()}"))
         del result, format, url, parser, animated
         
-    @command()
+    @command(["blow-up", "blowup", "boom"])
     @cooldown(9)
     async def explode(self, ctx, *args):
         await ctx.trigger_typing()
@@ -106,7 +108,8 @@ class image(commands.Cog):
         url = await ctx.bot.Parser.parse_image(ctx, ' '.join(parser.other))
         if animated:
             del parser, animated
-            return await ctx.bot.util.send_image_attachment(ctx, f"https://useless-api.vierofernando.repl.co/explode/animated?image={url}", uselessapi=True)
+            buffer = await ctx.bot.Image.explode_animated(url)
+            return await ctx.send(file=discord.File(buffer, "boom.gif"))
         result, format = await ctx.bot.Image.implode(url, amount=-3.5)
         await ctx.send(file=discord.File(result, f"file.{format.lower()}"))
         del result, format, url, parser, animated

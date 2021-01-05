@@ -5,6 +5,7 @@ from wand.image import Image as _Image
 from wand.image import Color as _Color
 from .lego import apply_color_overlay
 from aiohttp import ClientSession
+from itertools import chain
 from random import randint
 from json import loads
 from io import BytesIO
@@ -19,10 +20,11 @@ class ImageClient:
     AMONG_US_MASK_BG = Image.open(AMONG_US_PATH.replace("among_us.png", "among_us_overlay.png")).convert("L")
     GRADIENT_MASK = Image.open("./assets/pics/gradient_mask.png").convert("L")
     _ASCII_RANGES = ((33, ':'), (65, '-'), (97, '='), (129, '+'), (160, '*'), (192, '#'), (224, '%'), (256, '@'))
+    EXPLOSION_GIF = list(ImageSequence.Iterator(Image.open("./assets/pics/explosion.gif")))
 
     def __init__(self, client):
         self.http = client.http
-
+        
     
     def wrap_text(self, text: str, font, max_width: int) -> str:
         """ Wraps a text. """
@@ -83,6 +85,42 @@ class ImageClient:
         return buffer
     
     
+    async def distort(self, url: str, image_path: str, edges: tuple):
+        """ Distorts an image as such. """
+        base = Image.open(image_path)
+        img = await self.wand_from_URL(url)
+        img.background_color = _Color('black')
+        img.virtual_pixel = "background"
+        img.resize(*base.size)
+        img.distort('perspective', list(chain.from_iterable(chain.from_iterable(zip(*edges)))))
+        res = Image.open(BytesIO(img.make_blob("png")))
+        res.paste(base, (0, 0), base)
+        base.close()
+        del img, base
+        gc.collect()
+        return self.save(res)
+    
+    
+    async def explode_animated(self, url: str, reversed: bool = False):
+        """ The explosion but animated. """
+        temp_images = []
+        for i in range(1, 11):
+            im = await self.wand_from_URL(url)
+            im.resize(112, 112)
+            im.implode(amount=(i * 0.15 if reversed else -i))
+            im_ = Image.open(BytesIO(im.make_blob("png")))
+            temp_images.extend([im_.copy()] * 3)
+            im_.close()
+            del im_, im
+        temp_images += ImageClient.EXPLOSION_GIF
+        buffer = BytesIO()
+        temp_images[0].save(buffer, "GIF", save_all=True, append_images=temp_images[1:], duration=3, loop=0)
+        buffer.seek(0)
+        del temp_images
+        gc.collect()
+        return buffer
+    
+    
     def __get_ascii_char(self, s):
         for n, c in ImageClient._ASCII_RANGES:
             if s < n: return c
@@ -93,15 +131,15 @@ class ImageClient:
         im = await self.image_from_URL(url)
         im = im.resize((100, 40))
         
-        if im.mode != "RGB":
-            im = im.convert("RGB")
+        if im.mode != "L":
+            im = im.convert("L")
         
         pixels = im.load()
         s = ""
         
         for x in range(40):
             for y in range(100):
-                s += self.__get_ascii_char(sum(pixels[y, x]) // 3)
+                s += self.__get_ascii_char(pixels[y, x])
             s += "\n"
             
         del pixels, im
@@ -315,6 +353,7 @@ class ImageClient:
         
         gc.collect()
         return self.save(image)
+
 
 class Blur:
     BASIC_BLUR = 0
