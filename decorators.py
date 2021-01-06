@@ -46,6 +46,11 @@ def require_profile():
     async def predicate(ctx):
         if ctx.bot.db.exist("economy", {"userid": ctx.author.id}):
             return True
-        await ctx.send(embed=Embed(title="Missing a profile!", description="You need a profile to execute this command.\nTo create one, register using `"+ctx.bot.command_prefix+"new`.", color=Color.red()))
-        return False
+        ctx.bot.db.add("economy", {
+            "userid": ctx.author.id,
+            "lastDaily": None,
+            "bal": 0,
+            "bankbal": 0
+        })
+        return True
     return commands.check(predicate)

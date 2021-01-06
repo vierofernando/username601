@@ -60,13 +60,10 @@ class economy(commands.Cog):
     @cooldown(120)
     @require_profile()
     async def beg(self, ctx):
-        chance = randint(1, 3)
-        if chance == 1:
-            award = randint(100, 800)
-            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": award})
-            return await ctx.send(embed=discord.Embed(title=f'You begged and got {award:,} bobux!', color=discord.Color.green()))
-        raise ctx.bot.util.error_message('Stop begging! Try again later. There is only 1/3 chance you will get a bobux.')
-
+        award = randint(100, 800)
+        self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": award})
+        return await ctx.send(embed=discord.Embed(title=f'You begged and got {award:,} bobux!', color=discord.Color.green()))
+        
     @command(['fishing'])
     @cooldown(60)
     @require_profile()
