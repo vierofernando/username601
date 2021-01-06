@@ -54,15 +54,6 @@ class Painter:
             elif image.startswith("among_us"): continue
             self.templates[image] = Image.open(f"{assetpath}/{image}")
 
-    def mask_circle(self, im):
-        bigsize = (im.size[0] * 3, im.size[1] * 3)
-        mask = Image.new('L', bigsize, 0)
-        draw = ImageDraw.Draw(mask)
-        draw.ellipse((0, 0) + bigsize, fill=255)
-        mask = mask.resize(im.size, Image.ANTIALIAS)
-        im.putalpha(mask)
-        mask.close()
-
     def drawtext(self, draw, thefont, text, x, y, col):
         draw.text((x, y), text, fill =col, font=thefont, align ="left")
 
@@ -91,41 +82,12 @@ class Painter:
         if array: return res
         return '\n'.join(res)
 
-    async def _process_message_box(self, text, font, content=False):
-        if not content:
-            size, index, hit_max, res = 0, 0, True, ""
-            while size < 360:
-                if res == text:
-                    hit_max = False
-                    break
-                res += text[index]
-                size = font.getsize(res)[0]
-                index += 1
-            if hit_max: res += "..."
-            return res
-        temp = ""
-        res = []
-        for i in list(text):
-            if len(res) == 3: break
-            temp += i
-            if font.getsize(temp)[0] > 312:
-                res.append(temp)
-                temp = ""
-                continue
-        if not res: return text
-        return "\n".join(res)
-
     def buffer(self, data, webp=False):
         arr = BytesIO()
         data.save(arr, format='PNG' if (not webp) else 'WEBP')
         arr.seek(0)
         data.close()
         return arr
-
-    async def get_color_accent(self, ctx, url, right=False):
-        res = Smart_ColorThief(ctx, url)
-        res = await res.get_color(right=right)
-        return res[:3]
 
     def get_multiple_accents(self, image):
         b = BytesIO(get(image).content)
@@ -273,14 +235,6 @@ class Painter:
         self.drawtext(ImageDraw.Draw(image), font, text, 10, 10, "black")
         del font
         return self.buffer(image, webp=True)
-
-    async def resize(self, url, x, y):
-        return self.buffer(self.buffer_from_url(url).resize((x, y)))
-    
-    async def gif2png(self, url):
-        img = self.buffer_from_url(url)
-        img.seek(0)
-        return self.buffer(img)
     
 class GifGenerator:
     
@@ -305,13 +259,6 @@ class GifGenerator:
             images[0].save(arr, "GIF", save_all=True, append_images=images[1:], duration=duration, loop=0)
         arr.seek(0)
         return arr
-
-    def drawtext(self, draw, thefont, text, x, y, col):
-        draw.text((x, y), text, fill =col, font=thefont, align ="left")
-        
-    def get_font(self, fontname, size, otf=False):
-        ext = 'ttf' if not otf else 'otf'
-        return ImageFont.truetype(f'{self.fontpath}/{fontname}.{ext}', size)
 
     async def rotate(self, pic, change_mode=False):
         image = self.buffer_from_url(pic).resize((216, 216))
