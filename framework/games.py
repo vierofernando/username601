@@ -9,18 +9,20 @@ class GuessTheFlag:
     JSON_DATA = load(open("./assets/json/flags.json"))
 
     def __init__(self, ctx):
+        """ Guess the flag that belongs to its country. """
         self.ctx = ctx
         self.flag = choice(list(GuessTheFlag.JSON_DATA.keys()))
     
     async def start(self):
+        """ Starts the fucking game. """
         message = await self.ctx.bot.util.send_image_attachment(self.ctx, f"https://www.countryflags.io/{self.flag}/shiny/64.png", message_options={
             "content": "Guess the country that has this flag!"
         })
         
         country_name = GuessTheFlag.JSON_DATA[self.flag].lower()
-        wait = self.ctx.bot.WaitForMessage(self.ctx, check=lambda x: x.channel == self.ctx.channel and (not x.author.bot) and (x.content.lower() in country_name))
+        wait = self.ctx.bot.WaitForMessage(self.ctx, check=lambda x: x.channel == self.ctx.channel and (not x.author.bot) and (x.content.lower() == country_name))
         message = await wait.get_message()
-        del country_name, wait
+        del wait
         if not message:
             raise self.ctx.bot.util.error_message(f"Wrong, The correct answer is {country_name}.")
         return True
