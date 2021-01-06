@@ -1,5 +1,5 @@
 import discord
-import random
+from random import randint, choice
 from os import environ
 from discord.ext import commands
 from decorators import *
@@ -21,7 +21,7 @@ class fun(commands.Cog):
         
         comic = await ctx.bot.util.get_request("https://xkcd.com/info.0.json", json=True, raise_errors=True)
         if parser.has("random"):
-            comic_num = random.randint(1, comic['num'])
+            comic_num = randint(1, comic['num'])
             comic = await ctx.bot.util.get_request(f"https://xkcd.com/{comic_num}/info.0.json", json=True, raise_errors=True)
             del comic_num
         
@@ -98,7 +98,7 @@ class fun(commands.Cog):
     @cooldown(2)
     async def mock(self, ctx, *args):
         text = 'i am a dumbass that forgot to put the arguments' if len(args)==0 else ' '.join(args)
-        return await ctx.send(''.join([random.choice([i.upper(), i.lower()]) for i in list(text)]))
+        return await ctx.send(''.join([choice([i.upper(), i.lower()]) for i in list(text)]))
 
     @command(['8ball', '8b'])
     @cooldown(3)
@@ -116,7 +116,7 @@ class fun(commands.Cog):
     async def choose(self, ctx, *args):
         if len(args)==0 or ',' not in ''.join(args):
             return await ctx.bot.cmds.invalid_args(ctx)
-        return await ctx.send(random.choice(' '.join(args).split(',')))
+        return await ctx.send(choice(' '.join(args).split(',')))
     
     @command(['fact-core', 'fact-sphere', 'factsphere'])
     @cooldown(2)
@@ -129,7 +129,7 @@ class fun(commands.Cog):
         embed = ctx.bot.Embed(
             ctx,
             title='Fact Core',
-            desc=random.choice(data),
+            desc=choice(data),
             thumbnail='https://i1.theportalwiki.net/img/thumb/5/55/FactCore.png/300px-FactCore.png'
         )
         await embed.send()

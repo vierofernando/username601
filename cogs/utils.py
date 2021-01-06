@@ -1,5 +1,5 @@
 import discord
-import random
+from random import randint, choice
 from discord.ext import commands
 from decorators import *
 from io import BytesIO
@@ -47,7 +47,7 @@ class utils(commands.Cog):
             )
             return await embed.send()
         except Exception as e:
-            raise ctx.bot.util.BasicCommandException(str(e))
+            raise ctx.bot.util.error_message(str(e))
     
     @command()
     @cooldown(3)
@@ -84,7 +84,7 @@ class utils(commands.Cog):
             del embed, content, imageURL, data
         except Exception as e:
             await ctx.bot.get_user(ctx.bot.util.owner_id).send(f"yo, theres an error: `{str(e)}`")
-            raise ctx.bot.util.BasicCommandException("Oopsies, there was an error on searching the news.")
+            raise ctx.bot.util.error_message("Oopsies, there was an error on searching the news.")
     
     @command(['colorthief', 'getcolor', 'accent', 'accentcolor', 'accent-color', 'colorpalette', 'color-palette'])
     @cooldown(3)
@@ -152,8 +152,8 @@ class utils(commands.Cog):
         try: data = await data.json()
         except: data = None
         if (not data) or len(data['collection']['items'])==0:
-            raise ctx.bot.util.BasicCommandException("Nothing found.")
-        img = random.choice(data['collection']['items'])
+            raise ctx.bot.util.error_message("Nothing found.")
+        img = choice(data['collection']['items'])
         em = ctx.bot.Embed(
             ctx,
             title=img['data'][0]['title'],
@@ -196,7 +196,7 @@ class utils(commands.Cog):
             await ctx.send(embed=embed)
             del embed, image, data
         except:
-            raise ctx.bot.util.BasicCommandException("Pokemon not found.")
+            raise ctx.bot.util.error_message("Pokemon not found.")
 
     @command(['recipes', 'cook'])
     @cooldown(2)
@@ -210,9 +210,9 @@ class utils(commands.Cog):
             q=' '.join(args)
         )
         if len(data['results'])==0: 
-            raise ctx.bot.util.BasicCommandException("I did not find anything.")
+            raise ctx.bot.util.error_message("I did not find anything.")
         
-        total = random.choice([i for i in data['results'] if i['thumbnail']!=''])
+        total = choice([i for i in data['results'] if i['thumbnail']!=''])
         embed = ctx.bot.Embed(
             ctx,
             title=total['title'],
@@ -228,12 +228,12 @@ class utils(commands.Cog):
     @require_args()
     async def calc(self, ctx, *args):
         equation = self.python_calc(args)
-        if search("[a-zA-Z]", equation): raise ctx.bot.util.BasicCommandException("Please do NOT input something that contains letters. This is not eval, nerd.")
+        if search("[a-zA-Z]", equation): raise ctx.bot.util.error_message("Please do NOT input something that contains letters. This is not eval, nerd.")
         try:
             res = eval(equation)
             return await ctx.send("{} | {} = `{}`".format(ctx.bot.util.success_emoji, equation, str(res)[0:1000]))
         except Exception as e:
-            raise ctx.bot.util.BasicCommandException(f"Error: {str(e)}")
+            raise ctx.bot.util.error_message(f"Error: {str(e)}")
     
     @command()
     @cooldown(7)
@@ -274,7 +274,7 @@ class utils(commands.Cog):
         
         words = [word['word'] for word in data if word['flags'] == 'bc']
         if not words:
-            raise ctx.bot.util.BasicCommandException('We did not find any rhyming words corresponding to that letter.')
+            raise ctx.bot.util.error_message('We did not find any rhyming words corresponding to that letter.')
         embed = ctx.bot.Embed(ctx, title='Words that rhymes with '+' '.join(args)+':', desc=str(' '.join(words))[0:500])
         await embed.send()
         del embed, words, data
@@ -381,12 +381,12 @@ class utils(commands.Cog):
         if role_name:
             iterate_result = [i.id for i in ctx.guild.roles if role_name.lower() in i.name.lower()]
             if not iterate_result:
-                raise ctx.bot.util.BasicCommandException("Role not found.")
+                raise ctx.bot.util.error_message("Role not found.")
             color_image = await ctx.bot.canvas.color(str(ctx.guild.get_role(iterate_result[0]).colour))
             del iterate_result
         else:
             if "random" in args:
-                color_image = await ctx.bot.canvas.color(None, (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
+                color_image = await ctx.bot.canvas.color(None, (randint(0, 255), randint(0, 255), randint(0, 255)))
             else:
                 color_image = await ctx.bot.canvas.color(' '.join(args))
         if not color_image:

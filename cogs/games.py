@@ -1,14 +1,20 @@
 import discord
 from discord.ext import commands
 from decorators import *
-import random
+from random import randint, choice
 from io import BytesIO
 from datetime import datetime as t
-import asyncio
+from gc import collect
 
 class games(commands.Cog):
     def __init__(self, client):
         self.db = client.db
+        self._get_guess_context = (lambda c: {
+            ("avatar", "avatar", "pfp"): ("GuessAvatar", (c,), "start", ()),
+            ("geo", "geography"): ("GeoQuiz", (c.bot.http._HTTPClient__session,), "play", (c,)),
+            ("num", "number"): ("GuessMyNumber", (), "play", (c,)),
+            ("flag", "country-flag", "flags"): ("GuessTheFlag", (c,), "start", ())
+        })
 
     @command(['ttt'])
     @cooldown(15)
@@ -16,17 +22,17 @@ class games(commands.Cog):
     async def tictactoe(self, ctx, *args):
         user = ctx.bot.Parser.parse_user(ctx, args)
         if user == ctx.author:
-            raise ctx.bot.util.BasicCommandException("You need to add a `mention/user ID/username` for someone to join your game as well.")
+            raise ctx.bot.util.error_message("You need to add a `mention/user ID/username` for someone to join your game as well.")
         elif user.bot: 
-            raise ctx.bot.util.BasicCommandException("Sorry! There was an error on executing the tictactoe:\n`discord.DiscordAPIError: "+str(user)+" is a botum`")
+            raise ctx.bot.util.error_message("Sorry! There was an error on executing the tictactoe:\n`discord.DiscordAPIError: "+str(user)+" is a botum`")
 
         wait_for = ctx.bot.WaitForMessage(ctx, timeout=20.0, check=(lambda x: x.author == ctx.author and x.channel == ctx.channel and (x.content.lower() in ['yes', 'no'])))
         response = await wait_for.get_message()
 
         if not response:
-            raise ctx.bot.util.BasicCommandException(user.display_name+" did not respond in 20 seconds! Game invitation ended.")
+            raise ctx.bot.util.error_message(user.display_name+" did not respond in 20 seconds! Game invitation ended.")
         elif response.content.lower() == "no":
-            raise ctx.bot.util.BasicCommandException(f"Well, {user.display_name} denied your request! Try requesting someone else?")
+            raise ctx.bot.util.error_message(f"Well, {user.display_name} denied your request! Try requesting someone else?")
 
         characters = (ctx.author, user)
         game = ctx.bot.TicTacToe()
@@ -54,7 +60,7 @@ class games(commands.Cog):
             check = game.check_if_win()
             if check:
                 if check == "?":
-                    return await ctx.send(embed=discord.Embed(title="No one wins! It's a draw!", color=discord.Colour.orange()))
+                    return await ctx.send(embed=discord.Embed(title="No one wins! It's a draw!", color=discord.Color.orange()))
                 winner = str(characters[0 if (current == 1) else 1])
                 return await ctx.send(embed=discord.Embed(color=discord.Color.green(), title=str(characters[current]) + " won the game!"))
             
@@ -85,7 +91,7 @@ class games(commands.Cog):
         name = ctx.bot.util.encode_uri(ctx.author.display_name if len(args)==0 else ' '.join(args))
         data = await ctx.bot.http._HTTPClient__session.get(f"https://mc-heads.net/minecraft/profile/{name}")
         if data.status != 200:
-            raise ctx.bot.util.BasicCommandException(f"Minecraft for profile: `{name}` not found.")
+            raise ctx.bot.util.error_message(f"Minecraft for profile: `{name}` not found.")
         data = await data.json()
         
         _buffer = await ctx.bot.canvas.minecraft_body(f"https://mc-heads.net/body/{name}/600", data['id'])
@@ -136,7 +142,7 @@ class games(commands.Cog):
             await embed.send()
             del embed, icons
         except:
-            raise ctx.bot.util.BasicCommandException('Error, user not found.')
+            raise ctx.bot.util.error_message('Error, user not found.')
     
     async def geometry_dash_comment(self, ctx, args):
         parser = ctx.bot.Parser(args)
@@ -167,8 +173,8 @@ class games(commands.Cog):
                 #del levelBuilder
                 #return await ctx.send(file=discord.File(daily, "level.png"))
             except:
-                raise ctx.bot.util.BasicCommandException("This sub command is temporary closed because the section is API is temporarily blocked by RobTop.")
-                #raise ctx.bot.util.BasicCommandException("The Geometry dash servers seems to be down. Please try again later.")
+                raise ctx.bot.util.error_message("This sub command is temporary closed because the section is API is temporarily blocked by RobTop.")
+                #raise ctx.bot.util.error_message("The Geometry dash servers seems to be down. Please try again later.")
         elif _input == "weekly":
             try:
                 assert False
@@ -177,8 +183,8 @@ class games(commands.Cog):
                 #del levelBuilder
                 #return await ctx.send(file=discord.File(weekly, "level.png"))
             except:
-                raise ctx.bot.util.BasicCommandException("This sub command is temporary closed because the section is API is temporarily blocked by RobTop.")
-                #raise ctx.bot.util.BasicCommandException("The Geometry dash servers seems to be down. Please try again later.")
+                raise ctx.bot.util.error_message("This sub command is temporary closed because the section is API is temporarily blocked by RobTop.")
+                #raise ctx.bot.util.error_message("The Geometry dash servers seems to be down. Please try again later.")
         elif _input.isnumeric():
             try:
                 levelBuilder = ctx.bot.GDLevel(ctx, level_query=_input, font_title=ctx.bot.util.fonts_dir + "/PUSAB__.otf", font_other=ctx.bot.util.fonts_dir + "/Aller.ttf")
@@ -186,7 +192,7 @@ class games(commands.Cog):
                 del levelBuilder
                 return await ctx.send(file=discord.File(level, "level.png"))
             except:
-                raise ctx.bot.util.BasicCommandException(f"Level with the ID: {_input} not found.")
+                raise ctx.bot.util.error_message(f"Level with the ID: {_input} not found.")
         
         result = await ctx.bot.util.get_request(
             "https://gdbrowser.com/api/search/" + ctx.bot.util.encode_uri(" ".join(args)),
@@ -208,7 +214,7 @@ class games(commands.Cog):
             return await ctx.send(file=discord.File(buffer, "level.png"))
         except Exception as e:
             print(str(e))
-            raise ctx.bot.util.BasicCommandException("The Geometry Dash servers may be down. Please blame RobTop for this :)")
+            raise ctx.bot.util.error_message("The Geometry Dash servers may be down. Please blame RobTop for this :)")
 
     @command(['geometrydash', 'geometry-dash', 'gmd'])
     @cooldown(5)
@@ -239,7 +245,7 @@ class games(commands.Cog):
             return
         
         if res == 1 and self.db.exist("economy", {"userid": ctx.author.id}):
-            reward = random.randint(5, 100)
+            reward = randint(5, 100)
             await ctx.send(embed=discord.Embed(title=f'Thanks for playing! you earned {reward:,} bobux as a prize!', color=discord.Color.green()))
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 
@@ -247,54 +253,53 @@ class games(commands.Cog):
     @cooldown(3)
     async def coin(self, ctx, *args):
         if "coin" in ctx.bot.util.get_command_name(ctx):
-            res = random.choice(['***heads!***', '***tails!***'])
+            res = choice(['***heads!***', '***tails!***'])
             await ctx.send(res)
             if args and args[0].lower() == res[3:-4] and self.db.exist("economy", {"userid": ctx.author.id}):
-                prize = random.randint(50, 200)
+                prize = randint(50, 200)
                 await ctx.send(embed=discord.Embed(title=f'Your bet was right! you get {prize:,} bobux.', color=discord.Color.green()))
                 self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": prize})
         else:
             arr = ['one', 'two', 'three', 'four', 'five', 'six']
-            res = arr[random.randint(0, 5)]
+            res = arr[randint(0, 5)]
             await ctx.send(':'+res+':')
             if len(args)>0 and (args[0].lower()==res.lower() or args[0].lower() == str(arr.index(res)+1)) and self.db.exist("economy", {"userid": ctx.author.id}):
-                prize = random.randint(50, 150)
+                prize = randint(50, 150)
                 await ctx.send(embed=discord.Embed(title=f'Your bet was right! you get {prize:,} bobux.', color=discord.Color.green()))
                 self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": prize})
 
-    @command(['guessav', 'avatarguess', 'avguess', 'avatargame', 'avgame'])
-    @cooldown(15)
-    async def guessavatar(self, ctx):
+    @command(['guessinggame', 'guessing-game'])
+    @cooldown(10)
+    async def guess(self, ctx, *args):
         try:
-            game = ctx.bot.GuessAvatar(ctx)
+            assert bool(args)
+            Context, game = self._get_guess_context(ctx), None
+            for arg in Context.keys():
+                if args[0].lower() not in arg: continue
+                
+                object_name, object_args, play_func, play_args = Context[arg]
+                game = getattr(ctx.bot, object_name)(*object_args)
+                win = await getattr(game, play_func)(*play_args)
+                break
+            
+            assert bool(game)
+            if (not win) or (not self.db.exist("economy", {"userid": ctx.author.id})):
+                return
+            reward = randint(100, 1000)
+            await ctx.send(embed=discord.Embed(title="Thanks for playing!", description=f"You received {reward:,} bobux", color=discord.Color.green()))
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
+            del game, win, object_name, object_args, play_func, play_args, Context, reward
+        except AssertionError:
+            embed = ctx.bot.Embed(
+                ctx,
+                title="Guessing Game!",
+                desc="`guess <avatar|av|pfp>` Guessing game about guessing random people's avatars in the server!\n`guess <geo|geography>` Guess the correct information of a country!\n`guess <num|number>` Starts a \"guess my number\" game!\n`guess <flag|flags|country-flag>` Guess the country from a flag!"
+            )
+            await embed.send()
+            del embed
         except Exception as e:
-            raise ctx.bot.util.BasicCommandException(str(e))
-        win = await game.start()
-        
-        if win and self.db.exist("economy", {"userid": ctx.author.id}):
-            reward = random.randint(5, 100)
-            await ctx.send(f'Thanks for playing! You received {reward:,} extra bobux!')
-            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
-        
-    @command()
-    @cooldown(15)
-    async def geoquiz(self, ctx):
-        await ctx.trigger_typing()
+            raise ctx.bot.util.error_message(str(e))
 
-        quizClient = ctx.bot.GeoQuiz(session=ctx.bot.http._HTTPClient__session)
-        win = await quizctx.bot.play(ctx)
-
-        if not win:
-            return
-
-        await quizctx.bot.end()
-        del quizClient
-
-        if win and self.db.exist("economy", {"userid": ctx.author.id}):
-            reward = random.randint(5, 150)
-            await ctx.send(f'Thanks for playing! You obtained {reward:,} bobux in total!')
-            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
-        
     @command()
     @cooldown(4)
     async def mathquiz(self, ctx):
@@ -321,7 +326,7 @@ class games(commands.Cog):
         if correct:
             await message.edit(embed=discord.Embed(title="Correct!", color=discord.Color.green()))
             if self.db.exist("economy", {"userid": ctx.author.id}):
-                reward = random.randint(5, 50)
+                reward = randint(5, 50)
                 await ctx.send(f'Thanks for playing! we added an extra {reward:,} bobux to your profile.')
                 self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
         return await message.edit(embed=discord.Embed(title=f"Wrong. The answer is {quiz.answer}", color=discord.Color.red()))
@@ -340,7 +345,7 @@ class games(commands.Cog):
             return
             
         if self.db.exist("economy", {"userid": ctx.author.id}):
-            reward = random.randint(150, 300)
+            reward = randint(150, 300)
             await ctx.send(f'Thanks for playing! You get also a {reward:,} bobux as a prize!')
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 
@@ -358,18 +363,6 @@ class games(commands.Cog):
             await ctx.send(f'Thanks for playing! You get also a {reward:,} bobux as a prize!')
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 
-    @command(['gn', 'guessnumber', 'highlow', 'high-low'])
-    @cooldown(30)
-    async def guessnum(self, ctx):
-        game = ctx.bot.GuessMyNumber()
-        result = await game.play(ctx)
-        del game
-        
-        if result and self.db.exist("economy", {"userid": ctx.author.id}):
-            reward = random.randint(150, 300)
-            await ctx.send(f'Thanks for playing! You get also a {reward:,} bobux as a prize!')
-            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
-
     @command()
     @cooldown(30)
     async def trivia(self, ctx, *args):
@@ -377,12 +370,12 @@ class games(commands.Cog):
         try:
             trivia = ctx.bot.Trivia(" ".join(args)[0:50] if len(args)>0 else "Apple")
         except Exception as e:
-            raise ctx.bot.util.BasicCommandException(str(e))
+            raise ctx.bot.util.error_message(str(e))
         correct = await trivia.start(ctx)
         del trivia
         
         if correct and self.db.exist("economy", {"userid": ctx.author.id}):
-            reward = random.randint(250, 400)
+            reward = randint(250, 400)
             await ctx.send(f'Thanks for playing! You get also a {reward:,} bobux as a prize!')
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 

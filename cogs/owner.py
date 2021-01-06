@@ -52,7 +52,7 @@ class owner(commands.Cog):
             source = eval("getsource({})".format(' '.join(args)))
             return await ctx.send('```py\n'+str(source)[0:1900]+'```')
         except Exception as e:
-            raise ctx.bot.util.BasicCommandException(str(e))
+            raise ctx.bot.util.error_message(str(e))
 
     @command()
     @owner_only()
@@ -63,7 +63,7 @@ class owner(commands.Cog):
             await user_to_send.send(embed=em)
             await ctx.message.add_reaction('✅')
         except Exception as e:
-            raise ctx.bot.util.BasicCommandException(f'Error: `{str(e)}`')
+            raise ctx.bot.util.error_message(f'Error: `{str(e)}`')
 
     @command()
     @owner_only()
@@ -102,11 +102,11 @@ class owner(commands.Cog):
                 if parser.has("silent"):
                     del parser, time, res
                     return
-                if isawaitable(res): await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+' '.join(parser.other)+'```**Output:**```py\n'+str(await res)[0:1990]+'```\n**Return type:** '+str(type(await res).__name__)+'\n**Execution time: **'+str(time)+' ms.', color=discord.Colour.green()))
+                if isawaitable(res): await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+' '.join(parser.other)+'```**Output:**```py\n'+str(await res)[0:1990]+'```\n**Return type:** '+str(type(await res).__name__)+'\n**Execution time: **'+str(time)+' ms.', color=discord.Color.green()))
                 else: await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+' '.join(parser.other)+'```**Output:**```py\n'+str(res)[0:1990]+'```\n**Return type:** '+str(type(res).__name__)+'\n**Execution time: **'+str(time)+' ms.', color=discord.Color.green()))
             except Exception as e:
                 if 'cannot reuse already awaited coroutine' in str(e): return
-                await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+' '.join(parser.other)+'```\nException:```py\n'+str(e)+'```', color=discord.Colour.red()), delete_after=5)
+                await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+' '.join(parser.other)+'```\nException:```py\n'+str(e)+'```', color=discord.Color.red()), delete_after=5)
         else:
             try:
                 time = randint(500, 1000) / 100
@@ -116,7 +116,7 @@ class owner(commands.Cog):
                     return await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+' '.join(parser.other)[0:1990]+'```**Output:**```py\n'+totallyrealtoken+'```\n**Return type:** str\n**Execution time:** '+str(time)+' ms.', color=discord.Color.green()))
                 query = ' '.join(parser.other)[0:1990].split('(')[0].split('[')[0].split('.')[0].split(' ')[0].split(';')[0]
                 fake_err = f"name '{query}' is not defined"
-                return await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+' '.join(parser.other)+'```\nException:```py\n'+str(fake_err)+'```', color=discord.Colour.red()))
+                return await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+' '.join(parser.other)+'```\nException:```py\n'+str(fake_err)+'```', color=discord.Color.red()))
             except Exception as e:
                 print(e)
                 return await ctx.send('there was an error on evaluating that. please use \' instead of "')

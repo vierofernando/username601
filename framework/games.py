@@ -3,6 +3,27 @@ from random import choice, randint
 from discord import Embed, Color
 from random import randint, choice
 from asyncio import sleep
+from json import load
+
+class GuessTheFlag:
+    JSON_DATA = load(open("./assets/json/flags.json"))
+
+    def __init__(self, ctx):
+        self.ctx = ctx
+        self.flag = choice(list(GuessTheFlag.JSON_DATA.keys()))
+    
+    async def start(self):
+        message = await self.ctx.bot.util.send_image_attachment(self.ctx, f"https://www.countryflags.io/{self.flag}/shiny/64.png", message_options={
+            "content": "Guess the country that has this flag!"
+        })
+        
+        country_name = GuessTheFlag.JSON_DATA[self.flag].lower()
+        wait = self.ctx.bot.WaitForMessage(self.ctx, check=lambda x: x.channel == self.ctx.channel and (not x.author.bot) and (x.content.lower() in country_name))
+        message = await wait.get_message()
+        del country_name, wait
+        if not message:
+            raise self.ctx.bot.util.error_message(f"Wrong, The correct answer is {country_name}.")
+        return True
 
 class Hangman:
     def __init__(self, session=None):
@@ -251,7 +272,7 @@ class GeographyQuiz:
         self.choices.insert(self.correct_order, country[topic])
         del countries, topic
     
-    async def play(self, ctx) -> bool:
+    async def play(self, ctx, *args, **kwargs) -> bool:
         """ like generate_question() but discord.py edition """
         
         if not hasattr(self, "question"):
@@ -278,12 +299,8 @@ class GeographyQuiz:
         await message.edit(embed=Embed(title=f'Sorry, {ctx.author.display_name}! The answer is {alphabet[self.correct_order]}. {self.choices[self.correct_order]}', color=Color.red()))
         return False
     
-    async def end(self, end_session: bool = False) -> None:
-        """ Ends the quiz. """
-        
-        if end_session:
-            await self.session.close()
-        
+    def __del__(self):
+        """ Lets the object kills himself before getting deleted. """
         del (
             self.session,
             self.question,

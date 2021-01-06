@@ -14,7 +14,7 @@ from io import BytesIO
 from time import time
 
 class GetRequestFailedException(Exception): pass
-class BasicCommandException(Exception): pass
+class error_message(Exception): pass
 
 class Util:
     def __init__(
@@ -33,7 +33,7 @@ class Util:
         self._alphabet = list('abcdefghijklmnopqrstuvwxyz')
         self._start = time()
         self.no_mentions = AllowedMentions(everyone=False, users=False, roles=False)
-        self.BasicCommandException = BasicCommandException
+        self.error_message = error_message
 
         self.alex_client = ClientSession(headers={'Authorization': getenv("ALEXFLIPNOTE_TOKEN")}, timeout=ClientTimeout(total=10.0))
         self.github_client = ClientSession(headers={'Authorization': 'token ' + getenv('GITHUB_TOKEN')}, timeout=ClientTimeout(total=10.0))
@@ -169,8 +169,8 @@ class Util:
         if isinstance(error, Forbidden): 
             try: return await ctx.send("I don't have the permission required to use that command!")
             except: return
-        elif isinstance(error, self.BasicCommandException):
-            return await ctx.send(embed=Embed(description=str(error), color=Color.red()))
+        elif isinstance(error, self.error_message):
+            return await ctx.send(embed=Embed(title=str(error) if len(str(error)) <= 256 else None, description=None if len(str(error)) <= 256 else str(error), color=Color.red()))
         elif isinstance(error, GetRequestFailedException):
             return await ctx.send(embed=Embed(description="A request failed to the API. Please try again later!\nError: " + str(error), color=Color.red()))
         else:
@@ -207,7 +207,7 @@ class Util:
         except:
             return
 
-    async def send_image_attachment(self, ctx, url, alexflipnote=False) -> None:
+    async def send_image_attachment(self, ctx, url, alexflipnote: bool = False, message_options: dict = {}) -> None:
         """
         Sends an image attachment from a URL.
         Enabling alexflipnote will also add a Authorization header of "ALEXFLIPNOTE_TOKEN" to the GET request method.
@@ -220,10 +220,10 @@ class Util:
                 assert data.status < 400, "API returns a bad status code"
                 assert data.headers['Content-Type'].startswith("image/"), "Content does not have an image."
                 extension = "." + data.headers['Content-Type'][6:]
-                await ctx.send(file=File(BytesIO(_bytes), "file"+extension.lower()))
+                await ctx.send(file=File(BytesIO(_bytes), "file"+extension.lower()), **message_options)
                 del extension, _bytes, data
         except Exception as e:
-            raise self.BasicCommandException("Image not found.\n`"+str(e)+"`")
+            raise self.error_message("Image not found.\n`"+str(e)+"`")
     
     def get_command_name(self, ctx) -> str:
         """ Gets the command name from a discord context object. This includes the alias used. """

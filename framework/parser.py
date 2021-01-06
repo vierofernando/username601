@@ -1,5 +1,5 @@
 from twemoji_parser import emoji_to_url
-from .util import BasicCommandException
+from .util import error_message
 from PIL import ImageColor
 import re
 
@@ -325,7 +325,7 @@ class Parser:
             if (len(_split) >= amount) and (not _split.count("")):
                 return _split[:amount]
         
-        raise BasicCommandException(f"This command requires at least {amount} arguments.")
+        raise error_message(f"This command requires at least {amount} arguments.")
     
     @staticmethod
     def html_to_markdown(text: str) -> str:

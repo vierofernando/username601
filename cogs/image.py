@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from decorators import *
-import random
+from random import randint, choice
 from io import BytesIO
 from aiohttp import ClientSession
 from json import loads
@@ -287,7 +287,7 @@ class image(commands.Cog):
         try:
             buffer = await ctx.bot.Image.glitch(ava)
         except AssertionError as a:
-            raise ctx.bot.util.BasicCommandException(str(a))
+            raise ctx.bot.util.error_message(str(a))
         await ctx.send(file=discord.File(buffer, "glitch.png"))
         del buffer, ava
         collect()
@@ -306,7 +306,7 @@ class image(commands.Cog):
     @command(['snek', 'snakes', 'python', 'py'])
     @cooldown(2)
     async def snake(self, ctx):
-        return await ctx.bot.util.send_image_attachment(ctx, 'https://fur.im/snek/i/'+str(random.randint(1, 874))+'.png')
+        return await ctx.bot.util.send_image_attachment(ctx, 'https://fur.im/snek/i/'+str(randint(1, 874))+'.png')
 
     @command(['imageoftheday', 'pod', 'pictureoftheday', 'iod'])
     @cooldown(10)
@@ -321,7 +321,7 @@ class image(commands.Cog):
                 mkt='en-US'
             )
         except:
-            raise ctx.bot.util.BasicCommandException("The API may be down for a while. Try again later!")
+            raise ctx.bot.util.error_message("The API may be down for a while. Try again later!")
 
         embed = ctx.bot.Embed(
             ctx,
@@ -346,7 +346,7 @@ class image(commands.Cog):
         try:
             return await ctx.bot.util.send_image_attachment(ctx, url.replace('ABC', code))
         except:
-            raise ctx.bot.util.BasicCommandException("404")
+            raise ctx.bot.util.error_message("404")
 
     @command(['spin'])
     @cooldown(7)
@@ -373,7 +373,7 @@ class image(commands.Cog):
     @command()
     @cooldown(3)
     async def panda(self, ctx):
-        link = random.choice(["https://some-random-api.ml/img/panda", "https://some-random-api.ml/img/red_panda"])
+        link = choice(["https://some-random-api.ml/img/panda", "https://some-random-api.ml/img/red_panda"])
         data = await ctx.bot.util.get_request(link, json=True, raise_errors=True)
         await ctx.bot.util.send_image_attachment(ctx, data['link'])
         del link, data

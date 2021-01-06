@@ -72,7 +72,7 @@ class encoding(commands.Cog):
             text=str(" ".join(args))[0:100]
         )
         if not res:
-            raise ctx.bot.util.BasicCommandException("The API is temporarily down. Please try again later.")
+            raise ctx.bot.util.error_message("The API is temporarily down. Please try again later.")
 
         await ctx.send(res['ciphers']['morse'])
     
@@ -87,7 +87,7 @@ class encoding(commands.Cog):
             text=str(" ".join(args))[0:100]
         )
         if not res:
-            raise ctx.bot.util.BasicCommandException("The API is temporarily down. Please try again later.")
+            raise ctx.bot.util.error_message("The API is temporarily down. Please try again later.")
         
         await ctx.send(res['styles']['upside-down'])
     
@@ -102,7 +102,7 @@ class encoding(commands.Cog):
             text=str(" ".join(args))[0:100]
         )
         if not res:
-            raise ctx.bot.util.BasicCommandException("The API is temporarily down. Please try again later.")
+            raise ctx.bot.util.error_message("The API is temporarily down. Please try again later.")
         
         await ctx.send(res['styles']['fancy'])
     
@@ -117,7 +117,7 @@ class encoding(commands.Cog):
             text=str(" ".join(args))[0:100]
         )
         if not res:
-            raise ctx.bot.util.BasicCommandException("The API is temporarily down. Please try again later.")
+            raise ctx.bot.util.error_message("The API is temporarily down. Please try again later.")
         
         await ctx.send(res['styles']['cursive'])
     
@@ -132,7 +132,7 @@ class encoding(commands.Cog):
             text=str(" ".join(args))[0:100]
         )
         if not res:
-            raise ctx.bot.util.BasicCommandException("The API is temporarily down. Please try again later.")
+            raise ctx.bot.util.error_message("The API is temporarily down. Please try again later.")
         
         await ctx.send(res['braille'])
     

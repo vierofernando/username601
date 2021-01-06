@@ -42,7 +42,7 @@ class bothelp(commands.Cog):
             return await paginator.execute()
         
         data = ctx.bot.cmds.query(' '.join(args).lower())
-        if not data: raise ctx.bot.util.BasicCommandException("Your command/category name does not exist, sorry!")
+        if not data: raise ctx.bot.util.error_message("Your command/category name does not exist, sorry!")
         
         embed = ctx.bot.ChooseEmbed(ctx, data, key=(lambda x: "[`"+x["type"]+"`] `"+x["name"]+"`"))
         result = await embed.run()
@@ -91,7 +91,7 @@ class bothelp(commands.Cog):
     @require_args()
     async def feedback(self, ctx, *args):
         if (('discord.gg/' in ' '.join(args)) or ('discord.com/invite/' in ' '.join(args))):
-            raise ctx.bot.util.BasicCommandException("Please do NOT send invites. This is NOT advertising.")
+            raise ctx.bot.util.error_message("Please do NOT send invites. This is NOT advertising.")
         
         wait = await ctx.send(ctx.bot.util.loading_emoji + ' | Please wait... Transmitting data to owner...')
 
@@ -104,10 +104,10 @@ class bothelp(commands.Cog):
                 embed = discord.Embed(title='Feedback Successful', description=ctx.bot.util.success_emoji + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+ctx.bot.util.server_invite+')', colour=ctx.me.color)
                 await wait.edit(content='', embed=embed)
             except:
-                raise ctx.bot.util.BasicCommandException('There was an error while sending your feedback. Sorry! :(')
+                raise ctx.bot.util.error_message('There was an error while sending your feedback. Sorry! :(')
         else:
             reason = "|".join(banslist[0].split("|")[1:])
-            raise ctx.bot.util.BasicCommandException(f"You have been banned from using the Feedback command.\nReason: {reason}")
+            raise ctx.bot.util.error_message(f"You have been banned from using the Feedback command.\nReason: {reason}")
      
     @command()
     @cooldown(2)

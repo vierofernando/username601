@@ -8,8 +8,8 @@ from .parser import Parser
 from .panel import CustomPanel
 from .colorthief import Smart_ColorThief
 from .message import embed, Paginator, ChooseEmbed,  WaitForMessage
-from .util import Util, GetRequestFailedException, BasicCommandException
-from .games import Slot, TicTacToe, RockPaperScissors, GeographyQuiz, MathQuiz, GuessAvatar, Trivia, GuessMyNumber, Hangman
+from .util import Util, GetRequestFailedException, error_message
+from .games import GuessTheFlag, Slot, TicTacToe, RockPaperScissors, GeographyQuiz, MathQuiz, GuessAvatar, Trivia, GuessMyNumber, Hangman
 from .canvas import ServerCard, UserCard, ProfileCard, GDLevel, Blur, ImageClient
 from .database import Database
 from .lego import legofy
@@ -37,6 +37,7 @@ def initiate(client, db_name: str = "username601"): # prints because why not ?
     setattr(client, "ChooseEmbed", ChooseEmbed)
     setattr(client, "EmbedPaginator", Paginator)
     setattr(client, "Image", ImageClient(client))
+    setattr(client, "GuessTheFlag", GuessTheFlag)
     setattr(client, "GuessMyNumber", GuessMyNumber)
     setattr(client, "ColorThief", Smart_ColorThief)
     setattr(client, "WaitForMessage", WaitForMessage)

@@ -9,7 +9,7 @@ from PIL import (
     GifImagePlugin
 )
 import json
-import random
+from random import randint, choice
 from os import listdir, getenv
 __import__("sys").path.append(__import__("os").path.abspath("./framework"))
 from time import strftime, gmtime
@@ -275,9 +275,9 @@ class GifGenerator:
 
         for i in range(100):
             background = self.triggered_bg.copy()
-            background.paste(reference.copy(), (random.randint(-5, 5) - 5, random.randint(-5, 5) - 5))
+            background.paste(reference.copy(), (randint(-5, 5) - 5, randint(-5, 5) - 5))
             background.paste(self.triggered_red, (0, 0), self.triggered_red)
-            background.paste(self.triggered_text.copy(), (random.randint(-5, 5) - 5, 177))
+            background.paste(self.triggered_text.copy(), (randint(-5, 5) - 5, 177))
             frames.append(background)
         return self.bufferGIF(frames, 30)
 

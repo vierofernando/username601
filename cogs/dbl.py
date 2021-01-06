@@ -35,17 +35,17 @@ class dbl(commands.Cog):
             _input = self.client.Parser.parse_user(ctx, args[1:])
         
         if _input.bot:
-            raise self.client.util.BasicCommandException(str(_input) + " is a bot.")
+            raise self.client.util.error_message(str(_input) + " is a bot.")
         data = await self.get(f"/users/{_input.id}")
         
         if data.get("error"):
-            raise self.client.util.BasicCommandException(str(_input) + " does not exist in the [top.gg](https://top.gg/) database.")
+            raise self.client.util.error_message(str(_input) + " does not exist in the [top.gg](https://top.gg/) database.")
         _ext = ".gif" if _input.is_avatar_animated() else ".png"
         _bio = discord.utils.escape_markdown(data["bio"]) if data.get("bio") else "This user has no bio."
         _color = "`"+data['color'].upper()+"`" if (data.get('color') not in self._none) else "`<not set>`"
         _avatar = "https://cdn.discordapp.com/avatars/"+data["id"]+"/"+data["avatar"]+".png" if data.get("avatar") else None
         if not _avatar:
-            raise self.client.util.BasicCommandException("That user does not exist in the [top.gg](https://top.gg/) database.")
+            raise self.client.util.error_message("That user does not exist in the [top.gg](https://top.gg/) database.")
         
         return self.client.Embed(
             ctx,
@@ -74,7 +74,7 @@ class dbl(commands.Cog):
         data = data["results"] # why
         
         if not data:
-            raise self.client.util.BasicCommandException("That bot does not exist on the [top.gg](https://top.gg/) database.")
+            raise self.client.util.error_message("That bot does not exist on the [top.gg](https://top.gg/) database.")
         embed = self.client.ChooseEmbed(ctx, data, key=(lambda x: "["+x["name"]+"](https://top.gg/bot/"+x["id"]+")"))
         res = await embed.run()
         del embed, data
@@ -96,7 +96,7 @@ class dbl(commands.Cog):
         data = await self.get(f"/bots/{_id}")
         
         if data.get("error"):
-            raise self.client.util.BasicCommandException("That bot does not exist in the [top.gg](https://top.gg/) database.")
+            raise self.client.util.error_message("That bot does not exist in the [top.gg](https://top.gg/) database.")
         _links = "\n".join([("["+self._bot_subtitution[key]+"]("+self._bot_links[key]+data[key]+")" if data.get(key) else "??") for key in self._bot_links.keys()])
         _links = _links.replace("\n??", "").replace("??", "")
         bot_devs = ""

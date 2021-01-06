@@ -1,5 +1,5 @@
 import discord
-import random
+from random import randint, choice
 from discord.ext import commands
 from decorators import *
 from json import loads
@@ -46,7 +46,7 @@ class economy(commands.Cog):
     @require_args()
     @require_profile()
     async def bet(self, ctx, *args):
-        lucky = random.choice([False, True])
+        lucky = choice([False, True])
         try:
             amount = ctx.bot.Parser.get_numbers(args)
             assert amount[0] in range(0, 69420)
@@ -60,27 +60,27 @@ class economy(commands.Cog):
     @cooldown(120)
     @require_profile()
     async def beg(self, ctx):
-        chance = random.randint(1, 3)
+        chance = randint(1, 3)
         if chance == 1:
-            award = random.randint(100, 800)
+            award = randint(100, 800)
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": award})
             return await ctx.send(embed=discord.Embed(title=f'You begged and got {award:,} bobux!', color=discord.Color.green()))
-        raise ctx.bot.util.BasicCommandException('Stop begging! Try again later. There is only 1/3 chance you will get a bobux.')
+        raise ctx.bot.util.error_message('Stop begging! Try again later. There is only 1/3 chance you will get a bobux.')
 
     @command(['fishing'])
     @cooldown(60)
     @require_profile()
     async def fish(self, ctx):
-        wait = await ctx.send('{} | {}'.format(ctx.bot.util.loading_emoji, random.choice(
+        wait = await ctx.send('{} | {}'.format(ctx.bot.util.loading_emoji, choice(
             self.fish_json['waiting']
         )))
-        await sleep(random.randint(3, 8))
+        await sleep(randint(3, 8))
         res = self.getfish()
         if res['catched']:
-            award = random.randint(res['ctx']['worth']['min'], res['ctx']['worth']['max'])
+            award = randint(res['ctx']['worth']['min'], res['ctx']['worth']['max'])
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": award})
             return await ctx.send(embed=discord.Embed(description=f"{res['ctx']['emote']} | Congratulations! You caught a {res['ctx']['name']} and sell it worth for {award:,} bobux!", color=discord.Color.green()))
-        raise ctx.bot.util.BasicCommandException(f"Yikes! You only caught {res['ctx']}... Try again later!")
+        raise ctx.bot.util.error_message(f"Yikes! You only caught {res['ctx']}... Try again later!")
 
     @command(['delete', 'deletedata', 'deldata', 'del-data', 'delete-data'])
     @cooldown(3600)
@@ -101,8 +101,8 @@ class economy(commands.Cog):
     @require_profile()
     async def work(self, ctx):
         await ctx.trigger_typing()
-        reward = random.randint(100, 500)
-        job = random.choice(self.works)
+        reward = randint(100, 500)
+        job = choice(self.works)
         self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
         return await ctx.send(embed=discord.Embed(title=f"{ctx.author.display_name} worked {job} and earned {reward:,} bobux!", color=discord.Color.green()))
     
@@ -134,7 +134,7 @@ class economy(commands.Cog):
             await ctx.send(embed=discord.Embed(title=f"You earned your Daily for {reward:,} bobux!" + "\n" + f"Your streak: {streak:,} (250 x {streak:,} bobux)", color=discord.Color.green()))
             self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, new_data)
         else:
-            raise ctx.bot.util.BasicCommandException(f"You can earn your daily in {ctx.bot.util.strfsecond((data['lastDaily'] + 43200) - time())}!")
+            raise ctx.bot.util.error_message(f"You can earn your daily in {ctx.bot.util.strfsecond((data['lastDaily'] + 43200) - time())}!")
 
     @command()
     @cooldown(10)
@@ -152,7 +152,7 @@ class economy(commands.Cog):
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": -amount[0]})
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": member.id}, {"bal": amount[0]})
         except Exception as e:
-            raise ctx.bot.util.BasicCommandException(str(e))
+            raise ctx.bot.util.error_message(str(e))
     
     @command(['steal', 'crime', 'stole', 'robs'])
     @cooldown(120)
@@ -172,7 +172,7 @@ class economy(commands.Cog):
             assert member.status != discord.Status.offline, f"{member.display_name} is currently offline!"
             
             if not number:
-                number = random.randint(0, data["bal"])
+                number = randint(0, data["bal"])
             assert number <= victim_data["bal"], f"Number must be below the opponent's bobux. ({victim_data['bal']})"
             data = self.db.get("economy", {"userid": ctx.author.id})
             assert data["bal"] > 750, f"You need at least 750 bobux ({750 - data['bal']} more) to rob someone."
@@ -181,7 +181,7 @@ class economy(commands.Cog):
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": number})
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": member.id})
         except AssertionError as e:
-            raise ctx.bot.util.BasicCommandException(str(e))
+            raise ctx.bot.util.error_message(str(e))
     
     @command(['dep'])
     @cooldown(10)
@@ -203,7 +203,7 @@ class economy(commands.Cog):
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bankbal": num})
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": -num})
         except AssertionError as e:
-            raise ctx.bot.util.BasicCommandException(str(e))
+            raise ctx.bot.util.error_message(str(e))
         except Exception as e:
             return await ctx.bot.cmds.invalid_args(ctx)
     
@@ -227,7 +227,7 @@ class economy(commands.Cog):
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": num})
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bankbal": -num})
         except AssertionError as e:
-            raise ctx.bot.util.BasicCommandException(str(e))
+            raise ctx.bot.util.error_message(str(e))
         except Exception:
             return await ctx.bot.cmds.invalid_args(ctx)
 
@@ -263,7 +263,7 @@ class economy(commands.Cog):
         if limit < 3:
             del data, limit, member_ids
             collect()
-            raise ctx.bot.util.BasicCommandException("This server has less than 3 members with a profile, thus a leaderboard cannot happen!")
+            raise ctx.bot.util.error_message("This server has less than 3 members with a profile, thus a leaderboard cannot happen!")
         
         sorted_bal = sorted(list(map(lambda x: x["bal"], data)))[::-1][:limit]
         ids = []
@@ -305,7 +305,7 @@ class economy(commands.Cog):
                     del parser, data, text
                     return
                 except Exception as e:
-                    raise ctx.bot.util.BasicCommandException(str(e))
+                    raise ctx.bot.util.error_message(str(e))
             elif parser.has_multiple("color", "set-color", "col"):
                 try:
                     parser.shift_multiple("color", "set-color", "col")
@@ -317,7 +317,7 @@ class economy(commands.Cog):
                 except ValueError:
                     return await ctx.bot.cmds.invalid_args(ctx)
                 except AssertionError as e:
-                    raise ctx.bot.util.BasicCommandException(str(e))
+                    raise ctx.bot.util.error_message(str(e))
                 
                 await ctx.send(embed=discord.Embed(title="Changed the color for your profile to `"+ ('#%02x%02x%02x' % color).upper() +"`.", color=discord.Color.from_rgb(*color)))
                 self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"color": str(color).replace(" ", "")[1:-1]})
@@ -329,7 +329,7 @@ class economy(commands.Cog):
                 data = self.db.get("economy", {"userid": member.id})
 
                 if not data:
-                    raise ctx.bot.util.BasicCommandException(f"{member.display_name} does not have any profile.")
+                    raise ctx.bot.util.error_message(f"{member.display_name} does not have any profile.")
                 card = ctx.bot.ProfileCard(ctx, member, profile=data, font_path=ctx.bot.util.fonts_dir + "/NotoSansDisplay-Bold.otf")
                 byte = await card.draw()
                 await ctx.send(file=discord.File(byte, "card.png"))
@@ -340,7 +340,7 @@ class economy(commands.Cog):
         member = ctx.bot.Parser.parse_user(ctx, args)
         data = self.db.get("economy", {"userid": member.id})
         if not data:
-            raise ctx.bot.util.BasicCommandException(f"{member.display_name} does not have any profile!")
+            raise ctx.bot.util.error_message(f"{member.display_name} does not have any profile!")
         streak = data["streak"] if data.get("streak") else 1
         
         embed = ctx.bot.Embed(
@@ -368,7 +368,7 @@ class economy(commands.Cog):
     @cooldown(10)
     async def new(self, ctx):
         if self.db.exist("economy", {"userid": ctx.author.id}):
-            raise ctx.bot.util.BasicCommandException("You already have a profile. No need to create another.")
+            raise ctx.bot.util.error_message("You already have a profile. No need to create another.")
         
         await ctx.send(embed=discord.Embed(title=f"Created your profile! Use {ctx.bot.command_prefix}bal to view your profile.", color=discord.Color.green()))
         self.db.add("economy", {

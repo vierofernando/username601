@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import imdb
 from decorators import *
-import random
+from random import randint, choice
 import wikipediaapi
 from googletrans import Translator, LANGUAGES
 
@@ -57,7 +57,7 @@ class apps(commands.Cog):
             del embed, result, search, data
             
         except:
-            raise ctx.bot.util.BasicCommandException("Did not found anything corresponding to your search.")
+            raise ctx.bot.util.error_message("Did not found anything corresponding to your search.")
 
     @command(['git'])
     @cooldown(10)
@@ -144,7 +144,7 @@ class apps(commands.Cog):
             q=' '.join(args)
         )
         if not data:
-            raise ctx.bot.util.BasicCommandException("Did not found anything corresponding to your query.")
+            raise ctx.bot.util.error_message("Did not found anything corresponding to your query.")
         
         try:
             star = str(':star:'*round(data['rating']['average'])) if data['rating']['average'] else 'No star rating provided.'
@@ -164,14 +164,14 @@ class apps(commands.Cog):
             await embed.send()
             del embed
         except:
-            raise ctx.bot.util.BasicCommandException("There was an error on fetching the info.")
+            raise ctx.bot.util.error_message("There was an error on fetching the info.")
 
     @command(['spy', 'spot', 'splay', 'listeningto', 'sp'])
     @cooldown(2)
     async def spotify(self, ctx, *args):
         user = ctx.bot.Parser.parse_user(ctx, args)
         act = [i for i in user.activities if isinstance(i, discord.Spotify)]
-        if not act: raise ctx.bot.util.BasicCommandException(f"Sorry, but {user.display_name} is not listening to spotify.")
+        if not act: raise ctx.bot.util.error_message(f"Sorry, but {user.display_name} is not listening to spotify.")
         await ctx.trigger_typing()
         panel = ctx.bot.Panel(ctx, spotify=act[0])
         await panel.draw()
@@ -276,7 +276,7 @@ class apps(commands.Cog):
             await embed.send()
             del res, data, embed, votes, choose, movie, query
         except Exception as e:
-            raise ctx.bot.util.BasicCommandException("The movie query does not exist.\n" + str(e))
+            raise ctx.bot.util.error_message("The movie query does not exist.\n" + str(e))
         
 def setup(client):
     client.add_cog(apps())
