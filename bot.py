@@ -11,7 +11,7 @@ intents = discord.Intents(
     guilds=True, members=True, emojis=True, guild_reactions=True, presences=True, guild_messages=True
 )
 
-client = commands.Bot(command_prefix="1", intents=intents, activity=discord.Activity(type=5, name="2020 survival competition"))
+client = commands.Bot(command_prefix="1", intents=intents, activity=discord.Activity(type=5, name="2020 v2 survival competition. Good Luck, chief"))
 framework.initiate(client)
 pre_ready_initiation(client)
 
@@ -160,7 +160,7 @@ async def on_command_error(ctx, error):
 
 @client.event
 async def on_message(message):
-    if (not message.guild) or message.author.bot or message.reference: return# or isdblvote(message.author): return
+    if (not message.guild) or message.author.bot or message.reference or ((time() - message.author.created_at.timestamp()) < 604800): return# or isdblvote(message.author): return
 
     #if message.author.id in client.blacklisted_ids: return
     if message.content.startswith(f'<@{client.user.id}>') or message.content.startswith(f'<@!{client.user.id}>'):
@@ -176,4 +176,6 @@ async def on_message(message):
 def Username601():
     print('Logging in to discord...')
     client.run(environ['DISCORD_TOKEN'])
-if __name__ == "__main__": Username601()
+
+if __name__ == "__main__":
+    Username601()
