@@ -23,7 +23,7 @@ class image(commands.Cog):
             self.aeon_count = int(resp)
             self.last_aeon = time()
             del resp
-        return await ctx.bot.util.send_image_attachment(f"{self.aeon_url}{randint(1, self.aeon_count)}.png")
+        return await ctx.bot.util.send_image_attachment(ctx, f"{self.aeon_url}{randint(1, self.aeon_count)}.png")
     
     @command(['dogs'])
     @cooldown(3)
