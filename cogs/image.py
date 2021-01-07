@@ -5,11 +5,25 @@ from random import randint, choice
 from io import BytesIO
 from aiohttp import ClientSession
 from json import loads
+from time import time
+from os import environ
 from gc import collect
 
 class image(commands.Cog):
     def __init__(self):
-        pass
+        self.aeon_count = None
+        self.last_aeon = 0
+        self.aeon_url = environ["AEON_API_URL"]
+    
+    @command(['aun', 'æon'])
+    @cooldown(3)
+    async def aeon(self, ctx):
+        if (time() - self.last_aeon) >= 10800: # this API is sacred so i'm not giving you the URL
+            resp = await ctx.bot.util.get_request(self.aeon_url)
+            self.aeon_count = int(resp)
+            self.last_aeon = time()
+            del resp
+        return await ctx.bot.util.send_image_attachment(f"{self.aeon_url}{randint(1, self.aeon_count)}.png")
     
     @command(['dogs'])
     @cooldown(3)
