@@ -3,8 +3,8 @@ from discord.ext import commands
 from decorators import *
 from random import randint, choice
 from io import BytesIO
-from datetime import datetime as t
 from gc import collect
+from time import time
 
 class games(commands.Cog):
     def __init__(self, client):
@@ -15,6 +15,48 @@ class games(commands.Cog):
             ("num", "number"): ("GuessMyNumber", (), "play", (c,)),
             ("flag", "country-flag", "flags"): ("GuessTheFlag", (c,), "start", ())
         })
+
+    @command()
+    @cooldown(8)
+    async def fast(self, ctx, *args):
+        await ctx.trigger_typing()
+        parser = ctx.bot.Parser(args)
+        parser.parse()
+        
+        data = await ctx.bot.util.get_request(
+            "https://useless-api.vierofernando.repl.co/randomword",
+            json=True,
+            raise_errors=True
+        )
+        
+        if parser.has_multiple("reverse", "reversed"):
+            answer, message = choice([data['word'], data['word'][::-1]]), "Send the reversed version of the text below!"
+            buffer = ctx.bot.Image.text(answer[::-1])
+        elif parser.has_multiple("index", "alphabet", "alpha"):
+            answer, buffer = choice(list(data['word'])), ctx.bot.Image.text(data['word'])
+            index = data['word'].index(answer)
+            message = f"Find the {index + 1}{(['st', 'nd', 'rd', 'th'][index] if index <= 4 else 'th')} alphabet in this word!"
+            del index
+        elif parser.has_multiple("bot", "captcha"):
+            answer, message, buffer = data['word'], "Are you a bot? Solve the captcha below!", ctx.bot.Image.captcha(answer)
+        else:
+            answer, message, buffer = data['word'], "Send the text displayed here!", ctx.bot.Image.text(data['word'])
+        
+        a = time()
+        await ctx.send(message, file=discord.File(buffer, "fast.png"))
+        wait = ctx.bot.WaitForMessage(ctx, timeout=20.0, check=(lambda x: x.channel == ctx.channel and (not x.author.bot) and (x.content.lower() == answer)))
+        _message = await wait.get_message()
+        if not _message:
+            return
+        embed = ctx.bot.Embed(ctx, title=f"Congratulations! {_message.author.display_name} got it first!", fields={"Time taken": str((time() - a) * 1000) + " seconds", "Answer": answer}, footer="Try again later if you lost lol")
+        
+        if self.db.exist("economy", {"userid": _message.author.id}):
+            reward = randint(100, 500) if parser else randint(500, 1000)
+            embed.description = f"**You also get {reward:,} bobux as a reward!**"
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": _message.author.id}, {"bal": reward})
+            del reward
+        await embed.send()
+        del message, wait, a, buffer, data, answer, embed, parser
 
     @command(['ttt'])
     @cooldown(15)

@@ -5,6 +5,7 @@ from wand.image import Image as _Image
 from wand.image import Color as _Color
 from .lego import apply_color_overlay
 from aiohttp import ClientSession
+from claptcha import Claptcha
 from itertools import chain
 from random import randint
 from json import loads
@@ -354,6 +355,25 @@ class ImageClient:
         gc.collect()
         return self.save(image)
 
+
+    def text(self, text: str) -> BytesIO:
+        """ Converts a text to a buffer. """
+        font = ImageFont.truetype("./assets/fonts/consola.ttf", 30)
+        width, _ = font.getsize(text)
+        main = Image.new("RGB", (width + 10, 40), (255, 255, 255))
+        draw = ImageDraw.Draw(main)
+        draw.text((5, 5), text, font=font, fill="black")
+        del draw, width, font
+        return self.save(main)
+
+
+    def captcha(self, text: str) -> BytesIO:
+        """ Converts a text to a captcha image. """
+        pic = Claptcha(text, "./assets/fonts/consola.ttf")
+        bytes = pic.bytes[1]
+        del pic
+        gc.collect()
+        return bytes
 
 class Blur:
     BASIC_BLUR = 0

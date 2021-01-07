@@ -393,26 +393,6 @@ class utils(commands.Cog):
             return await ctx.bot.cmds.invalid_args(ctx)
         await ctx.send(file=discord.File(color_image, 'color.png'))
         del color_image, role_name
-    
-    @command(['fast'])
-    @cooldown(5)
-    async def typingtest(self, ctx):
-        await ctx.trigger_typing()
-        data = await ctx.bot.util.get_request(
-            "https://useless-api.vierofernando.repl.co/randomword",
-            json=True,
-            raise_errors=True
-        )
-        buffer = await ctx.bot.canvas.simpletext(data['word'])
-        a = time()
-        await ctx.send(file=discord.File(buffer, "fast.webp"))
-        wait = ctx.bot.WaitForMessage(ctx, timeout=20.0, check=(lambda x: x.channel == ctx.channel and (not x.author.bot) and (x.content.lower() == data['word'])))
-        message = await wait.get_message()
-        if not message:
-            return
-        embed = ctx.bot.Embed(ctx, title=f"Congratulations! {message.author.display_name} got it first!", fields={"Time taken": str((time() - a) * 1000) + " s", "Word": data['word']}, footer="Try again later if you lost lol")
-        await embed.send()
-        del message, wait, a, buffer, data
 
 def setup(client):
     client.add_cog(utils())

@@ -228,14 +228,7 @@ class Painter:
         avpic.close()
         avpic2.close()
         return self.buffer(template)
-    
-    async def simpletext(self, text):
-        font = self.get_font('consola', 60)
-        image = Image.new(mode='RGB', size=(font.getsize(text)[0] + 20, 80),color=(255, 255, 255))
-        self.drawtext(ImageDraw.Draw(image), font, text, 10, 10, "black")
-        del font
-        return self.buffer(image, webp=True)
-    
+
 class GifGenerator:
     
     def __init__(self, assetpath, fontpath):

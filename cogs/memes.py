@@ -263,13 +263,15 @@ class memes(commands.Cog):
         })
         return await ctx.send(file=discord.File(image, 'meme.png'))
 
-    @command(['captchatext', 'captchatxt', 'generatecaptcha', 'gen-captcha', 'gencaptcha', 'capt'])
+    @command(['captchatext', 'generatecaptcha', 'gen-captcha', 'gencaptcha', 'capt'])
     @cooldown(10)
+    @require_args()
     async def captcha(self, ctx, *args):
         await ctx.trigger_typing()
-        capt = 'username601' if len(args)==0 else ' '.join(args)
-        return await ctx.bot.util.send_image_attachment(ctx, 'https://useless-api.vierofernando.repl.co/captcha?text={}'.format(capt))
-
+        image = ctx.bot.Image.captcha(" ".join(args)[:50])
+        await ctx.send(file=discord.File(image, "captcha.png"))
+        del image
+        
     @command(['disgusting', 'f', 'studying', 'starvstheforcesof'])
     @cooldown(10)
     async def door(self, ctx, *args):
