@@ -35,7 +35,7 @@ class games(commands.Cog):
         elif parser.has_multiple("index", "alphabet", "alpha"):
             answer, buffer = choice(list(data['word'])), ctx.bot.Image.text(data['word'])
             index = data['word'].index(answer)
-            message = f"Find the {index + 1}{(['st', 'nd', 'rd', 'th'][index] if index <= 4 else 'th')} alphabet in this word!"
+            message = f"Find the {index + 1}{(['st', 'nd', 'rd', 'th'][index] if index < 4 else 'th')} alphabet in this word!"
             del index
         elif parser.has_multiple("bot", "captcha"):
             answer, message, buffer = data['word'], "Are you a bot? Solve the captcha below!", ctx.bot.Image.captcha(data['word'])
