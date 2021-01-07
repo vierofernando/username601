@@ -3,7 +3,6 @@ import sys
 import os
 import gc
 from random import randint
-from pympler import muppy, summary
 from decorators import *
 from discord.ext import commands
 from datetime import datetime as t
@@ -22,13 +21,7 @@ class owner(commands.Cog):
             os.environ['ALEXFLIPNOTE_TOKEN']
         ]
         self.db = client.db
-
-    @command()
-    @owner_only()
-    async def memstats(self, ctx):
-        d = summary.print_(summary.summarize(muppy.get_objects()))
-        return await ctx.send(f'Muppy result:```py\n{d}```\nGarbage Collector:\n```py\n{str(gc.get_stats())}```')
-
+        
     @command()
     @owner_only()
     async def selfpurge(self, ctx):
