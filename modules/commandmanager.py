@@ -23,6 +23,7 @@ class BotCommands:
             return print(f"error: please put config.ini file in the same directory\nand/or make sure commands.json is stored in <JSON_DIR key in config.ini file>.\n\nraw error message: {e}")
     
     async def invalid_args(self, ctx, name = None):
+        ctx.command.reset_cooldown(ctx)
         name = name if name else ctx.command.name
         command_info = [i for i in self.commands if i["name"] == name][0]
         embed = Embed(title="Invalid arguments", color=Color.red())
