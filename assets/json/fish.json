@@ -45,13 +45,5 @@
             "junk",
             "poop"
         ]
-    },
-    "waiting": [
-        "You started fishing...",
-        "You threw the fishing line to the water...",
-        "Waiting for a fish...",
-        "You decided to fish. Waiting for results..",
-        "Fishing may take patience.. please wait..",
-        "Waiting for a catch.."
-    ]
+    }
 }
