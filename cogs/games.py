@@ -48,11 +48,11 @@ class games(commands.Cog):
         _message = await wait.get_message()
         if not _message:
             return
-        _time = (time() - a) * 1000
+        _time = time() - a
         embed = ctx.bot.Embed(ctx, title=f"Congratulations! {_message.author.display_name} got it first!", fields={"Time taken": str(_time) + " seconds", "Answer": answer}, footer="Try again later if you lost lol")
         
         if self.db.exist("economy", {"userid": _message.author.id}):
-            reward = round((20000 - _time) / 10)
+            reward = round((20 - _time) * 100)
             embed.description = f"**You also get {reward:,} bobux as a reward!**"
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": _message.author.id}, {"bal": reward})
             del reward
