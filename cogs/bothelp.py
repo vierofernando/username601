@@ -93,21 +93,19 @@ class bothelp(commands.Cog):
         if (('discord.gg/' in ' '.join(args)) or ('discord.com/invite/' in ' '.join(args))):
             raise ctx.bot.util.error_message("Please do NOT send invites. This is NOT advertising.")
         
-        wait = await ctx.send(ctx.bot.util.loading_emoji + ' | Please wait... Transmitting data to owner...')
-
+        await ctx.trigger_typing()
         banned = [i for i in self.db.get("config", {"h": True})["bans"] if i.startswith(str(ctx.author.id))]
         
         if not banned:
             try:
                 feedback_channel = ctx.bot.get_channel(ctx.bot.util.feedback_channel)
                 await feedback_channel.send(f'<@{ctx.bot.util.owner_id}>, User with ID: {ctx.author.id} sent a feedback: **"'+' '.join(args)[0:500]+'"**')
-                embed = discord.Embed(title='Feedback Successful', description=ctx.bot.util.success_emoji + '** | Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+ctx.bot.util.server_invite+')', colour=ctx.me.color)
-                await wait.edit(content='', embed=embed)
+                embed = discord.Embed(title='Feedback Successful', description='**Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+ctx.bot.util.server_invite+')', colour=ctx.me.color)
+                return await ctx.send(embed=embed)
             except:
                 raise ctx.bot.util.error_message('There was an error while sending your feedback. Sorry! :(')
-        else:
-            reason = "|".join(banslist[0].split("|")[1:])
-            raise ctx.bot.util.error_message(f"You have been banned from using the Feedback command.\nReason: {reason}")
+        reason = "|".join(banslist[0].split("|")[1:])
+        raise ctx.bot.util.error_message(f"You have been banned from using the Feedback command.\nReason: {reason}")
      
     @command()
     @cooldown(2)

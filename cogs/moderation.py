@@ -89,7 +89,7 @@ class moderation(commands.Cog):
     @command(['jp', 'joinpos', 'joindate', 'jd', 'howold'])
     @cooldown(5)
     async def joinposition(self, ctx, *args):
-        wait = await ctx.send(f"{ctx.bot.util.loading_emoji} | Hang tight... collecting data...")
+        await ctx.trigger_typing()
         from_string = False
         current_time, members, user_index, desc = time(), ctx.guild.members, None, ""
         full_arr = list(map(lambda x: {'ja': x.joined_at.timestamp(), 'da': x}, members))
@@ -118,7 +118,7 @@ class moderation(commands.Cog):
             desc += string.format(
                 i + 1, name, ctx.bot.util.strfsecond(current_time - full_arr[index]['ja'])
             )
-        return await wait.edit(content='', embed=discord.Embed(title=title, description=desc, color=ctx.me.color))
+        return await ctx.send(embed=discord.Embed(title=title, description=desc, color=ctx.me.color))
         
     @command()
     @cooldown(2)

@@ -128,7 +128,7 @@ class utils(commands.Cog):
     @cooldown(2)
     @require_args()
     async def isitdown(self, ctx, *args):
-        wait = await ctx.send('{} | Pinging...'.format(ctx.bot.util.loading_emoji))
+        await ctx.trigger_typing()
         web = args[0].replace('<', '').replace('>', '')
         if not web.startswith('http'): web = 'http://' + web
         try:
@@ -136,11 +136,12 @@ class utils(commands.Cog):
             ping = await ctx.bot.http._HTTPClient__session.get(web)
             pingtime = round((time() - a)*1000)
             embed = ctx.bot.Embed(ctx, title="That website is up.", fields={"Ping": f"{pingtime}ms", "HTTP Status Code": f"{ping.status} {ctx.bot.util.status_codes[str(ping.status)]}", "Content Type": ping.headers['Content-Type']}, color=discord.Color.green())
-            await embed.edit_to(wait)
+            await embed.send()
             del embed, pingtime, ping, a, web, wait
         except:
             embed = ctx.bot.Embed(ctx, title="That website is down.", color=discord.Color.red())
-            await embed.edit_to(wait)
+            await embed.send()
+            del embed
     
     @command()
     @cooldown(15)
@@ -231,7 +232,7 @@ class utils(commands.Cog):
         if search("[a-zA-Z]", equation): raise ctx.bot.util.error_message("Please do NOT input something that contains letters. This is not eval, nerd.")
         try:
             res = eval(equation)
-            return await ctx.send("{} | {} = `{}`".format(ctx.bot.util.success_emoji, equation, str(res)[0:1000]))
+            return await ctx.send(f"{equation} = `{str(res)[0:1000]}`")
         except Exception as e:
             raise ctx.bot.util.error_message(f"Error: {str(e)}")
     

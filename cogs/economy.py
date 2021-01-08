@@ -54,7 +54,7 @@ class economy(commands.Cog):
             return await ctx.bot.cmds.invalid_args(ctx)
         
         self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": (amount[0] if lucky else -amount[0])})
-        return await ctx.send((ctx.bot.util.success_emoji if lucky else ctx.bot.util.error_emoji) + ' | ' + (f"Congratulations! {ctx.author.display_name} just won {amount[0]:,} bobux!" if lucky else f"Yikes! {ctx.author.display_name} just lost {amount[0]:,} bobux..."))
+        return await ctx.send(embed=discord.Embed(title=(f"Congratulations! {ctx.author.display_name} just won {amount[0]:,} bobux!" if lucky else f"Yikes! {ctx.author.display_name} just lost {amount[0]:,} bobux..."), color=getattr(discord.Color, "green" if lucky else "red")()))
 
     @command()
     @cooldown(120)
@@ -68,9 +68,7 @@ class economy(commands.Cog):
     @cooldown(60)
     @require_profile()
     async def fish(self, ctx):
-        wait = await ctx.send('{} | {}'.format(ctx.bot.util.loading_emoji, choice(
-            self.fish_json['waiting']
-        )))
+        await ctx.trigger_typing()
         await sleep(randint(3, 8))
         res = self.getfish()
         if res['catched']:

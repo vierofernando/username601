@@ -62,14 +62,14 @@ class owner(commands.Cog):
     @owner_only()
     async def fban(self, ctx, *args):
         self.db.modify("config", self.db.types.APPEND, {"h": True}, {"bans": args[0]+"|"+" ".join(args[1:])})
-        await ctx.message.add_reaction(ctx.bot.util.success_emoji)
+        await ctx.send('banum\'d')
     
     @command()
     @owner_only()
     async def funban(self, ctx, *args):
         data = self.db.get("config", {"h": True})["bans"]
         self.db.modify("config", self.db.types.CHANGE, {"h": True}, {"bans": [i for i in data if int(args[0]) != int(i.split("|")[0])]})
-        await ctx.message.add_reaction(ctx.bot.util.success_emoji)
+        await ctx.send("unbannum'd")
     
     @command(['ex', 'eval'])
     @cooldown(1)
@@ -123,13 +123,12 @@ class owner(commands.Cog):
         command = " ".join(args)[0:100] if args else "echo hello world"
         if ctx.author.id == ctx.bot.util.owner_id:
             try:
-                await ctx.message.add_reaction(ctx.bot.util.loading_emoji)
+                await ctx.trigger_typing()
                 data = await ctx.bot.util.execute(command)
-                await ctx.send(embed=discord.Embed(title='Bash Terminal', description='Input:```sh\n'+command+'```**Output:**```sh\n'+str(data)[0:2000]+'```', color=discord.Color.green()))
+                return await ctx.send(embed=discord.Embed(title='Bash Terminal', description='Input:```sh\n'+command+'```**Output:**```sh\n'+str(data)[0:2000]+'```', color=discord.Color.green()))
             except Exception as e:
-                await ctx.send(embed=discord.Embed(title='Error on execution', description='Input:```sh\n'+command+'```**Error:**```py\n'+str(e)+'```', color=discord.Color.red()))
-        else:
-            await ctx.send(embed=discord.Embed(title='Error on execution', description='Input:```sh\n'+command+'```**Error:**```py\nDenied by username601.sh```', color=discord.Color.red()).set_footer(text='It is because it is owner only you dumbass'))
+                return await ctx.send(embed=discord.Embed(title='Error on execution', description='Input:```sh\n'+command+'```**Error:**```py\n'+str(e)+'```', color=discord.Color.red()))
+        await ctx.send(embed=discord.Embed(title='Error on execution', description='Input:```sh\n'+command+'```**Error:**```py\nDenied by username601.sh```', color=discord.Color.red()).set_footer(text='It is because it is owner only you dumbass'))
 
 def setup(client):
     client.add_cog(owner(client))

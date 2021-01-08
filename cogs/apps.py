@@ -194,7 +194,8 @@ class apps(commands.Cog):
             limit=10,
             explicit='no'
         )
-        if len(data['results'])==0: return await ctx.send('{} | No music found... oop'.format(ctx.bot.util.error_emoji))
+        if not data['results']:
+            raise ctx.bot.util.error_message('No music found... oop')
         choose = ctx.bot.ChooseEmbed(ctx, data['results'], key=(lambda x: "["+x["trackName"]+"]("+x["trackViewUrl"]+")"))
         data = await choose.run()
         if not data: return

@@ -195,18 +195,6 @@ class Util:
             except Exception as e:
                 print("Error while loading cog:", str(e))
 
-    def post_ready(self):
-        """ A method to be executed after the client is ready on on_ready event."""
-        try:
-            setattr(self, "loading_emoji", str(self.bot.get_emoji(self.emoji_loading)))
-            setattr(self, "error_emoji", str(self.bot.get_emoji(self.emoji_error)))
-            setattr(self, "success_emoji", str(self.bot.get_emoji(self.emoji_success)))
-            delattr(self, "emoji_loading")
-            delattr(self, "emoji_error")
-            delattr(self, "emoji_success")
-        except:
-            return
-
     async def send_image_attachment(self, ctx, url, alexflipnote: bool = False, message_options: dict = {}) -> None:
         """
         Sends an image attachment from a URL.
@@ -289,17 +277,16 @@ class Util:
     def strfsecond(self, seconds: int):
         """ Converts a second to a string """
         seconds = int(seconds)
-        result = None
         
         if seconds < 60:
             return f"{seconds} second" + ("" if (seconds == 1) else "s")
         
         for key in self._time.keys():
             if seconds >= key:
-                seconds = round(seconds / key)
+                seconds //= key
                 return f"{seconds} {self._time[key]}" + ("" if seconds == 1 else "s")
         
-        seconds = round(seconds / 31536000)
+        seconds //= 31536000
         return f"{seconds} year" + ("" if seconds == 1 else "s")
     
     async def get_stats(self, evaluate: bool = True) -> dict:
