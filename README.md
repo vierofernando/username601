@@ -1,26 +1,12 @@
-# Custom Framework for username601
-A custom "framework" i made for this bot. You can use this framework!<br>
-(not planning to be added to PyPI, sorry)<br>
-This is the documentation and the examples.<br>
+this is the repository for [username601](https://top.gg/bot/696973408000409626) the bot i made in quarantine because i'm bored, also the home of the spaghetti code.
+feel free to contribute!
 
-Several file snippets may be useful to you and you can use, such as:<br>
-# Parser object
+## Directories
+- The `web` directory is the source code for the bot website.
+- Anything else is the source code for the bot.
 
-It parser the arguments in a command. And it is very simple.
-```py
-parser = Parser(args)
-parser.parse()
-
-# this method checks if AT LEAST the user added --argument, despite the value None or not.
-if parser.has("argument"):
-	print("WOW! YOU ADDED --argument !!!")
-
-# getting the item means getting the value. if this doesn't exists, it returns None
-value = parser["argument"]
-if value is not None:
-	print("THIS IS THE ARGUMENT YOU ADDED AFTER --argument: ", value)
-
-# use this once you are not using the --argument. This dumps the argument and its values to parser.other
-parser.shift("argument")
-print("Here are the other arguments whice are not used: ", *parser.other)
-```
+## Requirements
+- Python >= 3.7
+- [MongoDB database](https://mongodb.com)
+- [ImageMagick executable](https://www.imagemagick.org/)
+- All pip packages in `requirements.txt`
