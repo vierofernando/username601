@@ -526,7 +526,7 @@ class ProfileCard:
     def __init__(self, ctx, member, profile: dict, font_path: str):
         self.bal = profile
         self.user = member
-        self.bot = ctx.bot
+        self.ctx = ctx
 
         # measure the width
         self.big_font = ImageFont.truetype(font_path, 30)
@@ -552,7 +552,7 @@ class ProfileCard:
         
         if not text:
             return self.bal["desc"]
-        elif current_text != "":
+        elif bool(current_text):
             text.append(current_text)
         
         return "\n".join(text)
@@ -569,7 +569,7 @@ class ProfileCard:
         self.foreground_color = (0, 0, 0) if (sum(self.background_color) // 3) > 127 else (255, 255, 255)
         self.main = Image.new(mode="RGB", size=(self.width, 190), color=self.background_color)
         self.d = ImageDraw.Draw(self.main)
-        self.parser = TwemojiParser(self.main, session=self.bot.http._HTTPClient__session)
+        self.parser = TwemojiParser(self.main, session=self.ctx.bot.http._HTTPClient__session)
         self.lower_brightness = (lambda x: tuple(map(lambda y: y - x, self.background_color)))
 
         # draw the rectangles
@@ -587,7 +587,7 @@ class ProfileCard:
         await self.parser.draw_text((380, 80), description, font=self.smol_font, fill=self.foreground_color)
 
         # get avatar
-        avatar = await self.bot.Image.image_from_URL(str(self.user.avatar_url_as(format="png", size=128)))
+        avatar = await self.ctx.bot.Image.image_from_URL(str(self.user.avatar_url_as(format="png", size=128)))
         avatar = avatar.resize((150, 150))
 
         # paste the avatar
@@ -620,7 +620,7 @@ class ProfileCard:
             self.user,
             self.parser,
             self.width,
-            self.bot
+            self.ctx
         )
         gc.collect()
 
