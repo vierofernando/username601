@@ -10,3 +10,10 @@ feel free to contribute!
 - [MongoDB database](https://mongodb.com)
 - [ImageMagick executable](https://www.imagemagick.org/)
 - All pip packages in `requirements.txt`
+
+## Links
+- [support server](https://discord.com/HhAPkD8)
+- [official website](https://601.vierofernando.repl.co/)
+- [top.gg page](https://top.gg/bot/696973408000409626)
+- [botsfordiscord.com page](https://botsfordiscord.com/bot/696973408000409626)
+- [discordbotlist.com page](https://discordbotlist.com/bots/username601)
