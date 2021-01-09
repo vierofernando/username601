@@ -78,7 +78,7 @@ class Paginator:
                 resolve = await self.resolve_reaction(reaction)
                 assert resolve != -1
                 del reaction, user, resolve
-            except AssertionError:
+            except:
                 break
     
     async def delete(self):
