@@ -8,7 +8,7 @@ from .parser import Parser
 from .panel import CustomPanel
 from .colorthief import Smart_ColorThief
 from .message import embed, Paginator, ChooseEmbed,  WaitForMessage
-from .util import Util, GetRequestFailedException, error_message
+from .util import Util, error_message
 from .games import GuessTheFlag, Slot, TicTacToe, RockPaperScissors, GeographyQuiz, MathQuiz, GuessAvatar, Trivia, GuessMyNumber, Hangman
 from .canvas import ServerCard, UserCard, ProfileCard, GDLevel, Blur, ImageClient
 from .database import Database

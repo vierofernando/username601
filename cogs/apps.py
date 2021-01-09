@@ -12,6 +12,76 @@ class apps(commands.Cog):
         self.Wikipedia = wikipediaapi.Wikipedia('en')
         self.ia = imdb.IMDb()
 
+    @command(["weather-forecast", "forecast"])
+    @cooldown(10)
+    async def weather(self, ctx, *args):
+        parser = ctx.bot.Parser(args)
+        parser.parse()
+        
+        try:
+            _format = "C" if (parser.has("metric") or (not parser.has("imperial"))) else "F"
+            assert bool(parser.other)
+            location, nl = " ".join(parser.other)[:50], "\n"
+            data = await ctx.bot.util.request(
+                "https://weather.service.msn.com/find.aspx",
+                src="outlook",
+                weadegreetype=_format,
+                culture="en-US",
+                weasearchstr=location,
+                xml=True
+            )
+            location_name = data['weatherdata']['weather'][0]['@weatherlocationname']
+            embeds = [ctx.bot.Embed(
+                ctx,
+                title=f"Weather Forecast for {location_name[:70]} (Today)",
+                fields={
+                    "Current Condition": data['weatherdata']['weather'][0]['current']['@skytext'],
+                    "Temperature": f"**Temperature: **{data['weatherdata']['weather'][0]['current']['@temperature']} °{_format}{nl}**Feels Like: **{data['weatherdata']['weather'][0]['current']['@feelslike']} °{_format}",
+                    "Humidity": f"{data['weatherdata']['weather'][0]['current']['@humidity']}%",
+                    "Wind Speeds": data['weatherdata']['weather'][0]['current']['@winddisplay']
+                }
+            )._basic_embed()]
+            
+            if parser.has_multiple("forecast", "forecasts", "include-forecast", "include-forecasts"):
+                for forecast in data['weatherdata']['weather'][0]['forecast']:
+                    _embed = discord.Embed(
+                        title=f"Weather Forecast for {location_name[:70]} ({forecast['@day']}, {forecast['@date']})",
+                        color=ctx.me.color
+                    ).add_field(name="Temperature", value=f"**Minimum Temperature: **{forecast['@low']} °{_format}{nl}**Maximum Temperature: **{forecast['@high']} °{_format}", inline=False
+                    ).add_field(name="Condition", value=forecast['@skytextday'], inline=False
+                    ).add_field(name="Precipitation", value=f"{(forecast['@precip'] if forecast['@precip'] else '0')}%", inline=False
+                    ).add_field(name="Approximate Date", value=f"{forecast['@day']}, {forecast['@date']}", inline=False
+                    ).add_useless_stuff(ctx)
+                    embeds.append(_embed)
+            else:
+                del location_name, data, location, nl, parser
+                return await ctx.send(embed=embeds[0])
+            del location_name, data, location, nl, parser
+            paginator = ctx.bot.EmbedPaginator(ctx, embeds=embeds, show_page_count=True)
+            del embeds
+            return await paginator.execute()
+        except (AssertionError, KeyError):
+            raise ctx.bot.util.error_message("Invalid location.")
+
+    @command(['trending', 'news'])
+    @cooldown(7)
+    async def msn(self, ctx, *args):
+        try:
+            data = await ctx.bot.util.request(
+                "http://cdn.content.prod.cms.msn.com/singletile/summary/alias/experiencebyname/today",
+                market="en-GB",
+                source="appxmanifest",
+                tenant="amp",
+                vertical="news",
+                xml=True
+            )
+            embed = ctx.bot.Embed(ctx, title=data["tile"]["visual"]["binding"][0]["text"]["#text"], image=data["tile"]["visual"]["@baseUri"] + data["tile"]["visual"]["binding"][0]["image"]["@src"])
+            await embed.send()
+            del embed, data
+        except Exception as e:
+            await ctx.bot.get_user(ctx.bot.util.owner_id).send(f"yo, theres an error: `{str(e)}`")
+            raise ctx.bot.util.error_message("Oopsies, there was an error on searching the news.")
+
     @command(['urban-dictionary', 'define'])
     @cooldown(8)
     @require_args()
@@ -25,15 +95,14 @@ class apps(commands.Cog):
                 parser.shift("search")
                 args, search = tuple(parser.other), True
             
-            data = await ctx.bot.util.get_request(
+            data = await ctx.bot.util.request(
                 "https://api.urbandictionary.com/v0/define",
-                term=' '.join(args)[0:100],
-                json=True,
-                raise_errors=True
+                term=' '.join(args)[:100],
+                json=True
             )
             
             if search:
-                embed_list = ctx.bot.ChooseEmbed(ctx, data["list"][0:10], key=(lambda x: f'{x["word"]} by {x["author"]} [{x["thumbs_up"]:,} :+1:, {x["thumbs_down"]:,} :-1:]'))
+                embed_list = ctx.bot.ChooseEmbed(ctx, data["list"][:10], key=(lambda x: f'{x["word"]} by {x["author"]} [{x["thumbs_up"]:,} :+1:, {x["thumbs_down"]:,} :-1:]'))
                 result = await embed_list.run()
                 del embed_list
                 if not result:
@@ -66,11 +135,10 @@ class apps(commands.Cog):
         try:
             nl = "\n" 
             if (args[0].lower() in ["user", "users", "profile"]):
-                data = await ctx.bot.util.get_request(
+                data = await ctx.bot.util.request(
                     "https://api.github.com/users/" + " ".join(args[1:]),
                     github=True,
-                    json=True,
-                    raise_errors=True
+                    json=True
                 )
                 embed = ctx.bot.Embed(
                     ctx,
@@ -87,11 +155,10 @@ class apps(commands.Cog):
                 del embed, data, nl
                 return
             elif (args[0].lower() in ["repos", "repositories"]):
-                data = await ctx.bot.util.get_request(
+                data = await ctx.bot.util.request(
                     "https://api.github.com/users/" + " ".join(args[1:]) + "/repos",
                     github=True,
-                    json=True,
-                    raise_errors=True
+                    json=True
                 )
                 
                 desc = ""
@@ -108,11 +175,10 @@ class apps(commands.Cog):
                 return
             elif (args[0].lower() in ["repo", "repository"]):
                 assert " ".join(args[1:]).count("/")
-                data = await ctx.bot.util.get_request(
+                data = await ctx.bot.util.request(
                     "https://api.github.com/repos/" + " ".join(args[1:]),
                     github=True,
-                    json=True,
-                    raise_errors=True
+                    json=True
                 )
                 
                 embed = ctx.bot.Embed(
@@ -138,7 +204,7 @@ class apps(commands.Cog):
     @cooldown(5)
     @require_args()
     async def tv(self, ctx, *args):
-        data = await ctx.bot.util.get_request(
+        data = await ctx.bot.util.request(
             f'http://api.tvmaze.com/singlesearch/shows',
             json=True,
             q=' '.join(args)
@@ -156,7 +222,7 @@ class apps(commands.Cog):
                 fields={
                     'General Information': '**Status: **'+data['status']+'\n**Premiered at: **'+data['premiered']+'\n**Type: **'+data['type']+'\n**Language: **'+data['language']+'\n**Rating: **'+str(data['rating']['average'] if data['rating']['average'] else '`<not available>`')+'\n'+star,
                     'TV Network': data['network']['name']+' at '+data['network']['country']['name']+' ('+data['network']['country']['timezone']+')',
-                    'Genre': str(', '.join(data['genres']) if len(data['genres'])>0 else 'no genre avaliable'),
+                    'Genre': str(', '.join(data['genres']) if len(data['genres']) else 'no genre avaliable'),
                     'Schedule': ', '.join(data['schedule']['days'])+' at '+data['schedule']['time']
                 },
                 image=data['image']['original']
@@ -183,11 +249,9 @@ class apps(commands.Cog):
     @require_args()
     async def itunes(self, ctx, *args):
         await ctx.trigger_typing()
-        data = await ctx.bot.util.get_request(
+        data = await ctx.bot.util.request(
             'https://itunes.apple.com/search',
             json=True,
-            raise_errors=True,
-            force_json=True,
             term=' '.join(args),
             media='music',
             entity='song',
@@ -222,8 +286,8 @@ class apps(commands.Cog):
                 destination = _filter[0]
                 del _filter
             toTrans = ' '.join(parser.other) if parser["to"] else ' '.join(parser.other[1:])
-            translation = self.translator.translate(toTrans[0:1000], src=parser["from"] if parser["from"] else "auto", dest=destination)
-            embed = ctx.bot.Embed(ctx, title=f"{LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}", desc=translation.text[0:1900])
+            translation = self.translator.translate(toTrans[:1000], src=parser["from"] if parser["from"] else "auto", dest=destination)
+            embed = ctx.bot.Embed(ctx, title=f"{LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}", desc=translation.text[:1900])
             await embed.send()
             del embed, translation, destination, toTrans, parser
         except:
@@ -239,7 +303,7 @@ class apps(commands.Cog):
         if not page.exists():
             return await ctx.send(content='That page does not exist!')
         
-        embed = ctx.bot.Embed(ctx, title=page.title, url=page.fullurl, desc=page.summary[0:2000])
+        embed = ctx.bot.Embed(ctx, title=page.title, url=page.fullurl, desc=page.summary[:2000])
         return await embed.send()
     
     @command(['movie', 'film'])
@@ -251,7 +315,7 @@ class apps(commands.Cog):
             query = " ".join(args[1:])
             res = self.ia.search_movie(query)
             
-            choose = ctx.bot.ChooseEmbed(ctx, res[0:10], key=(lambda x: x["long imdb title"]))
+            choose = ctx.bot.ChooseEmbed(ctx, res[:10], key=(lambda x: x["long imdb title"]))
             movie = await choose.run()
             
             if not movie:
@@ -267,7 +331,7 @@ class apps(commands.Cog):
                 url=self.ia.get_imdbURL(movie),
                 image=movie["full-size cover url"],
                 fields={
-                    "Plot": data["plot outline"].split(".")[0][0:1000],
+                    "Plot": data["plot outline"].split(".")[0][:1000],
                     "Movie Ratings": votes,
                     "Directors": ", ".join([i["name"] for i in data["directors"] if i.get("name")]),
                     "Producers": ", ".join([i["name"] for i in data["producers"] if i.get("name")]),

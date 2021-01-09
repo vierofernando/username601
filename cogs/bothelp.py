@@ -56,8 +56,8 @@ class bothelp(commands.Cog):
         ) if is_command else '**Commands count: **{}\n**Commands:**```{}```'.format(len(data), ', '.join([i['name'] for i in data]))
         embed = ctx.bot.Embed(ctx, title="Help for "+result["type"].lower()+": "+result["name"], desc=desc)
         if is_command:
-            parameters = 'No parameters required.' if len(data['parameters'])==0 else "```"+'\n'.join([i.split(": ")[1] for i in data['parameters']])+"```"
-            apis = 'No APIs used.' if len(data['apis'])==0 else '\n'.join(map(lambda x: f"[{x}]({x})", data['apis']))
+            parameters = "```"+'\n'.join([i.split(": ")[1] for i in data['parameters']])+"```" if data['parameters'] else "No parameters required."
+            apis = '\n'.join(map(lambda x: f"[{x}]({x})", data['apis'])) if data['apis'] else 'No APIs used.'
             embed.fields = {
                 'Parameters': parameters,
                 'APIs used': apis
@@ -99,7 +99,7 @@ class bothelp(commands.Cog):
         if not banned:
             try:
                 feedback_channel = ctx.bot.get_channel(ctx.bot.util.feedback_channel)
-                await feedback_channel.send(f'<@{ctx.bot.util.owner_id}>, User with ID: {ctx.author.id} sent a feedback: **"'+' '.join(args)[0:500]+'"**')
+                await feedback_channel.send(f'<@{ctx.bot.util.owner_id}>, User with ID: {ctx.author.id} sent a feedback: **"'+' '.join(args)[:500]+'"**')
                 embed = discord.Embed(title='Feedback Successful', description='**Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+ctx.bot.util.server_invite+')', colour=ctx.me.color)
                 return await ctx.send(embed=embed)
             except:

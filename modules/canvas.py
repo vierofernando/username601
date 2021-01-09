@@ -127,7 +127,7 @@ class Painter:
         font = self.get_font("Helvetica", 35)
         draw = ImageDraw.Draw(main)
         curs = 5
-        for i in self.wrap_text(text, 475, font, array=True)[0:5]:
+        for i in self.wrap_text(text, 475, font, array=True)[:5]:
             draw.text((5, curs), i, font=font, fill='black')
             curs += 35
         main.paste(self.buffer_from_url(image_url).resize((500, 300)), (0, 200))

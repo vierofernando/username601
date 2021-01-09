@@ -22,9 +22,8 @@ class encoding(commands.Cog):
                 del parser, hastebin
                 return await ctx.bot.cmds.invalid_args(ctx)
             
-            ascii = await ctx.bot.util.get_request(
+            ascii = await ctx.bot.util.request(
                 "http://artii.herokuapp.com/make",
-                raise_errors=True,
                 text=' '.join(parser.other)
             )
             if hastebin:
@@ -38,7 +37,7 @@ class encoding(commands.Cog):
                 except AssertionError:
                     pass
             
-            await ctx.send(f'```{ascii[0:2000]}```')
+            await ctx.send(f'```{ascii[:2000]}```')
             del ascii, parser, hastebin
             return
         
@@ -66,10 +65,10 @@ class encoding(commands.Cog):
     @require_args()
     async def morse(self, ctx, *args):
         await ctx.trigger_typing()
-        res = await ctx.bot.util.get_request(
+        res = await ctx.bot.util.request(
             'https://useless-api.vierofernando.repl.co/encode',
             json=True,
-            text=str(" ".join(args))[0:100]
+            text=str(" ".join(args))[:100]
         )
         if not res:
             raise ctx.bot.util.error_message("The API is temporarily down. Please try again later.")
@@ -81,10 +80,10 @@ class encoding(commands.Cog):
     @require_args()
     async def fliptext(self, ctx, *args):
         await ctx.trigger_typing()
-        res = await ctx.bot.util.get_request(
+        res = await ctx.bot.util.request(
             'https://useless-api.vierofernando.repl.co/encode',
             json=True,
-            text=str(" ".join(args))[0:100]
+            text=str(" ".join(args))[:100]
         )
         if not res:
             raise ctx.bot.util.error_message("The API is temporarily down. Please try again later.")
@@ -96,10 +95,10 @@ class encoding(commands.Cog):
     @require_args()
     async def fancy(self, ctx, *args):
         await ctx.trigger_typing()
-        res = await ctx.bot.util.get_request(
+        res = await ctx.bot.util.request(
             'https://useless-api.vierofernando.repl.co/encode',
             json=True,
-            text=str(" ".join(args))[0:100]
+            text=str(" ".join(args))[:100]
         )
         if not res:
             raise ctx.bot.util.error_message("The API is temporarily down. Please try again later.")
@@ -111,10 +110,10 @@ class encoding(commands.Cog):
     @require_args()
     async def cursive(self, ctx, *args):
         await ctx.trigger_typing()
-        res = await ctx.bot.util.get_request(
+        res = await ctx.bot.util.request(
             'https://useless-api.vierofernando.repl.co/encode',
             json=True,
-            text=str(" ".join(args))[0:100]
+            text=str(" ".join(args))[:100]
         )
         if not res:
             raise ctx.bot.util.error_message("The API is temporarily down. Please try again later.")
@@ -126,10 +125,10 @@ class encoding(commands.Cog):
     @require_args()
     async def braille(self, ctx, *args):
         await ctx.trigger_typing()
-        res = await ctx.bot.util.get_request(
+        res = await ctx.bot.util.request(
             'https://useless-api.vierofernando.repl.co/encode',
             json=True,
-            text=str(" ".join(args))[0:100]
+            text=str(" ".join(args))[:100]
         )
         if not res:
             raise ctx.bot.util.error_message("The API is temporarily down. Please try again later.")
@@ -141,20 +140,20 @@ class encoding(commands.Cog):
     @require_args()
     async def barcode(self, ctx, *args):
         await ctx.trigger_typing()
-        return await ctx.bot.util.send_image_attachment(ctx, 'http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data=' + ctx.bot.util.encode_uri(' '.join(args))[0:75])
+        return await ctx.bot.util.send_image(ctx, 'http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data=' + ctx.bot.util.encode_uri(' '.join(args))[:75])
     
     @command(['qrcode', 'qr-code'])
     @cooldown(2)
     @require_args()
     async def qr(self, ctx, *args):
         await ctx.trigger_typing()
-        return await ctx.bot.util.send_image_attachment(ctx, 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + ctx.bot.util.encode_uri(' '.join(args))[0:75])
+        return await ctx.bot.util.send_image(ctx, 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + ctx.bot.util.encode_uri(' '.join(args))[:75])
 
     @command()
     @cooldown(2)
     @require_args()
     async def binary(self, ctx, *args):
-        return await ctx.send('```'+ctx.bot.util.binary(' '.join(args))[0:2000]+'```')
+        return await ctx.send('```'+ctx.bot.util.binary(' '.join(args))[:2000]+'```')
 
     @command()
     @cooldown(2)

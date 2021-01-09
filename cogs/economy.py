@@ -296,7 +296,7 @@ class economy(commands.Cog):
                     assert data["bal"] > 500, f"You need at least 500 bobux to change bio ({(500 - data['bal']):,} more bobux required)"
 
                     await ctx.send(embed=discord.Embed(title=f"Successfully changed your bio.", color=discord.Color.green()).set_footer(text="Your bio is too long, so we capped it down to 50 characters." if len(text) > 50 else ""))
-                    self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"desc": text[0:50]})
+                    self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"desc": text[:50]})
                     del parser, data, text
                     return
                 except Exception as e:

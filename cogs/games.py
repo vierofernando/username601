@@ -23,10 +23,9 @@ class games(commands.Cog):
         parser = ctx.bot.Parser(args)
         parser.parse()
         
-        data = await ctx.bot.util.get_request(
+        data = await ctx.bot.util.request(
             "https://useless-api.vierofernando.repl.co/randomword",
-            json=True,
-            raise_errors=True
+            json=True
         )
         
         if parser.has_multiple("reverse", "reversed"):
@@ -112,10 +111,9 @@ class games(commands.Cog):
             await embed.edit_to(message)
     
     async def get_name_history(self, uuid, ctx):
-        data = await ctx.bot.util.get_request(
+        data = await ctx.bot.util.request(
             f"https://api.mojang.com/user/profiles/{uuid}/names",
-            json=True,
-            raise_errors=True
+            json=True
         )
         res = ["**Latest: **`"+data[0]["name"]+"`"]
         if len(data) < 2: return res[0]
@@ -131,7 +129,7 @@ class games(commands.Cog):
     @cooldown(5)
     async def minecraft(self, ctx, *args):
         await ctx.trigger_typing()
-        name = ctx.bot.util.encode_uri(ctx.author.display_name if len(args)==0 else ' '.join(args))
+        name = ctx.bot.util.encode_uri(' '.join(args) if args else ctx.author.display_name)
         data = await ctx.bot.http._HTTPClient__session.get(f"https://mc-heads.net/minecraft/profile/{name}")
         if data.status != 200:
             raise ctx.bot.util.error_message(f"Minecraft for profile: `{name}` not found.")
@@ -164,10 +162,9 @@ class games(commands.Cog):
 
     async def geometry_dash_profile(self, ctx, args):
         try:
-            data = await ctx.bot.util.get_request(
-                "https://gdbrowser.com/api/profile/"+' '.join(args)[0:32],
-                json=True,
-                raise_errors=True
+            data = await ctx.bot.util.request(
+                "https://gdbrowser.com/api/profile/"+' '.join(args)[:32],
+                json=True
             )
             
             embed = ctx.bot.Embed(
@@ -178,7 +175,7 @@ class games(commands.Cog):
                     "Stats": f"**Rank: **{(data['rank'] if data['rank'] else '`<not available>`')}\n**Stars: **{data['stars']}\n**Diamonds: **{data['diamonds']}\n**Secret Coins: **{data['coins']}\n**Demons: **{data['demons']}\n**Creator Points: **{data['cp']}",
                     "Links": f"{('[YouTube channel](https://youtube.com/channel/'+data['youtube']+')' if data['youtube'] else '`<YouTube not available>`')}\n{('[Twitter Profile](https://twitter.com/'+data['twitter']+')' if data['twitter'] else '`<Twitter not available>`')}\n{('[Twitch Channel](https://twitch.tv/'+data['twitch']+')' if data['twitch'] else '`<Twitch not available>`')}"
                 },
-                thumbnail=f"https://gdbrowser.com/icon/{'%20'.join(args)[0:32]}?form=cube"
+                thumbnail=f"https://gdbrowser.com/icon/{'%20'.join(args)[:32]}?form=cube"
             )
             await embed.send()
             del embed
@@ -200,7 +197,7 @@ class games(commands.Cog):
                 percentage = 69
             
             assert bool(text)
-            return await ctx.bot.util.send_image_attachment(ctx, f'https://gdcolon.com/tools/gdcomment/img/{text}?name={_from}&likes={likes}&days=1-second{("&mod=mod" if parser.has("mod") else ("&mod=elder" if parser.has("elder-mod") else ""))}{("&uhd" if parser.has("uhd") else "")}{(f"&%={percentage}" if percentage else "")}{("&deletable" if parser.has("delete") else "")}')
+            return await ctx.bot.util.send_image(ctx, f'https://gdcolon.com/tools/gdcomment/img/{text}?name={_from}&likes={likes}&days=1-second{("&mod=mod" if parser.has("mod") else ("&mod=elder" if parser.has("elder-mod") else ""))}{("&uhd" if parser.has("uhd") else "")}{(f"&%={percentage}" if percentage else "")}{("&deletable" if parser.has("delete") else "")}')
         except:
             return await ctx.bot.cmds.invalid_args(ctx)
     
@@ -235,10 +232,9 @@ class games(commands.Cog):
             except:
                 raise ctx.bot.util.error_message(f"Level with the ID: {_input} not found.")
         
-        result = await ctx.bot.util.get_request(
+        result = await ctx.bot.util.request(
             "https://gdbrowser.com/api/search/" + ctx.bot.util.encode_uri(" ".join(args)),
-            json=True,
-            raise_errors=True
+            json=True
         )
 
         embed = ctx.bot.ChooseEmbed(ctx, result, key=(lambda x: "**"+x['name']+"** by "+x['author']))
@@ -268,15 +264,15 @@ class games(commands.Cog):
         elif _input.startswith("profile") or _input.startswith("user"):
             return await self.geometry_dash_profile(ctx, args[1:])
         elif _input.startswith("logo"):
-            return await ctx.bot.util.send_image_attachment(ctx, 'https://gdcolon.com/tools/gdlogo/img/'+ctx.bot.util.encode_uri(' '.join(args[1:])))
+            return await ctx.bot.util.send_image(ctx, 'https://gdcolon.com/tools/gdlogo/img/'+ctx.bot.util.encode_uri(' '.join(args[1:])))
         elif _input.startswith("box"):
-            return await ctx.bot.util.send_image_attachment(ctx, 'https://gdcolon.com/tools/gdtextbox/img/'+ctx.bot.util.encode_uri(' '.join(args[1:]))[0:100]+'?color='+('blue' if ctx.author.guild_permissions.manage_guild else 'brown')+'&name='+ctx.author.display_name+'&url='+str(ctx.author.avatar_url_as(format='png'))+'&resize=1')
+            return await ctx.bot.util.send_image(ctx, 'https://gdcolon.com/tools/gdtextbox/img/'+ctx.bot.util.encode_uri(' '.join(args[1:]))[:100]+'?color='+('blue' if ctx.author.guild_permissions.manage_guild else 'brown')+'&name='+ctx.author.display_name+'&url='+str(ctx.author.avatar_url_as(format='png'))+'&resize=1')
         elif _input.startswith("comment"):
             return await self.geometry_dash_comment(ctx, args[1:])
         elif _input.startswith("icon"):
             if not args[1:]:
                 return await ctx.bot.cmds.invalid_args(ctx)
-            buffer = await ctx.bot.Image.geometry_dash_icons(" ".join(args)[1:])
+            buffer = await ctx.bot.Image.geometry_dash_icons(" ".join(args[1:]))
             await ctx.send(file=discord.File(buffer, "icon.png"))
             del buffer
             return
@@ -311,7 +307,7 @@ class games(commands.Cog):
             arr = ['one', 'two', 'three', 'four', 'five', 'six']
             res = arr[randint(0, 5)]
             await ctx.send(':'+res+':')
-            if len(args)>0 and (args[0].lower()==res.lower() or args[0].lower() == str(arr.index(res)+1)) and self.db.exist("economy", {"userid": ctx.author.id}):
+            if args and (args[0].lower()==res.lower() or args[0].lower() == str(arr.index(res)+1)) and self.db.exist("economy", {"userid": ctx.author.id}):
                 prize = randint(50, 150)
                 await ctx.send(embed=discord.Embed(title=f'Your bet was right! you get {prize:,} bobux.', color=discord.Color.green()))
                 self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": prize})
@@ -416,7 +412,7 @@ class games(commands.Cog):
     async def trivia(self, ctx, *args):
         await ctx.trigger_typing()
         try:
-            trivia = ctx.bot.Trivia(" ".join(args)[0:50] if len(args)>0 else "Apple")
+            trivia = ctx.bot.Trivia(" ".join(args)[:50] if args else "Apple")
         except Exception as e:
             raise ctx.bot.util.error_message(str(e))
         correct = await trivia.start(ctx)

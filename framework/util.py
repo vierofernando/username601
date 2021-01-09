@@ -1,12 +1,14 @@
 from discord import Embed, Color, File, __version__, Forbidden, AllowedMentions, gateway
 from platform import python_build, python_compiler, uname
 from aiohttp import ClientSession, ClientTimeout
+from .xmltodict import parse as xmltodict
 from configparser import ConfigParser
 from os import getenv, name, listdir
 from urllib.parse import quote_plus
 from googletrans import LANGUAGES
 from discord.ext import commands
 from subprocess import run, PIPE
+from datetime import datetime
 from base64 import b64encode
 from random import choice
 from json import loads
@@ -15,9 +17,7 @@ from time import time
 from PIL import Image
 import gc
 
-class GetRequestFailedException(Exception): pass
 class error_message(Exception): pass
-
 class Util:
     def __init__(
         self,
@@ -36,7 +36,7 @@ class Util:
         self._start = time()
         self.no_mentions = AllowedMentions(everyone=False, users=False, roles=False)
         self.error_message = error_message
-
+        self.xmltodict = xmltodict
         self.alex_client = ClientSession(headers={'Authorization': getenv("ALEXFLIPNOTE_TOKEN")}, timeout=ClientTimeout(total=10.0))
         self.github_client = ClientSession(headers={'Authorization': 'token ' + getenv('GITHUB_TOKEN')}, timeout=ClientTimeout(total=10.0))
         
@@ -48,53 +48,57 @@ class Util:
             60: "minute"
         }
         
+        def _embed_add_useless_stuff(self, ctx):
+            self._footer = {
+                "text": "Command executed by "+str(ctx.author),
+                "icon_url": str(ctx.author.avatar_url)
+            }
+            self.timestamp = datetime.now()
+            return self
+        
+        setattr(Embed, "add_useless_stuff", _embed_add_useless_stuff)
         self._on_command_error = None
         self._config = ConfigParser()
         self._config.read(config_file)
         
         for key in dict(self._config["bot"]).keys():
-            if self._config["bot"][key].isnumeric():
-                setattr(self, key, int(self._config["bot"][key]))
-            else:
-                setattr(self, key, self._config["bot"][key])
+            setattr(self, key, int(self._config["bot"][key]) if self._config["bot"][key].isnumeric() else self._config["bot"][key])
         
         self._8ball_template = [
-            "As I see it, ??",
-            "My reply is ??",
-            "My sources say ??",
-            "??",
-            "Of course ??",
-            "Well, ??. Of course",
-            "??, definitely",
-            "Signs point to ??",
-            "??. Without a doubt",
-            "Hell ??",
-            "Well... ??",
-            "Why did you ask me for this. The answer is always ??",
-            "The answer is always ??",
-            "Shut up. The answer is ??",
-            "Stop asking me that question. The answer is definitely ??",
-            "Heck ??",
-            "That question's answer is always ??",
-            "??. ??!!!",
-            "Someone told me the answer is ??",
-            "Sorry, but the answer is ??"
+            "As I see it, {}",
+            "My reply is {}",
+            "My sources say {}",
+            "{}",
+            "Of course {}",
+            "Well, {}. Of course",
+            "{}, definitely",
+            "Signs point to {}",
+            "{}. Without a doubt",
+            "Hell {}",
+            "Well... {}",
+            "Why did you ask me for this. The answer is always {}",
+            "The answer is always {}",
+            "Shut up. The answer is {}",
+            "Stop asking me that question. The answer is definitely {}",
+            "Heck {}",
+            "That question's answer is always {}",
+            "{}. {}!!!",
+            "Someone told me the answer is {}",
+            "Sorry, but the answer is {}"
         ]
         
-        del self._config
+        del self._config, _embed_add_useless_stuff
         self.status_codes = loads(open(self.json_dir + "/status.json", "r", encoding="utf-8").read())
 
         setattr(client, attribute_name, self)
-
+    
     def mobile_indicator(self) -> None:
         """ Turns your bot to a bot with mobile status. Source from this gist: https://gist.github.com/norinorin/0ef021163d042b3be76b892726d76e52 """
         
-        def source(o):
-            s = __import__("inspect").getsource(o).split('\n')
-            indent = len(s[0]) - len(s[0].lstrip())
-            return '\n'.join(i[indent:] for i in s)
+        s = __import__("inspect").getsource(gateway.DiscordWebSocket.identify).split('\n')
+        indent = len(s[0]) - len(s[0].lstrip())
+        source_ = '\n'.join(i[indent:] for i in s)
 
-        source_ = source(gateway.DiscordWebSocket.identify)
         source_ = __import__("re").sub(r'([\'"]\$browser[\'"]:\s?[\'"]).+([\'"])', r'\1Discord Android\2', source_)  # hh this regex
         m = __import__("ast").parse(source_)
         
@@ -102,7 +106,7 @@ class Util:
         exec(compile(m, '<string>', 'exec'), gateway.__dict__, loc)
         
         gateway.DiscordWebSocket.identify = loc['identify']
-        del m, loc, source, source_
+        del m, loc, source_, s, indent
         __import__("gc").collect()
 
     def toggle_debug_mode(self) -> bool:
@@ -141,7 +145,7 @@ class Util:
         
         response = ((code + ctx.author.id) % 2 == 0)
         del code, ctx
-        return choice(self._8ball_template).replace("??", ("yes" if response else "no"))
+        return choice(self._8ball_template).format("yes" if response else "no")
 
     def resolve_starboard_message(self, message):
         """ Gets the embed from a message as a form of starboard post. """
@@ -155,25 +159,17 @@ class Util:
     
     async def handle_error(self, ctx, error):
         """ Handles errors like a boss. """
+        error = getattr(error, "original", error)
         if isinstance(error, commands.CommandNotFound) or isinstance(error, commands.CheckFailure): return
         elif isinstance(error, commands.CommandOnCooldown): return await ctx.send("Calm down. Try again in {}.".format(self.strfsecond(round(error.retry_after))), delete_after=2)
-        # put both of this on first because it's the most common exception
-        
-        if hasattr(error, "original"): # discord.py is weird
-            error = error.original
-        
-        if isinstance(error, Forbidden): 
+        elif isinstance(error, self.error_message): return await ctx.send(embed=Embed(title=str(error) if len(str(error)) <= 256 else None, description=None if len(str(error)) <= 256 else str(error), color=Color.red()))
+        elif isinstance(error, Forbidden): 
             try: return await ctx.send("I don't have the permission required to use that command!")
             except: return
-        elif isinstance(error, self.error_message):
-            return await ctx.send(embed=Embed(title=str(error) if len(str(error)) <= 256 else None, description=None if len(str(error)) <= 256 else str(error), color=Color.red()))
-        elif isinstance(error, GetRequestFailedException):
-            return await ctx.send(embed=Embed(description="A request failed to the API. Please try again later!\nError: " + str(error), color=Color.red()))
-        else:
-            await self.bot.get_channel(self.feedback_channel).send(content='<@{}> there was an error!'.format(self.owner_id), embed=Embed(
-                title='Error', color=Color.red(), description=f'Content:\n```{ctx.message.content}```\n\nError:\n```{str(error)}```'
-            ).set_footer(text='Bug made by user: {} (ID of {})'.format(str(ctx.author), ctx.author.id)))
-            return await ctx.send('Sorry, there was an error while executing this command.\nThis message has been reported to the developer of the bot.', delete_after=3)
+        await self.bot.get_channel(self.feedback_channel).send(content='<@{}> there was an error!'.format(self.owner_id), embed=Embed(
+            title='Error', color=Color.red(), description=f'Content:\n```{ctx.message.content}```\n\nError:\n```{str(error)}```'
+        ).set_footer(text='Bug made by user: {} (ID of {})'.format(str(ctx.author), ctx.author.id)))
+        return await ctx.send('Sorry, there was an error while executing this command.\nThis message has been reported to the developer of the bot.', delete_after=3)
     
     def load_cog(self, cog_folder: str = None, exclude: list = []):
         """ Loads the cogs from a directory. """
@@ -196,7 +192,7 @@ class Util:
         image = Image.open(BytesIO(_bytes))
         return ctx.bot.Image.save(image.crop((0, 12, image.width, image.height - 12)))
 
-    async def send_image_attachment(self, ctx, url, alexflipnote: bool = False, message_options: dict = {}) -> None:
+    async def send_image(self, ctx, url, alexflipnote: bool = False, message_options: dict = {}) -> None:
         """
         Sends an image attachment from a URL.
         Enabling alexflipnote will also add a Authorization header of "ALEXFLIPNOTE_TOKEN" to the GET request method.
@@ -221,49 +217,29 @@ class Util:
         first_line = ctx.message.content.split()[0]
         return first_line[self.prefix_length:].lower()
     
-    async def get_request(self, url, **kwargs):
+    async def request(self, url, json=False, xml=False, alexflipnote=False, github=False, **kwargs):
         """ Does a GET request to a specific URL with a query parameters."""
 
-        return_json, raise_errors, using_alexflipnote_token, force_json, github_token = False, False, False, False, False
-
-        if list(kwargs.keys()):
-            if kwargs.get("json"):
-                return_json = True
-                kwargs.pop("json")
-            if kwargs.get("raise_errors"):
-                raise_errors = True
-                kwargs.pop("raise_errors")
-            if kwargs.get("alexflipnote"):
-                using_alexflipnote_token = True
-                kwargs.pop("alexflipnote")
-            if kwargs.get("force_json"):
-                force_json = True
-                kwargs.pop("force_json")
-            if kwargs.get("github"):
-                github_token = True
-                kwargs.pop("github")
-
-            query_param = "?" + "&".join([i + "=" + quote_plus(str(kwargs[i])).replace("+", "%20") for i in kwargs.keys()])
-        else:
-            query_param = ""
+        query_param = "?" + "&".join([i + "=" + quote_plus(str(kwargs[i])).replace("+", "%20") for i in kwargs.keys()]) if kwargs else ""
         
         try:
-            session = self.alex_client if using_alexflipnote_token else (
-                self.github_client if github_token else self.bot.http._HTTPClient__session
+            session = self.alex_client if alexflipnote else (
+                self.github_client if github else self.bot.http._HTTPClient__session
             )
             result = await session.get(url + query_param)
-            assert result.status < 400
-            if return_json:
-                if force_json:
-                    result = await result.read()
-                    return loads(result)
-
-                return await result.json()
+            assert result.status < 400, f"API returns a non-OK status code: {result.status}"
+            if json:
+                try:
+                    return await result.json()
+                except:
+                    _bytes = await result.read()
+                    return loads(_bytes)
+            elif xml:
+                text = await result.text()
+                return xmltodict(text)
             return await result.text()
         except Exception as e:
-            if raise_errors:
-                raise GetRequestFailedException("Request Failed. Exception: " + str(e))
-            return
+            raise error_message("Request Failed. Exception: " + str(e))
     
     def encode_uri(self, text: str) -> str:
         """ Encodes a string to URI text. """

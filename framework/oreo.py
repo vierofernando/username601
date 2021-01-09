@@ -21,7 +21,7 @@ class Oreo:
                 self.i.append("o")
                 continue
             self.i.append("re")
-        self.i = self.i[0:13][::-1]
+        self.i = self.i[:13][::-1]
         
         for h in range(len(self.i)):
             if self.i[h] == "o":

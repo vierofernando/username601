@@ -29,7 +29,7 @@ class utils(commands.Cog):
         _country = " ".join(args)
         try:
             assert _country, "Send a country name!"
-            data = await ctx.bot.util.get_request(f'https://restcountries.eu/rest/v2/name/{ctx.bot.util.encode_uri(_country)}', json=True, raise_errors=True)
+            data = await ctx.bot.util.request(f'https://restcountries.eu/rest/v2/name/{ctx.bot.util.encode_uri(_country)}', json=True)
             assert isinstance(data, list), "No such country with the name `"+_country+"` found."            
             embed = ctx.bot.ChooseEmbed(ctx, data, key=(lambda x: x["name"]))
             res = await embed.run()
@@ -65,27 +65,6 @@ class utils(commands.Cog):
         except:
             return await ctx.bot.cmds.invalid_args(ctx)
     
-    @command(['trending', 'news'])
-    @cooldown(5)
-    async def msn(self, ctx, *args):
-        try:
-            data = await ctx.bot.util.get_request(
-                "http://cdn.content.prod.cms.msn.com/singletile/summary/alias/experiencebyname/today",
-                raise_errors=True,
-                market="en-GB",
-                source="appxmanifest",
-                tenant="amp",
-                vertical="news"
-            )
-            imageURL = data.split('baseUri="')[1].split('"')[0] + data.split('src="')[1].split('?')[0].replace(".img", ".png")
-            content = data.split('hint-wrap="true">')[1].split('<')[0]
-            embed = ctx.bot.Embed(ctx, title=content, image=imageURL)
-            await embed.send()
-            del embed, content, imageURL, data
-        except Exception as e:
-            await ctx.bot.get_user(ctx.bot.util.owner_id).send(f"yo, theres an error: `{str(e)}`")
-            raise ctx.bot.util.error_message("Oopsies, there was an error on searching the news.")
-    
     @command(['colorthief', 'getcolor', 'accent', 'accentcolor', 'accent-color', 'colorpalette', 'color-palette'])
     @cooldown(3)
     async def palette(self, ctx, *args):
@@ -101,10 +80,9 @@ class utils(commands.Cog):
     async def pypi(self, ctx, *args):
         await ctx.trigger_typing()
         
-        data = await ctx.bot.util.get_request(
+        data = await ctx.bot.util.request(
             "https://pypi.org/pypi/"+ "-".join(args) +"/json",
-            json=True,
-            raise_errors=True
+            json=True
         )
         
         nl = "\n"
@@ -146,14 +124,17 @@ class utils(commands.Cog):
     @command()
     @cooldown(15)
     async def nasa(self, ctx, *args):
-        query = ctx.bot.util.encode_uri('earth' if len(args)==0 else ' '.join(args))
+        query = ctx.bot.util.encode_uri(' '.join(args) if args else 'earth')
         await ctx.trigger_typing()
         
-        data = await ctx.bot.http._HTTPClient__session.get(f'https://images-api.nasa.gov/search?q={query[0:100]}&media_type=image')
-        try: data = await data.json()
-        except: data = None
-        if (not data) or len(data['collection']['items'])==0:
+        data = await ctx.bot.http._HTTPClient__session.get(f'https://images-api.nasa.gov/search?q={query[:100]}&media_type=image')
+        try:
+            data = await data.json()
+            assert bool(data)
+            assert bool(data["collection"]["items"])
+        except:
             raise ctx.bot.util.error_message("Nothing found.")
+        
         img = choice(data['collection']['items'])
         em = ctx.bot.Embed(
             ctx,
@@ -169,12 +150,11 @@ class utils(commands.Cog):
     @require_args()
     async def pokedex(self, ctx, *args):
         try:
-            data = await ctx.bot.util.get_request(
+            data = await ctx.bot.util.request(
                 'https://bulbapedia.bulbagarden.net/w/api.php',
                 json=True,
-                raise_errors=True,
                 action='query',
-                titles=' '.join(args)[0:100],
+                titles=' '.join(args)[:100],
                 format='json',
                 formatversion=2,
                 pithumbsize=150,
@@ -191,7 +171,7 @@ class utils(commands.Cog):
                 ctx,
                 url=f'https://bulbapedia.bulbagarden.net/wiki/{data["query"]["pages"][0]["title"].replace(" ", "_")}',
                 title=data['query']['pages'][0]['title'],
-                desc=data['query']['pages'][0]['extract'][0:1000],
+                desc=data['query']['pages'][0]['extract'][:1000],
                 image=image
             )
             await ctx.send(embed=embed)
@@ -203,14 +183,12 @@ class utils(commands.Cog):
     @cooldown(2)
     @require_args()
     async def recipe(self, ctx, *args):
-        data = await ctx.bot.util.get_request(
+        data = await ctx.bot.util.request(
             "http://www.recipepuppy.com/api/",
             json=True,
-            raise_errors=True,
-            force_json=True,
             q=' '.join(args)
         )
-        if len(data['results'])==0: 
+        if not data['results']: 
             raise ctx.bot.util.error_message("I did not find anything.")
         
         total = choice([i for i in data['results'] if i['thumbnail']!=''])
@@ -232,7 +210,7 @@ class utils(commands.Cog):
         if search("[a-zA-Z]", equation): raise ctx.bot.util.error_message("Please do NOT input something that contains letters. This is not eval, nerd.")
         try:
             res = eval(equation)
-            return await ctx.send(f"{equation} = `{str(res)[0:1000]}`")
+            return await ctx.send(f"{equation} = `{str(res)[:1000]}`")
         except Exception as e:
             raise ctx.bot.util.error_message(f"Error: {str(e)}")
     
@@ -240,35 +218,21 @@ class utils(commands.Cog):
     @cooldown(7)
     async def quote(self, ctx):
         await ctx.trigger_typing()
-        data = await ctx.bot.util.get_request('https://quotes.herokuapp.com/libraries/math/random', raise_errors=True)
+        data = await ctx.bot.util.request('https://quotes.herokuapp.com/libraries/math/random')
         text, quoter = data.split(' -- ')[0], data.split(' -- ')[1]
         embed = ctx.bot.Embed(ctx, author_name=quoter, desc=discord.utils.escape_markdown(text))
         await embed.send()
         del embed, text, quoter, data
-    
-    @command()
-    @cooldown(5)
-    async def robohash(self, ctx, *args):
-        url = "https://robohash.org/" + ctx.bot.util.encode_uri(" ".join(args)) if args else 'https://robohash.org/' + ctx.bot.util.encode_uri(str(hash(str(time()))))
-        await ctx.bot.util.send_image_attachment(ctx, url)
-        del url
 
-    @command()
-    @cooldown(5)
-    @require_args()
-    async def weather(self, ctx, *args):
-        return await ctx.bot.util.send_image_attachment(ctx, 'https://wttr.in/'+str(ctx.bot.util.encode_uri(' '.join(args)))+'.png')
-    
     @command(['rhymes'])
     @cooldown(7)
     @require_args()
     async def rhyme(self, ctx, *args):
         await ctx.trigger_typing()
         
-        data = await ctx.bot.util.get_request(
+        data = await ctx.bot.util.request(
             'https://rhymebrain.com/talk',
             json=True,
-            raise_errors=True,
             function='getRhymes',
             word=' '.join(args)
         )
@@ -276,14 +240,14 @@ class utils(commands.Cog):
         words = [word['word'] for word in data if word['flags'] == 'bc']
         if not words:
             raise ctx.bot.util.error_message('We did not find any rhyming words corresponding to that letter.')
-        embed = ctx.bot.Embed(ctx, title='Words that rhymes with '+' '.join(args)+':', desc=str(' '.join(words))[0:500])
+        embed = ctx.bot.Embed(ctx, title='Words that rhymes with '+' '.join(args)+':', desc=str(' '.join(words))[:500])
         await embed.send()
         del embed, words, data
 
     @command()
     @cooldown(7)
     async def pandafact(self, ctx):
-        data = await ctx.bot.util.get_request('https://some-random-api.ml/facts/panda', json=True, raise_errors=True)
+        data = await ctx.bot.util.request('https://some-random-api.ml/facts/panda', json=True)
         embed = ctx.bot.Embed(
             ctx,
             title='Did you know?',
@@ -295,7 +259,7 @@ class utils(commands.Cog):
     @command(['birdfact'])
     @cooldown(7)
     async def birbfact(self, ctx):
-        data = await ctx.bot.util.get_request('https://some-random-api.ml/facts/bird', json=True, raise_errors=True)
+        data = await ctx.bot.util.request('https://some-random-api.ml/facts/bird', json=True)
         embed = ctx.bot.Embed(
             ctx,
             title='Did you know?',
@@ -307,10 +271,9 @@ class utils(commands.Cog):
     @command()
     @cooldown(5)
     async def bored(self, ctx):
-        data = await ctx.bot.util.get_request(
+        data = await ctx.bot.util.request(
             "https://www.boredapi.com/api/activity",
             json=True,
-            raise_errors=True,
             participants=1
         )
         embed = ctx.bot.Embed(ctx, title=f"Feeling bored? Why don't you {data['activity']}?")
@@ -321,10 +284,9 @@ class utils(commands.Cog):
     @cooldown(20)
     async def googledoodle(self, ctx):
         await ctx.trigger_typing()
-        data = await ctx.bot.util.get_request(
+        data = await ctx.bot.util.request(
             'https://www.google.com/doodles/json/{}/{}'.format(str(t.now().year), str(t.now().month)),
-            json=True,
-            raise_errors=True
+            json=True
         )
         embed = ctx.bot.Embed(ctx, title=data[0]['title'], url='https://www.google.com/doodles/'+data[0]['name'], image='https:'+data[0]['high_res_url'], fields={"Event Date": '/'.join(
             [str(i) for i in data[0]['run_date_array'][::-1]]
@@ -338,8 +300,8 @@ class utils(commands.Cog):
         key = ctx.bot.util.get_command_name(ctx)[:-4]
         url = self._fact_urls[key]
 
-        result = await ctx.bot.util.get_request(
-            url[0], json=True, raise_errors=True
+        result = await ctx.bot.util.request(
+            url[0], json=True
         )
         result = result[url[1]]
 
@@ -363,7 +325,7 @@ class utils(commands.Cog):
             embed = ctx.bot.Embed(
                 ctx,
                 title=parser["title"],
-                desc=parser["description"] if parser.has("description") else ' '.join(parser.other)[0:1950],
+                desc=parser["description"] if parser.has("description") else ' '.join(parser.other)[:1950],
                 author_name=parser["author"],
                 color=color,
                 footer=parser["footer"]

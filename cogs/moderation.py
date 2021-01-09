@@ -282,7 +282,7 @@ class moderation(commands.Cog):
         
         if user_to_warn.guild_permissions.manage_channels:
             raise ctx.bot.util.error_message("You cannot warn a moderator.")
-        reason = params[1][0:100] if params else 'No reason provided'
+        reason = params[1][:100] if params else 'No reason provided'
 
         await ctx.send(embed=discord.Embed(title=f'{user_to_warn.display_name} was warned by {ctx.author.display_name} for the reason *"{reason}"*.', color=discord.Color.green()))
         if not self.db.exist("dashboard", {"serverid": ctx.guild.id}):
@@ -306,7 +306,7 @@ class moderation(commands.Cog):
         warnlist = '\n'.join(map(
             lambda x: '{}. "{}" (warned by <@{}>)'.format(x+1, ".".join(data[x].split(".")[2:]), data[x].split(".")[1]),
             range(len(data))
-        )[0:10])
+        )[:10])
 
         embed = ctx.bot.Embed(
             ctx,
@@ -503,7 +503,7 @@ class moderation(commands.Cog):
     async def clear(self, ctx, *args):
         try:
             assert (ctx.message.mentions or args[0].isnumeric()), 'Please input a valid parameter. Either a number or a mention.'
-            mention = True if len(ctx.message.mentions)>0 else False
+            mention = bool(ctx.message.mentions)
             try: await ctx.message.delete()
             except: pass
             if not mention:
@@ -556,7 +556,7 @@ class moderation(commands.Cog):
                     return
                 role = res
             
-            role_members = "\n".join([f"{i.name}#{i.discriminator}" for i in role.members][0:10]) if role.members else "<none>"
+            role_members = "\n".join([f"{i.name}#{i.discriminator}" for i in role.members][:10]) if role.members else "<none>"
             extra = "\n" + f"... and {len(role.members) - 10} others" if len(role.members) > 10 else ""
             permissions = ""
             
@@ -582,7 +582,7 @@ class moderation(commands.Cog):
             del embed, role_members, extra, role, permissions
             return
         elif args[0].lower() == "list":
-            embed = ctx.bot.Embed(ctx, title="Server Roles List", desc=" ".join([i.mention for i in ctx.guild.roles[1:]])[0:1000])
+            embed = ctx.bot.Embed(ctx, title="Server Roles List", desc=" ".join([i.mention for i in ctx.guild.roles[1:]])[:1000])
             await embed.send()
             del embed
             return
@@ -593,7 +593,7 @@ class moderation(commands.Cog):
     @require_args()
     async def channel(self, ctx, *args):
         if args[0].lower() == "list":
-            embed = ctx.bot.Embed(ctx, title="Server Channels List", description=" ".join([f"<#{i.id}>" for i in ctx.guild.channels if i.type == discord.ChannelType.text or i.type == discord.ChannelType.voice])[0:1000])
+            embed = ctx.bot.Embed(ctx, title="Server Channels List", description=" ".join([f"<#{i.id}>" for i in ctx.guild.channels if i.type == discord.ChannelType.text or i.type == discord.ChannelType.voice])[:1000])
             await embed.send()
             del embed
             return
@@ -701,7 +701,7 @@ class moderation(commands.Cog):
     @require_args()
     async def emoji(self, ctx, *args):
         if args[0].lower() == "list":
-            if len(ctx.guild.emojis)==0:
+            if not ctx.guild.emojis:
                 raise ctx.bot.util.error_message('This server has no emojis!')
             emojis, footer_text = "", None
             for index, emoji in enumerate(ctx.guild.emojis):
@@ -748,7 +748,7 @@ class moderation(commands.Cog):
                 assert res
             except:
                 raise ctx.bot.util.error_message(f"Please add a emoji after the `{ctx.bot.command_prefix}emoji enlarge`")
-            return await ctx.bot.util.send_image_attachment(ctx, res)
+            return await ctx.bot.util.send_image(ctx, res)
         return await ctx.bot.cmds.invalid_args(ctx)
     
     @command(['guild'])

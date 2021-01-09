@@ -93,7 +93,7 @@ class ImageClient:
         for forms in ImageClient.GD_FORMS:
             image = await self.image_from_URL(f"https://gdbrowser.com/icon/{username}?form={forms}")
             images.append(image)
-        width = sum(map(lambda i: i.width, forms)) + (len(ImageClient.GD_FORMS) * 25) + 25
+        width = sum(map(lambda i: i.width, images)) + (len(ImageClient.GD_FORMS) * 25) + 25
         
         main = Image.new(mode="RGBA", size=(width, 250), color=(0, 0, 0, 0))
         curs = 25

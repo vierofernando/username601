@@ -32,7 +32,7 @@ class memes(commands.Cog):
     @cooldown(5)
     async def oreo(self, ctx, *args):
         try:
-            my_oreo = ctx.bot.oreo(ctx.bot.util.assets_dir, "".join(args)[0:40])
+            my_oreo = ctx.bot.oreo(ctx.bot.util.assets_dir, "".join(args)[:40])
             meme = my_oreo.meme()
             
             await ctx.send(file=discord.File(meme, "oreo.png"))
@@ -104,10 +104,9 @@ class memes(commands.Cog):
     @command(['programmerhumor', 'programmermeme', 'programming', 'programmer'])
     @cooldown(2)
     async def programmingmeme(self, ctx):
-        data = await ctx.bot.util.get_request(
+        data = await ctx.bot.util.request(
             'https://useless-api.vierofernando.repl.co/programmermeme',
-            json=True,
-            raise_errors=True
+            json=True
         )
         return await ctx.send(embed=discord.Embed(title='Programmer meme', color=ctx.me.color).set_image(url=data['url']))
 
@@ -148,7 +147,7 @@ class memes(commands.Cog):
     @command(['disconnect'])
     @cooldown(3)
     async def disconnected(self, ctx, *args):
-        text = 'Forgotting to put the arguments' if len(args)==0 else ' '.join(args)
+        text = ' '.join(args) if args else 'Forgetting to put the arguments'
         await ctx.trigger_typing()
         im = await ctx.bot.canvas.disconnected(text)
         return await ctx.send(file=discord.File(im, 'disconnected.png'))
@@ -169,25 +168,25 @@ class memes(commands.Cog):
     @command(['animegif', 'nj'])
     @cooldown(10)
     async def nichijou(self, ctx, *args):
-        text = 'LAZY PERSON' if (len(args)==0) else ' '.join(args)
+        text = ' '.join(args) if args else 'LAZY PERSON'
         await ctx.trigger_typing()
-        return await ctx.bot.util.send_image_attachment(ctx, f"https://i.ode.bz/auto/nichijou?text={ctx.bot.util.encode_uri(text[0:22])}")
+        return await ctx.bot.util.send_image(ctx, f"https://i.ode.bz/auto/nichijou?text={ctx.bot.util.encode_uri(text[:22])}")
     
     @command()
     @cooldown(5)
     @require_args()
     async def challenge(self, ctx, *args):
         await ctx.trigger_typing()
-        txt = ctx.bot.util.encode_uri(' '.join(args)[0:50])
-        return await ctx.bot.util.send_image_attachment(ctx, 'https://api.alexflipnote.dev/challenge?text='+txt, alexflipnote=True)
+        txt = ctx.bot.util.encode_uri(' '.join(args)[:50])
+        return await ctx.bot.util.send_image(ctx, 'https://api.alexflipnote.dev/challenge?text='+txt, alexflipnote=True)
     
     @command(['achievement'])
     @cooldown(5)
     @require_args()
     async def achieve(self, ctx, *args):
         await ctx.trigger_typing()
-        txt = ctx.bot.util.encode_uri(' '.join(args)[0:50])
-        return await ctx.bot.util.send_image_attachment(ctx, 'https://api.alexflipnote.dev/achievement?text='+txt, alexflipnote=True)
+        txt = ctx.bot.util.encode_uri(' '.join(args)[:50])
+        return await ctx.bot.util.send_image(ctx, 'https://api.alexflipnote.dev/achievement?text='+txt, alexflipnote=True)
 
     @command(['dym'])
     @cooldown(2)
@@ -196,8 +195,8 @@ class memes(commands.Cog):
         if not params:
             return await ctx.bot.cmds.invalid_args(ctx)
         txt1, txt2 = params
-        url = f'https://api.alexflipnote.dev/didyoumean?top={txt1[0:50]}&bottom={txt2[0:50]}'
-        return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
+        url = f'https://api.alexflipnote.dev/didyoumean?top={txt1[:50]}&bottom={txt2[:50]}'
+        return await ctx.bot.util.send_image(ctx, url, alexflipnote=True)
     
     @command()
     @cooldown(2)
@@ -206,14 +205,14 @@ class memes(commands.Cog):
         if not params:
             return await ctx.bot.cmds.invalid_args(ctx)
         txt1, txt2 = params
-        url = "https://api.alexflipnote.dev/drake?top="+ctx.bot.util.encode_uri(txt1[0:50])+"&bottom="+ctx.bot.util.encode_uri(txt2[0:50])
-        return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
+        url = "https://api.alexflipnote.dev/drake?top="+ctx.bot.util.encode_uri(txt1[:50])+"&bottom="+ctx.bot.util.encode_uri(txt2[:50])
+        return await ctx.bot.util.send_image(ctx, url, alexflipnote=True)
         
     @command()
     @cooldown(2)
     async def what(self, ctx, *args):
         image = await ctx.bot.Parser.parse_image(ctx, args, cdn_only=True)
-        return await ctx.bot.util.send_image_attachment(ctx, "https://api.alexflipnote.dev/what?image="+image, alexflipnote=True)
+        return await ctx.bot.util.send_image(ctx, "https://api.alexflipnote.dev/what?image="+image, alexflipnote=True)
 
     @command()
     @cooldown(5)
@@ -246,7 +245,7 @@ class memes(commands.Cog):
         av = ctx.author.avatar_url_as(format='png')
         toTrash = await ctx.bot.Parser.parse_image(ctx, args, cdn_only=True)
         url='https://api.alexflipnote.dev/trash?face='+str(av)+'&trash='+toTrash
-        return await ctx.bot.util.send_image_attachment(ctx, url, alexflipnote=True)
+        return await ctx.bot.util.send_image(ctx, url, alexflipnote=True)
 
     @command()
     @cooldown(10)
@@ -292,12 +291,12 @@ class memes(commands.Cog):
     @require_args()
     async def changemymind(self, ctx, *args):
         await ctx.trigger_typing()
-        return await ctx.bot.util.send_image_attachment(ctx, 'https://nekobot.xyz/api/imagegen?type=changemymind&text='+ctx.bot.util.encode_uri(' '.join(args)[0:50])+'&raw=1')
+        return await ctx.bot.util.send_image(ctx, 'https://nekobot.xyz/api/imagegen?type=changemymind&text='+ctx.bot.util.encode_uri(' '.join(args)[:50])+'&raw=1')
 
     @command(['gimme', 'memz', 'memey'])
     @cooldown(5)
     async def meme(self, ctx):
-        data = await ctx.bot.util.get_request("https://meme-api.herokuapp.com/gimme", json=True, raise_errors=True)
+        data = await ctx.bot.util.request("https://meme-api.herokuapp.com/gimme", json=True)
         embed = discord.Embed(colour = ctx.me.color)
         embed.set_author(name=data["title"], url=data["postLink"])
         if data["nsfw"]:
@@ -311,8 +310,8 @@ class memes(commands.Cog):
     @require_args()
     async def clyde(self, ctx, *args):
         await ctx.trigger_typing()
-        url='https://nekobot.xyz/api/imagegen?type=clyde&text='+ctx.bot.util.encode_uri(' '.join(args)[0:50])+'&raw=1'
-        return await ctx.bot.util.send_image_attachment(ctx, url)
+        url='https://nekobot.xyz/api/imagegen?type=clyde&text='+ctx.bot.util.encode_uri(' '.join(args)[:50])+'&raw=1'
+        return await ctx.bot.util.send_image(ctx, url)
 
     @command()
     @cooldown(10)
@@ -320,10 +319,10 @@ class memes(commands.Cog):
     async def floor(self, ctx, *args):
         auth = str(ctx.author.avatar_url_as(format='png'))
         await ctx.trigger_typing()
-        if len(ctx.message.mentions)>0:
+        if ctx.message.mentions:
             auth = str(ctx.message.mentions[0].avatar_url_as(format='png'))
-            text = " ".join(ctx.message.content.replace(ctx.message.mentions[0].mention, "").split()[1:]) if len(args)>2 else 'I forgot to put the arguments, oops'
-        return await ctx.bot.util.send_image_attachment(ctx, 'https://api.alexflipnote.dev/floor?image='+auth+'&text='+ctx.bot.util.encode_uri(' '.join(args)[0:50]), alexflipnote=True)
+            text = " ".join(ctx.message.content.replace(ctx.message.mentions[0].mention, "").split()[1:]) if args[2:] else 'I forgot to put the arguments, oops'
+        return await ctx.bot.util.send_image(ctx, 'https://api.alexflipnote.dev/floor?image='+auth+'&text='+ctx.bot.util.encode_uri(' '.join(args)[:50]), alexflipnote=True)
 
     @command(['doctor', 'terrifying', 'terrified', 'eye-doctor', 'eyedoctor', 'scary', 'frightening'])
     @cooldown(2)
@@ -358,7 +357,7 @@ class memes(commands.Cog):
         if not format_text:
             raise ctx.bot.util.error_message("You did not respond in time. Meme-generation canceled.")
         await ctx.trigger_typing()
-        buffer = await ctx.bot.canvas.bottom_image_meme(link, format_text.content[0:150])
+        buffer = await ctx.bot.canvas.bottom_image_meme(link, format_text.content[:150])
         await ctx.send(file=discord.File(buffer, "file.png"))
         del buffer, format_text, wait, link, message, keys
 
@@ -381,9 +380,9 @@ class memes(commands.Cog):
             raise ctx.bot.util.error_message("You did not respond in time. Meme-generation canceled.")
         
         text1, text2 = ctx.bot.Parser.split_args(format_text.content.split())
-        url = link.replace("{TEXT1}", ctx.bot.util.encode_uri(text1)[0:64]).replace("{TEXT2}", ctx.bot.util.encode_uri(text2)[0:64])
+        url = link.replace("{TEXT1}", ctx.bot.util.encode_uri(text1)[:64]).replace("{TEXT2}", ctx.bot.util.encode_uri(text2)[:64])
         await ctx.trigger_typing()
-        return await ctx.bot.util.send_image_attachment(ctx, url)
+        return await ctx.bot.util.send_image(ctx, url)
 
     async def custom_image_meme(self, ctx, *args):
         await ctx.send("Please send a **Image URL/Attachment**, or\nSend a **ping/user ID/name** to format as an **avatar.**\nOr send `mine` to use your avatar instead.")
@@ -405,7 +404,7 @@ class memes(commands.Cog):
         
         text1, text2 = ctx.bot.Parser.split_args(tuple(text.content.split()))
         await ctx.trigger_typing()
-        return await ctx.bot.util.send_image_attachment(ctx, "https://api.memegen.link/images/custom/{}/{}.png?background={}".format(ctx.bot.util.encode_uri(text1)[0:64], ctx.bot.util.encode_uri(text2)[0:64], url))
+        return await ctx.bot.util.send_image(ctx, "https://api.memegen.link/images/custom/{}/{}.png?background={}".format(ctx.bot.util.encode_uri(text1)[:64], ctx.bot.util.encode_uri(text2)[:64], url))
 
     @command(['memegen', 'meme-gen', 'gen-meme', 'generatememe', 'generate-meme', 'meme-editor', 'meme_editor', 'memeeditor'])
     @cooldown(5)

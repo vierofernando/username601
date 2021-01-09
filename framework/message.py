@@ -11,7 +11,7 @@ class Paginator:
         ctx,
         embeds: list,
         ratelimit: int = 1,
-        max_time: int = 30,
+        max_time: int = 20,
         next_emoji: str = "▶️",
         previous_emoji: str = "◀️",
         start_emoji: str = "⏮",
@@ -46,6 +46,12 @@ class Paginator:
         self.valid_emojis = [start_emoji, previous_emoji, close_emoji, next_emoji, end_emoji]
         self.check = (lambda reaction, user: (str(reaction.emoji) in self.valid_emojis) and (user == self.ctx.author))
     
+    def __del__(self):
+        """ Let the object kill itself first before getting deleted. """
+        del self.ctx, self.max_time, self.ratelimit, self.index, self.last_reaction, self.max
+        del self.valid_emojis, self.check
+        del self.embeds
+    
     async def resolve_reaction(self, reaction):
         current_time = time()
         if (current_time - self.last_reaction) <= self.ratelimit:
@@ -71,7 +77,8 @@ class Paginator:
                 reaction, user = await self.ctx.bot.wait_for("reaction_add", timeout=self.max_time, check=self.check)
                 resolve = await self.resolve_reaction(reaction)
                 assert resolve != -1
-            except:
+                del reaction, user, resolve
+            except AssertionError:
                 break
     
     async def delete(self):
@@ -117,11 +124,11 @@ class embed:
         self.description = str(desc) if desc else ""
         self.current_time = datetime.now()
         self.fields = None if (fields == {}) else fields
-        self.footer = str(footer) if footer else "Command executed by "+str(self.ctx.author)
         self.url = url
         self.image_url = image
         self.thumbnail_url = thumbnail
         self.footer_icon = str(footer_icon) if footer_icon else str(self.ctx.author.avatar_url)
+        self.footer = str(footer) if footer else "Command executed by "+str(self.ctx.author)
         self.attachment_url = attachment
         self.author_name = author_name
 
@@ -130,8 +137,7 @@ class embed:
         elif ((isinstance(self.color, str)) and (self.color.startswith("#"))):
             self._convert_hex_to_rgb()
 
-    async def get_embed(self) -> tuple:
-        """ Gets the embed and the attachment in it, returns a tuple(discord.Embed, Union[discord.File, None]) """
+    def _basic_embed(self):
         _embed = Embed(title=self.title, description=self.description, color=self.color, url=self.url)
         if self.fields is not None:
             for i in self.fields.keys():
@@ -144,7 +150,12 @@ class embed:
             _embed.set_thumbnail(url=str(self.thumbnail_url))
         if self.author_name:
             _embed.set_author(name=self.author_name)
-        _file = None
+        
+        return _embed
+
+    async def get_embed(self) -> tuple:
+        """ Gets the embed and the attachment in it, returns a tuple(discord.Embed, Union[discord.File, None]) """
+        _embed, _file = self._basic_embed(), None
 
         if self.attachment_url:
             if isinstance(self.attachment_url, str):
@@ -196,7 +207,7 @@ class ChooseEmbed(embed):
         The key is a method that temporarily shows a reference. Example: (lambda x: x["name"])
         """
         
-        reference = reference[0:20]
+        reference = reference[:20]
         self._pre_res = None if (len(reference) != 1) else reference[0]
         self.message = None
         

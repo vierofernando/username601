@@ -19,10 +19,10 @@ class fun(commands.Cog):
         parser = ctx.bot.Parser(args)
         parser.parse()
         
-        comic = await ctx.bot.util.get_request("https://xkcd.com/info.0.json", json=True, raise_errors=True)
+        comic = await ctx.bot.util.request("https://xkcd.com/info.0.json", json=True)
         if parser.has("random"):
             comic_num = randint(1, comic['num'])
-            comic = await ctx.bot.util.get_request(f"https://xkcd.com/{comic_num}/info.0.json", json=True, raise_errors=True)
+            comic = await ctx.bot.util.request(f"https://xkcd.com/{comic_num}/info.0.json", json=True)
             del comic_num
         
         embed = ctx.bot.Embed(
@@ -73,10 +73,9 @@ class fun(commands.Cog):
     @cooldown(2)
     async def joke(self, ctx):
         await ctx.trigger_typing()
-        data = await ctx.bot.util.get_request(
+        data = await ctx.bot.util.request(
             "https://official-joke-api.appspot.com/jokes/general/random",
-            json=True,
-            raise_errors=True
+            json=True
         )
         embed = ctx.bot.Embed(
             ctx,
@@ -90,14 +89,14 @@ class fun(commands.Cog):
     @cooldown(10)
     async def inspirobot(self, ctx):
         await ctx.trigger_typing()
-        img = await ctx.bot.util.get_request('https://inspirobot.me/api', raise_errors=True, generate="true")
-        await ctx.bot.util.send_image_attachment(ctx, img)
+        img = await ctx.bot.util.request('https://inspirobot.me/api', generate="true")
+        await ctx.bot.util.send_image(ctx, img)
         del img
     
     @command(['randomcase'])
     @cooldown(2)
     async def mock(self, ctx, *args):
-        text = 'i am a dumbass that forgot to put the arguments' if len(args)==0 else ' '.join(args)
+        text = ' '.join(args) if args else 'i am a dumbass that forgot to put the arguments'
         return await ctx.send(''.join([choice([i.upper(), i.lower()]) for i in list(text)]))
 
     @command(['8ball', '8b'])
@@ -114,17 +113,16 @@ class fun(commands.Cog):
     @command()
     @cooldown(2)
     async def choose(self, ctx, *args):
-        if len(args)==0 or ',' not in ''.join(args):
+        if (not args) or ',' not in ''.join(args):
             return await ctx.bot.cmds.invalid_args(ctx)
         return await ctx.send(choice(' '.join(args).split(',')))
     
     @command(['fact-core', 'fact-sphere', 'factsphere'])
     @cooldown(2)
     async def factcore(self, ctx):
-        data = await ctx.bot.util.get_request(
+        data = await ctx.bot.util.request(
             'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fact-core.json',
-            json=True,
-            raise_errors=True
+            json=True
         )
         embed = ctx.bot.Embed(
             ctx,

@@ -213,7 +213,7 @@ class Parser:
     def get_numbers(args: tuple, count: int = 1):
         """ Get numbers from args """
         
-        try: return [int(i) for i in args if i.isnumeric()][0:count]
+        try: return [int(i) for i in args if i.isnumeric()][:count]
         except: return
 
     @staticmethod

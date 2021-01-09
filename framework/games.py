@@ -15,7 +15,7 @@ class GuessTheFlag:
     
     async def start(self):
         """ Starts the fucking game. """
-        message = await self.ctx.bot.util.send_image_attachment(self.ctx, f"https://www.countryflags.io/{self.flag}/shiny/64.png", message_options={
+        message = await self.ctx.bot.util.send_image(self.ctx, f"https://www.countryflags.io/{self.flag}/shiny/64.png", message_options={
             "content": "Guess the country that has this flag!"
         })
         
