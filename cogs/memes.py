@@ -392,7 +392,9 @@ class memes(commands.Cog):
         
         if not message: raise ctx.bot.util.error_message("You did not input a text. Meme making canceled.")
         elif "mine" in message.content.lower(): url = ctx.author.avatar_url_as(size=512, format="png")
-        else: url = await ctx.bot.Parser.parse_image(message, tuple(message.content.split()))
+        else:
+            ctx = await ctx.bot.get_context(message)
+            url = await ctx.bot.Parser.parse_image(ctx, tuple(message.content.split()))
         
         await ctx.send("Send top text and bottom text. Splitted by a space, comma, semicolon, or |.")
         wait = ctx.bot.WaitForMessage(ctx, check=(lambda x: x.author == ctx.author and x.channel == ctx.channel), timeout=60.0)

@@ -232,9 +232,9 @@ class Parser:
             return True
         except:
             return False
-
+        
     @staticmethod
-    async def parse_image(ctx, args, default_to_png=True, size=1024, member_only=False, cdn_only=False):
+    async def parse_image(ctx, args, default_to_png=True, size=1024, member_only=False, cdn_only=False, **kwargs):
         """
         Gets the image from message.
         Either it's attachment, a URL, or just a mention to get someone's avatar.
@@ -252,7 +252,7 @@ class Parser:
         url = "".join(args).replace("<", "").replace(">", "")
         if ((url.startswith("http")) and ("://" in url)) and (not member_only):
             is_valid = await Parser.__check_url(ctx, url, cdn_only)
-            if (not member_only) and is_valid:
+            if is_valid:
                 return url
         
         _filtered = "".join(args).replace(" ", "").lower()

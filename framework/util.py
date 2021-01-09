@@ -12,6 +12,8 @@ from random import choice
 from json import loads
 from io import BytesIO
 from time import time
+from PIL import Image
+import gc
 
 class GetRequestFailedException(Exception): pass
 class error_message(Exception): pass
@@ -140,13 +142,7 @@ class Util:
         response = ((code + ctx.author.id) % 2 == 0)
         del code, ctx
         return choice(self._8ball_template).replace("??", ("yes" if response else "no"))
-    
-    def friendship(user_id1: int, user_id2: int) -> int:
-        """ Gets the most accurate value of friendship in all of discord bots using the finding love algorithm. """
-        
-        a, b = (user_id2, user_id1) if (user_id2 > user_id1) else (user_id1, user_id2)
-        return int(str(a)[0] + str(b)[::-1][0])
-    
+
     def resolve_starboard_message(self, message):
         """ Gets the embed from a message as a form of starboard post. """
         embed = Embed(title=f"{message.author.display_name}#{message.author.discriminator} | #{str(message.channel)}", description=message.content, url=message.jump_url, color=discord.Color.from_rgb(255, 255, 0))
@@ -195,6 +191,11 @@ class Util:
             except Exception as e:
                 print("Error while loading cog:", str(e))
 
+    def _crop_out_memegen(self, ctx, _bytes: bytes) -> BytesIO:
+        """ idk if this is illegal but anyway """
+        image = Image.open(BytesIO(_bytes))
+        return ctx.bot.Image.save(image.crop((0, 12, image.width, image.height - 12)))
+
     async def send_image_attachment(self, ctx, url, alexflipnote: bool = False, message_options: dict = {}) -> None:
         """
         Sends an image attachment from a URL.
@@ -207,9 +208,11 @@ class Util:
                 _bytes = await data.read()
                 assert data.status < 400, "API returns a bad status code"
                 assert data.headers['Content-Type'].startswith("image/"), "Content does not have an image."
-                extension = "." + data.headers['Content-Type'][6:]
-                await ctx.send(file=File(BytesIO(_bytes), "file"+extension.lower()), **message_options)
-                del extension, _bytes, data
+                extension = "." + data.headers['Content-Type'][6:].lower()
+                buffer = self._crop_out_memegen(ctx, _bytes) if url.startswith("https://api.memegen.link/") else BytesIO(_bytes)
+                await ctx.send(file=File(buffer, f"file{extension}"), **message_options)
+                del extension, _bytes, data, buffer, ctx
+                gc.collect()
         except Exception as e:
             raise self.error_message("Image not found.\n`"+str(e)+"`")
     
