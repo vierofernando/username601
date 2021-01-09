@@ -95,19 +95,6 @@ class Painter:
             'r': i[0], 'g': i[1], 'b': i[2]
         }, ColorThief(b).get_palette(color_count=10)))
 
-    async def geometry_dash_icons(self, name):
-        GD_FORMS = ('cube', 'ship', 'ball', 'ufo', 'wave', 'robot', 'spider')
-        forms = [self.buffer_from_url(f"https://gdbrowser.com/icon/{name}?form={i}") for i in GD_FORMS]
-        width = sum(map(lambda i: i.width, forms)) + (len(GD_FORMS) * 25) + 25
-        curs = 25
-        main = Image.new(mode="RGBA", size=(width, 250), color=(0, 0, 0, 0))
-        for i in forms:
-            main.paste(i, (curs, round((main.height - i.height) / 2)))
-            curs += (i.width + 25)
-        del forms
-        del curs
-        return self.buffer(main)
-
     async def oliy_stretched(self, url):
         image = self.buffer_from_url(url).resize((227, 449))
         oily = self.templates["oliy.png"].copy()

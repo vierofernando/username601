@@ -20,8 +20,9 @@ class ImageClient:
     AMONG_US_MASK_FR = Image.open(AMONG_US_PATH.replace("among_us.png", "among_us_mask.png")).convert("L")
     AMONG_US_MASK_BG = Image.open(AMONG_US_PATH.replace("among_us.png", "among_us_overlay.png")).convert("L")
     GRADIENT_MASK = Image.open("./assets/pics/gradient_mask.png").convert("L")
-    _ASCII_RANGES = ((33, ':'), (65, '-'), (97, '='), (129, '+'), (160, '*'), (192, '#'), (224, '%'), (256, '@'))
+    ASCII_RANGES = ((33, ':'), (65, '-'), (97, '='), (129, '+'), (160, '*'), (192, '#'), (224, '%'), (256, '@'))
     EXPLOSION_GIF = list(ImageSequence.Iterator(Image.open("./assets/pics/explosion.gif")))
+    GD_FORMS = ('cube', 'ship', 'ball', 'ufo', 'wave', 'robot', 'spider')
 
     def __init__(self, client):
         self.http = client.http
@@ -85,6 +86,23 @@ class ImageClient:
         gc.collect()
         return buffer
     
+
+    async def geometry_dash_icons(self, username: str) -> BytesIO:
+        """ Gets the Geometry Dash icons. """
+        images = []
+        for forms in ImageClient.GD_FORMS:
+            image = await self.image_from_URL(f"https://gdbrowser.com/icon/{username}?form={forms}")
+            images.append(image)
+        width = sum(map(lambda i: i.width, forms)) + (len(ImageClient.GD_FORMS) * 25) + 25
+        
+        main = Image.new(mode="RGBA", size=(width, 250), color=(0, 0, 0, 0))
+        curs = 25
+        for image in images:
+            main.paste(image, (curs, (main.height - image.height) // 2))
+            curs += (image.width + 25)
+        
+        del images, width, curs
+        return self.save(main)
     
     async def distort(self, url: str, image_path: str, edges: tuple):
         """ Distorts an image as such. """
@@ -123,7 +141,7 @@ class ImageClient:
     
     
     def __get_ascii_char(self, s):
-        for n, c in ImageClient._ASCII_RANGES:
+        for n, c in ImageClient.ASCII_RANGES:
             if s < n: return c
     
     

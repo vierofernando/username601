@@ -183,7 +183,7 @@ class Util:
         except:
             _cog_folder = cog_folder
         
-        for i in listdir(cog_folder):
+        for i in listdir(_cog_folder):
             if not i.endswith(".py") or i in exclude: continue
             try:
                 print("Loading cog", i)

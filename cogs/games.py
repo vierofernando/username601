@@ -170,8 +170,6 @@ class games(commands.Cog):
                 raise_errors=True
             )
             
-            icons = await ctx.bot.canvas.geometry_dash_icons(data["username"])
-            
             embed = ctx.bot.Embed(
                 ctx,
                 title=data["username"],
@@ -180,7 +178,7 @@ class games(commands.Cog):
                     "Stats": f"**Rank: **{(data['rank'] if data['rank'] else '`<not available>`')}\n**Stars: **{data['stars']}\n**Diamonds: **{data['diamonds']}\n**Secret Coins: **{data['coins']}\n**Demons: **{data['demons']}\n**Creator Points: **{data['cp']}",
                     "Links": f"{('[YouTube channel](https://youtube.com/channel/'+data['youtube']+')' if data['youtube'] else '`<YouTube not available>`')}\n{('[Twitter Profile](https://twitter.com/'+data['twitter']+')' if data['twitter'] else '`<Twitter not available>`')}\n{('[Twitch Channel](https://twitch.tv/'+data['twitch']+')' if data['twitch'] else '`<Twitch not available>`')}"
                 },
-                attachment=icons
+                thumbnail=f"https://gdbrowser.com/icon/{'%20'.join(args)[0:32]}?form=cube"
             )
             await embed.send()
             del embed, icons
@@ -275,6 +273,13 @@ class games(commands.Cog):
             return await ctx.bot.util.send_image_attachment(ctx, 'https://gdcolon.com/tools/gdtextbox/img/'+ctx.bot.util.encode_uri(' '.join(args[1:]))[0:100]+'?color='+('blue' if ctx.author.guild_permissions.manage_guild else 'brown')+'&name='+ctx.author.display_name+'&url='+str(ctx.author.avatar_url_as(format='png'))+'&resize=1')
         elif _input.startswith("comment"):
             return await self.geometry_dash_comment(ctx, args[1:])
+        elif _input.startswith("icon"):
+            if not args[1:]:
+                return await ctx.bot.cmds.invalid_args(ctx)
+            buffer = await ctx.bot.Image.geometry_dash_icons(" ".join(args)[1:])
+            await ctx.send(file=discord.File(buffer, "icon.png"))
+            del buffer
+            return
         return await ctx.bot.cmds.invalid_args(ctx)
 
     @command(['rockpaperscissors'])
