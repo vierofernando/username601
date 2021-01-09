@@ -181,7 +181,7 @@ class games(commands.Cog):
                 thumbnail=f"https://gdbrowser.com/icon/{'%20'.join(args)[0:32]}?form=cube"
             )
             await embed.send()
-            del embed, icons
+            del embed
         except:
             raise ctx.bot.util.error_message('Error, user not found.')
     
