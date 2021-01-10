@@ -46,7 +46,8 @@ class games(commands.Cog):
         wait = ctx.bot.WaitForMessage(ctx, timeout=20.0, check=(lambda x: x.channel == ctx.channel and (not x.author.bot) and (x.content.lower() == answer)))
         _message = await wait.get_message()
         if not _message:
-            return
+            raise ctx.bot.util.error_message(f"No one sent an answer! The answer is actually {answer}.")
+        
         _time = time() - a
         embed = ctx.bot.Embed(ctx, title=f"Congratulations! {_message.author.display_name} got it first!", fields={"Time taken": str(_time) + " seconds", "Answer": answer}, footer="Try again later if you lost lol")
         
