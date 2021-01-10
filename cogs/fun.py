@@ -90,7 +90,7 @@ class fun(commands.Cog):
     async def inspirobot(self, ctx):
         await ctx.trigger_typing()
         img = await ctx.bot.util.request('https://inspirobot.me/api', generate="true")
-        await ctx.bot.util.send_image(ctx, img)
+        await ctx.send_image(img)
         del img
     
     @command(['randomcase'])

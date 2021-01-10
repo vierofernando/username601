@@ -62,7 +62,7 @@ class economy(commands.Cog):
     async def beg(self, ctx):
         award = randint(100, 800)
         self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": award})
-        return await ctx.send(embed=discord.Embed(title=f'You begged and got {award:,} bobux!', color=discord.Color.green()))
+        return await ctx.success_embed(f'You begged and got {award:,} bobux!')
         
     @command(['fishing'])
     @cooldown(60)
@@ -74,7 +74,7 @@ class economy(commands.Cog):
         if res['catched']:
             award = randint(res['ctx']['worth']['min'], res['ctx']['worth']['max'])
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": award})
-            return await ctx.send(embed=discord.Embed(description=f"{res['ctx']['emote']} | Congratulations! You caught a {res['ctx']['name']} and sell it worth for {award:,} bobux!", color=discord.Color.green()))
+            return await ctx.success_embed(f"{res['ctx']['emote']} | Congratulations! You caught a {res['ctx']['name']} and sell it worth for {award:,} bobux!")
         raise ctx.bot.util.error_message(f"Yikes! You only caught {res['ctx']}... Try again later!")
 
     @command(['delete', 'deletedata', 'deldata', 'del-data', 'delete-data'])
@@ -87,7 +87,7 @@ class economy(commands.Cog):
         del wait
 
         if (not message) or (message.content.lower() in ['n', 'no']):
-            return await embed.edit(embed=discord.Embed(title="OK. No it is then.", color=discord.Color.green()))
+            return await ctx.success_embed("OK. No it is then.")
         self.db.delete("economy", {"userid": ctx.author.id})
         return await embed.edit(embed=discord.Embed(title="Alright. Your profile is gone. Reduced to atoms.", color=discord.Color.orange()))
 
@@ -99,7 +99,7 @@ class economy(commands.Cog):
         reward = randint(100, 500)
         job = choice(self.works)
         self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
-        return await ctx.send(embed=discord.Embed(title=f"{ctx.author.display_name} worked {job} and earned {reward:,} bobux!", color=discord.Color.green()))
+        return await ctx.success_embed(f"{ctx.author.display_name} worked {job} and earned {reward:,} bobux!")
     
     @command()
     @cooldown(7)
@@ -126,7 +126,7 @@ class economy(commands.Cog):
                 "streak": streak
             }
             
-            await ctx.send(embed=discord.Embed(title=f"You earned your Daily for {reward:,} bobux!" + "\n" + f"Your streak: {streak:,} (250 x {streak:,} bobux)", color=discord.Color.green()))
+            await ctx.success_embed(f"You earned your Daily for {reward:,} bobux!" + "\n" + f"Your streak: {streak:,} (250 x {streak:,} bobux)")
             self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, new_data)
         else:
             raise ctx.bot.util.error_message(f"You can earn your daily in {ctx.bot.util.strfsecond((data['lastDaily'] + 43200) - time())}!")
@@ -142,7 +142,7 @@ class economy(commands.Cog):
             amount = ctx.bot.Parser.get_numbers(args)
             assert amount[0] in range(0, 100000), "The limit is 100.000 bobux!"
             assert self.db.exist("economy", {"userid": member.id}), f"{member.display_name} does not have a profile!"
-            await ctx.send(embed=discord.Embed(title=f"Successfully transferred {amount[0]:,} bobux to {member.display_name}!", color=discord.Color.green()))
+            await ctx.success_embed(f"Successfully transferred {amount[0]:,} bobux to {member.display_name}!")
         
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": -amount[0]})
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": member.id}, {"bal": amount[0]})
@@ -172,7 +172,7 @@ class economy(commands.Cog):
             data = self.db.get("economy", {"userid": ctx.author.id})
             assert data["bal"] > 750, f"You need at least 750 bobux ({750 - data['bal']} more) to rob someone."
             
-            await ctx.send(embed=discord.Embed(title=f"Successfully robbed {member.display_name} for {number:,} bobux.", color=discord.Color.green()))
+            await ctx.success_embed(f"Successfully robbed {member.display_name} for {number:,} bobux.")
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": number})
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": member.id})
         except AssertionError as e:
@@ -185,7 +185,7 @@ class economy(commands.Cog):
     async def deposit(self, ctx, *args):
         data = self.db.get("economy", {"userid": ctx.author.id})
         if args[0].lower() == 'all':
-            await ctx.send(embed=discord.Embed(title='OK. Deposited all of your bobux to the username601 bank.', color=discord.Color.green()))
+            await ctx.success_embed('OK. Deposited all of your bobux to the username601 bank.')
             self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"bankbal": data['bal']})
             self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"bal": 0})
             return
@@ -193,7 +193,7 @@ class economy(commands.Cog):
         try:
             num = ctx.bot.util.Parser.get_numbers(args)
             assert num < data['bal'], 'Your input has more bobux than the one in your balance!'
-            await ctx.send(embed=discord.Embed(title=f'OK. Deposited {num:,} bobux to your bank.', color=discord.Color.green()))
+            await ctx.success_embed(f'OK. Deposited {num:,} bobux to your bank.')
 
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bankbal": num})
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": -num})
@@ -209,7 +209,7 @@ class economy(commands.Cog):
     async def withdraw(self, ctx, *args):
         data = self.db.get("economy", {"userid": ctx.author.id})
         if args[0].lower() == 'all':
-            await ctx.send(embed=discord.Embed(title='OK. Withdrew all of your bobux from the username601 bank.', color=discord.Color.green()))
+            await ctx.success_embed('OK. Withdrew all of your bobux from the username601 bank.')
             self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"bankbal": 0})
             self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"bal": data['bankbal']})
             return
@@ -217,7 +217,7 @@ class economy(commands.Cog):
         try:
             num = ctx.bot.util.Parser.get_numbers(args)
             assert num < data['bankbal'], 'Your input has more bobux than the one in the bank!'
-            await ctx.send(embed=discord.Embed(title=f'OK. Withdrew {num:,} bobux from the bank.', color=discord.Color.green()))
+            await ctx.success_embed(f'OK. Withdrew {num:,} bobux from the bank.')
 
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": num})
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bankbal": -num})
@@ -295,7 +295,7 @@ class economy(commands.Cog):
                     assert bool(data), f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."
                     assert data["bal"] > 500, f"You need at least 500 bobux to change bio ({(500 - data['bal']):,} more bobux required)"
 
-                    await ctx.send(embed=discord.Embed(title=f"Successfully changed your bio.", color=discord.Color.green()).set_footer(text="Your bio is too long, so we capped it down to 50 characters." if len(text) > 50 else ""))
+                    await ctx.success_embed(f"Successfully changed your bio.")
                     self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"desc": text[:50]})
                     del parser, data, text
                     return
@@ -365,7 +365,7 @@ class economy(commands.Cog):
         if self.db.exist("economy", {"userid": ctx.author.id}):
             raise ctx.bot.util.error_message("You already have a profile. No need to create another.")
         
-        await ctx.send(embed=discord.Embed(title=f"Created your profile! Use {ctx.bot.command_prefix}bal to view your profile.", color=discord.Color.green()))
+        await ctx.success_embed(f"Created your profile! Use {ctx.bot.command_prefix}bal to view your profile.")
         self.db.add("economy", {
             "userid": ctx.author.id,
             "lastDaily": None,

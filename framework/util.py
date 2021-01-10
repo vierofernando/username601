@@ -2,6 +2,7 @@ from discord import Embed, Color, File, __version__, Forbidden, AllowedMentions,
 from platform import python_build, python_compiler, uname
 from aiohttp import ClientSession, ClientTimeout
 from .xmltodict import parse as xmltodict
+from discord.ext.commands import Context
 from configparser import ConfigParser
 from os import getenv, name, listdir
 from urllib.parse import quote_plus
@@ -56,6 +57,27 @@ class Util:
             self.timestamp = datetime.now()
             return self
         
+        async def send_image(self, url, alexflipnote: bool = False, message_options: dict = {}):
+            try:
+                session = self.bot.util.alex_client if alexflipnote else self.bot.http._HTTPClient__session
+                
+                async with session.get(url) as data:
+                    _bytes = await data.read()
+                    assert data.status < 400, "API returns a bad status code"
+                    assert data.headers['Content-Type'].startswith("image/"), "Content does not have an image."
+                    extension = "." + data.headers['Content-Type'][6:].lower()
+                    buffer = self.bot.util._crop_out_memegen(self, _bytes) if url.startswith("https://api.memegen.link/") else BytesIO(_bytes)
+                    await self.send(file=File(buffer, f"file{extension}"), **message_options)
+                    del extension, _bytes, data, buffer
+                    gc.collect()
+            except Exception as e:
+                raise self.bot.util.error_message("Image not found.\n`"+str(e)+"`")
+        
+        async def success_embed(self, message=None, description=None, delete_after=None):
+            return await self.send(embed=Embed(title=message, description=description, color=Color.green()), delete_after=delete_after)
+        
+        setattr(Context, "send_image", send_image)
+        setattr(Context, "success_embed", success_embed)
         setattr(Embed, "add_useless_stuff", _embed_add_useless_stuff)
         self._on_command_error = None
         self._config = ConfigParser()
@@ -87,7 +109,7 @@ class Util:
             "Sorry, but the answer is {}"
         ]
         
-        del self._config, _embed_add_useless_stuff
+        del self._config, _embed_add_useless_stuff, send_image, success_embed
         self.status_codes = loads(open(self.json_dir + "/status.json", "r", encoding="utf-8").read())
 
         setattr(client, attribute_name, self)
@@ -191,26 +213,6 @@ class Util:
         """ idk if this is illegal but anyway """
         image = Image.open(BytesIO(_bytes))
         return ctx.bot.Image.save(image.crop((0, 12, image.width, image.height - 12)))
-
-    async def send_image(self, ctx, url, alexflipnote: bool = False, message_options: dict = {}) -> None:
-        """
-        Sends an image attachment from a URL.
-        Enabling alexflipnote will also add a Authorization header of "ALEXFLIPNOTE_TOKEN" to the GET request method.
-        """
-        try:
-            session = self.alex_client if alexflipnote else self.bot.http._HTTPClient__session
-            
-            async with session.get(url) as data:
-                _bytes = await data.read()
-                assert data.status < 400, "API returns a bad status code"
-                assert data.headers['Content-Type'].startswith("image/"), "Content does not have an image."
-                extension = "." + data.headers['Content-Type'][6:].lower()
-                buffer = self._crop_out_memegen(ctx, _bytes) if url.startswith("https://api.memegen.link/") else BytesIO(_bytes)
-                await ctx.send(file=File(buffer, f"file{extension}"), **message_options)
-                del extension, _bytes, data, buffer, ctx
-                gc.collect()
-        except Exception as e:
-            raise self.error_message("Image not found.\n`"+str(e)+"`")
     
     def get_command_name(self, ctx) -> str:
         """ Gets the command name from a discord context object. This includes the alias used. """

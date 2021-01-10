@@ -31,13 +31,13 @@ def permissions(author: list = None, bot: list = None):
             author_permissions = ctx.channel.permissions_for(ctx.author)
             for perms in author:
                 if not getattr(author_permissions, perms):
-                    await ctx.send(embed=Embed(description=f"You are missing the `{', '.join(author).replace('_', '')}` permissions. Which is required to run this command."))
+                    await ctx.send(embed=Embed(description=f"You are missing the `{', '.join(author).replace('_', '')}` permissions. Which is required to run this command.", color=Color.red()))
                     return False
         if bot:
             bot_permissions = ctx.channel.permissions_for(ctx.me)
             for perms in bot:
                 if not getattr(bot_permissions, perms):
-                    await ctx.send(embed=Embed(description=f"This bot is missing the `{', '.join(bot).replace('_', '')}` permissions. Which is required to run this command."))
+                    await ctx.send(embed=Embed(description=f"This bot is missing the `{', '.join(bot).replace('_', '')}` permissions. Which is required to run this command.", color=Color.red()))
                     return False
         return True
     return commands.check(predicate)

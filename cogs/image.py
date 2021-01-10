@@ -23,35 +23,35 @@ class image(commands.Cog):
             self.aeon_count = int(resp)
             self.last_aeon = time()
             del resp
-        return await ctx.bot.util.send_image(ctx, f"{self.aeon_url}{randint(1, self.aeon_count)}.png")
+        return await ctx.send_image(f"{self.aeon_url}{randint(1, self.aeon_count)}.png")
     
     @command(['dogs'])
     @cooldown(3)
     async def dog(self, ctx):
         await ctx.trigger_typing()
         data = await ctx.bot.util.request("https://api.alexflipnote.dev/dogs", json=True, alexflipnote=True)
-        return await ctx.bot.util.send_image(ctx, data["file"])
+        return await ctx.send_image(data["file"])
     
     @command(['cats'])
     @cooldown(3)
     async def cat(self, ctx):
         await ctx.trigger_typing()
         data = await ctx.bot.util.request("https://api.alexflipnote.dev/cats", json=True, alexflipnote=True)
-        return await ctx.bot.util.send_image(ctx, data["file"])
+        return await ctx.send_image(data["file"])
     
     @command(['birb', 'birbs', 'birds'])
     @cooldown(3)
     async def bird(self, ctx):
         await ctx.trigger_typing()
         data = await ctx.bot.util.request("https://api.alexflipnote.dev/birb", json=True, alexflipnote=True)
-        return await ctx.bot.util.send_image(ctx, data["file"])
+        return await ctx.send_image(data["file"])
     
     @command(['foxes', 'furry', 'furries'])
     @cooldown(3)
     async def fox(self, ctx):
         await ctx.trigger_typing()
         data = await ctx.bot.util.request("https://randomfox.ca/floof", json=True)
-        return await ctx.bot.util.send_image(ctx, data["image"])
+        return await ctx.send_image(data["image"])
 
     @command(['colourify', 'colorize', 'colourize'])
     @cooldown(5)
@@ -314,12 +314,12 @@ class image(commands.Cog):
             format='json',
             json=True
         )
-        await ctx.bot.util.send_image(ctx, _url["url"])
+        await ctx.send_image(_url["url"])
 
     @command(['snek', 'snakes', 'python', 'py'])
     @cooldown(2)
     async def snake(self, ctx):
-        return await ctx.bot.util.send_image(ctx, 'https://fur.im/snek/i/'+str(randint(1, 874))+'.png')
+        return await ctx.send_image('https://fur.im/snek/i/'+str(randint(1, 874))+'.png')
 
     @command(['imageoftheday', 'pod', 'pictureoftheday', 'iod'])
     @cooldown(10)
@@ -349,7 +349,7 @@ class image(commands.Cog):
     @cooldown(2)
     async def httpcat(self, ctx, *args):
         code = args[0] if ((not args) or (not args[0].isnumeric())) else '404'
-        return await ctx.bot.util.send_image(ctx, 'https://http.cat/'+str(code)+'.jpg')
+        return await ctx.send_image('https://http.cat/'+str(code)+'.jpg')
     
     @command(['httpduck'])
     @cooldown(2)
@@ -357,7 +357,7 @@ class image(commands.Cog):
         code = args[0] if ((not args) or (not args[0].isnumeric())) else '404'
         url = 'https://random-d.uk/api/http/ABC.jpg' if (ctx.bot.util.get_command_name(ctx) == "httpduck") else 'https://httpstatusdogs.com/img/ABC.jpg'
         try:
-            return await ctx.bot.util.send_image(ctx, url.replace('ABC', code))
+            return await ctx.send_image(url.replace('ABC', code))
         except:
             raise ctx.bot.util.error_message("404")
 
@@ -388,7 +388,7 @@ class image(commands.Cog):
     async def panda(self, ctx):
         link = choice(["https://some-random-api.ml/img/panda", "https://some-random-api.ml/img/red_panda"])
         data = await ctx.bot.util.request(link, json=True)
-        await ctx.bot.util.send_image(ctx, data['link'])
+        await ctx.send_image(data['link'])
         del link, data
     
     @command()
@@ -400,7 +400,7 @@ class image(commands.Cog):
             json=True,
             count=1
         )
-        await ctx.bot.util.send_image(ctx, data[0])
+        await ctx.send_image(data[0])
         del data
 
     @command(['pixel', '8-bit', '8bit'])
@@ -425,35 +425,35 @@ class image(commands.Cog):
     async def magik(self, ctx, *args):
         source = await ctx.bot.Parser.parse_image(ctx, args, cdn_only=True)
         await ctx.channel.trigger_typing()
-        return await ctx.bot.util.send_image(ctx, f'https://api.alexflipnote.dev/filter/magik?image={source}', alexflipnote=True)
+        return await ctx.send_image(f'https://api.alexflipnote.dev/filter/magik?image={source}', alexflipnote=True)
 
     @command(['df'])
     @cooldown(2)
     async def deepfry(self, ctx, *args):
         source = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
         await ctx.channel.trigger_typing()
-        return await ctx.bot.util.send_image(ctx, f'https://api.alexflipnote.dev/filter/deepfry?image={source}', alexflipnote=True)
+        return await ctx.send_image(f'https://api.alexflipnote.dev/filter/deepfry?image={source}', alexflipnote=True)
 
     @command()
     @cooldown(2)
     async def invert(self, ctx, *args):
         source = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
         await ctx.channel.trigger_typing()
-        return await ctx.bot.util.send_image(ctx, f'https://api.alexflipnote.dev/filter/invert?image={source}', alexflipnote=True)
+        return await ctx.send_image(f'https://api.alexflipnote.dev/filter/invert?image={source}', alexflipnote=True)
         
     @command(['grayscale', 'b&w', 'bw', 'classic', 'gray', 'grey', 'greyscale', 'gray-scale', 'grey-scale'])
     @cooldown(2)
     async def blackandwhite(self, ctx, *args):
         source = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
         await ctx.channel.trigger_typing()
-        return await ctx.bot.util.send_image(ctx, f'https://api.alexflipnote.dev/filter/b&w?image={source}', alexflipnote=True)
+        return await ctx.send_image(f'https://api.alexflipnote.dev/filter/b&w?image={source}', alexflipnote=True)
 
     @command(['jpegify'])
     @cooldown(5)
     async def jpeg(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
-        return await ctx.bot.util.send_image(ctx, "https://api.alexflipnote.dev/filter/jpegify?image="+url, alexflipnote=True)
+        return await ctx.send_image("https://api.alexflipnote.dev/filter/jpegify?image="+url, alexflipnote=True)
 
 def setup(client):
     client.add_cog(image())

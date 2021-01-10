@@ -31,7 +31,7 @@ class encoding(commands.Cog):
                     response = await ctx.bot.http._HTTPClient__session.post("https://paste.mod.gg/documents", data=ascii)
                     assert response.status < 400
                     json = await response.json()
-                    await ctx.send(embed=discord.Embed(description=f"[**Click here to see the asciified text.**](https://paste.mod.gg/{json['key']})", color=discord.Color.green()))
+                    await ctx.success_embed(f"[**Click here to see the asciified text.**](https://paste.mod.gg/{json['key']})")
                     del ascii, image, parser, hastebin, json
                     return
                 except AssertionError:
@@ -49,7 +49,7 @@ class encoding(commands.Cog):
                 response = await ctx.bot.http._HTTPClient__session.post("https://paste.mod.gg/documents", data=string)
                 assert response.status < 400
                 json = await response.json()
-                await ctx.send(embed=discord.Embed(description=f"[**Click here to see the asciified image.**](https://paste.mod.gg/{json['key']})", color=discord.Color.green()))
+                await ctx.success_embed(f"[**Click here to see the asciified image.**](https://paste.mod.gg/{json['key']})")
                 del string, image, parser, hastebin, json
                 return
             except AssertionError:
@@ -140,14 +140,14 @@ class encoding(commands.Cog):
     @require_args()
     async def barcode(self, ctx, *args):
         await ctx.trigger_typing()
-        return await ctx.bot.util.send_image(ctx, 'http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data=' + ctx.bot.util.encode_uri(' '.join(args))[:75])
+        return await ctx.send_image('http://www.barcode-generator.org/zint/api.php?bc_number=20&bc_data=' + ctx.bot.util.encode_uri(' '.join(args))[:75])
     
     @command(['qrcode', 'qr-code'])
     @cooldown(2)
     @require_args()
     async def qr(self, ctx, *args):
         await ctx.trigger_typing()
-        return await ctx.bot.util.send_image(ctx, 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + ctx.bot.util.encode_uri(' '.join(args))[:75])
+        return await ctx.send_image('https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + ctx.bot.util.encode_uri(' '.join(args))[:75])
 
     @command()
     @cooldown(2)

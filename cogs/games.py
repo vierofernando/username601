@@ -89,8 +89,7 @@ class games(commands.Cog):
                     lambda x: (x.author == characters[current]) and (x.channel == ctx.channel) and x.content.isnumeric() and (len(x.content) == 1)
                 ), timeout=20.0)
             except:
-                await ctx.send(embed=discord.Embed(color=discord.Color.red(), title=str(characters[current]) + " did not respond in 20 seconds! game ended."))
-                break
+                raise ctx.bot.util.error_message(str(characters[current]) + " did not respond in 20 seconds! game ended.")
             
             try:
                 res = game.add_move(int(msg.content), bool(current))
@@ -104,7 +103,7 @@ class games(commands.Cog):
                 if check == "?":
                     return await ctx.send(embed=discord.Embed(title="No one wins! It's a draw!", color=discord.Color.orange()))
                 winner = str(characters[0 if (current == 1) else 1])
-                return await ctx.send(embed=discord.Embed(color=discord.Color.green(), title=str(characters[current]) + " won the game!"))
+                return await ctx.success_embed(str(characters[current]) + " won the game!")
             
             current = 0 if current else 1
             embed.description = "["+str(characters[current])+"'s ("+game.current_turn+") turn]```" + game.show() + "```"
@@ -197,7 +196,7 @@ class games(commands.Cog):
                 percentage = 69
             
             assert bool(text)
-            return await ctx.bot.util.send_image(ctx, f'https://gdcolon.com/tools/gdcomment/img/{text}?name={_from}&likes={likes}&days=1-second{("&mod=mod" if parser.has("mod") else ("&mod=elder" if parser.has("elder-mod") else ""))}{("&uhd" if parser.has("uhd") else "")}{(f"&%={percentage}" if percentage else "")}{("&deletable" if parser.has("delete") else "")}')
+            return await ctx.send_image(f'https://gdcolon.com/tools/gdcomment/img/{text}?name={_from}&likes={likes}&days=1-second{("&mod=mod" if parser.has("mod") else ("&mod=elder" if parser.has("elder-mod") else ""))}{("&uhd" if parser.has("uhd") else "")}{(f"&%={percentage}" if percentage else "")}{("&deletable" if parser.has("delete") else "")}')
         except:
             return await ctx.bot.cmds.invalid_args(ctx)
     
@@ -264,9 +263,9 @@ class games(commands.Cog):
         elif _input.startswith("profile") or _input.startswith("user"):
             return await self.geometry_dash_profile(ctx, args[1:])
         elif _input.startswith("logo"):
-            return await ctx.bot.util.send_image(ctx, 'https://gdcolon.com/tools/gdlogo/img/'+ctx.bot.util.encode_uri(' '.join(args[1:])))
+            return await ctx.send_image('https://gdcolon.com/tools/gdlogo/img/'+ctx.bot.util.encode_uri(' '.join(args[1:])))
         elif _input.startswith("box"):
-            return await ctx.bot.util.send_image(ctx, 'https://gdcolon.com/tools/gdtextbox/img/'+ctx.bot.util.encode_uri(' '.join(args[1:]))[:100]+'?color='+('blue' if ctx.author.guild_permissions.manage_guild else 'brown')+'&name='+ctx.author.display_name+'&url='+str(ctx.author.avatar_url_as(format='png'))+'&resize=1')
+            return await ctx.send_image('https://gdcolon.com/tools/gdtextbox/img/'+ctx.bot.util.encode_uri(' '.join(args[1:]))[:100]+'?color='+('blue' if ctx.author.guild_permissions.manage_guild else 'brown')+'&name='+ctx.author.display_name+'&url='+str(ctx.author.avatar_url_as(format='png'))+'&resize=1')
         elif _input.startswith("comment"):
             return await self.geometry_dash_comment(ctx, args[1:])
         elif _input.startswith("icon"):
@@ -290,7 +289,7 @@ class games(commands.Cog):
         
         if res == 1 and self.db.exist("economy", {"userid": ctx.author.id}):
             reward = randint(5, 100)
-            await ctx.send(embed=discord.Embed(title=f'Thanks for playing! you earned {reward:,} bobux as a prize!', color=discord.Color.green()))
+            await ctx.success_embed(f'Thanks for playing! you earned {reward:,} bobux as a prize!')
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 
     @command(['dice', 'flipcoin', 'flipdice', 'coinflip', 'diceflip', 'rolldice'])
@@ -301,7 +300,7 @@ class games(commands.Cog):
             await ctx.send(res)
             if args and args[0].lower() == res[3:-4] and self.db.exist("economy", {"userid": ctx.author.id}):
                 prize = randint(50, 200)
-                await ctx.send(embed=discord.Embed(title=f'Your bet was right! you get {prize:,} bobux.', color=discord.Color.green()))
+                await ctx.success_embed(f'Your bet was right! you get {prize:,} bobux.')
                 self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": prize})
         else:
             arr = ['one', 'two', 'three', 'four', 'five', 'six']
@@ -309,7 +308,7 @@ class games(commands.Cog):
             await ctx.send(':'+res+':')
             if args and (args[0].lower()==res.lower() or args[0].lower() == str(arr.index(res)+1)) and self.db.exist("economy", {"userid": ctx.author.id}):
                 prize = randint(50, 150)
-                await ctx.send(embed=discord.Embed(title=f'Your bet was right! you get {prize:,} bobux.', color=discord.Color.green()))
+                await ctx.success_embed(f'Your bet was right! you get {prize:,} bobux.')
                 self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": prize})
 
     @command(['guessinggame', 'guessing-game'])
@@ -330,7 +329,7 @@ class games(commands.Cog):
             if (not win) or (not self.db.exist("economy", {"userid": ctx.author.id})):
                 return
             reward = randint(100, 1000)
-            await ctx.send(embed=discord.Embed(title="Thanks for playing!", description=f"You received {reward:,} bobux", color=discord.Color.green()))
+            await ctx.success_embed(f"Thanks for playing! You received {reward:,} bobux.")
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
             del game, win, object_name, object_args, play_func, play_args, Context, reward
         except AssertionError:
@@ -371,7 +370,7 @@ class games(commands.Cog):
             await message.edit(embed=discord.Embed(title="Correct!", color=discord.Color.green()))
             if self.db.exist("economy", {"userid": ctx.author.id}):
                 reward = randint(5, 50)
-                await ctx.send(f'Thanks for playing! we added an extra {reward:,} bobux to your profile.')
+                await ctx.success_embed(f'Thanks for playing! we added an extra {reward:,} bobux to your profile.')
                 self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
         return await message.edit(embed=discord.Embed(title=f"Wrong. The answer is {quiz.answer}", color=discord.Color.red()))
 
@@ -390,7 +389,7 @@ class games(commands.Cog):
             
         if self.db.exist("economy", {"userid": ctx.author.id}):
             reward = randint(150, 300)
-            await ctx.send(f'Thanks for playing! You get also a {reward:,} bobux as a prize!')
+            await ctx.success_embed(f'Thanks for playing! You get also a {reward:,} bobux as a prize!')
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 
     @command()
@@ -404,7 +403,7 @@ class games(commands.Cog):
             return
         
         if self.db.exist("economy", {"userid": ctx.author.id}):
-            await ctx.send(f'Thanks for playing! You get also a {reward:,} bobux as a prize!')
+            await ctx.success_embed(f'Thanks for playing! You get also a {reward:,} bobux as a prize!')
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 
     @command()
@@ -420,7 +419,7 @@ class games(commands.Cog):
         
         if correct and self.db.exist("economy", {"userid": ctx.author.id}):
             reward = randint(250, 400)
-            await ctx.send(f'Thanks for playing! You get also a {reward:,} bobux as a prize!')
+            await ctx.success_embed(f'Thanks for playing! You get also a {reward:,} bobux as a prize!')
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 
 def setup(client):

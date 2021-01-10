@@ -19,7 +19,7 @@ class apps(commands.Cog):
         parser.parse()
         
         try:
-            _format = "C" if (parser.has("metric") or (not parser.has("imperial"))) else "F"
+            _format = "F" if parser.has("imperial") else "C"
             assert bool(parser.other)
             location, nl = " ".join(parser.other)[:50], "\n"
             data = await ctx.bot.util.request(

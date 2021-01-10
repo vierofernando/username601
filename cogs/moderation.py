@@ -155,9 +155,8 @@ class moderation(commands.Cog):
 
         try:
             await toMute.add_roles(role)
-            embed = ctx.bot.Embed(ctx, title=f"Successfully ductaped {toMute.display_name}'s mouth.", color=discord.Color.green())
-            await embed.send()
-            del embed, role, toMute
+            await ctx.success_embed(f"Successfully ductaped {toMute.display_name}'s mouth.")
+            del role, toMute
         except:
             raise ctx.bot.util.error_message('I cannot mute him... maybe i has less permissions than him.\nHis mouth is too powerful to be muted.')
     
@@ -175,12 +174,11 @@ class moderation(commands.Cog):
         
         try:
             await toUnmute.remove_roles(ctx.guild.get_role(roleid))
-            embed = ctx.bot.Embed(ctx, title=f"Successfully unmuted {toUnmute.display_name}.", color=discord.Color.green())
-            await embed.send()
+            await ctx.success_embed(f"Successfully unmuted {toUnmute.display_name}.")
         except:
             raise ctx.bot.util.error_message(f'I cannot unmute {toUnmute.display_name}!')
         finally:
-            del embed, roleid, toUnmute
+            del roleid, toUnmute
 
     @command(['dehoist'])
     @cooldown(10)
@@ -225,7 +223,7 @@ class moderation(commands.Cog):
         if not parser:
             if (not data) or (not data.get("starboard")):
                 channel = await ctx.guild.create_text_channel(name='starboard', topic='Server starboard channel. Every funny/cool posts will be here.')
-                await ctx.send(embed=discord.Embed(f'Created a channel <#{channel.id}>. Every starboard will be set there.\nTo remove starboard, type `{ctx.bot.command_prefix}starboard --remove`.\nBy default, starboard requirements are set to 1 reaction. To increase, type `{ctx.bot.command_prefix}starboard --limit <number>`.', color=discord.Color.green()))
+                await ctx.success_embed(f'Created a channel <#{channel.id}>. Every starboard will be set there.\nTo remove starboard, type `{ctx.bot.command_prefix}starboard --remove`.\nBy default, starboard requirements are set to 1 reaction. To increase, type `{ctx.bot.command_prefix}starboard --limit <number>`.')
                 
                 if not data:
                     self.db.add("dashboard", {
@@ -256,7 +254,7 @@ class moderation(commands.Cog):
             raise ctx.bot.util.error_message("This server does not have any starboard.")
             
         if parser.has("remove"):
-            await ctx.send(embed=discord.Embed(title='Alright. Starboard for this server is deleted. You can delete the channel.', color=discord.Color.green()))
+            await ctx.success_embed('Alright. Starboard for this server is deleted. You can delete the channel.')
             self.db.modify("dashboard", self.db.types.REMOVE, {"serverid": ctx.guild.id}, {"starboard": data["starboard"]})
             self.db.modify("dashboard", self.db.types.REMOVE, {"serverid": ctx.guild.id}, {"star_requirements": data["star_requirements"]})
 
@@ -265,7 +263,7 @@ class moderation(commands.Cog):
                 num = int(parser["limit"])
                 assert num.isnumeric()
                 assert num in range(1, 10)
-                await ctx.send(embed=discord.Embed(title=f'OK. Changed the limit to {num} star reactions.', color=discord.Color.green()))
+                await ctx.success_embed(f'OK. Changed the limit to {num:,} star reactions.')
                 self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"star_requirements": num})
             except:
                 return await ctx.bot.cmds.invalid_args(ctx)
@@ -284,7 +282,7 @@ class moderation(commands.Cog):
             raise ctx.bot.util.error_message("You cannot warn a moderator.")
         reason = params[1][:100] if params else 'No reason provided'
 
-        await ctx.send(embed=discord.Embed(title=f'{user_to_warn.display_name} was warned by {ctx.author.display_name} for the reason *"{reason}"*.', color=discord.Color.green()))
+        await ctx.success_embed(f'{user_to_warn.display_name} was warned by {ctx.author.display_name} for the reason *"{reason}"*.')
         if not self.db.exist("dashboard", {"serverid": ctx.guild.id}):
             self.db.add("dashboard", {
                 "serverid": ctx.guild.id,
@@ -300,7 +298,7 @@ class moderation(commands.Cog):
         source = ctx.bot.Parser.parse_user(ctx, args)
         data = self.db.get("dashboard", {"serverid": ctx.guild.id})
         if (not data) or (source.id not in [int(i.split(".")[0]) for i in data["warns"]]):
-            return await ctx.send(embed=discord.Embed(title=f"{source.display_name} does not have any warns!", color=discord.Color.green()))
+            return await ctx.success_embed(f"{source.display_name} does not have any warns!")
         
         data = [i for i in data["warns"] if source.id == int(i.split(".")[0])]
         warnlist = '\n'.join(map(
@@ -332,9 +330,9 @@ class moderation(commands.Cog):
             is_warned = False
 
         if (not data) or (not is_warned):
-            return await ctx.send(embed=discord.Embed(title=f"Well, {user_to_unwarn.display_name} is not warned ***yet***...", color=discord.Color.red()))
+            raise ctx.bot.util.error_message(f"Well, {user_to_unwarn.display_name} is not warned ***yet***...")
         modified_array = [i for i in data["warns"] if user_to_unwarn.id != int(i.split(".")[0])]
-        await ctx.send(embed=discord.Embed(title=f"Successfully cleared all warns for {user_to_unwarn.display_name}.", color=discord.Color.green()))
+        await ctx.success_embed(f"Successfully cleared all warns for {user_to_unwarn.display_name}.")
         self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"warns": modified_array})
 
     @command(['welcomelog', 'setwelcome'])
@@ -356,13 +354,13 @@ class moderation(commands.Cog):
         if args[0].lower() == 'disable':
             if (not data) or (not data.get("welcome")):
                 raise ctx.bot.util.error_message("This server does not have any welcome channels se")
-            await ctx.send(embed=discord.Embed(title="Welcome channel disabled for this server!", color=discord.Color.green()))
+            await ctx.success_embed("Welcome channel disabled for this server!")
             self.db.modify("dashboard", self.db.types.REMOVE, {"serverid": ctx.guild.id}, {"welcome": data["welcome"]})
             return
 
         try:
             channelid = ctx.bot.Parser.parse_channel(ctx, ' '.join(args)).id
-            await ctx.send(embed=discord.Embed(title=f"Success! set the welcome log to <#{channelid}>!", color=discord.Color.green()))
+            await ctx.success_embed(f"Success! set the welcome log to <#{channelid}>!")
             if not data:
                 self.db.add("dashboard", {
                     "serverid": ctx.guild.id,
@@ -385,13 +383,13 @@ class moderation(commands.Cog):
             if (not data) or (not data.get("autorole")):
                 raise ctx.bot.util.error_message("This server does not have any Auto Role set!")
             
-            await ctx.send(embed=discord.Embed(title="OK! Autorole is disabled for this server!", color=discord.Color.green()))
+            await ctx.success_embed("OK! Autorole is disabled for this server!")
             self.db.modify("dashboard", self.db.types.REMOVE, {"serverid": ctx.guild.id}, {"autorole": data["autorole"]})
             return
 
         try:
             roleid = ctx.bot.Parser.parse_role(ctx, ' '.join(args)).id
-            await ctx.send(embed=discord.Embed(title=f"Success! set the autorole to <@&{roleid}>!", color=discord.Color.green()))
+            await ctx.success_embed(f"Success! set the autorole to <@&{roleid}>!")
             if not data:
                 self.db.add("dashboard", {
                     "serverid": ctx.guild.id,
@@ -413,7 +411,7 @@ class moderation(commands.Cog):
             count = int(args[0])
             assert count in range(21599), "Invalid range."
             await ctx.channel.edit(slowmode_delay=count)
-            return await ctx.send(embed=discord.Embed(title=("Disabled channel slowmode." if (count == 0) else f"Successfully set slowmode for <#{ctx.channel.id}> to {count} seconds."), color=discord.Color.green()))
+            return await ctx.success_embed(("Disabled channel slowmode." if (count == 0) else f"Successfully set slowmode for <#{ctx.channel.id}> to {count} seconds."))
         except Exception as e:
             raise ctx.bot.util.error_message(str(e))
             
@@ -435,7 +433,7 @@ class moderation(commands.Cog):
             del role_array
         try:
             await guy.add_roles(role_array[0])
-            return await ctx.send(embed=discord.Embed(title=f"Successfully added <@&{role.id}> role to {guy.display_name}!", color=discord.Color.green()))
+            return await ctx.success_embed(f"Successfully added <@&{role.id}> role to {guy.display_name}!")
         except:
             raise ctx.bot.util.error_message(f"Oops. Please make sure i have the manage roles perms.")
     
@@ -456,7 +454,7 @@ class moderation(commands.Cog):
             del role_array
         try:
             await guy.remove_roles(role)
-            return await ctx.send(embed=discord.Embed(title=f"Successfully removed <@&{role.id}> role from {guy.display_name}!", color=discord.Color.green()))
+            return await ctx.success_embed(f"Successfully removed <@&{role.id}> role from {guy.display_name}!")
         except:
             raise ctx.bot.util.error_message("Oops. Please make sure i have the manage roles perms.")
 
@@ -474,7 +472,7 @@ class moderation(commands.Cog):
 
         try:
             await ctx.guild.ban(user)
-            return await ctx.send(embed=discord.Embed(title=f"Bonked {user.display_name} from this server.", color=discord.Color.green()))
+            return await ctx.success_embed(f"Bonked {user.display_name} from this server.")
         except:
             raise ctx.bot.util.error_message(f"Please make sure my role is higher so i can ban {user.display_name}.")    
 
@@ -492,7 +490,7 @@ class moderation(commands.Cog):
 
         try:
             await ctx.guild.kick(user)
-            return await ctx.send(embed=discord.Embed(title=f"Kicked {user.display_name} out from this server.", color=discord.Color.green()))
+            return await ctx.success_embed(f"Kicked {user.display_name} out from this server.")
         except:
             raise ctx.bot.util.error_message(f"Please make sure my role is higher so i can kick {user.display_name}.")    
 
@@ -510,9 +508,9 @@ class moderation(commands.Cog):
                 num = int(args[0])
                 assert (num in range(1, 301)), "Invalid arguments, out of range. Must be around 1 and 300."
                 await ctx.channel.purge(limit=num)
-                return await ctx.send(embed=discord.Embed(title=f"Successfully purged {num} messages.", color=discord.Color.green()), delete_after=3)
+                return await ctx.success_embed(f"Successfully purged {num} messages.", delete_after=3)
             deleted_messages = await ctx.channel.purge(check=(lambda x: x.channel == ctx.channel and x.author == ctx.message.mentions[0]), limit=500)
-            return await ctx.send(embed=discord.Embed(title=f"Successfully purged {len(deleted_messages)} messages.", color=discord.Color.green()), delete_after=3)
+            return await ctx.success_embed(f"Successfully purged {len(deleted_messages):,} messages.", delete_after=3)
         except Exception as e:
             raise ctx.bot.util.error_message(str(e))
                 
@@ -524,7 +522,7 @@ class moderation(commands.Cog):
         enable = (not args[0].lower() in ['yes', 'y', 'enable', 'true', 'enabled', 'on'])
         await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=enable)
         try:
-            await ctx.send(embed=discord.Embed(title=f"Successfully {'Locked' if enable else 'Re-opened'} the channel.", description=f"All members with the default role {'can send messages in this channel again.' if enable else 'cannot send messages in this channel'}." + "\nType `" + ctx.bot.command_prefix + f"lock {'enable' if enable else 'disable'}` to {'enable' if enable else 'disable'} this effect again.", color=discord.Color.green()))
+            await ctx.success_embed(f"Successfully {'Locked' if enable else 'Re-opened'} the channel.", description=f"All members with the default role {'can send messages in this channel again.' if enable else 'cannot send messages in this channel'}." + "\nType `" + ctx.bot.command_prefix + f"lock {'enable' if enable else 'disable'}` to {'enable' if enable else 'disable'} this effect again.")
         except: return
     
     @command(['hidechannel', 'hide-channel'])
@@ -535,7 +533,7 @@ class moderation(commands.Cog):
         enable = (not args[0].lower() in ['yes', 'y', 'enable', 'true', 'enabled', 'on'])
         await ctx.channel.set_permissions(ctx.guild.default_role, read_messages=enable)
         try:
-            await ctx.send(embed=discord.Embed(title=f"Successfully {'Hide' if enable else 'Re-opened'} the channel.", description=f"All members with the default role {'can see messages in this channel again.' if enable else 'cannot read messages in this channel/see messages in this channel'}." + "\nType `" + ctx.bot.command_prefix + f"hide {'enable' if enable else 'disable'}` to {'enable' if enable else 'disable'} this effect again.", color=discord.Color.green()))
+            await ctx.success_embed(f"Successfully {'Hide' if enable else 'Re-opened'} the channel.", description=f"All members with the default role {'can see messages in this channel again.' if enable else 'cannot read messages in this channel/see messages in this channel'}." + "\nType `" + ctx.bot.command_prefix + f"hide {'enable' if enable else 'disable'}` to {'enable' if enable else 'disable'} this effect again.")
         except:
             return
     
@@ -748,7 +746,7 @@ class moderation(commands.Cog):
                 assert res
             except:
                 raise ctx.bot.util.error_message(f"Please add a emoji after the `{ctx.bot.command_prefix}emoji enlarge`")
-            return await ctx.bot.util.send_image(ctx, res)
+            return await ctx.send_image(res)
         return await ctx.bot.cmds.invalid_args(ctx)
     
     @command(['guild'])
