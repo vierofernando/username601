@@ -11,6 +11,11 @@ feel free to contribute!
 - [ImageMagick executable](https://www.imagemagick.org/)
 - All pip packages in `requirements.txt`
 
+## Gists
+These are snippets of code from the bot that you can use (well, bug-free)<br>
+- [Argument Parser](https://gist.github.com/vierofernando/004372b352f106ba3a3ce8335b6e5b63) A class that parses arguments (useful for commands)
+- [Simple Discord Embed Paginator](https://gist.github.com/vierofernando/42d29912a7177beff3b11fd652a2c931) A simple paginator for discord embeds.
+
 ## Links
 - [support server](https://discord.com/HhAPkD8)
 - [official website](https://601.vierofernando.repl.co/)
