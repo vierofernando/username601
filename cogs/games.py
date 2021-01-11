@@ -28,17 +28,17 @@ class games(commands.Cog):
         data = choice(self.words)
         
         if parser.has_multiple("reverse", "reversed"):
-            answer, message = choice([data['word'], data['word'][::-1]]), "Send the reversed version of the text below!"
+            answer, message = choice([data, data[::-1]]), "Send the reversed version of the text below!"
             buffer = ctx.bot.Image.text(answer[::-1])
         elif parser.has_multiple("index", "alphabet", "alpha"):
-            answer, buffer = choice(list(data['word'])), ctx.bot.Image.text(data['word'])
-            index = data['word'].index(answer)
+            answer, buffer = choice(list(data)), ctx.bot.Image.text(data)
+            index = data.index(answer)
             message = f"Find the {index + 1}{(['st', 'nd', 'rd', 'th'][index] if index < 4 else 'th')} alphabet in this word!"
             del index
         elif parser.has_multiple("bot", "captcha"):
-            answer, message, buffer = data['word'], "Are you a bot? Solve the captcha below!", ctx.bot.Image.captcha(data['word'])
+            answer, message, buffer = data, "Are you a bot? Solve the captcha below!", ctx.bot.Image.captcha(data)
         else:
-            answer, message, buffer = data['word'], "Send the text displayed here!", ctx.bot.Image.text(data['word'])
+            answer, message, buffer = data, "Send the text displayed here!", ctx.bot.Image.text(data)
         
         a = time()
         await ctx.send(message, file=discord.File(buffer, "fast.png"))
