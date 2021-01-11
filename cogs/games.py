@@ -20,7 +20,7 @@ class games(commands.Cog):
         self.words = tuple(loads(open("./assets/json/words.json", "r").read()))
 
     @command()
-    @cooldown(8)
+    @cooldown(8, channel_wide=True)
     async def fast(self, ctx, *args):
         await ctx.trigger_typing()
         parser = ctx.bot.Parser(args)
@@ -59,7 +59,7 @@ class games(commands.Cog):
         del message, wait, a, buffer, data, answer, embed, parser
 
     @command(['ttt'])
-    @cooldown(15)
+    @cooldown(15, server_wide=True)
     @require_args()
     async def tictactoe(self, ctx, *args):
         user = ctx.bot.Parser.parse_user(ctx, args)
@@ -278,7 +278,7 @@ class games(commands.Cog):
         return await ctx.bot.cmds.invalid_args(ctx)
 
     @command(['rockpaperscissors'])
-    @cooldown(5)
+    @cooldown(5, channel_wide=True)
     async def rps(self, ctx):
         game = ctx.bot.rps(ctx)
         res = await game.play()
@@ -312,7 +312,7 @@ class games(commands.Cog):
                 self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": prize})
 
     @command(['guessinggame', 'guessing-game'])
-    @cooldown(10)
+    @cooldown(10, channel_wide=True)
     async def guess(self, ctx, *args):
         try:
             assert bool(args)
@@ -344,7 +344,7 @@ class games(commands.Cog):
             raise ctx.bot.util.error_message(str(e))
 
     @command()
-    @cooldown(4)
+    @cooldown(4, channel_wide=True)
     async def mathquiz(self, ctx):
         quiz = ctx.bot.MathQuiz()
         quiz.generate_question()
@@ -375,7 +375,7 @@ class games(commands.Cog):
         return await message.edit(embed=discord.Embed(title=f"Wrong. The answer is {quiz.answer}", color=discord.Color.red()))
 
     @command()
-    @cooldown(60)
+    @cooldown(60, server_wide=True)
     async def hangman(self, ctx):
         await ctx.trigger_typing()
         
@@ -392,7 +392,7 @@ class games(commands.Cog):
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 
     @command()
-    @cooldown(2)
+    @cooldown(2, channel_wide=True)
     async def slot(self, ctx):
         slot = ctx.bot.slot()
         reward = await slot.play(ctx)
@@ -406,7 +406,7 @@ class games(commands.Cog):
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 
     @command()
-    @cooldown(30)
+    @cooldown(30, server_wide=True)
     async def trivia(self, ctx, *args):
         await ctx.trigger_typing()
         try:

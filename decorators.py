@@ -6,8 +6,8 @@ def command(aliases: list = None):
         return commands.command(pass_context=True)
     return commands.command(pass_context=True, aliases=aliases)
 
-def cooldown(amount: int):
-    return commands.cooldown(1, amount, commands.BucketType.user)
+def cooldown(amount: int, channel_wide: bool = False, server_wide: bool = False):
+    return commands.cooldown(1, amount, getattr(commands.BucketType, "guild" if server_wide else ("channel" if channel_wide else "user")))
 
 def require_args(count: int = 1, name: str = None):
     async def predicate(ctx):
