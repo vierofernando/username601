@@ -4,6 +4,7 @@ from decorators import *
 from random import randint, choice
 from io import BytesIO
 from gc import collect
+from json import loads
 from time import time
 
 class games(commands.Cog):
@@ -15,6 +16,8 @@ class games(commands.Cog):
             ("num", "number"): ("GuessMyNumber", (), "play", (c,)),
             ("flag", "country-flag", "flags"): ("GuessTheFlag", (c,), "start", ())
         })
+        
+        self.words = loads(open("./assets/json/words.json", "r").read())
 
     @command()
     @cooldown(8)
@@ -22,11 +25,7 @@ class games(commands.Cog):
         await ctx.trigger_typing()
         parser = ctx.bot.Parser(args)
         parser.parse()
-        
-        data = await ctx.bot.util.request(
-            "https://useless-api.vierofernando.repl.co/randomword",
-            json=True
-        )
+        data = choice(self.words)
         
         if parser.has_multiple("reverse", "reversed"):
             answer, message = choice([data['word'], data['word'][::-1]]), "Send the reversed version of the text below!"
@@ -380,7 +379,7 @@ class games(commands.Cog):
     async def hangman(self, ctx):
         await ctx.trigger_typing()
         
-        game = ctx.bot.Hangman()
+        game = ctx.bot.Hangman(ctx)
         await game.initiate()
         result = await game.play(ctx)
         del game

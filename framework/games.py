@@ -28,15 +28,12 @@ class GuessTheFlag:
         return True
 
 class Hangman:
-    def __init__(self, session=None):
+    def __init__(self, ctx, session=None):
         self.session = session if session else ClientSession()
         self.tries = 0
+        self.ctx = ctx
+        self.word = choice(ctx.bot.get_cog("games").words)
         self.wrong_letters = []
-    
-    async def initiate(self):
-        result = await self.session.get("https://useless-api.vierofernando.repl.co/randomword")
-        result = await result.json()
-        self.word = result['word']
         self.blacklisted = ["\_"] * len(self.word)
 
     def process_input(self, text: str) -> str:
@@ -52,24 +49,24 @@ class Hangman:
                 self.blacklisted[i] = text.upper()
         return f"Found {list(self.word).count(text)} matches in the text!"
 
-    async def play(self, ctx):
+    async def play(self):
         nl = "\n"
-        main_message = await ctx.send(embed=Embed(title="Hangman", description=f"**{' '.join(self.blacklisted)}**{nl}Wrong words: <none>{nl}Turns left: `{7 - self.tries}`", color=ctx.me.color).set_image(url=f"https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{7 - self.tries}.png"))
+        main_message = await self.ctx.send(embed=Embed(title="Hangman", description=f"**{' '.join(self.blacklisted)}**{nl}Wrong words: <none>{nl}Turns left: `{7 - self.tries}`", color=self.ctx.me.color).set_image(url=f"https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{7 - self.tries}.png"))
 
         while self.tries <= 7:
-            wait_for = ctx.bot.WaitForMessage(ctx, timeout=25.0, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and len(x.content) == 1 and x.content.isalpha()))
+            wait_for = self.ctx.bot.WaitForMessage(self.ctx, timeout=25.0, check=(lambda x: x.channel == self.ctx.channel and x.author == self.ctx.author and len(x.content) == 1 and x.content.isalpha()))
             response = await wait_for.get_message()
             if not response:
-                await ctx.send(f"{ctx.author.display_name} went AFK. so i closed the game.")
+                await self.ctx.send(f"{self.ctx.author.display_name} went AFK. so i closed the game.")
                 return False
 
             if "\_" not in self.blacklisted:
-                await ctx.send(f"{ctx.author.mention}, You are correct! The answer is ***{self.word}***.", allowed_mentions=ctx.bot.util.no_mentions)
+                await self.ctx.send(f"{self.ctx.author.mention}, You are correct! The answer is ***{self.word}***.", allowed_mentions=self.ctx.bot.util.no_mentions)
                 return True
             message = self.process_input(response.content.lower())
-            await main_message.edit(embed=Embed(title=message, description=f"**{' '.join(self.blacklisted)}**{nl}Wrong words: {', '.join(self.wrong_letters)}{nl}Turns left: `{7 - self.tries}`", color=ctx.me.color).set_image(url=f"https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{7 - self.tries}.png"))
+            await main_message.edit(embed=Embed(title=message, description=f"**{' '.join(self.blacklisted)}**{nl}Wrong words: {', '.join(self.wrong_letters)}{nl}Turns left: `{7 - self.tries}`", color=self.ctx.me.color).set_image(url=f"https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{7 - self.tries}.png"))
             self.tries += 1
-        await ctx.send(f"{ctx.author.mention}, You lost the game. The answer is ***{self.word}***.", allowed_mentions=ctx.bot.util.no_mentions)
+        await self.ctx.send(f"{self.ctx.author.mention}, You lost the game. The answer is ***{self.word}***.", allowed_mentions=self.ctx.bot.util.no_mentions)
         return False
 
 class Slot:
