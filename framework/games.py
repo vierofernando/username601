@@ -1,9 +1,9 @@
 from aiohttp import ClientSession
 from random import choice, randint
 from discord import Embed, Color
-from random import randint, choice
 from asyncio import sleep
 from json import load
+from time import time
 
 class GuessTheFlag:
     JSON_DATA = load(open("./assets/json/flags.json"))
@@ -29,12 +29,13 @@ class GuessTheFlag:
 
 class Hangman:
     def __init__(self, ctx, session=None):
-        self.session = session if session else ClientSession()
+        self.session = session or ClientSession()
         self.tries = 0
         self.ctx = ctx
         self.word = choice(ctx.bot.get_cog("games").words)
         self.wrong_letters = []
         self.blacklisted = ["\_"] * len(self.word)
+        self.ratelimit = 0
 
     def process_input(self, text: str) -> str:
         if (text in self.wrong_letters) or (text in self.blacklisted):
@@ -51,12 +52,16 @@ class Hangman:
 
     async def play(self):
         nl = "\n"
-        main_message = await self.ctx.send(embed=Embed(title="Hangman", description=f"**{' '.join(self.blacklisted)}**{nl}Wrong words: <none>{nl}Turns left: `{7 - self.tries}`", color=self.ctx.me.color).set_image(url=f"https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{7 - self.tries}.png"))
+        main_message = await self.ctx.send(embed=Embed(title="Hangman", description=f"**{' '.join(self.blacklisted)}**{nl}Wrong words: <none>{nl}Turns left: `{8 - self.tries}`", color=self.ctx.me.color).set_image(url=f"https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{self.tries}.png"))
 
         while self.tries <= 7:
             wait_for = self.ctx.bot.WaitForMessage(self.ctx, timeout=25.0, check=(lambda x: x.channel == self.ctx.channel and x.author == self.ctx.author and len(x.content) == 1 and x.content.isalpha()))
             response = await wait_for.get_message()
-            if not response:
+            if ((time() - self.ratelimit) < 1):
+                continue
+            self.ratelimit = time()
+            
+            if (not response):
                 await self.ctx.send(f"{self.ctx.author.display_name} went AFK. so i closed the game.")
                 return False
 
@@ -64,8 +69,8 @@ class Hangman:
                 await self.ctx.send(f"{self.ctx.author.mention}, You are correct! The answer is ***{self.word}***.", allowed_mentions=self.ctx.bot.util.no_mentions)
                 return True
             message = self.process_input(response.content.lower())
-            await main_message.edit(embed=Embed(title=message, description=f"**{' '.join(self.blacklisted)}**{nl}Wrong words: {', '.join(self.wrong_letters)}{nl}Turns left: `{7 - self.tries}`", color=self.ctx.me.color).set_image(url=f"https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{7 - self.tries}.png"))
             self.tries += 1
+            await main_message.edit(embed=Embed(title=message, description=f"**{' '.join(self.blacklisted)}**{nl}Wrong words: {', '.join(self.wrong_letters)}{nl}Turns left: `{8 - self.tries}`", color=self.ctx.me.color).set_image(url=f"https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{self.tries}.png"))
         await self.ctx.send(f"{self.ctx.author.mention}, You lost the game. The answer is ***{self.word}***.", allowed_mentions=self.ctx.bot.util.no_mentions)
         return False
 
@@ -122,7 +127,7 @@ class GuessMyNumber:
 class Trivia:
     def __init__(self, topic: str, session = None) -> None:
         self.topic = topic
-        self.session = session if session else ClientSession()
+        self.session = session or ClientSession()
 
     async def generate_question(self, ctx) -> dict:
         result = await self.session.get(f"https://wiki-quiz.herokuapp.com/v1/quiz?topics={ctx.bot.util.encode_uri(self.topic)}&limit=10")
@@ -240,7 +245,7 @@ class MathQuiz:
 class GeographyQuiz:
     def __init__(self, session = None) -> None:
         """ The class that generates geography kind of quizzes using the restcountries API. """
-        self.session = session if session else ClientSession()
+        self.session = session or ClientSession()
         self._topics = { # {key: placeholder}
             'capital': 'Capital City',
             'region': 'Region',

@@ -17,7 +17,7 @@ class games(commands.Cog):
             ("flag", "country-flag", "flags"): ("GuessTheFlag", (c,), "start", ())
         })
         
-        self.words = loads(open("./assets/json/words.json", "r").read())
+        self.words = tuple(loads(open("./assets/json/words.json", "r").read()))
 
     @command()
     @cooldown(8)
@@ -379,9 +379,8 @@ class games(commands.Cog):
     async def hangman(self, ctx):
         await ctx.trigger_typing()
         
-        game = ctx.bot.Hangman(ctx)
-        await game.initiate()
-        result = await game.play(ctx)
+        game = ctx.bot.Hangman(ctx, session=ctx.bot.http._HTTPClient__session)
+        result = await game.play()
         del game
         
         if not result:
@@ -411,7 +410,7 @@ class games(commands.Cog):
     async def trivia(self, ctx, *args):
         await ctx.trigger_typing()
         try:
-            trivia = ctx.bot.Trivia(" ".join(args)[:50] if args else "Apple")
+            trivia = ctx.bot.Trivia(" ".join(args)[:50] if args else "Apple", session=ctx.bot.http._HTTPClient__session)
         except Exception as e:
             raise ctx.bot.util.error_message(str(e))
         correct = await trivia.start(ctx)

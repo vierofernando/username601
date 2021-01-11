@@ -2,8 +2,8 @@ import discord
 from random import randint, choice
 from discord.ext import commands
 from decorators import *
-from io import BytesIO
 from json import loads
+from io import BytesIO
 from time import time
 from datetime import datetime as t
 from re import search
@@ -12,9 +12,9 @@ class utils(commands.Cog):
     def __init__(self):
         self._fact_urls = {
             "cat": ("https://catfact.ninja/fact", "fact", None),
-            "dog": ("https://dog-api.kinduff.com/api/facts", "facts", 0),
-            "fun": ("https://useless-api--vierofernando.repl.co/randomfact", "fact", None)
+            "dog": ("https://dog-api.kinduff.com/api/facts", "facts", 0)
         }
+        self.facts = tuple(loads(open("./assets/json/facts.json", "r").read()))
         self.replaceWith = "x>*;.>*;?>*;?>/;?>*;plus>+;minus>-;divide>/;multiply>*;divide by>/;times>*;subtract>-;add>+;power>**;powers>**;^>**"
 
     def python_calc(self, args):
@@ -294,7 +294,12 @@ class utils(commands.Cog):
         await embed.send()
         del embed, data
 
-    @command(['dogfact', 'funfact'])
+    @command(['fun-fact'])
+    @cooldown(5)
+    async def funfact(self, ctx):
+        return await ctx.success_embed(choice(self.facts))
+
+    @command(['dogfact'])
     @cooldown(6)
     async def catfact(self, ctx):
         key = ctx.bot.util.get_command_name(ctx)[:-4]
