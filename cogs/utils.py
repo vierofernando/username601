@@ -115,7 +115,7 @@ class utils(commands.Cog):
             pingtime = round((time() - a)*1000)
             embed = ctx.bot.Embed(ctx, title="That website is up.", fields={"Ping": f"{pingtime}ms", "HTTP Status Code": f"{ping.status} {ctx.bot.util.status_codes[str(ping.status)]}", "Content Type": ping.headers['Content-Type']}, color=discord.Color.green())
             await embed.send()
-            del embed, pingtime, ping, a, web, wait
+            del embed, pingtime, ping, a, web
         except:
             embed = ctx.bot.Embed(ctx, title="That website is down.", color=discord.Color.red())
             await embed.send()
