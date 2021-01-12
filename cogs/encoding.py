@@ -2,10 +2,57 @@ import discord
 from discord.ext import commands
 from decorators import *
 from io import BytesIO
+from json import loads
 
 class encoding(commands.Cog):
     def __init__(self):
+        self.ciphers = loads(open("./assets/json/encode.json", "r").read())
         pass
+    
+    @command(["morse-code"])
+    @cooldown(5)
+    @require_args()
+    async def morse(self, ctx, *args):
+        total = ""
+        for char in " ".join(args)[:500].lower():
+            total += " " + self.ciphers.get(char, { "morse": char })["morse"]
+        return await ctx.send(total[1:])
+    
+    @command(["blind"])
+    @cooldown(5)
+    @require_args()
+    async def braille(self, ctx, *args):
+        total = ""
+        for char in " ".join(args)[:500].lower():
+            total += self.ciphers.get(char, { "braille": char })["braille"]
+        return await ctx.send(total)
+    
+    @command(["curve", "curve-text"])
+    @cooldown(5)
+    @require_args()
+    async def cursive(self, ctx, *args):
+        total = ""
+        for char in " ".join(args)[:500].lower():
+            total += self.ciphers.get(char, { "cursive": char })["cursive"]
+        return await ctx.send(total)
+    
+    @command(["fancy-text"])
+    @cooldown(5)
+    @require_args()
+    async def fancy(self, ctx, *args):
+        total = ""
+        for char in " ".join(args)[:500].lower():
+            total += self.ciphers.get(char, { "fancy": char })["fancy"]
+        return await ctx.send(total)
+    
+    @command(["upside-down", "upsidedown", "flip-text", "textflip"])
+    @cooldown(5)
+    @require_args()
+    async def fliptext(self, ctx, *args):
+        total = ""
+        for char in " ".join(args)[:500].lower():
+            total += self.ciphers.get(char, { "upside-down": char })["upside-down"]
+        return await ctx.send(total)
     
     @command()
     @cooldown(4)
@@ -58,83 +105,7 @@ class encoding(commands.Cog):
         await ctx.send(file=discord.File(BytesIO(bytes(string, 'utf-8')), "asciified.txt"))
         del string, image, parser, hastebin
         return
-    
-    
-    @command()
-    @cooldown(5)
-    @require_args()
-    async def morse(self, ctx, *args):
-        await ctx.trigger_typing()
-        res = await ctx.bot.util.request(
-            'https://useless-api.vierofernando.repl.co/encode',
-            json=True,
-            text=str(" ".join(args))[:100]
-        )
-        if not res:
-            raise ctx.bot.util.error_message("The API is temporarily down. Please try again later.")
 
-        await ctx.send(res['ciphers']['morse'])
-    
-    @command()
-    @cooldown(5)
-    @require_args()
-    async def fliptext(self, ctx, *args):
-        await ctx.trigger_typing()
-        res = await ctx.bot.util.request(
-            'https://useless-api.vierofernando.repl.co/encode',
-            json=True,
-            text=str(" ".join(args))[:100]
-        )
-        if not res:
-            raise ctx.bot.util.error_message("The API is temporarily down. Please try again later.")
-        
-        await ctx.send(res['styles']['upside-down'])
-    
-    @command()
-    @cooldown(5)
-    @require_args()
-    async def fancy(self, ctx, *args):
-        await ctx.trigger_typing()
-        res = await ctx.bot.util.request(
-            'https://useless-api.vierofernando.repl.co/encode',
-            json=True,
-            text=str(" ".join(args))[:100]
-        )
-        if not res:
-            raise ctx.bot.util.error_message("The API is temporarily down. Please try again later.")
-        
-        await ctx.send(res['styles']['fancy'])
-    
-    @command()
-    @cooldown(5)
-    @require_args()
-    async def cursive(self, ctx, *args):
-        await ctx.trigger_typing()
-        res = await ctx.bot.util.request(
-            'https://useless-api.vierofernando.repl.co/encode',
-            json=True,
-            text=str(" ".join(args))[:100]
-        )
-        if not res:
-            raise ctx.bot.util.error_message("The API is temporarily down. Please try again later.")
-        
-        await ctx.send(res['styles']['cursive'])
-    
-    @command()
-    @cooldown(5)
-    @require_args()
-    async def braille(self, ctx, *args):
-        await ctx.trigger_typing()
-        res = await ctx.bot.util.request(
-            'https://useless-api.vierofernando.repl.co/encode',
-            json=True,
-            text=str(" ".join(args))[:100]
-        )
-        if not res:
-            raise ctx.bot.util.error_message("The API is temporarily down. Please try again later.")
-        
-        await ctx.send(res['braille'])
-    
     @command()
     @cooldown(2)
     @require_args()
