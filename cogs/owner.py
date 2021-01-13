@@ -2,6 +2,7 @@ import discord
 import sys
 import os
 import gc
+from time import time
 from traceback import format_exc
 from random import randint
 from decorators import *
@@ -23,37 +24,55 @@ class owner(commands.Cog):
         ]
         self.db = client.db
     
-    # def _prepare(self, string):
-    #     string = string.strip("```")
-    #     if string.startswith("py\n"):
-    #         string = string[3:]
-    #     print(''.join([f"\n\t{i}" for i in string.split("\n")]))
-    #     return ''.join([f"\n\t{i}" for i in string.split("\n")])
-    # 
-    # async def evaluate(self, cmd, args):
-    #     exec(f"async def func():\n\t{self._prepare(cmd)}", args)
-    #     print(f"async def func():\n\t{self._prepare(cmd)}")
-    #     return (await eval("func()", args))
-    # 
-    # @command(["eval", "ex"])
-    # @owner_only()
-    # async def _eval(self, ctx, *args):
-    #     try:
-    #         command = " ".join(ctx.message.content.split()[1:])
-    #         response = await self.evaluate(command, {
-    #             "this": self, # cursed
-    #             "ctx": ctx,
-    #             "discord": discord,
-    #             "sauce": getsource,
-    #             "sys": sys,
-    #             "os": os
-    #         })
-    #         if isinstance(response, discord.Message) or (response is None):
-    #             return
-    #         return await ctx.send("```py\n{}```".format(response))
-    #     except:
-    #         return await ctx.send("An error occured: ```py\n{}```".format(format_exc().replace("/app/", "/somebody/once/told/me/")))
+    def resolve_variable(self, variable):
+        if hasattr(variable, "__iter__"):
+            var_length = len(list(variable))
+            if (var_length > 100) and (not isinstance(variable, str)):
+                return f"<a {type(variable).__name__} iterable with more than 100 values ({var_length})>"
+            elif (not var_length):
+                return f"<an empty {type(variable).__name__} iterable>"
         
+        if (not variable) and (not isinstance(variable, bool)):
+            return f"<an empty {type(variable).__name__} object>"
+        return (variable if (len(f"{variable}") <= 1000) else f"<a long {type(variable).__name__} object with the length of {len(f'{variable}'):,}>")
+    
+    def prepare(self, string):
+        arr = string.strip("```").replace("py\n", "").replace("python\n", "").split("\n")
+        if not arr[::-1][0].replace(" ", "").startswith("return"):
+            arr[len(arr) - 1] = "return " + arr[::-1][0]
+        return "".join(f"\n\t{i}" for i in arr)
+    
+    @command(["eval", "ex", "ev", "code"])
+    @owner_only()
+    async def _eval(self, ctx, *, code: str):
+        silent = ("-s" in code)
+        
+        code = self.prepare(code.replace("-s", ""))
+        args = {
+            "discord": discord,
+            "sauce": getsource,
+            "sys": sys,
+            "os": os,
+            "imp": __import__,
+            "this": self,
+            "ctx": ctx
+        }
+        
+        try:
+            exec(f"async def func():{code}", args)
+            a = time()
+            response = await eval("func()", args)
+            if silent or (response is None) or isinstance(response, discord.Message):
+                del args, code, silent
+                return gc.collect()
+            
+            await ctx.send(f"```py\n{self.resolve_variable(response)}````{type(response).__name__} | {(time() - a) / 1000} ms`")
+        except Exception as e:
+            await ctx.send(f"Error occurred:```\n{type(e).__name__}: {str(e)}```")
+        
+        del args, code, silent
+        gc.collect()
+    
     @command()
     @owner_only()
     async def selfpurge(self, ctx):
@@ -103,48 +122,48 @@ class owner(commands.Cog):
         self.db.modify("config", self.db.types.CHANGE, {"h": True}, {"bans": [i for i in data if int(args[0]) != int(i.split("|")[0])]})
         await ctx.send("unbannum'd")
     
-    @command(['ex', 'eval'])
-    @cooldown(1)
-    async def evaluate(self, ctx, *args): # this code can be messy because its owner and i dont care
-        iwanttostealsometoken = False
-        parser = ctx.bot.Parser(args)
-        parser.parse()
-        
-        if ctx.author.id == ctx.bot.util.owner_id:
-            if parser.has("simple"):
-                parser.shift("simple")
-                value = eval(" ".join(parser.other))
-                return await ctx.send(str(value))
-            
-            try:
-                time_then = t.now().timestamp()
-                res = eval(" ".join(parser.other))
-                time = (t.now().timestamp() - time_then) * 1000
-                for i in self.protected_files:
-                    if i.lower() in str(res).lower(): res = totallyrealtoken
-                    elif i.lower() in ' '.join(args).lower():
-                        res = totallyrealtoken
-                if parser.has("silent"):
-                    del parser, time, res
-                    return
-                if isawaitable(res): await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+' '.join(parser.other)+'```**Output:**```py\n'+str(await res)[:1990]+'```\n**Return type:** '+str(type(await res).__name__)+'\n**Execution time: **'+str(time)+' ms.', color=discord.Color.green()))
-                else: await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+' '.join(parser.other)+'```**Output:**```py\n'+str(res)[:1990]+'```\n**Return type:** '+str(type(res).__name__)+'\n**Execution time: **'+str(time)+' ms.', color=discord.Color.green()))
-            except Exception as e:
-                if 'cannot reuse already awaited coroutine' in str(e): return
-                await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+' '.join(parser.other)+'```\nException:```py\n'+str(e)+'```', color=discord.Color.red()), delete_after=5)
-        else:
-            try:
-                time = randint(500, 1000) / 100
-                if 'token' in ''.join(parser.other).lower(): iwanttostealsometoken = True
-                elif 'secret' in ''.join(parser.other).lower(): iwanttostealsometoken = True
-                if iwanttostealsometoken:
-                    return await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+' '.join(parser.other)[:1990]+'```**Output:**```py\n'+totallyrealtoken+'```\n**Return type:** str\n**Execution time:** '+str(time)+' ms.', color=discord.Color.green()))
-                query = ' '.join(parser.other)[:1990].split('(')[0].split('[')[0].split('.')[0].split(' ')[0].split(';')[0]
-                fake_err = f"name '{query}' is not defined"
-                return await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+' '.join(parser.other)+'```\nException:```py\n'+str(fake_err)+'```', color=discord.Color.red()))
-            except Exception as e:
-                print(e)
-                return await ctx.send('there was an error on evaluating that. please use \' instead of "')
+    # @command(['ex', 'eval'])
+    # @cooldown(1)
+    # async def evaluate(self, ctx, *args): # this code can be messy because its owner and i dont care
+    #     iwanttostealsometoken = False
+    #     parser = ctx.bot.Parser(args)
+    #     parser.parse()
+    #     
+    #     if ctx.author.id == ctx.bot.util.owner_id:
+    #         if parser.has("simple"):
+    #             parser.shift("simple")
+    #             value = eval(" ".join(parser.other))
+    #             return await ctx.send(str(value))
+    #         
+    #         try:
+    #             time_then = t.now().timestamp()
+    #             res = eval(" ".join(parser.other))
+    #             time = (t.now().timestamp() - time_then) * 1000
+    #             for i in self.protected_files:
+    #                 if i.lower() in str(res).lower(): res = totallyrealtoken
+    #                 elif i.lower() in ' '.join(args).lower():
+    #                     res = totallyrealtoken
+    #             if parser.has("silent"):
+    #                 del parser, time, res
+    #                 return
+    #             if isawaitable(res): await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+' '.join(parser.other)+'```**Output:**```py\n'+str(await res)[:1990]+'```\n**Return type:** '+str(type(await res).__name__)+'\n**Execution time: **'+str(time)+' ms.', color=discord.Color.green()))
+    #             else: await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+' '.join(parser.other)+'```**Output:**```py\n'+str(res)[:1990]+'```\n**Return type:** '+str(type(res).__name__)+'\n**Execution time: **'+str(time)+' ms.', color=discord.Color.green()))
+    #         except Exception as e:
+    #             if 'cannot reuse already awaited coroutine' in str(e): return
+    #             await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+' '.join(parser.other)+'```\nException:```py\n'+str(e)+'```', color=discord.Color.red()), delete_after=5)
+    #     else:
+    #         try:
+    #             time = randint(500, 1000) / 100
+    #             if 'token' in ''.join(parser.other).lower(): iwanttostealsometoken = True
+    #             elif 'secret' in ''.join(parser.other).lower(): iwanttostealsometoken = True
+    #             if iwanttostealsometoken:
+    #                 return await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+' '.join(parser.other)[:1990]+'```**Output:**```py\n'+totallyrealtoken+'```\n**Return type:** str\n**Execution time:** '+str(time)+' ms.', color=discord.Color.green()))
+    #             query = ' '.join(parser.other)[:1990].split('(')[0].split('[')[0].split('.')[0].split(' ')[0].split(';')[0]
+    #             fake_err = f"name '{query}' is not defined"
+    #             return await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+' '.join(parser.other)+'```\nException:```py\n'+str(fake_err)+'```', color=discord.Color.red()))
+    #         except Exception as e:
+    #             print(e)
+    #             return await ctx.send('there was an error on evaluating that. please use \' instead of "')
 
     @command()
     async def token(self, ctx):

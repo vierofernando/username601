@@ -15,6 +15,7 @@ feel free to contribute!
 These are snippets of code from the bot that you can use (well, bug-free)<br>
 - [Argument Parser](https://gist.github.com/vierofernando/004372b352f106ba3a3ce8335b6e5b63) A class that parses arguments (useful for commands)
 - [Simple Discord Embed Paginator](https://gist.github.com/vierofernando/42d29912a7177beff3b11fd652a2c931) A simple paginator for discord embeds.
+- [Simple Discord.py Eval Cog](https://gist.github.com/vierofernando/c5796a78292b949341c98a5deaee8eda) A discord.py eval cog that supports async, codeblocks, and multilines as inputs.
 
 ## Links
 - [support server](https://discord.com/HhAPkD8)
