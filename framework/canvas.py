@@ -645,6 +645,7 @@ class ProfileCard:
 class UserCard:
     def __init__(self, ctx, member, font_path: str):
         self.bot = ctx.bot
+        self.ctx = ctx
         self.user = member
         self.font_path = font_path
         self.flags = {
@@ -704,9 +705,9 @@ class UserCard:
         background_color = await _thief.get_color(right=True)
         foreground_color = (0, 0, 0) if (sum(background_color) // 3) > 128 else (255, 255, 255)
         lower_brightness = (lambda x: tuple(map(lambda y: y - x, background_color)))
-        big_font = ImageFont.truetype(40)
-        smol_font = ImageFont.truetype(25)
-        tiny_font = ImageFont.truetype(20)
+        big_font =  self.get_font(40)
+        smol_font = self.get_font(25)
+        tiny_font = self.get_font(20)
         title_size = big_font.getsize(self.user.display_name)[0]
         description = f"Created at {str(self.user.created_at)[:-7]} ({self.bot.util.strfsecond(time() - self.user.created_at.timestamp())} ago)" + "\n" + f"Joined at {str(self.user.joined_at)[:-7]} (Position: {self.bot.util.join_position(self.ctx.guild, self.user):,}/{self.ctx.guild.member_count:,})"
         del _thief
@@ -814,6 +815,7 @@ class UserCard:
             self.bot,
             self.font_path,
             self._activity_prefix,
+            self.ctx,
             b
         )
         

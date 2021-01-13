@@ -2,6 +2,7 @@ import discord
 import sys
 import os
 import gc
+from traceback import format_exc
 from random import randint
 from decorators import *
 from discord.ext import commands
@@ -21,6 +22,37 @@ class owner(commands.Cog):
             os.environ['ALEXFLIPNOTE_TOKEN']
         ]
         self.db = client.db
+    
+    # def _prepare(self, string):
+    #     string = string.strip("```")
+    #     if string.startswith("py\n"):
+    #         string = string[3:]
+    #     print(''.join([f"\n\t{i}" for i in string.split("\n")]))
+    #     return ''.join([f"\n\t{i}" for i in string.split("\n")])
+    # 
+    # async def evaluate(self, cmd, args):
+    #     exec(f"async def func():\n\t{self._prepare(cmd)}", args)
+    #     print(f"async def func():\n\t{self._prepare(cmd)}")
+    #     return (await eval("func()", args))
+    # 
+    # @command(["eval", "ex"])
+    # @owner_only()
+    # async def _eval(self, ctx, *args):
+    #     try:
+    #         command = " ".join(ctx.message.content.split()[1:])
+    #         response = await self.evaluate(command, {
+    #             "this": self, # cursed
+    #             "ctx": ctx,
+    #             "discord": discord,
+    #             "sauce": getsource,
+    #             "sys": sys,
+    #             "os": os
+    #         })
+    #         if isinstance(response, discord.Message) or (response is None):
+    #             return
+    #         return await ctx.send("```py\n{}```".format(response))
+    #     except:
+    #         return await ctx.send("An error occured: ```py\n{}```".format(format_exc().replace("/app/", "/somebody/once/told/me/")))
         
     @command()
     @owner_only()

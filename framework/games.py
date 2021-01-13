@@ -62,7 +62,7 @@ class Hangman:
             self.ratelimit = time()
             
             if (not response):
-                await self.ctx.send(f"{self.ctx.author.display_name} went AFK. so i closed the game.")
+                await self.ctx.send(f"{self.ctx.author.display_name} didn't respond to the hangman game for 25 seconds. so i closed the game.")
                 return False
 
             if "\_" not in self.blacklisted:

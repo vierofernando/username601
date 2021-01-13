@@ -9,6 +9,7 @@ from urllib.parse import quote_plus
 from googletrans import LANGUAGES
 from discord.ext import commands
 from subprocess import run, PIPE
+from traceback import format_exc
 from datetime import datetime
 from base64 import b64encode
 from random import choice

@@ -98,7 +98,7 @@ class image(commands.Cog):
         if animated:
             parser.shift("animated")
         
-        url = await ctx.bot.Parser.parse_image(ctx, ' '.join(parser.other))
+        url = await ctx.bot.Parser.parse_image(ctx, parser.other)
         if animated:
             del parser, animated
             buffer = await ctx.bot.Image.explode_animated(url, True)
@@ -119,7 +119,7 @@ class image(commands.Cog):
         if animated:
             parser.shift("animated")
         
-        url = await ctx.bot.Parser.parse_image(ctx, ' '.join(parser.other))
+        url = await ctx.bot.Parser.parse_image(ctx, parser.other)
         if animated:
             del parser, animated
             buffer = await ctx.bot.Image.explode_animated(url)

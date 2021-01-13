@@ -277,7 +277,7 @@ class Parser:
                 return _emoji
         
         user = Parser.parse_user(ctx, args)
-        return str(user.avatar_url_as(format=("gif" if ((not default_to_png) or user.is_avatar_animated()) else "png"), size=size))
+        return str(user.avatar_url_as(format=("png" if (default_to_png or (not ctx.author.is_avatar_animated())) else "gif"), size=size))
 
     @staticmethod
     def parse_user(ctx, args, allownoargs=True):
@@ -288,7 +288,7 @@ class Parser:
 
         user = Parser.parse_user(ctx, *args)
         """
-        args = tuple(args)
+        
         if not args:
             if not allownoargs:
                 raise Excception("Please add a mention, user ID, or a user name.")
@@ -300,8 +300,9 @@ class Parser:
 
         try:
             if args[0].isnumeric():
-                _temp = guild_members.index(int(args[0]))
-                return ctx.guild.get_member(int(args[0]))
+                _member = ctx.guild.get_member(int(args[0]))
+                if _member:
+                    return _member
         except:
             return ctx.author
         

@@ -304,7 +304,7 @@ class economy(commands.Cog):
             elif parser.has_multiple("color", "set-color", "col"):
                 try:
                     parser.shift_multiple("color", "set-color", "col")
-                    color = ctx.bot.Parser.parse_color(' '.join(parser.other))
+                    color = ctx.bot.Parser.parse_color(parser.other)
                     assert bool(color)
                     data = self.db.get("economy", {"userid": ctx.author.id})
                     assert bool(data), f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."

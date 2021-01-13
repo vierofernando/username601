@@ -32,13 +32,15 @@ def make_lego_image(thumbnail_image, brick_image):
     if thumbnail_image.mode not in ["RGB", "RGBA"]:
         thumbnail_image = thumbnail_image.convert("RGB")
     lego_image = Image.new(thumbnail_image.mode, (base_width * brick_width, base_height * brick_height), "white" if thumbnail_image.mode != "RGBA" else (0, 0, 0, 0))
+    _load = thumbnail_image.load()
     for brick_x in range(base_width):
         for brick_y in range(base_height):
-            color = thumbnail_image.getpixel((brick_x, brick_y))
+            color = _load[brick_x, brick_y]
             if color == (0, 0, 0, 0):
                 continue
             
             lego_image.paste(apply_color_overlay(brick_image, color[:3]), (brick_x * brick_width, brick_y * brick_height))
+    del thumbnail_image, base_height, base_width, _load
     return lego_image
 
 def get_new_size(base_image, brick_image, size=None):
