@@ -1,3 +1,4 @@
+# IMPORT EVERY SINGLE MODULE FROM PYTHON FIRST
 from discord import Embed, Color, File, __version__, Forbidden, AllowedMentions, gateway
 from platform import python_build, python_compiler, uname
 from aiohttp import ClientSession, ClientTimeout
@@ -16,8 +17,38 @@ from random import choice
 from json import loads
 from io import BytesIO
 from time import time
+from enum import Enum
 from PIL import Image
+import re
 import gc
+
+class LengthFormats(Enum):
+    KILOMETERS  = (("km", "kilometer", "kilometre", "kilometers", "kilometres"), (
+        None, "*1000", "*100000", "*1000000", "/1.609", "*1094", "*3281", "*39370"
+    ))
+    METERS      = (("m", "meter", "metre", "meters", "metres"), (
+        "/1000", None, "*100", "*1000", "/1609", "*1.094", "*3.281", "*39.37"
+    ))
+    CENTIMETERS = (("cm", "centimeter", "centimetre", "centimeters", "centimetres"), (
+        "/100000", "/100", None, "*10", "/160934", "/91.44", "/30.48", "/2.54"
+    ))
+    MILLIMETERS = (("mm", "millimeter", "millimetre", "millimeters", "millimetres"), (
+        "/1000000", "/1000", "/10", None, "/1609000", "/914", "/305", "/25.4"
+    ))
+    MILES       = (("mile", "mi.", "miles", "mi"), (
+        "*1.609", "*1609", "*160934", "*1609000", None, "*1760", "*5280", "*63360"
+    ))
+    YARDS       = (("yard", "yards", "yd"), (
+        "/1094", "/1.094", "*91.44", "*914", "/1760", None, "*3", "*36"
+    ))
+    FOOT        = (("feet", "foot", "ft", "ft."), (
+        "/3281", "/3.281", "*30.48", "*305", "/5280", "/3", None, "*12"
+    ))
+    INCHES      = (("inch", "inches"), (
+        "/39370", "/39.37", "*2.54", "*25.4", "/63360", "/36", "/12", None
+    ))
+    
+    _ALL = ("KILOMETERS", "METERS", "CENTIMETERS", "MILLIMETERS", "MILES", "YARDS", "FOOT", "INCHES")
 
 class error_message(Exception): pass
 class Util:
@@ -131,6 +162,26 @@ class Util:
         gateway.DiscordWebSocket.identify = loc['identify']
         del m, loc, source_, s, indent
         __import__("gc").collect()
+
+    def convert_length(self, string):
+        """ Does a math like `10 meters to kilometers` """
+        try:
+            string = string.lower().replace(" ", "")
+            formats = re.sub(r"\d+", "", string)
+            number = int(string.replace(formats, "").strip(",."))
+            first_format, second_format = formats.split("to")
+            assert first_format != second_format
+            assert (-999999 < number < 999999999)
+            
+            for format in LengthFormats._ALL.value:
+                if first_format in getattr(LengthFormats, format).value[0]:
+                    first_format = getattr(LengthFormats, format).value[1]
+                elif second_format in getattr(LengthFormats, format).value[0]:
+                    second_format = format
+            
+            return f'{eval(f"{number}{first_format[LengthFormats._ALL.value.index(second_format)]}")} {second_format.lower()}'
+        except:
+            raise error_message("Unsupported or invalid calculation.")
 
     def toggle_debug_mode(self) -> bool:
         """ Toggles debug mode. Returns a bool whether debug mode is currently ON or not. """

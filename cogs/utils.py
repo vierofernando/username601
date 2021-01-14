@@ -206,6 +206,9 @@ class utils(commands.Cog):
     @cooldown(3)
     @require_args()
     async def calc(self, ctx, *args):
+        if "to" in "".join(args).lower():
+            return await ctx.success_embed(ctx.bot.util.convert_length(''.join(args)))
+    
         equation = self.python_calc(args)
         if search("[a-zA-Z]", equation): raise ctx.bot.util.error_message("Please do NOT input something that contains letters. This is not eval, nerd.")
         try:
