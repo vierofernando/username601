@@ -36,7 +36,7 @@ class apps(commands.Cog):
                 title=f"Weather Forecast for {location_name[:70]} (Today)",
                 fields={
                     "Current Condition": data['weatherdata']['weather'][0]['current']['@skytext'],
-                    "Temperature": f"**Temperature: **{data['weatherdata']['weather'][0]['current']['@temperature']} °{_format}{nl}**Feels Like: **{data['weatherdata']['weather'][0]['current']['@feelslike']} °{_format}",
+                    "Temperature": f"**Temperature: **{data['weatherdata']['weather'][0]['current']['@temperature']} °{_format}\n**Feels Like: **{data['weatherdata']['weather'][0]['current']['@feelslike']} °{_format}",
                     "Humidity": f"{data['weatherdata']['weather'][0]['current']['@humidity']}%",
                     "Wind Speeds": data['weatherdata']['weather'][0]['current']['@winddisplay']
                 }
@@ -47,7 +47,7 @@ class apps(commands.Cog):
                     _embed = discord.Embed(
                         title=f"Weather Forecast for {location_name[:70]} ({forecast['@day']}, {forecast['@date']})",
                         color=ctx.me.color
-                    ).add_field(name="Temperature", value=f"**Minimum Temperature: **{forecast['@low']} °{_format}{nl}**Maximum Temperature: **{forecast['@high']} °{_format}", inline=False
+                    ).add_field(name="Temperature", value=f"**Minimum Temperature: **{forecast['@low']} °{_format}\n**Maximum Temperature: **{forecast['@high']} °{_format}", inline=False
                     ).add_field(name="Condition", value=forecast['@skytextday'], inline=False
                     ).add_field(name="Precipitation", value=f"{(forecast['@precip'] if forecast['@precip'] else '0')}%", inline=False
                     ).add_field(name="Approximate Date", value=f"{forecast['@day']}, {forecast['@date']}", inline=False
@@ -137,17 +137,17 @@ class apps(commands.Cog):
             nl = "\n" 
             if (args[0].lower() in ("user", "users", "profile")):
                 data = await ctx.bot.util.request(
-                    "https://api.github.com/users/" + " ".join(args[1:]),
+                    "https://api.github.com/users/" + "-".join(args[1:]),
                     github=True,
                     json=True
                 )
                 embed = ctx.bot.Embed(
                     ctx,
-                    title=data["login"],
+                    title=data["name"] or data["login"],
                     fields={
-                        "General": f"**ID: **`{data['id']}`{nl}**Created at: **{ctx.bot.util.timestamp(data['created_at'])}{nl}**Updated at: **{ctx.bot.util.timestamp(data['updated_at'])}",
+                        "General": f"{('**Login Username: **' + data['login'] + '\n' if data['name'] else '')}**ID: **`{data['id']}`\n**Created at: **{ctx.bot.util.timestamp(data['created_at'])}\n**Updated at: **{ctx.bot.util.timestamp(data['updated_at'])}",
                         "Bio": data["bio"] if data.get("bio") else "`<no bio>`",
-                        "Stats": f"**Followers: **{data['followers']}{nl}**Following: **{data['following']}{nl}**Public Repositories: **{data['public_repos']}{nl}**Public Gists: **{data['public_gists']}"
+                        "Stats": f"**Followers: **{data['followers']}\n**Following: **{data['following']}\n**Public Repositories: **{data['public_repos']}\n**Public Gists: **{data['public_gists']}"
                     },
                     thumbnail=data["avatar_url"],
                     url=data["html_url"]
@@ -167,7 +167,7 @@ class apps(commands.Cog):
                     if len(desc) >= 1900:
                         break
                     
-                    desc += f"{'[ '+repo['language']+' ]' if repo['language'] else '[ ??? ]'} [{repo['full_name']}]({repo['html_url']}){' :fork_and_knife:' if repo['fork'] else ''}{nl}"
+                    desc += f"{'[ '+repo['language']+' ]' if repo['language'] else '[ ??? ]'} [{repo['full_name']}]({repo['html_url']}){' :fork_and_knife:' if repo['fork'] else ''}\n"
                 
                 embed = ctx.bot.Embed(ctx, title=' '.join(args[1:]) + f"'s repositories [{len(data):,}]", desc=desc, thumbnail=data[0]["owner"]["avatar_url"])
                 
@@ -229,9 +229,9 @@ class apps(commands.Cog):
                     title=data["full_name"] + (' [Fork of '+data['parent']['full_name']+']' if data['fork'] else ''),
                     url=data["html_url"],
                     fields={
-                        'General': f"**Created at: **{ctx.bot.util.timestamp(data['created_at'])}{nl}**Updated at: **{ctx.bot.util.timestamp(data['updated_at'])}{nl}**Pushed at: **{ctx.bot.util.timestamp(data['pushed_at'])}{nl}**Programming Language: **{data['language'] if data.get('language') else '???'}{nl + '**License: **' + data['license']['name'] if data.get('license') else ''}",
+                        'General': f"**Created at: **{ctx.bot.util.timestamp(data['created_at'])}\n**Updated at: **{ctx.bot.util.timestamp(data['updated_at'])}\n**Pushed at: **{ctx.bot.util.timestamp(data['pushed_at'])}\n**Programming Language: **{data['language'] if data.get('language') else '???'}{nl + '**License: **' + data['license']['name'] if data.get('license') else ''}",
                         'Description': data['description'] if data.get('description') else 'This repo is without description.', # haha nice reference there null
-                        'Stats': f"**Stars: **{data['stargazers_count']}{nl}**Forks: **{data['forks_count']}{nl}**Watchers: **{data['watchers_count']}{nl}**Open Issues: **{data['open_issues_count']}"
+                        'Stats': f"**Stars: **{data['stargazers_count']}\n**Forks: **{data['forks_count']}\n**Watchers: **{data['watchers_count']}\n**Open Issues: **{data['open_issues_count']}"
                     },
                     thumbnail=data["owner"]["avatar_url"]
                 )

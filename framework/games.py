@@ -52,7 +52,7 @@ class Hangman:
 
     async def play(self):
         nl = "\n"
-        main_message = await self.ctx.send(embed=Embed(title="Hangman", description=f"**{' '.join(self.blacklisted)}**{nl}Wrong words: <none>{nl}Turns left: `{8 - self.tries}`", color=self.ctx.me.color).set_image(url=f"https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{self.tries}.png"))
+        main_message = await self.ctx.send(embed=Embed(title="Hangman", description=f"**{' '.join(self.blacklisted)}**\nWrong words: <none>\nTurns left: `{8 - self.tries}`", color=self.ctx.me.color).set_image(url=f"https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{self.tries}.png"))
 
         while self.tries <= 7:
             wait_for = self.ctx.bot.WaitForMessage(self.ctx, timeout=25.0, check=(lambda x: x.channel == self.ctx.channel and x.author == self.ctx.author and len(x.content) == 1 and x.content.isalpha()))
@@ -70,7 +70,7 @@ class Hangman:
                 return True
             message = self.process_input(response.content.lower())
             self.tries += 1
-            await main_message.edit(embed=Embed(title=message, description=f"**{' '.join(self.blacklisted)}**{nl}Wrong words: {', '.join(self.wrong_letters)}{nl}Turns left: `{8 - self.tries}`", color=self.ctx.me.color).set_image(url=f"https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{self.tries}.png"))
+            await main_message.edit(embed=Embed(title=message, description=f"**{' '.join(self.blacklisted)}**\nWrong words: {', '.join(self.wrong_letters)}\nTurns left: `{8 - self.tries}`", color=self.ctx.me.color).set_image(url=f"https://raw.githubusercontent.com/vierofernando/username601/master/assets/pics/hangman_{self.tries}.png"))
         await self.ctx.send(f"{self.ctx.author.mention}, You lost the game. The answer is ***{self.word}***.", allowed_mentions=self.ctx.bot.util.no_mentions)
         return False
 

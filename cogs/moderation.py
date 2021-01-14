@@ -244,7 +244,7 @@ class moderation(commands.Cog):
                 ctx,
                 title=f'Starboard for {ctx.guild.name}',
                 desc=f'Channel: <#{data["starboard"]}>\nStars required to reach: {data["star_requirements"]}',
-                fields={'Commands': f'`{ctx.bot.command_prefix}starboard --remove` **Removes the starboard from this server. (you can also delete the channel yourself)**{nl}`{ctx.bot.command_prefix}starboard --limit <number>` **Changes the amount of star reactions required before a specific message gets to starboard. This defaults to `1` reaction.**'}
+                fields={'Commands': f'`{ctx.bot.command_prefix}starboard --remove` **Removes the starboard from this server. (you can also delete the channel yourself)**\n`{ctx.bot.command_prefix}starboard --limit <number>` **Changes the amount of star reactions required before a specific message gets to starboard. This defaults to `1` reaction.**'}
             )
             await embed.send()
             del embed, nl
@@ -670,9 +670,9 @@ class moderation(commands.Cog):
             ctx,
             title=str(user),
             fields={
-                "General": f"**User ID: **{user.id}{nl if not user.nick else f'**Nick Name: **{user.nick}{nl}'}**Status: **{'do not disturb' if user.status == discord.Status.dnd else str(user.status)} {online_location}{'' if not user.premium_since else f'**Boosting since: **{ctx.bot.util.timestamp(user.premium_since)}'}",
-                "History": f"**Joined at: **{ctx.bot.util.timestamp(user.joined_at)}, (Position: {join_pos:,}/{ctx.guild.member_count:,}){nl}**Created at: **{ctx.bot.util.timestamp(user.created_at)}",
-                "Color": f"**Hex Color:** {str(user.color)}{nl}**RGB: **{user.color.r}, {user.color.g}, {user.color.b}"
+                "General": f"**User ID: **{user.id}{nl if not user.nick else f'**Nick Name: **{user.nick}\n'}**Status: **{'do not disturb' if user.status == discord.Status.dnd else str(user.status)} {online_location}{'' if not user.premium_since else f'**Boosting since: **{ctx.bot.util.timestamp(user.premium_since)}'}",
+                "History": f"**Joined at: **{ctx.bot.util.timestamp(user.joined_at)}, (Position: {join_pos:,}/{ctx.guild.member_count:,})\n**Created at: **{ctx.bot.util.timestamp(user.created_at)}",
+                "Color": f"**Hex Color:** {str(user.color)}\n**RGB: **{user.color.r}, {user.color.g}, {user.color.b}"
             },
             color=user.color,
             thumbnail=user.avatar_url
@@ -774,9 +774,9 @@ class moderation(commands.Cog):
                 title=ctx.guild.name,
                 desc=ctx.guild.description if ctx.guild.description else "",
                 fields={
-                    "General": f"**Created by: **{str(ctx.guild.owner)}{nl}**Created at: **{ctx.bot.util.timestamp(ctx.guild.created_at)}{nl}**Server Region: **{str(ctx.guild.region).replace('-', ' ')}{nl}**Server ID: **`{ctx.guild.id}`",
-                    "Stats": f"**Members: **{ctx.guild.member_count:,}{nl}**Online Members: **{len([i for i in ctx.guild.members if i.status != discord.Status.offline]):,}{nl}**Channels: **{len(ctx.guild.channels):,}{nl}**Roles: **{len(ctx.guild.roles):,}{nl}**Custom Emojis: **{len(ctx.guild.emojis):,} ({ctx.guild.emoji_limit - len(ctx.guild.emojis):,} slots left)",
-                    "Boost": f"**Boosters: **{ctx.guild.premium_subscription_count:,}{nl}**Server Boost Level: **{ctx.guild.premium_tier}{nl}"
+                    "General": f"**Created by: **{str(ctx.guild.owner)}\n**Created at: **{ctx.bot.util.timestamp(ctx.guild.created_at)}\n**Server Region: **{str(ctx.guild.region).replace('-', ' ')}\n**Server ID: **`{ctx.guild.id}`",
+                    "Stats": f"**Members: **{ctx.guild.member_count:,}\n**Online Members: **{len([i for i in ctx.guild.members if i.status != discord.Status.offline]):,}\n**Channels: **{len(ctx.guild.channels):,}\n**Roles: **{len(ctx.guild.roles):,}\n**Custom Emojis: **{len(ctx.guild.emojis):,} ({ctx.guild.emoji_limit - len(ctx.guild.emojis):,} slots left)",
+                    "Boost": f"**Boosters: **{ctx.guild.premium_subscription_count:,}\n**Server Boost Level: **{ctx.guild.premium_tier}\n"
                 },
                 thumbnail=ctx.guild.icon_url,
                 image=ctx.guild.banner_url
@@ -788,9 +788,9 @@ class moderation(commands.Cog):
                 title=ctx.guild.name,
                 fields={
                     "Server Features": ", ".join([i.lower().replace("_", " ") for i in ctx.guild.features]),
-                    "Community Server Settings": f"**Server Rules Channel: **{f'<#{ctx.guild.rules_channel.id}>' if ctx.guild.rules_channel else '`<not set>`'}{nl}**Public Updates Channel: **{f'<#{ctx.guild.public_updates_channel.id}>' if ctx.guild.public_updates_channel else '`<not set>`'}",
-                    "AFK Settings": f"**AFK Channel: **{f'<#{ctx.guild.afk_channel.id}>' if ctx.guild.afk_channel else '<not set>'}{nl}**AFK Timeout: **{ctx.guild.afk_timeout // 60} minute{'' if (ctx.guild.afk_timeout // 60) == 1 else 's'}",
-                    "Limits": f"**Presence Limit: **{(ctx.guild.max_presences if ctx.guild.max_presences else '`<no limit>`')}{nl}**Bitrate Limit: **{(ctx.guild.bitrate_limit // 1000):,} kbps{nl}**Filesize Limit: **{(ctx.guild.filesize_limit // 1000000):,} MB"
+                    "Community Server Settings": f"**Server Rules Channel: **{f'<#{ctx.guild.rules_channel.id}>' if ctx.guild.rules_channel else '`<not set>`'}\n**Public Updates Channel: **{f'<#{ctx.guild.public_updates_channel.id}>' if ctx.guild.public_updates_channel else '`<not set>`'}",
+                    "AFK Settings": f"**AFK Channel: **{f'<#{ctx.guild.afk_channel.id}>' if ctx.guild.afk_channel else '<not set>'}\n**AFK Timeout: **{ctx.guild.afk_timeout // 60} minute{'' if (ctx.guild.afk_timeout // 60) == 1 else 's'}",
+                    "Limits": f"**Presence Limit: **{(ctx.guild.max_presences if ctx.guild.max_presences else '`<no limit>`')}\n**Bitrate Limit: **{(ctx.guild.bitrate_limit // 1000):,} kbps\n**Filesize Limit: **{(ctx.guild.filesize_limit // 1000000):,} MB"
                 }
             )
             second_embed, _ = await embed.get_embed()
