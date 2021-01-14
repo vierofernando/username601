@@ -75,7 +75,7 @@ class economy(commands.Cog):
             award = randint(res['ctx']['worth']['min'], res['ctx']['worth']['max'])
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": award})
             return await ctx.success_embed(f"{res['ctx']['emote']} | Congratulations! You caught a {res['ctx']['name']} and sell it worth for {award:,} bobux!")
-        raise ctx.bot.util.error_message(f"Yikes! You only caught {res['ctx']}... Try again later!")
+        raise ctx.error_message(f"Yikes! You only caught {res['ctx']}... Try again later!")
 
     @command(['delete', 'deletedata', 'deldata', 'del-data', 'delete-data'])
     @cooldown(3600)
@@ -129,7 +129,7 @@ class economy(commands.Cog):
             await ctx.success_embed(f"You earned your Daily for {reward:,} bobux!" + "\n" + f"Your streak: {streak:,} (250 x {streak:,} bobux)")
             self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, new_data)
         else:
-            raise ctx.bot.util.error_message(f"You can earn your daily in {ctx.bot.util.strfsecond((data['lastDaily'] + 43200) - time())}!")
+            raise ctx.error_message(f"You can earn your daily in {ctx.bot.util.strfsecond((data['lastDaily'] + 43200) - time())}!")
 
     @command()
     @cooldown(10)
@@ -147,7 +147,7 @@ class economy(commands.Cog):
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": -amount[0]})
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": member.id}, {"bal": amount[0]})
         except Exception as e:
-            raise ctx.bot.util.error_message(str(e))
+            raise ctx.error_message(str(e))
     
     @command(['steal', 'crime', 'stole', 'robs'])
     @cooldown(120)
@@ -176,7 +176,7 @@ class economy(commands.Cog):
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": number})
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": member.id})
         except AssertionError as e:
-            raise ctx.bot.util.error_message(str(e))
+            raise ctx.error_message(str(e))
     
     @command(['dep'])
     @cooldown(10)
@@ -198,7 +198,7 @@ class economy(commands.Cog):
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bankbal": num})
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": -num})
         except AssertionError as e:
-            raise ctx.bot.util.error_message(str(e))
+            raise ctx.error_message(str(e))
         except Exception as e:
             return await ctx.bot.cmds.invalid_args(ctx)
     
@@ -222,7 +222,7 @@ class economy(commands.Cog):
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": num})
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bankbal": -num})
         except AssertionError as e:
-            raise ctx.bot.util.error_message(str(e))
+            raise ctx.error_message(str(e))
         except Exception:
             return await ctx.bot.cmds.invalid_args(ctx)
 
@@ -258,7 +258,7 @@ class economy(commands.Cog):
         if limit < 3:
             del data, limit, member_ids
             collect()
-            raise ctx.bot.util.error_message("This server has less than 3 members with a profile, thus a leaderboard cannot happen!")
+            raise ctx.error_message("This server has less than 3 members with a profile, thus a leaderboard cannot happen!")
         
         sorted_bal = sorted(list(map(lambda x: x["bal"], data)))[::-1][:limit]
         ids = []
@@ -300,7 +300,7 @@ class economy(commands.Cog):
                     del parser, data, text
                     return
                 except Exception as e:
-                    raise ctx.bot.util.error_message(str(e))
+                    raise ctx.error_message(str(e))
             elif parser.has_multiple("color", "set-color", "col"):
                 try:
                     parser.shift_multiple("color", "set-color", "col")
@@ -312,7 +312,7 @@ class economy(commands.Cog):
                 except ValueError:
                     return await ctx.bot.cmds.invalid_args(ctx)
                 except AssertionError as e:
-                    raise ctx.bot.util.error_message(str(e))
+                    raise ctx.error_message(str(e))
                 
                 await ctx.send(embed=discord.Embed(title="Changed the color for your profile to `"+ ('#%02x%02x%02x' % color).upper() +"`.", color=discord.Color.from_rgb(*color)))
                 self.db.modify("economy", self.db.types.CHANGE, {"userid": ctx.author.id}, {"color": str(color).replace(" ", "")[1:-1]})
@@ -324,7 +324,7 @@ class economy(commands.Cog):
                 data = self.db.get("economy", {"userid": member.id})
 
                 if not data:
-                    raise ctx.bot.util.error_message(f"{member.display_name} does not have any profile.")
+                    raise ctx.error_message(f"{member.display_name} does not have any profile.")
                 card = ctx.bot.ProfileCard(ctx, member, profile=data, font_path=ctx.bot.util.fonts_dir + "/NotoSansDisplay-Bold.otf")
                 byte = await card.draw()
                 await ctx.send(file=discord.File(byte, "card.png"))
@@ -335,7 +335,7 @@ class economy(commands.Cog):
         member = ctx.bot.Parser.parse_user(ctx, args)
         data = self.db.get("economy", {"userid": member.id})
         if not data:
-            raise ctx.bot.util.error_message(f"{member.display_name} does not have any profile!")
+            raise ctx.error_message(f"{member.display_name} does not have any profile!")
         streak = data["streak"] if data.get("streak") else 1
         
         embed = ctx.bot.Embed(
@@ -363,7 +363,7 @@ class economy(commands.Cog):
     @cooldown(10)
     async def new(self, ctx):
         if self.db.exist("economy", {"userid": ctx.author.id}):
-            raise ctx.bot.util.error_message("You already have a profile. No need to create another.")
+            raise ctx.error_message("You already have a profile. No need to create another.")
         
         await ctx.success_embed(f"Created your profile! Use {ctx.bot.command_prefix}bal to view your profile.")
         self.db.add("economy", {

@@ -125,7 +125,7 @@ class moderation(commands.Cog):
     async def config(self, ctx):
         data = self.db.get("dashboard", {"serverid": ctx.guild.id})
         if not data:
-            raise ctx.bot.util.error_message('This server does not have any configuration for this bot.')
+            raise ctx.error_message('This server does not have any configuration for this bot.')
         
         embed = ctx.bot.Embed(
             ctx,
@@ -158,7 +158,7 @@ class moderation(commands.Cog):
             await ctx.success_embed(f"Successfully ductaped {toMute.display_name}'s mouth.")
             del role, toMute
         except:
-            raise ctx.bot.util.error_message('I cannot mute him... maybe i has less permissions than him.\nHis mouth is too powerful to be muted.')
+            raise ctx.error_message('I cannot mute him... maybe i has less permissions than him.\nHis mouth is too powerful to be muted.')
     
     @command()
     @cooldown(5)
@@ -168,15 +168,15 @@ class moderation(commands.Cog):
         toUnmute = ctx.bot.Parser.parse_user(ctx, args)
         roleid = self.db.get("dashboard", {"serverid": ctx.guild.id})
         if (not roleid) or (not roleid.get("mute")):
-            raise ctx.bot.util.error_message('He is not muted!\nOr maybe you muted this on other bot... which is not compatible.')
+            raise ctx.error_message('He is not muted!\nOr maybe you muted this on other bot... which is not compatible.')
         elif roleid not in list(map(lambda x: x.id, toUnmute)):
-            raise ctx.bot.util.error_message('That guy is not muted.')
+            raise ctx.error_message('That guy is not muted.')
         
         try:
             await toUnmute.remove_roles(ctx.guild.get_role(roleid))
             await ctx.success_embed(f"Successfully unmuted {toUnmute.display_name}.")
         except:
-            raise ctx.bot.util.error_message(f'I cannot unmute {toUnmute.display_name}!')
+            raise ctx.error_message(f'I cannot unmute {toUnmute.display_name}!')
         finally:
             del roleid, toUnmute
 
@@ -251,7 +251,7 @@ class moderation(commands.Cog):
             return
         
         if (not data) or (not data.get("starboard")):
-            raise ctx.bot.util.error_message("This server does not have any starboard.")
+            raise ctx.error_message("This server does not have any starboard.")
             
         if parser.has("remove"):
             await ctx.success_embed('Alright. Starboard for this server is deleted. You can delete the channel.')
@@ -279,7 +279,7 @@ class moderation(commands.Cog):
         user_to_warn = ctx.bot.Parser.parse_user(ctx, (params[0] if params else args[0]))
         
         if user_to_warn.guild_permissions.manage_channels:
-            raise ctx.bot.util.error_message("You cannot warn a moderator.")
+            raise ctx.error_message("You cannot warn a moderator.")
         reason = params[1][:100] if params else 'No reason provided'
 
         await ctx.success_embed(f'{user_to_warn.display_name} was warned by {ctx.author.display_name} for the reason *"{reason}"*.')
@@ -330,7 +330,7 @@ class moderation(commands.Cog):
             is_warned = False
 
         if (not data) or (not is_warned):
-            raise ctx.bot.util.error_message(f"Well, {user_to_unwarn.display_name} is not warned ***yet***...")
+            raise ctx.error_message(f"Well, {user_to_unwarn.display_name} is not warned ***yet***...")
         modified_array = [i for i in data["warns"] if user_to_unwarn.id != int(i.split(".")[0])]
         await ctx.success_embed(f"Successfully cleared all warns for {user_to_unwarn.display_name}.")
         self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"warns": modified_array})
@@ -353,7 +353,7 @@ class moderation(commands.Cog):
         
         if args[0].lower() == 'disable':
             if (not data) or (not data.get("welcome")):
-                raise ctx.bot.util.error_message("This server does not have any welcome channels se")
+                raise ctx.error_message("This server does not have any welcome channels se")
             await ctx.success_embed("Welcome channel disabled for this server!")
             self.db.modify("dashboard", self.db.types.REMOVE, {"serverid": ctx.guild.id}, {"welcome": data["welcome"]})
             return
@@ -381,7 +381,7 @@ class moderation(commands.Cog):
         
         if args[0].lower() == 'disable':
             if (not data) or (not data.get("autorole")):
-                raise ctx.bot.util.error_message("This server does not have any Auto Role set!")
+                raise ctx.error_message("This server does not have any Auto Role set!")
             
             await ctx.success_embed("OK! Autorole is disabled for this server!")
             self.db.modify("dashboard", self.db.types.REMOVE, {"serverid": ctx.guild.id}, {"autorole": data["autorole"]})
@@ -413,7 +413,7 @@ class moderation(commands.Cog):
             await ctx.channel.edit(slowmode_delay=count)
             return await ctx.success_embed(("Disabled channel slowmode." if (count == 0) else f"Successfully set slowmode for <#{ctx.channel.id}> to {count} seconds."))
         except Exception as e:
-            raise ctx.bot.util.error_message(str(e))
+            raise ctx.error_message(str(e))
             
     @command(['ar', 'add-role'])
     @cooldown(10)
@@ -428,14 +428,14 @@ class moderation(commands.Cog):
         except:
             role_array = [i for i in ctx.guild.roles if role_and_guy[1].lower() in i.name.lower()]
             if not role_array:
-                raise ctx.bot.util.error_message(f"Role `{role_and_guy[1]}` does not exist.")
+                raise ctx.error_message(f"Role `{role_and_guy[1]}` does not exist.")
             role = role_array[0]
             del role_array
         try:
             await guy.add_roles(role_array[0])
             return await ctx.success_embed(f"Successfully added <@&{role.id}> role to {guy.display_name}!")
         except:
-            raise ctx.bot.util.error_message(f"Oops. Please make sure i have the manage roles perms.")
+            raise ctx.error_message(f"Oops. Please make sure i have the manage roles perms.")
     
     @command(['rr', 'remove-role'])
     @cooldown(10)
@@ -449,14 +449,14 @@ class moderation(commands.Cog):
         except:
             role_array = [i for i in ctx.guild.roles if role_and_guy[1].lower() in i.name.lower()]
             if not role_array:
-                raise ctx.bot.util.error_message(f"Role `{role_and_guy[1]}` does not exist.")
+                raise ctx.error_message(f"Role `{role_and_guy[1]}` does not exist.")
             role = role_array[0]
             del role_array
         try:
             await guy.remove_roles(role)
             return await ctx.success_embed(f"Successfully removed <@&{role.id}> role from {guy.display_name}!")
         except:
-            raise ctx.bot.util.error_message("Oops. Please make sure i have the manage roles perms.")
+            raise ctx.error_message("Oops. Please make sure i have the manage roles perms.")
 
     @command()
     @cooldown(10)
@@ -466,15 +466,15 @@ class moderation(commands.Cog):
         await ctx.trigger_typing()
         user = ctx.bot.Parser.parse_user(ctx, args)
         if user == ctx.author:
-            raise ctx.bot.util.error_message("You can't ban yourself idiot.")
+            raise ctx.error_message("You can't ban yourself idiot.")
         elif user.guild_permissions.manage_messages:
-            raise ctx.bot.util.error_message("That guy is a mod. You can't do this to a mod.")
+            raise ctx.error_message("That guy is a mod. You can't do this to a mod.")
 
         try:
             await ctx.guild.ban(user)
             return await ctx.success_embed(f"Bonked {user.display_name} from this server.")
         except:
-            raise ctx.bot.util.error_message(f"Please make sure my role is higher so i can ban {user.display_name}.")    
+            raise ctx.error_message(f"Please make sure my role is higher so i can ban {user.display_name}.")    
 
     @command()
     @cooldown(10)
@@ -484,15 +484,15 @@ class moderation(commands.Cog):
         await ctx.trigger_typing()
         user = ctx.bot.Parser.parse_user(ctx, args)
         if user == ctx.author:
-            raise ctx.bot.util.error_message("You can't kick yourself idiot.")
+            raise ctx.error_message("You can't kick yourself idiot.")
         elif user.guild_permissions.manage_messages:
-            raise ctx.bot.util.error_message("That guy is a mod. You can't do this to a mod.")
+            raise ctx.error_message("That guy is a mod. You can't do this to a mod.")
 
         try:
             await ctx.guild.kick(user)
             return await ctx.success_embed(f"Kicked {user.display_name} out from this server.")
         except:
-            raise ctx.bot.util.error_message(f"Please make sure my role is higher so i can kick {user.display_name}.")    
+            raise ctx.error_message(f"Please make sure my role is higher so i can kick {user.display_name}.")    
 
     @command(['purge'])
     @cooldown(2)
@@ -512,7 +512,7 @@ class moderation(commands.Cog):
             deleted_messages = await ctx.channel.purge(check=(lambda x: x.channel == ctx.channel and x.author == ctx.message.mentions[0]), limit=500)
             return await ctx.success_embed(f"Successfully purged {len(deleted_messages):,} messages.", delete_after=3)
         except Exception as e:
-            raise ctx.bot.util.error_message(str(e))
+            raise ctx.error_message(str(e))
                 
     @command(['lockdown', 'lockchannel', 'lock-channel'])
     @cooldown(7)
@@ -546,7 +546,7 @@ class moderation(commands.Cog):
                 role = ctx.bot.Parser.parse_role(ctx, ' '.join(args[1:]), return_array=True)
                 assert role
             except:
-                raise ctx.bot.util.error_message(f"Please add role name/mention/ID after the `{ctx.bot.command_prefix}role info`.")
+                raise ctx.error_message(f"Please add role name/mention/ID after the `{ctx.bot.command_prefix}role info`.")
             if isinstance(role, list):
                 choose = ctx.bot.ChooseEmbed(ctx, role, key=(lambda x: x.mention))
                 res = await choose.run()
@@ -570,7 +570,7 @@ class moderation(commands.Cog):
                 title=role.name,
                 color=role.color,
                 fields={
-                    "Role Info": f"**Display role members seperately from online members: **{':white_check_mark:' if role.hoist else ':x:'}" + "\n" + f"**Mentionable: **{':white_check_mark:' if role.mentionable else ':x:'}" + f"\n**Created At: **{str(role.created_at)[:-7]}",
+                    "Role Info": f"**Display role members seperately from online members: **{':white_check_mark:' if role.hoist else ':x:'}" + "\n" + f"**Mentionable: **{':white_check_mark:' if role.mentionable else ':x:'}" + f"\n**Created At: **{ctx.bot.util.timestamp(role.created_at)}",
                     f"Role Members ({len(role.members)})": role_members + extra,
                     "Key Permissions": permissions[:-2],
                     "Role Color": f"**Hex: {str(role.color)}**" + "\n" + f"**RGB: **{role.color.r}, {role.color.g}, {role.color.b}"
@@ -631,7 +631,7 @@ class moderation(commands.Cog):
                     f"Channels ({len(channel.channels)})": channels[:1000]
                 }
             else:
-                raise ctx.bot.util.error_message("Invalid channel type. Must be either Text, voice, or category channel.")
+                raise ctx.error_message("Invalid channel type. Must be either Text, voice, or category channel.")
             
             embed = ctx.bot.Embed(
                 ctx,
@@ -670,8 +670,8 @@ class moderation(commands.Cog):
             ctx,
             title=str(user),
             fields={
-                "General": f"**User ID: **{user.id}{nl if not user.nick else f'**Nick Name: **{user.nick}{nl}'}**Status: **{'do not disturb' if user.status == discord.Status.dnd else str(user.status)} {online_location}{'' if not user.premium_since else f'**Boosting since: **{str(user.premium_since)[:-7]} ({ctx.bot.util.strfsecond(current_time - user.premium_since.timestamp())})'}",
-                "History": f"**Joined at: **{str(user.joined_at)[:-7]}, {ctx.bot.util.strfsecond(current_time - user.joined_at.timestamp())} ago (Position: {join_pos:,}/{ctx.guild.member_count:,}){nl}**Created at: **{str(user.created_at)[:-7]} ({ctx.bot.util.strfsecond(current_time - user.created_at.timestamp())} ago)",
+                "General": f"**User ID: **{user.id}{nl if not user.nick else f'**Nick Name: **{user.nick}{nl}'}**Status: **{'do not disturb' if user.status == discord.Status.dnd else str(user.status)} {online_location}{'' if not user.premium_since else f'**Boosting since: **{ctx.bot.util.timestamp(user.premium_since)}'}",
+                "History": f"**Joined at: **{ctx.bot.util.timestamp(user.joined_at)}, (Position: {join_pos:,}/{ctx.guild.member_count:,}){nl}**Created at: **{ctx.bot.util.timestamp(user.created_at)}",
                 "Color": f"**Hex Color:** {str(user.color)}{nl}**RGB: **{user.color.r}, {user.color.g}, {user.color.b}"
             },
             color=user.color,
@@ -700,7 +700,7 @@ class moderation(commands.Cog):
     async def emoji(self, ctx, *args):
         if args[0].lower() == "list":
             if not ctx.guild.emojis:
-                raise ctx.bot.util.error_message('This server has no emojis!')
+                raise ctx.error_message('This server has no emojis!')
             emojis, footer_text = "", None
             for index, emoji in enumerate(ctx.guild.emojis):
                 if len(emojis) >= 1975:
@@ -722,7 +722,7 @@ class moderation(commands.Cog):
             fields = {
                 "Emoji name": data.name if data else "`<not available>`",
                 "Emoji ID": data.id if data else "`<not available>`",
-                "Emoji creation date": str(data.created_at)[:-7] if data else "`not available`",
+                "Emoji creation date": ctx.bot.util.timestamp(data.created_at) if data else "`not available`",
                 "Emoji type": "Discord Animated Custom Emoji" if (data and data.animated) else "Discord Custom Emoji",
                 "Emoji source": f"{data.guild.name} ({len(data.guild.emojis)}/{data.guild.emoji_limit} custom emojis)" if (data and data.guild) else "`<source not available>`",
                 "Emoji URL": res
@@ -745,7 +745,7 @@ class moderation(commands.Cog):
                 res = await ctx.bot.Parser.parse_emoji(ctx, args[1])
                 assert res
             except:
-                raise ctx.bot.util.error_message(f"Please add a emoji after the `{ctx.bot.command_prefix}emoji enlarge`")
+                raise ctx.error_message(f"Please add a emoji after the `{ctx.bot.command_prefix}emoji enlarge`")
             return await ctx.send_image(res)
         return await ctx.bot.cmds.invalid_args(ctx)
     
@@ -774,7 +774,7 @@ class moderation(commands.Cog):
                 title=ctx.guild.name,
                 desc=ctx.guild.description if ctx.guild.description else "",
                 fields={
-                    "General": f"**Created by: **{str(ctx.guild.owner)}{nl}**Created at: **{str(ctx.guild.created_at)[:-7]} ({ctx.bot.util.strfsecond(time() - ctx.guild.created_at.timestamp())} ago){nl}**Server Region: **{str(ctx.guild.region).replace('-', ' ')}{nl}**Server ID: **`{ctx.guild.id}`",
+                    "General": f"**Created by: **{str(ctx.guild.owner)}{nl}**Created at: **{ctx.bot.util.timestamp(ctx.guild.created_at)}{nl}**Server Region: **{str(ctx.guild.region).replace('-', ' ')}{nl}**Server ID: **`{ctx.guild.id}`",
                     "Stats": f"**Members: **{ctx.guild.member_count:,}{nl}**Online Members: **{len([i for i in ctx.guild.members if i.status != discord.Status.offline]):,}{nl}**Channels: **{len(ctx.guild.channels):,}{nl}**Roles: **{len(ctx.guild.roles):,}{nl}**Custom Emojis: **{len(ctx.guild.emojis):,} ({ctx.guild.emoji_limit - len(ctx.guild.emojis):,} slots left)",
                     "Boost": f"**Boosters: **{ctx.guild.premium_subscription_count:,}{nl}**Server Boost Level: **{ctx.guild.premium_tier}{nl}"
                 },

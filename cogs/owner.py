@@ -96,7 +96,7 @@ class owner(commands.Cog):
             source = eval("getsource({})".format(' '.join(args)))
             return await ctx.send('```py\n'+str(source)[:1900]+'```')
         except Exception as e:
-            raise ctx.bot.util.error_message(str(e))
+            raise ctx.error_message(str(e))
 
     @command()
     @owner_only()
@@ -107,7 +107,7 @@ class owner(commands.Cog):
             await user_to_send.send(embed=em)
             await ctx.message.add_reaction('✅')
         except Exception as e:
-            raise ctx.bot.util.error_message(f'Error: `{str(e)}`')
+            raise ctx.error_message(f'Error: `{str(e)}`')
 
     @command()
     @owner_only()

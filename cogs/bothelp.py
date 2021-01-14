@@ -42,7 +42,7 @@ class bothelp(commands.Cog):
             return await paginator.execute()
         
         data = ctx.bot.cmds.query(' '.join(args).lower())
-        if not data: raise ctx.bot.util.error_message("Your command/category name does not exist, sorry!")
+        if not data: raise ctx.error_message("Your command/category name does not exist, sorry!")
         
         embed = ctx.bot.ChooseEmbed(ctx, data, key=(lambda x: "[`"+x["type"]+"`] `"+x["name"]+"`"))
         result = await embed.run()
@@ -91,7 +91,7 @@ class bothelp(commands.Cog):
     @require_args()
     async def feedback(self, ctx, *args):
         if (('discord.gg/' in ' '.join(args)) or ('discord.com/invite/' in ' '.join(args))):
-            raise ctx.bot.util.error_message("Please do NOT send invites. This is NOT advertising.")
+            raise ctx.error_message("Please do NOT send invites. This is NOT advertising.")
         
         await ctx.trigger_typing()
         banned = [i for i in self.db.get("config", {"h": True})["bans"] if i.startswith(str(ctx.author.id))]
@@ -103,9 +103,9 @@ class bothelp(commands.Cog):
                 embed = discord.Embed(title='Feedback Successful', description='**Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+ctx.bot.util.server_invite+')', colour=ctx.me.color)
                 return await ctx.send(embed=embed)
             except:
-                raise ctx.bot.util.error_message('There was an error while sending your feedback. Sorry! :(')
+                raise ctx.error_message('There was an error while sending your feedback. Sorry! :(')
         reason = "|".join(banslist[0].split("|")[1:])
-        raise ctx.bot.util.error_message(f"You have been banned from using the Feedback command.\nReason: {reason}")
+        raise ctx.error_message(f"You have been banned from using the Feedback command.\nReason: {reason}")
      
     @command()
     @cooldown(2)

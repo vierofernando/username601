@@ -716,7 +716,7 @@ class UserCard:
         smol_font = self.get_font(25)
         tiny_font = self.get_font(20)
         title_size = big_font.getsize(self.user.display_name)[0]
-        description = f"Created at {str(self.user.created_at)[:-7]} ({self.bot.util.strfsecond(time() - self.user.created_at.timestamp())} ago)" + "\n" + f"Joined at {str(self.user.joined_at)[:-7]} (Position: {self.bot.util.join_position(self.ctx.guild, self.user):,}/{self.ctx.guild.member_count:,})"
+        description = f"Created at {self.bot.util.timestamp(self.user.created_at)}" + "\n" + f"Joined at {str(self.user.joined_at)[:-7]} (Position: {self.bot.util.join_position(self.ctx.guild, self.user):,}/{self.ctx.guild.member_count:,})"
         del _thief
         
         # measure the width for the image
@@ -858,7 +858,7 @@ class ServerCard:
         # get the text and font for the image
         big_font = self._get_font(30)
         sub_font = self._get_font(20)
-        description = f"Created by {str(self.ctx.guild.owner)} at {str(self.ctx.guild.created_at)[:-7]}"
+        description = f"Created by {str(self.ctx.guild.owner)} at {self.bot.util.timestamp(self.ctx.guild.created_at, include_time_past=False)}"
 
         # configure the image
         width = max([

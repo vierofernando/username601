@@ -301,7 +301,7 @@ class image(commands.Cog):
         try:
             buffer = await ctx.bot.Image.glitch(ava)
         except AssertionError as a:
-            raise ctx.bot.util.error_message(str(a))
+            raise ctx.error_message(str(a))
         await ctx.send(file=discord.File(buffer, "glitch.png"))
         del buffer, ava
         collect()
@@ -334,7 +334,7 @@ class image(commands.Cog):
                 mkt='en-US'
             )
         except:
-            raise ctx.bot.util.error_message("The API may be down for a while. Try again later!")
+            raise ctx.error_message("The API may be down for a while. Try again later!")
 
         embed = ctx.bot.Embed(
             ctx,
@@ -359,7 +359,7 @@ class image(commands.Cog):
         try:
             return await ctx.send_image(url.replace('ABC', code))
         except:
-            raise ctx.bot.util.error_message("404")
+            raise ctx.error_message("404")
 
     @command(['spin'])
     @cooldown(7)

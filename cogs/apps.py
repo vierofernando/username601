@@ -61,7 +61,7 @@ class apps(commands.Cog):
             del embeds
             return await paginator.execute()
         except (AssertionError, KeyError):
-            raise ctx.bot.util.error_message("Invalid location.")
+            raise ctx.error_message("Invalid location.")
 
     @command(['trending', 'news'])
     @cooldown(7)
@@ -80,7 +80,7 @@ class apps(commands.Cog):
             del embed, data
         except Exception as e:
             await ctx.bot.get_user(ctx.bot.util.owner_id).send(f"yo, theres an error: `{str(e)}`")
-            raise ctx.bot.util.error_message("Oopsies, there was an error on searching the news.")
+            raise ctx.error_message("Oopsies, there was an error on searching the news.")
 
     @command(['urban-dictionary', 'define'])
     @cooldown(8)
@@ -116,7 +116,7 @@ class apps(commands.Cog):
                 fields={
                     "Post Info": f"**Author: **{result['author']}" + "\n" + f"{result['thumbs_up']:,} :+1: | {result['thumbs_down']:,} :-1:",
                     "Definition": result["definition"].replace("\\\\", "\\"),
-                    "Written in": result['written_on'].replace("T", " ")[:-5],
+                    "Written in": ctx.bot.util.timestamp(result['written_on']),
                     "Example": result["example"]
                 },
                 url=result['permalink']
@@ -125,8 +125,9 @@ class apps(commands.Cog):
             await embed.send()
             del embed, result, search, data
             
-        except:
-            raise ctx.bot.util.error_message("Did not found anything corresponding to your search.")
+        except Exception as e:
+            print(str(e))
+            raise ctx.error_message("Did not found anything corresponding to your search.")
 
     @command(['git'])
     @cooldown(10)
@@ -134,7 +135,7 @@ class apps(commands.Cog):
     async def github(self, ctx, *args):
         try:
             nl = "\n" 
-            if (args[0].lower() in ["user", "users", "profile"]):
+            if (args[0].lower() in ("user", "users", "profile")):
                 data = await ctx.bot.util.request(
                     "https://api.github.com/users/" + " ".join(args[1:]),
                     github=True,
@@ -144,7 +145,7 @@ class apps(commands.Cog):
                     ctx,
                     title=data["login"],
                     fields={
-                        "General": f"**ID: **`{data['id']}`{nl}**Created at: **{data['created_at'].replace('T', ' ')[:-1]}{nl}**Updated at: **{data['updated_at'].replace('T', ' ')[:-1]}",
+                        "General": f"**ID: **`{data['id']}`{nl}**Created at: **{ctx.bot.util.timestamp(data['created_at'])}{nl}**Updated at: **{ctx.bot.util.timestamp(data['updated_at'])}",
                         "Bio": data["bio"] if data.get("bio") else "`<no bio>`",
                         "Stats": f"**Followers: **{data['followers']}{nl}**Following: **{data['following']}{nl}**Public Repositories: **{data['public_repos']}{nl}**Public Gists: **{data['public_gists']}"
                     },
@@ -154,7 +155,7 @@ class apps(commands.Cog):
                 await embed.send()
                 del embed, data, nl
                 return
-            elif (args[0].lower() in ["repos", "repositories"]):
+            elif (args[0].lower() in ("repos", "repositories")):
                 data = await ctx.bot.util.request(
                     "https://api.github.com/users/" + " ".join(args[1:]) + "/repos",
                     github=True,
@@ -173,7 +174,49 @@ class apps(commands.Cog):
                 await embed.send()
                 del embed, desc, data, nl
                 return
-            elif (args[0].lower() in ["repo", "repository"]):
+            elif (args[0].lower() == "gists"):
+                data = await ctx.bot.util.request(
+                    f"https://api.github.com/users/{'-'.join(args[1:])}/gists",
+                    github=True,
+                    json=True
+                )
+                
+                if not data:
+                    raise ctx.error_message("This user does not have any gists.")
+                
+                get_first_key = lambda x: x[list(x.keys())[0]]
+                gists = "\n".join(map(lambda x: f'[{x.get("description", "<no desc>")}]({x.get("html_url", "https://google.com/")}) [**{get_first_key(x["files"]).get("language", "???")}**]', data))[:1900]
+                embed = ctx.bot.Embed(
+                    ctx,
+                    title=(data[0].get("owner").get("login") or "<no name>") + f"'s GitHub Gists ({len(data):,})",
+                    desc=gists,
+                    thumbnail=data[0].get("owner").get("avatar_url")
+                )
+                await embed.send()
+                del get_first_key, gists, embed, data
+                return
+            elif (args[0].lower() == "gist"):
+                assert len(args[1]) >= 25
+                data = await ctx.bot.util.request(
+                    "https://api.github.com/gists/" + args[1],
+                    github=True,
+                    json=True
+                )
+                
+                embed = ctx.bot.Embed(
+                    ctx,
+                    title=data.get("description", "<no description>"),
+                    thumbnail=data["owner"]["avatar_url"],
+                    url=data.get("html_url", "https://google.com/"),
+                    fields={
+                        "General": f"**Created By: **[{data['owner']['login']}]({data['owner']['html_url']})\n**Created At: **{ctx.bot.util.timestamp(data['created_at'])}\n**Last Updated: **{ctx.bot.util.timestamp(data['updated_at'])}\n**Comments: **[{data['comments']}]({data['comments_url']})\n**Revisions: **{len(data['history']):,}",
+                        "Files": "\n".join(map(lambda filename: f"[{filename}]({data['files'][filename]['raw_url']}) [{data['files'][filename].get('language', '???')}, {data['files'][filename]['size'] / 1000} MB]", data['files'].keys()))[:1000]
+                    }
+                )
+                await embed.send()
+                del embed, data
+                return
+            elif (args[0].lower() in ("repo", "repository")):
                 assert " ".join(args[1:]).count("/")
                 data = await ctx.bot.util.request(
                     "https://api.github.com/repos/" + " ".join(args[1:]),
@@ -186,7 +229,7 @@ class apps(commands.Cog):
                     title=data["full_name"] + (' [Fork of '+data['parent']['full_name']+']' if data['fork'] else ''),
                     url=data["html_url"],
                     fields={
-                        'General': f"**Created at: **{data['created_at'].replace('T', ' ')[:-1]}{nl}**Updated at: **{data['updated_at'].replace('T', ' ')[:-1]}{nl}**Pushed at: **{data['pushed_at'].replace('T', ' ')[:-1]}{nl}**Programming Language: **{data['language'] if data.get('language') else '???'}{nl + '**License: **' + data['license']['name'] if data.get('license') else ''}",
+                        'General': f"**Created at: **{ctx.bot.util.timestamp(data['created_at'])}{nl}**Updated at: **{ctx.bot.util.timestamp(data['updated_at'])}{nl}**Pushed at: **{ctx.bot.util.timestamp(data['pushed_at'])}{nl}**Programming Language: **{data['language'] if data.get('language') else '???'}{nl + '**License: **' + data['license']['name'] if data.get('license') else ''}",
                         'Description': data['description'] if data.get('description') else 'This repo is without description.', # haha nice reference there null
                         'Stats': f"**Stars: **{data['stargazers_count']}{nl}**Forks: **{data['forks_count']}{nl}**Watchers: **{data['watchers_count']}{nl}**Open Issues: **{data['open_issues_count']}"
                     },
@@ -197,6 +240,8 @@ class apps(commands.Cog):
                 del embed, data, nl
                 return
             assert False
+        except ctx.error_message as error:
+            raise error
         except:
             return await ctx.bot.cmds.invalid_args(ctx)
 
@@ -210,7 +255,7 @@ class apps(commands.Cog):
             q=' '.join(args)
         )
         if not data:
-            raise ctx.bot.util.error_message("Did not found anything corresponding to your query.")
+            raise ctx.error_message("Did not found anything corresponding to your query.")
         
         try:
             star = str(':star:'*round(data['rating']['average'])) if data['rating']['average'] else 'No star rating provided.'
@@ -230,14 +275,14 @@ class apps(commands.Cog):
             await embed.send()
             del embed
         except:
-            raise ctx.bot.util.error_message("There was an error on fetching the info.")
+            raise ctx.error_message("There was an error on fetching the info.")
 
     @command(['spy', 'spot', 'splay', 'listeningto', 'sp'])
     @cooldown(2)
     async def spotify(self, ctx, *args):
         user = ctx.bot.Parser.parse_user(ctx, args)
         act = [i for i in user.activities if isinstance(i, discord.Spotify)]
-        if not act: raise ctx.bot.util.error_message(f"Sorry, but {user.display_name} is not listening to spotify.")
+        if not act: raise ctx.error_message(f"Sorry, but {user.display_name} is not listening to spotify.")
         await ctx.trigger_typing()
         panel = ctx.bot.Panel(ctx, spotify=act[0])
         await panel.draw()
@@ -259,7 +304,7 @@ class apps(commands.Cog):
             explicit='no'
         )
         if not data['results']:
-            raise ctx.bot.util.error_message('No music found... oop')
+            raise ctx.error_message('No music found... oop')
         choose = ctx.bot.ChooseEmbed(ctx, data['results'], key=(lambda x: "["+x["trackName"]+"]("+x["trackViewUrl"]+")"))
         data = await choose.run()
         if not data: return
@@ -341,7 +386,7 @@ class apps(commands.Cog):
             await embed.send()
             del res, data, embed, votes, choose, movie, query
         except Exception as e:
-            raise ctx.bot.util.error_message("The movie query does not exist.\n" + str(e))
+            raise ctx.error_message("The movie query does not exist.\n" + str(e))
         
 def setup(client):
     client.add_cog(apps())

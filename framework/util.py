@@ -50,7 +50,12 @@ class LengthFormats(Enum):
     
     _ALL = ("KILOMETERS", "METERS", "CENTIMETERS", "MILLIMETERS", "MILES", "YARDS", "FOOT", "INCHES")
 
-class error_message(Exception): pass
+class error_message(Exception):
+    def __init__(self, message: str, description: bool = False):
+        self.use_description = description or (len(message) > 256)
+        self.embed = Embed(title=None if self.use_description else message, description=message if self.use_description else None, color=Color.red())
+        super().__init__(message)
+
 class Util:
     def __init__(
         self,
@@ -68,7 +73,6 @@ class Util:
         self._alphabet = list('abcdefghijklmnopqrstuvwxyz')
         self._start = time()
         self.no_mentions = AllowedMentions(everyone=False, users=False, roles=False)
-        self.error_message = error_message
         self.xmltodict = xmltodict
         self.alex_client = ClientSession(headers={'Authorization': getenv("ALEXFLIPNOTE_TOKEN")}, timeout=ClientTimeout(total=10.0))
         self.github_client = ClientSession(headers={'Authorization': 'token ' + getenv('GITHUB_TOKEN')}, timeout=ClientTimeout(total=10.0))
@@ -103,11 +107,12 @@ class Util:
                     del extension, _bytes, data, buffer
                     gc.collect()
             except Exception as e:
-                raise self.bot.util.error_message("Image not found.\n`"+str(e)+"`")
+                raise self.error_message("Image not found.\n`"+str(e)+"`")
         
         async def success_embed(self, message=None, description=None, delete_after=None):
             return await self.send(embed=Embed(title=message, description=description, color=Color.green()), delete_after=delete_after)
         
+        setattr(Context, "error_message", error_message)
         setattr(Context, "send_image", send_image)
         setattr(Context, "success_embed", success_embed)
         setattr(Embed, "add_useless_stuff", _embed_add_useless_stuff)
@@ -162,6 +167,14 @@ class Util:
         gateway.DiscordWebSocket.identify = loc['identify']
         del m, loc, source_, s, indent
         __import__("gc").collect()
+
+    def timestamp(self, input, time_data: str = None, include_time_past: bool = True) -> str:
+        """ Formats a timestamp. """
+        if isinstance(input, str):
+            input = datetime.strptime(input.split(".")[0].strip("Z"), "%Y-%m-%dT%H:%M:%S" if input.count("T") else time_data)
+        
+        _past = f"({self.strfsecond(time() - input.timestamp())} ago)" if include_time_past else ""
+        return f'{input.strftime("%A, %d %B %Y" if input.minute == input.hour else "%A, %d %B %Y at %H:%M:%S")} {_past}'
 
     def convert_length(self, string):
         """ Does a math like `10 meters to kilometers` """
@@ -236,7 +249,10 @@ class Util:
         error = getattr(error, "original", error)
         if isinstance(error, commands.CommandNotFound) or isinstance(error, commands.CheckFailure): return
         elif isinstance(error, commands.CommandOnCooldown): return await ctx.send("Calm down. Try again in {}.".format(self.strfsecond(round(error.retry_after))), delete_after=2)
-        elif isinstance(error, self.error_message): return await ctx.send(embed=Embed(title=str(error) if len(str(error)) <= 256 else None, description=None if len(str(error)) <= 256 else str(error), color=Color.red()))
+        elif isinstance(error, error_message):
+            await ctx.send(embed=error.embed)
+            del error
+            return
         elif isinstance(error, Forbidden): 
             try: return await ctx.send("I don't have the permission required to use that command!")
             except: return

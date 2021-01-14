@@ -47,7 +47,7 @@ class utils(commands.Cog):
             )
             return await embed.send()
         except Exception as e:
-            raise ctx.bot.util.error_message(str(e))
+            raise ctx.error_message(str(e))
     
     @command()
     @cooldown(3)
@@ -93,7 +93,7 @@ class utils(commands.Cog):
             fields={
                 "Links": f"**Home Page: **{'[click here]('+data['info']['home_page']+')' if data['info']['home_page'] else '`<no links available>`'}{nl}**Download Link: **{'[click here]('+data['info']['download_url']+')' if data['info']['download_url'] else '`<no links available>`'}",
                 "Author": f"{data['info']['author']} {'('+data['info']['author_email']+')' if data['info']['author_email'] else ''}{nl}",
-                "Version": f"**Current Version: **[{data['info']['version']}]({data['info']['release_url']}){nl}**Uploaded at: **{data['releases'][data['info']['version']][0]['upload_time'].replace('T', ' ')}",
+                "Version": f"**Current Version: **[{data['info']['version']}]({data['info']['release_url']}){nl}**Uploaded at: **{ctx.bot.util.timestamp(data['releases'][data['info']['version']][0]['upload_time'])}",
                 "Keywords": data['info']['keywords'].replace(',', ', ') if data['info']['keywords'] else '`<no keywords>`'
             },
             url=data['info']['package_url']
@@ -133,7 +133,7 @@ class utils(commands.Cog):
             assert bool(data)
             assert bool(data["collection"]["items"])
         except:
-            raise ctx.bot.util.error_message("Nothing found.")
+            raise ctx.error_message("Nothing found.")
         
         img = choice(data['collection']['items'])
         em = ctx.bot.Embed(
@@ -177,7 +177,7 @@ class utils(commands.Cog):
             await ctx.send(embed=embed)
             del embed, image, data
         except:
-            raise ctx.bot.util.error_message("Pokemon not found.")
+            raise ctx.error_message("Pokemon not found.")
 
     @command(['recipes', 'cook'])
     @cooldown(2)
@@ -189,7 +189,7 @@ class utils(commands.Cog):
             q=' '.join(args)
         )
         if not data['results']: 
-            raise ctx.bot.util.error_message("I did not find anything.")
+            raise ctx.error_message("I did not find anything.")
         
         total = choice([i for i in data['results'] if i['thumbnail']!=''])
         embed = ctx.bot.Embed(
@@ -210,12 +210,12 @@ class utils(commands.Cog):
             return await ctx.success_embed(ctx.bot.util.convert_length(''.join(args)))
     
         equation = self.python_calc(args)
-        if search("[a-zA-Z]", equation): raise ctx.bot.util.error_message("Please do NOT input something that contains letters. This is not eval, nerd.")
+        if search("[a-zA-Z]", equation): raise ctx.error_message("Please do NOT input something that contains letters. This is not eval, nerd.")
         try:
             res = eval(equation)
             return await ctx.send(f"{equation} = `{str(res)[:1000]}`")
         except Exception as e:
-            raise ctx.bot.util.error_message(f"Error: {str(e)}")
+            raise ctx.error_message(f"Error: {str(e)}")
     
     @command()
     @cooldown(7)
@@ -242,7 +242,7 @@ class utils(commands.Cog):
         
         words = [word['word'] for word in data if word['flags'] == 'bc']
         if not words:
-            raise ctx.bot.util.error_message('We did not find any rhyming words corresponding to that letter.')
+            raise ctx.error_message('We did not find any rhyming words corresponding to that letter.')
         embed = ctx.bot.Embed(ctx, title='Words that rhymes with '+' '.join(args)+':', desc=str(' '.join(words))[:500])
         await embed.send()
         del embed, words, data
@@ -352,7 +352,7 @@ class utils(commands.Cog):
         if role_name:
             iterate_result = [i.id for i in ctx.guild.roles if role_name.lower() in i.name.lower()]
             if not iterate_result:
-                raise ctx.bot.util.error_message("Role not found.")
+                raise ctx.error_message("Role not found.")
             color_image = await ctx.bot.canvas.color(str(ctx.guild.get_role(iterate_result[0]).colour))
             del iterate_result
         else:

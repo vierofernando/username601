@@ -39,7 +39,7 @@ class memes(commands.Cog):
             
             my_oreo.eat()
         except Exception as e:
-            raise ctx.bot.util.error_message(str(e))
+            raise ctx.error_message(str(e), description=("](" in str(e)))
         collect()
     
     @command()
@@ -346,7 +346,7 @@ class memes(commands.Cog):
         message = await wait.get_message()
         
         if not message:
-            raise ctx.bot.util.error_message("You did not respond in time. Meme-generation canceled.")
+            raise ctx.error_message("You did not respond in time. Meme-generation canceled.")
         
         link = self.meme_templates["bottom_image"][(keys[int(message.content) - 1] if message.content.isnumeric() else message.content)]
         
@@ -355,7 +355,7 @@ class memes(commands.Cog):
         format_text = await wait.get_message()
         
         if not format_text:
-            raise ctx.bot.util.error_message("You did not respond in time. Meme-generation canceled.")
+            raise ctx.error_message("You did not respond in time. Meme-generation canceled.")
         await ctx.trigger_typing()
         buffer = await ctx.bot.canvas.bottom_image_meme(link, format_text.content[:150])
         await ctx.send(file=discord.File(buffer, "file.png"))
@@ -369,7 +369,7 @@ class memes(commands.Cog):
         wait = ctx.bot.WaitForMessage(ctx, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and (x.content in keys or (x.content.isnumeric() and int(x.content) in range(1, len(keys)+1)))), timeout=60.0)
         message = await wait.get_message()
         
-        if not message: raise ctx.bot.util.error_message("You did not respond in time. Meme-generation canceled.")
+        if not message: raise ctx.error_message("You did not respond in time. Meme-generation canceled.")
         link = self.meme_templates["topbottom"][(keys[int(message.content) - 1] if message.content.isnumeric() else message.content)]
         
         await ctx.send("Now send your top text and bottom text. Splitted by either spaces, commas, semicolon, or |.")
@@ -377,7 +377,7 @@ class memes(commands.Cog):
         format_text = await wait.get_message()
         
         if not format_text:
-            raise ctx.bot.util.error_message("You did not respond in time. Meme-generation canceled.")
+            raise ctx.error_message("You did not respond in time. Meme-generation canceled.")
         
         text1, text2 = ctx.bot.Parser.split_args(format_text.content.split())
         url = link.replace("{TEXT1}", ctx.bot.util.encode_uri(text1)[:64]).replace("{TEXT2}", ctx.bot.util.encode_uri(text2)[:64])
@@ -389,7 +389,7 @@ class memes(commands.Cog):
         wait = ctx.bot.WaitForMessage(ctx, check=(lambda x: x.author == ctx.author and x.channel == ctx.channel), timeout=60.0)
         message = await wait.get_message()
         
-        if not message: raise ctx.bot.util.error_message("You did not input a text. Meme making canceled.")
+        if not message: raise ctx.error_message("You did not input a text. Meme making canceled.")
         elif "mine" in message.content.lower(): url = ctx.author.avatar_url_as(size=512, format="png")
         else:
             ctx = await ctx.bot.get_context(message)
@@ -400,7 +400,7 @@ class memes(commands.Cog):
         text = await wait.get_message()
         
         if not text:
-            raise ctx.bot.util.error_message("You did not input a text. Meme making canceled.")
+            raise ctx.error_message("You did not input a text. Meme making canceled.")
         
         text1, text2 = ctx.bot.Parser.split_args(tuple(text.content.split()))
         await ctx.trigger_typing()

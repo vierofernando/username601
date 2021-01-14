@@ -45,7 +45,7 @@ class games(commands.Cog):
         wait = ctx.bot.WaitForMessage(ctx, timeout=20.0, check=(lambda x: x.channel == ctx.channel and (not x.author.bot) and (x.content.lower() == answer)))
         _message = await wait.get_message()
         if not _message:
-            raise ctx.bot.util.error_message(f"No one sent an answer! The answer is actually {answer}.")
+            raise ctx.error_message(f"No one sent an answer! The answer is actually {answer}.")
         
         _time = time() - a
         embed = ctx.bot.Embed(ctx, title=f"Congratulations! {_message.author.display_name} got it first!", fields={"Time taken": str(_time) + " seconds", "Answer": answer}, footer="Try again later if you lost lol")
@@ -64,17 +64,17 @@ class games(commands.Cog):
     async def tictactoe(self, ctx, *args):
         user = ctx.bot.Parser.parse_user(ctx, args)
         if user == ctx.author:
-            raise ctx.bot.util.error_message("You need to add a `mention/user ID/username` for someone to join your game as well.")
+            raise ctx.error_message("You need to add a `mention/user ID/username` for someone to join your game as well.")
         elif user.bot: 
-            raise ctx.bot.util.error_message("Sorry! There was an error on executing the tictactoe:\n`discord.DiscordAPIError: "+str(user)+" is a botum`")
+            raise ctx.error_message("Sorry! There was an error on executing the tictactoe:\n`discord.DiscordAPIError: "+str(user)+" is a botum`")
 
         wait_for = ctx.bot.WaitForMessage(ctx, timeout=20.0, check=(lambda x: x.author == ctx.author and x.channel == ctx.channel and (x.content.lower() in ['yes', 'no'])))
         response = await wait_for.get_message()
 
         if not response:
-            raise ctx.bot.util.error_message(user.display_name+" did not respond in 20 seconds! Game invitation ended.")
+            raise ctx.error_message(user.display_name+" did not respond in 20 seconds! Game invitation ended.")
         elif response.content.lower() == "no":
-            raise ctx.bot.util.error_message(f"Well, {user.display_name} denied your request! Try requesting someone else?")
+            raise ctx.error_message(f"Well, {user.display_name} denied your request! Try requesting someone else?")
 
         characters = (ctx.author, user)
         game = ctx.bot.TicTacToe()
@@ -89,7 +89,7 @@ class games(commands.Cog):
                     lambda x: (x.author == characters[current]) and (x.channel == ctx.channel) and x.content.isnumeric() and (len(x.content) == 1)
                 ), timeout=20.0)
             except:
-                raise ctx.bot.util.error_message(str(characters[current]) + " did not respond in 20 seconds! game ended.")
+                raise ctx.error_message(str(characters[current]) + " did not respond in 20 seconds! game ended.")
             
             try:
                 res = game.add_move(int(msg.content), bool(current))
@@ -131,7 +131,7 @@ class games(commands.Cog):
         name = ctx.bot.util.encode_uri(' '.join(args) if args else ctx.author.display_name)
         data = await ctx.bot.http._HTTPClient__session.get(f"https://mc-heads.net/minecraft/profile/{name}")
         if data.status != 200:
-            raise ctx.bot.util.error_message(f"Minecraft for profile: `{name}` not found.")
+            raise ctx.error_message(f"Minecraft for profile: `{name}` not found.")
         data = await data.json()
         
         _buffer = await ctx.bot.canvas.minecraft_body(f"https://mc-heads.net/body/{name}/600", data['id'])
@@ -179,7 +179,7 @@ class games(commands.Cog):
             await embed.send()
             del embed
         except:
-            raise ctx.bot.util.error_message('Error, user not found.')
+            raise ctx.error_message('Error, user not found.')
     
     async def geometry_dash_comment(self, ctx, args):
         parser = ctx.bot.Parser(args)
@@ -210,8 +210,8 @@ class games(commands.Cog):
                 #del levelBuilder
                 #return await ctx.send(file=discord.File(daily, "level.png"))
             except:
-                raise ctx.bot.util.error_message("This sub command is temporary closed because the section is API is temporarily blocked by RobTop.")
-                #raise ctx.bot.util.error_message("The Geometry dash servers seems to be down. Please try again later.")
+                raise ctx.error_message("This sub command is temporary closed because the section is API is temporarily blocked by RobTop.")
+                #raise ctx.error_message("The Geometry dash servers seems to be down. Please try again later.")
         elif _input == "weekly":
             try:
                 assert False
@@ -220,8 +220,8 @@ class games(commands.Cog):
                 #del levelBuilder
                 #return await ctx.send(file=discord.File(weekly, "level.png"))
             except:
-                raise ctx.bot.util.error_message("This sub command is temporary closed because the section is API is temporarily blocked by RobTop.")
-                #raise ctx.bot.util.error_message("The Geometry dash servers seems to be down. Please try again later.")
+                raise ctx.error_message("This sub command is temporary closed because the section is API is temporarily blocked by RobTop.")
+                #raise ctx.error_message("The Geometry dash servers seems to be down. Please try again later.")
         elif _input.isnumeric():
             try:
                 levelBuilder = ctx.bot.GDLevel(ctx, level_query=_input, font_title=ctx.bot.util.fonts_dir + "/PUSAB__.otf", font_other=ctx.bot.util.fonts_dir + "/Aller.ttf")
@@ -229,7 +229,7 @@ class games(commands.Cog):
                 del levelBuilder
                 return await ctx.send(file=discord.File(level, "level.png"))
             except:
-                raise ctx.bot.util.error_message(f"Level with the ID: {_input} not found.")
+                raise ctx.error_message(f"Level with the ID: {_input} not found.")
         
         result = await ctx.bot.util.request(
             "https://gdbrowser.com/api/search/" + ctx.bot.util.encode_uri(" ".join(args)),
@@ -250,7 +250,7 @@ class games(commands.Cog):
             return await ctx.send(file=discord.File(buffer, "level.png"))
         except Exception as e:
             print(str(e))
-            raise ctx.bot.util.error_message("The Geometry Dash servers may be down. Please blame RobTop for this :)")
+            raise ctx.error_message("The Geometry Dash servers may be down. Please blame RobTop for this :)")
 
     @command(['geometrydash', 'geometry-dash', 'gmd'])
     @cooldown(5)
@@ -341,7 +341,7 @@ class games(commands.Cog):
             await embed.send()
             del embed
         except Exception as e:
-            raise ctx.bot.util.error_message(str(e))
+            raise ctx.error_message(str(e))
 
     @command()
     @cooldown(4, channel_wide=True)
@@ -412,7 +412,7 @@ class games(commands.Cog):
         try:
             trivia = ctx.bot.Trivia(" ".join(args)[:50] if args else "Apple", session=ctx.bot.http._HTTPClient__session)
         except Exception as e:
-            raise ctx.bot.util.error_message(str(e))
+            raise ctx.error_message(str(e))
         correct = await trivia.start(ctx)
         del trivia
         

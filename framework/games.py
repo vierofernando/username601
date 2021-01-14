@@ -24,7 +24,7 @@ class GuessTheFlag:
         message = await wait.get_message()
         del wait
         if not message:
-            raise self.ctx.bot.util.error_message(f"Wrong, The correct answer is {country_name}.")
+            raise self.ctx.error_message(f"Wrong, The correct answer is {country_name}.")
         return True
 
 class Hangman:

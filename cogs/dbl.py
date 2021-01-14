@@ -35,17 +35,17 @@ class dbl(commands.Cog):
             _input = self.client.Parser.parse_user(ctx, args[1:])
         
         if _input.bot:
-            raise self.client.util.error_message(str(_input) + " is a bot.")
+            raise ctx.error_message(str(_input) + " is a bot.")
         data = await self.get(f"/users/{_input.id}")
         
         if data.get("error"):
-            raise self.client.util.error_message(str(_input) + " does not exist in the [top.gg](https://top.gg/) database.")
+            raise ctx.error_message(str(_input) + " does not exist in the [top.gg](https://top.gg/) database.", description=True)
         _ext = ".gif" if _input.is_avatar_animated() else ".png"
         _bio = discord.utils.escape_markdown(data["bio"]) if data.get("bio") else "This user has no bio."
         _color = "`"+data['color'].upper()+"`" if (data.get('color') not in self._none) else "`<not set>`"
         _avatar = "https://cdn.discordapp.com/avatars/"+data["id"]+"/"+data["avatar"]+".png" if data.get("avatar") else None
         if not _avatar:
-            raise self.client.util.error_message("That user does not exist in the [top.gg](https://top.gg/) database.")
+            raise ctx.error_message("That user does not exist in the [top.gg](https://top.gg/) database.", description=True)
         
         return self.client.Embed(
             ctx,
@@ -74,7 +74,7 @@ class dbl(commands.Cog):
         data = data["results"] # why
         
         if not data:
-            raise self.client.util.error_message("That bot does not exist on the [top.gg](https://top.gg/) database.")
+            raise ctx.error_message("That bot does not exist on the [top.gg](https://top.gg/) database.", description=True)
         embed = self.client.ChooseEmbed(ctx, data, key=(lambda x: "["+x["name"]+"](https://top.gg/bot/"+x["id"]+")"))
         res = await embed.run()
         del embed, data
@@ -96,7 +96,7 @@ class dbl(commands.Cog):
         data = await self.get(f"/bots/{_id}")
         
         if data.get("error"):
-            raise self.client.util.error_message("That bot does not exist in the [top.gg](https://top.gg/) database.")
+            raise ctx.error_message("That bot does not exist in the [top.gg](https://top.gg/) database.", description=True)
         _links = "\n".join([("["+self._bot_subtitution[key]+"]("+self._bot_links[key]+data[key]+")" if data.get(key) else "??") for key in self._bot_links.keys()])
         _links = _links.replace("\n??", "").replace("??", "")
         bot_devs = ""
@@ -110,7 +110,7 @@ class dbl(commands.Cog):
             url="https://top.gg/bot/" + data["id"],
             desc="***\"" + data["shortdesc"] + "\"***",
             fields={
-                "General Information": "**Published at: **"+data["date"][:-5].replace("T", " ")+"\n**Bot Prefix: **`"+data["prefix"]+"`\n**Tags: **"+(
+                "General Information": "**Published at: **"+ctx.bot.util.timestamp(data["date"])+"\n**Bot Prefix: **`"+data["prefix"]+"`\n**Tags: **"+(
                     " - ".join(["["+key+"](https://top.gg/tag/"+key.lower().replace(" ", "-")+")" for key in data["tags"]])
                 ),
                 "Bot Stats": "**Server Count: **`"+(str(data["server_count"]) if data.get("server_count") else "<not shown>")+"`\n**Shard Count: **`"+str(len(data["shards"]))+"`\n"+(":white_check_mark:" if data["certifiedBot"] else ":x:")+" Certified DBL Bot\n**"+str(data["points"])+"** Upvotes\n**"+str(data["monthlyPoints"])+"** Upvotes in this month",
