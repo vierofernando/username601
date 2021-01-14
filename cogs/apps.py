@@ -141,11 +141,12 @@ class apps(commands.Cog):
                     github=True,
                     json=True
                 )
+                
                 embed = ctx.bot.Embed(
                     ctx,
                     title=data["name"] or data["login"],
                     fields={
-                        "General": f"{('**Login Username: **' + data['login'] + '\n' if data['name'] else '')}**ID: **`{data['id']}`\n**Created at: **{ctx.bot.util.timestamp(data['created_at'])}\n**Updated at: **{ctx.bot.util.timestamp(data['updated_at'])}",
+                        "General": f"{('**Login Username: **' + data['login'] + nl if data['name'] else '')}**ID: **`{data['id']}`\n**Created at: **{ctx.bot.util.timestamp(data['created_at'])}\n**Updated at: **{ctx.bot.util.timestamp(data['updated_at'])}",
                         "Bio": data["bio"] if data.get("bio") else "`<no bio>`",
                         "Stats": f"**Followers: **{data['followers']}\n**Following: **{data['following']}\n**Public Repositories: **{data['public_repos']}\n**Public Gists: **{data['public_gists']}"
                     },

@@ -670,7 +670,7 @@ class moderation(commands.Cog):
             ctx,
             title=str(user),
             fields={
-                "General": f"**User ID: **{user.id}{nl if not user.nick else f'**Nick Name: **{user.nick}\n'}**Status: **{'do not disturb' if user.status == discord.Status.dnd else str(user.status)} {online_location}{'' if not user.premium_since else f'**Boosting since: **{ctx.bot.util.timestamp(user.premium_since)}'}",
+                "General": f"**User ID: **{user.id}{nl if not user.nick else f'**Nick Name: **{user.nick}{nl}'}**Status: **{'do not disturb' if user.status == discord.Status.dnd else str(user.status)} {online_location}{'' if not user.premium_since else f'**Boosting since: **{ctx.bot.util.timestamp(user.premium_since)}'}",
                 "History": f"**Joined at: **{ctx.bot.util.timestamp(user.joined_at)}, (Position: {join_pos:,}/{ctx.guild.member_count:,})\n**Created at: **{ctx.bot.util.timestamp(user.created_at)}",
                 "Color": f"**Hex Color:** {str(user.color)}\n**RGB: **{user.color.r}, {user.color.g}, {user.color.b}"
             },
