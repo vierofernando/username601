@@ -133,7 +133,7 @@ class ImageClient:
             del im_, im
         temp_images += ImageClient.EXPLOSION_GIF
         buffer = BytesIO()
-        temp_images[0].save(buffer, "GIF", save_all=True, append_images=temp_images[1:], duration=3, loop=0)
+        temp_images[0].save(buffer, "GIF", save_all=True, append_images=temp_images[1:], duration=3, loop=0, optimize=False)
         buffer.seek(0)
         del temp_images
         gc.collect()
@@ -671,6 +671,8 @@ class UserCard:
             ActivityType.custom:    None,
             ActivityType.unknown:   None
         }
+        
+        self._activity_prefix = (None, "Playing ", "Streaming ", "Listening to ", "Watching ", "", "CO")
     
     async def get_status_image(self):
         dict_data = self.user.activity.to_dict()
@@ -689,8 +691,13 @@ class UserCard:
         return
     
     def get_status_name(self):
-        name = self._activity_prefix[self.user.activity.type]
-        return (name + self.user.activity.to_dict()["name"] if name else "<custom activity>")
+        prefix = self._activity_prefix[self.user.activity.type.value + 1]
+        if prefix is None:
+            return "<unknown status>"
+        elif not prefix:
+            return "<custom activity>"
+        
+        return prefix + getattr(self.user.activity, "name", "<unknown>")
     
     def get_font(self, size: int):
         return ImageFont.truetype(self.font_path, size)
