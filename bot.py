@@ -11,7 +11,7 @@ intents = discord.Intents(
     guilds=True, members=True, emojis=True, guild_reactions=True, presences=True, guild_messages=True
 )
 
-client = commands.Bot(command_prefix="1", intents=intents, activity=discord.Activity(type=5, name="2020 v2 survival competition. Good Luck, chief"))
+client = commands.Bot(command_prefix="1", intents=intents, activity=discord.Activity(type=5, name="hell"))
 framework.initiate(client)
 pre_ready_initiation(client)
 
@@ -24,7 +24,6 @@ client.util.mobile_indicator()
 async def on_ready():
     await post_ready_initiation(client)
     client.util.load_cog(client.util.cogs_dirname)
-    client.util.post_ready()
     print('Bot is online.')
 
 @client.event
@@ -90,7 +89,7 @@ async def on_member_remove(member):
     if data.get("welcome"):
         await member.guild.get_channel(data["welcome"]).send(embed=discord.Embed(
             title=f"Goodbye, {member.display_name}...",
-            description=f"{member.display_name} left {member.guild.name} after being a member for {client.util.strfsecond(time() - member.joined_at.timestamp())} (Joined at {str(member.joined_at)[:-7]})",
+            description=f"{member.display_name} left {member.guild.name} after being a member for {client.util.strfsecond(time() - member.joined_at.timestamp())} (Joined at {client.util.timestamp(member.joined_at, include_time_past=False)})",
             color=discord.Color.red()
         ).set_thumbnail(url=member.avatar_url))
     
