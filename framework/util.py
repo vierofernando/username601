@@ -85,12 +85,15 @@ class Util:
             60: "minute"
         }
         
-        def _embed_add_useless_stuff(self, ctx):
+        def _embed_add_useless_stuff(self, ctx, disable_color: bool = False):
             self._footer = {
                 "text": "Command executed by "+str(ctx.author),
                 "icon_url": str(ctx.author.avatar_url)
             }
             self.timestamp = datetime.now()
+            
+            if not disable_color:
+                self.colour = ctx.me.colour
             return self
         
         async def send_image(self, url, alexflipnote: bool = False, message_options: dict = {}):
@@ -150,7 +153,7 @@ class Util:
         self.status_codes = loads(open(self.json_dir + "/status.json", "r", encoding="utf-8").read())
 
         setattr(client, attribute_name, self)
-    
+
     def mobile_indicator(self) -> None:
         """ Turns your bot to a bot with mobile status. Source from this gist: https://gist.github.com/norinorin/0ef021163d042b3be76b892726d76e52 """
         

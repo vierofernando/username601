@@ -38,8 +38,8 @@ class owner(commands.Cog):
     
     def prepare(self, string):
         arr = string.strip("```").replace("py\n", "").replace("python\n", "").split("\n")
-        if not arr[::-1][0].replace(" ", "").startswith("return"):
-            arr[len(arr) - 1] = "return " + arr[::-1][0]
+        if not arr[-1].replace(" ", "").startswith("return"):
+            arr[len(arr) - 1] = "return " + arr[-1]
         return "".join(f"\n\t{i}" for i in arr)
     
     @command(["eval", "ex", "ev", "code"])
@@ -67,8 +67,8 @@ class owner(commands.Cog):
                 return gc.collect()
             
             await ctx.send(f"```py\n{self.resolve_variable(response)}````{type(response).__name__} | {(time() - a) / 1000} ms`")
-        except Exception as e:
-            await ctx.send(f"Error occurred:```\n{type(e).__name__}: {str(e)}```")
+        except:
+            await ctx.send(f":x: Error occurred:```py\n{format_exc()}```")
         
         del args, code, silent
         gc.collect()

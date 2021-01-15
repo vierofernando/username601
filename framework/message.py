@@ -86,6 +86,41 @@ class Paginator:
             raise TypeError("Message has not been sent.")
         return await self.message.delete()
 
+    @staticmethod
+    def from_long_array(ctx, array: list, data: dict = {}, char: str = "\n", max_pages: int = 20, max_char_length: int = 2000, *args, **kwargs):
+        if len(char.join(array)) <= max_char_length:
+            return
+        
+        size = len(char)
+        total = []
+        current = char
+        for i in array:
+            if len(total) >= max_pages:
+                break
+        
+            _current = current + char + i
+            if len(_current[size:]) >= max_char_length:
+                total.append(current[size:])
+                current = char + i
+                continue
+            current = _current
+            del _current
+        
+        if current:
+            total.append(current[size:])
+        
+        embeds = []
+        
+        for section in total:
+            temp = data.copy()
+            temp["description"] = section
+            embeds.append(Embed.from_dict(temp).add_useless_stuff(ctx))
+            del section, temp
+        
+        del total, current, size
+        show_page_count = kwargs.pop("show_page_count", True)
+        return Paginator(ctx, embeds, show_page_count=show_page_count, *args, **kwargs)
+
 class embed:
     """
     Embed 'wrapper' i guess

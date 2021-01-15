@@ -189,7 +189,7 @@ class moderation(commands.Cog):
         embed = ctx.bot.Embed(
             ctx,
             title='Activated Auto-dehoister.',
-            desc=f'Auto-Dehoister is an automated part of this bot that automatically renames someone that tries to hoist their name (for example: `!ABC`)\n\n**How do i deactivate this?**\nJust type `{ctx.bot.command_prefix}dehoister`.\n\n**It doesn\'t work for me!**\nMaybe because your role position is higher than me, so i don\'t have the permissions required.'
+            desc=f'Auto-Dehoister is an automated part of this bot that automatically renames someone that tries to hoist their name (for example: `!ABC`)\n\n**How do i deactivate this?**\nJust type `{ctx.prefix}dehoister`.\n\n**It doesn\'t work for me!**\nMaybe because your role position is higher than me, so i don\'t have the permissions required.'
         ) if ((not data) or (not data.get("dehoister"))) else ctx.bot.Embed(ctx, title="Auto-dehoister deactivated.", color=discord.Color.green())
     
         if (not data) or (not data.get("dehoister")): 
@@ -223,7 +223,7 @@ class moderation(commands.Cog):
         if not parser:
             if (not data) or (not data.get("starboard")):
                 channel = await ctx.guild.create_text_channel(name='starboard', topic='Server starboard channel. Every funny/cool posts will be here.')
-                await ctx.success_embed(f'Created a channel <#{channel.id}>. Every starboard will be set there.\nTo remove starboard, type `{ctx.bot.command_prefix}starboard --remove`.\nBy default, starboard requirements are set to 1 reaction. To increase, type `{ctx.bot.command_prefix}starboard --limit <number>`.')
+                await ctx.success_embed(f'Created a channel <#{channel.id}>. Every starboard will be set there.\nTo remove starboard, type `{ctx.prefix}starboard --remove`.\nBy default, starboard requirements are set to 1 reaction. To increase, type `{ctx.prefix}starboard --limit <number>`.')
                 
                 if not data:
                     self.db.add("dashboard", {
@@ -244,7 +244,7 @@ class moderation(commands.Cog):
                 ctx,
                 title=f'Starboard for {ctx.guild.name}',
                 desc=f'Channel: <#{data["starboard"]}>\nStars required to reach: {data["star_requirements"]}',
-                fields={'Commands': f'`{ctx.bot.command_prefix}starboard --remove` **Removes the starboard from this server. (you can also delete the channel yourself)**\n`{ctx.bot.command_prefix}starboard --limit <number>` **Changes the amount of star reactions required before a specific message gets to starboard. This defaults to `1` reaction.**'}
+                fields={'Commands': f'`{ctx.prefix}starboard --remove` **Removes the starboard from this server. (you can also delete the channel yourself)**\n`{ctx.prefix}starboard --limit <number>` **Changes the amount of star reactions required before a specific message gets to starboard. This defaults to `1` reaction.**'}
             )
             await embed.send()
             del embed, nl
@@ -345,7 +345,7 @@ class moderation(commands.Cog):
             embed = ctx.bot.Embed(
                 ctx,
                 title='Command usage',
-                desc=f'{ctx.bot.command_prefix}welcome <channel>'+'\n'+f'{ctx.bot.command_prefix}welcome disable'
+                desc=f'{ctx.prefix}welcome <channel>'+'\n'+f'{ctx.prefix}welcome disable'
             )
             await embed.send()
             del embed, args
@@ -522,7 +522,7 @@ class moderation(commands.Cog):
         enable = (not args[0].lower() in ['yes', 'y', 'enable', 'true', 'enabled', 'on'])
         await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=enable)
         try:
-            await ctx.success_embed(f"Successfully {'Locked' if enable else 'Re-opened'} the channel.", description=f"All members with the default role {'can send messages in this channel again.' if enable else 'cannot send messages in this channel'}." + "\nType `" + ctx.bot.command_prefix + f"lock {'enable' if enable else 'disable'}` to {'enable' if enable else 'disable'} this effect again.")
+            await ctx.success_embed(f"Successfully {'Locked' if enable else 'Re-opened'} the channel.", description=f"All members with the default role {'can send messages in this channel again.' if enable else 'cannot send messages in this channel'}." + "\nType `" + ctx.prefix + f"lock {'enable' if enable else 'disable'}` to {'enable' if enable else 'disable'} this effect again.")
         except: return
     
     @command(['hidechannel', 'hide-channel'])
@@ -533,7 +533,7 @@ class moderation(commands.Cog):
         enable = (not args[0].lower() in ['yes', 'y', 'enable', 'true', 'enabled', 'on'])
         await ctx.channel.set_permissions(ctx.guild.default_role, read_messages=enable)
         try:
-            await ctx.success_embed(f"Successfully {'Hide' if enable else 'Re-opened'} the channel.", description=f"All members with the default role {'can see messages in this channel again.' if enable else 'cannot read messages in this channel/see messages in this channel'}." + "\nType `" + ctx.bot.command_prefix + f"hide {'enable' if enable else 'disable'}` to {'enable' if enable else 'disable'} this effect again.")
+            await ctx.success_embed(f"Successfully {'Hide' if enable else 'Re-opened'} the channel.", description=f"All members with the default role {'can see messages in this channel again.' if enable else 'cannot read messages in this channel/see messages in this channel'}." + "\nType `" + ctx.prefix + f"hide {'enable' if enable else 'disable'}` to {'enable' if enable else 'disable'} this effect again.")
         except:
             return
     
@@ -546,7 +546,7 @@ class moderation(commands.Cog):
                 role = ctx.bot.Parser.parse_role(ctx, ' '.join(args[1:]), return_array=True)
                 assert role
             except:
-                raise ctx.error_message(f"Please add role name/mention/ID after the `{ctx.bot.command_prefix}role info`.")
+                raise ctx.error_message(f"Please add role name/mention/ID after the `{ctx.prefix}role info`.")
             if isinstance(role, list):
                 choose = ctx.bot.ChooseEmbed(ctx, role, key=(lambda x: x.mention))
                 res = await choose.run()
@@ -580,10 +580,18 @@ class moderation(commands.Cog):
             del embed, role_members, extra, role, permissions
             return
         elif args[0].lower() == "list":
-            embed = ctx.bot.Embed(ctx, title="Server Roles List", desc=" ".join([i.mention for i in ctx.guild.roles[1:]])[:1000])
-            await embed.send()
-            del embed
-            return
+            _map = list(map(lambda x: x.mention, ctx.guild.roles[1:]))
+            paginator = ctx.bot.EmbedPaginator.from_long_array(ctx, _map, {
+                "title": "Server Roles List"
+            }, char=" ", max_char_length=1000, max_pages=5)
+        
+            if not paginator:
+                embed = ctx.bot.Embed(ctx, title="Server Roles List", desc=" ".join(_map))
+                await embed.send()
+                del embed, paginator, _map
+                return
+            del _map
+            return await paginator.execute()
         return await ctx.bot.cmds.invalid_args(ctx)
         
     @command(['guild-channel', 'server-channel'])
@@ -591,10 +599,18 @@ class moderation(commands.Cog):
     @require_args()
     async def channel(self, ctx, *args):
         if args[0].lower() == "list":
-            embed = ctx.bot.Embed(ctx, title="Server Channels List", description=" ".join([f"<#{i.id}>" for i in ctx.guild.channels if i.type == discord.ChannelType.text or i.type == discord.ChannelType.voice])[:1000])
-            await embed.send()
-            del embed
-            return
+            _map = [f"<#{i.id}>" for i in ctx.guild.channels if i.type == discord.ChannelType.text]
+            paginator = ctx.bot.EmbedPaginator.from_long_array(ctx, _map, {
+                "title": "Server Channels List"
+            }, char=" ", max_char_length=1000, max_pages=6)
+            
+            if not paginator:
+                embed = ctx.bot.Embed(ctx, title="Server Channels List", desc=" ".join(_map))
+                await embed.send()
+                del embed
+                return
+            del _map
+            return await paginator.execute()
         elif args[0].lower() == "info":
             try:
                 channel = ctx.bot.Parser.parse_channel(ctx, ' '.join(args[1:]), return_array=True)
@@ -699,18 +715,20 @@ class moderation(commands.Cog):
     @require_args()
     async def emoji(self, ctx, *args):
         if args[0].lower() == "list":
-            if not ctx.guild.emojis:
-                raise ctx.error_message('This server has no emojis!')
-            emojis, footer_text = "", None
-            for index, emoji in enumerate(ctx.guild.emojis):
-                if len(emojis) >= 1975:
-                    footer_text = f"...and other {len(ctx.guild.emojis) - index} custom emojis (too much to display)"
-                    break
-                emojis += str(emoji) + " "
-            embed = ctx.bot.Embed(ctx, title="Server Custom Emojis List", desc=emojis, footer=(None if footer_text == "" else footer_text))
-            await embed.send()
-            del embed, emojis, footer_text
-            return
+            _map = list(map(str, ctx.guild.emojis))
+            
+            paginator = ctx.bot.EmbedPaginator.from_long_array(ctx, _map, {
+                "title": "Server Custom Emojis List",
+                "thumbnail": { "url": str(ctx.guild.icon_url) }
+            }, char=" ", max_char_length=1500, max_pages=10)
+            
+            if not paginator:
+                embed = ctx.bot.Embed(ctx, title="Server Custom Emojis List", desc=" ".join(_map))
+                await embed.send()
+                del embed, _map, paginator
+                return
+            del _map
+            return await paginator.execute()
         elif args[0].lower() == "info":
             try:
                 res = await ctx.bot.Parser.parse_emoji(ctx, args[1])
@@ -745,7 +763,7 @@ class moderation(commands.Cog):
                 res = await ctx.bot.Parser.parse_emoji(ctx, args[1])
                 assert res
             except:
-                raise ctx.error_message(f"Please add a emoji after the `{ctx.bot.command_prefix}emoji enlarge`")
+                raise ctx.error_message(f"Please add a emoji after the `{ctx.prefix}emoji enlarge`")
             return await ctx.send_image(res)
         return await ctx.bot.cmds.invalid_args(ctx)
     

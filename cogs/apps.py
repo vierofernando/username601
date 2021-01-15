@@ -125,8 +125,7 @@ class apps(commands.Cog):
             await embed.send()
             del embed, result, search, data
             
-        except Exception as e:
-            print(str(e))
+        except:
             raise ctx.error_message("Did not found anything corresponding to your search.")
 
     @command(['git'])
@@ -134,6 +133,7 @@ class apps(commands.Cog):
     @require_args(2)
     async def github(self, ctx, *args):
         try:
+            await ctx.trigger_typing()
             nl = "\n" 
             if (args[0].lower() in ("user", "users", "profile")):
                 data = await ctx.bot.util.request(
@@ -163,18 +163,19 @@ class apps(commands.Cog):
                     json=True
                 )
                 
-                desc = ""
-                for repo in data:
-                    if len(desc) >= 1900:
-                        break
-                    
-                    desc += f"{'[ '+repo['language']+' ]' if repo['language'] else '[ ??? ]'} [{repo['full_name']}]({repo['html_url']}){' :fork_and_knife:' if repo['fork'] else ''}\n"
+                desc = [f"{'[ '+repo['language']+' ]' if repo['language'] else '[ ??? ]'} [{repo['full_name']}]({repo['html_url']}){' :fork_and_knife:' if repo['fork'] else ''}" for repo in data]
+                paginator = ctx.bot.EmbedPaginator.from_long_array(ctx, desc, {
+                    "title": ' '.join(args[1:]) + f"'s repositories [{len(data):,}]",
+                    "thumbnail": { "url": data[0]["owner"]["avatar_url"] }
+                })
                 
-                embed = ctx.bot.Embed(ctx, title=' '.join(args[1:]) + f"'s repositories [{len(data):,}]", desc=desc, thumbnail=data[0]["owner"]["avatar_url"])
-                
-                await embed.send()
-                del embed, desc, data, nl
-                return
+                if not paginator:
+                    embed = ctx.bot.Embed(ctx, title=' '.join(args[1:]) + f"'s repositories [{len(data):,}]", desc="\n".join(desc), thumbnail=data[0]["owner"]["avatar_url"])
+                    await embed.send()
+                    del embed, desc, data, nl, paginator
+                    return
+                del desc, data, nl
+                return await paginator.execute()
             elif (args[0].lower() == "gists"):
                 data = await ctx.bot.util.request(
                     f"https://api.github.com/users/{'-'.join(args[1:])}/gists",
@@ -186,16 +187,25 @@ class apps(commands.Cog):
                     raise ctx.error_message("This user does not have any gists.")
                 
                 get_first_key = lambda x: x[list(x.keys())[0]]
-                gists = "\n".join(map(lambda x: f'[{x.get("description", "<no desc>")}]({x.get("html_url", "https://google.com/")}) [**{get_first_key(x["files"]).get("language", "???")}**]', data))[:1900]
-                embed = ctx.bot.Embed(
-                    ctx,
-                    title=(data[0].get("owner").get("login") or "<no name>") + f"'s GitHub Gists ({len(data):,})",
-                    desc=gists,
-                    thumbnail=data[0].get("owner").get("avatar_url")
-                )
-                await embed.send()
-                del get_first_key, gists, embed, data
-                return
+                gists = list(map(lambda x: f'[{x.get("description", "<no desc>")}]({x.get("html_url", "https://google.com/")}) [**{get_first_key(x["files"]).get("language", "???")}**]', data))[:1900]
+                paginator = ctx.bot.EmbedPaginator.from_long_array(ctx, gists, {
+                    "thumbnail": { "url": data[0].get("owner").get("avatar_url") },
+                    "title": data[0].get("owner").get("login") or "<no name>"
+                })
+                
+                if not paginator:
+                    embed = ctx.bot.Embed(
+                        ctx,
+                        title=(data[0].get("owner").get("login") or "<no name>") + f"'s GitHub Gists ({len(data):,})",
+                        desc="\n".join(gists),
+                        thumbnail=data[0].get("owner").get("avatar_url")
+                    )
+                    await embed.send()
+                    del get_first_key, gists, embed, data
+                    return
+                
+                del get_first_key, gists, data
+                return await paginator.execute()
             elif (args[0].lower() == "gist"):
                 assert len(args[1]) >= 25
                 data = await ctx.bot.util.request(

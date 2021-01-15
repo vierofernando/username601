@@ -292,7 +292,7 @@ class economy(commands.Cog):
                         assert blacklisted_word not in text, "Please do not include any links or bad words in your bio!"
                     data = self.db.get("economy", {"userid": ctx.author.id})
                     
-                    assert bool(data), f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."
+                    assert bool(data), f"You do not have a profile. Use `{ctx.prefix}new` to create a brand new profile."
                     assert data["bal"] > 500, f"You need at least 500 bobux to change bio ({(500 - data['bal']):,} more bobux required)"
 
                     await ctx.success_embed(f"Successfully changed your bio.")
@@ -307,7 +307,7 @@ class economy(commands.Cog):
                     color = ctx.bot.Parser.parse_color(parser.other)
                     assert bool(color)
                     data = self.db.get("economy", {"userid": ctx.author.id})
-                    assert bool(data), f"You do not have a profile. Use `{ctx.bot.command_prefix}new` to create a brand new profile."
+                    assert bool(data), f"You do not have a profile. Use `{ctx.prefix}new` to create a brand new profile."
                     assert data["bal"] > 1000, f"You need at least 1,000 bobux to change bio ({(1000 - data['bal']):,} more bobux required)"
                 except ValueError:
                     return await ctx.bot.cmds.invalid_args(ctx)
@@ -345,7 +345,7 @@ class economy(commands.Cog):
             fields={
                 "Balance": f"{data['bal']:,} bobux" + "\n" f"{data['bankbal']:,} bobux (bank)",
                 "Description": data["desc"] if data.get("desc") else "**<this profile is without description>**",
-                "Daily": (f"**[:white_check_mark: can be claimed using `{ctx.bot.command_prefix}daily`]**" if ((not data["lastDaily"]) or ((time() - data["lastDaily"]) > 43200)) else f"Can be claimed in {ctx.bot.util.strfsecond((data['lastDaily'] + 43200) - time())}") + "\n" + f"Streak: {streak} (Next daily reward: {(250 * (streak + 1)):,} bobux)"
+                "Daily": (f"**[:white_check_mark: can be claimed using `{ctx.prefix}daily`]**" if ((not data["lastDaily"]) or ((time() - data["lastDaily"]) > 43200)) else f"Can be claimed in {ctx.bot.util.strfsecond((data['lastDaily'] + 43200) - time())}") + "\n" + f"Streak: {streak} (Next daily reward: {(250 * (streak + 1)):,} bobux)"
             },
             footer="Daily streaks will be reset back to 1 if daily is not claimed after 24 hours.",
             color=discord.Color.from_rgb(*[int(i) for i in data["color"].split(",")]) if data.get("color") else ctx.me.color
@@ -365,7 +365,7 @@ class economy(commands.Cog):
         if self.db.exist("economy", {"userid": ctx.author.id}):
             raise ctx.error_message("You already have a profile. No need to create another.")
         
-        await ctx.success_embed(f"Created your profile! Use {ctx.bot.command_prefix}bal to view your profile.")
+        await ctx.success_embed(f"Created your profile! Use {ctx.prefix}bal to view your profile.")
         self.db.add("economy", {
             "userid": ctx.author.id,
             "lastDaily": None,

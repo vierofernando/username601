@@ -248,8 +248,7 @@ class games(commands.Cog):
             buffer = await levelBuilder.draw()
             del levelBuilder
             return await ctx.send(file=discord.File(buffer, "level.png"))
-        except Exception as e:
-            print(str(e))
+        except:
             raise ctx.error_message("The Geometry Dash servers may be down. Please blame RobTop for this :)")
 
     @command(['geometrydash', 'geometry-dash', 'gmd'])

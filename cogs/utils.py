@@ -243,9 +243,18 @@ class utils(commands.Cog):
         words = [word['word'] for word in data if word['flags'] == 'bc']
         if not words:
             raise ctx.error_message('We did not find any rhyming words corresponding to that letter.')
-        embed = ctx.bot.Embed(ctx, title='Words that rhymes with '+' '.join(args)+':', desc=str(' '.join(words))[:500])
-        await embed.send()
-        del embed, words, data
+        
+        paginator = ctx.bot.EmbedPaginator.from_long_array(ctx, words, {
+            "title": f"Words that rhymes with {' '.join(args)[:15]}:"
+        }, char=", ", max_char_length=500)
+        
+        if not paginator:
+            embed = ctx.bot.Embed(ctx, title='Words that rhymes with '+' '.join(args)+':', desc=str(', '.join(words))[:500])
+            await embed.send()
+            del embed, words, data, paginator
+            return
+        del words, data
+        return await paginator.execute()
 
     @command()
     @cooldown(7)
