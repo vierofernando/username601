@@ -121,49 +121,6 @@ class owner(commands.Cog):
         data = self.db.get("config", {"h": True})["bans"]
         self.db.modify("config", self.db.types.CHANGE, {"h": True}, {"bans": [i for i in data if int(args[0]) != int(i.split("|")[0])]})
         await ctx.send("unbannum'd")
-    
-    # @command(['ex', 'eval'])
-    # @cooldown(1)
-    # async def evaluate(self, ctx, *args): # this code can be messy because its owner and i dont care
-    #     iwanttostealsometoken = False
-    #     parser = ctx.bot.Parser(args)
-    #     parser.parse()
-    #     
-    #     if ctx.author.id == ctx.bot.util.owner_id:
-    #         if parser.has("simple"):
-    #             parser.shift("simple")
-    #             value = eval(" ".join(parser.other))
-    #             return await ctx.send(str(value))
-    #         
-    #         try:
-    #             time_then = t.now().timestamp()
-    #             res = eval(" ".join(parser.other))
-    #             time = (t.now().timestamp() - time_then) * 1000
-    #             for i in self.protected_files:
-    #                 if i.lower() in str(res).lower(): res = totallyrealtoken
-    #                 elif i.lower() in ' '.join(args).lower():
-    #                     res = totallyrealtoken
-    #             if parser.has("silent"):
-    #                 del parser, time, res
-    #                 return
-    #             if isawaitable(res): await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+' '.join(parser.other)+'```**Output:**```py\n'+str(await res)[:1990]+'```\n**Return type:** '+str(type(await res).__name__)+'\n**Execution time: **'+str(time)+' ms.', color=discord.Color.green()))
-    #             else: await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+' '.join(parser.other)+'```**Output:**```py\n'+str(res)[:1990]+'```\n**Return type:** '+str(type(res).__name__)+'\n**Execution time: **'+str(time)+' ms.', color=discord.Color.green()))
-    #         except Exception as e:
-    #             if 'cannot reuse already awaited coroutine' in str(e): return
-    #             await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+' '.join(parser.other)+'```\nException:```py\n'+str(e)+'```', color=discord.Color.red()), delete_after=5)
-    #     else:
-    #         try:
-    #             time = randint(500, 1000) / 100
-    #             if 'token' in ''.join(parser.other).lower(): iwanttostealsometoken = True
-    #             elif 'secret' in ''.join(parser.other).lower(): iwanttostealsometoken = True
-    #             if iwanttostealsometoken:
-    #                 return await ctx.send(embed=discord.Embed(title='Evaluation Success', description='Input:```py\n'+' '.join(parser.other)[:1990]+'```**Output:**```py\n'+totallyrealtoken+'```\n**Return type:** str\n**Execution time:** '+str(time)+' ms.', color=discord.Color.green()))
-    #             query = ' '.join(parser.other)[:1990].split('(')[0].split('[')[0].split('.')[0].split(' ')[0].split(';')[0]
-    #             fake_err = f"name '{query}' is not defined"
-    #             return await ctx.send(embed=discord.Embed(title='Evaluation Caught an Exception', description='Input:```py\n'+' '.join(parser.other)+'```\nException:```py\n'+str(fake_err)+'```', color=discord.Color.red()))
-    #         except Exception as e:
-    #             print(e)
-    #             return await ctx.send('there was an error on evaluating that. please use \' instead of "')
 
     @command()
     async def token(self, ctx):

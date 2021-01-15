@@ -582,7 +582,8 @@ class moderation(commands.Cog):
         elif args[0].lower() == "list":
             _map = list(map(lambda x: x.mention, ctx.guild.roles[1:]))
             paginator = ctx.bot.EmbedPaginator.from_long_array(ctx, _map, {
-                "title": "Server Roles List"
+                "title": "Server Roles List",
+                "thumbnail": { "url": str(ctx.guild.icon_url) }
             }, char=" ", max_char_length=1000, max_pages=5)
         
             if not paginator:
@@ -601,13 +602,14 @@ class moderation(commands.Cog):
         if args[0].lower() == "list":
             _map = [f"<#{i.id}>" for i in ctx.guild.channels if i.type == discord.ChannelType.text]
             paginator = ctx.bot.EmbedPaginator.from_long_array(ctx, _map, {
-                "title": "Server Channels List"
+                "title": "Server Channels List",
+                "thumbnail": { "url": str(ctx.guild.icon_url) }
             }, char=" ", max_char_length=1000, max_pages=6)
             
             if not paginator:
                 embed = ctx.bot.Embed(ctx, title="Server Channels List", desc=" ".join(_map))
                 await embed.send()
-                del embed
+                del embed, _map
                 return
             del _map
             return await paginator.execute()
@@ -790,7 +792,7 @@ class moderation(commands.Cog):
             embed = ctx.bot.Embed(
                 ctx,
                 title=ctx.guild.name,
-                desc=ctx.guild.description if ctx.guild.description else "",
+                desc=ctx.guild.description or "",
                 fields={
                     "General": f"**Created by: **{str(ctx.guild.owner)}\n**Created at: **{ctx.bot.util.timestamp(ctx.guild.created_at)}\n**Server Region: **{str(ctx.guild.region).replace('-', ' ')}\n**Server ID: **`{ctx.guild.id}`",
                     "Stats": f"**Members: **{ctx.guild.member_count:,}\n**Online Members: **{len([i for i in ctx.guild.members if i.status != discord.Status.offline]):,}\n**Channels: **{len(ctx.guild.channels):,}\n**Roles: **{len(ctx.guild.roles):,}\n**Custom Emojis: **{len(ctx.guild.emojis):,} ({ctx.guild.emoji_limit - len(ctx.guild.emojis):,} slots left)",

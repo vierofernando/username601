@@ -121,6 +121,23 @@ class Paginator:
         show_page_count = kwargs.pop("show_page_count", True)
         return Paginator(ctx, embeds, show_page_count=show_page_count, *args, **kwargs)
 
+    @staticmethod
+    def from_long_string(ctx, string, max_char_length: int = 2000, max_pages: int = 20, data: dict = {}, *args, **kwargs):
+        if len(string) <= max_char_length:
+            return
+        chunks = [string[i:i + max_char_length] for i in range(0, len(string), max_char_length)]
+        embeds = []
+        
+        for i, chunk in enumerate(chunks):
+            if len(embeds) >= max_pages:
+                break
+            temp = data.copy()
+            temp["description"] = chunk + ("..." if (i == (len(chunks) - 1)) else "")
+            embeds.append(Embed.from_dict(temp).add_useless_stuff(ctx))
+            del chunk, temp
+        del chunks, string
+        return Paginator(ctx, embeds, *args, **kwargs)
+
 class embed:
     """
     Embed 'wrapper' i guess

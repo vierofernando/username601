@@ -164,18 +164,32 @@ class utils(commands.Cog):
                 exintro=''
             )
             
-            try: image = data['query']['pages'][0]['thumbnail']['source']
-            except: image = None
+            try: image = data['query']['pages'][0]['thumbnail']['source'].replace("http", "https") # why
+            except KeyError: image = None
 
-            embed = ctx.bot.Embed(
-                ctx,
-                url=f'https://bulbapedia.bulbagarden.net/wiki/{data["query"]["pages"][0]["title"].replace(" ", "_")}',
-                title=data['query']['pages'][0]['title'],
-                desc=data['query']['pages'][0]['extract'][:1000],
-                image=image
-            )
-            await ctx.send(embed=embed)
-            del embed, image, data
+            _data = {
+                "title": data['query']['pages'][0]['title'],
+                "url": f'https://bulbapedia.bulbagarden.net/wiki/{data["query"]["pages"][0]["title"].replace(" ", "_")}'
+            }
+            
+            if image:
+                _data["thumbnail"] = { "url": image }
+            
+            paginator = ctx.bot.EmbedPaginator.from_long_string(ctx, data['query']['pages'][0]['extract'], data=_data, max_char_length=1000)
+            
+            if not paginator:
+                _data.pop("thumbnail", None)
+                embed = ctx.bot.Embed(
+                    ctx,
+                    desc=data['query']['pages'][0]['extract'],
+                    thumbnail=image,
+                    **_data
+                )
+                await embed.send()
+                del embed, image, data, paginator, _data
+                return
+            del image, data, _data
+            return await paginator.execute()
         except:
             raise ctx.error_message("Pokemon not found.")
 

@@ -350,17 +350,26 @@ class apps(commands.Cog):
             return await ctx.bot.cmds.invalid_args(ctx)
 
     @command(['wiki'])
-    @cooldown(5)
+    @cooldown(7, channel_wide=True)
     @require_args()
     async def wikipedia(self, ctx, *args):
         await ctx.trigger_typing()
         
         page = self.Wikipedia.page(' '.join(args))
         if not page.exists():
-            return await ctx.send(content='That page does not exist!')
+            raise ctx.error_message('That page does not exist!')
         
-        embed = ctx.bot.Embed(ctx, title=page.title, url=page.fullurl, desc=page.summary[:2000])
-        return await embed.send()
+        paginator = ctx.bot.EmbedPaginator.from_long_string(ctx, page.summary, data={
+            "title": page.title,
+            "url": page.fullurl
+        })
+        
+        if not paginator:
+            embed = ctx.bot.Embed(ctx, title=page.title, url=page.fullurl, desc=page.summary[:2000])
+            del page, paginator
+            return await embed.send()
+        del page
+        return await paginator.execute()
     
     @command(['movie', 'film'])
     @cooldown(5)
