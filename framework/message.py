@@ -132,11 +132,12 @@ class Paginator:
             if len(embeds) >= max_pages:
                 break
             temp = data.copy()
-            temp["description"] = chunk + ("..." if (i == (len(chunks) - 1)) else "")
+            temp["description"] = chunk + ("" if (i == (len(chunks) - 1)) else "...")
             embeds.append(Embed.from_dict(temp).add_useless_stuff(ctx))
             del chunk, temp
         del chunks, string
-        return Paginator(ctx, embeds, *args, **kwargs)
+        show_page_count = kwargs.pop("show_page_count", True)
+        return Paginator(ctx, embeds, show_page_count=show_page_count, *args, **kwargs)
 
 class embed:
     """
