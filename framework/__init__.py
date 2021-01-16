@@ -128,8 +128,8 @@ def modify_discord_py_functions():
                 if len(ctx.args) > 2:
                     ctx.args.pop(2)
             except:
-                if self._max_concurrency:
-                    await self._max_concurrency.release(ctx)
+                if command._max_concurrency:
+                    await command._max_concurrency.release(ctx)
                 raise
             
             await _hooked_wrapped_callback(command, ctx, command.callback)(*ctx.args, **ctx.kwargs)
