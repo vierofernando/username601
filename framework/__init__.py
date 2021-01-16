@@ -95,7 +95,7 @@ def modify_discord_py_functions():
         del _builtin_embed
     
     def _parse_message_create(self, data):
-        if data.get("message_reference") or (not data.get("guild_id")) or data.get("webhook_id") or (not data["author"]["bot"]):
+        if data.get("message_reference") or (not data.get("guild_id")) or data.get("webhook_id") or (not data["author"].get("bot")):
             return
         channel, _ = self._get_guild_channel(data)
         self.dispatch('message', dpy.Message(channel=channel, data=data, state=self))
