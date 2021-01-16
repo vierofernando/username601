@@ -22,7 +22,7 @@ class bothelp(commands.Cog):
         embed = ctx.bot.Embed(
             ctx,
             title="Bot Changelog",
-            desc=data,
+            description=data,
             footer="Sorry if it looks kinda stinky"
         )
         await embed.send()
@@ -54,7 +54,7 @@ class bothelp(commands.Cog):
         desc = '**Command name: **{}\n**Function: **{}\n**Category: **{}'.format(
             data['name'], data['function'], data['category']
         ) if is_command else '**Commands count: **{}\n**Commands:**```{}```'.format(len(data), ', '.join([i['name'] for i in data]))
-        embed = ctx.bot.Embed(ctx, title="Help for "+result["type"].lower()+": "+result["name"], desc=desc)
+        embed = ctx.bot.Embed(ctx, title="Help for "+result["type"].lower()+": "+result["name"], description=desc)
         if is_command:
             parameters = "```"+'\n'.join([i.split(": ")[1] for i in data['parameters']])+"```" if data['parameters'] else "No parameters required."
             apis = '\n'.join(map(lambda x: f"[{x}]({x})", data['apis'])) if data['apis'] else 'No APIs used.'
@@ -116,7 +116,7 @@ class bothelp(commands.Cog):
         embed = ctx.bot.Embed(
             ctx,
             title="PongChamp!",
-            desc=f"**Message latency:** `{msgping}ms`\n**Websocket latency:** `{wsping}ms`",
+            description=f"**Message latency:** `{msgping}ms`\n**Websocket latency:** `{wsping}ms`",
             thumbnail='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif'
         )
         await embed.send()

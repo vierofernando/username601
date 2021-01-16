@@ -15,9 +15,7 @@ class GuessTheFlag:
     
     async def start(self):
         """ Starts the fucking game. """
-        message = await self.ctx.bot.util.send_image(self.ctx, f"https://www.countryflags.io/{self.flag}/shiny/64.png", message_options={
-            "content": "Guess the country that has this flag!"
-        })
+        message = await self.ctx.bot.util.send_image(self.ctx, f"https://www.countryflags.io/{self.flag}/shiny/64.png", content="Guess the country that has this flag!")
         
         country_name = GuessTheFlag.JSON_DATA[self.flag].lower()
         wait = self.ctx.bot.WaitForMessage(self.ctx, check=lambda x: x.channel == self.ctx.channel and (not x.author.bot) and (x.content.lower() == country_name))
@@ -93,7 +91,7 @@ class Slot:
     async def play(self, ctx) -> int:
         amount, is_jackpot = self.generate()
         message = "Jackpot!" if is_jackpot else ("You win!" if amount > 0 else "You lost... Try again sometime?")
-        embed = ctx.bot.Embed(ctx, title=message, desc=f"**[ **{' '.join(self.generation)}** ]**")
+        embed = ctx.bot.Embed(ctx, title=message, description=f"**[ **{' '.join(self.generation)}** ]**")
         await embed.send()
         return amount
 
@@ -103,7 +101,7 @@ class GuessMyNumber:
         self.my_number = randint(0, 100)
 
     async def play(self, ctx) -> bool:
-        embed = ctx.bot.Embed(ctx, title="Guess my number!", desc="I have a random number between 0 and 100. Guess my number by sending it in the chat! You have 7 turns. Each turn i give you 15 seconds to guess.")
+        embed = ctx.bot.Embed(ctx, title="Guess my number!", description="I have a random number between 0 and 100. Guess my number by sending it in the chat! You have 7 turns. Each turn i give you 15 seconds to guess.")
         await embed.send()
         check_func = (lambda x: x.channel == ctx.channel and x.author == ctx.author and x.content.isnumeric())
         while self.rounds_left != 0:
@@ -143,7 +141,7 @@ class Trivia:
         embed = ctx.bot.Embed(
             ctx,
             title=f"{self.topic} Trivia",
-            desc=f"**{question['question']}**" + "\n" + "\n".join([f"{alpha[i]}. **{question['options'][i]}**" for i in range(4)])
+            description=f"**{question['question']}**" + "\n" + "\n".join([f"{alpha[i]}. **{question['options'][i]}**" for i in range(4)])
         )
         message = await embed.send()
         del embed
@@ -182,7 +180,7 @@ class GuessAvatar:
         embed = self.ctx.bot.Embed(
             self.ctx,
             title="What does this avatar belong to?",
-            desc="\n".join([f"{self.alpha[i]}. **{self.members[i].display_name}**" for i in range(4)]),
+            description="\n".join([f"{self.alpha[i]}. **{self.members[i].display_name}**" for i in range(4)]),
             image=self.members[self.correct_order].avatar_url_as(format="png")
         )
         message = await embed.send()
@@ -283,7 +281,7 @@ class GeographyQuiz:
             await self.generate_question()
         
         alphabet = list("ABCD")
-        embed = ctx.bot.Embed(ctx, title="Geography Quiz!", desc=self.question + "\n" + "\n".join(
+        embed = ctx.bot.Embed(ctx, title="Geography Quiz!", description=self.question + "\n" + "\n".join(
             [f"{alphabet[choice]}. **{self.choices[choice]}**" for choice in range(4)]
         ))
         message = await embed.send()

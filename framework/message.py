@@ -1,5 +1,5 @@
-from discord import Embed, Color, File
-from datetime import datetime
+from discord import Embed, Colour, File
+from datetime import datetime, timezone
 from io import BytesIO
 from time import time
 from os import getenv
@@ -10,7 +10,7 @@ class Paginator:
         self,
         ctx,
         embeds: list,
-        ratelimit: int = 1,
+        ratelimit: int = 1.5,
         max_time: int = 20,
         next_emoji: str = "▶️",
         previous_emoji: str = "◀️",
@@ -36,21 +36,27 @@ class Paginator:
         if auto_set_color:
             for embed in self.embeds:
                 embed.color = ctx.me.color
+        
         if show_page_count:
             _embed_index = 1
             for embed in self.embeds:
                 embed.set_author(name=f"Page {_embed_index}/{len(embeds)}")
                 self.embeds[_embed_index - 1] = embed
                 _embed_index += 1
+        
         self.ctx, self.max_time, self.ratelimit, self.index, self.last_reaction, self.max = ctx, max_time, ratelimit, 0, time(), len(embeds)
         self.valid_emojis = [start_emoji, previous_emoji, close_emoji, next_emoji, end_emoji]
         self.check = (lambda reaction, user: (str(reaction.emoji) in self.valid_emojis) and (user == self.ctx.author))
+        self.http = ctx._state.http
     
     def __del__(self):
         """ Let the object kill itself first before getting deleted. """
         del self.ctx, self.max_time, self.ratelimit, self.index, self.last_reaction, self.max
         del self.valid_emojis, self.check
-        del self.embeds
+        del self.embeds, self.http
+    
+    async def _edit(self, index):
+        await self.http.edit_message(self.message.channel.id, self.message.id, embed=self.embeds[self.index].to_dict())
     
     async def resolve_reaction(self, reaction):
         current_time = time()
@@ -65,7 +71,7 @@ class Paginator:
         elif (str(reaction.emoji) == self.valid_emojis[3]) and (self.index < (self.max - 1)): self.index += 1
         elif (str(reaction.emoji) == self.valid_emojis[4]) and (self.index < (self.max - 1)): self.index = (self.max - 1)
         else: return
-        await self.message.edit(content='', embed=self.embeds[self.index])
+        await self._edit(self.index)
 
     async def execute(self):
         self.message = await self.ctx.send(embed=self.embeds[0])
@@ -84,7 +90,7 @@ class Paginator:
     async def delete(self):
         if not hasattr(self, "message"):
             raise TypeError("Message has not been sent.")
-        return await self.message.delete()
+        return await self.http.delete_message(self.message.channel.id, self.message.id)
 
     @staticmethod
     def from_long_array(ctx, array: list, data: dict = {}, char: str = "\n", max_pages: int = 20, max_char_length: int = 2000, *args, **kwargs):
@@ -140,120 +146,113 @@ class Paginator:
         return Paginator(ctx, embeds, show_page_count=show_page_count, *args, **kwargs)
 
 class embed:
+    COL = {
+        Colour: lambda x: x.value,
+        tuple: lambda x: (x[0] << 16 | x[1] << 8 | x[2]),
+        str: lambda x: int(x.lstrip("#"), 16)
+    }
+    TIME = {
+        datetime: lambda x: x.astimezone(tz=timezone.utc).isoformat(),
+        float: lambda x: datetime.fromtimestamp(x).astimezone(tz=timezone.utc).isoformat(),
+        int: lambda x: datetime.fromtimestamp(x).astimezone(tz=timezone.utc).isoformat()
+    }
     """
-    Embed 'wrapper' i guess
+    Embed 'wrapper' i guess (lower level than discord.py's so it's faster maybe?)
     Example:
 
-    embed = framework.embed(ctx, title="Hello, world!", desc="this is the description", color=(255, 0, 0), fields={
+    embed = framework.embed(ctx, title="Hello, world!", description="this is the description", color=(255, 0, 0), fields={
         "field 1": "this is a field",
         "field 2": "this is also another field!"
     })
     await embed.send()
     
     """
+    
+    def __dict__(self):
+        return self.dict
+    
+    def __getitem__(self, item):
+        return self.dict[item]
 
-    def _convert_hex_to_rgb(self) -> None:
-        self.color = Color(*tuple(int(self.color[i:i+2], 16) for i in (0, 2, 4)))
-
-    def __init__(
-        self,
-        ctx,
-        author_name: str = None,
-        attachment: str = None,
-        author_url: str = None,
-        url: str = None,
-        desc: str = None,
-        footer_icon: str = None,
-        thumbnail: str = None,
-        image: str = None,
-        title: str = None,
-        color: str = None,
-        fields: dict = {},
-        footer: str = None
-    ) -> None:
-        self.ctx = ctx
-        self.color = color if color else self.ctx.me.color
-        self.title = str(title) if title else ""
-        self.description = str(desc) if desc else ""
-        self.current_time = datetime.now()
-        self.fields = None if (fields == {}) else fields
-        self.url = url
-        self.image_url = image
-        self.thumbnail_url = thumbnail
-        self.footer_icon = str(footer_icon) if footer_icon else str(self.ctx.author.avatar_url)
-        self.footer = str(footer) if footer else "Command executed by "+str(self.ctx.author)
-        self.attachment_url = attachment
-        self.author_name = author_name
-
-        if isinstance(self.color, tuple):
-            self.color = Color.from_rgb(*self.color)
-        elif ((isinstance(self.color, str)) and (self.color.startswith("#"))):
-            self._convert_hex_to_rgb()
-
-    def _basic_embed(self):
-        _embed = Embed(title=self.title, description=self.description, color=self.color, url=self.url)
-        if self.fields is not None:
-            for i in self.fields.keys():
-                _embed.add_field(name=i, value=self.fields[i], inline=False)
-        _embed.timestamp = self.current_time
-        _embed.set_footer(text=self.footer, icon_url=self.footer_icon)
-        if self.image_url:
-            _embed.set_image(url=str(self.image_url))
-        if self.thumbnail_url:
-            _embed.set_thumbnail(url=str(self.thumbnail_url))
-        if self.author_name:
-            _embed.set_author(name=self.author_name)
+    def __init__(self, ctx, **param) -> None:
+        self.channel = ctx.channel
+        self.state = ctx._state
         
-        return _embed
+        self.dict = { "type": "rich" }
+        self.param = param
+        
+        self.dict["color"] = embed.COL[param["color"].__class__](param["color"]) if param.get("color") else ctx.me.color.value
+        self._add_to_dict("title",       "title",       str)
+        self._add_to_dict("description", "description", str)
+        self._add_to_dict("url",         "url",         str)
+        self._add_to_dict("time",        "timestamp",   lambda x: embed.TIME[x.__class__](x))
+        self._add_to_dict("image",       "image",       lambda x: { "url": str(x) })
+        self._add_to_dict("thumbnail",   "thumbnail",   lambda x: { "url": str(x) })
+        self._add_to_dict("footer",      "footer",      lambda x: { "text": str(x) })
+        self._add_to_dict("image",       "image",       lambda x: { "url": str(x) })
+        
+        self.dict["footer"] = {
+            "text": self.param.get("footer", f"Command executed by {ctx.author}"),
+            "icon_url": self.param.get("footer_icon", str(ctx.author.avatar_url))
+        }
+        
+        _author = {}
+        if param.get("author_name"):
+            _author["name"] = param["author_name"]
+        
+        if param.get("author_url"):
+            _author["url"] = param["author_url"]
+        
+        if param.get("author_icon"):
+            _author["icon_url"] = param["author_icon"]
+        
+        if _author:
+            self.dict["author"] = _author
+        del _author
+        
+        if self.param.get("fields"):
+            self.dict["fields"] = []
+            for key in self.param["fields"].keys():
+                self.dict["fields"].append({ "name": key, "value": self.param["fields"][key], "inline": False })
+        
+        del self.param, param
+        
+    def _add_to_dict(self, name, key_name, func):
+        if not self.param.get(name): return
+        self.dict[key_name] = func(self.param[name])
 
-    async def get_embed(self) -> tuple:
-        """ Gets the embed and the attachment in it, returns a tuple(discord.Embed, Union[discord.File, None]) """
-        _embed, _file = self._basic_embed(), None
-
-        if self.attachment_url:
-            if isinstance(self.attachment_url, str):
-                _bytes = await self.ctx.bot.http._HTTPClient__session.get(self.attachment_url)
-                _bytes = await _bytes.read()
-                self.attachment_url = BytesIO(_bytes)
-            _file = File(self.attachment_url, "image.png")
-            _embed.set_image(url="attachment://image.png")
-
-        return _embed, _file
-
-    async def send(self):
+    async def send(self, return_message_object: bool = False):
         """ Sends the embed to the current channel. """
-        _embed, _attachment = await self.get_embed()
-        if not _attachment:
-            return await self.ctx.send(embed=_embed)
-        return await self.ctx.send(embed=_embed, file=_attachment)
+        try:
+            return await self.state.http.send_message(self.channel.id, content="", embed=self.dict)
+        except Exception as e:
+            raise self.ctx.error_message(f"Something wrong happened while sending the message embed.\n`{str(e)}`")
     
     async def edit_to(self, message):
         """ Appends the embed to a discord.Message object """
-        _embed, _attachment = await self.get_embed()
-        if not _attachment:
-            return await message.edit(content='', embed=_embed)
-        await message.edit(content='', embed=_embed, file=_attachment)
+        await self.state.http.edit_message(message.channel.id, message.id, content="", embed=self.dict)
 
 class WaitForMessage:
     def __init__(self, ctx, timeout=20.0, check=None):
         """ A wrapper class that waits for message. """
-        self.ctx = ctx
-        self._check = check if check else (lambda x: x.channel == self.ctx.channel and x.author == self.ctx.author)
+        self.bot = ctx.bot
+        self._check = check if check else (lambda x: x.channel == ctx.channel and x.author == ctx.author)
         self._timeout = float(timeout)
+        del ctx
     
     async def get_message(self):
         """ Runs the whole thing. """
         try:
-            text = await self.ctx.bot.wait_for("message", check=self._check, timeout=self._timeout)
+            text = await self.bot.wait_for("message", check=self._check, timeout=self._timeout)
             return text
         except:
             return
     
     def __del__(self):
-        del ( self.ctx, self._check, self._timeout )
+        del self.bot, self._check, self._timeout
         gc.collect()
 
-class ChooseEmbed(embed):
+class ChooseEmbed:
     def __init__(self, ctx, reference: list, key = None):
         """
         The choose embed, waits for the user to input the number.
@@ -262,40 +261,56 @@ class ChooseEmbed(embed):
         
         reference = reference[:20]
         self._pre_res = None if (len(reference) != 1) else reference[0]
-        self.message = None
         
         if not self._pre_res:
             self._size = len(reference)
             self._range = range(1, self._size + 1)
             self._ctx = ctx
-            self.embed = embed(ctx, title=f"Found {self._size} matches.", desc=f"**Send a number between `{self._range[0]}` and `{self._range[::-1][0]}` corresponding to your choice.**\n")
+            self.embed = embed(ctx, title=f"Found {self._size} matches.", description=f"**Send a number between `{self._range[0]}` and `{self._range[::-1][0]}` corresponding to your choice.**\n")
             self._reference = []
     
             _i = 0
             for choice in reference:
                 self._reference.append(choice)
-                self.embed.description += f"\n`{_i + 1}.` {key(choice)}" if key else f"\n`{_i + 1}.` {choice}"
+                self.embed.dict["description"] += f"\n`{_i + 1}.` {key(choice)}" if key else f"\n`{_i + 1}.` {choice}"
                 _i += 1
     
     async def run(self):
         """ Runs the whole thing. Returns an index of the choice, or None. """
     
-        if self.message is not None: return
-        elif self._pre_res is not None:
+        if self._pre_res is not None:
             return self._pre_res
         
-        self.message = await self.embed.send()
-        _check = (lambda x: x.channel == self.message.channel and x.author == self._ctx.author)
+        message = await self.embed.send()
+        message_id, channel_id, http = message["id"], message["channel_id"], self.embed.state.http
+        del message
         
-        _wait = WaitForMessage(self._ctx, check=_check, timeout=20.0)
+        _wait = WaitForMessage(self._ctx, check=lambda x: x.channel == self._ctx.channel and x.author == self._ctx.author, timeout=20.0)
         _res = await _wait.get_message()
         if (not _res) or (not _res.content.isnumeric()):
-            await self.message.edit(embed=Embed(title="Canceled.", color=Color.red()))
+            await http.edit_message(channel_id, message_id, embed={
+                "title": "Canceled.",
+                "color": 15158332
+            })
             return
         _user_choice = int(_res.content)
         if _user_choice not in self._range:
-            await self.message.edit(embed=Embed(title="Invalid range. Please try again.", color=Color.red()))
+            await http.edit_message(channel_id, message_id, embed={
+                "title": "Invalid range. Please try again.",
+                "color": 15158332
+            })
             return
-        else:
-            await self.message.delete()
-            return self._reference[_user_choice - 1]
+        await http.delete_message(channel_id, message_id)
+        return self._reference[_user_choice - 1]
+    
+    def __del__(self):
+        del self.embed
+        del self._pre_res
+        
+        try:
+            del self._size
+            del self._range
+            del self._ctx
+            del self._reference
+        except:
+            return

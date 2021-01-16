@@ -108,7 +108,7 @@ class dbl(commands.Cog):
             ctx,
             title=data["username"] + "#" + data["discriminator"],
             url="https://top.gg/bot/" + data["id"],
-            desc="***\"" + data["shortdesc"] + "\"***",
+            description="***\"" + data["shortdesc"] + "\"***",
             fields={
                 "General Information": "**Published at: **"+ctx.bot.util.timestamp(data["date"])+"\n**Bot Prefix: **`"+data["prefix"]+"`\n**Tags: **"+(
                     " - ".join(["["+key+"](https://top.gg/tag/"+key.lower().replace(" ", "-")+")" for key in data["tags"]])
@@ -124,7 +124,7 @@ class dbl(commands.Cog):
     @cooldown(7)
     async def topgg(self, ctx, *args):
         if (not args) or (args[0].lower() not in self.types):
-            embed = self.client.Embed(ctx, title="top.gg command usage", desc=f"Usage:\n`{self.client.command_prefix[0]}topgg bot <bot_name>`\n`{self.client.command_prefix[0]}topgg user <user_name/mention/user_id>`", url="https://top.gg/")
+            embed = self.client.Embed(ctx, title="top.gg command usage", description=f"Usage:\n`{self.client.command_prefix[0]}topgg bot <bot_name>`\n`{self.client.command_prefix[0]}topgg user <user_name/mention/user_id>`", url="https://top.gg/")
             return await embed.send()
         _type = args[0].lower() if (args[0].lower().endswith("s")) else args[0].lower() + "s"
         if _type == "users":

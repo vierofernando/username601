@@ -24,7 +24,7 @@ class memes(commands.Cog):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args)
         buffer = await ctx.bot.Image.disaster_girl(url)
-        await ctx.send(file=discord.File(buffer, "girl.png"))
+        await ctx.send_image(buffer)
         del buffer, url
         collect()
     
@@ -35,7 +35,7 @@ class memes(commands.Cog):
             my_oreo = ctx.bot.oreo(ctx.bot.util.assets_dir, "".join(args)[:40])
             meme = my_oreo.meme()
             
-            await ctx.send(file=discord.File(meme, "oreo.png"))
+            await ctx.send_image(meme)
             
             my_oreo.eat()
         except Exception as e:
@@ -61,7 +61,7 @@ class memes(commands.Cog):
             'pos': (-85, 555),
             'size': (460, 460)
         }) if (not stretch) else await ctx.bot.canvas.oliy_stretched(url)
-        return await ctx.send(file=discord.File(buffer, "oliy.png"))
+        return await ctx.send_image(buffer)
 
     @command()
     @cooldown(7)
@@ -69,7 +69,7 @@ class memes(commands.Cog):
         url = await ctx.bot.Parser.parse_image(ctx, args)
         await ctx.trigger_typing()
         buffer = await ctx.bot.Image.distort(url, "./assets/pics/clint.png", (((0,0),(899,0),(0,508),(899,508)),((590,127),(839,25),(590,381),(839,497))))
-        await ctx.send(file=discord.File(buffer, "./assets/pics/clint.png"))
+        await ctx.send_image(buffer)
         del buffer, url
 
     @command(['ltt', 'lienus'])
@@ -78,7 +78,7 @@ class memes(commands.Cog):
         url = await ctx.bot.Parser.parse_image(ctx, args)
         await ctx.trigger_typing()
         buffer = await ctx.bot.Image.distort(url, "./assets/pics/linus.png", (((0,0),(961,0),(0,639),(961,639)),((56,183),(365,139),(106,563),(397,411))))
-        await ctx.send(file=discord.File(buffer, "./assets/pics/linus.png"))
+        await ctx.send_image(buffer)
         del buffer, url
         
     @command(['dir', 'directory'])
@@ -86,8 +86,8 @@ class memes(commands.Cog):
     async def folder(self, ctx, *args):
         url = await ctx.bot.Parser.parse_image(ctx, args)
         await ctx.trigger_typing()
-        buffer = await ctx.bot.Image.distort(url, "./assets/pics/folder.png", (((0,0),(700,0),(0,589),(700,589)),((246,71),(524,137),(246,447),(524,512))))
-        await ctx.send(file=discord.File(buffer, "./assets/pics/folder.png"))
+        buffer = await ctx.bot.Image.distort(url, "folder.png", (((0,0),(700,0),(0,589),(700,589)),((246,71),(524,137),(246,447),(524,512))))
+        await ctx.send_image(buffer)
         del buffer, url
     
     @command(['pass'])
@@ -99,7 +99,7 @@ class memes(commands.Cog):
         await ctx.trigger_typing()
         text1, text2 = param
         i = await ctx.bot.canvas.password(text1, text2)
-        await ctx.send(file=discord.File(i, 'password.png'))
+        await ctx.send_image(i)
 
     @command(['programmerhumor', 'programmermeme', 'programming', 'programmer'])
     @cooldown(2)
@@ -121,7 +121,7 @@ class memes(commands.Cog):
             'pos': (29, 58),
             'size': (224, 259)
         })
-        return await ctx.send(file=discord.File(im, 'haha-you-got-burned.png'))
+        return await ctx.send_image(im)
 
     @command(['ihavefailedyou', 'fail'])
     @cooldown(2)
@@ -134,7 +134,7 @@ class memes(commands.Cog):
             'size': (155, 241),
             'pos': (254, 18)
         })
-        await ctx.send(file=discord.File(res, 'failed.png'))
+        await ctx.send_image(res)
 
     @command(['worships', 'worshipping'])
     @cooldown(7)
@@ -142,7 +142,7 @@ class memes(commands.Cog):
         av = await ctx.bot.Parser.parse_image(ctx, args)
         await ctx.trigger_typing()
         im = await ctx.bot.gif.worship(av)
-        await ctx.send(file=discord.File(im, 'worship.gif'))
+        await ctx.send_image(im, file_format='gif')
 
     @command(['disconnect'])
     @cooldown(3)
@@ -150,7 +150,7 @@ class memes(commands.Cog):
         text = ' '.join(args) if args else 'Forgetting to put the arguments'
         await ctx.trigger_typing()
         im = await ctx.bot.canvas.disconnected(text)
-        return await ctx.send(file=discord.File(im, 'disconnected.png'))
+        return await ctx.send_image(im)
         
     @command(['effect'])
     @cooldown(2)
@@ -163,7 +163,7 @@ class memes(commands.Cog):
             'size': (201, 163),
             'pos': (165, 352)
         })
-        return await ctx.send(file=discord.File(buffer, 'affect.png'))
+        return await ctx.send_image(buffer)
 
     @command(['animegif', 'nj'])
     @cooldown(10)
@@ -220,7 +220,7 @@ class memes(commands.Cog):
         await ctx.trigger_typing()
         source, by = await ctx.bot.Parser.parse_image(ctx, args), str(ctx.author.avatar_url_as(format='png', size=512))
         meme = await ctx.bot.canvas.ifearnoman(by, source)
-        return await ctx.send(file=discord.File(meme, 'i_fear_no_man.png'))
+        return await ctx.send_image(meme)
 
     @command()
     @cooldown(10)
@@ -228,7 +228,7 @@ class memes(commands.Cog):
         ava = await ctx.bot.Parser.parse_image(ctx, args)
         await ctx.trigger_typing()
         data = await ctx.bot.gif.triggered(ava)
-        return await ctx.send(file=discord.File(data, 'triggered.gif'))
+        return await ctx.send_image(data, file_format='gif')
 
     @command(['communism', 'ussr', 'soviet', 'cykablyat', 'cyka-blyat', 'blyat'])
     @cooldown(5)
@@ -236,7 +236,7 @@ class memes(commands.Cog):
         await ctx.trigger_typing()
         comrade = await ctx.bot.Parser.parse_image(ctx, args, size=512)
         data = await ctx.bot.gif.communist(comrade)
-        return await ctx.send(file=discord.File(data, 'cyka_blyat.gif'))
+        return await ctx.send_image(data, file_format='gif')
 
     @command()
     @cooldown(5)
@@ -260,7 +260,7 @@ class memes(commands.Cog):
             'size': size,
             'pos': pos
         })
-        return await ctx.send(file=discord.File(image, 'meme.png'))
+        return await ctx.send_image(image)
 
     @command(['captchatext', 'generatecaptcha', 'gen-captcha', 'gencaptcha', 'capt'])
     @cooldown(10)
@@ -268,7 +268,7 @@ class memes(commands.Cog):
     async def captcha(self, ctx, *args):
         await ctx.trigger_typing()
         image = ctx.bot.Image.captcha(" ".join(args)[:50])
-        await ctx.send(file=discord.File(image, "captcha.png"))
+        await ctx.send_image(image)
         del image
         
     @command(['disgusting', 'f', 'studying', 'starvstheforcesof'])
@@ -284,7 +284,7 @@ class memes(commands.Cog):
             'size': size,
             'pos': pos
         })
-        return await ctx.send(file=discord.File(meme, 'meme.png'))
+        return await ctx.send_image(meme)
 
     @command(['changedmymind', 'cmm'])
     @cooldown(10)
@@ -335,7 +335,7 @@ class memes(commands.Cog):
             'pos': (348, 240),
             'size': (93, 107)
         })
-        return await ctx.send(file=discord.File(im, 'holyshit.png'))
+        return await ctx.send_image(im)
 
     async def modern_meme(self, ctx, *args):
         keys = list(self.meme_templates["bottom_image"].keys())
@@ -358,7 +358,7 @@ class memes(commands.Cog):
             raise ctx.error_message("You did not respond in time. Meme-generation canceled.")
         await ctx.trigger_typing()
         buffer = await ctx.bot.canvas.bottom_image_meme(link, format_text.content[:150])
-        await ctx.send(file=discord.File(buffer, "file.png"))
+        await ctx.send_image(buffer)
         del buffer, format_text, wait, link, message, keys
 
     async def top_bottom_text_meme(self, ctx, *args):

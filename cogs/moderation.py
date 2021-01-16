@@ -133,7 +133,6 @@ class moderation(commands.Cog):
             fields={
                 "Auto Role": 'Set to <@&{}>'.format(data['autorole']) if data.get('autorole') else '<Not set>',
                 "Welcome Channel": 'Set to <#{}>'.format(data['welcome']) if data.get('welcome') else '<Not set>',
-                "Starboard Channel": 'Set to <#{}> (with {} reactions required)'.format(data['starboard'], data['star_requirements']) if data.get('starboard') else '<Not set>',
                 "Mute Role": 'Set to <@&{}>'.format(data['mute']) if data.get('mute') else '<Not set>',
                 "Auto-Dehoist": 'Enabled :white_check_mark:' if data.get('dehoister') else 'Disabled :x:'
             }
@@ -189,7 +188,7 @@ class moderation(commands.Cog):
         embed = ctx.bot.Embed(
             ctx,
             title='Activated Auto-dehoister.',
-            desc=f'Auto-Dehoister is an automated part of this bot that automatically renames someone that tries to hoist their name (for example: `!ABC`)\n\n**How do i deactivate this?**\nJust type `{ctx.prefix}dehoister`.\n\n**It doesn\'t work for me!**\nMaybe because your role position is higher than me, so i don\'t have the permissions required.'
+            description=f'Auto-Dehoister is an automated part of this bot that automatically renames someone that tries to hoist their name (for example: `!ABC`)\n\n**How do i deactivate this?**\nJust type `{ctx.prefix}dehoister`.\n\n**It doesn\'t work for me!**\nMaybe because your role position is higher than me, so i don\'t have the permissions required.'
         ) if ((not data) or (not data.get("dehoister"))) else ctx.bot.Embed(ctx, title="Auto-dehoister deactivated.", color=discord.Color.green())
     
         if (not data) or (not data.get("dehoister")): 
@@ -210,66 +209,7 @@ class moderation(commands.Cog):
         await embed.send()
         self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"dehoister": False})
         del embed, data
-
-    @command()
-    @cooldown(10)
-    @permissions(author=['manage_channels'], bot=['manage_channels'])
-    async def starboard(self, ctx, *args):
-        await ctx.trigger_typing()
-        parser = ctx.bot.Parser(args)
-        parser.parse()
-
-        data = self.db.get("dashboard", {"serverid": ctx.guild.id})
-        if not parser:
-            if (not data) or (not data.get("starboard")):
-                channel = await ctx.guild.create_text_channel(name='starboard', topic='Server starboard channel. Every funny/cool posts will be here.')
-                await ctx.success_embed(f'Created a channel <#{channel.id}>. Every starboard will be set there.\nTo remove starboard, type `{ctx.prefix}starboard --remove`.\nBy default, starboard requirements are set to 1 reaction. To increase, type `{ctx.prefix}starboard --limit <number>`.')
-                
-                if not data:
-                    self.db.add("dashboard", {
-                        "serverid": ctx.guild.id,
-                        "warns": [],
-                        "starboard": channel.id,
-                        "star_requirements": 3
-                    })
-                else:
-                    self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.channel.id}, {
-                        "starboard": channel.id,
-                        "star_requirements": 3
-                    })
-                return
-
-            nl = "\n"
-            embed = ctx.bot.Embed(
-                ctx,
-                title=f'Starboard for {ctx.guild.name}',
-                desc=f'Channel: <#{data["starboard"]}>\nStars required to reach: {data["star_requirements"]}',
-                fields={'Commands': f'`{ctx.prefix}starboard --remove` **Removes the starboard from this server. (you can also delete the channel yourself)**\n`{ctx.prefix}starboard --limit <number>` **Changes the amount of star reactions required before a specific message gets to starboard. This defaults to `1` reaction.**'}
-            )
-            await embed.send()
-            del embed, nl
-            return
         
-        if (not data) or (not data.get("starboard")):
-            raise ctx.error_message("This server does not have any starboard.")
-            
-        if parser.has("remove"):
-            await ctx.success_embed('Alright. Starboard for this server is deleted. You can delete the channel.')
-            self.db.modify("dashboard", self.db.types.REMOVE, {"serverid": ctx.guild.id}, {"starboard": data["starboard"]})
-            self.db.modify("dashboard", self.db.types.REMOVE, {"serverid": ctx.guild.id}, {"star_requirements": data["star_requirements"]})
-
-        elif parser["limit"]:
-            try:
-                num = int(parser["limit"])
-                assert num.isnumeric()
-                assert num in range(1, 10)
-                await ctx.success_embed(f'OK. Changed the limit to {num:,} star reactions.')
-                self.db.modify("dashboard", self.db.types.CHANGE, {"serverid": ctx.guild.id}, {"star_requirements": num})
-            except:
-                return await ctx.bot.cmds.invalid_args(ctx)
-        else:
-            return await ctx.bot.cmds.invalid_args(ctx)
-    
     @command()
     @cooldown(5)
     @require_args()
@@ -309,7 +249,7 @@ class moderation(commands.Cog):
         embed = ctx.bot.Embed(
             ctx,
             title=f'Warn list for {source.display_name}',
-            desc=warnlist,
+            description=warnlist,
             color=discord.Color.red()
         )
         await embed.send()
@@ -345,7 +285,7 @@ class moderation(commands.Cog):
             embed = ctx.bot.Embed(
                 ctx,
                 title='Command usage',
-                desc=f'{ctx.prefix}welcome <channel>'+'\n'+f'{ctx.prefix}welcome disable'
+                description=f'{ctx.prefix}welcome <channel>'+'\n'+f'{ctx.prefix}welcome disable'
             )
             await embed.send()
             del embed, args
@@ -587,7 +527,7 @@ class moderation(commands.Cog):
             }, char=" ", max_char_length=1000, max_pages=5)
         
             if not paginator:
-                embed = ctx.bot.Embed(ctx, title="Server Roles List", desc=" ".join(_map))
+                embed = ctx.bot.Embed(ctx, title="Server Roles List", description=" ".join(_map))
                 await embed.send()
                 del embed, paginator, _map
                 return
@@ -607,7 +547,7 @@ class moderation(commands.Cog):
             }, char=" ", max_char_length=1000, max_pages=6)
             
             if not paginator:
-                embed = ctx.bot.Embed(ctx, title="Server Channels List", desc=" ".join(_map))
+                embed = ctx.bot.Embed(ctx, title="Server Channels List", description=" ".join(_map))
                 await embed.send()
                 del embed, _map
                 return
@@ -725,7 +665,7 @@ class moderation(commands.Cog):
             }, char=" ", max_char_length=1500, max_pages=10)
             
             if not paginator:
-                embed = ctx.bot.Embed(ctx, title="Server Custom Emojis List", desc=" ".join(_map))
+                embed = ctx.bot.Embed(ctx, title="Server Custom Emojis List", description=" ".join(_map))
                 await embed.send()
                 del embed, _map, paginator
                 return
@@ -784,7 +724,7 @@ class moderation(commands.Cog):
             card = ctx.bot.ServerCard(ctx, f"{ctx.bot.util.fonts_dir}/NotoSansDisplay-Bold.otf")
             result = await card.draw()
             
-            await ctx.send(file=discord.File(result, f"{ctx.guild.id}.png"))
+            await ctx.send_image(result)
             del result, card, parser
         else:
             await ctx.trigger_typing()
@@ -792,7 +732,7 @@ class moderation(commands.Cog):
             embed = ctx.bot.Embed(
                 ctx,
                 title=ctx.guild.name,
-                desc=ctx.guild.description or "",
+                description=ctx.guild.description or "",
                 fields={
                     "General": f"**Created by: **{str(ctx.guild.owner)}\n**Created at: **{ctx.bot.util.timestamp(ctx.guild.created_at)}\n**Server Region: **{str(ctx.guild.region).replace('-', ' ')}\n**Server ID: **`{ctx.guild.id}`",
                     "Stats": f"**Members: **{ctx.guild.member_count:,}\n**Online Members: **{len([i for i in ctx.guild.members if i.status != discord.Status.offline]):,}\n**Channels: **{len(ctx.guild.channels):,}\n**Roles: **{len(ctx.guild.roles):,}\n**Custom Emojis: **{len(ctx.guild.emojis):,} ({ctx.guild.emoji_limit - len(ctx.guild.emojis):,} slots left)",

@@ -4,6 +4,10 @@
 these are commands i decided to delete or change (either merged to one command or renamed) to with the reasons.<br>
 all order is sorted from recent.<br>
 
+### 1starboard<br>
+- Not really used that much<br>
+- Deleted in favor of changing how the bot caches user messages.<br>
+
 ### 1guessavatar, 1guessnum, 1geoquiz<br>
 Merged to `1guess`
 

@@ -38,7 +38,7 @@ class utils(commands.Cog):
             embed = ctx.bot.Embed(
                 ctx,
                 title=res["name"],
-                desc="Native name: \""+str(res.get("nativeName"))+"\"",
+                description="Native name: \""+str(res.get("nativeName"))+"\"",
                 fields={
                     "Location": "**Latitude Longitude:** `"+(", ".join([str(i) for i in res["latlng"]]))+"`\n**Region:** "+res["region"]+"\n**Subregion: **"+res["subregion"]+"\n**Capital:** "+res["capital"],
                     "Detailed Info": "**Population Count: **"+str(res["population"])+"\n**Country Area: **"+str(res.get("area"))+" km²\n**Time Zones: **"+(", ".join(res["timezones"])),
@@ -60,7 +60,7 @@ class utils(commands.Cog):
             assert color_left != color_right
             assert bool(color_left) and bool(color_right)
             res = await ctx.bot.Image.gradient(color_left, color_right)
-            await ctx.send(file=discord.File(res, "gradient.png"))
+            await ctx.send_image(res)
             del res, color_left, color_right, left, right
         except:
             return await ctx.bot.cmds.invalid_args(ctx)
@@ -71,7 +71,7 @@ class utils(commands.Cog):
         url = await ctx.bot.Parser.parse_image(ctx, args)
         await ctx.trigger_typing()
         palette = await ctx.bot.canvas.get_palette(ctx.bot.canvas.get_multiple_accents(url))
-        await ctx.send(file=discord.File(palette, 'palette.png'))
+        await ctx.send_image(palette)
         del palette, url
 
     @command(['pip'])
@@ -89,7 +89,7 @@ class utils(commands.Cog):
         embed = ctx.bot.Embed(
             ctx,
             title=data['info']['name'],
-            desc=data['info']['summary'],
+            description=data['info']['summary'],
             fields={
                 "Links": f"**Home Page: **{'[click here]('+data['info']['home_page']+')' if data['info']['home_page'] else '`<no links available>`'}\n**Download Link: **{'[click here]('+data['info']['download_url']+')' if data['info']['download_url'] else '`<no links available>`'}",
                 "Author": f"{data['info']['author']} {'('+data['info']['author_email']+')' if data['info']['author_email'] else ''}\n",
@@ -139,7 +139,7 @@ class utils(commands.Cog):
         em = ctx.bot.Embed(
             ctx,
             title=img['data'][0]['title'],
-            desc=img['data'][0]["description"],
+            description=img['data'][0]["description"],
             image=img['links'][0]['href']
         )
         await embed.send()
@@ -181,7 +181,7 @@ class utils(commands.Cog):
                 _data.pop("thumbnail", None)
                 embed = ctx.bot.Embed(
                     ctx,
-                    desc=data['query']['pages'][0]['extract'],
+                    description=data['query']['pages'][0]['extract'],
                     thumbnail=image,
                     **_data
                 )
@@ -210,7 +210,7 @@ class utils(commands.Cog):
             ctx,
             title=total['title'],
             url=total['href'],
-            desc='Ingredients:\n{}'.format(total['ingredients']),
+            description='Ingredients:\n{}'.format(total['ingredients']),
             image=(total['thumbnail'] if total['thumbnail'] != "" else None)
         )
         await embed.send()
@@ -237,7 +237,7 @@ class utils(commands.Cog):
         await ctx.trigger_typing()
         data = await ctx.bot.util.request('https://quotes.herokuapp.com/libraries/math/random')
         text, quoter = data.split(' -- ')[0], data.split(' -- ')[1]
-        embed = ctx.bot.Embed(ctx, author_name=quoter, desc=discord.utils.escape_markdown(text))
+        embed = ctx.bot.Embed(ctx, author_name=quoter, description=discord.utils.escape_markdown(text))
         await embed.send()
         del embed, text, quoter, data
 
@@ -263,7 +263,7 @@ class utils(commands.Cog):
         }, char=", ", max_char_length=500)
         
         if not paginator:
-            embed = ctx.bot.Embed(ctx, title='Words that rhymes with '+' '.join(args)+':', desc=str(', '.join(words))[:500])
+            embed = ctx.bot.Embed(ctx, title='Words that rhymes with '+' '.join(args)+':', description=str(', '.join(words))[:500])
             await embed.send()
             del embed, words, data, paginator
             return
@@ -277,7 +277,7 @@ class utils(commands.Cog):
         embed = ctx.bot.Embed(
             ctx,
             title='Did you know?',
-            desc=data['fact'],
+            description=data['fact'],
         )
         await embed.send()
         del embed, data
@@ -289,7 +289,7 @@ class utils(commands.Cog):
         embed = ctx.bot.Embed(
             ctx,
             title='Did you know?',
-            desc=data['fact'],
+            description=data['fact'],
         )
         await embed.send()
         del embed, data
@@ -339,7 +339,7 @@ class utils(commands.Cog):
         if url[2]:
             result = result[url[2]]
         
-        embed = ctx.bot.Embed(ctx, title=key + " fact!", desc=result)
+        embed = ctx.bot.Embed(ctx, title=key + " fact!", description=result)
         return await embed.send()
     
     @command(['em'])
@@ -356,7 +356,7 @@ class utils(commands.Cog):
             embed = ctx.bot.Embed(
                 ctx,
                 title=parser["title"],
-                desc=parser["description"] if parser.has("description") else ' '.join(parser.other)[:1950],
+                description=parser["description"] if parser.has("description") else ' '.join(parser.other)[:1950],
                 author_name=parser["author"],
                 color=color,
                 footer=parser["footer"]
@@ -385,7 +385,7 @@ class utils(commands.Cog):
                 color_image = await ctx.bot.canvas.color(' '.join(args))
         if not color_image:
             return await ctx.bot.cmds.invalid_args(ctx)
-        await ctx.send(file=discord.File(color_image, 'color.png'))
+        await ctx.send_image(color_image)
         del color_image, role_name
 
 def setup(client):

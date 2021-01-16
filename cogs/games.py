@@ -41,7 +41,7 @@ class games(commands.Cog):
             answer, message, buffer = data, "Send the text displayed here!", ctx.bot.Image.text(data)
         
         a = time()
-        await ctx.send(message, file=discord.File(buffer, "fast.png"))
+        await ctx.send_image(buffer, content=message)
         wait = ctx.bot.WaitForMessage(ctx, timeout=20.0, check=(lambda x: x.channel == ctx.channel and (not x.author.bot) and (x.content.lower() == answer)))
         _message = await wait.get_message()
         if not _message:
@@ -79,7 +79,7 @@ class games(commands.Cog):
         characters = (ctx.author, user)
         game = ctx.bot.TicTacToe()
         
-        embed = ctx.bot.Embed(ctx, title="Tic-tac-toe Game", desc="["+str(ctx.author)+"'s (O) turn]```"+game.show()+"```")
+        embed = ctx.bot.Embed(ctx, title="Tic-tac-toe Game", description="["+str(ctx.author)+"'s (O) turn]```"+game.show()+"```")
         message = await embed.send()
         current = 0
         
@@ -124,31 +124,31 @@ class games(commands.Cog):
         del count, data
         return "\n".join(res)
     
-    @command(['mc', 'skin'])
-    @cooldown(5)
-    async def minecraft(self, ctx, *args):
-        await ctx.trigger_typing()
-        name = ctx.bot.util.encode_uri(' '.join(args) if args else ctx.author.display_name)
-        data = await ctx.bot.http._HTTPClient__session.get(f"https://mc-heads.net/minecraft/profile/{name}")
-        if data.status != 200:
-            raise ctx.error_message(f"Minecraft for profile: `{name}` not found.")
-        data = await data.json()
-        
-        _buffer = await ctx.bot.canvas.minecraft_body(f"https://mc-heads.net/body/{name}/600", data['id'])
-        names = await self.get_name_history(data['id'], ctx)
-        embed = ctx.bot.Embed(
-            ctx,
-            title=name,
-            url='https://namemc.com/profile/'+data['id'],
-            attachment=_buffer,
-            thumbnail=f"https://mc-heads.net/head/{name}/600",
-            fields={
-                'UUID': data['id'],
-                'Name history': names
-            }
-        )
-        await embed.send()
-        del embed, names, _buffer, data
+    # @command(['mc', 'skin'])
+    # @cooldown(5)
+    # async def minecraft(self, ctx, *args):
+    #     await ctx.trigger_typing()
+    #     name = ctx.bot.util.encode_uri(' '.join(args) if args else ctx.author.display_name)
+    #     data = await ctx.bot.http._HTTPClient__session.get(f"https://mc-heads.net/minecraft/profile/{name}")
+    #     if data.status != 200:
+    #         raise ctx.error_message(f"Minecraft for profile: `{name}` not found.")
+    #     data = await data.json()
+    #     
+    #     _buffer = await ctx.bot.canvas.minecraft_body(f"https://mc-heads.net/body/{name}/600", data['id'])
+    #     names = await self.get_name_history(data['id'], ctx)
+    #     embed = ctx.bot.Embed(
+    #         ctx,
+    #         title=name,
+    #         url='https://namemc.com/profile/'+data['id'],
+    #         attachment=_buffer,
+    #         thumbnail=f"https://mc-heads.net/head/{name}/600",
+    #         fields={
+    #             'UUID': data['id'],
+    #             'Name history': names
+    #         }
+    #     )
+    #     await embed.send()
+    #     del embed, names, _buffer, data
     
     @command(['imposter', 'among-us', 'among_us', 'impostor', 'crew', 'crewmate', 'crew-mate'])
     @cooldown(3)
@@ -156,7 +156,7 @@ class games(commands.Cog):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args)
         im = await ctx.bot.Image.among_us(url)
-        await ctx.send(file=discord.File(im, 'the_impostor.png'))
+        await ctx.send_image(im)
         del im, url
 
     async def geometry_dash_profile(self, ctx, args):
@@ -208,7 +208,7 @@ class games(commands.Cog):
                 #levelBuilder = ctx.bot.GDLevel(ctx, level_query="daily", font_title=ctx.bot.util.fonts_dir + "/PUSAB__.otf", font_other=ctx.bot.util.fonts_dir + "/Aller.ttf")
                 #daily = await levelBuilder.draw()
                 #del levelBuilder
-                #return await ctx.send(file=discord.File(daily, "level.png"))
+                #return await ctx.send_image(daily)
             except:
                 raise ctx.error_message("This sub command is temporary closed because the section is API is temporarily blocked by RobTop.")
                 #raise ctx.error_message("The Geometry dash servers seems to be down. Please try again later.")
@@ -218,7 +218,7 @@ class games(commands.Cog):
                 #levelBuilder = ctx.bot.GDLevel(ctx, level_query="weekly", font_title=ctx.bot.util.fonts_dir + "/PUSAB__.otf", font_other=ctx.bot.util.fonts_dir + "/Aller.ttf")
                 #weekly = await levelBuilder.draw()
                 #del levelBuilder
-                #return await ctx.send(file=discord.File(weekly, "level.png"))
+                #return await ctx.send_image(weekly)
             except:
                 raise ctx.error_message("This sub command is temporary closed because the section is API is temporarily blocked by RobTop.")
                 #raise ctx.error_message("The Geometry dash servers seems to be down. Please try again later.")
@@ -227,7 +227,7 @@ class games(commands.Cog):
                 levelBuilder = ctx.bot.GDLevel(ctx, level_query=_input, font_title=ctx.bot.util.fonts_dir + "/PUSAB__.otf", font_other=ctx.bot.util.fonts_dir + "/Aller.ttf")
                 level = await levelBuilder.draw()
                 del levelBuilder
-                return await ctx.send(file=discord.File(level, "level.png"))
+                return await ctx.send_image(level)
             except:
                 raise ctx.error_message(f"Level with the ID: {_input} not found.")
         
@@ -247,7 +247,7 @@ class games(commands.Cog):
             levelBuilder = ctx.bot.GDLevel(ctx, level_query=result['id'], font_title=ctx.bot.util.fonts_dir + "/PUSAB__.otf", font_other=ctx.bot.util.fonts_dir + "/Aller.ttf")
             buffer = await levelBuilder.draw()
             del levelBuilder
-            return await ctx.send(file=discord.File(buffer, "level.png"))
+            return await ctx.send_image(buffer)
         except:
             raise ctx.error_message("The Geometry Dash servers may be down. Please blame RobTop for this :)")
 
@@ -271,7 +271,7 @@ class games(commands.Cog):
             if not args[1:]:
                 return await ctx.bot.cmds.invalid_args(ctx)
             buffer = await ctx.bot.Image.geometry_dash_icons(" ".join(args[1:]))
-            await ctx.send(file=discord.File(buffer, "icon.png"))
+            await ctx.send_image(buffer)
             del buffer
             return
         return await ctx.bot.cmds.invalid_args(ctx)
@@ -335,7 +335,7 @@ class games(commands.Cog):
             embed = ctx.bot.Embed(
                 ctx,
                 title="Guessing Game!",
-                desc="`guess <avatar|av|pfp>` Guessing game about guessing random people's avatars in the server!\n`guess <geo|geography>` Guess the correct information of a country!\n`guess <num|number>` Starts a \"guess my number\" game!\n`guess <flag|flags|country-flag>` Guess the country from a flag!"
+                description="`guess <avatar|av|pfp>` Guessing game about guessing random people's avatars in the server!\n`guess <geo|geography>` Guess the correct information of a country!\n`guess <num|number>` Starts a \"guess my number\" game!\n`guess <flag|flags|country-flag>` Guess the country from a flag!"
             )
             await embed.send()
             del embed

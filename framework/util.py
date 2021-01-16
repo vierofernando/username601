@@ -1,26 +1,26 @@
 # IMPORT EVERY SINGLE MODULE FROM PYTHON FIRST
-from discord import Embed, Color, File, __version__, Forbidden, AllowedMentions, gateway
 from platform import python_build, python_compiler, uname
 from aiohttp import ClientSession, ClientTimeout
 from .xmltodict import parse as xmltodict
 from discord.ext.commands import Context
+from urllib.parse import quote as _uri
 from configparser import ConfigParser
 from os import getenv, name, listdir
-from urllib.parse import quote_plus
-from googletrans import LANGUAGES
+from gc import collect as _collect
 from discord.ext import commands
 from subprocess import run, PIPE
-from traceback import format_exc
 from datetime import datetime
+from inspect import getsource
 from base64 import b64encode
+from .message import embed
+from re import sub as _sub
 from random import choice
 from json import loads
 from io import BytesIO
+from discord import *
 from time import time
 from enum import Enum
 from PIL import Image
-import re
-import gc
 
 class LengthFormats(Enum):
     KILOMETERS  = (("km", "kilometer", "kilometre", "kilometers", "kilometres"), (
@@ -57,6 +57,8 @@ class error_message(Exception):
         super().__init__(message)
 
 class Util:
+    EMBED = embed
+
     def __init__(
         self,
         client,
@@ -85,6 +87,18 @@ class Util:
             60: "minute"
         }
         
+        def _parse_message_create(self, data):
+            # a function that controls how discord.py caches messages on create/sent.
+            if (not data.get("guild_id")) or data.get("webhook_id") or (data.get("bot") and (data["id"] != str(self.user.id))):
+                return # dont dispatch if it is sent on a DM, a message created by a bot/webhook
+            
+            channel, _ = self._get_guild_channel(data)
+            message = Message(channel=channel, data=data, state=self)
+            self.dispatch('message', message)
+            
+            if message.author.bot: # only cache messages from the bot itself
+                self._messages.append(message)
+        
         def _embed_add_useless_stuff(self, ctx, disable_color: bool = False):
             self._footer = {
                 "text": "Command executed by "+str(ctx.author),
@@ -96,8 +110,11 @@ class Util:
                 self.colour = ctx.me.colour
             return self
         
-        async def send_image(self, url, alexflipnote: bool = False, message_options: dict = {}):
+        async def send_image(self, url, alexflipnote: bool = False, content: str = None, file_format="png"):
             try:
+                if isinstance(url, BytesIO):
+                    return await self.bot.http.send_files(self.channel.id, content=content, files=[File(url, f"file.{file_format}")])
+            
                 session = self.bot.util.alex_client if alexflipnote else self.bot.http._HTTPClient__session
                 
                 async with session.get(url) as data:
@@ -106,15 +123,23 @@ class Util:
                     assert data.headers['Content-Type'].startswith("image/"), "Content does not have an image."
                     extension = "." + data.headers['Content-Type'][6:].lower()
                     buffer = self.bot.util._crop_out_memegen(self, _bytes) if url.startswith("https://api.memegen.link/") else BytesIO(_bytes)
-                    await self.send(file=File(buffer, f"file{extension}"), **message_options)
+                    await self.bot.http.send_files(self.channel.id, content=content, files=[File(buffer, f"file{extension}")])
                     del extension, _bytes, data, buffer
-                    gc.collect()
+                    _collect()
             except Exception as e:
                 raise self.error_message("Image not found.\n`"+str(e)+"`")
         
         async def success_embed(self, message=None, description=None, delete_after=None):
-            return await self.send(embed=Embed(title=message, description=description, color=Color.green()), delete_after=delete_after)
+            response = await self._state.http.send_message(self.channel.id, content="", embed={
+                "title": message,
+                "description": description,
+                "color": 3066993
+            })
+            
+            if delete_after:
+                await Message(state=self._state, channel=self.channel, data=response).delete(delay=delete_after)
         
+        setattr(self.bot._connection, "parse_message_create", _parse_message_create)
         setattr(Context, "error_message", error_message)
         setattr(Context, "send_image", send_image)
         setattr(Context, "success_embed", success_embed)
@@ -122,11 +147,12 @@ class Util:
         self._on_command_error = None
         self._config = ConfigParser()
         self._config.read(config_file)
+        self.encode_uri = _uri
         
         for key in dict(self._config["bot"]).keys():
             setattr(self, key, int(self._config["bot"][key]) if self._config["bot"][key].isnumeric() else self._config["bot"][key])
         
-        self._8ball_template = [
+        self._8ball_template = (
             "As I see it, {}",
             "My reply is {}",
             "My sources say {}",
@@ -147,7 +173,7 @@ class Util:
             "{}. {}!!!",
             "Someone told me the answer is {}",
             "Sorry, but the answer is {}"
-        ]
+        )
         
         del self._config, _embed_add_useless_stuff, send_image, success_embed
         self.status_codes = loads(open(self.json_dir + "/status.json", "r", encoding="utf-8").read())
@@ -169,7 +195,7 @@ class Util:
         
         gateway.DiscordWebSocket.identify = loc['identify']
         del m, loc, source_, s, indent
-        __import__("gc").collect()
+        _collect()
 
     def timestamp(self, input, time_data: str = None, include_time_past: bool = True) -> str:
         """ Formats a timestamp. """
@@ -183,7 +209,7 @@ class Util:
         """ Does a math like `10 meters to kilometers` """
         try:
             string = string.lower().replace(" ", "")
-            formats = re.sub(r"\d+", "", string)
+            formats = _sub(r"\d+", "", string)
             number = int(string.replace(formats, "").strip(",."))
             first_format, second_format = formats.split("to")
             assert first_format != second_format
@@ -236,16 +262,6 @@ class Util:
         response = ((code + ctx.author.id) % 2 == 0)
         del code, ctx
         return choice(self._8ball_template).format("yes" if response else "no")
-
-    def resolve_starboard_message(self, message):
-        """ Gets the embed from a message as a form of starboard post. """
-        embed = Embed(title=f"{message.author.display_name}#{message.author.discriminator} | #{str(message.channel)}", description=message.content, url=message.jump_url, color=discord.Color.from_rgb(255, 255, 0))
-        if message.embeds:
-            embed.description = message.embeds[0].description
-        if message.attachments:
-            if message.attachments[0].url.split(".")[::-1] in ["png", "jpeg", "jpg", "gif", "webp"]:
-                embed.set_image(url=message.attachments[0].url)
-        return embed
     
     async def handle_error(self, ctx, error):
         """ Handles errors like a boss. """
@@ -313,10 +329,6 @@ class Util:
             return await result.text()
         except Exception as e:
             raise error_message("Request Failed. Exception: " + str(e))
-    
-    def encode_uri(self, text: str) -> str:
-        """ Encodes a string to URI text. """
-        return quote_plus(text).replace("+", "%20")
     
     def binary(self, text: str) -> str:
         """ Encodes a text to binary. """

@@ -8,10 +8,10 @@ import framework
 import gc
 
 intents = discord.Intents(
-    guilds=True, members=True, emojis=True, guild_reactions=True, presences=True, guild_messages=True
+    guilds=True, members=True, emojis=True, presences=True, guild_messages=True
 )
 
-client = commands.Bot(command_prefix="1", intents=intents, activity=discord.Activity(type=5, name="hell"))
+client = commands.Bot(command_prefix="1", intents=intents, activity=discord.Activity(type=5, name="hell"), max_messages=100)
 framework.initiate(client)
 pre_ready_initiation(client)
 
@@ -25,23 +25,7 @@ async def on_ready():
     await post_ready_initiation(client)
     client.util.load_cog(client.util.cogs_dirname)
     print('Bot is online.')
-
-@client.event
-async def on_raw_reaction_add(payload):
-    if str(payload.emoji)!='⭐': return
-    if payload.event_type != 'REACTION_ADD': return
-    data = client.db.get("dashboard", {"serverid": payload.guild_id})
-    if not data: return
-    try:
-        messages = await client.get_channel(data['starboard']).history().flatten()
-        starboards = [int(str(message.content).split(': ')[1]) for message in messages if message.author.id == client.user.id]
-        if payload.message_id in starboards: return
-        del starboards, messages
-    except: return
-    message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
-    if len(message.reactions) == data['star_requirements']:
-        await client.get_channel(data['starboard']).send(content=f'ID: {message.id}', embed=client.util.resolve_starboard_message(message))
-
+    
 @client.event
 async def on_command_completion(ctx):
     client.command_uses += 1
@@ -117,9 +101,6 @@ async def on_guild_channel_delete(channel):
     
     if data.get("welcome") and (channel.id == data["welcome"]):
         client.db.modify("dashboard", client.db.types.REMOVE, {"serverid": channel.guild.id}, {"welcome": data["welcome"]})
-    
-    if data.get("starboard") and (channel.id == data["starboard"]):
-        client.db.modify("dashboard", client.db.types.REMOVE, {"serverid": channel.guild.id}, {"starboard": data["starboard"]})
 
 @client.event
 async def on_guild_role_delete(role):

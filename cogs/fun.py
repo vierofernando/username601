@@ -127,7 +127,7 @@ class fun(commands.Cog):
         embed = ctx.bot.Embed(
             ctx,
             title='Fact Core',
-            desc=choice(data),
+            description=choice(data),
             thumbnail='https://i1.theportalwiki.net/img/thumb/5/55/FactCore.png/300px-FactCore.png'
         )
         await embed.send()

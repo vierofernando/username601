@@ -78,7 +78,7 @@ class encoding(commands.Cog):
                     response = await ctx.bot.http._HTTPClient__session.post("https://paste.mod.gg/documents", data=ascii)
                     assert response.status < 400
                     json = await response.json()
-                    await ctx.success_embed(f"[**Click here to see the asciified text.**](https://paste.mod.gg/{json['key']})")
+                    await ctx.success_embed(description=f"[**Click here to see the asciified text.**](https://paste.mod.gg/{json['key']})")
                     del ascii, image, parser, hastebin, json
                     return
                 except AssertionError:
@@ -96,15 +96,14 @@ class encoding(commands.Cog):
                 response = await ctx.bot.http._HTTPClient__session.post("https://paste.mod.gg/documents", data=string)
                 assert response.status < 400
                 json = await response.json()
-                await ctx.success_embed(f"[**Click here to see the asciified image.**](https://paste.mod.gg/{json['key']})")
+                await ctx.success_embed(description=f"[**Click here to see the asciified image.**](https://paste.mod.gg/{json['key']})")
                 del string, image, parser, hastebin, json
                 return
             except AssertionError:
                 pass
         
-        await ctx.send(file=discord.File(BytesIO(bytes(string, 'utf-8')), "asciified.txt"))
+        await ctx.bot.http.send_files(ctx.channel.id, content="", files=[discord.File(BytesIO(bytes(string, 'utf-8')), "asciified.txt")])
         del string, image, parser, hastebin
-        return
 
     @command()
     @cooldown(2)

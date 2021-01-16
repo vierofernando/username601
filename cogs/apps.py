@@ -170,7 +170,7 @@ class apps(commands.Cog):
                 })
                 
                 if not paginator:
-                    embed = ctx.bot.Embed(ctx, title=' '.join(args[1:]) + f"'s repositories [{len(data):,}]", desc="\n".join(desc), thumbnail=data[0]["owner"]["avatar_url"])
+                    embed = ctx.bot.Embed(ctx, title=' '.join(args[1:]) + f"'s repositories [{len(data):,}]", description="\n".join(desc), thumbnail=data[0]["owner"]["avatar_url"])
                     await embed.send()
                     del embed, desc, data, nl, paginator
                     return
@@ -197,7 +197,7 @@ class apps(commands.Cog):
                     embed = ctx.bot.Embed(
                         ctx,
                         title=(data[0].get("owner").get("login") or "<no name>") + f"'s GitHub Gists ({len(data):,})",
-                        desc="\n".join(gists),
+                        description="\n".join(gists),
                         thumbnail=data[0].get("owner").get("avatar_url")
                     )
                     await embed.send()
@@ -274,7 +274,7 @@ class apps(commands.Cog):
                 ctx,
                 title=data['name'],
                 url=data['url'],
-                desc=ctx.bot.Parser.html_to_markdown(data['summary']),
+                description=ctx.bot.Parser.html_to_markdown(data['summary']),
                 fields={
                     'General Information': '**Status: **'+data['status']+'\n**Premiered at: **'+data['premiered']+'\n**Type: **'+data['type']+'\n**Language: **'+data['language']+'\n**Rating: **'+str(data['rating']['average'] if data['rating']['average'] else '`<not available>`')+'\n'+star,
                     'TV Network': data['network']['name']+' at '+data['network']['country']['name']+' ('+data['network']['country']['timezone']+')',
@@ -343,7 +343,7 @@ class apps(commands.Cog):
                 del _filter
             toTrans = ' '.join(parser.other) if parser["to"] else ' '.join(parser.other[1:])
             translation = self.translator.translate(toTrans[:1000], src=parser["from"] if parser["from"] else "auto", dest=destination)
-            embed = ctx.bot.Embed(ctx, title=f"{LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}", desc=translation.text[:1900])
+            embed = ctx.bot.Embed(ctx, title=f"{LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}", description=translation.text[:1900])
             await embed.send()
             del embed, translation, destination, toTrans, parser
         except:
@@ -365,7 +365,7 @@ class apps(commands.Cog):
         })
         
         if not paginator:
-            embed = ctx.bot.Embed(ctx, title=page.title, url=page.fullurl, desc=page.summary[:2000])
+            embed = ctx.bot.Embed(ctx, title=page.title, url=page.fullurl, description=page.summary[:2000])
             del page, paginator
             return await embed.send()
         del page

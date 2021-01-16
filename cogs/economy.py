@@ -242,7 +242,7 @@ class economy(commands.Cog):
                     ids.append(_data["userid"])
                     user = ctx.bot.get_user(_data["userid"])
                     description += f"{i + 1}. **{user.name if user else '`???`'}** {_data['bal']:,} :money_with_wings:" + "\n"
-                embed = ctx.bot.Embed(ctx, title=f"{ctx.me.display_name} world-wide leaderboard", desc=description)
+                embed = ctx.bot.Embed(ctx, title=f"{ctx.me.display_name} world-wide leaderboard", description=description)
                 await embed.send()
                 del embed, ids, description, sorted_bal, data
                 collect()
@@ -269,7 +269,7 @@ class economy(commands.Cog):
             ids.append(_data["userid"])
             user = ctx.bot.get_user(_data["userid"])
             description += f"{i + 1}. **{user.name if user else '<???>'}** {_data['bal']:,} :money_with_wings:" + "\n"
-        embed = ctx.bot.Embed(ctx, title=f"{ctx.me.display_name} server-wide leaderboard", desc=description, thumbnail=ctx.guild.icon_url)
+        embed = ctx.bot.Embed(ctx, title=f"{ctx.me.display_name} server-wide leaderboard", description=description, thumbnail=ctx.guild.icon_url)
         await embed.send()
         del embed, ids, description, sorted_bal, data, member_ids, limit
         collect()
@@ -327,7 +327,7 @@ class economy(commands.Cog):
                     raise ctx.error_message(f"{member.display_name} does not have any profile.")
                 card = ctx.bot.ProfileCard(ctx, member, profile=data, font_path=ctx.bot.util.fonts_dir + "/NotoSansDisplay-Bold.otf")
                 byte = await card.draw()
-                await ctx.send(file=discord.File(byte, "card.png"))
+                await ctx.send_image(byte)
                 await card.close()
                 del card, byte, data, member, parser
                 return
