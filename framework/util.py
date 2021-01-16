@@ -218,7 +218,7 @@ class Util:
             try: return await ctx.send("I don't have the permission required to use that command!")
             except: return
         await self.bot.get_channel(self.feedback_channel).send(content='<@{}> there was an error!'.format(self.owner_id), embed=Embed(
-            title='Error', color=Color.red(), description=f'Content:\n```{ctx.message.content}```\n\nError:\n```{raw}```'
+            title='Error', color=Color.red(), description=f'Content:\n```{ctx.message.content}```\n\nError:\n```{raw.split("The above exception was the direct cause of")[0]}```'
         ).set_footer(text='Bug made by user: {} (ID of {})'.format(str(ctx.author), ctx.author.id)))
         return await ctx.send('Sorry, there was an error while executing this command.\nThis message has been reported to the developer of the bot.', delete_after=3)
     
@@ -251,7 +251,7 @@ class Util:
     async def request(self, url, json=False, xml=False, alexflipnote=False, github=False, **kwargs):
         """ Does a GET request to a specific URL with a query parameters."""
 
-        query_param = "?" + "&".join([i + "=" + quote_plus(str(kwargs[i])).replace("+", "%20") for i in kwargs.keys()]) if kwargs else ""
+        query_param = "?" + "&".join([i + "=" + _uri(str(kwargs[i])).replace("+", "%20") for i in kwargs.keys()]) if kwargs else ""
         
         try:
             session = self.alex_client if alexflipnote else (
