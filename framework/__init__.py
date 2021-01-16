@@ -130,7 +130,7 @@ def modify_discord_py_functions():
             return
         except Exception as exc:
             self.dispatch("command_error", ctx, exc, format_exc())
-        del ctx, command_name
+        del ctx, command_name, command
     
     setattr(_commands.bot.BotBase, "run_command", _run_command)
     setattr(_commands.Context, "error_message", error_message)

@@ -129,24 +129,11 @@ async def on_guild_remove(guild):
 async def on_command_error(ctx, error, raw_error):
     await ctx.bot.util.handle_error(ctx, error, raw_error)
 
-#def isdblvote(author):
-#    if not author.bot: return False
-#    elif author.id==479688142908162059: return False
-#    return True
-
 @client.event
 async def on_message(message):
     if (time() - message.author.created_at.timestamp()) < 604800:
-        return# or isdblvote(message.author): return
-
-    #if message.guild.id==client.util.server_id and message.author.id==479688142908162059:
-    #    data = int(str(message.embeds[0].description).split('(id:')[1].split(')')[0])
-    #    if not database.Economy.get(data): return
-    #    rewards = database.Economy.daily(data)
-    #    try: await client.get_user(data).send(f'Thanks for voting! **You received {rewards} bobux!**')
-    #    except: return
-    # await client.process_commands(message) # else bot will not respond to 99% commands
-    await client.run_command(message)
+        return
+    return await client.run_command(message)
 
 def Username601():
     print('Logging in to discord...')
