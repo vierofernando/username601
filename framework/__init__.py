@@ -97,16 +97,11 @@ def modify_discord_py_functions():
     def _parse_message_create(self, data):
         if data.get("message_reference") or (not data.get("guild_id")) or data.get("webhook_id"):
             return
-        
-        channel, _ = self._get_guild_channel(data)
-        message = dpy.Message(channel=channel, data=data, state=self)
-        
-        if not message.author.bot:
-            self.dispatch('message', message)
-        elif message.author == self.user:
-            self._messages.append(message)
-        
-        del message, channel
+
+        if not data["bot"]:
+            channel, _ = self._get_guild_channel(data)
+            self.dispatch('message', dpy.Message(channel=channel, data=data, state=self))
+            del channel
     
     async def _run_command(self, message):
         if not message.content.startswith(self.command_prefix):
