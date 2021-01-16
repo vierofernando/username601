@@ -44,8 +44,7 @@ class owner(commands.Cog):
     
     @command(["eval", "ex", "ev", "code"])
     @owner_only()
-    async def _eval(self, ctx, *args):
-        code = " ".join(args)
+    async def _eval(self, ctx, *, code: str):
         silent = ("-s" in code)
         
         code = self.prepare(code.replace("-s", ""))

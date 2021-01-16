@@ -7,16 +7,14 @@ import discord
 import framework
 import gc
 
-intents = discord.Intents(
-    guilds=True, members=True, emojis=True, presences=True, guild_messages=True
-)
+framework.modify_discord_py_functions()
+prefix = framework.get_prefix()
 
-client = commands.Bot(command_prefix="1", intents=intents, activity=discord.Activity(type=5, name="hell"), max_messages=100)
+client = commands.Bot(command_prefix=prefix, intents=discord.Intents(
+    guilds=True, members=True, emojis=True, presences=True, guild_messages=True
+), activity=discord.Activity(type=5, name=f"{prefix}help"), max_messages=100)
 framework.initiate(client)
 pre_ready_initiation(client)
-
-if client.command_prefix != str(client.util.prefix):
-    client.command_prefix = str(client.util.prefix)
 
 client.util.mobile_indicator()
 
@@ -33,8 +31,6 @@ async def on_command_completion(ctx):
 
 @client.event
 async def on_member_join(member):
-    # SEND WELCOME CHANNEL
-    
     data = client.db.get("dashboard", {"serverid": member.guild.id})
 
     if not data:
@@ -140,18 +136,17 @@ async def on_command_error(ctx, error):
 
 @client.event
 async def on_message(message):
-    if (not message.guild) or message.author.bot or message.reference or ((time() - message.author.created_at.timestamp()) < 604800): return# or isdblvote(message.author): return
+    if (time() - message.author.created_at.timestamp()) < 604800:
+        return# or isdblvote(message.author): return
 
-    #if message.author.id in client.blacklisted_ids: return
-    if message.content.startswith(f'<@{client.user.id}>') or message.content.startswith(f'<@!{client.user.id}>'):
-        return await message.channel.send(f'Hello, {message.author.name}! My prefix is `{client.command_prefix}`. use `{client.command_prefix}help` for help')
     #if message.guild.id==client.util.server_id and message.author.id==479688142908162059:
     #    data = int(str(message.embeds[0].description).split('(id:')[1].split(')')[0])
     #    if not database.Economy.get(data): return
     #    rewards = database.Economy.daily(data)
     #    try: await client.get_user(data).send(f'Thanks for voting! **You received {rewards} bobux!**')
     #    except: return
-    await client.process_commands(message) # else bot will not respond to 99% commands
+    # await client.process_commands(message) # else bot will not respond to 99% commands
+    await client.run_command(message)
 
 def Username601():
     print('Logging in to discord...')
