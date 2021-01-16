@@ -9,6 +9,7 @@ from io import BytesIO
 from gc import collect as _collect
 from os import getenv
 from functools import wraps as _wraps
+from traceback import format_exc
 import asyncio
 
 from .oreo import Oreo
@@ -135,7 +136,7 @@ def modify_discord_py_functions():
         except (KeyError, IndexError):
             return
         except Exception as exc:
-            self.dispatch("command_error", ctx, exc)
+            self.dispatch("command_error", ctx, exc, format_exc())
         del ctx, command_name
     
     setattr(_commands.bot.BotBase, "run_command", _run_command)

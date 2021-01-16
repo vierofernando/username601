@@ -205,7 +205,7 @@ class Util:
         del code, ctx
         return choice(self._8ball_template).format("yes" if response else "no")
     
-    async def handle_error(self, ctx, error):
+    async def handle_error(self, ctx, error, raw):
         """ Handles errors like a boss. """
         error = getattr(error, "original", error)
         if isinstance(error, commands.CommandNotFound) or isinstance(error, commands.CheckFailure): return
@@ -218,7 +218,7 @@ class Util:
             try: return await ctx.send("I don't have the permission required to use that command!")
             except: return
         await self.bot.get_channel(self.feedback_channel).send(content='<@{}> there was an error!'.format(self.owner_id), embed=Embed(
-            title='Error', color=Color.red(), description=f'Content:\n```{ctx.message.content}```\n\nError:\n```{str(error)}```'
+            title='Error', color=Color.red(), description=f'Content:\n```{ctx.message.content}```\n\nError:\n```{raw}```'
         ).set_footer(text='Bug made by user: {} (ID of {})'.format(str(ctx.author), ctx.author.id)))
         return await ctx.send('Sorry, there was an error while executing this command.\nThis message has been reported to the developer of the bot.', delete_after=3)
     

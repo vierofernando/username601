@@ -126,8 +126,8 @@ async def on_guild_remove(guild):
         await userinsupp.remove_roles(client.get_guild(client.util.server_id).get_role(727667048645394492))
 
 @client.event
-async def on_command_error(ctx, error):
-    await ctx.bot.util.handle_error(ctx, error)
+async def on_command_error(ctx, error, raw_error):
+    await ctx.bot.util.handle_error(ctx, error, raw_error)
 
 #def isdblvote(author):
 #    if not author.bot: return False
