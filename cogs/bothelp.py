@@ -48,7 +48,7 @@ class bothelp(commands.Cog):
         desc = '**Command name: **{}\n**Function: **{}\n**Category: **{}'.format(
             data['name'], data['function'], data['category']
         ) if is_command else '**Commands count: **{}\n**Commands:**```{}```'.format(len(data), ', '.join([i['name'] for i in data]))
-        embed = ctx.bot.Embed(title="Help for "+result["type"].lower()+": "+result["name"], description=desc)
+        embed = ctx.bot.Embed(ctx, title="Help for "+result["type"].lower()+": "+result["name"], description=desc)
         if is_command:
             parameters = "```"+'\n'.join([i.split(": ")[1] for i in data['parameters']])+"```" if data['parameters'] else "No parameters required."
             apis = '\n'.join(map(lambda x: f"[{x}]({x})", data['apis'])) if data['apis'] else 'No APIs used.'

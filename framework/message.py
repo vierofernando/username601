@@ -55,7 +55,7 @@ class Paginator:
         del self.valid_emojis, self.check
         del self.embeds, self.http
     
-    async def _edit(self, index):
+    async def _edit(self):
         await self.http.edit_message(self.message.channel.id, self.message.id, embed=self.embeds[self.index].to_dict())
     
     async def resolve_reaction(self, reaction):
@@ -71,7 +71,7 @@ class Paginator:
         elif (str(reaction.emoji) == self.valid_emojis[3]) and (self.index < (self.max - 1)): self.index += 1
         elif (str(reaction.emoji) == self.valid_emojis[4]) and (self.index < (self.max - 1)): self.index = (self.max - 1)
         else: return
-        await self._edit(self.index)
+        await self._edit()
 
     async def execute(self):
         self.message = await self.ctx.send(embed=self.embeds[0])
