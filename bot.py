@@ -11,7 +11,7 @@ framework.modify_discord_py_functions()
 prefix = framework.get_prefix()
 
 client = commands.Bot(command_prefix=prefix, intents=discord.Intents(
-    guilds=True, members=True, emojis=True, presences=True, guild_messages=True
+    guilds=True, members=True, emojis=True, guild_reactions=True, presences=True, guild_messages=True
 ), activity=discord.Activity(type=5, name=f"{prefix}help"), max_messages=None)
 framework.initiate(client)
 pre_ready_initiation(client)
