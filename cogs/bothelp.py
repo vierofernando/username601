@@ -19,14 +19,8 @@ class bothelp(commands.Cog):
     @cooldown(5)
     async def changelog(self, ctx, *args):
         data = "\n".join(self.db.get("config", {"h": True})["changelog"])
-        embed = ctx.bot.Embed(
-            ctx,
-            title="Bot Changelog",
-            description=data,
-            footer="Sorry if it looks kinda stinky"
-        )
-        await embed.send()
-        del embed, data
+        await ctx.embed(title="Bot Changelog", description=data, footer="Sorry if it looks kinda stinky")
+        del data
 
     @command(['commands', 'yardim', 'yardım'])
     @cooldown(2)
@@ -54,37 +48,22 @@ class bothelp(commands.Cog):
         desc = '**Command name: **{}\n**Function: **{}\n**Category: **{}'.format(
             data['name'], data['function'], data['category']
         ) if is_command else '**Commands count: **{}\n**Commands:**```{}```'.format(len(data), ', '.join([i['name'] for i in data]))
-        embed = ctx.bot.Embed(ctx, title="Help for "+result["type"].lower()+": "+result["name"], description=desc)
+        embed = ctx.bot.Embed(title="Help for "+result["type"].lower()+": "+result["name"], description=desc)
         if is_command:
             parameters = "```"+'\n'.join([i.split(": ")[1] for i in data['parameters']])+"```" if data['parameters'] else "No parameters required."
             apis = '\n'.join(map(lambda x: f"[{x}]({x})", data['apis'])) if data['apis'] else 'No APIs used.'
-            embed.fields = {
-                'Parameters': parameters,
-                'APIs used': apis
-            }
+            embed.add_field("Parameters", parameters).add_field("APIs Used", apis)
         return await embed.send()
 
     @command()
     @cooldown(2)
     async def vote(self, ctx):
-        embed = ctx.bot.Embed(
-            ctx,
-            title=f'{ctx.me.display_name} seems sus. let\'s vote for him!',
-            url=f'https://top.gg/bot/{ctx.bot.user.id}/vote'
-        )
-        await embed.send()
-        del embed
+        return await ctx.embed(title=f'{ctx.me.display_name} seems sus. let\'s vote for him!', url=f'https://top.gg/bot/{ctx.bot.user.id}/vote')
     
     @command(['inviteme', 'invitelink', 'botinvite', 'invitebot', 'addtoserver', 'addbot'])
     @cooldown(2)
     async def invite(self, ctx):
-        embed = ctx.bot.Embed(
-            ctx,
-            title='invite this bot please the bot developer is desperate',
-            url=f'https://discord.com/api/oauth2/authorize?client_id={ctx.bot.user.id}&permissions=8&scope=bot'
-        )
-        await embed.send()
-        del embed
+        return await ctx.embed(title='invite this bot please the bot developer is desperate', url=f'https://discord.com/api/oauth2/authorize?client_id={ctx.bot.user.id}&permissions=8&scope=bot')
     
     @command(['report', 'suggest', 'bug', 'reportbug', 'bugreport'])
     @cooldown(15)
@@ -110,35 +89,20 @@ class bothelp(commands.Cog):
     @command()
     @cooldown(2)
     async def ping(self, ctx):
-        msgping = round((time() - ctx.message.created_at.timestamp())*1000)
-        await ctx.trigger_typing()
-        wsping = round(ctx.bot.ws.latency*1000)
-        embed = ctx.bot.Embed(
-            ctx,
-            title="PongChamp!",
-            description=f"**Message latency:** `{msgping}ms`\n**Websocket latency:** `{wsping}ms`",
-            thumbnail='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif'
-        )
-        await embed.send()
-        del embed, wsping, msgping
+        msgping, wsping = round((time() - ctx.message.created_at.timestamp())*1000), round(ctx.bot.ws.latency*1000)
+        await ctx.embed(title="PongChamp!", description=f"**Message latency:** `{msgping}ms`\n**Websocket latency:** `{wsping}ms`", thumbnail='https://i.pinimg.com/originals/21/02/a1/2102a19ea556e1d1c54f40a3eda0d775.gif')
+        del wsping, msgping
 
     @command(['botstats', 'meta'])
     @cooldown(10)
     async def stats(self, ctx):
         await ctx.trigger_typing()
         data = await ctx.bot.util.get_stats()
-        
-        embed = ctx.bot.Embed(
-            ctx,
-            title="Bot Stats",
-            fields={
-                "Uptime": f"**Bot Uptime: **{ctx.bot.util.strfsecond(data['bot_uptime'])}\n**OS Uptime: **{data['os_uptime']}",
-                "Stats": f"**Server count: **{len(ctx.bot.guilds)}\n**Served users: **{len(ctx.bot.users)}\n**Cached custom emojis: **{len(ctx.bot.emojis)}",
-                "Platform": f"**Machine: **{data['versions']['os']}\n**Python Build: **{data['versions']['python_build']}\n**Python Compiler: **{data['versions']['python_compiler']}\n**Discord.py version: **{data['versions']['discord_py']}"
-            }
-        )
-        
-        await embed.send()
+        await ctx.embed(title="Bot Stats", fields={
+            "Uptime": f"**Bot Uptime: **{ctx.bot.util.strfsecond(data['bot_uptime'])}\n**OS Uptime: **{data['os_uptime']}",
+            "Stats": f"**Server count: **{len(ctx.bot.guilds)}\n**Served users: **{len(ctx.bot.users)}\n**Cached custom emojis: **{len(ctx.bot.emojis)}",
+            "Platform": f"**Machine: **{data['versions']['os']}\n**Python Build: **{data['versions']['python_build']}\n**Python Compiler: **{data['versions']['python_compiler']}\n**Discord.py version: **{data['versions']['discord_py']}"
+        })
 
 def setup(client):
     client.add_cog(bothelp(client))

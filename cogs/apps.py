@@ -31,7 +31,7 @@ class apps(commands.Cog):
                 xml=True
             )
             location_name = data['weatherdata']['weather'][0]['@weatherlocationname']
-            embeds = [ctx.bot.Embed(
+            embeds = [discord.Embed.from_dict(ctx.bot.Embed(
                 ctx,
                 title=f"Weather Forecast for {location_name[:70]} (Today)",
                 fields={
@@ -40,7 +40,7 @@ class apps(commands.Cog):
                     "Humidity": f"{data['weatherdata']['weather'][0]['current']['@humidity']}%",
                     "Wind Speeds": data['weatherdata']['weather'][0]['current']['@winddisplay']
                 }
-            )._basic_embed()]
+            ).dict)]
             
             if parser.has_multiple("forecast", "forecasts", "include-forecast", "include-forecasts"):
                 for forecast in data['weatherdata']['weather'][0]['forecast']:
@@ -75,9 +75,8 @@ class apps(commands.Cog):
                 vertical="news",
                 xml=True
             )
-            embed = ctx.bot.Embed(ctx, title=data["tile"]["visual"]["binding"][0]["text"]["#text"], image=data["tile"]["visual"]["@baseUri"] + data["tile"]["visual"]["binding"][0]["image"]["@src"])
-            await embed.send()
-            del embed, data
+            await ctx.embed(title=data["tile"]["visual"]["binding"][0]["text"]["#text"], image=data["tile"]["visual"]["@baseUri"] + data["tile"]["visual"]["binding"][0]["image"]["@src"])
+            del data
         except Exception as e:
             await ctx.bot.get_user(ctx.bot.util.owner_id).send(f"yo, theres an error: `{str(e)}`")
             raise ctx.error_message("Oopsies, there was an error on searching the news.")
@@ -110,20 +109,13 @@ class apps(commands.Cog):
             else:
                 result = data["list"][0]
             
-            embed = ctx.bot.Embed(
-                ctx,
-                title=result["word"],
-                fields={
-                    "Post Info": f"**Author: **{result['author']}" + "\n" + f"{result['thumbs_up']:,} :+1: | {result['thumbs_down']:,} :-1:",
-                    "Definition": result["definition"].replace("\\\\", "\\"),
-                    "Written in": ctx.bot.util.timestamp(result['written_on']),
-                    "Example": result["example"]
-                },
-                url=result['permalink']
-            )
-            
-            await embed.send()
-            del embed, result, search, data
+            await ctx.embed(title=result["word"], fields={
+                "Post Info": f"**Author: **{result['author']}" + "\n" + f"{result['thumbs_up']:,} :+1: | {result['thumbs_down']:,} :-1:",
+                "Definition": result["definition"].replace("\\\\", "\\"),
+                "Written in": ctx.bot.util.timestamp(result['written_on']),
+                "Example": result["example"]
+            }, url=result['permalink'])
+            del result, search, data
             
         except:
             raise ctx.error_message("Did not found anything corresponding to your search.")
@@ -142,19 +134,12 @@ class apps(commands.Cog):
                     json=True
                 )
                 
-                embed = ctx.bot.Embed(
-                    ctx,
-                    title=data["name"] or data["login"],
-                    fields={
-                        "General": f"{('**Login Username: **' + data['login'] + nl if data['name'] else '')}**ID: **`{data['id']}`\n**Created at: **{ctx.bot.util.timestamp(data['created_at'])}\n**Updated at: **{ctx.bot.util.timestamp(data['updated_at'])}",
-                        "Bio": data["bio"] if data.get("bio") else "`<no bio>`",
-                        "Stats": f"**Followers: **{data['followers']}\n**Following: **{data['following']}\n**Public Repositories: **{data['public_repos']}\n**Public Gists: **{data['public_gists']}"
-                    },
-                    thumbnail=data["avatar_url"],
-                    url=data["html_url"]
-                )
-                await embed.send()
-                del embed, data, nl
+                await ctx.embed(title=data["name"] or data["login"], fields={
+                    "General": f"{('**Login Username: **' + data['login'] + nl if data['name'] else '')}**ID: **`{data['id']}`\n**Created at: **{ctx.bot.util.timestamp(data['created_at'])}\n**Updated at: **{ctx.bot.util.timestamp(data['updated_at'])}",
+                    "Bio": data["bio"] if data.get("bio") else "`<no bio>`",
+                    "Stats": f"**Followers: **{data['followers']}\n**Following: **{data['following']}\n**Public Repositories: **{data['public_repos']}\n**Public Gists: **{data['public_gists']}"
+                }, thumbnail=data["avatar_url"], url=data["html_url"])
+                del data, nl
                 return
             elif (args[0].lower() in ("repos", "repositories")):
                 data = await ctx.bot.util.request(
@@ -170,9 +155,8 @@ class apps(commands.Cog):
                 })
                 
                 if not paginator:
-                    embed = ctx.bot.Embed(ctx, title=' '.join(args[1:]) + f"'s repositories [{len(data):,}]", description="\n".join(desc), thumbnail=data[0]["owner"]["avatar_url"])
-                    await embed.send()
-                    del embed, desc, data, nl, paginator
+                    await ctx.embed(title=' '.join(args[1:]) + f"'s repositories [{len(data):,}]", description="\n".join(desc), thumbnail=data[0]["owner"]["avatar_url"])
+                    del desc, data, nl, paginator
                     return
                 del desc, data, nl
                 return await paginator.execute()
@@ -194,13 +178,7 @@ class apps(commands.Cog):
                 })
                 
                 if not paginator:
-                    embed = ctx.bot.Embed(
-                        ctx,
-                        title=(data[0].get("owner").get("login") or "<no name>") + f"'s GitHub Gists ({len(data):,})",
-                        description="\n".join(gists),
-                        thumbnail=data[0].get("owner").get("avatar_url")
-                    )
-                    await embed.send()
+                    await ctx.embed(title=(data[0].get("owner").get("login") or "<no name>") + f"'s GitHub Gists ({len(data):,})", description="\n".join(gists), thumbnail=data[0].get("owner").get("avatar_url"))
                     del get_first_key, gists, embed, data
                     return
                 
@@ -214,18 +192,11 @@ class apps(commands.Cog):
                     json=True
                 )
                 
-                embed = ctx.bot.Embed(
-                    ctx,
-                    title=data.get("description", "<no description>"),
-                    thumbnail=data["owner"]["avatar_url"],
-                    url=data.get("html_url", "https://google.com/"),
-                    fields={
-                        "General": f"**Created By: **[{data['owner']['login']}]({data['owner']['html_url']})\n**Created At: **{ctx.bot.util.timestamp(data['created_at'])}\n**Last Updated: **{ctx.bot.util.timestamp(data['updated_at'])}\n**Comments: **[{data['comments']}]({data['comments_url']})\n**Revisions: **{len(data['history']):,}",
-                        "Files": "\n".join(map(lambda filename: f"[{filename}]({data['files'][filename]['raw_url']}) [{data['files'][filename].get('language', '???')}, {data['files'][filename]['size'] / 1000} MB]", data['files'].keys()))[:1000]
-                    }
-                )
-                await embed.send()
-                del embed, data
+                await ctx.embed(title=data.get("description", "<no description>"), thumbnail=data["owner"]["avatar_url"], url=data.get("html_url", "https://google.com/"), fields={
+                    "General": f"**Created By: **[{data['owner']['login']}]({data['owner']['html_url']})\n**Created At: **{ctx.bot.util.timestamp(data['created_at'])}\n**Last Updated: **{ctx.bot.util.timestamp(data['updated_at'])}\n**Comments: **[{data['comments']}]({data['comments_url']})\n**Revisions: **{len(data['history']):,}",
+                    "Files": "\n".join(map(lambda filename: f"[{filename}]({data['files'][filename]['raw_url']}) [{data['files'][filename].get('language', '???')}, {data['files'][filename]['size'] / 1000} MB]", data['files'].keys()))[:1000]
+                })
+                del data
                 return
             elif (args[0].lower() in ("repo", "repository")):
                 assert " ".join(args[1:]).count("/")
@@ -235,20 +206,12 @@ class apps(commands.Cog):
                     json=True
                 )
                 
-                embed = ctx.bot.Embed(
-                    ctx,
-                    title=data["full_name"] + (' [Fork of '+data['parent']['full_name']+']' if data['fork'] else ''),
-                    url=data["html_url"],
-                    fields={
-                        'General': f"**Created at: **{ctx.bot.util.timestamp(data['created_at'])}\n**Updated at: **{ctx.bot.util.timestamp(data['updated_at'])}\n**Pushed at: **{ctx.bot.util.timestamp(data['pushed_at'])}\n**Programming Language: **{data['language'] if data.get('language') else '???'}{nl + '**License: **' + data['license']['name'] if data.get('license') else ''}",
-                        'Description': data['description'] if data.get('description') else 'This repo is without description.', # haha nice reference there null
-                        'Stats': f"**Stars: **{data['stargazers_count']}\n**Forks: **{data['forks_count']}\n**Watchers: **{data['watchers_count']}\n**Open Issues: **{data['open_issues_count']}"
-                    },
-                    thumbnail=data["owner"]["avatar_url"]
-                )
-                await embed.send()
-                
-                del embed, data, nl
+                await ctx.embed(title=data["full_name"] + (' [Fork of '+data['parent']['full_name']+']' if data['fork'] else ''), url=data["html_url"], fields={
+                    'General': f"**Created at: **{ctx.bot.util.timestamp(data['created_at'])}\n**Updated at: **{ctx.bot.util.timestamp(data['updated_at'])}\n**Pushed at: **{ctx.bot.util.timestamp(data['pushed_at'])}\n**Programming Language: **{data['language'] if data.get('language') else '???'}{nl + '**License: **' + data['license']['name'] if data.get('license') else ''}",
+                    'Description': data['description'] if data.get('description') else 'This repo is without description.', # haha nice reference there null
+                    'Stats': f"**Stars: **{data['stargazers_count']}\n**Forks: **{data['forks_count']}\n**Watchers: **{data['watchers_count']}\n**Open Issues: **{data['open_issues_count']}"
+                }, thumbnail=data["owner"]["avatar_url"])
+                del data, nl
                 return
             assert False
         except ctx.error_message as error:
@@ -270,21 +233,12 @@ class apps(commands.Cog):
         
         try:
             star = str(':star:'*round(data['rating']['average'])) if data['rating']['average'] else 'No star rating provided.'
-            embed = ctx.bot.Embed(
-                ctx,
-                title=data['name'],
-                url=data['url'],
-                description=ctx.bot.Parser.html_to_markdown(data['summary']),
-                fields={
-                    'General Information': '**Status: **'+data['status']+'\n**Premiered at: **'+data['premiered']+'\n**Type: **'+data['type']+'\n**Language: **'+data['language']+'\n**Rating: **'+str(data['rating']['average'] if data['rating']['average'] else '`<not available>`')+'\n'+star,
-                    'TV Network': data['network']['name']+' at '+data['network']['country']['name']+' ('+data['network']['country']['timezone']+')',
-                    'Genre': str(', '.join(data['genres']) if len(data['genres']) else 'no genre avaliable'),
-                    'Schedule': ', '.join(data['schedule']['days'])+' at '+data['schedule']['time']
-                },
-                image=data['image']['original']
-            )
-            await embed.send()
-            del embed
+            await ctx.embed(title=data['name'], url=data['url'], description=ctx.bot.Parser.html_to_markdown(data['summary']), fields={
+                'General Information': '**Status: **'+data['status']+'\n**Premiered at: **'+data['premiered']+'\n**Type: **'+data['type']+'\n**Language: **'+data['language']+'\n**Rating: **'+str(data['rating']['average'] if data['rating']['average'] else '`<not available>`')+'\n'+star,
+                'TV Network': data['network']['name']+' at '+data['network']['country']['name']+' ('+data['network']['country']['timezone']+')',
+                'Genre': str(', '.join(data['genres']) if len(data['genres']) else 'no genre avaliable'),
+                'Schedule': ', '.join(data['schedule']['days'])+' at '+data['schedule']['time']
+            }, image=data['image']['original'])
         except:
             raise ctx.error_message("There was an error on fetching the info.")
 
@@ -343,9 +297,8 @@ class apps(commands.Cog):
                 del _filter
             toTrans = ' '.join(parser.other) if parser["to"] else ' '.join(parser.other[1:])
             translation = self.translator.translate(toTrans[:1000], src=parser["from"] if parser["from"] else "auto", dest=destination)
-            embed = ctx.bot.Embed(ctx, title=f"{LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}", description=translation.text[:1900])
-            await embed.send()
-            del embed, translation, destination, toTrans, parser
+            await ctx.embed(title=f"{LANGUAGES[translation.src]} to {LANGUAGES[translation.dest]}", description=translation.text[:1900])
+            del translation, destination, toTrans, parser
         except:
             return await ctx.bot.cmds.invalid_args(ctx)
 
@@ -365,9 +318,8 @@ class apps(commands.Cog):
         })
         
         if not paginator:
-            embed = ctx.bot.Embed(ctx, title=page.title, url=page.fullurl, description=page.summary[:2000])
+            await ctx.embed(title=page.title, url=page.fullurl, description=page.summary[:2000])
             del page, paginator
-            return await embed.send()
         del page
         return await paginator.execute()
     
@@ -390,21 +342,14 @@ class apps(commands.Cog):
             data = self.ia.get_movie_main(movie.movieID)["data"]
             votes = (":star:" * round(data["rating"])) + f' ({data["rating"]}, {data["votes"]} votes)' if (data.get("votes") and data.get("rating")) else "<data not available>"
 
-            embed = ctx.bot.Embed(
-                ctx,
-                title=movie["long imdb title"],
-                url=self.ia.get_imdbURL(movie),
-                image=movie["full-size cover url"],
-                fields={
-                    "Plot": data["plot outline"].split(".")[0][:1000],
-                    "Movie Ratings": votes,
-                    "Directors": ", ".join([i["name"] for i in data["directors"] if i.get("name")]),
-                    "Producers": ", ".join([i["name"] for i in data["producers"] if i.get("name")]),
-                    "Writers": ", ".join([i["name"] for i in data["writers"] if i.get("name")])
-                }
-            )
-            await embed.send()
-            del res, data, embed, votes, choose, movie, query
+            await ctx.embed(title=movie["long imdb title"], url=self.ia.get_imdbURL(movie), image=movie["full-size cover url"], fields={
+                "Plot": data["plot outline"].split(".")[0][:1000],
+                "Movie Ratings": votes,
+                "Directors": ", ".join([i["name"] for i in data["directors"] if i.get("name")]),
+                "Producers": ", ".join([i["name"] for i in data["producers"] if i.get("name")]),
+                "Writers": ", ".join([i["name"] for i in data["writers"] if i.get("name")])
+            })
+            del res, data, votes, choose, movie, query
         except Exception as e:
             raise ctx.error_message("The movie query does not exist.\n" + str(e))
         

@@ -25,18 +25,11 @@ class fun(commands.Cog):
             comic = await ctx.bot.util.request(f"https://xkcd.com/{comic_num}/info.0.json", json=True)
             del comic_num
         
-        embed = ctx.bot.Embed(
-            ctx,
-            title=f"{comic['num']} - {comic['title']}",
-            url=f"https://xkcd.com/{comic['num']}",
-            fields={
-                "Transcript": comic['transcript'] if comic['transcript'] else comic['alt'],
-                "Post Date": f"{comic['day']}/{comic['month']}/{comic['year']}"
-            },
-            image=comic['img']
-        )
-        await embed.send()
-        del comic, parser, embed
+        await ctx.embed(title=f"{comic['num']} - {comic['title']}", url=f"https://xkcd.com/{comic['num']}", fields={
+            "Transcript": comic['transcript'] if comic['transcript'] else comic['alt'],
+            "Post Date": f"{comic['day']}/{comic['month']}/{comic['year']}"
+        }, image=comic['img'])
+        del comic, parser
 
     @command(['edited'])
     @cooldown(3)
@@ -77,13 +70,8 @@ class fun(commands.Cog):
             "https://official-joke-api.appspot.com/jokes/general/random",
             json=True
         )
-        embed = ctx.bot.Embed(
-            ctx,
-            title = data[0]["setup"],
-            desc = '||'+data[0]["punchline"]+'||'
-        )
-        await embed.send()
-        del embed, data
+        await ctx.embed(title=data[0]["setup"], description='||'+data[0]["punchline"]+'||')
+        del data
 
     @command(['inspiringquotes', 'lolquote', 'aiquote', 'imagequote', 'imgquote'])
     @cooldown(10)
@@ -104,11 +92,10 @@ class fun(commands.Cog):
     @require_args(name="8ball")
     async def _8ball(self, ctx, *args):
         res = ctx.bot.util.eight_ball(ctx)
-        embed = ctx.bot.Embed(ctx, title="The 8-Ball", fields={
+        return await ctx.embed(title="The 8-Ball", fields={
             "Question": '*"'+ discord.utils.escape_markdown(" ".join(args)) +'"*',
             "Answer": f'***{res}***'
         })
-        return await embed.send()
     
     @command()
     @cooldown(2)
@@ -124,14 +111,8 @@ class fun(commands.Cog):
             'https://raw.githubusercontent.com/dragonfire535/xiao/master/assets/json/fact-core.json',
             json=True
         )
-        embed = ctx.bot.Embed(
-            ctx,
-            title='Fact Core',
-            description=choice(data),
-            thumbnail='https://i1.theportalwiki.net/img/thumb/5/55/FactCore.png/300px-FactCore.png'
-        )
-        await embed.send()
-        del data, embed
+        await ctx.embed(title='Fact Core', description=choice(data), thumbnail='https://i1.theportalwiki.net/img/thumb/5/55/FactCore.png/300px-FactCore.png')
+        del data
 
 def setup(client):
     client.add_cog(fun())

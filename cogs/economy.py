@@ -242,9 +242,8 @@ class economy(commands.Cog):
                     ids.append(_data["userid"])
                     user = ctx.bot.get_user(_data["userid"])
                     description += f"{i + 1}. **{user.name if user else '`???`'}** {_data['bal']:,} :money_with_wings:" + "\n"
-                embed = ctx.bot.Embed(ctx, title=f"{ctx.me.display_name} world-wide leaderboard", description=description)
-                await embed.send()
-                del embed, ids, description, sorted_bal, data
+                await ctx.embed(title=f"{ctx.me.display_name} world-wide leaderboard", description=description)
+                del ids, description, sorted_bal, data
                 collect()
                 return
             elif args[0].lower() in ["local", "server", "server-wide", "serverwide"]:
@@ -269,9 +268,8 @@ class economy(commands.Cog):
             ids.append(_data["userid"])
             user = ctx.bot.get_user(_data["userid"])
             description += f"{i + 1}. **{user.name if user else '<???>'}** {_data['bal']:,} :money_with_wings:" + "\n"
-        embed = ctx.bot.Embed(ctx, title=f"{ctx.me.display_name} server-wide leaderboard", description=description, thumbnail=ctx.guild.icon_url)
-        await embed.send()
-        del embed, ids, description, sorted_bal, data, member_ids, limit
+        await ctx.embed(title=f"{ctx.me.display_name} server-wide leaderboard", description=description, thumbnail=ctx.guild.icon_url)
+        del ids, description, sorted_bal, data, member_ids, limit
         collect()
 
     @command(['balance', 'profile', 'economy'])
@@ -338,21 +336,15 @@ class economy(commands.Cog):
             raise ctx.error_message(f"{member.display_name} does not have any profile!")
         streak = data["streak"] if data.get("streak") else 1
         
-        embed = ctx.bot.Embed(
-            ctx,
-            title=f"{member.display_name}'s profile",
-            thumbnail=member.avatar_url,
-            fields={
-                "Balance": f"{data['bal']:,} bobux" + "\n" f"{data['bankbal']:,} bobux (bank)",
-                "Description": data["desc"] if data.get("desc") else "**<this profile is without description>**",
-                "Daily": (f"**[:white_check_mark: can be claimed using `{ctx.prefix}daily`]**" if ((not data["lastDaily"]) or ((time() - data["lastDaily"]) > 43200)) else f"Can be claimed in {ctx.bot.util.strfsecond((data['lastDaily'] + 43200) - time())}") + "\n" + f"Streak: {streak} (Next daily reward: {(250 * (streak + 1)):,} bobux)"
-            },
-            footer="Daily streaks will be reset back to 1 if daily is not claimed after 24 hours.",
-            color=discord.Color.from_rgb(*[int(i) for i in data["color"].split(",")]) if data.get("color") else ctx.me.color
-        )
+        embed = ctx.bot.Embed(ctx, title=f"{member.display_name}'s profile", thumbnail=member.avatar_url, fields={
+            "Balance": f"{data['bal']:,} bobux" + "\n" f"{data['bankbal']:,} bobux (bank)",
+            "Description": data["desc"] if data.get("desc") else "**<this profile is without description>**",
+            "Daily": (f"**[:white_check_mark: can be claimed using `{ctx.prefix}daily`]**" if ((not data["lastDaily"]) or ((time() - data["lastDaily"]) > 43200)) else f"Can be claimed in {ctx.bot.util.strfsecond((data['lastDaily'] + 43200) - time())}") + "\n" + f"Streak: {streak} (Next daily reward: {(250 * (streak + 1)):,} bobux)"
+        }, footer="Daily streaks will be reset back to 1 if daily is not claimed after 24 hours.")
         
         if data.get("color"):
             rgb = tuple([int(i) for i in data["color"].split(",")])
+            embed.color(rgb)
             embed.fields["Color"] = f"**Hex: **{('#%02x%02x%02x' % rgb).upper()}"+"\n"+f"**RGB: **{rgb[0]}, {rgb[1]}, {rgb[2]}"
             del rgb
         

@@ -35,17 +35,12 @@ class utils(commands.Cog):
             res = await embed.run()
             if not res:
                 return
-            embed = ctx.bot.Embed(
-                ctx,
-                title=res["name"],
-                description="Native name: \""+str(res.get("nativeName"))+"\"",
-                fields={
-                    "Location": "**Latitude Longitude:** `"+(", ".join([str(i) for i in res["latlng"]]))+"`\n**Region:** "+res["region"]+"\n**Subregion: **"+res["subregion"]+"\n**Capital:** "+res["capital"],
-                    "Detailed Info": "**Population Count: **"+str(res["population"])+"\n**Country Area: **"+str(res.get("area"))+" km²\n**Time Zones: **"+(", ".join(res["timezones"])),
-                    "Currency": (("\n".join(["**"+currency["name"]+"** ("+currency["code"]+" `"+currency["symbol"]+"`)" for currency in res["currencies"]])) if res["currencies"] else "`doesn't have currency :(`")
-                }
-            )
-            return await embed.send()
+            await ctx.embed(title=res["name"], description="Native name: \""+str(res.get("nativeName"))+"\"", fields={
+                "Location": "**Latitude Longitude:** `"+(", ".join([str(i) for i in res["latlng"]]))+"`\n**Region:** "+res["region"]+"\n**Subregion: **"+res["subregion"]+"\n**Capital:** "+res["capital"],
+                "Detailed Info": "**Population Count: **"+str(res["population"])+"\n**Country Area: **"+str(res.get("area"))+" km²\n**Time Zones: **"+(", ".join(res["timezones"])),
+                "Currency": (("\n".join(["**"+currency["name"]+"** ("+currency["code"]+" `"+currency["symbol"]+"`)" for currency in res["currencies"]])) if res["currencies"] else "`doesn't have currency :(`")
+            })
+            del res, embed, data
         except Exception as e:
             raise ctx.error_message(str(e))
     
@@ -86,21 +81,13 @@ class utils(commands.Cog):
         )
         
         nl = "\n"
-        embed = ctx.bot.Embed(
-            ctx,
-            title=data['info']['name'],
-            description=data['info']['summary'],
-            fields={
-                "Links": f"**Home Page: **{'[click here]('+data['info']['home_page']+')' if data['info']['home_page'] else '`<no links available>`'}\n**Download Link: **{'[click here]('+data['info']['download_url']+')' if data['info']['download_url'] else '`<no links available>`'}",
-                "Author": f"{data['info']['author']} {'('+data['info']['author_email']+')' if data['info']['author_email'] else ''}\n",
-                "Version": f"**Current Version: **[{data['info']['version']}]({data['info']['release_url']})\n**Uploaded at: **{ctx.bot.util.timestamp(data['releases'][data['info']['version']][0]['upload_time'])}",
-                "Keywords": data['info']['keywords'].replace(',', ', ') if data['info']['keywords'] else '`<no keywords>`'
-            },
-            url=data['info']['package_url']
-        )
-        await embed.send()
-        
-        del embed, data, nl
+        await ctx.embed(title=data['info']['name'], description=data['info']['summary'], fields={
+            "Links": f"**Home Page: **{'[click here]('+data['info']['home_page']+')' if data['info']['home_page'] else '`<no links available>`'}\n**Download Link: **{'[click here]('+data['info']['download_url']+')' if data['info']['download_url'] else '`<no links available>`'}",
+            "Author": f"{data['info']['author']} {'('+data['info']['author_email']+')' if data['info']['author_email'] else ''}\n",
+            "Version": f"**Current Version: **[{data['info']['version']}]({data['info']['release_url']})\n**Uploaded at: **{ctx.bot.util.timestamp(data['releases'][data['info']['version']][0]['upload_time'])}",
+            "Keywords": data['info']['keywords'].replace(',', ', ') if data['info']['keywords'] else '`<no keywords>`'
+        }, url=data['info']['package_url'])
+        del data, nl
 
     @command(['isitup', 'webstatus'])
     @cooldown(2)
@@ -113,13 +100,10 @@ class utils(commands.Cog):
             a = time()
             ping = await ctx.bot.http._HTTPClient__session.get(web)
             pingtime = round((time() - a)*1000)
-            embed = ctx.bot.Embed(ctx, title="That website is up.", fields={"Ping": f"{pingtime}ms", "HTTP Status Code": f"{ping.status} {ctx.bot.util.status_codes[str(ping.status)]}", "Content Type": ping.headers['Content-Type']}, color=discord.Color.green())
-            await embed.send()
-            del embed, pingtime, ping, a, web
+            await ctx.embed(title="That website is up.", fields={"Ping": f"{pingtime}ms", "HTTP Status Code": f"{ping.status} {ctx.bot.util.status_codes[str(ping.status)]}", "Content Type": ping.headers['Content-Type']}, color=discord.Color.green())
+            del pingtime, ping, a, web
         except:
-            embed = ctx.bot.Embed(ctx, title="That website is down.", color=discord.Color.red())
-            await embed.send()
-            del embed
+            await ctx.embed(title="That website is down.", color=discord.Color.red())
     
     @command()
     @cooldown(15)
@@ -136,13 +120,7 @@ class utils(commands.Cog):
             raise ctx.error_message("Nothing found.")
         
         img = choice(data['collection']['items'])
-        em = ctx.bot.Embed(
-            ctx,
-            title=img['data'][0]['title'],
-            description=img['data'][0]["description"],
-            image=img['links'][0]['href']
-        )
-        await embed.send()
+        await ctx.embed(title=img['data'][0]['title'], description=img['data'][0]["description"], image=img['links'][0]['href'])
         del em, img, data
 
     @command(['pokemon', 'pokeinfo', 'dex', 'bulbapedia'])
@@ -179,14 +157,8 @@ class utils(commands.Cog):
             
             if not paginator:
                 _data.pop("thumbnail", None)
-                embed = ctx.bot.Embed(
-                    ctx,
-                    description=data['query']['pages'][0]['extract'],
-                    thumbnail=image,
-                    **_data
-                )
-                await embed.send()
-                del embed, image, data, paginator, _data
+                await ctx.embed(description=data['query']['pages'][0]['extract'], thumbnail=image, **_data)
+                del image, data, paginator, _data
                 return
             del image, data, _data
             return await paginator.execute()
@@ -206,15 +178,8 @@ class utils(commands.Cog):
             raise ctx.error_message("I did not find anything.")
         
         total = choice([i for i in data['results'] if i['thumbnail']!=''])
-        embed = ctx.bot.Embed(
-            ctx,
-            title=total['title'],
-            url=total['href'],
-            description='Ingredients:\n{}'.format(total['ingredients']),
-            image=(total['thumbnail'] if total['thumbnail'] != "" else None)
-        )
-        await embed.send()
-        del embed, total, data
+        await ctx.embed(title=total['title'], url=total['href'], description=f"Ingredients:\n{total['ingredients']}", image=(total['thumbnail'] if total['thumbnail'] else None))
+        del total, data
 
     @command(['calculator', 'equ', 'equation', 'calculate'])
     @cooldown(3)
@@ -237,9 +202,8 @@ class utils(commands.Cog):
         await ctx.trigger_typing()
         data = await ctx.bot.util.request('https://quotes.herokuapp.com/libraries/math/random')
         text, quoter = data.split(' -- ')[0], data.split(' -- ')[1]
-        embed = ctx.bot.Embed(ctx, author_name=quoter, description=discord.utils.escape_markdown(text))
-        await embed.send()
-        del embed, text, quoter, data
+        await ctx.embed(author_name=quoter, description=discord.utils.escape_markdown(text))
+        del text, quoter, data
 
     @command(['rhymes'])
     @cooldown(7)
@@ -263,9 +227,8 @@ class utils(commands.Cog):
         }, char=", ", max_char_length=500)
         
         if not paginator:
-            embed = ctx.bot.Embed(ctx, title='Words that rhymes with '+' '.join(args)+':', description=str(', '.join(words))[:500])
-            await embed.send()
-            del embed, words, data, paginator
+            await ctx.embed(title='Words that rhymes with '+' '.join(args)+':', description=str(', '.join(words))[:500])
+            del words, data, paginator
             return
         del words, data
         return await paginator.execute()
@@ -274,25 +237,15 @@ class utils(commands.Cog):
     @cooldown(7)
     async def pandafact(self, ctx):
         data = await ctx.bot.util.request('https://some-random-api.ml/facts/panda', json=True)
-        embed = ctx.bot.Embed(
-            ctx,
-            title='Did you know?',
-            description=data['fact'],
-        )
-        await embed.send()
-        del embed, data
+        await ctx.embed(title='Did you know?', description=data['fact'], color=discord.Color.green())
+        del data
     
     @command(['birdfact'])
     @cooldown(7)
     async def birbfact(self, ctx):
         data = await ctx.bot.util.request('https://some-random-api.ml/facts/bird', json=True)
-        embed = ctx.bot.Embed(
-            ctx,
-            title='Did you know?',
-            description=data['fact'],
-        )
-        await embed.send()
-        del embed, data
+        await ctx.embed(title='Did you know?', description=data['fact'], color=discord.Color.green())
+        del data
     
     @command()
     @cooldown(5)
@@ -302,9 +255,8 @@ class utils(commands.Cog):
             json=True,
             participants=1
         )
-        embed = ctx.bot.Embed(ctx, title=f"Feeling bored? Why don't you {data['activity']}?")
-        await embed.send()
-        del embed, data
+        await ctx.success_embed(f"Feeling bored? Why don't you {data['activity']}?")
+        del data
 
     @command()
     @cooldown(20)
@@ -339,8 +291,7 @@ class utils(commands.Cog):
         if url[2]:
             result = result[url[2]]
         
-        embed = ctx.bot.Embed(ctx, title=key + " fact!", description=result)
-        return await embed.send()
+        embed = await ctx.embed(title=key + " fact!", description=result, color=discord.Color.green())
     
     @command(['em'])
     @cooldown(2)
@@ -350,19 +301,15 @@ class utils(commands.Cog):
             parser = ctx.bot.Parser(args)
             parser.parse()
             
-            color = discord.Color.from_rgb(*ctx.bot.Parser.parse_color(parser["color"])) if parser["color"] else ctx.me.color
-            
             assert (bool(parser["description"]) or bool(parser.other))
-            embed = ctx.bot.Embed(
-                ctx,
+            await ctx.embed(
                 title=parser["title"],
                 description=parser["description"] if parser.has("description") else ' '.join(parser.other)[:1950],
                 author_name=parser["author"],
-                color=color,
+                color=ctx.bot.Parser.parse_color(parser["color"]) if parser["color"] else ctx.me.color,
                 footer=parser["footer"]
             )
-            await embed.send()
-            del embed, parser
+            del parser
         except:
             return await ctx.bot.cmds.invalid_args(ctx)
     

@@ -336,14 +336,8 @@ class image(commands.Cog):
         except:
             raise ctx.error_message("The API may be down for a while. Try again later!")
 
-        embed = ctx.bot.Embed(
-            ctx,
-            title=data["images"]["image"]["copyright"],
-            url=data["images"]["image"]["copyrightlink"],
-            image='https://bing.com'+data["images"]["image"]["url"]
-        )
-        await embed.send()
-        del embed, data
+        await ctx.embed(title=data["images"]["image"]["copyright"], url=data["images"]["image"]["copyrightlink"], image='https://bing.com'+data["images"]["image"]["url"])
+        del data
 
     @command()
     @cooldown(2)

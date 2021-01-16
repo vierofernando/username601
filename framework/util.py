@@ -12,7 +12,6 @@ from subprocess import run, PIPE
 from datetime import datetime
 from inspect import getsource
 from base64 import b64encode
-from .message import embed
 from re import sub as _sub
 from random import choice
 from json import loads
@@ -57,7 +56,6 @@ class error_message(Exception):
         super().__init__(message)
 
 class Util:
-    EMBED = embed
 
     def __init__(
         self,
@@ -87,63 +85,7 @@ class Util:
             60: "minute"
         }
         
-        def _parse_message_create(self, data):
-            # a function that controls how discord.py caches messages on create/sent.
-            if (not data.get("guild_id")) or data.get("webhook_id") or (data.get("bot") and (data["id"] != str(self.user.id))):
-                return # dont dispatch if it is sent on a DM, a message created by a bot/webhook
-            
-            channel, _ = self._get_guild_channel(data)
-            message = Message(channel=channel, data=data, state=self)
-            self.dispatch('message', message)
-            
-            if message.author.bot: # only cache messages from the bot itself
-                self._messages.append(message)
         
-        def _embed_add_useless_stuff(self, ctx, disable_color: bool = False):
-            self._footer = {
-                "text": "Command executed by "+str(ctx.author),
-                "icon_url": str(ctx.author.avatar_url)
-            }
-            self.timestamp = datetime.now()
-            
-            if not disable_color:
-                self.colour = ctx.me.colour
-            return self
-        
-        async def send_image(self, url, alexflipnote: bool = False, content: str = None, file_format="png"):
-            try:
-                if isinstance(url, BytesIO):
-                    return await self.bot.http.send_files(self.channel.id, content=content, files=[File(url, f"file.{file_format}")])
-            
-                session = self.bot.util.alex_client if alexflipnote else self.bot.http._HTTPClient__session
-                
-                async with session.get(url) as data:
-                    _bytes = await data.read()
-                    assert data.status < 400, "API returns a bad status code"
-                    assert data.headers['Content-Type'].startswith("image/"), "Content does not have an image."
-                    extension = "." + data.headers['Content-Type'][6:].lower()
-                    buffer = self.bot.util._crop_out_memegen(self, _bytes) if url.startswith("https://api.memegen.link/") else BytesIO(_bytes)
-                    await self.bot.http.send_files(self.channel.id, content=content, files=[File(buffer, f"file{extension}")])
-                    del extension, _bytes, data, buffer
-                    _collect()
-            except Exception as e:
-                raise self.error_message("Image not found.\n`"+str(e)+"`")
-        
-        async def success_embed(self, message=None, description=None, delete_after=None):
-            response = await self._state.http.send_message(self.channel.id, content="", embed={
-                "title": message,
-                "description": description,
-                "color": 3066993
-            })
-            
-            if delete_after:
-                await Message(state=self._state, channel=self.channel, data=response).delete(delay=delete_after)
-        
-        setattr(self.bot._connection, "parse_message_create", _parse_message_create)
-        setattr(Context, "error_message", error_message)
-        setattr(Context, "send_image", send_image)
-        setattr(Context, "success_embed", success_embed)
-        setattr(Embed, "add_useless_stuff", _embed_add_useless_stuff)
         self._on_command_error = None
         self._config = ConfigParser()
         self._config.read(config_file)
@@ -175,7 +117,7 @@ class Util:
             "Sorry, but the answer is {}"
         )
         
-        del self._config, _embed_add_useless_stuff, send_image, success_embed
+        del self._config
         self.status_codes = loads(open(self.json_dir + "/status.json", "r", encoding="utf-8").read())
 
         setattr(client, attribute_name, self)
@@ -200,7 +142,7 @@ class Util:
     def timestamp(self, input, time_data: str = None, include_time_past: bool = True) -> str:
         """ Formats a timestamp. """
         if isinstance(input, str):
-            input = datetime.strptime(input.split(".")[0].strip("Z"), "%Y-%m-%dT%H:%M:%S" if input.count("T") else time_data)
+            input = datetime.strptime(input.split(".")[0].rstrip("Z"), "%Y-%m-%dT%H:%M:%S" if input.count("T") else time_data)
         
         _past = f"({self.strfsecond(time() - input.timestamp())} ago)" if include_time_past else ""
         return f'{input.strftime("%A, %d %B %Y" if input.minute == input.hour else "%A, %d %B %Y at %H:%M:%S")} {_past}'

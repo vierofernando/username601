@@ -221,6 +221,17 @@ class embed:
         if not self.param.get(name): return
         self.dict[key_name] = func(self.param[name])
 
+    def color(self, color):
+        self.dict["color"] = embed.COL[color.__class__](color)
+
+    def add_field(self, name, value, inline: bool = False):
+        self.dict["fields"].append({
+            "name": name,
+            "value": value,
+            "inline": inline
+        })
+        return self # just like discord.py hehe
+
     async def send(self, return_message_object: bool = False):
         """ Sends the embed to the current channel. """
         try:

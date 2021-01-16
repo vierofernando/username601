@@ -1,6 +1,6 @@
 from aiohttp import ClientSession
 from random import choice, randint
-from discord import Embed, Color
+from discord import Embed, Color, Message
 from asyncio import sleep
 from json import load
 from time import time
@@ -91,8 +91,7 @@ class Slot:
     async def play(self, ctx) -> int:
         amount, is_jackpot = self.generate()
         message = "Jackpot!" if is_jackpot else ("You win!" if amount > 0 else "You lost... Try again sometime?")
-        embed = ctx.bot.Embed(ctx, title=message, description=f"**[ **{' '.join(self.generation)}** ]**")
-        await embed.send()
+        await ctx.embed(title=message, description=f"**[ **{' '.join(self.generation)}** ]**")
         return amount
 
 class GuessMyNumber:
@@ -101,8 +100,7 @@ class GuessMyNumber:
         self.my_number = randint(0, 100)
 
     async def play(self, ctx) -> bool:
-        embed = ctx.bot.Embed(ctx, title="Guess my number!", description="I have a random number between 0 and 100. Guess my number by sending it in the chat! You have 7 turns. Each turn i give you 15 seconds to guess.")
-        await embed.send()
+        await ctx.embed(title="Guess my number!", description="I have a random number between 0 and 100. Guess my number by sending it in the chat! You have 7 turns. Each turn i give you 15 seconds to guess.")
         check_func = (lambda x: x.channel == ctx.channel and x.author == ctx.author and x.content.isnumeric())
         while self.rounds_left != 0:
             wait_for = ctx.bot.WaitForMessage(ctx, timeout=15.0, check=check_func)
@@ -143,8 +141,9 @@ class Trivia:
             title=f"{self.topic} Trivia",
             description=f"**{question['question']}**" + "\n" + "\n".join([f"{alpha[i]}. **{question['options'][i]}**" for i in range(4)])
         )
-        message = await embed.send()
-        del embed
+        response = await embed.send()
+        message = Message(state=embed.state, channel=ctx.channel, data=response)
+        del embed, response
 
         wait = ctx.bot.WaitForMessage(ctx, timeout=25.5, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and len(x.content) == 1 and (x.content.upper() in alpha)))
         resp = await wait.get_message()
@@ -183,8 +182,9 @@ class GuessAvatar:
             description="\n".join([f"{self.alpha[i]}. **{self.members[i].display_name}**" for i in range(4)]),
             image=self.members[self.correct_order].avatar_url_as(format="png")
         )
-        message = await embed.send()
-        del embed
+        response = await embed.send()
+        message = Message(state=embed.state, channel=self.ctx.channel, data=response)
+        del embed, response
 
         waitFor = self.ctx.bot.WaitForMessage(self.ctx, timeout=25.0, check=(lambda x: x.channel == self.ctx.channel and x.author == self.ctx.author and len(x.content) == 1 and (x.content.upper() in self.alpha)))
         response = await waitFor.get_message()
@@ -284,8 +284,9 @@ class GeographyQuiz:
         embed = ctx.bot.Embed(ctx, title="Geography Quiz!", description=self.question + "\n" + "\n".join(
             [f"{alphabet[choice]}. **{self.choices[choice]}**" for choice in range(4)]
         ))
-        message = await embed.send()
-        del embed
+        response = await embed.send()
+        message = Message(state=embed.state, channel=ctx.channel, data=response)
+        del embed, response
         
         WaitFor = ctx.bot.WaitForMessage(ctx, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and len(x.content) == 1 and (x.content.upper() in alphabet)))
         _input = await WaitFor.get_message()

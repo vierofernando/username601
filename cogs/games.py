@@ -52,7 +52,7 @@ class games(commands.Cog):
         
         if self.db.exist("economy", {"userid": _message.author.id}):
             reward = round((20 - _time) * 100)
-            embed.description = f"**You also get {reward:,} bobux as a reward!**"
+            embed.dict["description"] = f"**You also get {reward:,} bobux as a reward!**"
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": _message.author.id}, {"bal": reward})
             del reward
         await embed.send()
@@ -80,7 +80,8 @@ class games(commands.Cog):
         game = ctx.bot.TicTacToe()
         
         embed = ctx.bot.Embed(ctx, title="Tic-tac-toe Game", description="["+str(ctx.author)+"'s (O) turn]```"+game.show()+"```")
-        message = await embed.send()
+        response = await embed.send()
+        message = discord.Message(state=embed.state, channel=ctx.channel, data=response)
         current = 0
         
         while True:
@@ -101,12 +102,12 @@ class games(commands.Cog):
             check = game.check_if_win()
             if check:
                 if check == "?":
-                    return await ctx.send(embed=discord.Embed(title="No one wins! It's a draw!", color=discord.Color.orange()))
+                    return await ctx.embed(title="No one wins! It's a draw!", color=(255, 255, 0))
                 winner = str(characters[0 if (current == 1) else 1])
                 return await ctx.success_embed(str(characters[current]) + " won the game!")
             
             current = 0 if current else 1
-            embed.description = "["+str(characters[current])+"'s ("+game.current_turn+") turn]```" + game.show() + "```"
+            embed.dict["description"] = "["+str(characters[current])+"'s ("+game.current_turn+") turn]```" + game.show() + "```"
             await embed.edit_to(message)
     
     async def get_name_history(self, uuid, ctx):
@@ -166,18 +167,12 @@ class games(commands.Cog):
                 json=True
             )
             
-            embed = ctx.bot.Embed(
-                ctx,
-                title=data["username"],
-                fields={
-                    "Account info": f"**Player ID: **{data['playerID']}\n**Account ID: **{data['accountID']}",
-                    "Stats": f"**Rank: **{(data['rank'] if data['rank'] else '`<not available>`')}\n**Stars: **{data['stars']}\n**Diamonds: **{data['diamonds']}\n**Secret Coins: **{data['coins']}\n**Demons: **{data['demons']}\n**Creator Points: **{data['cp']}",
-                    "Links": f"{('[YouTube channel](https://youtube.com/channel/'+data['youtube']+')' if data['youtube'] else '`<YouTube not available>`')}\n{('[Twitter Profile](https://twitter.com/'+data['twitter']+')' if data['twitter'] else '`<Twitter not available>`')}\n{('[Twitch Channel](https://twitch.tv/'+data['twitch']+')' if data['twitch'] else '`<Twitch not available>`')}"
-                },
-                thumbnail=f"https://gdbrowser.com/icon/{'%20'.join(args)[:32]}?form=cube"
-            )
-            await embed.send()
-            del embed
+            await ctx.embed(title=data["username"], fields={
+                "Account info": f"**Player ID: **{data['playerID']}\n**Account ID: **{data['accountID']}",
+                "Stats": f"**Rank: **{(data['rank'] if data['rank'] else '`<not available>`')}\n**Stars: **{data['stars']}\n**Diamonds: **{data['diamonds']}\n**Secret Coins: **{data['coins']}\n**Demons: **{data['demons']}\n**Creator Points: **{data['cp']}",
+                "Links": f"{('[YouTube channel](https://youtube.com/channel/'+data['youtube']+')' if data['youtube'] else '`<YouTube not available>`')}\n{('[Twitter Profile](https://twitter.com/'+data['twitter']+')' if data['twitter'] else '`<Twitter not available>`')}\n{('[Twitch Channel](https://twitch.tv/'+data['twitch']+')' if data['twitch'] else '`<Twitch not available>`')}"
+            }, thumbnail=f"https://gdbrowser.com/icon/{'%20'.join(args)[:32]}?form=cube")
+            del data
         except:
             raise ctx.error_message('Error, user not found.')
     
@@ -332,13 +327,7 @@ class games(commands.Cog):
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
             del game, win, object_name, object_args, play_func, play_args, Context, reward
         except AssertionError:
-            embed = ctx.bot.Embed(
-                ctx,
-                title="Guessing Game!",
-                description="`guess <avatar|av|pfp>` Guessing game about guessing random people's avatars in the server!\n`guess <geo|geography>` Guess the correct information of a country!\n`guess <num|number>` Starts a \"guess my number\" game!\n`guess <flag|flags|country-flag>` Guess the country from a flag!"
-            )
-            await embed.send()
-            del embed
+            return await ctx.embed(title="Guessing Game!", description="`guess <avatar|av|pfp>` Guessing game about guessing random people's avatars in the server!\n`guess <geo|geography>` Guess the correct information of a country!\n`guess <num|number>` Starts a \"guess my number\" game!\n`guess <flag|flags|country-flag>` Guess the country from a flag!")
         except Exception as e:
             raise ctx.error_message(str(e))
 
@@ -349,8 +338,9 @@ class games(commands.Cog):
         quiz.generate_question()
         
         embed = ctx.bot.Embed(ctx, title=quiz.question)
-        message = await embed.send()
-        del embed
+        response = await embed.send()
+        message = discord.Message(state=embed.state, channel=ctx.channel, data=response)
+        del embed, response
         
         wait_for = ctx.bot.WaitForMessage(ctx, timeout=30.0, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and x.content.replace("-", "").isnumeric()))
         answer = await wait_for.get_message()

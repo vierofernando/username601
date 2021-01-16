@@ -127,18 +127,13 @@ class moderation(commands.Cog):
         if not data:
             raise ctx.error_message('This server does not have any configuration for this bot.')
         
-        embed = ctx.bot.Embed(
-            ctx,
-            title=f"Server configuration for {ctx.guild.name}",
-            fields={
-                "Auto Role": 'Set to <@&{}>'.format(data['autorole']) if data.get('autorole') else '<Not set>',
-                "Welcome Channel": 'Set to <#{}>'.format(data['welcome']) if data.get('welcome') else '<Not set>',
-                "Mute Role": 'Set to <@&{}>'.format(data['mute']) if data.get('mute') else '<Not set>',
-                "Auto-Dehoist": 'Enabled :white_check_mark:' if data.get('dehoister') else 'Disabled :x:'
-            }
-        )
-        await embed.send()
-        del embed, data
+        await ctx.embed(title=f"Server configuration for {ctx.guild.name}", fields={
+            "Auto Role": 'Set to <@&{}>'.format(data['autorole']) if data.get('autorole') else '<Not set>',
+            "Welcome Channel": 'Set to <#{}>'.format(data['welcome']) if data.get('welcome') else '<Not set>',
+            "Mute Role": 'Set to <@&{}>'.format(data['mute']) if data.get('mute') else '<Not set>',
+            "Auto-Dehoist": 'Enabled :white_check_mark:' if data.get('dehoister') else 'Disabled :x:'
+        })
+        del data
     
     @command()
     @cooldown(5)
@@ -246,14 +241,8 @@ class moderation(commands.Cog):
             range(len(data))
         )[:10])
 
-        embed = ctx.bot.Embed(
-            ctx,
-            title=f'Warn list for {source.display_name}',
-            description=warnlist,
-            color=discord.Color.red()
-        )
-        await embed.send()
-        del embed, warnlist, source, data
+        await ctx.embed(title=f'Warn list for {source.display_name}', description=warnlist, color=discord.Color.red())
+        del warnlist, source, data
     
     @command(['deletewarn', 'clear-all-infractions', 'clear-infractions', 'clearinfractions', 'delinfractions', 'delwarn', 'clearwarn', 'clear-warn'])
     @cooldown(5)
@@ -282,13 +271,8 @@ class moderation(commands.Cog):
         data = self.db.get("dashboard", {"serverid": ctx.guild.id})
 
         if not args:
-            embed = ctx.bot.Embed(
-                ctx,
-                title='Command usage',
-                description=f'{ctx.prefix}welcome <channel>'+'\n'+f'{ctx.prefix}welcome disable'
-            )
-            await embed.send()
-            del embed, args
+            await ctx.embed(title='Command usage', description=f'{ctx.prefix}welcome <channel>'+'\n'+f'{ctx.prefix}welcome disable')
+            del args
             return
         
         if args[0].lower() == 'disable':
@@ -505,19 +489,13 @@ class moderation(commands.Cog):
                 if getattr(role.permissions, perm):
                     permissions += perm.replace("_", " ") + ", "
             
-            embed = ctx.bot.Embed(
-                ctx,
-                title=role.name,
-                color=role.color,
-                fields={
-                    "Role Info": f"**Display role members seperately from online members: **{':white_check_mark:' if role.hoist else ':x:'}" + "\n" + f"**Mentionable: **{':white_check_mark:' if role.mentionable else ':x:'}" + f"\n**Created At: **{ctx.bot.util.timestamp(role.created_at)}",
-                    f"Role Members ({len(role.members)})": role_members + extra,
-                    "Key Permissions": permissions[:-2],
-                    "Role Color": f"**Hex: {str(role.color)}**" + "\n" + f"**RGB: **{role.color.r}, {role.color.g}, {role.color.b}"
-                }
-            )
-            await embed.send()
-            del embed, role_members, extra, role, permissions
+            await ctx.embed(title=role.name, color=role.color, fields={
+                "Role Info": f"**Display role members seperately from online members: **{':white_check_mark:' if role.hoist else ':x:'}" + "\n" + f"**Mentionable: **{':white_check_mark:' if role.mentionable else ':x:'}" + f"\n**Created At: **{ctx.bot.util.timestamp(role.created_at)}",
+                f"Role Members ({len(role.members)})": role_members + extra,
+                "Key Permissions": permissions[:-2],
+                "Role Color": f"**Hex: {str(role.color)}**" + "\n" + f"**RGB: **{role.color.r}, {role.color.g}, {role.color.b}"
+            })
+            del role_members, extra, role, permissions
             return
         elif args[0].lower() == "list":
             _map = list(map(lambda x: x.mention, ctx.guild.roles[1:]))
@@ -527,9 +505,8 @@ class moderation(commands.Cog):
             }, char=" ", max_char_length=1000, max_pages=5)
         
             if not paginator:
-                embed = ctx.bot.Embed(ctx, title="Server Roles List", description=" ".join(_map))
-                await embed.send()
-                del embed, paginator, _map
+                await ctx.embed(title="Server Roles List", description=" ".join(_map))
+                del paginator, _map
                 return
             del _map
             return await paginator.execute()
@@ -547,9 +524,8 @@ class moderation(commands.Cog):
             }, char=" ", max_char_length=1000, max_pages=6)
             
             if not paginator:
-                embed = ctx.bot.Embed(ctx, title="Server Channels List", description=" ".join(_map))
-                await embed.send()
-                del embed, _map
+                await ctx.embed(title="Server Channels List", description=" ".join(_map))
+                del _map
                 return
             del _map
             return await paginator.execute()
@@ -591,13 +567,8 @@ class moderation(commands.Cog):
             else:
                 raise ctx.error_message("Invalid channel type. Must be either Text, voice, or category channel.")
             
-            embed = ctx.bot.Embed(
-                ctx,
-                title=channel.name,
-                fields=fields
-            )
-            await embed.send()
-            del embed, channel
+            await ctx.embed(title=channel.name, fields=fields)
+            del channel
             return
         return await ctx.bot.cmds.invalid_args(ctx)
     
@@ -637,9 +608,10 @@ class moderation(commands.Cog):
         )
         
         if user.activity:
-            embed.fields["Activity"] = "\n".join([f"{self.presence_prefix[i.type]} {i.name}" for i in user.activities if i.name])
-            if embed.fields["Activity"] == "":
-                embed.fields.pop("Activity")
+            activities = "\n".join([f"{self.presence_prefix[i.type]} {i.name}" for i in user.activities if i.name])
+            if activities:
+                embed.add_field("Activity", activities)
+            del activities
         
         await embed.send()
         del join_pos, current_time, user, nl, embed, parser
@@ -648,9 +620,8 @@ class moderation(commands.Cog):
     @cooldown(2)
     async def avatar(self, ctx, *args):
         url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True, member_only=True, size=4096)
-        embed = ctx.bot.Embed(ctx, title="Here's ya avatar mate", image=url)
-        await embed.send()
-        del embed, url
+        await ctx.embed(title="Here's ya avatar mate", image=url)
+        del url
 
     @command(['emote', 'emojiinfo', 'emoji-info'])
     @cooldown(5)
@@ -665,9 +636,8 @@ class moderation(commands.Cog):
             }, char=" ", max_char_length=1500, max_pages=10)
             
             if not paginator:
-                embed = ctx.bot.Embed(ctx, title="Server Custom Emojis List", description=" ".join(_map))
-                await embed.send()
-                del embed, _map, paginator
+                await ctx.embed(title="Server Custom Emojis List", description=" ".join(_map))
+                del _map, paginator
                 return
             del _map
             return await paginator.execute()
@@ -691,14 +661,8 @@ class moderation(commands.Cog):
                 "Emoji URL": res
             }
             
-            embed = ctx.bot.Embed(
-                ctx,
-                title="Emoji Info",
-                fields=fields,
-                image=res
-            )
-            await embed.send()
-            del embed, fields, data, res
+            await ctx.embed(title="Emoji Info", fields=fields, image=res)
+            del fields, data, res
             return
         elif args[0].lower() == "enlarge":
             try:
@@ -716,9 +680,8 @@ class moderation(commands.Cog):
         parser.parse()
         
         if parser.has("icon"):
-            embed = ctx.bot.Embed(ctx, title="Server Icon", image=ctx.guild.icon_url)
-            await embed.send()
-            del embed, parser
+            await ctx.embed(title="Server Icon", image=ctx.guild.icon_url)
+            del parser
         elif parser.has("card"):
             await ctx.trigger_typing()
             card = ctx.bot.ServerCard(ctx, f"{ctx.bot.util.fonts_dir}/NotoSansDisplay-Bold.otf")
@@ -742,7 +705,7 @@ class moderation(commands.Cog):
                 image=ctx.guild.banner_url
             )
             
-            first_embed, _ = await embed.get_embed()
+            first_embed = discord.Embed.from_dict(embed.dict)
             embed = ctx.bot.Embed(
                 ctx,
                 title=ctx.guild.name,
@@ -753,7 +716,7 @@ class moderation(commands.Cog):
                     "Limits": f"**Presence Limit: **{(ctx.guild.max_presences if ctx.guild.max_presences else '`<no limit>`')}\n**Bitrate Limit: **{(ctx.guild.bitrate_limit // 1000):,} kbps\n**Filesize Limit: **{(ctx.guild.filesize_limit // 1000000):,} MB"
                 }
             )
-            second_embed, _ = await embed.get_embed()
+            second_embed = discord.Embed.from_dict(embed.dict)
             paginator = ctx.bot.EmbedPaginator(ctx, embeds=[first_embed, second_embed])
             del first_embed, second_embed, nl, parser
             return await paginator.execute()
@@ -766,8 +729,8 @@ class moderation(commands.Cog):
         embed = ctx.bot.Embed(ctx, title="Permissions for "+str(user)+" in "+ctx.channel.name)
         for permission in self.permission_attributes:
             emoji = ":white_check_mark:" if getattr(source, permission) else ":x:"
-            embed.description += "{} {}\n".format(emoji, permission.replace("_", " "))
-        embed.description = embed.description[:-2]
+            embed.dict["description"] += "{} {}\n".format(emoji, permission.replace("_", " "))
+        embed.dict["description"] = embed.dict["description"][:-2]
         return await embed.send()
 
 def setup(client):
