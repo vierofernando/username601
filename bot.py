@@ -12,7 +12,7 @@ prefix = framework.get_prefix()
 
 client = commands.Bot(command_prefix=prefix, intents=discord.Intents(
     guilds=True, members=True, emojis=True, guild_reactions=True, presences=True, guild_messages=True
-), activity=discord.Activity(type=5, name=f"{prefix}help"), max_messages=None)
+), activity=discord.Activity(type=5, name=f"{prefix}help"), max_messages=100)
 framework.initiate(client)
 pre_ready_initiation(client)
 
