@@ -95,10 +95,13 @@ def modify_discord_py_functions():
         del _builtin_embed
     
     def _parse_message_create(self, data):
-        if data.get("message_reference") or (not data.get("guild_id")) or data.get("webhook_id") or data["author"].get("bot"):
+        if data.get("message_reference") or (not data.get("guild_id")) or data.get("webhook_id"):
             return
         channel, _ = self._get_guild_channel(data)
-        self.dispatch('message', dpy.Message(channel=channel, data=data, state=self))
+        if not data["author"].get("bot"):
+            self.dispatch('message', dpy.Message(channel=channel, data=data, state=self))
+        elif message.author == self.user:
+            self._messages.append(dpy.Message(channel=channel, data=data, state=self))
         del channel
     
     async def _run_command(self, message):
