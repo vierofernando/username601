@@ -100,9 +100,9 @@ def modify_discord_py_functions():
         channel, _ = self._get_guild_channel(data)
         if not data["author"].get("bot"):
             self.dispatch('message', dpy.Message(channel=channel, data=data, state=self))
-        elif message.author == self.user:
+        elif data["author"]["id"] == str(self.user.id):
             self._messages.append(dpy.Message(channel=channel, data=data, state=self))
-        del channel
+        del channel, data
     
     async def _run_command(self, message):
         if not message.content.startswith(self.command_prefix):
