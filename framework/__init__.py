@@ -109,6 +109,9 @@ def modify_discord_py_functions():
             return
         
         ctx = _commands.Context(prefix=self.command_prefix, view=_commands.view.StringView(message.content), bot=self, message=message, args=message.content.split(" ")[1:])
+        if not ctx.channel.permissions_for(ctx.me).send_messages:
+            return # what's the point of running a command if the bot doesn't have the perms to send messages kekw
+        
         try:
             command_name = message.content[len(self.command_prefix):].split()[0]
             ctx.command = self.all_commands[command_name.lower()]

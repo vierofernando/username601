@@ -38,14 +38,17 @@ class bothelp(commands.Cog):
         
         await ctx.trigger_typing()
         command = ctx.bot.all_commands.get(" ".join(args).lower().lstrip("_"))
-        command_info = list(filter(lambda x: x["name"] == command.name.lstrip("_"), ctx.bot.cmds.commands))[0] if command else None
-        if (not command) or (not command_info):
-            raise ctx.error_message("No such category or command exists.")
+        
+        try:
+            assert bool(command)
+            command_info = list(filter(lambda x: x["name"] == command.name.lstrip("_"), ctx.bot.cmds.commands))[0]
+        except:
+            raise ctx.error_message("No such command exists.")
         
         usage = [f"{ctx.prefix}{command.name}"]
         usage.extend(map(lambda x: ctx.prefix + x.split(": ")[1], command_info["parameters"]))
         cooldown = command.get_cooldown_retry_after(ctx)
-        embed = ctx.bot.Embed(ctx, title=f"Command help for {command.name}", description=command_info["function"], fields={"Usage": '```'+"\n".join(usage)+'```', "Category": command_info["category"], "Cooldown": (":x:" if cooldown else ":white_check_mark:") + f" {cooldown:.2f} seconds"})
+        embed = ctx.bot.Embed(ctx, title=f"Command help for {command.name}", description=command_info["function"], fields={"Usage": '```'+"\n".join(usage)+'```', "Category": command_info["category"], "Cooldown": f"{(':x:' if cooldown else ':white_check_mark:')} {ctx.bot.util.strfsecond(cooldown)}"})
         if command_info["apis"]:
             embed.add_field("APIs used", "\n".join(map(lambda x: f"[{x}]({x})", command_info["apis"])))
         if command.aliases:
