@@ -75,6 +75,7 @@ class fun(commands.Cog):
 
     @command(['inspiringquotes', 'lolquote', 'aiquote', 'imagequote', 'imgquote'])
     @cooldown(10)
+    @permissions(bot=['attach_files'])
     async def inspirobot(self, ctx):
         await ctx.trigger_typing()
         img = await ctx.bot.util.request('https://inspirobot.me/api', generate="true")

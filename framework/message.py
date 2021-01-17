@@ -225,6 +225,9 @@ class embed:
         self.dict["color"] = embed.COL[color.__class__](color)
 
     def add_field(self, name, value, inline: bool = False):
+        if not self.dict.get("fields"):
+            self.dict["fields"] = []
+        
         self.dict["fields"].append({
             "name": name,
             "value": value,
@@ -315,7 +318,6 @@ class ChooseEmbed:
         return self._reference[_user_choice - 1]
     
     def __del__(self):
-        del self.embed
         del self._pre_res
         
         try:

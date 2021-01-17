@@ -214,7 +214,7 @@ class Util:
             await ctx.send(embed=error.embed)
             del error
             return
-        elif isinstance(error, Forbidden): 
+        elif isinstance(error, errors.Forbidden): 
             try: return await ctx.send("I don't have the permission required to use that command!")
             except: return
         await self.bot.get_channel(self.feedback_channel).send(content='<@{}> there was an error!'.format(self.owner_id), embed=Embed(

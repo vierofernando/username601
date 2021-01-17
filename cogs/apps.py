@@ -14,6 +14,7 @@ class apps(commands.Cog):
 
     @command(["weather-forecast", "forecast"])
     @cooldown(10)
+    @permissions(bot=['add_reactions'])
     async def weather(self, ctx, *args):
         parser = ctx.bot.Parser(args)
         parser.parse()
@@ -123,6 +124,7 @@ class apps(commands.Cog):
     @command(['git'])
     @cooldown(10)
     @require_args(2)
+    @permissions(bot=['add_reactions'])
     async def github(self, ctx, *args):
         try:
             await ctx.trigger_typing()
@@ -305,6 +307,7 @@ class apps(commands.Cog):
     @command(['wiki'])
     @cooldown(7, channel_wide=True)
     @require_args()
+    @permissions(bot=['add_reactions'])
     async def wikipedia(self, ctx, *args):
         await ctx.trigger_typing()
         

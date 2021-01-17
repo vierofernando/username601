@@ -274,6 +274,7 @@ class economy(commands.Cog):
 
     @command(['balance', 'profile', 'economy'])
     @cooldown(5)
+    @permissions(bot=['attach_files'])
     async def bal(self, ctx, *args):
         if args:
             await ctx.trigger_typing()

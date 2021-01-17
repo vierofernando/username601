@@ -17,6 +17,7 @@ class image(commands.Cog):
     
     @command(['aun', 'æon'])
     @cooldown(3)
+    @permissions(bot=['attach_files'])
     async def aeon(self, ctx):
         if (time() - self.last_aeon) >= 10800: # this API is sacred so i'm not giving you the URL
             resp = await ctx.bot.util.request(self.aeon_url)
@@ -27,6 +28,7 @@ class image(commands.Cog):
     
     @command(['dogs'])
     @cooldown(3)
+    @permissions(bot=['attach_files'])
     async def dog(self, ctx):
         await ctx.trigger_typing()
         data = await ctx.bot.util.request("https://api.alexflipnote.dev/dogs", json=True, alexflipnote=True)
@@ -34,6 +36,7 @@ class image(commands.Cog):
     
     @command(['cats'])
     @cooldown(3)
+    @permissions(bot=['attach_files'])
     async def cat(self, ctx):
         await ctx.trigger_typing()
         data = await ctx.bot.util.request("https://api.alexflipnote.dev/cats", json=True, alexflipnote=True)
@@ -41,6 +44,7 @@ class image(commands.Cog):
     
     @command(['birb', 'birbs', 'birds'])
     @cooldown(3)
+    @permissions(bot=['attach_files'])
     async def bird(self, ctx):
         await ctx.trigger_typing()
         data = await ctx.bot.util.request("https://api.alexflipnote.dev/birb", json=True, alexflipnote=True)
@@ -48,6 +52,7 @@ class image(commands.Cog):
     
     @command(['foxes', 'furry', 'furries'])
     @cooldown(3)
+    @permissions(bot=['attach_files'])
     async def fox(self, ctx):
         await ctx.trigger_typing()
         data = await ctx.bot.util.request("https://randomfox.ca/floof", json=True)
@@ -56,6 +61,7 @@ class image(commands.Cog):
     @command(['colourify', 'colorize', 'colourize'])
     @cooldown(5)
     @require_args()
+    @permissions(bot=['attach_files'])
     async def colorify(self, ctx, *args):
         await ctx.trigger_typing()
         try:
@@ -78,6 +84,7 @@ class image(commands.Cog):
 
     @command(['legofy'])
     @cooldown(10)
+    @permissions(bot=['attach_files'])
     async def lego(self, ctx, *args):
         await ctx.trigger_typing()
         
@@ -89,6 +96,7 @@ class image(commands.Cog):
 
     @command(["moob"])
     @cooldown(9)
+    @permissions(bot=['attach_files'])
     async def implode(self, ctx, *args):
         await ctx.trigger_typing()
         parser = ctx.bot.Parser(args)
@@ -110,6 +118,7 @@ class image(commands.Cog):
         
     @command(["blow-up", "blowup", "boom"])
     @cooldown(9)
+    @permissions(bot=['attach_files'])
     async def explode(self, ctx, *args):
         await ctx.trigger_typing()
         parser = ctx.bot.Parser(args)
@@ -130,6 +139,7 @@ class image(commands.Cog):
         
     @command(["disintegrate"])
     @cooldown(5)
+    @permissions(bot=['attach_files'])
     async def dissolve(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args)
@@ -140,6 +150,7 @@ class image(commands.Cog):
         
     @command()
     @cooldown(8)
+    @permissions(bot=['attach_files'])
     async def charcoal(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args)
@@ -149,6 +160,7 @@ class image(commands.Cog):
     
     @command(["oil-image", "oilify"])
     @cooldown(8)
+    @permissions(bot=['attach_files'])
     async def oil(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args)
@@ -159,6 +171,7 @@ class image(commands.Cog):
     
     @command(["noice"])
     @cooldown(8)
+    @permissions(bot=['attach_files'])
     async def noise(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False)
@@ -169,6 +182,7 @@ class image(commands.Cog):
     
     @command(["solarise"])
     @cooldown(8)
+    @permissions(bot=['attach_files'])
     async def solarize(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False)
@@ -179,6 +193,7 @@ class image(commands.Cog):
     
     @command()
     @cooldown(8)
+    @permissions(bot=['attach_files'])
     async def spread(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False)
@@ -189,6 +204,7 @@ class image(commands.Cog):
     
     @command()
     @cooldown(8)
+    @permissions(bot=['attach_files'])
     async def emboss(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args)
@@ -198,6 +214,7 @@ class image(commands.Cog):
     
     @command()
     @cooldown(8)
+    @permissions(bot=['attach_files'])
     async def edge(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False)
@@ -208,6 +225,7 @@ class image(commands.Cog):
     
     @command()
     @cooldown(8)
+    @permissions(bot=['attach_files'])
     async def sketch(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args)
@@ -217,6 +235,7 @@ class image(commands.Cog):
     
     @command()
     @cooldown(8)
+    @permissions(bot=['attach_files'])
     async def wave(self, ctx, *args):
         await ctx.trigger_typing()
         number = ctx.bot.Parser.get_numbers(args)
@@ -234,6 +253,7 @@ class image(commands.Cog):
     
     @command()
     @cooldown(8)
+    @permissions(bot=['attach_files'])
     async def swirl(self, ctx, *args):
         await ctx.trigger_typing()
         number = ctx.bot.Parser.get_numbers(args)
@@ -253,6 +273,7 @@ class image(commands.Cog):
     @command(['combine'])
     @cooldown(2)
     @require_args()
+    @permissions(bot=['attach_files'])
     async def blend(self, ctx, *args):
         await ctx.trigger_typing()
         parsed_args = ctx.bot.Parser.split_args(args)
@@ -268,6 +289,7 @@ class image(commands.Cog):
 
     @command()
     @cooldown(2)
+    @permissions(bot=['attach_files'])
     async def blur(self, ctx, *args):
         await ctx.trigger_typing()
         
@@ -295,6 +317,7 @@ class image(commands.Cog):
 
     @command(['glitchify', 'matrix'])
     @cooldown(5)
+    @permissions(bot=['attach_files'])
     async def glitch(self, ctx, *args):
         await ctx.trigger_typing()
         ava = await ctx.bot.Parser.parse_image(ctx, args, size=128)
@@ -308,6 +331,7 @@ class image(commands.Cog):
    
     @command(['ducks', 'quack', 'duk'])
     @cooldown(2)
+    @permissions(bot=['attach_files'])
     async def duck(self, ctx):
         _url = await ctx.bot.util.request(
             'https://random-d.uk/api/v2/random',
@@ -318,6 +342,7 @@ class image(commands.Cog):
 
     @command(['snek', 'snakes', 'python', 'py'])
     @cooldown(2)
+    @permissions(bot=['attach_files'])
     async def snake(self, ctx):
         return await ctx.send_image('https://fur.im/snek/i/'+str(randint(1, 874))+'.png')
 
@@ -341,22 +366,26 @@ class image(commands.Cog):
 
     @command()
     @cooldown(2)
+    @permissions(bot=['attach_files'])
     async def httpcat(self, ctx, *args):
         code = args[0] if ((not args) or (not args[0].isnumeric())) else '404'
         return await ctx.send_image('https://http.cat/'+str(code)+'.jpg')
     
     @command(['httpduck'])
     @cooldown(2)
+    @require_args()
+    @permissions(bot=['attach_files'])
     async def httpdog(self, ctx, *args):
         code = args[0] if ((not args) or (not args[0].isnumeric())) else '404'
-        url = 'https://random-d.uk/api/http/ABC.jpg' if (ctx.bot.util.get_command_name(ctx) == "httpduck") else 'https://httpstatusdogs.com/img/ABC.jpg'
+        url = f'https://random-d.uk/api/http/{code}.jpg' if (ctx.bot.util.get_command_name(ctx) == "httpduck") else f'https://httpstatusdogs.com/img/{code}.jpg'
         try:
-            return await ctx.send_image(url.replace('ABC', code))
+            return await ctx.send_image(url)
         except:
             raise ctx.error_message("404")
 
     @command(['spin'])
     @cooldown(7)
+    @permissions(bot=['attach_files'])
     async def rotate(self, ctx, *args):
         await ctx.trigger_typing()
         ava = await ctx.bot.Parser.parse_image(ctx, args, size=512)
@@ -366,6 +395,7 @@ class image(commands.Cog):
     @command()
     @cooldown(2)
     @require_args(3)
+    @permissions(bot=['attach_files'])
     async def resize(self, ctx, *args):
         try:
             width, height = args[:2]
@@ -379,6 +409,7 @@ class image(commands.Cog):
 
     @command()
     @cooldown(3)
+    @permissions(bot=['attach_files'])
     async def panda(self, ctx):
         link = choice(["https://some-random-api.ml/img/panda", "https://some-random-api.ml/img/red_panda"])
         data = await ctx.bot.util.request(link, json=True)
@@ -387,6 +418,7 @@ class image(commands.Cog):
     
     @command()
     @cooldown(3)
+    @permissions(bot=['attach_files'])
     async def shibe(self, ctx):
         await ctx.trigger_typing()
         data = await ctx.bot.util.request(
@@ -399,6 +431,7 @@ class image(commands.Cog):
 
     @command(['pixel', '8-bit', '8bit'])
     @cooldown(3)
+    @permissions(bot=['attach_files'])
     async def pixelate(self, ctx, *args):
         await ctx.trigger_typing()
         number = ctx.bot.Parser.get_numbers(args)
@@ -416,6 +449,7 @@ class image(commands.Cog):
 
     @command()
     @cooldown(2)
+    @permissions(bot=['attach_files'])
     async def magik(self, ctx, *args):
         source = await ctx.bot.Parser.parse_image(ctx, args, cdn_only=True)
         await ctx.channel.trigger_typing()
@@ -423,6 +457,7 @@ class image(commands.Cog):
 
     @command(['df'])
     @cooldown(2)
+    @permissions(bot=['attach_files'])
     async def deepfry(self, ctx, *args):
         source = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
         await ctx.channel.trigger_typing()
@@ -430,6 +465,7 @@ class image(commands.Cog):
 
     @command()
     @cooldown(2)
+    @permissions(bot=['attach_files'])
     async def invert(self, ctx, *args):
         source = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
         await ctx.channel.trigger_typing()
@@ -437,6 +473,7 @@ class image(commands.Cog):
         
     @command(['grayscale', 'b&w', 'bw', 'classic', 'gray', 'grey', 'greyscale', 'gray-scale', 'grey-scale'])
     @cooldown(2)
+    @permissions(bot=['attach_files'])
     async def blackandwhite(self, ctx, *args):
         source = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
         await ctx.channel.trigger_typing()
@@ -444,6 +481,7 @@ class image(commands.Cog):
 
     @command(['jpegify'])
     @cooldown(5)
+    @permissions(bot=['attach_files'])
     async def jpeg(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)

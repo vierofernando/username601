@@ -35,7 +35,7 @@ def _hooked_wrapped_callback(command, ctx, coro):
             ctx.command_failed = True
             raise _commands.CommandInvokeError(exc) from exc
         finally:
-            if command._max_concurrency is not None:
+            if command._max_concurrency:
                 await command._max_concurrency.release(ctx)
 
             await command.call_after_hooks(ctx)
@@ -111,29 +111,31 @@ def modify_discord_py_functions():
         ctx = _commands.Context(prefix=self.command_prefix, view=_commands.view.StringView(message.content), bot=self, message=message, args=message.content.split(" ")[1:])
         try:
             command_name = message.content[len(self.command_prefix):].split()[0]
-            command = self.all_commands[command_name.lower()]
-            if not await command.can_run(ctx):
-                raise _commands.CheckFailure
+            ctx.command = self.all_commands[command_name.lower()]
+            if not await ctx.command.can_run(ctx):
+                return
             
-            if command._max_concurrency:
-                await command._max_concurrency.acquire(ctx)
+            if ctx.command._max_concurrency:
+                await ctx.command._max_concurrency.acquire(ctx)
             
             try:
-                command._prepare_cooldowns(ctx)
-                await command._parse_arguments(ctx)
+                ctx.command._prepare_cooldowns(ctx)
+                await ctx.command._parse_arguments(ctx)
                 if len(ctx.args) > 2:
                     ctx.args.pop(2)
             except:
-                if command._max_concurrency:
-                    await command._max_concurrency.release(ctx)
+                if ctx.command._max_concurrency:
+                    await ctx.command._max_concurrency.release(ctx)
                 raise
             
-            await _hooked_wrapped_callback(command, ctx, command.callback)(*ctx.args, **ctx.kwargs)
+            await _hooked_wrapped_callback(ctx.command, ctx, ctx.command.callback)(*ctx.args, **ctx.kwargs)
         except (KeyError, IndexError):
             return
         except Exception as exc:
             self.dispatch("command_error", ctx, exc, format_exc())
-        del ctx, command_name, command
+        else:
+            self.command_uses += 1
+        del ctx, command_name
     
     setattr(_commands.bot.BotBase, "run_command", _run_command)
     setattr(_commands.Context, "error_message", error_message)

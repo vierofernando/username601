@@ -47,6 +47,7 @@ class utils(commands.Cog):
     @command()
     @cooldown(3)
     @require_args(2)
+    @permissions(bot=['attach_files'])
     async def gradient(self, ctx, *args):
         try:
             await ctx.trigger_typing()
@@ -62,6 +63,7 @@ class utils(commands.Cog):
     
     @command(['colorthief', 'getcolor', 'accent', 'accentcolor', 'accent-color', 'colorpalette', 'color-palette'])
     @cooldown(3)
+    @permissions(bot=['attach_files'])
     async def palette(self, ctx, *args):
         url = await ctx.bot.Parser.parse_image(ctx, args)
         await ctx.trigger_typing()
@@ -126,6 +128,7 @@ class utils(commands.Cog):
     @command(['pokemon', 'pokeinfo', 'dex', 'bulbapedia'])
     @cooldown(10)
     @require_args()
+    @permissions(bot=['add_reactions'])
     async def pokedex(self, ctx, *args):
         try:
             data = await ctx.bot.util.request(
@@ -208,6 +211,7 @@ class utils(commands.Cog):
     @command(['rhymes'])
     @cooldown(7)
     @require_args()
+    @permissions(bot=['add_reactions'])
     async def rhyme(self, ctx, *args):
         await ctx.trigger_typing()
         
@@ -255,7 +259,7 @@ class utils(commands.Cog):
             json=True,
             participants=1
         )
-        await ctx.success_embed(f"Feeling bored? Why don't you {data['activity']}?")
+        await ctx.success_embed(f"Feeling bored? Why don't you {data['activity'][:100]}?")
         del data
 
     @command()
@@ -266,11 +270,10 @@ class utils(commands.Cog):
             'https://www.google.com/doodles/json/{}/{}'.format(str(t.now().year), str(t.now().month)),
             json=True
         )
-        embed = ctx.bot.Embed(ctx, title=data[0]['title'], url='https://www.google.com/doodles/'+data[0]['name'], image='https:'+data[0]['high_res_url'], fields={"Event Date": '/'.join(
+        await ctx.embed(title=data[0]['title'], url='https://www.google.com/doodles/'+data[0]['name'], image='https:'+data[0]['high_res_url'], fields={"Event Date": '/'.join(
             [str(i) for i in data[0]['run_date_array'][::-1]]
         )})
-        await embed.send()
-        del embed, data
+        del data
 
     @command(['fun-fact'])
     @cooldown(5)
@@ -316,6 +319,7 @@ class utils(commands.Cog):
     @command(['col'])
     @cooldown(3)
     @require_args()
+    @permissions(bot=['attach_files'])
     async def color(self, ctx, *args):
         await ctx.trigger_typing()
         role_name = ctx.bot.Parser.get_value("role")

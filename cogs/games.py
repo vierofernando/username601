@@ -21,6 +21,7 @@ class games(commands.Cog):
 
     @command()
     @cooldown(8, channel_wide=True)
+    @permissions(bot=['attach_files'])
     async def fast(self, ctx, *args):
         await ctx.trigger_typing()
         parser = ctx.bot.Parser(args)
@@ -153,6 +154,7 @@ class games(commands.Cog):
     
     @command(['imposter', 'among-us', 'among_us', 'impostor', 'crew', 'crewmate', 'crew-mate'])
     @cooldown(3)
+    @permissions(bot=['attach_files'])
     async def amongus(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args)
@@ -249,6 +251,7 @@ class games(commands.Cog):
     @command(['geometrydash', 'geometry-dash', 'gmd'])
     @cooldown(5)
     @require_args()
+    @permissions(bot=['attach_files'])
     async def gd(self, ctx, *args):
         await ctx.trigger_typing()
         _input = args[0].lower()

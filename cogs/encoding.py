@@ -57,6 +57,7 @@ class encoding(commands.Cog):
     @command()
     @cooldown(4)
     @require_args()
+    @permissions(bot=['attach_files'])
     async def ascii(self, ctx, *args):
         await ctx.trigger_typing()
         parser = ctx.bot.Parser(args)
@@ -107,6 +108,7 @@ class encoding(commands.Cog):
 
     @command()
     @cooldown(2)
+    @permissions(bot=['attach_files'])
     @require_args()
     async def barcode(self, ctx, *args):
         await ctx.trigger_typing()
@@ -114,6 +116,7 @@ class encoding(commands.Cog):
     
     @command(['qrcode', 'qr-code'])
     @cooldown(2)
+    @permissions(bot=['attach_files'])
     @require_args()
     async def qr(self, ctx, *args):
         await ctx.trigger_typing()

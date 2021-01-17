@@ -20,6 +20,7 @@ class memes(commands.Cog):
         
     @command(['disaster-girl'])
     @cooldown(5)
+    @permissions(bot=['attach_files'])
     async def disastergirl(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args)
@@ -30,6 +31,7 @@ class memes(commands.Cog):
     
     @command(['oreomeme', 'oreo-meme'])
     @cooldown(5)
+    @permissions(bot=['attach_files'])
     async def oreo(self, ctx, *args):
         try:
             my_oreo = ctx.bot.oreo(ctx.bot.util.assets_dir, "".join(args)[:40])
@@ -44,6 +46,7 @@ class memes(commands.Cog):
     
     @command()
     @cooldown(3)
+    @permissions(bot=['attach_files'])
     async def oliy(self, ctx, *args):
         stretch = False
         parser = ctx.bot.Parser(args)
@@ -65,6 +68,7 @@ class memes(commands.Cog):
 
     @command()
     @cooldown(7)
+    @permissions(bot=['attach_files'])
     async def clint(self, ctx, *args):
         url = await ctx.bot.Parser.parse_image(ctx, args)
         await ctx.trigger_typing()
@@ -74,6 +78,7 @@ class memes(commands.Cog):
 
     @command(['ltt', 'lienus'])
     @cooldown(7)
+    @permissions(bot=['attach_files'])
     async def linus(self, ctx, *args):
         url = await ctx.bot.Parser.parse_image(ctx, args)
         await ctx.trigger_typing()
@@ -83,6 +88,7 @@ class memes(commands.Cog):
         
     @command(['dir', 'directory'])
     @cooldown(7)
+    @permissions(bot=['attach_files'])
     async def folder(self, ctx, *args):
         url = await ctx.bot.Parser.parse_image(ctx, args)
         await ctx.trigger_typing()
@@ -92,6 +98,7 @@ class memes(commands.Cog):
     
     @command(['pass'])
     @cooldown(2)
+    @permissions(bot=['attach_files'])
     async def password(self, ctx, *args):
         param = ctx.bot.Parser.split_args(args)
         if not param:
@@ -103,15 +110,17 @@ class memes(commands.Cog):
 
     @command(['programmerhumor', 'programmermeme', 'programming', 'programmer'])
     @cooldown(2)
+    @permissions(bot=['attach_files'])
     async def programmingmeme(self, ctx):
         data = await ctx.bot.util.request(
             'https://useless-api.vierofernando.repl.co/programmermeme',
             json=True
         )
-        return await ctx.send(embed=discord.Embed(title='Programmer meme', color=ctx.me.color).set_image(url=data['url']))
+        return await ctx.send_image(data['url'])
 
     @command(['shred', 'burn', 'spongebobpaper', 'paper', 'spongepaper', 'sponge-paper', 'spongebob-paper', 'spongebob'])
     @cooldown(2)
+    @permissions(bot=['attach_files'])
     async def sponge(self, ctx, *args):
         await ctx.trigger_typing()
         av = await ctx.bot.Parser.parse_image(ctx, args, size=512)
@@ -125,6 +134,7 @@ class memes(commands.Cog):
 
     @command(['ihavefailedyou', 'fail'])
     @cooldown(2)
+    @permissions(bot=['attach_files'])
     async def failed(self, ctx, *args):
         await ctx.trigger_typing()
         av = await ctx.bot.Parser.parse_image(ctx, args)
@@ -138,6 +148,7 @@ class memes(commands.Cog):
 
     @command(['worships', 'worshipping'])
     @cooldown(7)
+    @permissions(bot=['attach_files'])
     async def worship(self, ctx, *args):
         av = await ctx.bot.Parser.parse_image(ctx, args)
         await ctx.trigger_typing()
@@ -146,6 +157,7 @@ class memes(commands.Cog):
 
     @command(['disconnect'])
     @cooldown(3)
+    @permissions(bot=['attach_files'])
     async def disconnected(self, ctx, *args):
         text = ' '.join(args) if args else 'Forgetting to put the arguments'
         await ctx.trigger_typing()
@@ -154,6 +166,7 @@ class memes(commands.Cog):
         
     @command(['effect'])
     @cooldown(2)
+    @permissions(bot=['attach_files'])
     async def affect(self, ctx, *args):
         url = await ctx.bot.Parser.parse_image(ctx, args)
         await ctx.trigger_typing()
@@ -167,6 +180,7 @@ class memes(commands.Cog):
 
     @command(['animegif', 'nj'])
     @cooldown(10)
+    @permissions(bot=['attach_files'])
     async def nichijou(self, ctx, *args):
         text = ' '.join(args) if args else 'LAZY PERSON'
         await ctx.trigger_typing()
@@ -175,6 +189,7 @@ class memes(commands.Cog):
     @command()
     @cooldown(5)
     @require_args()
+    @permissions(bot=['attach_files'])
     async def challenge(self, ctx, *args):
         await ctx.trigger_typing()
         txt = ctx.bot.util.encode_uri(' '.join(args)[:50])
@@ -183,6 +198,7 @@ class memes(commands.Cog):
     @command(['achievement'])
     @cooldown(5)
     @require_args()
+    @permissions(bot=['attach_files'])
     async def achieve(self, ctx, *args):
         await ctx.trigger_typing()
         txt = ctx.bot.util.encode_uri(' '.join(args)[:50])
@@ -190,6 +206,7 @@ class memes(commands.Cog):
 
     @command(['dym'])
     @cooldown(2)
+    @permissions(bot=['attach_files'])
     async def didyoumean(self, ctx, *args):
         params = ctx.bot.Parser.split_args(args)
         if not params:
@@ -200,6 +217,7 @@ class memes(commands.Cog):
     
     @command()
     @cooldown(2)
+    @permissions(bot=['attach_files'])
     async def drake(self, ctx, *args):
         params = ctx.bot.Parser.split_args(args)
         if not params:
@@ -210,12 +228,14 @@ class memes(commands.Cog):
         
     @command()
     @cooldown(2)
+    @permissions(bot=['attach_files'])
     async def what(self, ctx, *args):
         image = await ctx.bot.Parser.parse_image(ctx, args, cdn_only=True)
         return await ctx.send_image("https://api.alexflipnote.dev/what?image="+image, alexflipnote=True)
 
     @command()
     @cooldown(5)
+    @permissions(bot=['attach_files'])
     async def ifearnoman(self, ctx, *args):
         await ctx.trigger_typing()
         source, by = await ctx.bot.Parser.parse_image(ctx, args), str(ctx.author.avatar_url_as(format='png', size=512))
@@ -224,6 +244,7 @@ class memes(commands.Cog):
 
     @command()
     @cooldown(10)
+    @permissions(bot=['attach_files'])
     async def triggered(self, ctx, *args):
         ava = await ctx.bot.Parser.parse_image(ctx, args)
         await ctx.trigger_typing()
@@ -232,6 +253,7 @@ class memes(commands.Cog):
 
     @command(['communism', 'ussr', 'soviet', 'cykablyat', 'cyka-blyat', 'blyat'])
     @cooldown(5)
+    @permissions(bot=['attach_files'])
     async def communist(self, ctx, *args):
         await ctx.trigger_typing()
         comrade = await ctx.bot.Parser.parse_image(ctx, args, size=512)
@@ -240,6 +262,7 @@ class memes(commands.Cog):
 
     @command()
     @cooldown(5)
+    @permissions(bot=['attach_files'])
     async def trash(self, ctx, *args):
         await ctx.trigger_typing()
         av = ctx.author.avatar_url_as(format='png')
@@ -249,6 +272,7 @@ class memes(commands.Cog):
 
     @command()
     @cooldown(10)
+    @permissions(bot=['attach_files'])
     async def ferbtv(self, ctx, *args):
         await ctx.trigger_typing()
         ava = await ctx.bot.Parser.parse_image(ctx, args)
@@ -265,6 +289,7 @@ class memes(commands.Cog):
     @command(['captchatext', 'generatecaptcha', 'gen-captcha', 'gencaptcha', 'capt'])
     @cooldown(10)
     @require_args()
+    @permissions(bot=['attach_files'])
     async def captcha(self, ctx, *args):
         await ctx.trigger_typing()
         image = ctx.bot.Image.captcha(" ".join(args)[:50])
@@ -273,6 +298,7 @@ class memes(commands.Cog):
         
     @command(['disgusting', 'f', 'studying', 'starvstheforcesof'])
     @cooldown(10)
+    @permissions(bot=['attach_files'])
     async def door(self, ctx, *args):
         await ctx.trigger_typing()
         ava = await ctx.bot.Parser.parse_image(ctx, args)
@@ -289,6 +315,7 @@ class memes(commands.Cog):
     @command(['changedmymind', 'cmm'])
     @cooldown(10)
     @require_args()
+    @permissions(bot=['attach_files'])
     async def changemymind(self, ctx, *args):
         await ctx.trigger_typing()
         return await ctx.send_image('https://nekobot.xyz/api/imagegen?type=changemymind&text='+ctx.bot.util.encode_uri(' '.join(args)[:50])+'&raw=1')
@@ -297,17 +324,13 @@ class memes(commands.Cog):
     @cooldown(5)
     async def meme(self, ctx):
         data = await ctx.bot.util.request("https://meme-api.herokuapp.com/gimme", json=True)
-        embed = discord.Embed(colour = ctx.me.color)
-        embed.set_author(name=data["title"], url=data["postLink"])
-        if data["nsfw"]:
-            embed.set_footer(text='WARNING: IMAGE IS NSFW.')
-        else:
-            embed.set_image(url=data["url"])
-        await ctx.send(embed=embed)
+        await ctx.embed(title=data["title"], url=data["postLink"], footer=("This image is NSFW. So i won't display the image here." if (data["nsfw"] and (not ctx.channel.nsfw)) else None), image=(None if (data["nsfw"] and (not ctx.channel.nsfw)) else data["url"]))
+        del data
 
     @command()
     @cooldown(12)
     @require_args()
+    @permissions(bot=['attach_files'])
     async def clyde(self, ctx, *args):
         await ctx.trigger_typing()
         url='https://nekobot.xyz/api/imagegen?type=clyde&text='+ctx.bot.util.encode_uri(' '.join(args)[:50])+'&raw=1'
@@ -316,6 +339,7 @@ class memes(commands.Cog):
     @command()
     @cooldown(10)
     @require_args()
+    @permissions(bot=['attach_files'])
     async def floor(self, ctx, *args):
         auth = str(ctx.author.avatar_url_as(format='png'))
         await ctx.trigger_typing()
@@ -326,6 +350,7 @@ class memes(commands.Cog):
 
     @command(['doctor', 'terrifying', 'terrified', 'eye-doctor', 'eyedoctor', 'scary', 'frightening'])
     @cooldown(2)
+    @permissions(bot=['attach_files'])
     async def bad(self, ctx, *args):
         ava = await ctx.bot.Parser.parse_image(ctx, args)
         await ctx.trigger_typing()
@@ -408,6 +433,7 @@ class memes(commands.Cog):
 
     @command(['memegen', 'meme-gen', 'gen-meme', 'generatememe', 'generate-meme', 'meme-editor', 'meme_editor', 'memeeditor'])
     @cooldown(5)
+    @permissions(bot=['attach_files'])
     async def mememaker(self, ctx, *args):
         m = await ctx.send(embed=discord.Embed(title="Please select your meme format:", description="**[A] **Classic meme, Top text, bottom text, background image.\n**[B] **Modern meme, Top text, bottom image\n**[C] **Custom classic meme, with a custom background.", color=ctx.me.color))
         

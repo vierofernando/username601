@@ -464,6 +464,7 @@ class moderation(commands.Cog):
     @command(['guild-role', 'server-role'])
     @cooldown(6)
     @require_args()
+    @permissions(bot=['add_reactions'])
     async def role(self, ctx, *args):
         if args[0].lower() == 'info':
             try:
@@ -515,6 +516,7 @@ class moderation(commands.Cog):
     @command(['guild-channel', 'server-channel'])
     @cooldown(6)
     @require_args()
+    @permissions(bot=['add_reactions'])
     async def channel(self, ctx, *args):
         if args[0].lower() == "list":
             _map = [f"<#{i.id}>" for i in ctx.guild.channels if i.type == discord.ChannelType.text]
@@ -626,6 +628,7 @@ class moderation(commands.Cog):
     @command(['emote', 'emojiinfo', 'emoji-info'])
     @cooldown(5)
     @require_args()
+    @permissions(bot=['add_reactions', 'attach_files'])
     async def emoji(self, ctx, *args):
         if args[0].lower() == "list":
             _map = list(map(str, ctx.guild.emojis))
@@ -675,6 +678,7 @@ class moderation(commands.Cog):
     
     @command(['guild'])
     @cooldown(10)
+    @permissions(bot=['add_reactions', 'attach_files'])
     async def server(self, ctx, *args):
         parser = ctx.bot.Parser(args)
         parser.parse()

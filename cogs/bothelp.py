@@ -24,6 +24,7 @@ class bothelp(commands.Cog):
 
     @command(['commands', 'yardim', 'yardım'])
     @cooldown(2)
+    @permissions(bot=['add_reactions'])
     async def help(self, ctx, *args):
         if not args:
             embeds = self._init_help
