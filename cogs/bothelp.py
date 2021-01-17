@@ -36,25 +36,22 @@ class bothelp(commands.Cog):
             paginator = ctx.bot.EmbedPaginator(ctx, embeds, show_page_count=True, auto_set_color=True)
             return await paginator.execute()
         
-        data = ctx.bot.cmds.query(' '.join(args).lower())
-        if not data: raise ctx.error_message("Your command/category name does not exist, sorry!")
+        await ctx.trigger_typing()
+        command = ctx.bot.all_commands.get(" ".join(args).lower().lstrip("_"))
+        command_info = list(filter(lambda x: x["name"] == command.name.lstrip("_"), ctx.bot.cmds.commands))[0] if command else None
+        if (not command) or (not command_info):
+            raise ctx.error_message("No such category or command exists.")
         
-        embed = ctx.bot.ChooseEmbed(ctx, data, key=(lambda x: "[`"+x["type"]+"`] `"+x["name"]+"`"))
-        result = await embed.run()
-        
-        if not result: return
-        is_command = (result["type"] == "COMMAND")
-        data = ctx.bot.cmds.get_command_info(result["name"].lower()) if is_command else ctx.bot.cmds.get_commands_from_category(result["name"].lower())
-        
-        desc = '**Command name: **{}\n**Function: **{}\n**Category: **{}'.format(
-            data['name'], data['function'], data['category']
-        ) if is_command else '**Commands count: **{}\n**Commands:**```{}```'.format(len(data), ', '.join([i['name'] for i in data]))
-        embed = ctx.bot.Embed(ctx, title="Help for "+result["type"].lower()+": "+result["name"], description=desc)
-        if is_command:
-            parameters = "```"+'\n'.join([i.split(": ")[1] for i in data['parameters']])+"```" if data['parameters'] else "No parameters required."
-            apis = '\n'.join(map(lambda x: f"[{x}]({x})", data['apis'])) if data['apis'] else 'No APIs used.'
-            embed.add_field("Parameters", parameters).add_field("APIs Used", apis)
-        return await embed.send()
+        usage = [f"{ctx.prefix}{command.name}"]
+        usage.extend(map(lambda x: ctx.prefix + x.split(": ")[1], command_info["parameters"]))
+        cooldown = command.get_cooldown_retry_after(ctx)
+        embed = ctx.bot.Embed(ctx, title=f"Command help for {command.name}", description=command_info["function"], fields={"Usage": '```'+"\n".join(usage)+'```', "Category": command_info["category"], "Cooldown": (":x:" if cooldown else ":white_check_mark:") + f" {cooldown:.2f} seconds"})
+        if command_info["apis"]:
+            embed.add_field("APIs used", "\n".join(map(lambda x: f"[{x}]({x})", command_info["apis"])))
+        if command.aliases:
+            embed.add_field("Aliases", ", ".join(map(lambda x: f"`{x}`", command.aliases)))
+        await embed.send()
+        del usage, cooldown, embed, command, command_info
 
     @command()
     @cooldown(2)

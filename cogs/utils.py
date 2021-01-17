@@ -10,10 +10,6 @@ from re import search
 
 class utils(commands.Cog):
     def __init__(self):
-        self._fact_urls = {
-            "cat": ("https://catfact.ninja/fact", "fact", None),
-            "dog": ("https://dog-api.kinduff.com/api/facts", "facts", 0)
-        }
         self.facts = tuple(loads(open("./assets/json/facts.json", "r").read()))
         self.replaceWith = "x>*;.>*;?>*;?>/;?>*;plus>+;minus>-;divide>/;multiply>*;divide by>/;times>*;subtract>-;add>+;power>**;powers>**;^>**"
 
@@ -280,21 +276,17 @@ class utils(commands.Cog):
     async def funfact(self, ctx):
         return await ctx.success_embed(choice(self.facts))
 
-    @command(['dogfact'])
+    @command()
+    @cooldown(5)
+    async def dogfact(self, ctx):
+        result = await ctx.bot.util.get_request("https://dog-api.kinduff.com/api/facts", json=True)
+        return await ctx.embed(title="Did you know?", description=result["facts"][0])
+
+    @command()
     @cooldown(6)
     async def catfact(self, ctx):
-        key = ctx.bot.util.get_command_name(ctx)[:-4]
-        url = self._fact_urls[key]
-
-        result = await ctx.bot.util.request(
-            url[0], json=True
-        )
-        result = result[url[1]]
-
-        if url[2]:
-            result = result[url[2]]
-        
-        embed = await ctx.embed(title=key + " fact!", description=result, color=discord.Color.green())
+        result = await ctx.bot.util.get_request("https://catfact.ninja/fact", json=True)
+        return await ctx.embed(title="Did you know?", description=result["fact"])
     
     @command(['em'])
     @cooldown(2)

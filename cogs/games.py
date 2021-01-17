@@ -16,6 +16,8 @@ class games(commands.Cog):
             ("num", "number"): ("GuessMyNumber", (), "play", (c,)),
             ("flag", "country-flag", "flags"): ("GuessTheFlag", (c,), "start", ())
         })
+        self._dice = ('one', 'two', 'three', 'four', 'five', 'six')
+        self._coin = ('***heads!***', '***tails!***')
         
         self.words = tuple(loads(open("./assets/json/words.json", "r").read()))
 
@@ -289,24 +291,25 @@ class games(commands.Cog):
             await ctx.success_embed(f'Thanks for playing! you earned {reward:,} bobux as a prize!')
             self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": reward})
 
-    @command(['dice', 'flipcoin', 'flipdice', 'coinflip', 'diceflip', 'rolldice'])
+    @command(['roll', 'rolldice', 'roll-dice'])
+    @cooldown(3)
+    async def dice(self, ctx, *args):
+        res = choice(self._dice)
+        await ctx.send(f':{res}:')
+        if args and (args[0].lower() == res.lower() or args[0].lower() == str(arr.index(res)+1)) and self.db.exist("economy", {"userid": ctx.author.id}):
+            prize = randint(50, 150)
+            await ctx.success_embed(f'Your bet was right! you get {prize:,} bobux.')
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": prize})
+
+    @command(['flipcoin', 'coinflip', 'flip'])
     @cooldown(3)
     async def coin(self, ctx, *args):
-        if "coin" in ctx.bot.util.get_command_name(ctx):
-            res = choice(['***heads!***', '***tails!***'])
-            await ctx.send(res)
-            if args and args[0].lower() == res[3:-4] and self.db.exist("economy", {"userid": ctx.author.id}):
-                prize = randint(50, 200)
-                await ctx.success_embed(f'Your bet was right! you get {prize:,} bobux.')
-                self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": prize})
-        else:
-            arr = ['one', 'two', 'three', 'four', 'five', 'six']
-            res = arr[randint(0, 5)]
-            await ctx.send(':'+res+':')
-            if args and (args[0].lower()==res.lower() or args[0].lower() == str(arr.index(res)+1)) and self.db.exist("economy", {"userid": ctx.author.id}):
-                prize = randint(50, 150)
-                await ctx.success_embed(f'Your bet was right! you get {prize:,} bobux.')
-                self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": prize})
+        res = choice(self._coin)
+        await ctx.send(res)
+        if args and args[0].lower() == res[3:-4] and self.db.exist("economy", {"userid": ctx.author.id}):
+            prize = randint(50, 200)
+            await ctx.success_embed(f'Your bet was right! you get {prize:,} bobux.')
+            self.db.modify("economy", self.db.types.INCREMENT, {"userid": ctx.author.id}, {"bal": prize})            
 
     @command(['guessinggame', 'guessing-game'])
     @cooldown(10, channel_wide=True)

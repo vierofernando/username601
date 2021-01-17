@@ -366,22 +366,27 @@ class image(commands.Cog):
 
     @command()
     @cooldown(2)
+    @require_args()
     @permissions(bot=['attach_files'])
     async def httpcat(self, ctx, *args):
-        code = args[0] if ((not args) or (not args[0].isnumeric())) else '404'
-        return await ctx.send_image('https://http.cat/'+str(code)+'.jpg')
+        code = '404' if ((len(args[0]) != 3) or (not args[0].isnumeric())) else args[0]
+        return await ctx.send_image(f'https://http.cat/{code}.jpg')
     
-    @command(['httpduck'])
+    @command()
     @cooldown(2)
     @require_args()
     @permissions(bot=['attach_files'])
     async def httpdog(self, ctx, *args):
-        code = args[0] if ((not args) or (not args[0].isnumeric())) else '404'
-        url = f'https://random-d.uk/api/http/{code}.jpg' if (ctx.bot.util.get_command_name(ctx) == "httpduck") else f'https://httpstatusdogs.com/img/{code}.jpg'
-        try:
-            return await ctx.send_image(url)
-        except:
-            raise ctx.error_message("404")
+        code = '404' if ((len(args[0]) != 3) or (not args[0].isnumeric())) else args[0]
+        return await ctx.send_image(f'https://httpstatusdogs.com/img/{code}.jpg')
+    
+    @command()
+    @cooldown(2)
+    @require_args()
+    @permissions(bot=['attach_files'])
+    async def httpduck(self, ctx, *args):
+        code = '404' if ((len(args[0]) != 3) or (not args[0].isnumeric())) else args[0]
+        return await ctx.send_image(f'https://random-d.uk/api/http/{code}.jpg')
 
     @command(['spin'])
     @cooldown(7)
@@ -471,10 +476,10 @@ class image(commands.Cog):
         await ctx.channel.trigger_typing()
         return await ctx.send_image(f'https://api.alexflipnote.dev/filter/invert?image={source}', alexflipnote=True)
         
-    @command(['grayscale', 'b&w', 'bw', 'classic', 'gray', 'grey', 'greyscale', 'gray-scale', 'grey-scale'])
+    @command(['blackandwhite', 'b&w', 'bw', 'greyscale'])
     @cooldown(2)
     @permissions(bot=['attach_files'])
-    async def blackandwhite(self, ctx, *args):
+    async def grayscale(self, ctx, *args):
         source = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
         await ctx.channel.trigger_typing()
         return await ctx.send_image(f'https://api.alexflipnote.dev/filter/b&w?image={source}', alexflipnote=True)

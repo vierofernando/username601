@@ -64,9 +64,9 @@ class apps(commands.Cog):
         except (AssertionError, KeyError):
             raise ctx.error_message("Invalid location.")
 
-    @command(['trending', 'news'])
+    @command(['trending', 'msn'])
     @cooldown(7)
-    async def msn(self, ctx, *args):
+    async def news(self, ctx, *args):
         try:
             data = await ctx.bot.util.request(
                 "http://cdn.content.prod.cms.msn.com/singletile/summary/alias/experiencebyname/today",

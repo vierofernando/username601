@@ -9,14 +9,90 @@ from gc import collect
 class memes(commands.Cog):
     def __init__(self, client):
         self.meme_templates = loads(open(client.util.json_dir+'/memes.json', 'r').read())
-        self._positioning = {
-            "ferbtv": ((362, 278), (364, 189)),
-            "door": ((496, 483), (247, 9)),
-            "studying": ((290, 315), (85, 160)),
-            "starvstheforcesof": ((995, 1079), (925, 0)),
-            "disgusting": ((614, 407), (179, 24)),
-            "f": ((82, 111), (361, 86))
-        }
+    
+    @command(['ferb'])
+    @cooldown(7)
+    @permissions(bot=['attach_files'])
+    async def ferbtv(self, ctx, *args):
+        await ctx.trigger_typing()
+        ava = await ctx.bot.Parser.parse_image(ctx, args)
+        meme = await ctx.bot.canvas.trans_merge({
+            'url': ava,
+            'filename': 'studying.png',
+            'size': (362, 278),
+            'pos': (364, 189)
+        })
+        return await ctx.send_image(meme)
+    
+    @command()
+    @cooldown(7)
+    @permissions(bot=['attach_files'])
+    async def studying(self, ctx, *args):
+        await ctx.trigger_typing()
+        ava = await ctx.bot.Parser.parse_image(ctx, args)
+        meme = await ctx.bot.canvas.trans_merge({
+            'url': ava,
+            'filename': 'studying.png',
+            'size': (290, 315),
+            'pos': (85, 160)
+        })
+        return await ctx.send_image(meme)
+    
+    @command(['starvs'])
+    @cooldown(7)
+    @permissions(bot=['attach_files'])
+    async def starvstheforcesof(self, ctx, *args):
+        await ctx.trigger_typing()
+        ava = await ctx.bot.Parser.parse_image(ctx, args)
+        meme = await ctx.bot.canvas.trans_merge({
+            'url': ava,
+            'filename': 'starvstheforcesof.png',
+            'size': (995, 1079),
+            'pos': (925, 0)
+        })
+        return await ctx.send_image(meme)
+    
+    @command(['respects'])
+    @cooldown(7)
+    @permissions(bot=['attach_files'])
+    async def f(self, ctx, *args):
+        await ctx.trigger_typing()
+        ava = await ctx.bot.Parser.parse_image(ctx, args)
+        meme = await ctx.bot.canvas.trans_merge({
+            'url': ava,
+            'filename': 'f.png',
+            'size': (82, 111),
+            'pos': (361, 86)
+        })
+        return await ctx.send_image(meme)
+    
+    @command()
+    @cooldown(7)
+    @permissions(bot=['attach_files'])
+    async def disgusting(self, ctx, *args):
+        await ctx.trigger_typing()
+        ava = await ctx.bot.Parser.parse_image(ctx, args)
+        meme = await ctx.bot.canvas.trans_merge({
+            'url': ava,
+            'filename': 'disgusting.png',
+            'size': (614, 407),
+            'pos': (179, 24)
+        })
+        return await ctx.send_image(meme)
+    
+    @command()
+    @cooldown(7)
+    @permissions(bot=['attach_files'])
+    async def door(self, ctx, *args):
+        await ctx.trigger_typing()
+        ava = await ctx.bot.Parser.parse_image(ctx, args)
+        meme = await ctx.bot.canvas.trans_merge({
+            'url': ava,
+            'filename': 'door.png',
+            'size': (496, 483),
+            'pos': (247, 9)
+        })
+        return await ctx.send_image(meme)
         
     @command(['disaster-girl'])
     @cooldown(5)
@@ -108,20 +184,20 @@ class memes(commands.Cog):
         i = await ctx.bot.canvas.password(text1, text2)
         await ctx.send_image(i)
 
-    @command(['programmerhumor', 'programmermeme', 'programming', 'programmer'])
+    @command(['programmingmeme', 'programmer-humor', 'programmermeme', 'programming', 'programmer'])
     @cooldown(2)
     @permissions(bot=['attach_files'])
-    async def programmingmeme(self, ctx):
+    async def programmerhumor(self, ctx):
         data = await ctx.bot.util.request(
             'https://useless-api.vierofernando.repl.co/programmermeme',
             json=True
         )
         return await ctx.send_image(data['url'])
 
-    @command(['shred', 'burn', 'spongebobpaper', 'paper', 'spongepaper', 'sponge-paper', 'spongebob-paper', 'spongebob'])
+    @command(['shred', 'sponge', 'spongebobpaper', 'spongebob'])
     @cooldown(2)
     @permissions(bot=['attach_files'])
-    async def sponge(self, ctx, *args):
+    async def burn(self, ctx, *args):
         await ctx.trigger_typing()
         av = await ctx.bot.Parser.parse_image(ctx, args, size=512)
         im = await ctx.bot.canvas.trans_merge({
@@ -178,14 +254,6 @@ class memes(commands.Cog):
         })
         return await ctx.send_image(buffer)
 
-    @command(['animegif', 'nj'])
-    @cooldown(10)
-    @permissions(bot=['attach_files'])
-    async def nichijou(self, ctx, *args):
-        text = ' '.join(args) if args else 'LAZY PERSON'
-        await ctx.trigger_typing()
-        return await ctx.send_image(f"https://i.ode.bz/auto/nichijou?text={ctx.bot.util.encode_uri(text[:22])}")
-    
     @command()
     @cooldown(5)
     @require_args()
@@ -295,22 +363,6 @@ class memes(commands.Cog):
         image = ctx.bot.Image.captcha(" ".join(args)[:50])
         await ctx.send_image(image)
         del image
-        
-    @command(['disgusting', 'f', 'studying', 'starvstheforcesof'])
-    @cooldown(10)
-    @permissions(bot=['attach_files'])
-    async def door(self, ctx, *args):
-        await ctx.trigger_typing()
-        ava = await ctx.bot.Parser.parse_image(ctx, args)
-        command_name = ctx.bot.util.get_command_name(ctx)
-        size, pos = self._positioning[command_name]
-        meme = await ctx.bot.canvas.trans_merge({
-            'url': ava,
-            'filename': command_name+'.png',
-            'size': size,
-            'pos': pos
-        })
-        return await ctx.send_image(meme)
 
     @command(['changedmymind', 'cmm'])
     @cooldown(10)
@@ -431,10 +483,10 @@ class memes(commands.Cog):
         await ctx.trigger_typing()
         return await ctx.send_image("https://api.memegen.link/images/custom/{}/{}.png?background={}".format(ctx.bot.util.encode_uri(text1)[:64], ctx.bot.util.encode_uri(text2)[:64], url))
 
-    @command(['memegen', 'meme-gen', 'gen-meme', 'generatememe', 'generate-meme', 'meme-editor', 'meme_editor', 'memeeditor'])
+    @command(['mememaker', 'meme-gen', 'meme-editor', 'memeeditor'])
     @cooldown(5)
     @permissions(bot=['attach_files'])
-    async def mememaker(self, ctx, *args):
+    async def memegen(self, ctx, *args):
         m = await ctx.send(embed=discord.Embed(title="Please select your meme format:", description="**[A] **Classic meme, Top text, bottom text, background image.\n**[B] **Modern meme, Top text, bottom image\n**[C] **Custom classic meme, with a custom background.", color=ctx.me.color))
         
         wait = ctx.bot.WaitForMessage(ctx, check=(lambda x: x.channel == ctx.channel and x.author == ctx.author and len(x.content) == 1 and x.content.lower() in ['a', 'b', 'c']), timeout=40.0)
