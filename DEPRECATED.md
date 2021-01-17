@@ -66,7 +66,7 @@ soo... no.<br>
 ### 1hitler<br>
 May be discriminating or controversial<br>
 
-### 1graph, 1waifu, 1facts, 1baby, 1qotd, 1durv, 1robohash, 1time, 1ship, 1coffee, 1food, 1flip, 1about, 1wanted, 1randomavatar, 1lovelevel, 1gaylevel, 1crazyfrog, 1rage, 1worship, 1pikachu, 1lucario, 1sadcat, 1wasted, 1art, 1ifunny, 1firstwords, 1ruin, 1squidwardstv, 1evol, 1scooby, 1presentation, 1gru, 1amiajoke, 1call, 1salty, 1chatroulette, 1frame, 1scroll, 1imgcaptcha, 1phcomment, 1hbd, 1slap, 1botmembers, 1deathnote, 1id, 1reactnum, 1bomb, 1iss, 1ghibli, 1sof, 1serverstats, 1kannagen, 1leetspeak<br>
+### 1programmermeme, 1graph, 1waifu, 1facts, 1baby, 1qotd, 1durv, 1robohash, 1time, 1ship, 1coffee, 1food, 1flip, 1about, 1wanted, 1randomavatar, 1lovelevel, 1gaylevel, 1crazyfrog, 1rage, 1worship, 1pikachu, 1lucario, 1sadcat, 1wasted, 1art, 1ifunny, 1firstwords, 1ruin, 1squidwardstv, 1evol, 1scooby, 1presentation, 1gru, 1amiajoke, 1call, 1salty, 1chatroulette, 1frame, 1scroll, 1imgcaptcha, 1phcomment, 1hbd, 1slap, 1botmembers, 1deathnote, 1id, 1reactnum, 1bomb, 1iss, 1ghibli, 1sof, 1serverstats, 1kannagen, 1leetspeak<br>
 completely useless and barely anyone ever uses it<br>
 
 ### 1newemote<br>

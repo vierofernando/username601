@@ -457,7 +457,7 @@ class image(commands.Cog):
     @permissions(bot=['attach_files'])
     async def magik(self, ctx, *args):
         source = await ctx.bot.Parser.parse_image(ctx, args, cdn_only=True)
-        await ctx.channel.trigger_typing()
+        await ctx.trigger_typing()
         return await ctx.send_image(f'https://api.alexflipnote.dev/filter/magik?image={source}', alexflipnote=True)
 
     @command(['df'])
@@ -465,7 +465,7 @@ class image(commands.Cog):
     @permissions(bot=['attach_files'])
     async def deepfry(self, ctx, *args):
         source = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
-        await ctx.channel.trigger_typing()
+        await ctx.trigger_typing()
         return await ctx.send_image(f'https://api.alexflipnote.dev/filter/deepfry?image={source}', alexflipnote=True)
 
     @command()
@@ -473,7 +473,7 @@ class image(commands.Cog):
     @permissions(bot=['attach_files'])
     async def invert(self, ctx, *args):
         source = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
-        await ctx.channel.trigger_typing()
+        await ctx.trigger_typing()
         return await ctx.send_image(f'https://api.alexflipnote.dev/filter/invert?image={source}', alexflipnote=True)
         
     @command(['blackandwhite', 'b&w', 'bw', 'greyscale'])
@@ -481,7 +481,7 @@ class image(commands.Cog):
     @permissions(bot=['attach_files'])
     async def grayscale(self, ctx, *args):
         source = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False, cdn_only=True)
-        await ctx.channel.trigger_typing()
+        await ctx.trigger_typing()
         return await ctx.send_image(f'https://api.alexflipnote.dev/filter/b&w?image={source}', alexflipnote=True)
 
     @command(['jpegify'])

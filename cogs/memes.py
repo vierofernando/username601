@@ -184,16 +184,6 @@ class memes(commands.Cog):
         i = await ctx.bot.canvas.password(text1, text2)
         await ctx.send_image(i)
 
-    @command(['programmingmeme', 'programmer-humor', 'programmermeme', 'programming', 'programmer'])
-    @cooldown(2)
-    @permissions(bot=['attach_files'])
-    async def programmerhumor(self, ctx):
-        data = await ctx.bot.util.request(
-            'https://useless-api.vierofernando.repl.co/programmermeme',
-            json=True
-        )
-        return await ctx.send_image(data['url'])
-
     @command(['shred', 'sponge', 'spongebobpaper', 'spongebob'])
     @cooldown(2)
     @permissions(bot=['attach_files'])
