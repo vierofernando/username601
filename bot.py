@@ -5,7 +5,6 @@ from modules import *
 from time import time
 import discord
 import framework
-import gc
 
 framework.modify_discord_py_functions()
 prefix = framework.get_prefix()
@@ -23,11 +22,6 @@ async def on_ready():
     await post_ready_initiation(client)
     client.util.load_cog(client.util.cogs_dirname)
     print('Bot is online.')
-    
-@client.event
-async def on_command_completion(ctx):
-    client.command_uses += 1
-    gc.collect()
 
 @client.event
 async def on_member_join(member):
