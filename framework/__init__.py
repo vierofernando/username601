@@ -3,6 +3,7 @@
 # I am not really planning on uploading it to PyPI though...
 
 import discord as dpy
+import signal as sg
 from discord.ext import commands as _commands
 from datetime import datetime
 from io import BytesIO
@@ -140,6 +141,85 @@ def modify_discord_py_functions():
             self.command_uses += 1
         del ctx, command_name
     
+    def _event_on_close(self):
+        if self._is_closed:
+            return
+    
+        print("Closing bot...")
+        data = self.db.get("config", {"h": True})
+        
+        current_time = datetime.now()
+        if len(data["down_times"]) > 20:
+            data["down_times"].pop(0)
+        data["down_times"].append(f'{current_time.strftime("%Y-%m-%dT%H:%M:%SZ")}|{self.util.strfsecond(current_time.timestamp() - self.util._start)}')
+        self.db.modify("config", self.db.types.CHANGE, {"h": True}, {
+            "commands_run": data["commands_run"] + self.command_uses,
+            "down_times": data["down_times"],
+            "online": False
+        })
+        self._is_closed = True
+        del self.db
+        del data, current_time
+        self.loop.stop()
+    
+    def _run_bot(self, *args, **kwargs):
+        loop = self.loop
+        try:
+            loop.add_signal_handler(sg.SIGINT,  self.event_on_close)
+            loop.add_signal_handler(sg.SIGTERM, self.event_on_close)
+        except:
+            pass
+
+        async def runner():
+            try:
+                await self.start(*args, **kwargs)
+            finally:
+                if not self.is_closed():
+                    await self.close()
+                self.event_on_close()
+
+        def stop_loop_on_completion(f):
+            loop.stop()
+
+        future = asyncio.ensure_future(runner(), loop=loop)
+        future.add_done_callback(stop_loop_on_completion)
+        try:
+            loop.run_forever()
+        finally:
+            future.remove_done_callback(stop_loop_on_completion)
+            self.event_on_close()
+        try:
+            try:
+                task_retriever = asyncio.Task.all_tasks
+            except:
+                task_retriever = asyncio.all_tasks
+            tasks = {t for t in task_retriever(loop=loop) if not t.done()}
+            if not tasks:
+                return
+            for task in tasks:
+                task.cancel()
+            loop.run_until_complete(asyncio.gather(*tasks, return_exceptions=True))
+            for task in tasks:
+                if task.cancelled():
+                    continue
+                if task.exception() is not None:
+                    loop.call_exception_handler({
+                        'message': 'Unhandled exception during Client.run shutdown.',
+                        'exception': task.exception(),
+                        'task': task
+                    })
+            loop.run_until_complete(loop.shutdown_asyncgens())
+        finally:
+            loop.close()
+
+        if not future.cancelled():
+            try:
+                return future.result()
+            except KeyboardInterrupt:
+                return
+    
+    setattr(dpy.Client, "run", _run_bot)
+    setattr(dpy.Client, "event_on_close", _event_on_close)
     setattr(_commands.bot.BotBase, "run_command", _run_command)
     setattr(_commands.Context, "error_message", error_message)
     setattr(_commands.Context, "embed", _send_embed)

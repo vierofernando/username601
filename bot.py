@@ -21,6 +21,8 @@ client.util.mobile_indicator()
 async def on_ready():
     await post_ready_initiation(client)
     client.util.load_cog(client.util.cogs_dirname)
+    client.db.modify("config", client.db.types.CHANGE, {"h": True}, {"online": True})
+    client._is_closed = False
     print('Bot is online.')
 
 @client.event
