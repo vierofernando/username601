@@ -584,7 +584,7 @@ class ProfileCard:
         else:
             self.background_color = tuple([int(i) for i in self.bal["color"].split(",")])
 
-        self.foreground_color = (0, 0, 0) if (sum(self.background_color) // 3) > 127 else (255, 255, 255)
+        self.foreground_color = (0, 0, 0) if ((not isinstance(self.background_color, int)) and ((sum(self.background_color) // 3) > 127)) else (255, 255, 255)
         self.main = Image.new(mode="RGB", size=(self.width, 190), color=self.background_color)
         self.d = ImageDraw.Draw(self.main)
         self.parser = TwemojiParser(self.main, session=self.ctx.bot.http._HTTPClient__session)

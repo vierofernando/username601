@@ -124,16 +124,20 @@ class dbl(commands.Cog):
     @cooldown(7)
     async def topgg(self, ctx, *args):
         if (not args) or (args[0].lower() not in self.types):
-            embed = self.client.Embed(ctx, title="top.gg command usage", description=f"Usage:\n`{self.client.command_prefix[0]}topgg bot <bot_name>`\n`{self.client.command_prefix[0]}topgg user <user_name/mention/user_id>`", url="https://top.gg/")
-            return await embed.send()
+            return await ctx.embed(title="top.gg command usage", description=f"Usage:\n`{self.client.command_prefix[0]}topgg bot <bot_name>`\n`{self.client.command_prefix[0]}topgg user <user_name/mention/user_id>`", url="https://top.gg/")
         _type = args[0].lower() if (args[0].lower().endswith("s")) else args[0].lower() + "s"
-        if _type == "users":
-            embed = await self.resolve_user(ctx, args)
-            return await embed.send() 
-        else:
-            embed = await self.resolve_bot(ctx, args)
-            if not embed: return
-            return await embed.send()
+        try:
+            if _type == "users":
+                embed = await self.resolve_user(ctx, args)
+                return await embed.send() 
+            else:
+                embed = await self.resolve_bot(ctx, args)
+                if not embed: return
+                return await embed.send()
+        except ctx.error_message as exc:
+            raise exc
+        except:
+            raise ctx.error_message("The [top.gg](https://top.gg/) API may be down. Please try again later.", description=True)
 
 def setup(bot):
     bot.add_cog(dbl(bot))

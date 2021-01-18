@@ -9,6 +9,7 @@ class bothelp(commands.Cog):
         self._categories = "\n".join([f"{i + 2}. `{client.cmds.categories[i]}`" for i in range(len(client.cmds.categories))])
         self._init_help = [discord.Embed(title="The bot help embed™️", description="Use the reactions to move to the next page.\n\n**PAGES:**\n1. `This page`\n"+self._categories)]
         self.db = client.db
+        self._cooldown_types = ("", ", **server-wide**", ", **channel-wide**")
     
     @command(['supportserver', 'support-server', 'botserver', 'bot-server'])
     @cooldown(1)
@@ -48,7 +49,7 @@ class bothelp(commands.Cog):
         usage = [f"{ctx.prefix}{command.name}"]
         usage.extend(map(lambda x: ctx.prefix + x.split(": ")[1], command_info["parameters"]))
         cooldown = command.get_cooldown_retry_after(ctx)
-        embed = ctx.bot.Embed(ctx, title=f"Command help for {command.name}", description=command_info["function"], fields={"Usage": '```'+"\n".join(usage)+'```', "Category": command_info["category"], "Cooldown": f"{(':x:' if cooldown else ':white_check_mark:')} {ctx.bot.util.strfsecond(cooldown)}"})
+        embed = ctx.bot.Embed(ctx, title=f"Command help for {command.name}", description=command_info["function"], fields={"Usage": '```'+"\n".join(usage)+'```', "Category": command_info["category"], "Cooldowns": f"{':x:' if bool(cooldown) else ':white_check_mark:'} {ctx.bot.util.strfsecond(command._buckets._cooldown.rate)}{self._cooldown_types[command._buckets._cooldown.type.value - 1]} ({ctx.bot.util.strfsecond(cooldown)} for you)" if command._buckets.valid else ":white_check_mark: No Cooldowns"})
         if command_info["apis"]:
             embed.add_field("APIs used", "\n".join(map(lambda x: f"[{x}]({x})", command_info["apis"])))
         if command.aliases:

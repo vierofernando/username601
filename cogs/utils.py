@@ -314,12 +314,13 @@ class utils(commands.Cog):
     @permissions(bot=['attach_files'])
     async def color(self, ctx, *args):
         await ctx.trigger_typing()
-        role_name = ctx.bot.Parser.get_value("role")
-        if role_name:
-            iterate_result = [i.id for i in ctx.guild.roles if role_name.lower() in i.name.lower()]
+        parser = ctx.bot.Parser(args)
+        parser.parse()
+        if parser["role"]:
+            iterate_result = [i.id for i in ctx.guild.roles if parser["role"].lower() in i.name.lower()]
             if not iterate_result:
                 raise ctx.error_message("Role not found.")
-            color_image = await ctx.bot.canvas.color(str(ctx.guild.get_role(iterate_result[0]).colour))
+            color_image = await ctx.bot.canvas.color(None, ctx.guild.get_role(iterate_result[0]).colour.to_rgb())
             del iterate_result
         else:
             if "random" in args:
@@ -329,7 +330,7 @@ class utils(commands.Cog):
         if not color_image:
             return await ctx.bot.cmds.invalid_args(ctx)
         await ctx.send_image(color_image)
-        del color_image, role_name
+        del color_image, parser
 
 def setup(client):
     client.add_cog(utils())

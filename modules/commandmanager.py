@@ -39,22 +39,3 @@ class BotCommands:
         category = list(filter(lambda x: x.lower().startswith(category_name) or category_name in x.lower(), self.categories))
         if not category: return
         return [i for i in self.commands if i['category'].lower() == category[0].lower()]
-    
-    def get_command_info(self, command_name):
-        query = list(filter(lambda x: x["name"].lower().startswith(command_name) or command_name in x["name"].lower(), self.commands))
-        if not query: return
-        return query[0]
-    
-    def query(self, text):
-        _temp, _full_total = [a for a in self.categories if a.lower().startswith(text) or text in a.lower()], []
-        if _temp != []:
-            for elem in _temp:
-                _full_total.append({
-                    "name": elem,
-                    "type": "CATEGORY"
-                })
-        
-        _res = list(filter(lambda x: x["name"].lower().startswith(text) or text in x["name"].lower(), self.commands))
-        _full_total += _res
-        if not _full_total: return
-        return _full_total

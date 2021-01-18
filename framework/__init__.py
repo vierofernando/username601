@@ -2,16 +2,18 @@
 # You can use the code in this directory for your bot.
 # I am not really planning on uploading it to PyPI though...
 
-import discord as dpy
-import signal as sg
 from discord.ext import commands as _commands
 from datetime import datetime
 from io import BytesIO
 from gc import collect as _collect
 from os import getenv
+from json import dumps as _dumps
 from functools import wraps as _wraps
 from traceback import format_exc
+from requests import post as _post_message # to send message without async since the on_close function is not coroutine
 import asyncio
+import discord as dpy
+import signal as sg
 
 from .oreo import Oreo
 from .parser import Parser
@@ -96,7 +98,7 @@ def modify_discord_py_functions():
         del _builtin_embed
     
     def _parse_message_create(self, data):
-        if data.get("message_reference") or (not data.get("guild_id")) or data.get("webhook_id"):
+        if (not hasattr(self, "_is_ready")) or data.get("message_reference") or (not data.get("guild_id")) or data.get("webhook_id"):
             return
         channel, _ = self._get_guild_channel(data)
         if not data["author"].get("bot"):
@@ -146,6 +148,13 @@ def modify_discord_py_functions():
             return
     
         print("Closing bot...")
+        _post_message(f"{dpy.http.Route.BASE}/channels/{self.util.status_channel}/messages", headers={ "Authorization": f"Bot {self.http.token}", "Content-Type": "application/json" }, data=_dumps({
+            "embed": { "title": "Bot is down :(", "description": "The bot is down.", "color": 16711680, "fields": [
+                {"name": "Commands run throughout run-time",
+                "value": str(self.command_uses), "inline": True}, { "name": "Total Uptime",
+                "value": self.util.strfsecond(datetime.now().timestamp() - self.util._start), "inline": True}
+            ], "footer": { "text": "Please note that not all down-times are due to hosting problems. This could be a bug-fix or a development update." } }
+        }))
         data = self.db.get("config", {"h": True})
         
         current_time = datetime.now()

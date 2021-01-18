@@ -20,32 +20,18 @@ from framework import Smart_ColorThief
 from requests import get
 
 def buffer_from_url(url, *args, **kwargs):
-    try: return Image.open(BytesIO(get(url, timeout=5).content))
+    try:
+        if url.startswith("https://twemoji.maxcdn.com/v/latest/72x72/"):
+            return Image.open(BytesIO(get(url, timeout=5).content)).convert("RGBA")
+        return Image.open(BytesIO(get(url, timeout=5).content))
     except: raise TypeError(f"Oopsies there was an error on fetching: {url}")
-
-def add_corners(im, rad, top_only=False, bottom_only=False):
-    circle = Image.new('L', (rad * 2, rad * 2), 0)
-    draw = ImageDraw.Draw(circle)
-    draw.ellipse((0, 0, rad * 2, rad * 2), fill=255)
-    alpha = Image.new('L', im.size, 255)
-    w, h = im.size
-    alpha.paste(circle.crop((0, 0, rad, rad)), (0, 0))
-    alpha.paste(circle.crop((0, rad, rad, rad * 2)), (0, h-rad))
-    alpha.paste(circle.crop((rad, 0, rad * 2, rad)), (w-rad, 0))
-    alpha.paste(circle.crop((rad, rad, rad * 2, rad * 2)), (w-rad, h-rad))
-    im.putalpha(alpha)
-    circle.close()
-    alpha.close()
-    return im
 
 class Painter:
 
     def __init__(self, assetpath, fontpath, jsondir): # lmao wtf is this
         self.buffer_from_url = buffer_from_url
         self.fontpath = fontpath
-        self.gd_assets = json.loads(open(jsondir+'/gd.json', 'r').read())
-        self.add_corners = add_corners
-        
+
         # TO BE USED
         self.templates = {}
         for image in listdir(assetpath):
@@ -53,9 +39,6 @@ class Painter:
             elif image.startswith("oreo-"): continue
             elif image.startswith("among_us"): continue
             self.templates[image] = Image.open(f"{assetpath}/{image}")
-
-    def drawtext(self, draw, thefont, text, x, y, col):
-        draw.text((x, y), text, fill =col, font=thefont, align ="left")
 
     def get_font(self, fontname, size, otf=False):
         ext = 'ttf' if not otf else 'otf'
@@ -133,9 +116,12 @@ class Painter:
         main.paste(self.buffer_from_url(image_url).resize((500, 300)), (0, 200))
         return self.buffer(main)
 
-    async def color(self, string):
+    async def color(self, string, rgb: tuple = None):
         try: rgb, brightness = ImageColor.getrgb(string), ImageColor.getcolor(string, 'L')
-        except: return
+        except:
+            if not rgb:
+                return
+            brightness = sum(rgb) // 3
         
         _hex = '%02x%02x%02x' % rgb
         main = Image.new(mode='RGB', size=(500, 500), color=rgb)

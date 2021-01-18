@@ -1,5 +1,6 @@
 print('Please wait...')
 from discord.ext import commands
+from datetime import datetime
 from os import environ
 from modules import *
 from time import time
@@ -23,7 +24,16 @@ async def on_ready():
     client.util.load_cog(client.util.cogs_dirname)
     client.db.modify("config", client.db.types.CHANGE, {"h": True}, {"online": True})
     client._is_closed = False
+    client._connection._is_ready = True
     print('Bot is online.')
+    
+    data = client.db.get("config", {"h": True})
+    await client.http.send_message(client.util.status_channel, "", embed={ "title": "Bot is up!", "description": "The bot is up again and ready to be used!", "color": 65280, "fields": [
+        {
+            "name": "Downtime Lasts For",
+            "value": client.util.strfsecond(time() - datetime.strptime(data["down_times"][-1].split("|")[0], "%Y-%m-%dT%H:%M:%SZ").timestamp())
+        }
+    ]})
 
 @client.event
 async def on_member_join(member):

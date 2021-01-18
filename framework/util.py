@@ -20,6 +20,7 @@ from discord import *
 from time import time
 from enum import Enum
 from PIL import Image
+from discord import __version__ as _ver
 
 class LengthFormats(Enum):
     KILOMETERS  = (("km", "kilometer", "kilometre", "kilometers", "kilometres"), (
@@ -93,7 +94,7 @@ class Util:
         
         for key in dict(self._config["bot"]).keys():
             setattr(self, key, int(self._config["bot"][key]) if self._config["bot"][key].isnumeric() else self._config["bot"][key])
-        
+            
         self._8ball_template = (
             "As I see it, {}",
             "My reply is {}",
@@ -332,7 +333,7 @@ class Util:
                 "os": _uname.system + " ver. " + _uname.version + ", machine " + _uname.machine,
                 "python_build": _build,
                 "python_compiler": python_compiler(),
-                "discord_py": __version__
+                "discord_py": _ver
             }
         }
     
