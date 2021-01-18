@@ -9,6 +9,12 @@ class encoding(commands.Cog):
         self.ciphers = loads(open("./assets/json/encode.json", "r").read())
         pass
     
+    @command(["jumble"])
+    @cooldown(2)
+    @require_args()
+    async def shuffle(self, ctx, *args):
+        return await ctx.send(ctx.bot.util.shuffle(" ".join(args)))
+    
     @command(["morse-code"])
     @cooldown(5)
     @require_args()

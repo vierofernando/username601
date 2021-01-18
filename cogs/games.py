@@ -38,6 +38,8 @@ class games(commands.Cog):
             index = data.index(answer)
             message = f"Find the {index + 1}{(['st', 'nd', 'rd', 'th'][index] if index < 4 else 'th')} alphabet in this word!"
             del index
+        elif parser.has_multiple("shuffle", "shuffled", "jumble", "jumbled"):
+            answer, message, buffer = data, "Solve the shuffled word below!", ctx.bot.Image.text(ctx.bot.util.shuffle(data))
         elif parser.has_multiple("bot", "captcha"):
             answer, message, buffer = data, "Are you a bot? Solve the captcha below!", ctx.bot.Image.captcha(data)
         else:
