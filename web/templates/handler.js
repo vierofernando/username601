@@ -1,8 +1,15 @@
 class WebManager {
     constructor() {
-        this.body = document.getElementById("body");
-        this.html = document.getElementsByTagName("html")[0];
+        this.body = document.querySelector("body");
+        this.html = document.querySelector("html");
         this.body.style.margin = "0";
+        this.timeData = {
+            "31536000": "year",
+            "2592000": "month",
+            "86400": "day",
+            "3600": "hour",
+            "60": "minute"
+        }
     }
 
     usingCSS(path) {
@@ -98,5 +105,28 @@ class WebManager {
     openLink(url) {
         document.write(`Redirecting you to <a href="${url}">${url}</a>...`);
         window.location.href = url;
+    }
+
+    parseDelta(seconds) {
+        if (seconds < 0) return `Yo wtf your time zone is wack`;
+        else if (seconds < 60) return `${seconds} second${seconds == 1 ? '' : 's'} ago`;
+
+        const keys = Object.keys(this.timeData).map(x => parseInt(x)).reverse();
+        for (let i = 0; i < 5; i++) {
+            if (seconds >= keys[i]) {
+                seconds = Math.round(seconds / keys[i]);
+                return `${seconds} ${this.timeData[keys[i].toString()]}${seconds == 1 ? '' : 's'} ago`;
+            }
+        }
+
+        seconds = Math.round(seconds / 31536000);
+        return `${seconds} year${seconds == 1 ? '' : 's'} ago`;
+    }
+
+    UTC(x) { // thanks stackoverflow! <3
+        if (!x) {
+            x = new Date();
+        }
+        return (x.getTime() + x.getTimezoneOffset()*60*1000)/1000;
     }
 }

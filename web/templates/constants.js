@@ -11,3 +11,7 @@ const ECONOMIES = null; // placeholder
 const UPTIME = null; // placeholder
 const COMMANDS_LIST = null; // placeholder
 let CHANGELOG = null; // placeholder
+let UPT_DATA = null // placeholder
+let COMMANDS_RUN = null // placeholder
+let UPT_TIME = null // placeholder
+let ONLINE = null // placeholder

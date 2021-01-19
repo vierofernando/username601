@@ -41,7 +41,10 @@ class DB:
             "economy_length": stats[2],
             "dashboard_length": stats[3],
             "last_update": self.strfsecond(time() - float(stats[4])),
-            "changelog": data["changelog"]
+            "changelog": data["changelog"],
+            "commands_run": data["commands_run"],
+            "online": data["online"],
+            "down_times": data["down_times"]
         }
         self.last_usage = time()
         return self.cache

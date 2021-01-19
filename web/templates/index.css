@@ -13,6 +13,24 @@
     border-radius: 50px;
 }
 
+#uptimeBoard {
+    border-radius: 50px;
+    text-align: center;
+    margin: 50px;
+}
+
+#uptimeText {
+    font-weight: bold;
+    font-size: 275%;
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+
+#tableCenter {
+    margin-left: auto;
+    margin-right: auto;
+}
+
 #inviteButton {
     font-size: 230%;
     border: none;

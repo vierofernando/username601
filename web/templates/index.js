@@ -10,7 +10,7 @@ function lowerContrast(amount) {
         const newNumber = parseInt(number) - amount;
         if (newNumber < 0)
             return "0";
-        return newNumber.toString()
+        return newNumber.toString();
     });
     return `rgb(${colorValues.join(", ")})`;
 }
@@ -42,11 +42,11 @@ web.html.style.backgroundColor = color;
 web.body.style.backgroundColor = color;
 const foregroundColor = getForegroundColor();
 document.title = title;
-
 const navbar = new NavbarManager({
     Home: "buttonHome",
     Commands: "commandsBoard",
-    Changelog: "changelogBoard"
+    Changelog: "changelogBoard",
+    Uptime: "uptimeBoard"
 });
 
 // PREPARE FOR THE BEST CODE EVER MADE
@@ -61,6 +61,7 @@ web.createElement({
 });
 
 const changelog = new ChangelogParser(CHANGELOG);
+const uptime = new UptimeHandler(ONLINE, UPT_DATA, UPT_TIME);
 
 web.createElement({
     id: "buttonHome",
@@ -121,6 +122,7 @@ web.createElement({
     }
 });
 
+uptime.createElements();
 
 web.createElement({
     id: "copyright",

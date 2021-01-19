@@ -10,22 +10,15 @@ class ChangelogParser extends WebManager {
             }
         });
         this.data = JSON.parse(data).reverse();
-        this.currentTime = Math.round(new Date(new Date().toUTCString()).getTime() / 1000);
+        this.currentTime = this.UTC();
         this.lastTime = null;
-        this.timeData = {
-            "31536000": "year",
-            "2592000": "month",
-            "86400": "day",
-            "3600": "hour",
-            "60": "minute"
-        }
         this.currentElement = null;
 
         this.data.forEach(change => {
             const dateChange = new Date(change.slice(2).split(' UTC]')[0]);
-            const time = this.parseDelta(this.currentTime - Math.round(dateChange.getTime() / 1000));
             const log = this.parseCodeBlock(change.split(" UTC]` ")[1]);
-            
+            const time = this.parseDelta(this.currentTime - Math.round(dateChange.getTime() / 1000));
+
             if (this.lastTime != time) {
                 this.createElement({
                     at: this.mainElement,
@@ -63,20 +56,5 @@ class ChangelogParser extends WebManager {
             log = log.replace(match, `<inlinecodeblock>${match.slice(1, -1)}</inlinecodeblock>`);
         });
         return log;
-    }
-
-    parseDelta(seconds) {
-        if (seconds < 60) return `${seconds} second${seconds == 1 ? '' : 's'} ago`;
-
-        const keys = Object.keys(this.timeData).map(x => parseInt(x)).reverse();
-        for (let i = 0; i < 5; i++) {
-            if (seconds >= keys[i]) {
-                seconds = Math.round(seconds / keys[i]);
-                return `${seconds} ${this.timeData[keys[i].toString()]}${seconds == 1 ? '' : 's'} ago`;
-            }
-        }
-
-        seconds = Math.round(seconds / 31536000);
-        return `${seconds} year${seconds == 1 ? '' : 's'} ago`;
     }
 }

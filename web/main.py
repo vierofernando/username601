@@ -22,11 +22,6 @@ def env():
 def home():
   return web.render_index_template()
 
-@web.page('/credits')
-@web.ratelimiter.exempt
-def credits():
-  return web.credits
-
 @web.page('/src/<file>')
 @web.ratelimiter.exempt
 def get_raw(file: str):
