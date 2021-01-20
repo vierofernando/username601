@@ -328,22 +328,6 @@ class memes(commands.Cog):
         url='https://api.alexflipnote.dev/trash?face='+str(av)+'&trash='+toTrash
         return await ctx.send_image(url, alexflipnote=True)
 
-    @command()
-    @cooldown(10)
-    @permissions(bot=['attach_files'])
-    async def ferbtv(self, ctx, *args):
-        await ctx.trigger_typing()
-        ava = await ctx.bot.Parser.parse_image(ctx, args)
-        command_name = ctx.bot.util.get_command_name(ctx)
-        size, pos = self._positioning[command_name]
-        image = await ctx.bot.canvas.merge({
-            'filename': command_name+'.jpg',
-            'url': ava,
-            'size': size,
-            'pos': pos
-        })
-        return await ctx.send_image(image)
-
     @command(['captchatext', 'generatecaptcha', 'gen-captcha', 'gencaptcha', 'capt'])
     @cooldown(10)
     @require_args()

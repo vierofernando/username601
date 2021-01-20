@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from datetime import datetime
 from json import loads
 from decorators import *
 from time import time
@@ -97,12 +98,19 @@ class bothelp(commands.Cog):
 
     @command(['botstats', 'meta'])
     @cooldown(10)
-    async def stats(self, ctx):
+    async def stats(self, ctx, *args):
         await ctx.trigger_typing()
+        config = self.db.get("config", {"h": True})
+        
+        if args and (args[0] == "uptime"):
+            last_downtime = datetime.strptime(config['down_times'][-1].split("|")[0], "%Y-%m-%dT%H:%M:%SZ")
+            data = "\n".join(list(map(lambda x: f'{ctx.bot.util.timestamp(x.split("|")[0], include_time_past=False).split(", ")[1][:-1]}, with an uptime of **{x.split("|")[1]}**', config['down_times'][::-1][1:])))
+            return await ctx.embed(title="Bot Uptime Data", description=f"**Downtime History:**\n{data}", fields={ "Current Uptime": ctx.bot.util.strfsecond(time() - ctx.bot.util._start), "Last Downtime": f'{ctx.bot.util.timestamp(last_downtime, include_time_past=False)[:-1]}, happens for **{ctx.bot.util.strfsecond(time() - last_downtime.timestamp())}**' })
+        
         data = await ctx.bot.util.get_stats()
-        await ctx.embed(title="Bot Stats", fields={
-            "Uptime": f"**Bot Uptime: **{ctx.bot.util.strfsecond(data['bot_uptime'])}\n**OS Uptime: **{data['os_uptime']}",
-            "Stats": f"**Server count: **{len(ctx.bot.guilds)}\n**Served users: **{len(ctx.bot.users)}\n**Cached custom emojis: **{len(ctx.bot.emojis)}",
+        return await ctx.embed(title="Bot Stats", fields={
+            "Uptime": f"**OS Uptime: **{data['os_uptime']}**Bot Uptime: **`See '{ctx.prefix}stats uptime' for more info`",
+            "Stats": f"**Server count: **{len(ctx.bot.guilds):,}\n**Served users: **{len(ctx.bot.users):,}\n**Cached custom emojis: **{len(ctx.bot.emojis):,}\n**Commands Ran throughout Runtime: **{ctx.bot.command_uses:,}\n**Total Commands Ran: **{config['commands_run']:,}\n**Banned users: **{len(config['bans']):,}",
             "Platform": f"**Machine: **{data['versions']['os']}\n**Python Build: **{data['versions']['python_build']}\n**Python Compiler: **{data['versions']['python_compiler']}\n**Discord.py version: **{data['versions']['discord_py']}"
         })
 
