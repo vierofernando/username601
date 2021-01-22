@@ -77,9 +77,9 @@ class image(commands.Cog):
         except:
             return await ctx.bot.cmds.invalid_args(ctx)
         
-        image, format = await ctx.bot.Image.colorify(image, color)
-        await ctx.send_image(image, file_format=format.lower())
-        del color, image, format
+        image = await ctx.bot.Image.colorify(image, color)
+        await ctx.send_image(image)
+        del color, image
         collect()
 
     @command(['legofy'])
@@ -112,9 +112,9 @@ class image(commands.Cog):
             buffer = await ctx.bot.Image.explode_animated(url, True)
             return await ctx.send_image(buffer, file_format="gif")
         
-        result, format = await ctx.bot.Image.implode(url, amount=1)
-        await ctx.send_image(result, file_format=format.lower())
-        del result, format, url, parser, animated
+        result = await ctx.bot.Image.implode(url, amount=1)
+        await ctx.send_image(result)
+        del result, url, parser, animated
         
     @command(["blow-up", "blowup", "boom"])
     @cooldown(9)
@@ -133,9 +133,9 @@ class image(commands.Cog):
             del parser, animated
             buffer = await ctx.bot.Image.explode_animated(url)
             return await ctx.send_image(buffer, file_format="gif")
-        result, format = await ctx.bot.Image.implode(url, amount=-3.5)
-        await ctx.send_image(result, file_format=format.lower())
-        del result, format, url, parser, animated
+        result = await ctx.bot.Image.implode(url, amount=-3.5)
+        await ctx.send_image(result)
+        del result, url, parser, animated
         
     @command(["disintegrate"])
     @cooldown(5)
@@ -154,9 +154,9 @@ class image(commands.Cog):
     async def charcoal(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args)
-        buffer, format = await ctx.bot.Image.charcoal(url)
-        await ctx.send_image(buffer, file_format=format.lower())
-        del buffer, format, url
+        buffer = await ctx.bot.Image.charcoal(url)
+        await ctx.send_image(buffer)
+        del buffer, url
     
     @command(["oil-image", "oilify"])
     @cooldown(8)
@@ -164,9 +164,9 @@ class image(commands.Cog):
     async def oil(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args)
-        buffer, format = await ctx.bot.Image.oil(url)
-        await ctx.send_image(buffer, file_format=format.lower())
-        del buffer, format, url
+        buffer = await ctx.bot.Image.oil(url)
+        await ctx.send_image(buffer)
+        del buffer, url
         collect()
     
     @command(["noice"])
@@ -175,9 +175,9 @@ class image(commands.Cog):
     async def noise(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False)
-        buffer, format = await ctx.bot.Image.noise(url)
-        await ctx.send_image(buffer, file_format=format.lower())
-        del buffer, format, url
+        buffer = await ctx.bot.Image.noise(url)
+        await ctx.send_image(buffer)
+        del buffer, url
         collect()
     
     @command(["solarise"])
@@ -186,9 +186,9 @@ class image(commands.Cog):
     async def solarize(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False)
-        buffer, format = await ctx.bot.Image.solarize(url)
-        await ctx.send_image(buffer, file_format=format.lower())
-        del buffer, format, url
+        buffer = await ctx.bot.Image.solarize(url)
+        await ctx.send_image(buffer)
+        del buffer, url
         collect()
     
     @command()
@@ -197,9 +197,9 @@ class image(commands.Cog):
     async def spread(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False)
-        buffer, format = await ctx.bot.Image.spread(url)
-        await ctx.send_image(buffer, file_format=format.lower())
-        del buffer, format, url
+        buffer = await ctx.bot.Image.spread(url)
+        await ctx.send_image(buffer)
+        del buffer, url
         collect()
     
     @command()
@@ -208,9 +208,9 @@ class image(commands.Cog):
     async def emboss(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args)
-        buffer, format = await ctx.bot.Image.emboss(url)
-        await ctx.send_image(buffer, file_format=format.lower())
-        del buffer, format, url
+        buffer = await ctx.bot.Image.emboss(url)
+        await ctx.send_image(buffer)
+        del buffer, url
     
     @command()
     @cooldown(8)
@@ -218,9 +218,9 @@ class image(commands.Cog):
     async def edge(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False)
-        buffer, format = await ctx.bot.Image.edge(url)
-        await ctx.send_image(buffer, file_format=format.lower())
-        del buffer, format, url
+        buffer = await ctx.bot.Image.edge(url)
+        await ctx.send_image(buffer)
+        del buffer, url
         collect()
     
     @command()
@@ -229,9 +229,9 @@ class image(commands.Cog):
     async def sketch(self, ctx, *args):
         await ctx.trigger_typing()
         url = await ctx.bot.Parser.parse_image(ctx, args)
-        buffer, format = await ctx.bot.Image.sketch(url)
-        await ctx.send_image(buffer, file_format=format.lower())
-        del buffer, format, url
+        buffer = await ctx.bot.Image.sketch(url)
+        await ctx.send_image(buffer)
+        del buffer, url
     
     @command()
     @cooldown(8)
@@ -247,9 +247,9 @@ class image(commands.Cog):
         else:
             number = [10]
         url = await ctx.bot.Parser.parse_image(ctx, args)
-        buffer, format = await ctx.bot.Image.wave(url, amount=number[0])
-        await ctx.send_image(buffer, file_format=format.lower())
-        del number, buffer, format, url
+        buffer = await ctx.bot.Image.wave(url, amount=number[0])
+        await ctx.send_image(buffer)
+        del number, buffer, url
     
     @command()
     @cooldown(8)
@@ -265,9 +265,9 @@ class image(commands.Cog):
         else:
             number = [360]
         url = await ctx.bot.Parser.parse_image(ctx, args, default_to_png=False)
-        buffer, format = await ctx.bot.Image.swirl(url, degree=number[0])
-        await ctx.send_image(buffer, file_format=format.lower())
-        del number, buffer, format, url
+        buffer = await ctx.bot.Image.swirl(url, degree=number[0])
+        await ctx.send_image(buffer)
+        del number, buffer, url
         collect()
     
     @command(['combine'])
@@ -301,16 +301,16 @@ class image(commands.Cog):
             blur_class = ctx.bot.Blur(ctx.bot, image)
             
             if parser.has_multiple("gaussian", "gaussian-blur"):
-                image, format = await blur_class.blur(ctx.bot.Blur.GAUSSIAN_BLUR)
+                image = await blur_class.blur(ctx.bot.Blur.GAUSSIAN_BLUR)
             elif parser.has_multiple("motion", "motion-blur"):
-                image, format = await blur_class.blur(ctx.bot.Blur.MOTION_BLUR)
+                image = await blur_class.blur(ctx.bot.Blur.MOTION_BLUR)
             elif parser.has_multiple("rotate", "rotational", "rotational-blur"):
-                image, format = await blur_class.blur(ctx.bot.Blur.ROTATIONAL_BLUR)
+                image = await blur_class.blur(ctx.bot.Blur.ROTATIONAL_BLUR)
             else:
-                image, format = await blur_class.blur(0)
+                image = await blur_class.blur(0)
             
-            await ctx.send_image(image, file_format=format.lower())
-            del image, format, blur_class, parser
+            await ctx.send_image(image)
+            del image, blur_class, parser
             
         except:
             return await ctx.bot.cmds.invalid_args(ctx)

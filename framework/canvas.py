@@ -47,11 +47,24 @@ class ImageClient:
         
         return "\n".join(res_text)
 
+
+    def _resolve_svg(self, byte, pil: bool = False):
+        image = _Image(blob=byte)
+        if not pil:
+            return image
+        res = BytesIO(image.make_blob("png"))
+        image.close()
+        del image
+        return Image.open(res)
+    
     
     async def image_from_URL(self, url: str):
         """ Fetches an image from a URL to PIL.Image.Image. """
         res = await self.http._HTTPClient__session.get(url)
         byte_data = await res.read()
+        if res.headers.get("content-type", "").startswith("image/svg") or res.headers.get("Content-Type", "").startswith("image/svg"):
+            return self._resolve_svg(byte_data, True)
+        
         image = Image.open(BytesIO(byte_data))
         del byte_data, res
         if url.startswith("https://twemoji.maxcdn.com/v/latest/72x72/"):
@@ -63,6 +76,9 @@ class ImageClient:
         """ Fetches an image from a URL to Wand.Image. """
         res = await self.http._HTTPClient__session.get(url)
         byte_data = await res.read()
+        if res.headers.get("content-type", "").startswith("image/svg") or res.headers.get("Content-Type", "").startswith("image/svg"):
+            return self._resolve_svg(byte_data)
+        
         res = _Image(blob=byte_data)
         del byte_data
         return res
@@ -70,11 +86,12 @@ class ImageClient:
     
     def wand_save(self, image) -> BytesIO:
         """ Saves a wand image. """
-        buffer = BytesIO(image.make_blob(image.format))
+        buffer = BytesIO(image.make_blob("png"))
+        image.close()
         del image
         gc.collect()
         return buffer
-
+        
     
     def save(self, image) -> BytesIO:
         """ Saves an image as a buffer. """
@@ -169,7 +186,7 @@ class ImageClient:
         """ Colourifies an image. """
         wand_image = await self.wand_from_URL(url)
         wand_image.colorize(color=f"rgb{color}", alpha="rgb(50%, 50%, 50%)")
-        return self.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image)
     
     
     async def blend(self, url1: str, url2: str) -> BytesIO:
@@ -208,21 +225,21 @@ class ImageClient:
         """ Implodes an image. Can be used to explode as well. """
         wand_image = await self.wand_from_URL(url)
         wand_image.implode(amount=amount)
-        return self.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image)
     
     
     async def swirl(self, url: str, degree: int) -> tuple:
         """ Swirls an image. The intensity can be changed using the degree parameter. """
         wand_image = await self.wand_from_URL(url)
         wand_image.swirl(degree=degree)
-        return self.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image)
 
     
     async def charcoal(self, url: str) -> tuple:
         """ Adds a charcoal filter to the image. """
         wand_image = await self.wand_from_URL(url)
         wand_image.charcoal(radius=1.5, sigma=0.5)
-        return self.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image)
     
     
     async def sketch(self, url: str) -> tuple:
@@ -230,7 +247,7 @@ class ImageClient:
         wand_image = await self.wand_from_URL(url)
         wand_image.transform_colorspace("gray")
         wand_image.sketch(0.5, 0.0, 98.0)
-        return self.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image)
     
     
     async def edge(self, url: str) -> tuple:
@@ -238,7 +255,7 @@ class ImageClient:
         wand_image = await self.wand_from_URL(url)
         wand_image.transform_colorspace('gray')
         wand_image.edge(radius=1)
-        return self.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image)
     
     
     async def emboss(self, url: str) -> tuple:
@@ -246,21 +263,21 @@ class ImageClient:
         wand_image = await self.wand_from_URL(url)
         wand_image.transform_colorspace('gray')
         wand_image.emboss(radius=3.0, sigma=1.75)
-        return self.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image)
     
     
     async def spread(self, url: str) -> tuple:
         """ Spreads the image pixels. """
         wand_image = await self.wand_from_URL(url)
         wand_image.spread(radius=8.0)
-        return self.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image)
 
     
     async def wave(self, url: str, amount: int) -> tuple:
         """ Adds a wavy effect to the image. """
         wand_image = await self.wand_from_URL(url)
         wand_image.wave(amplitude=wand_image.height / (amount * 5), wave_length=wand_image.width / amount)
-        return self.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image)
 
     
     async def disaster_girl(self, url: str) -> BytesIO:
@@ -282,21 +299,21 @@ class ImageClient:
         """ Adds a oil effect to the image. """
         wand_image = await self.wand_from_URL(url)
         wand_image.oil_paint(10, 8)
-        return self.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image)
 
     
     async def noise(self, url: str) -> BytesIO:
         """ Adds a noise to the image. """
         wand_image = await self.wand_from_URL(url)
         wand_image.noise("laplacian", attenuate=100.0)
-        return self.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image)
 
     
     async def solarize(self, url: str) -> BytesIO:
         """ Adds a solarize filter to the image. """
         wand_image = await self.wand_from_URL(url)
         wand_image.solarize(threshold=0.5 * wand_image.quantum_range)
-        return self.wand_save(wand_image), wand_image.format
+        return self.wand_save(wand_image)
 
     
     async def glitch(self, url: str):
@@ -419,7 +436,7 @@ class Blur:
         func, args = self._functions[type]
         getattr(wand_image, func)(**args)
         
-        return self.Image.wand_save(wand_image), wand_image.format
+        return self.Image.wand_save(wand_image)
 
     def __del__(self):
         del self.image_url

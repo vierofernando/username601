@@ -218,6 +218,7 @@ def modify_discord_py_functions():
                         'task': task
                     })
             loop.run_until_complete(loop.shutdown_asyncgens())
+            loop.run_until_complete(self.http._HTTPClient__session.close())
         finally:
             loop.close()
 

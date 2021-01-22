@@ -226,9 +226,11 @@ class Parser:
             assert data.status == 200
             if custom_emoji:
                 return True
+            content_type = data.headers.get('Content-Type', data.headers.get("content-type", ""))
             
-            assert data.headers['Content-Type'].startswith('image/')
-            assert (int(data.headers['Content-Length'])/1024/1024) < 2
+            assert content_type.startswith('image/')
+            if "svg" not in content_type:
+                assert (int(data.headers['Content-Length'])/1024/1024) < 2
             return True
         except:
             return False

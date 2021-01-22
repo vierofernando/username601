@@ -3,9 +3,11 @@ from platform import python_build, python_compiler, uname
 from aiohttp import ClientSession, ClientTimeout
 from .xmltodict import parse as xmltodict
 from discord.ext.commands import Context
+from discord import __version__ as _ver
 from urllib.parse import quote as _uri
 from configparser import ConfigParser
 from os import getenv, name, listdir
+from random import choice, shuffle
 from gc import collect as _collect
 from discord.ext import commands
 from subprocess import run, PIPE
@@ -13,14 +15,12 @@ from datetime import datetime
 from inspect import getsource
 from base64 import b64encode
 from re import sub as _sub
-from random import choice
 from json import loads
 from io import BytesIO
 from discord import *
 from time import time
 from enum import Enum
 from PIL import Image
-from discord import __version__ as _ver
 
 class LengthFormats(Enum):
     KILOMETERS  = (("km", "kilometer", "kilometre", "kilometers", "kilometres"), (
@@ -70,7 +70,6 @@ class Util:
         Upon initiation, this class will make a copy of itself to the discord.Client object.
         """
         self.bot = client
-        self.prefix_length = len(client.command_prefix)
         self._alphabet = list('abcdefghijklmnopqrstuvwxyz')
         self._start = time()
         self.no_mentions = AllowedMentions(everyone=False, users=False, roles=False)
@@ -86,8 +85,6 @@ class Util:
             60: "minute"
         }
         
-        
-        self._on_command_error = None
         self._config = ConfigParser()
         self._config.read(config_file)
         self.encode_uri = _uri
@@ -167,17 +164,6 @@ class Util:
             return f'{eval(f"{number}{first_format[LengthFormats._ALL.value.index(second_format)]}")} {second_format.lower()}'
         except:
             raise error_message("Unsupported or invalid calculation.")
-
-    def toggle_debug_mode(self) -> bool:
-        """ Toggles debug mode. Returns a bool whether debug mode is currently ON or not. """
-    
-        if self._on_command_error:
-            setattr(self.bot, "on_command_error", self._on_command_error)
-            self._on_command_error = None
-            return True
-        self._on_command_error = self.bot.on_command_error
-        delattr(self.bot, "on_command_error")
-        return False
     
     def has_nitro(self, guild, member) -> bool:
         
@@ -243,12 +229,7 @@ class Util:
         """ idk if this is illegal but anyway """
         image = Image.open(BytesIO(_bytes))
         return ctx.bot.Image.save(image.crop((0, 12, image.width, image.height - 12)))
-    
-    def get_command_name(self, ctx) -> str:
-        """ Gets the command name from a discord context object. This includes the alias used. """
-        first_line = ctx.message.content.split()[0]
-        return first_line[self.prefix_length:].lower()
-    
+
     async def request(self, url, json=False, xml=False, alexflipnote=False, github=False, **kwargs):
         """ Does a GET request to a specific URL with a query parameters."""
 
@@ -377,3 +358,9 @@ class Util:
             else:
                 result += char
         return result
+
+    def shuffle(self, text: str) -> str:
+        """ Shuffles a text. """
+        l = list(text)
+        shuffle(l)
+        return "".join(choice((l, l[::-1])))
