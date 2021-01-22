@@ -167,6 +167,7 @@ def modify_discord_py_functions():
             "online": False
         })
         self._is_closed = True
+        self.db.db.close()
         del self.db
         del data, current_time
         self.loop.stop()
