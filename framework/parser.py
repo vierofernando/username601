@@ -203,7 +203,7 @@ class Parser:
         try:
             emoji_id = int(_iter[0].group().split(":")[2].split(">")[0])
             supposed_url = f"https://cdn.discordapp.com/emojis/{emoji_id}{'.gif' if is_animated else '.png'}"
-            is_valid = await Parser.__check_url(ctx, url=supposed_url, cdn_only=True, custom_emoji=True)
+            is_valid = await Parser.__check_url(ctx, url=supposed_url, cdn_only=True, default_to_png=False, custom_emoji=True)
             assert is_valid
             return supposed_url
         except:
@@ -217,7 +217,7 @@ class Parser:
         except: return
 
     @staticmethod
-    async def __check_url(ctx, url: str, cdn_only: bool, custom_emoji: bool = False):
+    async def __check_url(ctx, url: str, cdn_only: bool, default_to_png: bool = True, custom_emoji: bool = False):
         try:
             if (not custom_emoji) and cdn_only:
                 assert url.startswith("https://cdn.discordapp.com")
@@ -226,9 +226,12 @@ class Parser:
             assert data.status == 200
             if custom_emoji:
                 return True
-            content_type = data.headers.get('Content-Type', data.headers.get("content-type", ""))
+            content_type = data.headers.get('Content-Type', data.headers.get("content-type", "")).lower()
             
             assert content_type.startswith('image/')
+            if default_to_png:
+                assert "png" in content_type
+            
             if "svg" not in content_type:
                 assert (int(data.headers['Content-Length'])/1024/1024) < 2
             return True
@@ -244,16 +247,16 @@ class Parser:
         Enabling cdn_only will only detect cdn.discordapp.com urls.
         """
         if ctx.message.attachments and (not member_only):
-            res = await Parser.__check_url(ctx, ctx.message.attachments[0].url, cdn_only)
+            res = await Parser.__check_url(ctx, ctx.message.attachments[0].url, cdn_only, default_to_png)
             if res:
                 return str(ctx.message.attachments[0].url)
         
         if not args:
             return str(ctx.author.avatar_url_as(format=("png" if (default_to_png or (not ctx.author.is_avatar_animated())) else "gif"), size=size))
         
-        url = "".join(args).replace("<", "").replace(">", "")
+        url = "".join(args).lstrip("<").rstrip(">")
         if ((url.startswith("http")) and ("://" in url)) and (not member_only):
-            is_valid = await Parser.__check_url(ctx, url, cdn_only)
+            is_valid = await Parser.__check_url(ctx, url, cdn_only, default_to_png)
             if is_valid:
                 return url
         
@@ -267,7 +270,7 @@ class Parser:
                 
                 _id = int(_filtered.split(':')[2].split('>')[0])
                 _url = f"https://cdn.discordapp.com/emojis/{_id}{_extension}"
-                is_valid = await Parser.__check_url(ctx, _url, cdn_only=True, custom_emoji=True)
+                is_valid = await Parser.__check_url(ctx, _url, cdn_only=True, default_to_png=False, custom_emoji=True)
                 assert is_valid
                 return _url
             except:
