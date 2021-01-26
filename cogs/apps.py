@@ -66,20 +66,20 @@ class apps(commands.Cog):
 
     @command(['trending', 'msn'])
     @cooldown(7)
-    async def news(self, ctx, *args):
+    async def news(self, ctx):
         try:
             data = await ctx.bot.util.request(
-                "http://cdn.content.prod.cms.msn.com/singletile/summary/alias/experiencebyname/today",
+                "https://cdn.content.prod.cms.msn.com/singletile/summary/alias/experiencebyname/today",
                 market="en-GB",
                 source="appxmanifest",
                 tenant="amp",
                 vertical="news",
                 xml=True
             )
-            await ctx.embed(title=data["tile"]["visual"]["binding"][0]["text"]["#text"], image=data["tile"]["visual"]["@baseUri"] + data["tile"]["visual"]["binding"][0]["image"]["@src"])
-            del data
-        except Exception as e:
-            await ctx.bot.get_user(ctx.bot.util.owner_id).send(f"yo, theres an error: `{str(e)}`")
+            image = data["tile"]["visual"]["binding"][0].get("image", {}).get("@src", None)
+            await ctx.embed(title=data["tile"]["visual"]["binding"][0]["text"]["#text"], image=(data["tile"]["visual"]["@baseUri"] + image if image else image), footer=(None if image else "<image not available>"))
+            del data, image
+        except:
             raise ctx.error_message("Oopsies, there was an error on searching the news.")
 
     @command(['urban-dictionary', 'define'])
@@ -225,12 +225,14 @@ class apps(commands.Cog):
     @cooldown(5)
     @require_args()
     async def tv(self, ctx, *args):
-        data = await ctx.bot.util.request(
-            f'http://api.tvmaze.com/singlesearch/shows',
-            json=True,
-            q=' '.join(args)
-        )
-        if not data:
+        try:
+            data = await ctx.bot.util.request(
+                f'http://api.tvmaze.com/singlesearch/shows',
+                json=True,
+                q=' '.join(args)
+            )
+            assert bool(data)
+        except:
             raise ctx.error_message("Did not found anything corresponding to your query.")
         
         try:
