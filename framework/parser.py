@@ -282,7 +282,7 @@ class Parser:
                 return _emoji
         
         user = Parser.parse_user(ctx, args)
-        return str(user.avatar_url_as(format=("png" if (default_to_png or (not ctx.author.is_avatar_animated())) else "gif"), size=size))
+        return str(user.avatar_url_as(format=("png" if (default_to_png or (not user.is_avatar_animated())) else "gif"), size=size))
 
     @staticmethod
     def parse_user(ctx, args, allownoargs=True):
