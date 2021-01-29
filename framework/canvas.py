@@ -875,7 +875,7 @@ class ServerCard:
         # get the text and font for the image
         big_font = self._get_font(30)
         sub_font = self._get_font(20)
-        description = f"Created by {str(self.ctx.guild.owner)} at {self.bot.util.timestamp(self.ctx.guild.created_at, include_time_past=False)}"
+        description = f"Created by {str(self.ctx.guild.owner)} at {self.ctx.bot.util.timestamp(self.ctx.guild.created_at, include_time_past=False)}"
 
         # configure the image
         width = max([
