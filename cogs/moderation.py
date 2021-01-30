@@ -631,18 +631,14 @@ class moderation(commands.Cog):
     @permissions(bot=['add_reactions', 'attach_files'])
     async def emoji(self, ctx, *args):
         if args[0].lower() == "list":
-            _map = list(map(str, ctx.guild.emojis))
-            
-            paginator = ctx.bot.EmbedPaginator.from_long_array(ctx, _map, {
+            paginator = ctx.bot.EmbedPaginator.from_long_array(ctx, ctx.guild.emojis, {
                 "title": "Server Custom Emojis List",
                 "thumbnail": { "url": str(ctx.guild.icon_url) }
             }, char=" ", max_char_length=1500, max_pages=10)
             
             if not paginator:
-                await ctx.embed(title="Server Custom Emojis List", description=" ".join(_map))
-                del _map, paginator
-                return
-            del _map
+                del paginator
+                return await ctx.embed(title="Server Custom Emojis List", description=" ".join(ctx.guild.emojis))
             return await paginator.execute()
         elif args[0].lower() == "info":
             try:
@@ -650,14 +646,14 @@ class moderation(commands.Cog):
                 assert res
             except:
                 return await ctx.bot.cmds.invalid_args(ctx)
-            data = ctx.bot.get_emoji(int(res.split("emojis/")[1].split(".")[0])) if res.startswith("https://cdn") else None
+            data = ctx.bot.get_emoji(int(res.strip("https://cdn.discordapp.com/emojis/.png"))) if res.startswith("https://cdn") else None
             
             fields = {
-                "Emoji name": data.name if data else "`<not available>`",
-                "Emoji ID": data.id if data else "`<not available>`",
-                "Emoji creation date": ctx.bot.util.timestamp(data.created_at) if data else "`not available`",
-                "Emoji type": "Discord Animated Custom Emoji" if (data and data.animated) else "Discord Custom Emoji",
-                "Emoji source": f"{data.guild.name} ({len(data.guild.emojis)}/{data.guild.emoji_limit} custom emojis)" if (data and data.guild) else "`<source not available>`",
+                "Emoji name": data[0] if data else "`<not available>`",
+                "Emoji ID": data[1] if data else "`<not available>`",
+                "Emoji creation date": ctx.bot.util.timestamp(data[3]) if data else "`not available`",
+                "Emoji type": "Discord Animated Custom Emoji" if (data and data[2]) else "Discord Custom Emoji",
+                "Emoji source": f"{data[5].name} ({len(data[5].emojis):,}/{data[5].emoji_limit:,} custom emojis)" if (data and data[4]) else "`<source not available>`",
                 "Emoji URL": res
             } if res.startswith("https://cdn") else {
                 "Emoji type": "Default Discord Emoji", 

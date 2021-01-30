@@ -10,6 +10,7 @@ from os import getenv
 from json import dumps as _dumps
 from functools import wraps as _wraps
 from traceback import format_exc
+from inspect import getmembers, getsource
 from requests import post as _post_message # to send message without async since the on_close function is not coroutine
 import asyncio
 import discord as dpy
@@ -19,7 +20,7 @@ from .oreo import Oreo
 from .parser import Parser
 from .panel import CustomPanel
 from .colorthief import Smart_ColorThief
-from .message import embed, Paginator, ChooseEmbed,  WaitForMessage
+from .message import embed, Paginator, ChooseEmbed, WaitForMessage
 from .util import Util, error_message
 from .games import GuessTheFlag, Slot, TicTacToe, RockPaperScissors, GeographyQuiz, MathQuiz, GuessAvatar, Trivia, GuessMyNumber, Hangman
 from .canvas import ServerCard, UserCard, ProfileCard, GDLevel, Blur, ImageClient
@@ -52,6 +53,12 @@ def get_prefix(config_file: str = "config.ini"):
     return _config["bot"].get("prefix", "1")
 
 def modify_discord_py_functions():
+    for name, value in getmembers(dpy.User):
+        if name.startswith("__") or value.__class__.__name__ != "function" or "can only be used by non-bot accounts" not in getsource(value):
+            continue
+        delattr(dpy.User, name)
+    delattr(dpy.Client, "fetch_user_profile")
+
     def _embed_add_useless_stuff(self, ctx, disable_color: bool = False):
         self._footer = {
             "text": "Command executed by "+str(ctx.author),
@@ -167,10 +174,26 @@ def modify_discord_py_functions():
             "online": False
         })
         self._is_closed = True
-        self.db.db.close()
         del self.db
         del data, current_time
         self.loop.stop()
+    
+    def _store_user(self, data):
+        user_id = int(data["id"])
+        try:
+            return self._users[user_id]
+        except:
+            user = dpy.User(state=self, data=data)
+            if (data["discriminator"] != "0000") and (not data.get("bot")):
+                self._users[user_id] = user
+            return user
+    
+    def _store_emoji(self, guild, data):
+        # stores as a tuple, not an emoji object to save memory
+        # (emoji_name, emoji_id, is_animated, created_at, has_guild, ?guild)
+        guild_data = (guild,) if guild else ()
+        self._emojis[int(data["id"])] = (data["name"], int(data["id"]), data.get("animated", False), dpy.utils.snowflake_time(int(data["id"])), bool(guild), *guild_data)
+        return f"<{'a' if data.get('animated') else ''}:{data['name']}:{data['id']}>"
     
     def _run_bot(self, *args, **kwargs):
         loop = self.loop
@@ -237,9 +260,11 @@ def modify_discord_py_functions():
     setattr(_commands.Context, "send_image", _send_image)
     setattr(_commands.Context, "success_embed", _success_embed)
     setattr(dpy.state.ConnectionState, "parse_message_create", _parse_message_create)
+    setattr(dpy.state.ConnectionState, "store_emoji", _store_emoji)
+    setattr(dpy.state.ConnectionState, "store_user", _store_user)
     setattr(dpy.Embed, "add_useless_stuff", _embed_add_useless_stuff)
     
-    del _parse_message_create, _send_image, _success_embed, _send_embed, _embed_add_useless_stuff, _run_command
+    del _parse_message_create, _send_image, _success_embed, _send_embed, _embed_add_useless_stuff, _run_command, _store_emoji, _run_bot, _event_on_close, _store_user
 
 def initiate(client, db_name: str = "username601"): # no stop calling me yanderedev 2.0
     client.slot = Slot

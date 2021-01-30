@@ -194,17 +194,16 @@ class Parser:
         if is_animated:
             text = text.replace("<a:", "<:")
 
-        _iter = list(Parser.EMOJI_REGEX.finditer(text))
-        if not _iter:
+        _res = Parser.EMOJI_REGEX.search(text)
+        if not _res:
             twemoji = await emoji_to_url(text, session=ctx.bot.http._HTTPClient__session)
             if twemoji == text:
                 return
             return twemoji
         try:
-            emoji_id = int(_iter[0].group().split(":")[2].split(">")[0])
+            emoji_id = int(_res.group().split(":")[2].split(">")[0])
             supposed_url = f"https://cdn.discordapp.com/emojis/{emoji_id}{'.gif' if is_animated else '.png'}"
-            is_valid = await Parser.__check_url(ctx, url=supposed_url, cdn_only=True, default_to_png=False, custom_emoji=True)
-            assert is_valid
+            assert await Parser.__check_url(ctx, url=supposed_url, cdn_only=True, default_to_png=False, custom_emoji=True)
             return supposed_url
         except:
             return
