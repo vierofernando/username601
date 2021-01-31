@@ -37,18 +37,18 @@ class owner(commands.Cog):
         return (variable if (len(f"{variable}") <= 1000) else f"<a long {type(variable).__name__} object with the length of {len(f'{variable}'):,}>")
     
     def prepare(self, string):
-        arr = string.strip("```").replace("py\n", "").replace("python\n", "").split("\n")
-        if not arr[-1].replace(" ", "").startswith("return"):
-            arr[len(arr) - 1] = "return " + arr[-1]
-        return "".join(f"\n\t{i}" for i in arr)
+        string = string.strip("```").replace("py", "").replace("thon", "").strip("\n")
+        if "\n" not in string:
+            return f'\n\t{"" if string.strip(" ").startswith("return") else "return"} {string}'
+        l = string.split("\n")
+        if not l[-1].strip(" ").startswith("return"):
+            l[-1] = "return " + l[-1]
+        return "\n\t" + "\n\t".join(l)
     
-    @command(["eval", "ex", "ev", "code"])
+    @command(["eval"])
     @owner_only()
-    async def _eval(self, ctx, *args):
-        code = " ".join(args)
-        silent = ("-s" in code)
-        
-        code = self.prepare(code.replace("-s", ""))
+    async def code(self, ctx, *args):
+        code = self.prepare(ctx.message.content[(len(ctx.prefix) + 5):])
         args = {
             "discord": discord,
             "sauce": getsource,
@@ -63,15 +63,15 @@ class owner(commands.Cog):
             exec(f"async def func():{code}", args)
             a = time()
             response = await eval("func()", args)
-            if silent or (response is None) or isinstance(response, discord.Message):
-                del args, code, silent
+            if (response is None) or isinstance(response, discord.Message):
+                del args, code
                 return gc.collect()
             
             await ctx.send(f"```py\n{self.resolve_variable(response)}````{type(response).__name__} | {(time() - a) / 1000} ms`")
         except:
             await ctx.send(f":x: Error occurred:```py\n{format_exc()}```")
         
-        del args, code, silent
+        del args, code
         gc.collect()
     
     @command()
