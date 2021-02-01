@@ -97,7 +97,8 @@ def modify_discord_py_functions():
         })
         
         if delete_after:
-            await dpy.Message(state=self._state, channel=self.channel, data=response).delete(delay=delete_after)
+            await asyncio.sleep(delete_after)
+            return await self._state.http.delete_message(channel_id=self.channel.id, message_id=response["id"])
     
     async def _send_embed(self, *args, **kwargs):
         _builtin_embed = self.bot.Embed(self, *args, **kwargs)
@@ -105,7 +106,7 @@ def modify_discord_py_functions():
         del _builtin_embed
     
     def _parse_message_create(self, data):
-        if (not hasattr(self, "_is_ready")) or data.get("message_reference") or (not data.get("guild_id")) or data.get("webhook_id"):
+        if (not hasattr(self, "_is_ready")) or data["type"] or (not data.get("guild_id")) or data.get("webhook_id"):
             return
         channel, _ = self._get_guild_channel(data)
         if not data["author"].get("bot"):
@@ -263,7 +264,7 @@ def modify_discord_py_functions():
     setattr(dpy.state.ConnectionState, "store_emoji", _store_emoji)
     setattr(dpy.state.ConnectionState, "store_user", _store_user)
     setattr(dpy.Embed, "add_useless_stuff", _embed_add_useless_stuff)
-    
+
     del _parse_message_create, _send_image, _success_embed, _send_embed, _embed_add_useless_stuff, _run_command, _store_emoji, _run_bot, _event_on_close, _store_user
 
 def initiate(client, db_name: str = "username601"): # no stop calling me yanderedev 2.0

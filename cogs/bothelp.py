@@ -82,10 +82,8 @@ class bothelp(commands.Cog):
             try:
                 feedback_channel = ctx.bot.get_channel(ctx.bot.util.feedback_channel)
                 await feedback_channel.send(f'<@{ctx.bot.util.owner_id}>, User with ID: {ctx.author.id} sent a feedback: **"'+' '.join(args)[:500]+'"**')
-                return await ctx.embed(
-                    title="Feedback Successful",
-                    description=f"**Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]({ctx.bot.util.server_invite})"
-                )
+                embed = discord.Embed(title='Feedback Successful', description='**Success!**\nThanks for the feedback!\n**We will DM you as the response. **If you are unsatisfied, [Join our support server and give us more details.]('+ctx.bot.util.server_invite+')', colour=ctx.me.color)
+                return await ctx.send(embed=embed)
             except:
                 raise ctx.error_message('There was an error while sending your feedback. Sorry! :(')
         reason = "|".join(banslist[0].split("|")[1:])

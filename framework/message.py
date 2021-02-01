@@ -1,5 +1,9 @@
-from discord import Embed, Colour, File
+from discord import Embed, Colour, File, Message, Member
+from discord.ext.commands import Context, view
 from datetime import datetime, timezone
+from .util import error_message
+from asyncio import sleep
+from re import finditer
 from io import BytesIO
 from time import time
 from os import getenv
@@ -168,6 +172,8 @@ class embed:
     
     """
     
+    __slots__ = 'channel', 'state', 'dict', 'error', 'param'
+    
     def __dict__(self):
         return self.dict
     
@@ -176,6 +182,7 @@ class embed:
 
     def __init__(self, ctx, **param) -> None:
         self.channel = ctx.channel
+        self.error = ctx.error_message
         self.state = ctx._state
         
         self.dict = { "type": "rich" }
@@ -240,7 +247,7 @@ class embed:
         try:
             return await self.state.http.send_message(self.channel.id, content="", embed=self.dict)
         except Exception as e:
-            raise self.ctx.error_message(f"Something wrong happened while sending the message embed.\n`{str(e)}`")
+            raise self.error(f"Something wrong happened while sending the message embed.\n`{str(e)}`")
     
     async def edit_to(self, message):
         """ Appends the embed to a discord.Message object """
